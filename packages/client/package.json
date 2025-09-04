@@ -1,0 +1,16 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "colyseus.js": "^0.16.19",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "shared": "1.0.0"
+  }
+}
