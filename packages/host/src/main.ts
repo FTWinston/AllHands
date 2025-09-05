@@ -16,15 +16,11 @@ function createWindow() {
         },
     });
 
-    if (process.env.NODE_ENV === "development") {
-        mainWindow.loadURL("http://localhost:5173");
-    } else {
-        const hostUiIndexPath = electronApp.isPackaged
-            ? path.join(process.resourcesPath, "app", "display", "index.html")
-            : path.join(__dirname, "..", "..", "display", "dist", "index.html");
+    const hostUiIndexPath = electronApp.isPackaged
+        ? path.join(process.resourcesPath, "app", "display", "index.html")
+        : path.join(__dirname, "..", "..", "display", "dist", "index.html");
 
-        mainWindow.loadFile(hostUiIndexPath);
-    }
+    mainWindow.loadFile(hostUiIndexPath);
 }
 
 app.whenReady().then(() => {
@@ -32,10 +28,14 @@ app.whenReady().then(() => {
     createWindow();
 
     app.on("activate", function () {
-        if (BrowserWindow.getAllWindows().length === 0) createWindow();
+        if (BrowserWindow.getAllWindows().length === 0) {
+            createWindow();
+        }
     });
 });
 
 app.on("window-all-closed", function () {
-    if (process.platform !== "darwin") app.quit();
+    if (process.platform !== "darwin") {
+        app.quit();
+    }
 });

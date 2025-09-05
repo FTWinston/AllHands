@@ -36,6 +36,7 @@ export default [
             ...reactHooksPlugin.configs.recommended.rules,
             "react/react-in-jsx-scope": "off",
             "prettier/prettier": "error",
+            curly: ["error", "all"],
         },
         settings: {
             react: {

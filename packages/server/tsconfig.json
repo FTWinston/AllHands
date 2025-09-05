@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
+    "rootDir": "./src",
     "module": "CommonJS",
     "moduleResolution": "node",
     "target": "ES2022",
@@ -10,7 +11,9 @@
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "composite": true,
+    "declaration": true
   },
   "include": ["src"],
   "exclude": ["dist"]
