@@ -1,7 +1,7 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-import type { ServerConfig } from 'server/src/types/ServerConfig';
+import fs from "fs";
+import os from "os";
+import path from "path";
+import type { ServerConfig } from "server/src/types/ServerConfig";
 
 function getIpAddress() {
     const networkInterfaces = os.networkInterfaces();
@@ -9,18 +9,20 @@ function getIpAddress() {
         const networkInterface = networkInterfaces[interfaceName];
         if (networkInterface) {
             for (const anInterface of networkInterface) {
-                if (anInterface.family === 'IPv4' && !anInterface.internal) {
+                if (anInterface.family === "IPv4" && !anInterface.internal) {
                     return anInterface.address;
                 }
             }
         }
     }
 
-    return '127.0.0.1';
+    return "127.0.0.1";
 }
 
 function loadConfig(): ServerConfig {
-    const config = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'config.json'), 'utf-8'));
+    const config = JSON.parse(
+        fs.readFileSync(path.join(__dirname, "..", "config.json"), "utf-8"),
+    );
 
     config.ipAddress = getIpAddress();
 
