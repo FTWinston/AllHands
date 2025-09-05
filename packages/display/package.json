@@ -1,7 +1,8 @@
 {
-  "name": "client",
-  "version": "1.0.0",
+  "name": "display",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -11,6 +12,8 @@
     "colyseus.js": "^0.16.19",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "shared": "1.0.0"
+    "react-qr-code": "^2.0.18",
+    "common-ui": "1.0.0",
+    "server": "1.0.0"
   }
 }

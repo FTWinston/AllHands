@@ -12,6 +12,12 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "common-ui": ["./packages/common-ui/src"],
+      "common-ui/*": ["./packages/common-ui/src/*"],
+      "server": ["./packages/server/src"],
+      "server/*": ["./packages/server/src/*"],
+    }
   }
 }

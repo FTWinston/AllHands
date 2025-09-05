@@ -1,41 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import QRCode from "react-qr-code";
-import { ErrorBoundary } from 'shared';
-import type { AppConfig } from 'host/src/getConfig';
+import { ErrorBoundary } from 'common-ui';
+import type { ServerConfig } from 'server/types/ServerConfig';
 import { Chat } from './Chat';
 
 declare global {
   interface Window {
     electronAPI: {
-      getConfig: () => Promise<AppConfig>;
+      getConfig: () => Promise<ServerConfig>;
     };
   }
 }
 
 const App = () => {
-  const [appConfig, setAppConfig] = useState<AppConfig>();
+  const [serverConfig, setServerConfig] = useState<ServerConfig>();
 
   useEffect(() => {
     const fetchConfig = async () => {
       const config = await window.electronAPI.getConfig();
-      setAppConfig(config);
+      setServerConfig(config);
     }
     fetchConfig();
   }, []);
 
-  const serverUrl = appConfig ? `http://${appConfig.ipAddress}:${appConfig.httpPort}` : '';
+  const serverUrl = serverConfig ? `http://${serverConfig.ipAddress}:${serverConfig.httpPort}` : '';
 
   return (
     <React.StrictMode>
       <h1>Host UI</h1>
-      {appConfig ? (
+      {serverConfig ? (
         <div>
           <h2>Scan to connect</h2>
           <p>Open your phone camera and scan the QR code below to join the game.</p>
           <p>Or open your browser and go to <a href={serverUrl}>{serverUrl}</a></p>
           <QRCode value={serverUrl} size={256} />
-          <Chat appConfig={appConfig} />
+          <Chat serverConfig={serverConfig} />
         </div>
       ) : (
         <p>Waiting for server to start...</p>

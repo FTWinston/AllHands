@@ -1,8 +1,11 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
-import './server'; // Start the server
+import { startServer } from 'server';
 import { getConfig } from './getConfig';
 import { app as electronApp } from 'electron';
+
+const config = getConfig();
+startServer(config);
 
 function createWindow () {
   const mainWindow = new BrowserWindow({
@@ -17,8 +20,8 @@ function createWindow () {
     mainWindow.loadURL('http://localhost:5173')
   } else {
     const hostUiIndexPath = electronApp.isPackaged
-      ? path.join(process.resourcesPath, 'app', 'host-ui', 'index.html')
-      : path.join(__dirname, '..', '..', 'host-ui', 'dist', 'index.html');
+      ? path.join(process.resourcesPath, 'app', 'display', 'index.html')
+      : path.join(__dirname, '..', '..', 'display', 'dist', 'index.html');
 
     mainWindow.loadFile(hostUiIndexPath)
   }

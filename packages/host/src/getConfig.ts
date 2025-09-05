@@ -1,6 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import type { ServerConfig } from 'server/src/types/ServerConfig';
 
 function getIpAddress() {
     const networkInterfaces = os.networkInterfaces();
@@ -18,12 +19,7 @@ function getIpAddress() {
     return '127.0.0.1';
 }
 
-export type AppConfig = {
-    ipAddress: string;
-    httpPort: number;
-}
-
-function loadConfig(): AppConfig {
+function loadConfig(): ServerConfig {
     const config = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'config.json'), 'utf-8'));
 
     config.ipAddress = getIpAddress();
@@ -31,7 +27,7 @@ function loadConfig(): AppConfig {
     return config;
 }
 
-let config: AppConfig | null = null;
+let config: ServerConfig | null = null;
 
 export function getConfig() {
     if (!config) {
