@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Room, Client } from "colyseus.js";
+import { roomIdentifier } from "common-types";
 
 export const Chat: React.FC = () => {
     const roomRef = useRef<Room>(null);
@@ -11,7 +12,7 @@ export const Chat: React.FC = () => {
         const client = new Client(wsUrl);
 
         client
-            .joinOrCreate<{ messages: string[] }>("my_room")
+            .joinOrCreate<{ messages: string[] }>(roomIdentifier)
             .then((room) => {
                 roomRef.current = room;
                 console.log("joined successfully", room);
@@ -48,7 +49,7 @@ export const Chat: React.FC = () => {
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             />
             <button onClick={sendMessage}>Send</button>
         </div>

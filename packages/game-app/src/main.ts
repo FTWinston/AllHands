@@ -5,7 +5,7 @@ import { getConfig } from "./getConfig";
 import { app as electronApp } from "electron";
 
 const { clientConfig, serverConfig } = getConfig();
-startServer(serverConfig);
+const stopServer = startServer(serverConfig);
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -27,8 +27,19 @@ function createWindow() {
     mainWindow.loadFile(hostUiIndexPath);
 }
 
+function quitApp() {
+    if (process.platform !== "darwin") {
+        app.quit();
+    }
+
+    stopServer();
+}
+
+app.on("window-all-closed", quitApp);
+
 app.whenReady().then(() => {
     ipcMain.handle("get-client-config", () => clientConfig);
+    ipcMain.handle("quit", quitApp);
     createWindow();
 
     app.on("activate", function () {
@@ -36,10 +47,4 @@ app.whenReady().then(() => {
             createWindow();
         }
     });
-});
-
-app.on("window-all-closed", function () {
-    if (process.platform !== "darwin") {
-        app.quit();
-    }
 });

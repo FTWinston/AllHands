@@ -24,30 +24,49 @@ function getIpAddress() {
     return "127.0.0.1";
 }
 
-function loadConfig(): CombinedConfigs {
+function loadClientConfig(serverConfig: ServerConfig) {
     const clientConfigFromFile: Partial<ClientConfig> = JSON.parse(
-        fs.readFileSync(path.join(__dirname, "..", "client.json"), "utf-8"),
+        fs.readFileSync(
+            path.join(__dirname, "..", "config", "client.json"),
+            "utf-8",
+        ),
     );
+
+    // Delete settings that should never come from the client config file.
+    delete clientConfigFromFile.serverIpAddress;
+    delete clientConfigFromFile.serverHttpPort;
 
     const clientDefaults: ClientConfig = {
         fullscreen: true,
         width: 1024,
         height: 768,
-        serverHttpPort: 2567,
-        serverIpAddress: getIpAddress(),
+        serverHttpPort: serverConfig.httpPort,
+        serverIpAddress: serverConfig.ipAddress,
     };
 
     const clientConfig: ClientConfig = {
         ...clientDefaults,
         ...clientConfigFromFile,
     };
+    return clientConfig;
+}
 
+function loadServerConfig() {
     const serverConfigFromFile: Partial<ServerConfig> = JSON.parse(
-        fs.readFileSync(path.join(__dirname, "..", "server.json"), "utf-8"),
+        fs.readFileSync(
+            path.join(__dirname, "..", "config", "server.json"),
+            "utf-8",
+        ),
     );
 
+    // Delete settings that should never come from the server config file.
+    delete serverConfigFromFile.ipAddress;
+
     const serverDefaults: ServerConfig = {
-        httpPort: clientConfig.serverHttpPort,
+        ipAddress: getIpAddress(),
+        httpPort: 2567,
+        pingInterval: 1000,
+        simulateLatencyMs: 0,
         gameMode: "survival",
         multiship: false,
     };
@@ -56,6 +75,13 @@ function loadConfig(): CombinedConfigs {
         ...serverDefaults,
         ...serverConfigFromFile,
     };
+    return serverConfig;
+}
+
+function loadConfig(): CombinedConfigs {
+    const serverConfig = loadServerConfig();
+
+    const clientConfig = loadClientConfig(serverConfig);
 
     return { clientConfig, serverConfig };
 }

@@ -1,34 +1,66 @@
 import { Server } from "colyseus";
 import { WebSocketTransport } from "@colyseus/ws-transport";
-import { MyRoom } from "./MyRoom";
+import { GameRoom } from "./GameRoom";
 import express from "express";
 import path from "path";
 import http from "http";
 import { app as electronApp } from "electron";
-import { ServerConfig } from "common-types";
+import { roomIdentifier, ServerConfig } from "common-types";
 
-export function startServer(config: ServerConfig) {
-    const httpPort = config.httpPort;
-    const app = express();
-    app.use(express.json());
+function createWebServer(ipAddress: string, httpPort: number): http.Server {
+    const expressApp = express();
+    expressApp.use(express.json());
 
-    const server = http.createServer(app);
+    const server = http.createServer(expressApp);
 
-    const gameServer = new Server({
-        transport: new WebSocketTransport({ server }),
-    });
-
-    gameServer.define("my_room", MyRoom);
-
-    // Serve client files
+    // Serve player UI files
     const playerUiAppPath = electronApp.isPackaged
         ? path.join(process.resourcesPath, "app", "player-ui")
         : path.join(__dirname, "..", "..", "player-ui", "dist");
-    app.use(express.static(playerUiAppPath));
 
-    console.log(`Serving client from ${playerUiAppPath}`);
+    expressApp.use(express.static(playerUiAppPath));
+
+    console.log(`Serving content from ${playerUiAppPath}`);
 
     server.listen(httpPort, () => {
-        console.log(`Listening on http://localhost:${httpPort}`);
+        console.log(`Listening on http://${ipAddress}:${httpPort}`);
     });
+
+    return server;
+}
+
+function createGameServer(
+    webServer: http.Server,
+    config: ServerConfig,
+): Server {
+    const gameServer = new Server({
+        transport: new WebSocketTransport({
+            server: webServer,
+            pingInterval: config.pingInterval,
+        }),
+    });
+
+    gameServer.define(roomIdentifier, GameRoom);
+
+    if (config.simulateLatencyMs > 0) {
+        console.log(
+            `Simulating ${config.simulateLatencyMs}ms latency on all connections`,
+        );
+        gameServer.simulateLatency(config.simulateLatencyMs);
+    }
+
+    return gameServer;
+}
+
+export function startServer(config: ServerConfig) {
+    const webServer = createWebServer(config.ipAddress, config.httpPort);
+
+    const gameServer = createGameServer(webServer, config);
+
+    return () => {
+        console.log("Stopping server...");
+        gameServer.gracefullyShutdown(true);
+        webServer.close();
+        webServer.closeAllConnections();
+    };
 }

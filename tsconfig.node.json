@@ -3,8 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "lib": ["ES2022"],
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "node20",
+    "moduleResolution": "node16",
     "useDefineForClassFields": false,
     "esModuleInterop": true,
     "experimentalDecorators": true

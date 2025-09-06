@@ -1,15 +1,15 @@
 import { Room, Client } from "colyseus";
 import { Schema, type } from "@colyseus/schema";
 
-export class MyRoomState extends Schema {
+export class GameRoomState extends Schema {
     @type("string") mySynchronizedProperty: string = "Hello world";
 }
 
-export class MyRoom extends Room<MyRoomState> {
+export class GameRoom extends Room<GameRoomState> {
     maxClients = 5;
 
     onCreate() {
-        this.setState(new MyRoomState());
+        this.state = new GameRoomState();
 
         this.onMessage("message", (client, message) => {
             console.log(`Message from ${client.sessionId}:`, message);

@@ -9,6 +9,7 @@ declare global {
     interface Window {
         electronAPI: {
             getClientConfig: () => Promise<ClientConfig>;
+            quit: () => Promise<void>;
         };
     }
 }
@@ -48,6 +49,8 @@ const App = () => {
             ) : (
                 <p>Waiting for server to start...</p>
             )}
+
+            <button onClick={window.electronAPI.quit}>quit app</button>
         </React.StrictMode>
     );
 };
