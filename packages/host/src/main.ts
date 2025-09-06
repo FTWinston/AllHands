@@ -9,8 +9,12 @@ startServer(config);
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: config.width,
+        height: config.height,
+        fullscreen: config.fullscreen,
+        autoHideMenuBar: true,
+        resizable: !config.fullscreen,
+        frame: !config.fullscreen, // Frame off in fullscreen mode, on otherwise.
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
         },

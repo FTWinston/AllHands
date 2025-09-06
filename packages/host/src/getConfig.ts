@@ -20,13 +20,22 @@ function getIpAddress() {
 }
 
 function loadConfig(): ServerConfig {
-    const config = JSON.parse(
+    const config: Partial<ServerConfig> = JSON.parse(
         fs.readFileSync(path.join(__dirname, "..", "config.json"), "utf-8"),
     );
 
-    config.ipAddress = getIpAddress();
+    const defaults: ServerConfig = {
+        fullscreen: true,
+        width: 1024,
+        height: 768,
+        httpPort: 2567,
+        ipAddress: getIpAddress(),
+    };
 
-    return config;
+    return {
+        ...defaults,
+        ...config,
+    };
 }
 
 let config: ServerConfig | null = null;
