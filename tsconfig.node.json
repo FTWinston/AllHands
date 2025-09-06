@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "lib": ["ES2022"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "useDefineForClassFields": false,
+    "esModuleInterop": true,
+    "experimentalDecorators": true
+  }
+}

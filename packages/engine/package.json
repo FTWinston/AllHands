@@ -10,6 +10,7 @@
     "@colyseus/core": "^0.16.20",
     "@colyseus/ws-transport": "^0.16.5",
     "colyseus": "^0.16.4",
+    "common-types": "1.0.0",
     "express": "^5.1.0"
   },
   "devDependencies": {

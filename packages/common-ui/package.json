@@ -1,15 +1,13 @@
 {
   "name": "common-ui",
   "version": "1.0.0",
-  "exports": {
-    ".": {
-      "import": "./src/index.ts",
-      "require": "./dist/index.js"
-    }
-  },
+  "private": true,
   "type": "module",
   "scripts": {
     "build": "tsc"
+  },
+  "exports": {
+    ".": "./src/index.ts"
   },
   "dependencies": {
     "react": "^19.1.1"

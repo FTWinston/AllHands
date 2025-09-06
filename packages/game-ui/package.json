@@ -1,7 +1,7 @@
 {
   "name": "game-ui",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "build": "tsc && vite build"
@@ -11,7 +11,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-qr-code": "^2.0.18",
-    "common-ui": "1.0.0",
-    "engine": "1.0.0"
+    "common-types": "1.0.0",
+    "common-ui": "1.0.0"
   }
 }

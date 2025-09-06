@@ -1,23 +1,12 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../tsconfig.node.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "target": "ES2022",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false,
-    "strict": true,
-    "skipLibCheck": true
+    "rootDir": "./src"
   },
   "include": ["src"],
   "references": [
-    {
-      "path": "../engine"
-    }
-  ],
-  "exclude": ["dist"]
+    { "path": "../common-types" },
+    { "path": "../engine" }
+  ]
 }
