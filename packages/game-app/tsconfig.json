@@ -14,8 +14,10 @@
     "skipLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["dist"],
   "references": [
-    { "path": "../server" }
-  ]
+    {
+      "path": "../engine"
+    }
+  ],
+  "exclude": ["dist"]
 }

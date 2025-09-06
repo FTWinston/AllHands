@@ -1,7 +1,7 @@
 import fs from "fs";
 import os from "os";
 import path from "path";
-import type { ServerConfig } from "server/src/types/ServerConfig";
+import type { ServerConfig } from "engine/types/ServerConfig";
 
 function getIpAddress() {
     const networkInterfaces = os.networkInterfaces();

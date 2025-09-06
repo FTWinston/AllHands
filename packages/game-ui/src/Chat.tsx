@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Room, Client } from "colyseus.js";
-import type { ServerConfig } from "server/types/ServerConfig";
+import type { ServerConfig } from "engine/types/ServerConfig";
 
 interface ChatProps {
     serverConfig: ServerConfig;

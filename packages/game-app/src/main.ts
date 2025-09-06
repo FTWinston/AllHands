@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
-import { startServer } from "server";
+import { startServer } from "engine";
 import { getConfig } from "./getConfig";
 import { app as electronApp } from "electron";
 
@@ -21,8 +21,8 @@ function createWindow() {
     });
 
     const hostUiIndexPath = electronApp.isPackaged
-        ? path.join(process.resourcesPath, "app", "display", "index.html")
-        : path.join(__dirname, "..", "..", "display", "dist", "index.html");
+        ? path.join(process.resourcesPath, "app", "game-ui", "index.html")
+        : path.join(__dirname, "..", "..", "game-ui", "dist", "index.html");
 
     mainWindow.loadFile(hostUiIndexPath);
 }

@@ -21,12 +21,12 @@ export function startServer(config: ServerConfig) {
     gameServer.define("my_room", MyRoom);
 
     // Serve client files
-    const crewAppPath = electronApp.isPackaged
-        ? path.join(process.resourcesPath, "app", "crew")
-        : path.join(__dirname, "..", "..", "crew", "dist");
-    app.use(express.static(crewAppPath));
+    const playerUiAppPath = electronApp.isPackaged
+        ? path.join(process.resourcesPath, "app", "player-ui")
+        : path.join(__dirname, "..", "..", "player-ui", "dist");
+    app.use(express.static(playerUiAppPath));
 
-    console.log(`Serving client from ${crewAppPath}`);
+    console.log(`Serving client from ${playerUiAppPath}`);
 
     server.listen(httpPort, () => {
         console.log(`Listening on http://localhost:${httpPort}`);

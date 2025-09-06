@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import QRCode from "react-qr-code";
 import { ErrorBoundary } from "common-ui";
-import type { ServerConfig } from "server/types/ServerConfig";
+import type { ServerConfig } from "engine/types/ServerConfig";
 import { Chat } from "./Chat";
 
 declare global {

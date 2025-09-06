@@ -8,8 +8,8 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "start": "npm run start --workspace=packages/host",
-    "package": "npm run package --workspace=packages/host",
+    "start": "npm run start --workspace=packages/game-app",
+    "package": "npm run package --workspace=packages/game-app",
     "lint": "eslint . --fix",
     "storybook": "storybook dev -p 6006",
     "test": "vitest"

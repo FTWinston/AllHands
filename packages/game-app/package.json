@@ -1,5 +1,5 @@
 {
-  "name": "host",
+  "name": "game-app",
   "version": "1.0.0",
   "main": "dist/main.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "package": "electron-builder"
   },
   "dependencies": {
-    "server": "1.0.0"
+    "engine": "1.0.0"
   },
   "build": {
     "appId": "com.ftwinston.makeitso",
@@ -18,12 +18,12 @@
     ],
     "extraResources": [
       {
-        "from": "../display/dist",
-        "to": "app/display"
+        "from": "../game-ui/dist",
+        "to": "app/game-ui"
       },
       {
-        "from": "../crew/dist",
-        "to": "app/crew"
+        "from": "../player-ui/dist",
+        "to": "app/player-ui"
       }
     ],
     "win": {

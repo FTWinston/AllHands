@@ -16,8 +16,8 @@
     "paths": {
       "common-ui": ["./packages/common-ui/src"],
       "common-ui/*": ["./packages/common-ui/src/*"],
-      "server": ["./packages/server/src"],
-      "server/*": ["./packages/server/src/*"],
+      "engine": ["./packages/engine/src"],
+      "engine/*": ["./packages/engine/src/*"],
     }
   }
 }
