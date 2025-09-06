@@ -4,7 +4,12 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/common-types",
+    "packages/common-ui",
+    "packages/player-ui",
+    "packages/game-ui",
+    "packages/engine",
+    "packages/game-app"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",

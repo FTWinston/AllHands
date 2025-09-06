@@ -5,7 +5,7 @@ import express from "express";
 import path from "path";
 import http from "http";
 import { app as electronApp } from "electron";
-import { ServerConfig } from "./types/ServerConfig";
+import { ServerConfig } from "common-types";
 
 export function startServer(config: ServerConfig) {
     const httpPort = config.httpPort;

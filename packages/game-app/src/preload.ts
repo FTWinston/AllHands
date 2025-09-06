@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("electronAPI", {
-    getConfig: () => ipcRenderer.invoke("get-config"),
+    getClientConfig: () => ipcRenderer.invoke("get-client-config"),
 });

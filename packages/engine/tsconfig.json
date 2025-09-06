@@ -3,18 +3,22 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
+    "composite": true,
+    "declaration": true,
+    "useDefineForClassFields": false,
     "module": "CommonJS",
     "moduleResolution": "node",
     "target": "ES2022",
+    "lib": ["ES2022"],
+    "isolatedModules": false,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false,
-    "strict": true,
-    "skipLibCheck": true,
-    "composite": true,
-    "declaration": true
+    "experimentalDecorators": true
   },
   "include": ["src"],
-  "exclude": ["dist"]
+  "exclude": ["dist"],
+  "references": [
+    {
+      "path": "../common-types"
+    }
+  ]
 }

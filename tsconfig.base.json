@@ -7,17 +7,33 @@
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "isolatedModules": true,
     "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "common-ui": ["./packages/common-ui/src"],
-      "common-ui/*": ["./packages/common-ui/src/*"],
-      "engine": ["./packages/engine/src"],
-      "engine/*": ["./packages/engine/src/*"],
+      "common-types": [
+        "./packages/common-types/src"
+      ],
+      "common-ui": [
+        "./packages/common-ui/src"
+      ],
+      "common-ui/*": [
+        "./packages/common-ui/src/*"
+      ],
+      "engine": [
+        "./packages/engine/src"
+      ],
+      "engine/*": [
+        "./packages/engine/src/*"
+      ],
+      "game-ui": [
+        "./packages/game-ui/src"
+      ],
+      "game-ui/*": [
+        "./packages/game-ui/src/*"
+      ]
     }
   }
 }

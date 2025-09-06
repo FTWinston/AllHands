@@ -1,7 +1,12 @@
 import fs from "fs";
 import os from "os";
 import path from "path";
-import type { ServerConfig } from "engine/types/ServerConfig";
+import type { ClientConfig, ServerConfig } from "common-types";
+
+export type CombinedConfigs = {
+    clientConfig: ClientConfig;
+    serverConfig: ServerConfig;
+};
 
 function getIpAddress() {
     const networkInterfaces = os.networkInterfaces();
@@ -19,26 +24,43 @@ function getIpAddress() {
     return "127.0.0.1";
 }
 
-function loadConfig(): ServerConfig {
-    const config: Partial<ServerConfig> = JSON.parse(
-        fs.readFileSync(path.join(__dirname, "..", "config.json"), "utf-8"),
+function loadConfig(): CombinedConfigs {
+    const clientConfigFromFile: Partial<ClientConfig> = JSON.parse(
+        fs.readFileSync(path.join(__dirname, "..", "client.json"), "utf-8"),
     );
 
-    const defaults: ServerConfig = {
+    const clientDefaults: ClientConfig = {
         fullscreen: true,
         width: 1024,
         height: 768,
-        httpPort: 2567,
-        ipAddress: getIpAddress(),
+        serverHttpPort: 2567,
+        serverIpAddress: getIpAddress(),
     };
 
-    return {
-        ...defaults,
-        ...config,
+    const clientConfig: ClientConfig = {
+        ...clientDefaults,
+        ...clientConfigFromFile,
     };
+
+    const serverConfigFromFile: Partial<ServerConfig> = JSON.parse(
+        fs.readFileSync(path.join(__dirname, "..", "server.json"), "utf-8"),
+    );
+
+    const serverDefaults: ServerConfig = {
+        httpPort: clientConfig.serverHttpPort,
+        gameMode: "survival",
+        multiship: false,
+    };
+
+    const serverConfig: ServerConfig = {
+        ...serverDefaults,
+        ...serverConfigFromFile,
+    };
+
+    return { clientConfig, serverConfig };
 }
 
-let config: ServerConfig | null = null;
+let config: CombinedConfigs | null = null;
 
 export function getConfig() {
     if (!config) {

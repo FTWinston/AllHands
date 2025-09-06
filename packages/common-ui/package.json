@@ -9,6 +9,7 @@
   },
   "type": "module",
   "scripts": {
+    "build": "tsc"
   },
   "dependencies": {
     "react": "^19.1.1"

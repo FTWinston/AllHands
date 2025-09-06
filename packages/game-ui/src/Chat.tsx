@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Room, Client } from "colyseus.js";
-import type { ServerConfig } from "engine/types/ServerConfig";
+import type { ClientConfig } from "common-types";
 
 interface ChatProps {
-    serverConfig: ServerConfig;
+    clientConfig: ClientConfig;
 }
 
-export const Chat: React.FC<ChatProps> = ({ serverConfig }) => {
+export const Chat: React.FC<ChatProps> = ({ clientConfig }) => {
     const roomRef = useRef<Room>(null);
     const [messages, setMessages] = useState<string[]>([]);
     const [message, setMessage] = useState("");
 
     useEffect(() => {
-        if (!serverConfig) {
+        if (!clientConfig) {
             return;
         }
 
-        const wsUrl = `ws://${serverConfig.ipAddress}:${serverConfig.httpPort}`;
+        const wsUrl = `ws://${clientConfig.serverIpAddress}:${clientConfig.serverHttpPort}`;
         const client = new Client(wsUrl);
 
         client
@@ -36,7 +36,7 @@ export const Chat: React.FC<ChatProps> = ({ serverConfig }) => {
         return () => {
             roomRef.current?.leave();
         };
-    }, [serverConfig]);
+    }, [clientConfig]);
 
     const sendMessage = () => {
         if (roomRef.current && message) {

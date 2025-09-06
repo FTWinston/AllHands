@@ -4,17 +4,17 @@ import { startServer } from "engine";
 import { getConfig } from "./getConfig";
 import { app as electronApp } from "electron";
 
-const config = getConfig();
-startServer(config);
+const { clientConfig, serverConfig } = getConfig();
+startServer(serverConfig);
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
-        width: config.width,
-        height: config.height,
-        fullscreen: config.fullscreen,
+        width: clientConfig.width,
+        height: clientConfig.height,
+        fullscreen: clientConfig.fullscreen,
         autoHideMenuBar: true,
-        resizable: !config.fullscreen,
-        frame: !config.fullscreen, // Frame off in fullscreen mode, on otherwise.
+        resizable: !clientConfig.fullscreen,
+        frame: !clientConfig.fullscreen, // Frame off in fullscreen mode, on otherwise.
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
         },
@@ -28,7 +28,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-    ipcMain.handle("get-config", getConfig);
+    ipcMain.handle("get-client-config", () => clientConfig);
     createWindow();
 
     app.on("activate", function () {
