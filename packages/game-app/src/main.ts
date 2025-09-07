@@ -1,11 +1,14 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { startServer } from "engine";
-import { getConfig } from "./getConfig";
+import type { ServerAddress } from "common-types";
+import { getClientConfig } from "./getClientConfig";
+import { getServerConfig } from "./getServerConfig";
 import { app as electronApp } from "electron";
 
-const { clientConfig, serverConfig } = getConfig();
-const stopServer = startServer(serverConfig);
+const clientConfig = getClientConfig();
+
+let stopServer: undefined | (() => void);
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -32,14 +35,34 @@ function quitApp() {
         app.quit();
     }
 
-    stopServer();
+    stopServer?.();
+    stopServer = undefined;
 }
 
 app.on("window-all-closed", quitApp);
 
 app.whenReady().then(() => {
     ipcMain.handle("get-client-config", () => clientConfig);
+
+    ipcMain.handle("start-server", () => {
+        const serverConfig = getServerConfig();
+        stopServer = startServer(serverConfig);
+
+        const result: ServerAddress = {
+            ip: serverConfig.ipAddress,
+            port: serverConfig.httpPort,
+        };
+
+        return result;
+    });
+
+    ipcMain.handle("stop-server", () => {
+        stopServer?.();
+        stopServer = undefined;
+    });
+
     ipcMain.handle("quit", quitApp);
+
     createWindow();
 
     app.on("activate", function () {

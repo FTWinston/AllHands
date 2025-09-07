@@ -1,46 +1,24 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Room, Client } from "colyseus.js";
-import { roomIdentifier, type ClientConfig } from "common-types";
+import React, { useState, useEffect } from "react";
+import { Room } from "colyseus.js";
 
 interface ChatProps {
-    clientConfig: ClientConfig;
+    room: Room;
 }
 
-export const Chat: React.FC<ChatProps> = ({ clientConfig }) => {
-    const roomRef = useRef<Room>(null);
+export const Chat: React.FC<ChatProps> = (props) => {
+    const { room } = props;
     const [messages, setMessages] = useState<string[]>([]);
     const [message, setMessage] = useState("");
 
     useEffect(() => {
-        if (!clientConfig) {
-            return;
-        }
-
-        const wsUrl = `ws://${clientConfig.serverIpAddress}:${clientConfig.serverHttpPort}`;
-        const client = new Client(wsUrl);
-
-        client
-            .joinOrCreate<{ messages: string[] }>(roomIdentifier)
-            .then((room) => {
-                roomRef.current = room;
-                console.log("joined successfully", room);
-
-                room.onMessage("messages", (message) => {
-                    setMessages((prev) => [...prev, message]);
-                });
-            })
-            .catch((e) => {
-                console.error("join error", e);
-            });
-
-        return () => {
-            roomRef.current?.leave();
-        };
-    }, [clientConfig]);
+        room.onMessage("messages", (message) => {
+            setMessages((prev) => [...prev, message]);
+        });
+    }, [room]);
 
     const sendMessage = () => {
-        if (roomRef.current && message) {
-            roomRef.current.send("message", message);
+        if (message) {
+            room.send("message", message);
             setMessage("");
         }
     };
