@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from "common-ui";
 import type { ClientConfig, ServerAddress } from "common-types";
 import { GameApp } from "./GameApp";
+import "common-ui/main.css";
 
 declare global {
     interface Window {

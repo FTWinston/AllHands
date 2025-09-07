@@ -4,7 +4,7 @@ import type { ServerAddress } from "common-types";
 export function useHostServer(
     setServerAddress: (value: ServerAddress) => void,
 ) {
-    const hostServerState = useState(true);
+    const hostServerState = useState(false);
     const hostServer = hostServerState[0];
 
     useEffect(() => {

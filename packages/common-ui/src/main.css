@@ -1,0 +1,54 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+* {
+    margin: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+}
+
+input, button, textarea, select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    color: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+}
+
+ul, ol {
+    list-style-type: none;
+}
+
+#root {
+    isolation: isolate;
+    margin: 1em;
+}
+
+:root {
+    --background-color: #333;
+    --text-color: #bbc;
+    --highlight-color: #fff;
+
+    background-color: var(--background-color);
+    color: var(--text-color);
+}

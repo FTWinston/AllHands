@@ -1,0 +1,16 @@
+.title {
+    font-size: 3em;
+}
+
+.menuList {
+    font-size: 2em;
+}       
+
+.menuItem {
+    margin: 0.25em 0.5em;
+    padding: 0.25em;
+}
+
+.menuItem:hover, .menuItem:active {
+    color: var(--highlight-color);
+}
