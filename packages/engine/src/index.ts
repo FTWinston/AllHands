@@ -57,10 +57,9 @@ export function startServer(config: ServerConfig) {
 
     const gameServer = createGameServer(webServer, config);
 
-    return () => {
+    return async () => {
         console.log("Stopping server...");
-        gameServer.gracefullyShutdown(true);
+        await gameServer.gracefullyShutdown(true);
         webServer.close();
-        webServer.closeAllConnections();
     };
 }

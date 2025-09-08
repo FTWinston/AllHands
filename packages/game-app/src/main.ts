@@ -6,9 +6,42 @@ import { getClientConfig } from "./getClientConfig";
 import { getServerConfig } from "./getServerConfig";
 import { app as electronApp } from "electron";
 
+// Add global error handlers to prevent app from quitting on errors
+process.on("uncaughtException", (error) => {
+    console.error("Uncaught Exception:", error);
+    // Don't exit the process
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection at:", promise, "reason:", reason);
+    // Don't exit the process
+});
+
+// Override process.exit to prevent Colyseus from exiting the process during shutdown.
+// (That's the last action of a call to its gracefullyShutdown method, but we want to control app exit ourselves.)
+// To exit, you must call quitApp.
+const originalExit = process.exit;
+let allowExit = false;
+
+process.exit = ((code?: number) => {
+    if (allowExit) {
+        originalExit(code);
+    }
+}) as typeof process.exit;
+
 const clientConfig = getClientConfig();
 
-let stopServer: undefined | (() => void);
+let stopServer: undefined | (() => Promise<void>);
+
+async function tryStopServer() {
+    if (!stopServer) {
+        return;
+    }
+
+    const performStop = stopServer;
+    stopServer = undefined;
+    await performStop();
+}
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -30,13 +63,11 @@ function createWindow() {
     mainWindow.loadFile(hostUiIndexPath);
 }
 
-function quitApp() {
-    if (process.platform !== "darwin") {
-        app.quit();
-    }
+async function quitApp() {
+    await tryStopServer();
 
-    stopServer?.();
-    stopServer = undefined;
+    allowExit = true; // Allow process.exit to work for proper app quit
+    app.quit();
 }
 
 app.on("window-all-closed", quitApp);
@@ -56,10 +87,7 @@ app.whenReady().then(() => {
         return result;
     });
 
-    ipcMain.handle("stop-server", () => {
-        stopServer?.();
-        stopServer = undefined;
-    });
+    ipcMain.handle("stop-server", tryStopServer);
 
     ipcMain.handle("quit", quitApp);
 

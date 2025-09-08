@@ -1,0 +1,12 @@
+.screen {
+    width: 100vw;
+    height: 100vh;
+    padding: 1em;
+    overflow: hidden;
+}
+
+.centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

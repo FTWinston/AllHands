@@ -7,10 +7,29 @@
 }       
 
 .menuItem {
+    display: flex;
+    align-items: center;
+}
+
+.menuButton {
     margin: 0.25em 0.5em;
     padding: 0.25em;
 }
 
-.menuItem:hover, .menuItem:active {
+.menuButton:hover, .menuButton:active {
     color: var(--highlight-color);
+}
+
+.joiningForm {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+}
+
+.addressInput {
+    width: 8em;
+}
+
+.portInput {
+    width: 4em;
 }
