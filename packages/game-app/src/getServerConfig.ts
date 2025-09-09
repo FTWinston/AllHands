@@ -1,7 +1,7 @@
-import fs from "fs";
-import os from "os";
-import path from "path";
-import type { ServerConfig } from "common-types";
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import type { ServerConfig } from 'common-types';
 
 function getIpAddress() {
     const networkInterfaces = os.networkInterfaces();
@@ -9,21 +9,21 @@ function getIpAddress() {
         const networkInterface = networkInterfaces[interfaceName];
         if (networkInterface) {
             for (const anInterface of networkInterface) {
-                if (anInterface.family === "IPv4" && !anInterface.internal) {
+                if (anInterface.family === 'IPv4' && !anInterface.internal) {
                     return anInterface.address;
                 }
             }
         }
     }
 
-    return "127.0.0.1";
+    return '127.0.0.1';
 }
 
 export function getServerConfig() {
     const serverConfigFromFile: Partial<ServerConfig> = JSON.parse(
         fs.readFileSync(
-            path.join(__dirname, "..", "config", "server.json"),
-            "utf-8",
+            path.join(__dirname, '..', 'config', 'server.json'),
+            'utf-8',
         ),
     );
 
@@ -35,7 +35,7 @@ export function getServerConfig() {
         httpPort: 2567,
         pingInterval: 1000,
         simulateLatencyMs: 0,
-        gameMode: "survival",
+        gameMode: 'survival',
         multiship: false,
     };
 

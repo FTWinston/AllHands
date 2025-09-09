@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { fn } from "storybook/test";
+import { fn } from 'storybook/test';
 
-import { MainMenu as MainMenuComponent } from "./MainMenu";
+import { MainMenu as MainMenuComponent } from './MainMenu';
 
 const meta = {
-    title: "game-ui/MainMenu",
+    title: 'game-ui/MainMenu',
     component: MainMenuComponent,
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
     args: { hostServer: fn(), joinServer: fn(), quit: fn() },

@@ -1,7 +1,7 @@
-import { useState } from "react";
-import styles from "./MainMenu.module.css";
-import { Button, Screen } from "common-ui";
-import { ServerAddress } from "common-types";
+import { useState } from 'react';
+import styles from './MainMenu.module.css';
+import { Button, Screen } from 'common-ui';
+import { ServerAddress } from 'common-types';
 
 type Props = {
     hostServer: () => void;
@@ -11,7 +11,7 @@ type Props = {
 
 export const MainMenu: React.FC<Props> = (props) => {
     const [showJoining, setShowJoining] = useState(false);
-    const [ipAddress, setIpAddress] = useState("");
+    const [ipAddress, setIpAddress] = useState('');
     const [port, setPort] = useState(0);
 
     return (
@@ -53,7 +53,7 @@ export const MainMenu: React.FC<Props> = (props) => {
                                     className={styles.portInput}
                                     placeholder="Port"
                                     type="number"
-                                    value={port === 0 ? "" : port}
+                                    value={port === 0 ? '' : port}
                                     onChange={(e) =>
                                         setPort(Number(e.target.value))
                                     }

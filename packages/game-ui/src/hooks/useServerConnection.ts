@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import type { ServerAddress } from "common-types";
-import type { ConnectionState } from "../types/ConnectionState";
+import { useEffect, useState } from 'react';
+import type { ServerAddress } from 'common-types';
+import type { ConnectionState } from '../types/ConnectionState';
 
-export type ServerType = "local" | "remote";
+export type ServerType = 'local' | 'remote';
 
 export function useServerConnection(
     serverAddress: ServerAddress | undefined,
@@ -12,23 +12,23 @@ export function useServerConnection(
     const serverTypeState = useState<ServerType>();
     const serverType = serverTypeState[0];
 
-    const isLocal = serverType === "local";
-    const isRemote = serverType === "remote";
+    const isLocal = serverType === 'local';
+    const isRemote = serverType === 'remote';
 
     useEffect(() => {
         if (!isLocal) {
             return;
         }
 
-        const startHosting = async () => {
-            setConnectionState("connecting");
+        const startHosting = async() => {
+            setConnectionState('connecting');
             const startServerAddress = await window.electronAPI.startServer();
             setServerAddress(startServerAddress);
         };
 
         startHosting();
         return () => {
-            setConnectionState("disconnected");
+            setConnectionState('disconnected');
             window.electronAPI.stopServer();
         };
     }, [isLocal, setServerAddress, setConnectionState]);
@@ -38,10 +38,10 @@ export function useServerConnection(
             return;
         }
 
-        setConnectionState("connecting");
+        setConnectionState('connecting');
 
         return () => {
-            setConnectionState("disconnected");
+            setConnectionState('disconnected');
         };
     }, [isRemote, serverAddress, setServerAddress, setConnectionState]);
 

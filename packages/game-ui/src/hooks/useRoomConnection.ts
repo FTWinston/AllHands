@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { Room, Client } from "colyseus.js";
-import { roomIdentifier, type ServerAddress } from "common-types";
-import type { ConnectionState } from "../types/ConnectionState";
+import { useEffect, useState } from 'react';
+import { Room, Client } from 'colyseus.js';
+import { roomIdentifier, type ServerAddress } from 'common-types';
+import type { ConnectionState } from '../types/ConnectionState';
 
 export function useRoomConnection(
     serverAddress: ServerAddress | undefined | null,
@@ -26,12 +26,12 @@ export function useRoomConnection(
             .then((joiningRoom) => {
                 room = joiningRoom;
                 setConnectedRoom(joiningRoom);
-                setConnectionState("setup");
-                console.log("joined successfully", joiningRoom);
+                setConnectionState('setup');
+                console.log('joined successfully', joiningRoom);
             })
             .catch((e) => {
-                console.error("join error", e);
-                setConnectionState("disconnected");
+                console.error('join error', e);
+                setConnectionState('disconnected');
             });
 
         return () => {

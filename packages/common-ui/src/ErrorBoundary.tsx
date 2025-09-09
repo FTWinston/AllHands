@@ -1,4 +1,4 @@
-import { Component, ErrorInfo, ReactNode } from "react";
+import { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
     children: ReactNode;
@@ -19,7 +19,7 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-        console.error("Uncaught error:", error, errorInfo);
+        console.error('Uncaught error:', error, errorInfo);
     }
 
     public render() {
@@ -28,7 +28,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 <div>
                     <h1>Sorry... there was an error</h1>
                     <p>Something went wrong while rendering the application.</p>
-                    <details style={{ whiteSpace: "pre-wrap" }}>
+                    <details style={{ whiteSpace: 'pre-wrap' }}>
                         {this.state.error && this.state.error.toString()}
                         <br />
                         {this.state.error?.stack}

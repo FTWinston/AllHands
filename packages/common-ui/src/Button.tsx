@@ -1,9 +1,9 @@
-import styles from "./Button.module.css";
+import styles from './Button.module.css';
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
     label: string;
-    size: "small" | "medium" | "large";
-    appearance: "primary" | "secondary";
+    size: 'small' | 'medium' | 'large';
+    appearance: 'primary' | 'secondary';
 };
 
 export const Button: React.FC<ButtonProps> = ({ label, ...props }) => (

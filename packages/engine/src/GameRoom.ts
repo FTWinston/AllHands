@@ -1,8 +1,8 @@
-import { Room, Client } from "colyseus";
-import { Schema, type } from "@colyseus/schema";
+import { Room, Client } from 'colyseus';
+import { Schema, type } from '@colyseus/schema';
 
 export class GameRoomState extends Schema {
-    @type("string") mySynchronizedProperty: string = "Hello world";
+    @type('string') mySynchronizedProperty: string = 'Hello world';
 }
 
 export class GameRoom extends Room<GameRoomState> {
@@ -11,22 +11,22 @@ export class GameRoom extends Room<GameRoomState> {
     onCreate() {
         this.state = new GameRoomState();
 
-        this.onMessage("message", (client, message) => {
+        this.onMessage('message', (client, message) => {
             console.log(`Message from ${client.sessionId}:`, message);
 
-            this.broadcast("messages", `(${client.sessionId}) ${message}`);
+            this.broadcast('messages', `(${client.sessionId}) ${message}`);
         });
     }
 
     onJoin(client: Client) {
-        console.log(client.sessionId, "joined!");
+        console.log(client.sessionId, 'joined!');
     }
 
     onLeave(client: Client) {
-        console.log(client.sessionId, "left!");
+        console.log(client.sessionId, 'left!');
     }
 
     onDispose() {
-        console.log("room", this.roomId, "disposing...");
+        console.log('room', this.roomId, 'disposing...');
     }
 }

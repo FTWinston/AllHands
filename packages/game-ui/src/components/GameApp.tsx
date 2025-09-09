@@ -1,16 +1,16 @@
-import { useRoomConnection } from "game-ui/hooks/useRoomConnection";
-import { Game } from "../features/game/Game";
-import { GameLobby } from "../features/menus/GameLobby";
-import { MainMenu } from "../features/menus/MainMenu";
-import type { ConnectionState } from "../types/ConnectionState";
-import { useServerConnection } from "../hooks/useServerConnection";
-import { useState } from "react";
-import { ServerAddress } from "common-types";
-import { Screen } from "common-ui";
+import { useRoomConnection } from 'game-ui/hooks/useRoomConnection';
+import { Game } from '../features/game/Game';
+import { GameLobby } from '../features/menus/GameLobby';
+import { MainMenu } from '../features/menus/MainMenu';
+import type { ConnectionState } from '../types/ConnectionState';
+import { useServerConnection } from '../hooks/useServerConnection';
+import { useState } from 'react';
+import { ServerAddress } from 'common-types';
+import { Screen } from 'common-ui';
 
 export const GameApp = () => {
     const [connectionState, setConnectionState] =
-        useState<ConnectionState>("disconnected");
+        useState<ConnectionState>('disconnected');
 
     const [allowMultipleCrews] = useState(false); // TODO: make this configurable via MainMenu
     const [serverAddress, setServerAddress] = useState<ServerAddress>();
@@ -28,15 +28,15 @@ export const GameApp = () => {
         setServerAddress(undefined);
     };
 
-    if (connectionState === "active") {
+    if (connectionState === 'active') {
         if (room) {
             return <Game room={room} disconnect={disconnect} />;
         } else {
             console.warn(
-                "expected room to be set when connectionState is active",
+                'expected room to be set when connectionState is active',
             );
         }
-    } else if (connectionState === "setup") {
+    } else if (connectionState === 'setup') {
         if (serverAddress && room && serverType) {
             return (
                 <GameLobby
@@ -49,15 +49,15 @@ export const GameApp = () => {
             );
         } else {
             console.warn(
-                "expected serverAddress, room and serverType to be set when connectionState is setup",
+                'expected serverAddress, room and serverType to be set when connectionState is setup',
             );
         }
-    } else if (connectionState === "disconnected") {
+    } else if (connectionState === 'disconnected') {
         return (
             <MainMenu
-                hostServer={() => setServerType("local")}
+                hostServer={() => setServerType('local')}
                 joinServer={(address) => {
-                    setServerType("remote");
+                    setServerType('remote');
                     setServerAddress(address);
                 }}
                 quit={window.electronAPI.quit}

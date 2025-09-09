@@ -3,6 +3,6 @@ export type ServerConfig = {
     httpPort: number;
     pingInterval: number;
     simulateLatencyMs: number;
-    gameMode: "survival" | "adventure";
+    gameMode: 'survival' | 'adventure';
     multiship: boolean;
 };

@@ -1,5 +1,5 @@
 export type ConnectionState =
-    | "disconnected"
-    | "connecting"
-    | "setup"
-    | "active";
+    | 'disconnected'
+    | 'connecting'
+    | 'setup'
+    | 'active';

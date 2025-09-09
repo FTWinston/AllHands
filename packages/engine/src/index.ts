@@ -1,11 +1,11 @@
-import { Server } from "colyseus";
-import { WebSocketTransport } from "@colyseus/ws-transport";
-import { GameRoom } from "./GameRoom";
-import express from "express";
-import path from "path";
-import http from "http";
-import { app as electronApp } from "electron";
-import { roomIdentifier, ServerConfig } from "common-types";
+import { Server } from 'colyseus';
+import { WebSocketTransport } from '@colyseus/ws-transport';
+import { GameRoom } from './GameRoom';
+import express from 'express';
+import path from 'path';
+import http from 'http';
+import { app as electronApp } from 'electron';
+import { roomIdentifier, ServerConfig } from 'common-types';
 
 function createWebServer(ipAddress: string, httpPort: number): http.Server {
     const expressApp = express();
@@ -15,8 +15,8 @@ function createWebServer(ipAddress: string, httpPort: number): http.Server {
 
     // Serve player UI files
     const playerUiAppPath = electronApp.isPackaged
-        ? path.join(process.resourcesPath, "app", "player-ui")
-        : path.join(__dirname, "..", "..", "player-ui", "dist");
+        ? path.join(process.resourcesPath, 'app', 'player-ui')
+        : path.join(__dirname, '..', '..', 'player-ui', 'dist');
 
     expressApp.use(express.static(playerUiAppPath));
 
@@ -57,8 +57,8 @@ export function startServer(config: ServerConfig) {
 
     const gameServer = createGameServer(webServer, config);
 
-    return async () => {
-        console.log("Stopping server...");
+    return async() => {
+        console.log('Stopping server...');
         await gameServer.gracefullyShutdown(true);
         webServer.close();
     };

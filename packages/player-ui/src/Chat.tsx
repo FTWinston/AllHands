@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Room, Client } from "colyseus.js";
-import { roomIdentifier } from "common-types";
+import React, { useState, useEffect, useRef } from 'react';
+import { Room, Client } from 'colyseus.js';
+import { roomIdentifier } from 'common-types';
 
 export const Chat: React.FC = () => {
     const roomRef = useRef<Room>(null);
     const [messages, setMessages] = useState<string[]>([]);
-    const [message, setMessage] = useState("");
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
         const wsUrl = `ws://${window.location.hostname}:${window.location.port}`;
@@ -15,14 +15,14 @@ export const Chat: React.FC = () => {
             .joinOrCreate<{ messages: string[] }>(roomIdentifier)
             .then((room) => {
                 roomRef.current = room;
-                console.log("joined successfully", room);
+                console.log('joined successfully', room);
 
-                room.onMessage("messages", (message) => {
+                room.onMessage('messages', (message) => {
                     setMessages((prev) => [...prev, message]);
                 });
             })
             .catch((e) => {
-                console.error("join error", e);
+                console.error('join error', e);
             });
 
         return () => {
@@ -32,8 +32,8 @@ export const Chat: React.FC = () => {
 
     const sendMessage = () => {
         if (roomRef.current && message) {
-            roomRef.current.send("message", message);
-            setMessage("");
+            roomRef.current.send('message', message);
+            setMessage('');
         }
     };
 
@@ -49,7 +49,7 @@ export const Chat: React.FC = () => {
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
             />
             <button onClick={sendMessage}>Send</button>
         </div>

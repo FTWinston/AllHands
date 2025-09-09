@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Room } from "colyseus.js";
+import React, { useState, useEffect } from 'react';
+import { Room } from 'colyseus.js';
 
 interface ChatProps {
     room: Room;
@@ -8,18 +8,18 @@ interface ChatProps {
 export const Chat: React.FC<ChatProps> = (props) => {
     const { room } = props;
     const [messages, setMessages] = useState<string[]>([]);
-    const [message, setMessage] = useState("");
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
-        room.onMessage("messages", (message) => {
+        room.onMessage('messages', (message) => {
             setMessages((prev) => [...prev, message]);
         });
     }, [room]);
 
     const sendMessage = () => {
         if (message) {
-            room.send("message", message);
-            setMessage("");
+            room.send('message', message);
+            setMessage('');
         }
     };
 
@@ -35,7 +35,7 @@ export const Chat: React.FC<ChatProps> = (props) => {
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
             />
             <button onClick={sendMessage}>Send</button>
         </div>

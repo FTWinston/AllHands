@@ -1,10 +1,10 @@
-import QRCode from "react-qr-code";
-import type { ServerAddress } from "common-types";
-import { Screen } from "common-ui";
-import { Chat } from "../game/Chat";
-import { Room } from "colyseus.js";
-import type { ServerType } from "../../hooks/useServerConnection";
-import { Button } from "common-ui";
+import QRCode from 'react-qr-code';
+import type { ServerAddress } from 'common-types';
+import { Screen } from 'common-ui';
+import { Chat } from '../game/Chat';
+import { Room } from 'colyseus.js';
+import type { ServerType } from '../../hooks/useServerConnection';
+import { Button } from 'common-ui';
 
 type Props = {
     serverAddress: ServerAddress;
@@ -34,7 +34,7 @@ export const GameLobby: React.FC<Props> = (props) => {
                 game.
             </p>
             <p>
-                Or open your browser and go to{" "}
+                Or open your browser and go to{' '}
                 <a href={serverUrl}>{serverUrl}</a>
             </p>
             <QRCode value={serverUrl} size={256} />
