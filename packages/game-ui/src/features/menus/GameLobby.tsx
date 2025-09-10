@@ -11,13 +11,14 @@ type Props = {
     serverType: ServerType;
     allowMultipleCrews: boolean;
     room: Room;
+    shipId: string;
     disconnect: () => void;
 };
 
 export const GameLobby: React.FC<Props> = (props) => {
-    const { serverAddress, room } = props;
+    const { serverAddress, room, shipId } = props;
 
-    const serverUrl = `http://${serverAddress.ip}:${serverAddress.port}/?crew=${room.sessionId}`;
+    const serverUrl = `http://${serverAddress.ip}:${serverAddress.port}/?ship=${shipId}`;
 
     // TODO: show a message about starting when all roles are filled,
     // or if allowMultipleCrews is true, a "Start Game" button if you're the host,

@@ -2,13 +2,12 @@ import { useRoomConnection } from 'game-ui/hooks/useRoomConnection';
 import { Game } from '../features/game/Game';
 import { GameLobby } from '../features/menus/GameLobby';
 import { MainMenu } from '../features/menus/MainMenu';
-import type { ConnectionState } from '../types/ConnectionState';
 import { useServerConnection } from '../hooks/useServerConnection';
 import { useState } from 'react';
-import { ServerAddress } from 'common-types';
+import { ServerAddress, type ConnectionState } from 'common-types';
 import { Screen } from 'common-ui';
 
-export const GameApp = () => {
+export const GameUI = () => {
     const [connectionState, setConnectionState] =
         useState<ConnectionState>('disconnected');
 
@@ -21,7 +20,7 @@ export const GameApp = () => {
         setConnectionState,
     );
 
-    const room = useRoomConnection(serverAddress, setConnectionState);
+    const [room, shipId] = useRoomConnection(serverAddress, setConnectionState);
 
     const disconnect = () => {
         setServerType(undefined);
@@ -29,19 +28,22 @@ export const GameApp = () => {
     };
 
     if (connectionState === 'active') {
-        if (room) {
-            return <Game room={room} disconnect={disconnect} />;
+        if (room && shipId) {
+            return <Game room={room} shipId={shipId} disconnect={disconnect} />;
         } else {
             console.warn(
-                'expected room to be set when connectionState is active',
+                'expected room & shipId to be set when connectionState is active', {
+                    room, shipId,
+                },
             );
         }
     } else if (connectionState === 'setup') {
-        if (serverAddress && room && serverType) {
+        if (serverAddress && room && shipId && serverType) {
             return (
                 <GameLobby
                     serverAddress={serverAddress}
                     room={room}
+                    shipId={shipId}
                     serverType={serverType}
                     allowMultipleCrews={allowMultipleCrews}
                     disconnect={disconnect}
@@ -49,7 +51,9 @@ export const GameApp = () => {
             );
         } else {
             console.warn(
-                'expected serverAddress, room and serverType to be set when connectionState is setup',
+                'expected serverAddress, room, shipId & serverType to be set when connectionState is setup', {
+                    serverAddress, room, shipId, serverType,
+                },
             );
         }
     } else if (connectionState === 'disconnected') {

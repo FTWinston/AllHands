@@ -21,7 +21,7 @@ process.on('unhandledRejection', (reason, promise) => {
 // (That's the last action of a call to its gracefullyShutdown method, but we want to control app exit ourselves.)
 // To exit, you must call quitApp.
 const originalExit = process.exit;
-let allowExit = false;
+let allowExit = true;
 
 process.exit = ((code?: number) => {
     if (allowExit) {
@@ -40,7 +40,10 @@ async function tryStopServer() {
 
     const performStop = stopServer;
     stopServer = undefined;
+    
+    allowExit = false; // Don't allow process.exit to work during server stop.
     await performStop();
+    allowExit = true;
 }
 
 function createWindow() {
@@ -66,7 +69,6 @@ function createWindow() {
 async function quitApp() {
     await tryStopServer();
 
-    allowExit = true; // Allow process.exit to work for proper app quit
     app.quit();
 }
 

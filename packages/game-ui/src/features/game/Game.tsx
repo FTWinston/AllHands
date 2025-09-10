@@ -4,6 +4,7 @@ import { Screen } from 'common-ui';
 
 interface GameProps {
     room: Room;
+    shipId: string;
     disconnect: () => void;
 }
 

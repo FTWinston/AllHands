@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Room, Client } from 'colyseus.js';
-import { roomIdentifier, type ServerAddress } from 'common-types';
-import type { ConnectionState } from '../types/ConnectionState';
+import { roomIdentifier, type ServerAddress, type ConnectionState } from 'common-types';
 
 export function useRoomConnection(
     serverAddress: ServerAddress | undefined | null,
     setConnectionState: (state: ConnectionState) => void,
 ) {
     const [connectedRoom, setConnectedRoom] = useState<Room | null>(null);
+    const [shipId, setShipId] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (!serverAddress) {
@@ -22,12 +22,17 @@ export function useRoomConnection(
         let room: Room | undefined;
 
         client
-            .joinOrCreate<{ messages: string[] }>(roomIdentifier)
+            .joinOrCreate<{ messages: string[] }>(roomIdentifier, { role: 'ship' })
             .then((joiningRoom) => {
                 room = joiningRoom;
                 setConnectedRoom(joiningRoom);
                 setConnectionState('setup');
-                console.log('joined successfully', joiningRoom);
+                console.log('connected to game server', joiningRoom);
+
+                room.onMessage<{ shipId: string }>('joined', message => {
+                    console.log(`joined as ship ${message.shipId}`);
+                    setShipId(message.shipId);
+                });
             })
             .catch((e) => {
                 console.error('join error', e);
@@ -39,5 +44,5 @@ export function useRoomConnection(
         };
     }, [serverAddress, setConnectionState]);
 
-    return connectedRoom;
+    return [connectedRoom, shipId] as const;
 }

@@ -1,14 +1,13 @@
-import React from 'react';
+import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import { ErrorBoundary } from 'common-ui';
-import { Chat } from './Chat';
+import { PlayerUI } from './components/PlayerUI';
 import 'common-ui/main.css';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <React.StrictMode>
+    <StrictMode>
         <ErrorBoundary>
-            <h1>Player UI</h1>
-            <Chat />
+            <PlayerUI />
         </ErrorBoundary>
-    </React.StrictMode>,
+    </StrictMode>,
 );
