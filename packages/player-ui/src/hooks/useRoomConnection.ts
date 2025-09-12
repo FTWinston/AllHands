@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Room, Client } from 'colyseus.js';
-import { roomIdentifier, type ConnectionState } from 'common-types';
-import { CrewRole } from 'packages/common-types/src/CrewRole';
+import { Room, Client, getStateCallbacks } from 'colyseus.js';
+import { roomIdentifier, type ConnectionState, type CrewRole } from 'common-types';
+import type { GameState, GameStatus } from 'engine';
 
 export function useRoomConnection(
     setConnectionState: (state: ConnectionState) => void,
 ) {
-    const [connectedRoom, setConnectedRoom] = useState<Room | null>(null);
+    const [connectedRoom, setConnectedRoom] = useState<Room<GameState> | null>(null);
     const [shipId, setShipId] = useState<string | undefined>(undefined);
-    const [role, setRole] = useState<CrewRole | undefined>(undefined);
+    const [gameStatus, setGameStatus] = useState<GameStatus>('setup');
+    const [role, setRole] = useState<CrewRole | null>(null);
 
     useEffect(() => {
         const shipId = new URLSearchParams(window.location.search).get('ship');
@@ -25,22 +26,28 @@ export function useRoomConnection(
 
         const client = new Client(wsUrl);
 
-        let room: Room | undefined;
+        let joinedRoom: Room<GameState> | undefined;
 
         client
-            .joinOrCreate<{ messages: string[] }>(roomIdentifier, { role: 'crew', shipId })
+            .joinOrCreate<GameState>(roomIdentifier, { type: 'crew', shipId })
             .then((joiningRoom) => {
-                room = joiningRoom;
+                joinedRoom = joiningRoom;
                 setConnectedRoom(joiningRoom);
-                setConnectionState('setup');
+                setConnectionState('connected');
                 console.log('connected to game server', joiningRoom);
 
-                room.onMessage<{ role: CrewRole }>('role', message => {
-                    console.log(`assigned role ${message.role}`);
-                    setRole(message.role);
+                const callbacks = getStateCallbacks(joinedRoom);
+                
+                setGameStatus(joinedRoom.state.gameStatus);
+                
+                callbacks(joinedRoom.state).listen('gameStatus', (newGameStatus: GameStatus) => {
+                    console.log('gameStatus changed to', newGameStatus);
+                    setGameStatus(newGameStatus);
                 });
 
-                room.onLeave((code) => {
+                setRole(null);
+                
+                joinedRoom.onLeave((code) => {
                     console.log('disconnected from server', code);
                     setConnectionState('disconnected');
                 });
@@ -51,9 +58,9 @@ export function useRoomConnection(
             });
 
         return () => {
-            room?.leave();
+            joinedRoom?.leave();
         };
     }, [setConnectionState]);
 
-    return [connectedRoom, shipId, role] as const;
+    return [connectedRoom, shipId, gameStatus, role] as const;
 }

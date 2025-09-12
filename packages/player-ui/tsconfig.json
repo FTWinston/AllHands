@@ -8,6 +8,7 @@
   "include": ["src"],
   "references": [
     { "path": "../common-types" },
-    { "path": "../common-ui" }
+    { "path": "../common-ui" },
+    { "path": "../engine" }
   ]
 }

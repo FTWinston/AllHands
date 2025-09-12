@@ -5,10 +5,10 @@
   "type": "module",
   "workspaces": [
     "packages/common-types",
+    "packages/engine",
     "packages/common-ui",
     "packages/player-ui",
     "packages/game-ui",
-    "packages/engine",
     "packages/game-app"
   ],
   "scripts": {

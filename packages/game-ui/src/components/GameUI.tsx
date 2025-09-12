@@ -20,41 +20,47 @@ export const GameUI = () => {
         setConnectionState,
     );
 
-    const [room, shipId] = useRoomConnection(serverAddress, setConnectionState);
+    const [room, shipId, serverState] = useRoomConnection(serverAddress, setConnectionState);
 
     const disconnect = () => {
         setServerType(undefined);
         setServerAddress(undefined);
     };
 
-    if (connectionState === 'active') {
-        if (room && shipId) {
-            return <Game room={room} shipId={shipId} disconnect={disconnect} />;
+    if (connectionState === 'connected') {
+        if (serverState === 'active') {
+            if (room && shipId) {
+                return <Game room={room} shipId={shipId} disconnect={disconnect} />;
+            } else {
+                console.warn(
+                    'expected room & shipId to be set when connectionState is active', {
+                        room, shipId,
+                    },
+                );
+            }
+        } else if (serverState === 'setup') {
+            if (serverAddress && room && shipId && serverType) {
+                return (
+                    <GameLobby
+                        serverAddress={serverAddress}
+                        room={room}
+                        shipId={shipId}
+                        serverType={serverType}
+                        allowMultipleCrews={allowMultipleCrews}
+                        disconnect={disconnect}
+                    />
+                );
+            } else {
+                console.warn(
+                    'expected serverAddress, room, shipId & serverType to be set when connectionState is setup', {
+                        serverAddress, room, shipId, serverType,
+                    },
+                );
+            }
+        } else if (serverState === 'paused') {
+            return <Screen centered>paused</Screen>;
         } else {
-            console.warn(
-                'expected room & shipId to be set when connectionState is active', {
-                    room, shipId,
-                },
-            );
-        }
-    } else if (connectionState === 'setup') {
-        if (serverAddress && room && shipId && serverType) {
-            return (
-                <GameLobby
-                    serverAddress={serverAddress}
-                    room={room}
-                    shipId={shipId}
-                    serverType={serverType}
-                    allowMultipleCrews={allowMultipleCrews}
-                    disconnect={disconnect}
-                />
-            );
-        } else {
-            console.warn(
-                'expected serverAddress, room, shipId & serverType to be set when connectionState is setup', {
-                    serverAddress, room, shipId, serverType,
-                },
-            );
+            console.warn('unexpected serverState', serverState);
         }
     } else if (connectionState === 'disconnected') {
         return (

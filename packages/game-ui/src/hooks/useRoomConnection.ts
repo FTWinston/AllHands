@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Room, Client } from 'colyseus.js';
+import { Room, Client, getStateCallbacks } from 'colyseus.js';
 import { roomIdentifier, type ServerAddress, type ConnectionState } from 'common-types';
+import type { GameState, GameStatus } from 'engine';
 
 export function useRoomConnection(
     serverAddress: ServerAddress | undefined | null,
     setConnectionState: (state: ConnectionState) => void,
 ) {
-    const [connectedRoom, setConnectedRoom] = useState<Room | null>(null);
+    const [room, setConnectedRoom] = useState<Room<GameState> | null>(null);
     const [shipId, setShipId] = useState<string | undefined>(undefined);
+    const [gameStatus, setGameStatus] = useState<GameStatus>('setup');
 
     useEffect(() => {
         if (!serverAddress) {
@@ -19,19 +21,33 @@ export function useRoomConnection(
 
         const client = new Client(wsUrl);
 
-        let room: Room | undefined;
+        let joinedRoom: Room<GameState> | undefined;
 
         client
-            .joinOrCreate<{ messages: string[] }>(roomIdentifier, { role: 'ship' })
+            .joinOrCreate<GameState>(roomIdentifier, { type: 'ship' })
             .then((joiningRoom) => {
-                room = joiningRoom;
+                joinedRoom = joiningRoom;
                 setConnectedRoom(joiningRoom);
-                setConnectionState('setup');
+                setConnectionState('connected');
                 console.log('connected to game server', joiningRoom);
 
-                room.onMessage<{ shipId: string }>('joined', message => {
+                joinedRoom.onMessage<{ shipId: string }>('joined', message => {
                     console.log(`joined as ship ${message.shipId}`);
                     setShipId(message.shipId);
+                });
+
+                const callbacks = getStateCallbacks(joinedRoom);
+                
+                setGameStatus(joinedRoom.state.gameStatus);
+                
+                callbacks(joinedRoom.state).listen('gameStatus', (newGameStatus: GameStatus) => {
+                    console.log('gameStatus changed to', newGameStatus);
+                    setGameStatus(newGameStatus);
+                });
+
+                joinedRoom.onLeave((code) => {
+                    console.log('disconnected from server', code);
+                    setConnectionState('disconnected');
                 });
             })
             .catch((e) => {
@@ -40,9 +56,9 @@ export function useRoomConnection(
             });
 
         return () => {
-            room?.leave();
+            joinedRoom?.leave();
         };
     }, [serverAddress, setConnectionState]);
 
-    return [connectedRoom, shipId] as const;
+    return [room, shipId, gameStatus] as const;
 }

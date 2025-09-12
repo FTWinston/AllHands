@@ -7,6 +7,16 @@ import http from 'http';
 import { app as electronApp } from 'electron';
 import { roomIdentifier, ServerConfig } from 'common-types';
 
+// Export state types for use in UI.
+export type{ GameState } from './classes/GameState';
+export type { GameStatus } from './types/GameStatus';
+export type { ShipState } from './classes/ShipState';
+export type { EngineerState } from './classes/EngineerState';
+export type { HelmState } from './classes/HelmState';
+export type { SensorState } from './classes/SensorState';
+export type { TacticalState } from './classes/TacticalState';
+export type { GameRoom } from './GameRoom';
+
 function createWebServer(ipAddress: string, httpPort: number): http.Server {
     const expressApp = express();
     expressApp.use(express.json());
