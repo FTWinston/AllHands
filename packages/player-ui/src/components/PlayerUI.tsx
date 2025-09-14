@@ -1,4 +1,4 @@
-import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole, type ConnectionState } from 'common-types';
+import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole, type ConnectionState } from 'common-types';
 import { Screen } from 'common-ui';
 import { useState } from 'react';
 
@@ -13,8 +13,7 @@ export const PlayerUI = () => {
     const [connectionState, setConnectionState]
         = useState<ConnectionState>('connecting');
 
-    const [room, crewId, serverState] = useRoomConnection(setConnectionState);
-    const [role, setRole] = useState<CrewRole | null>(null); // TODO: track this with a listener in useRoomConnection
+    const [room, crewId, role, ready, serverState] = useRoomConnection(setConnectionState);
 
     if (connectionState === 'connected') {
         if (serverState === 'active') {
@@ -45,7 +44,7 @@ export const PlayerUI = () => {
                         room={room}
                         crewId={crewId}
                         role={role}
-                        setRole={setRole}
+                        ready={ready}
                     />
                 );
             } else {

@@ -9,17 +9,16 @@ type Props = {
     room: Room<GameState>;
     crewId: string;
     role: CrewRole | null;
-    setRole: (role: CrewRole | null) => void;
+    ready: boolean;
 };
 
 export const GameLobby: React.FC<Props> = (props) => {
-    const { room, crewId, role, setRole } = props;
+    const { room, crewId, role, ready } = props;
 
     const [helmOccupied, setHelmOccupied] = useState(false);
     const [tacticalOccupied, setTacticalOccupied] = useState(false);
     const [sensorsOccupied, setSensorsOccupied] = useState(false);
     const [engineerOccupied, setEngineerOccupied] = useState(false);
-    const [ready, setReady] = useState(false);
 
     useEffect(() => {
         if (!room || !crewId) {
@@ -50,7 +49,7 @@ export const GameLobby: React.FC<Props> = (props) => {
             unbindSensorsCallback();
             unbindEngineerCallback();
         };
-    }, [room, crewId, setRole]);
+    }, [room, crewId]);
 
     return (
         <Screen>
@@ -59,25 +58,21 @@ export const GameLobby: React.FC<Props> = (props) => {
             <div>
                 <button disabled={helmOccupied && role !== helmClientRole} onClick={() => {
                     room.send('role', role === helmClientRole ? '' : helmClientRole);
-                    setRole(role === helmClientRole ? null : helmClientRole);
                 }}>
                     Helm {helmOccupied ? '(occupied)' : '(available)'} {role === helmClientRole ? ' - you are this' : ''}
                 </button>
                 <button disabled={tacticalOccupied && role !== tacticalClientRole} onClick={() => {
                     room.send('role', role === tacticalClientRole ? '' : tacticalClientRole);
-                    setRole(role === tacticalClientRole ? null : tacticalClientRole);
                 }}>
                     Tactical {tacticalOccupied ? '(occupied)' : '(available)'} {role === tacticalClientRole ? ' - you are this' : ''}
                 </button>
                 <button disabled={sensorsOccupied && role !== sensorClientRole} onClick={() => {
                     room.send('role', role === sensorClientRole ? '' : sensorClientRole);
-                    setRole(role === sensorClientRole ? null : sensorClientRole);
                 }}>
                     Sensors {sensorsOccupied ? '(occupied)' : '(available)'} {role === sensorClientRole ? ' - you are this' : ''}
                 </button>
                 <button disabled={engineerOccupied && role !== engineerClientRole} onClick={() => {
                     room.send('role', role === engineerClientRole ? '' : engineerClientRole);
-                    setRole(role === engineerClientRole ? null : engineerClientRole);
                 }}>
                     Engineer {engineerOccupied ? '(occupied)' : '(available)'} {role === engineerClientRole ? ' - you are this' : ''}
                 </button>
@@ -87,9 +82,8 @@ export const GameLobby: React.FC<Props> = (props) => {
                 indicate that you are ready, and the game will start.
             </p>
 
-            <button disabled={!!role} onClick={() => {
+            <button disabled={!role} onClick={() => {
                 room.send('ready', !ready);
-                setReady(!ready);
             }}>
                 Ready
             </button>

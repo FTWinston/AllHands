@@ -1,5 +1,5 @@
 import { Room, Client, getStateCallbacks } from 'colyseus.js';
-import { roomIdentifier, type ConnectionState, type CrewRole } from 'common-types';
+import { engineerClientRole, helmClientRole, roomIdentifier, sensorClientRole, tacticalClientRole, type ConnectionState, type CrewRole } from 'common-types';
 import { useEffect, useState } from 'react';
 
 import type { GameState, GameStatus } from 'engine';
@@ -11,6 +11,7 @@ export function useRoomConnection(
     const [crewId, setCrewId] = useState<string | undefined>(undefined);
     const [gameStatus, setGameStatus] = useState<GameStatus>('setup');
     const [role, setRole] = useState<CrewRole | null>(null);
+    const [ready, setReady] = useState(false);
 
     useEffect(() => {
         const crewId = new URLSearchParams(window.location.search).get('crew');
@@ -38,7 +39,46 @@ export function useRoomConnection(
 
                 joinedRoom.onMessage<{ crewId: string }>('joined', message => {
                     console.log(`joined crew ${message.crewId}`);
-                    setCrewId(message.crewId);
+
+                    if (!joinedRoom) {
+                        console.error('joinedRoom is undefined in joined message handler');
+                        setConnectionState('disconnected');
+                        return;
+                    }
+
+                    const crew = joinedRoom.state.crews.get(crewId);
+                    if (!crew) {
+                        console.error(`crew ${crewId} not found in room state`);
+                        setConnectionState('disconnected');
+                        joinedRoom.leave();
+                        return
+                    }
+
+                    // Update role and ready based on server state.
+                    const updateRoleAndReady = () => {
+                        if (!joinedRoom) {
+                            return;
+                        }
+
+                        if (crew.helmClientId === joinedRoom.sessionId) {
+                            setRole(helmClientRole);
+                        } else if (crew.tacticalClientId === joinedRoom.sessionId) {
+                            setRole(tacticalClientRole);
+                        } else if (crew.sensorsClientId === joinedRoom.sessionId) {
+                            setRole(sensorClientRole);
+                        } else if (crew.engineerClientId === joinedRoom.sessionId) {
+                            setRole(engineerClientRole);
+                        } else {
+                            setRole(null);
+                        }
+                        setReady(crew.crewReady.get(joinedRoom.sessionId) ?? false);    
+                    }
+                    updateRoleAndReady();
+
+                    // Do this again when roles or ready states change.
+                    const callbacks = getStateCallbacks(joinedRoom);
+                    callbacks(crew).onChange(updateRoleAndReady);
+
                     setConnectionState('connected');
                 });
 
@@ -50,10 +90,6 @@ export function useRoomConnection(
                     console.log('gameStatus changed to', newGameStatus);
                     setGameStatus(newGameStatus);
                 });
-
-                // TODO: track local role, call setRole if it changes.
-                //const ship = joinedRoom.state.ships.get(crewId);
-                setRole(null);
 
                 joinedRoom.onLeave((code) => {
                     console.log('disconnected from server', code);
@@ -70,5 +106,5 @@ export function useRoomConnection(
         };
     }, [setConnectionState]);
 
-    return [connectedRoom, crewId, gameStatus, role] as const;
+    return [connectedRoom, crewId, role, ready, gameStatus] as const;
 }
