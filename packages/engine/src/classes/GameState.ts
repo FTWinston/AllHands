@@ -1,7 +1,9 @@
 import { Schema, type, MapSchema } from '@colyseus/schema';
-import { ShipState } from './ShipState';
+
 import { GameStatus } from '../types/GameStatus';
+
 import { CrewState } from './CrewState';
+import { ShipState } from './ShipState';
 
 export class GameState extends Schema {
     @type('string') gameStatus: GameStatus = 'setup';

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+
 import type { ClientConfig } from 'common-types';
 
 export function getClientConfig(): ClientConfig {

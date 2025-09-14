@@ -1,15 +1,16 @@
+import { ServerAddress, type ConnectionState } from 'common-types';
+import { Screen } from 'common-ui';
 import { useRoomConnection } from 'game-ui/hooks/useRoomConnection';
+import { useState } from 'react';
+
 import { Game } from '../features/game/Game';
 import { GameLobby } from '../features/menus/GameLobby';
 import { MainMenu } from '../features/menus/MainMenu';
 import { useServerConnection } from '../hooks/useServerConnection';
-import { useState } from 'react';
-import { ServerAddress, type ConnectionState } from 'common-types';
-import { Screen } from 'common-ui';
 
 export const GameUI = () => {
-    const [connectionState, setConnectionState] =
-        useState<ConnectionState>('disconnected');
+    const [connectionState, setConnectionState]
+        = useState<ConnectionState>('disconnected');
 
     const [allowMultipleCrews] = useState(false); // TODO: make this configurable via MainMenu
     const [serverAddress, setServerAddress] = useState<ServerAddress>();

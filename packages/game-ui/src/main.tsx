@@ -1,8 +1,11 @@
+import { ErrorBoundary } from 'common-ui';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
-import { ErrorBoundary } from 'common-ui';
-import type { ClientConfig, ServerAddress } from 'common-types';
+
 import { GameUI } from './components/GameUI';
+
+import type { ClientConfig, ServerAddress } from 'common-types';
+
 import 'common-ui/main.css';
 
 declare global {

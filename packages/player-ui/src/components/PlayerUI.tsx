@@ -1,16 +1,17 @@
 import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole, type ConnectionState } from 'common-types';
 import { Screen } from 'common-ui';
 import { useState } from 'react';
-import { useRoomConnection } from '../hooks/useRoomConnection';
-import { GameLobby } from '../features/menus/GameLobby';
-import { Helm } from '../features/helm';
+
 import { Engineer } from '../features/engineer';
+import { Helm } from '../features/helm';
+import { GameLobby } from '../features/menus/GameLobby';
 import { Sensors } from '../features/sensors';
 import { Tactical } from '../features/tactical';
+import { useRoomConnection } from '../hooks/useRoomConnection';
 
 export const PlayerUI = () => {
-    const [connectionState, setConnectionState] =
-        useState<ConnectionState>('connecting');
+    const [connectionState, setConnectionState]
+        = useState<ConnectionState>('connecting');
 
     const [room, crewId, serverState] = useRoomConnection(setConnectionState);
     const [role, setRole] = useState<CrewRole | null>(null); // TODO: track this with a listener in useRoomConnection
@@ -62,7 +63,7 @@ export const PlayerUI = () => {
     } else if (connectionState === 'disconnected') {
         return <Screen centered>Disconnected from game</Screen>;
     }
-    
+
     // Whether connectionState is "connecting" or one of the expected/required props is missing, show "connecting" screen.
     return <Screen centered>connecting...</Screen>;
 };

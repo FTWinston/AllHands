@@ -1,6 +1,7 @@
+import { ErrorBoundary } from 'common-ui';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
-import { ErrorBoundary } from 'common-ui';
+
 import { PlayerUI } from './components/PlayerUI';
 import 'common-ui/main.css';
 

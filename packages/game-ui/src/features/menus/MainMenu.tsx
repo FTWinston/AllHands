@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import styles from './MainMenu.module.css';
-import { Button, Screen } from 'common-ui';
 import { ServerAddress } from 'common-types';
+import { Button, Screen } from 'common-ui';
+import { useState } from 'react';
+
+import styles from './MainMenu.module.css';
 
 type Props = {
     hostServer: () => void;

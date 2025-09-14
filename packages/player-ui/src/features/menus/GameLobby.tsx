@@ -1,7 +1,8 @@
-import { Screen } from 'common-ui';
 import { getStateCallbacks, Room } from 'colyseus.js';
-import { useState, useEffect } from 'react';
 import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-types';
+import { Screen } from 'common-ui';
+import { useState, useEffect } from 'react';
+
 import type { GameState } from 'engine/classes/GameState';
 
 type Props = {
@@ -19,7 +20,7 @@ export const GameLobby: React.FC<Props> = (props) => {
     const [sensorsOccupied, setSensorsOccupied] = useState(false);
     const [engineerOccupied, setEngineerOccupied] = useState(false);
     const [ready, setReady] = useState(false);
-    
+
     useEffect(() => {
         if (!room || !crewId) {
             return;
@@ -58,25 +59,25 @@ export const GameLobby: React.FC<Props> = (props) => {
             <div>
                 <button disabled={helmOccupied && role !== helmClientRole} onClick={() => {
                     room.send('role', role === helmClientRole ? '' : helmClientRole);
-                    setRole(role === helmClientRole ? null : helmClientRole );
+                    setRole(role === helmClientRole ? null : helmClientRole);
                 }}>
                     Helm {helmOccupied ? '(occupied)' : '(available)'} {role === helmClientRole ? ' - you are this' : ''}
                 </button>
                 <button disabled={tacticalOccupied && role !== tacticalClientRole} onClick={() => {
                     room.send('role', role === tacticalClientRole ? '' : tacticalClientRole);
-                    setRole(role === tacticalClientRole ? null : tacticalClientRole );
+                    setRole(role === tacticalClientRole ? null : tacticalClientRole);
                 }}>
                     Tactical {tacticalOccupied ? '(occupied)' : '(available)'} {role === tacticalClientRole ? ' - you are this' : ''}
                 </button>
                 <button disabled={sensorsOccupied && role !== sensorClientRole} onClick={() => {
                     room.send('role', role === sensorClientRole ? '' : sensorClientRole);
-                    setRole(role === sensorClientRole ? null : sensorClientRole );
+                    setRole(role === sensorClientRole ? null : sensorClientRole);
                 }}>
                     Sensors {sensorsOccupied ? '(occupied)' : '(available)'} {role === sensorClientRole ? ' - you are this' : ''}
                 </button>
                 <button disabled={engineerOccupied && role !== engineerClientRole} onClick={() => {
                     room.send('role', role === engineerClientRole ? '' : engineerClientRole);
-                    setRole(role === engineerClientRole ? null : engineerClientRole );
+                    setRole(role === engineerClientRole ? null : engineerClientRole);
                 }}>
                     Engineer {engineerOccupied ? '(occupied)' : '(available)'} {role === engineerClientRole ? ' - you are this' : ''}
                 </button>

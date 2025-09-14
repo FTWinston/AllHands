@@ -13,8 +13,8 @@ export const tacticalClientRole = 3;
 /** Indicate that a schema field should only be sent to the engineer client. */
 export const engineerClientRole = 4;
 
-export type CrewRole =
-    | typeof helmClientRole
+export type CrewRole
+    = | typeof helmClientRole
     | typeof sensorClientRole
     | typeof tacticalClientRole
     | typeof engineerClientRole;

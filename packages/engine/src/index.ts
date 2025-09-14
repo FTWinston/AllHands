@@ -1,14 +1,16 @@
-import { Server } from 'colyseus';
-import { WebSocketTransport } from '@colyseus/ws-transport';
-import { GameRoom } from './GameRoom';
-import express from 'express';
-import path from 'path';
 import http from 'http';
-import { app as electronApp } from 'electron';
+import path from 'path';
+
+import { WebSocketTransport } from '@colyseus/ws-transport';
+import { Server } from 'colyseus';
 import { roomIdentifier, ServerConfig } from 'common-types';
+import { app as electronApp } from 'electron';
+import express from 'express';
+
+import { GameRoom } from './GameRoom';
 
 // Export state types for use in UI.
-export type{ GameState } from './classes/GameState';
+export type { GameState } from './classes/GameState';
 export type { GameStatus } from './types/GameStatus';
 export type { ShipState } from './classes/ShipState';
 export type { EngineerState } from './classes/EngineerState';

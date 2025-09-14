@@ -1,10 +1,11 @@
-import QRCode from 'react-qr-code';
-import type { ServerAddress } from 'common-types';
-import { Button, Screen } from 'common-ui';
 import { getStateCallbacks, Room } from 'colyseus.js';
-import type { ServerType } from '../../hooks/useServerConnection';
-import type { GameState } from 'engine/classes/GameState';
+import { Button, Screen } from 'common-ui';
 import { useEffect, useState } from 'react';
+import QRCode from 'react-qr-code';
+
+import type { ServerType } from '../../hooks/useServerConnection';
+import type { ServerAddress } from 'common-types';
+import type { GameState } from 'engine/classes/GameState';
 
 type Props = {
     serverAddress: ServerAddress;
@@ -59,7 +60,7 @@ export const GameLobby: React.FC<Props> = (props) => {
                 numUnassigned -= 1;
             }
             setNumUnassigned(numUnassigned);
-        }
+        };
 
         // Listen for changes to the crew ready state, so that the state of each role can be updated,
         // and the number of unassigned crew is kept up to date.
@@ -107,7 +108,7 @@ export const GameLobby: React.FC<Props> = (props) => {
             //unbindChangeCallback();
         };
     }, [room, crewId]);
-    
+
     // TODO: show a message about starting when all roles are ready, across all ships (if allowMultipleCrews is true).
 
     const serverUrl = `http://${serverAddress.ip}:${serverAddress.port}/?crew=${crewId}`;

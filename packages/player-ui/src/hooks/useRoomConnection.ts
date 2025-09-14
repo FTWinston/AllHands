@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
 import { Room, Client, getStateCallbacks } from 'colyseus.js';
 import { roomIdentifier, type ConnectionState, type CrewRole } from 'common-types';
+import { useEffect, useState } from 'react';
+
 import type { GameState, GameStatus } from 'engine';
 
 export function useRoomConnection(
@@ -18,7 +19,7 @@ export function useRoomConnection(
             setConnectionState('disconnected');
             return;
         }
-        
+
         const wsUrl = `ws://${window.location.hostname}:${window.location.port}`;
         console.log(`connecting to game server at ${wsUrl}..., using crew ID ${crewId}`);
 
@@ -42,14 +43,14 @@ export function useRoomConnection(
                 });
 
                 const callbacks = getStateCallbacks(joinedRoom);
-                
+
                 setGameStatus(joinedRoom.state.gameStatus);
-                
+
                 callbacks(joinedRoom.state).listen('gameStatus', (newGameStatus: GameStatus) => {
                     console.log('gameStatus changed to', newGameStatus);
                     setGameStatus(newGameStatus);
                 });
-                
+
                 // TODO: track local role, call setRole if it changes.
                 //const ship = joinedRoom.state.ships.get(crewId);
                 setRole(null);

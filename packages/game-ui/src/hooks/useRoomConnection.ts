@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
 import { Room, Client, getStateCallbacks } from 'colyseus.js';
 import { roomIdentifier, type ServerAddress, type ConnectionState } from 'common-types';
+import { useEffect, useState } from 'react';
+
 import type { GameState, GameStatus } from 'engine';
 
 export function useRoomConnection(
@@ -37,9 +38,9 @@ export function useRoomConnection(
                 });
 
                 const callbacks = getStateCallbacks(joinedRoom);
-                
+
                 setGameStatus(joinedRoom.state.gameStatus);
-                
+
                 callbacks(joinedRoom.state).listen('gameStatus', (newGameStatus: GameStatus) => {
                     console.log('gameStatus changed to', newGameStatus);
                     setGameStatus(newGameStatus);

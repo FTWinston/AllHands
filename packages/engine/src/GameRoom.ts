@@ -1,9 +1,11 @@
-import { Room, Client } from 'colyseus';
 import { StateView } from '@colyseus/schema';
-import type { CrewRole } from 'common-types';
-import { GameState } from './classes/GameState';
+import { Room, Client } from 'colyseus';
+
 import { CrewState } from './classes/CrewState';
+import { GameState } from './classes/GameState';
 import { ShipState } from './classes/ShipState';
+
+import type { CrewRole } from 'common-types';
 
 interface JoinOptions {
     type?: 'ship' | 'crew';
@@ -98,7 +100,6 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         } else {
             throw new Error('Invalid join options');
         }
-
     }
 
     private onShipJoin(client: Client<ClientData>, existingCrewId?: string) {
@@ -114,7 +115,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
             if (crew && crew.shipClientId == '') {
                 return crew;
             }
-            
+
             return undefined;
         };
 
@@ -132,7 +133,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
             crew = new CrewState(crewId, crewId);
             this.state.crews.set(crewId, crew);
         }
-        
+
         // Tag client so leave logic knows what to do.
         client.userData = {
             type: 'ship',
@@ -250,7 +251,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
     startOrResume() {
         this.state.gameStatus = 'active';
-        
+
         for (const ship of this.state.ships.values()) {
             ship.crew?.assignToShip(ship, this);
         }
@@ -259,7 +260,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
     pause() {
         console.log('Game paused');
         this.state.gameStatus = 'paused';
-    
+
         for (const ship of this.state.ships.values()) {
             ship.crew?.unassignFromShip(ship, this);
         }

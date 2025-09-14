@@ -1,10 +1,12 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
+
+import { app, BrowserWindow, ipcMain, app as electronApp } from 'electron';
 import { startServer } from 'engine';
-import type { ServerAddress } from 'common-types';
+
 import { getClientConfig } from './getClientConfig';
 import { getServerConfig } from './getServerConfig';
-import { app as electronApp } from 'electron';
+
+import type { ServerAddress } from 'common-types';
 
 // Add global error handlers to prevent app from quitting on errors
 process.on('uncaughtException', (error) => {
@@ -40,7 +42,7 @@ async function tryStopServer() {
 
     const performStop = stopServer;
     stopServer = undefined;
-    
+
     allowExit = false; // Don't allow process.exit to work during server stop.
     await performStop();
     allowExit = true;

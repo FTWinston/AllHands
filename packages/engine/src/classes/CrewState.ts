@@ -1,7 +1,8 @@
 import { Schema, type, view, MapSchema } from '@colyseus/schema';
 import { CrewRole, helmClientRole, sensorClientRole as sensorsClientRole, tacticalClientRole, engineerClientRole, shipClientRole } from 'common-types';
-import { ShipState } from './ShipState';
 import { GameRoom } from 'engine/GameRoom';
+
+import { ShipState } from './ShipState';
 
 export class CrewState extends Schema {
     constructor(shipClientId: string, crewId: string) {
@@ -11,7 +12,7 @@ export class CrewState extends Schema {
     }
 
     crewId: string; // unique ID of this crew
-    
+
     shipClientId: string; // sessionId of the ship client
 
     @view() @type('string') helmClientId: string = '';
@@ -20,7 +21,7 @@ export class CrewState extends Schema {
     @view() @type('string') engineerClientId: string = '';
 
     @view() @type({ map: 'boolean' }) crewReady = new MapSchema<boolean>(); // Map of crew member client IDs to ready status
-    
+
     tryAdd(crewClientId: string): boolean {
         if (this.crewReady.size >= 4) {
             return false;
