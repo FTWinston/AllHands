@@ -12,12 +12,12 @@ export const PlayerUI = () => {
     const [connectionState, setConnectionState] =
         useState<ConnectionState>('connecting');
 
-    const [room, shipId, serverState] = useRoomConnection(setConnectionState);
+    const [room, crewId, serverState] = useRoomConnection(setConnectionState);
     const [role, setRole] = useState<CrewRole | null>(null); // TODO: track this with a listener in useRoomConnection
 
     if (connectionState === 'connected') {
         if (serverState === 'active') {
-            if (room && shipId && role) {
+            if (room && crewId && role) {
                 switch (role) {
                     case helmClientRole:
                         return <Helm room={room} />;
@@ -32,25 +32,25 @@ export const PlayerUI = () => {
                 }
             } else {
                 console.warn(
-                    'expected room, shipId & role to be set when serverState is active', {
-                        room, shipId, role,
+                    'expected room, crewId & role to be set when serverState is active', {
+                        room, crewId, role,
                     },
                 );
             }
         } else if (serverState === 'setup') {
-            if (room && shipId) {
+            if (room && crewId) {
                 return (
                     <GameLobby
                         room={room}
-                        shipId={shipId}
+                        crewId={crewId}
                         role={role}
                         setRole={setRole}
                     />
                 );
             } else {
                 console.warn(
-                    'expected room & shipId to be set when serverState is setup', {
-                        room, shipId,
+                    'expected room & crewId to be set when serverState is setup', {
+                        room, crewId,
                     },
                 );
             }

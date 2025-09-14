@@ -2,106 +2,81 @@ import { Screen } from 'common-ui';
 import { getStateCallbacks, Room } from 'colyseus.js';
 import { useState, useEffect } from 'react';
 import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-types';
+import type { GameState } from 'engine/classes/GameState';
 
 type Props = {
-    room: Room;
-    shipId: string;
+    room: Room<GameState>;
+    crewId: string;
     role: CrewRole | null;
     setRole: (role: CrewRole | null) => void;
 };
 
 export const GameLobby: React.FC<Props> = (props) => {
-    const { room, shipId, role, setRole } = props;
+    const { room, crewId, role, setRole } = props;
 
     const [helmOccupied, setHelmOccupied] = useState(false);
     const [tacticalOccupied, setTacticalOccupied] = useState(false);
     const [sensorsOccupied, setSensorsOccupied] = useState(false);
     const [engineerOccupied, setEngineerOccupied] = useState(false);
+    const [ready, setReady] = useState(false);
     
     useEffect(() => {
-        const ship = room.state.ships.get(shipId);
-        if (!ship) {
+        if (!room || !crewId) {
             return;
         }
 
-        const localUserId = room.sessionId;
+        const crew = room.state.crews.get(crewId);
+        if (!crew) {
+            console.log(`crew ${crewId} not found in room state`);
+            return;
+        }
 
-        setHelmOccupied(ship.crewByRole.has('helm'));
-        setTacticalOccupied(ship.crewByRole.has('tactical'));
-        setSensorsOccupied(ship.crewByRole.has('sensors'));
-        setEngineerOccupied(ship.crewByRole.has('engineer'));
+        setHelmOccupied(crew.helmClientId !== '');
+        setTacticalOccupied(crew.tacticalClientId !== '');
+        setSensorsOccupied(crew.sensorsClientId !== '');
+        setEngineerOccupied(crew.engineerClientId !== '');
 
         const callbacks = getStateCallbacks(room);
 
-        const unbindAddCallback = callbacks(ship).crewByRole.onAdd((userID, role) => {
-            if (role === 'helm') {
-                setHelmOccupied(true);
-                if (userID === localUserId) {
-                    setRole(helmClientRole);
-                }
-            } else if (role === 'tactical') {
-                setTacticalOccupied(true);
-                if (userID === localUserId) {
-                    setRole(tacticalClientRole);
-                }
-            } else if (role === 'sensors') {
-                setSensorsOccupied(true);
-                if (userID === localUserId) {
-                    setRole(sensorClientRole);
-                }
-            } else if (role === 'engineer') {
-                setEngineerOccupied(true);
-                if (userID === localUserId) {
-                    setRole(engineerClientRole);
-                }
-            }
-        });
-        const unbindRemoveCallback = callbacks(ship).crewByRole.onRemove((userID, role) => {
-            if (role === 'helm') {
-                setHelmOccupied(false);
-            } else if (role === 'tactical') {
-                setTacticalOccupied(false);
-            } else if (role === 'sensors') {
-                setSensorsOccupied(false);
-            } else if (role === 'engineer') {
-                setEngineerOccupied(false);
-            }
-
-            if (userID === localUserId) {
-                setRole(null);
-            }
-        });
+        const unbindHelmCallback = callbacks(crew).listen('helmClientId', (clientId) => setHelmOccupied(clientId !== ''));
+        const unbindTacticalCallback = callbacks(crew).listen('tacticalClientId', (clientId) => setTacticalOccupied(clientId !== ''));
+        const unbindSensorsCallback = callbacks(crew).listen('sensorsClientId', (clientId) => setSensorsOccupied(clientId !== ''));
+        const unbindEngineerCallback = callbacks(crew).listen('engineerClientId', (clientId) => setEngineerOccupied(clientId !== ''));
 
         return () => {
-            unbindAddCallback();
-            unbindRemoveCallback();
+            unbindHelmCallback();
+            unbindTacticalCallback();
+            unbindSensorsCallback();
+            unbindEngineerCallback();
         };
-    }, [room, shipId, setRole]);
-
-    // TODO: Show a toggleable "ready" button.
+    }, [room, crewId, setRole]);
 
     return (
         <Screen>
             <h1>Choose your role</h1>
-            <p>You are a crew member of ship {shipId}.</p>
+            <p>You are a member of crew {crewId}.</p>
             <div>
                 <button disabled={helmOccupied && role !== helmClientRole} onClick={() => {
                     room.send('role', role === helmClientRole ? '' : helmClientRole);
+                    setRole(role === helmClientRole ? null : helmClientRole );
                 }}>
                     Helm {helmOccupied ? '(occupied)' : '(available)'} {role === helmClientRole ? ' - you are this' : ''}
                 </button>
                 <button disabled={tacticalOccupied && role !== tacticalClientRole} onClick={() => {
                     room.send('role', role === tacticalClientRole ? '' : tacticalClientRole);
+                    setRole(role === tacticalClientRole ? null : tacticalClientRole );
                 }}>
                     Tactical {tacticalOccupied ? '(occupied)' : '(available)'} {role === tacticalClientRole ? ' - you are this' : ''}
                 </button>
                 <button disabled={sensorsOccupied && role !== sensorClientRole} onClick={() => {
                     room.send('role', role === sensorClientRole ? '' : sensorClientRole);
+                    setRole(role === sensorClientRole ? null : sensorClientRole );
                 }}>
                     Sensors {sensorsOccupied ? '(occupied)' : '(available)'} {role === sensorClientRole ? ' - you are this' : ''}
                 </button>
                 <button disabled={engineerOccupied && role !== engineerClientRole} onClick={() => {
                     room.send('role', role === engineerClientRole ? '' : engineerClientRole);
+                    setRole(role === engineerClientRole ? null : engineerClientRole );
                 }}>
                     Engineer {engineerOccupied ? '(occupied)' : '(available)'} {role === engineerClientRole ? ' - you are this' : ''}
                 </button>
@@ -110,7 +85,13 @@ export const GameLobby: React.FC<Props> = (props) => {
                 When all crewmates have joined and everyone has selected a role,
                 indicate that you are ready, and the game will start.
             </p>
-            
+
+            <button disabled={!!role} onClick={() => {
+                room.send('ready', !ready);
+                setReady(!ready);
+            }}>
+                Ready
+            </button>
         </Screen>
     );
 };

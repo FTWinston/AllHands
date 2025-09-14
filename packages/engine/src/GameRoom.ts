@@ -1,12 +1,13 @@
 import { Room, Client } from 'colyseus';
 import { StateView } from '@colyseus/schema';
-import { getRoleName, shipClientRole, type CrewRole } from 'common-types';
+import type { CrewRole } from 'common-types';
 import { GameState } from './classes/GameState';
+import { CrewState } from './classes/CrewState';
 import { ShipState } from './classes/ShipState';
 
 interface JoinOptions {
     type?: 'ship' | 'crew';
-    shipId?: string;
+    crewId?: string;
 }
 
 type ClientData = Required<JoinOptions>;
@@ -27,32 +28,51 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         this.onMessage('role', (client, role: CrewRole | '') => {
             console.log(`Role message from ${client.sessionId}: ${role}`);
 
-            const shipId = client.userData?.shipId;
-            if (!shipId) {
-                throw new Error('Client has no ship ID assigned');
+            const crewId = client.userData?.crewId;
+            if (!crewId) {
+                throw new Error('Client has no crew ID assigned');
             }
 
             if (this.state.gameStatus === 'active') {
                 throw new Error('Cannot change roles while game is active');
             }
 
-            const ship = this.state.ships.get(shipId);
+            const crew = this.state.crews.get(crewId);
 
-            if (!ship) {
-                throw new Error(`Ship ${shipId} not found`);
+            if (!crew) {
+                throw new Error(`Crew ${crewId} not found`);
             }
 
-            client.view?.remove(ship);
-
-            // Update ship's state to account for client's role (change), and
-            // give the client visibility of the parts of the ship state they need for their role.
+            // Update crew's state to account for client's role (change).
             if (role === '') {
-                ship.unassignRole(client.sessionId);
-                client.view?.add(ship);
-            } else if (ship.tryAssignRole(client.sessionId, role)) {
-                client.view?.add(ship, role);
-            } else {
-                throw new Error(`Role ${role} is already taken on ship ${ship.shipId}`);
+                crew.unassignRole(client.sessionId);
+            } else if (!crew.tryAssignRole(client.sessionId, role)) {
+                throw new Error(`Role ${role} is already taken on crew ${crew.crewId}`);
+            }
+        });
+
+        this.onMessage('ready', (client, ready: boolean) => {
+            console.log(`Ready message from ${client.sessionId}: ${ready}`);
+
+            const crewId = client.userData?.crewId;
+            if (!crewId) {
+                throw new Error('Client has no crew ID assigned');
+            }
+
+            if (this.state.gameStatus === 'active') {
+                throw new Error('Cannot update ready status while game is active');
+            }
+
+            const crew = this.state.crews.get(crewId);
+
+            if (!crew) {
+                throw new Error(`Crew ${crewId} not found`);
+            }
+
+            crew.crewReady.set(client.sessionId, ready);
+
+            if (ready) {
+                this.checkIfEveryoneIsReady();
             }
         });
     }
@@ -62,7 +82,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         if (options.type === 'ship') {
             return true;
         }
-        if (options.type === 'crew' && typeof options.shipId === 'string') {
+        if (options.type === 'crew' && typeof options.crewId === 'string') {
             return true;
         }
 
@@ -72,131 +92,176 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
     onJoin(client: Client<ClientData>, options: JoinOptions) {
         if (options.type === 'ship') {
-            this.onShipJoin(client, options.shipId);
-        } else if (options.type === 'crew' && options.shipId) {
-            this.onCrewJoin(client, options.shipId);
+            this.onShipJoin(client, options.crewId);
+        } else if (options.type === 'crew' && options.crewId) {
+            this.onCrewJoin(client, options.crewId);
         } else {
             throw new Error('Invalid join options');
         }
 
     }
 
-    private onShipJoin(client: Client<ClientData>, existingShipId?: string) {
+    private onShipJoin(client: Client<ClientData>, existingCrewId?: string) {
         console.log(`${client.sessionId} ship joined`);
 
-        // Allow reclaiming an existing ship, if present and un-owned.
-        const getExistingShip = (id?: string) => {
+        // Allow reclaiming an existing crew, if present and un-owned.
+        const getExistingCrew = (id?: string) => {
             if (!id) {
                 return undefined;
             }
 
-            const ship = this.state.ships.get(id);
-            if (ship && ship.ownerId == '') {
-                return ship;
+            const crew = this.state.crews.get(id);
+            if (crew && crew.shipClientId == '') {
+                return crew;
             }
             
             return undefined;
         };
 
-        let shipId: string;
-        let ship: ShipState;
+        let crewId: string;
+        let crew: CrewState;
 
-        const existingShip = getExistingShip(existingShipId);
-            
-        if (existingShip && existingShipId) {
-            shipId = existingShipId;
-            ship = existingShip;
-            ship.ownerId = client.sessionId;
+        const existingCrew = getExistingCrew(existingCrewId);
+
+        if (existingCrew && existingCrewId) {
+            crewId = existingCrewId;
+            crew = existingCrew;
+            crew.shipClientId = client.sessionId;
         } else {
-            shipId = client.sessionId;
-            ship = new ShipState(shipId, client.sessionId);
-            this.state.ships.set(shipId, ship);
+            crewId = client.sessionId;
+            crew = new CrewState(crewId, crewId);
+            this.state.crews.set(crewId, crew);
         }
         
         // Tag client so leave logic knows what to do.
         client.userData = {
             type: 'ship',
-            shipId,
+            crewId,
         };
 
         client.view = new StateView();
-        client.view.add(ship, shipClientRole);
+        client.view.add(crew);
 
         // Send the ship ID back to the ship client, for providing a link for crew members to join.
-        client.send('joined', { shipId });
+        client.send('joined', { crewId });
     }
 
-    private onCrewJoin(client: Client<ClientData>, shipId: string) {
-        console.log(`${client.sessionId} crew joined for ship ${shipId}`);
+    private onCrewJoin(client: Client<ClientData>, crewId: string) {
+        console.log(`${client.sessionId} player joined for crew ${crewId}`);
 
-        const ship = this.state.ships.get(shipId);
+        const crew = this.state.crews.get(crewId);
 
-        if (!ship) {
-            throw new Error(`Invalid ship ID: ${shipId}`);
-        }
-        if (ship.rolesByCrew.size >= 4) {
-            throw new Error(`That ship is full: ${shipId}`);
+        if (!crew) {
+            throw new Error(`Invalid crew ID: ${crewId}`);
         }
 
-        ship.rolesByCrew.set(client.sessionId, '');
+        if (!crew.tryAdd(client.sessionId)) {
+            throw new Error(`That crew is full: ${crewId}`);
+        }
+
         client.userData = {
             type: 'crew',
-            shipId,
+            crewId: crewId,
         };
 
         client.view = new StateView();
-        client.view.add(ship);
+        client.view.add(crew);
 
         // Send the ship ID back to the crew client, for reference.
-        client.send('joined', { shipId });
+        client.send('joined', { crewId });
     }
 
     onLeave(client: Client<ClientData>) {
-        const shipId = client.userData?.shipId;
+        const crewId = client.userData?.crewId;
         const type = client.userData?.type;
 
-        if (!shipId || !type) {
+        if (!crewId || !type) {
             console.log(client.sessionId, 'left without proper setup');
             return;
         }
 
-        const ship = this.state.ships.get(shipId);
+        const crew = this.state.crews.get(crewId);
 
         if (type === 'ship') {
-            this.onShipLeave(client, ship);
+            this.onShipLeave(client, crew);
         } else {
-            this.onCrewLeave(client, ship);
+            this.onCrewLeave(client, crew);
         }
     }
 
-    onShipLeave(client: Client<ClientData>, ship: ShipState | undefined) {
+    onShipLeave(client: Client<ClientData>, crew: CrewState | undefined) {
         console.log(client.sessionId, 'ship left!');
 
-        // Mark the ship as unowned, so that its client can reclaim it if they rejoin.
-        if (ship) {
-            ship.ownerId = '';
+        // Mark the crew as unowned, so that its client can reclaim it if they rejoin.
+        if (crew) {
+            crew.shipClientId = '';
         }
     }
 
-    onCrewLeave(client: Client<ClientData>, ship: ShipState | undefined) {
+    onCrewLeave(client: Client<ClientData>, crew: CrewState | undefined) {
         console.log(client.sessionId, 'crew member left');
 
-        // Remove crew member from their ship.
-        if (ship) {
-            const role = ship.rolesByCrew.get(client.sessionId);
-            ship.rolesByCrew.delete(client.sessionId);
-            if (role) {
-                ship.crewByRole.delete(getRoleName(role));
-            }
+        // Remove crew member from their crew.
+        if (crew) {
+            crew.remove(client.sessionId);
 
-            if (ship.rolesByCrew.size === 0 && ship.ownerId === '') {
-                // If the ship has no crew and no owner, remove it.
-                this.state.ships.delete(ship.shipId);
+            if (crew.isUnused()) {
+                // If the crew has no members and no owner, remove it.
+                this.state.crews.delete(crew.crewId);
             }
         }
     }
 
     onDispose() {
         console.log('room disposing...');
+    }
+
+    checkIfEveryoneIsReady() {
+        for (const crew of this.state.crews.values()) {
+            if (!crew.isReady()) {
+                return;
+            }
+        }
+
+        if (this.state.gameStatus === 'setup') {
+            this.populateGameWorld();
+        } else {
+            this.startOrResume();
+        }
+    }
+
+    populateGameWorld() {
+        console.log('All crew members are ready! Starting game...');
+        // Create a ship for each crew.
+
+        // TODO: these should have locations in the world, initial system states, etc.
+
+        // TODO: create enemies, scenario elements, etc.
+
+        let nextShipId = 1;
+        for (const crew of this.state.crews.values()) {
+            const ship = new ShipState();
+            ship.crew = crew;
+            this.state.ships.set(`ship${nextShipId++}`, ship);
+        }
+
+        this.startOrResume();
+    }
+
+    startOrResume() {
+        this.state.gameStatus = 'active';
+        
+        for (const ship of this.state.ships.values()) {
+            ship.crew?.assignToShip(ship, this);
+        }
+    }
+
+    pause() {
+        console.log('Game paused');
+        this.state.gameStatus = 'paused';
+    
+        for (const ship of this.state.ships.values()) {
+            ship.crew?.unassignFromShip(ship, this);
+        }
     }
 }

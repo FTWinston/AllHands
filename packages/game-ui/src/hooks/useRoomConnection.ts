@@ -8,7 +8,7 @@ export function useRoomConnection(
     setConnectionState: (state: ConnectionState) => void,
 ) {
     const [room, setConnectedRoom] = useState<Room<GameState> | null>(null);
-    const [shipId, setShipId] = useState<string | undefined>(undefined);
+    const [crewId, setCrewId] = useState<string | undefined>(undefined);
     const [gameStatus, setGameStatus] = useState<GameStatus>('setup');
 
     useEffect(() => {
@@ -28,12 +28,12 @@ export function useRoomConnection(
             .then((joiningRoom) => {
                 joinedRoom = joiningRoom;
                 setConnectedRoom(joiningRoom);
-                setConnectionState('connected');
                 console.log('connected to game server', joiningRoom);
 
-                joinedRoom.onMessage<{ shipId: string }>('joined', message => {
-                    console.log(`joined as ship ${message.shipId}`);
-                    setShipId(message.shipId);
+                joinedRoom.onMessage<{ crewId: string }>('joined', message => {
+                    console.log(`joined as ship for crew ${message.crewId}`);
+                    setCrewId(message.crewId);
+                    setConnectionState('connected');
                 });
 
                 const callbacks = getStateCallbacks(joinedRoom);
@@ -60,5 +60,5 @@ export function useRoomConnection(
         };
     }, [serverAddress, setConnectionState]);
 
-    return [room, shipId, gameStatus] as const;
+    return [room, crewId, gameStatus] as const;
 }

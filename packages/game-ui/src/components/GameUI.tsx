@@ -20,7 +20,7 @@ export const GameUI = () => {
         setConnectionState,
     );
 
-    const [room, shipId, serverState] = useRoomConnection(serverAddress, setConnectionState);
+    const [room, crewID, serverState] = useRoomConnection(serverAddress, setConnectionState);
 
     const disconnect = () => {
         setServerType(undefined);
@@ -29,22 +29,22 @@ export const GameUI = () => {
 
     if (connectionState === 'connected') {
         if (serverState === 'active') {
-            if (room && shipId) {
-                return <Game room={room} shipId={shipId} disconnect={disconnect} />;
+            if (room && crewID) {
+                return <Game room={room} crewID={crewID} disconnect={disconnect} />;
             } else {
                 console.warn(
-                    'expected room & shipId to be set when connectionState is active', {
-                        room, shipId,
+                    'expected room & crewID to be set when connectionState is active', {
+                        room, crewID,
                     },
                 );
             }
         } else if (serverState === 'setup') {
-            if (serverAddress && room && shipId && serverType) {
+            if (serverAddress && room && crewID && serverType) {
                 return (
                     <GameLobby
                         serverAddress={serverAddress}
                         room={room}
-                        shipId={shipId}
+                        crewId={crewID}
                         serverType={serverType}
                         allowMultipleCrews={allowMultipleCrews}
                         disconnect={disconnect}
@@ -52,8 +52,8 @@ export const GameUI = () => {
                 );
             } else {
                 console.warn(
-                    'expected serverAddress, room, shipId & serverType to be set when connectionState is setup', {
-                        serverAddress, room, shipId, serverType,
+                    'expected serverAddress, room, crewID & serverType to be set when connectionState is setup', {
+                        serverAddress, room, crewID, serverType,
                     },
                 );
             }
