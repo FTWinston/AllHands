@@ -1,11 +1,11 @@
 import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
+import { soloCrewIdentifier, type CrewRole, type ServerConfig } from 'common-types';
 import { customAlphabet } from 'nanoid/non-secure';
-import { CrewState } from './classes/CrewState';
-import { GameState } from './classes/GameState';
-import { ShipState } from './classes/ShipState';
 
-import type { CrewRole } from 'common-types';
+import { CrewState } from './CrewState';
+import { GameState } from './GameState';
+import { ShipState } from './ShipState';
 
 interface JoinOptions {
     type?: 'ship' | 'crew';
@@ -16,8 +16,13 @@ type ClientData = Required<JoinOptions>;
 
 export class GameRoom extends Room<GameState, unknown, ClientData> {
     private idGenerator = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 3);
-    
+    private allowMultipleCrews = false;
+
     getCrewId() {
+        if (!this.allowMultipleCrews) {
+            return soloCrewIdentifier;
+        }
+
         let id: string;
 
         do {
@@ -27,7 +32,9 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         return id;
     };
 
-    onCreate() {
+    onCreate(config: ServerConfig) {
+        this.allowMultipleCrews = config.multiship;
+
         this.state = new GameState();
 
         // Temporary message handler for testing.

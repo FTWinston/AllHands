@@ -7,7 +7,7 @@ import { roomIdentifier, ServerConfig } from 'common-types';
 import { app as electronApp } from 'electron';
 import express from 'express';
 
-import { GameRoom } from './GameRoom';
+import { GameRoom } from './classes/GameRoom';
 
 // Export state types for use in UI.
 export type { GameState } from './classes/GameState';
@@ -17,7 +17,7 @@ export type { EngineerState } from './classes/EngineerState';
 export type { HelmState } from './classes/HelmState';
 export type { SensorState } from './classes/SensorState';
 export type { TacticalState } from './classes/TacticalState';
-export type { GameRoom } from './GameRoom';
+export type { GameRoom } from './classes/GameRoom';
 
 function createWebServer(ipAddress: string, httpPort: number): http.Server {
     const expressApp = express();
@@ -52,7 +52,7 @@ function createGameServer(
         }),
     });
 
-    gameServer.define(roomIdentifier, GameRoom);
+    gameServer.define(roomIdentifier, GameRoom, config);
 
     if (config.simulateLatencyMs > 0) {
         console.log(

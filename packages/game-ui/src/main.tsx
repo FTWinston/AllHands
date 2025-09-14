@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 
 import { GameUI } from './components/GameUI';
 
-import type { ClientConfig, ServerAddress } from 'common-types';
+import type { ClientConfig, ServerAddress, ServerConfig } from 'common-types';
 
 import 'common-ui/main.css';
 
@@ -12,7 +12,7 @@ declare global {
     interface Window {
         electronAPI: {
             getClientConfig: () => Promise<ClientConfig>;
-            startServer: () => Promise<ServerAddress>;
+            startServer: (configOverride?: Partial<ServerConfig>) => Promise<ServerAddress>;
             stopServer: () => Promise<void>;
             quit: () => Promise<void>;
         };

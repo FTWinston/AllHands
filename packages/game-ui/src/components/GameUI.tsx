@@ -12,16 +12,17 @@ export const GameUI = () => {
     const [connectionState, setConnectionState]
         = useState<ConnectionState>('disconnected');
 
-    const [allowMultipleCrews] = useState(false); // TODO: make this configurable via MainMenu
+    const [allowMultipleCrews, setAllowMultipleCrews] = useState(false);
     const [serverAddress, setServerAddress] = useState<ServerAddress>();
 
     const [serverType, setServerType] = useServerConnection(
         serverAddress,
+        allowMultipleCrews,
         setServerAddress,
         setConnectionState,
     );
 
-    const [room, crewID, serverState] = useRoomConnection(serverAddress, setConnectionState);
+    const [room, crewId, serverState] = useRoomConnection(serverAddress, setConnectionState);
 
     const disconnect = () => {
         setServerType(undefined);
@@ -30,22 +31,22 @@ export const GameUI = () => {
 
     if (connectionState === 'connected') {
         if (serverState === 'active') {
-            if (room && crewID) {
-                return <Game room={room} crewID={crewID} disconnect={disconnect} />;
+            if (room && crewId) {
+                return <Game room={room} crewID={crewId} disconnect={disconnect} />;
             } else {
                 console.warn(
-                    'expected room & crewID to be set when connectionState is active', {
-                        room, crewID,
+                    'expected room & crewId to be set when connectionState is active', {
+                        room, crewId,
                     },
                 );
             }
         } else if (serverState === 'setup') {
-            if (serverAddress && room && crewID && serverType) {
+            if (serverAddress && room && crewId && serverType) {
                 return (
                     <GameLobby
                         serverAddress={serverAddress}
                         room={room}
-                        crewId={crewID}
+                        crewId={crewId}
                         serverType={serverType}
                         allowMultipleCrews={allowMultipleCrews}
                         disconnect={disconnect}
@@ -53,8 +54,8 @@ export const GameUI = () => {
                 );
             } else {
                 console.warn(
-                    'expected serverAddress, room, crewID & serverType to be set when connectionState is setup', {
-                        serverAddress, room, crewID, serverType,
+                    'expected serverAddress, room, crewId & serverType to be set when connectionState is setup', {
+                        serverAddress, room, crewId, serverType,
                     },
                 );
             }
@@ -66,7 +67,14 @@ export const GameUI = () => {
     } else if (connectionState === 'disconnected') {
         return (
             <MainMenu
-                hostServer={() => setServerType('local')}
+                hostSingleCrewServer={() => {
+                    setAllowMultipleCrews(false);
+                    setServerType('local');
+                }}
+                hostMultiCrewServer={() => {
+                    setAllowMultipleCrews(true);
+                    setServerType('local');
+                }}
                 joinServer={(address) => {
                     setServerType('remote');
                     setServerAddress(address);

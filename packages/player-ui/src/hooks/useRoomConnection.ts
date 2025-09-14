@@ -1,5 +1,5 @@
 import { Room, Client, getStateCallbacks } from 'colyseus.js';
-import { engineerClientRole, helmClientRole, roomIdentifier, sensorClientRole, tacticalClientRole, type ConnectionState, type CrewRole } from 'common-types';
+import { engineerClientRole, helmClientRole, roomIdentifier, sensorClientRole, soloCrewIdentifier, tacticalClientRole, type ConnectionState, type CrewRole } from 'common-types';
 import { useEffect, useState } from 'react';
 
 import type { GameState, GameStatus } from 'engine';
@@ -14,21 +14,18 @@ export function useRoomConnection(
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
-        const crewId = new URLSearchParams(window.location.search).get('crew');
+        const crewId = new URLSearchParams(window.location.search).get('crew') ?? soloCrewIdentifier;
 
-        if (crewId === null) {
-            setConnectionState('disconnected');
-            return;
-        }
+        setCrewId(crewId);
 
         const wsUrl = `ws://${window.location.hostname}:${window.location.port}`;
         console.log(`connecting to game server at ${wsUrl}..., using crew ID ${crewId}`);
 
-        setCrewId(crewId);
-
         const client = new Client(wsUrl);
 
         let joinedRoom: Room<GameState> | undefined;
+
+        console.log('sending join options', { type: 'crew', crewId });
 
         client
             .joinOrCreate<GameState>(roomIdentifier, { type: 'crew', crewId })

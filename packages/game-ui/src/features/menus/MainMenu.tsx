@@ -5,7 +5,8 @@ import { useState } from 'react';
 import styles from './MainMenu.module.css';
 
 type Props = {
-    hostServer: () => void;
+    hostSingleCrewServer: () => void;
+    hostMultiCrewServer: () => void;
     joinServer: (address: ServerAddress) => void;
     quit: () => void;
 };
@@ -23,9 +24,18 @@ export const MainMenu: React.FC<Props> = (props) => {
                     <li className={styles.menuItem}>
                         <button
                             className={styles.menuButton}
-                            onClick={props.hostServer}
+                            onClick={props.hostSingleCrewServer}
                         >
-                            Host game
+                            Host single-crew game
+                        </button>
+                    </li>
+
+                    <li className={styles.menuItem}>
+                        <button
+                            className={styles.menuButton}
+                            onClick={props.hostMultiCrewServer}
+                        >
+                            Host multi-crew game
                         </button>
                     </li>
 
@@ -36,7 +46,7 @@ export const MainMenu: React.FC<Props> = (props) => {
                                 setShowJoining((prevVal) => !prevVal)
                             }
                         >
-                            Join game
+                            Join multi-crew game
                         </button>
 
                         {showJoining && (

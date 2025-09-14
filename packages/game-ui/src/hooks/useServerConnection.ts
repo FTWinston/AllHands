@@ -6,6 +6,7 @@ export type ServerType = 'local' | 'remote';
 
 export function useServerConnection(
     serverAddress: ServerAddress | undefined,
+    allowMultipleCrews: boolean,
     setServerAddress: (value: ServerAddress) => void,
     setConnectionState: (value: ConnectionState) => void,
 ) {
@@ -22,7 +23,9 @@ export function useServerConnection(
 
         const startHosting = async() => {
             setConnectionState('connecting');
-            const startServerAddress = await window.electronAPI.startServer();
+            const startServerAddress = await window.electronAPI.startServer({
+                multiship: allowMultipleCrews,
+            });
             setServerAddress(startServerAddress);
         };
 
@@ -31,7 +34,7 @@ export function useServerConnection(
             setConnectionState('disconnected');
             window.electronAPI.stopServer();
         };
-    }, [isLocal, setServerAddress, setConnectionState]);
+    }, [isLocal, allowMultipleCrews, setServerAddress, setConnectionState]);
 
     useEffect(() => {
         if (!isRemote || !serverAddress) {

@@ -1,5 +1,5 @@
 import { getStateCallbacks, Room } from 'colyseus.js';
-import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-types';
+import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, soloCrewIdentifier, tacticalClientRole } from 'common-types';
 import { Screen } from 'common-ui';
 import { useState, useEffect } from 'react';
 
@@ -54,7 +54,7 @@ export const GameLobby: React.FC<Props> = (props) => {
     return (
         <Screen>
             <h1>Choose your role</h1>
-            <p>You are a member of crew {crewId}.</p>
+            {crewId !== soloCrewIdentifier && <p>You are a member of crew {crewId}.</p>}
             <div>
                 <button disabled={helmOccupied && role !== helmClientRole} onClick={() => {
                     room.send('role', role === helmClientRole ? '' : helmClientRole);

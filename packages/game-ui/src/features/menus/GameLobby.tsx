@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 
 import type { ServerType } from '../../hooks/useServerConnection';
-import type { ServerAddress } from 'common-types';
+import { soloCrewIdentifier, type ServerAddress } from 'common-types';
 import type { GameState } from 'engine/classes/GameState';
 
 type Props = {
@@ -111,7 +111,10 @@ export const GameLobby: React.FC<Props> = (props) => {
 
     // TODO: show a message about starting when all roles are ready, across all ships (if allowMultipleCrews is true).
 
-    const serverUrl = `http://${serverAddress.ip}:${serverAddress.port}/?crew=${crewId}`;
+    let serverUrl = `http://${serverAddress.ip}:${serverAddress.port}/`;
+    if (crewId !== soloCrewIdentifier) {
+        serverUrl += `?crew=${crewId}`;
+    }
 
     return (
         <Screen>
@@ -120,7 +123,7 @@ export const GameLobby: React.FC<Props> = (props) => {
                 Open your phone camera and scan the QR code below to join the game.
             </p>
             <p>
-                Or open your browser and go to <a href={serverUrl}>{serverUrl}</a>
+                Or open your browser and go to <strong>{serverUrl}</strong>
             </p>
             <QRCode value={serverUrl} size={256} />
 

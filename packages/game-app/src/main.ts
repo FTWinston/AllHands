@@ -6,7 +6,7 @@ import { startServer } from 'engine';
 import { getClientConfig } from './getClientConfig';
 import { getServerConfig } from './getServerConfig';
 
-import type { ServerAddress } from 'common-types';
+import type { ServerAddress, ServerConfig } from 'common-types';
 
 // Add global error handlers to prevent app from quitting on errors
 process.on('uncaughtException', (error) => {
@@ -79,8 +79,13 @@ app.on('window-all-closed', quitApp);
 app.whenReady().then(() => {
     ipcMain.handle('get-client-config', () => clientConfig);
 
-    ipcMain.handle('start-server', () => {
-        const serverConfig = getServerConfig();
+    ipcMain.handle('start-server', (_event, configOverride?: Partial<ServerConfig>) => {
+        let serverConfig = getServerConfig();
+
+        if (configOverride) {
+            serverConfig = { ...serverConfig, ...configOverride };
+        }
+
         stopServer = startServer(serverConfig);
 
         const result: ServerAddress = {
