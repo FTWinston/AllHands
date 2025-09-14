@@ -1,6 +1,6 @@
 import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
-
+import { customAlphabet } from 'nanoid/non-secure';
 import { CrewState } from './classes/CrewState';
 import { GameState } from './classes/GameState';
 import { ShipState } from './classes/ShipState';
@@ -15,7 +15,17 @@ interface JoinOptions {
 type ClientData = Required<JoinOptions>;
 
 export class GameRoom extends Room<GameState, unknown, ClientData> {
-    maxClients = 5;
+    private idGenerator = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 3);
+    
+    getCrewId() {
+        let id: string;
+
+        do {
+            id = this.idGenerator();
+        } while (this.state.crews.has(id));
+
+        return id;
+    };
 
     onCreate() {
         this.state = new GameState();
@@ -129,8 +139,8 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
             crew = existingCrew;
             crew.shipClientId = client.sessionId;
         } else {
-            crewId = client.sessionId;
-            crew = new CrewState(crewId, crewId);
+            crewId = this.getCrewId();
+            crew = new CrewState(client.sessionId, crewId);
             this.state.crews.set(crewId, crew);
         }
 
