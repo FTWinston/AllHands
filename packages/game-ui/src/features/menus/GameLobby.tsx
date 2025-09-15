@@ -1,10 +1,11 @@
 import { getStateCallbacks, Room } from 'colyseus.js';
-import { Button, Screen } from 'common-ui';
+import { soloCrewIdentifier, type ServerAddress } from 'common-types';
+import { Button } from 'common-ui/Button';
+import { Screen } from 'common-ui/Screen';
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 
 import type { ServerType } from '../../hooks/useServerConnection';
-import { soloCrewIdentifier, type ServerAddress } from 'common-types';
 import type { GameState } from 'engine/classes/GameState';
 
 type Props = {
@@ -141,8 +142,6 @@ export const GameLobby: React.FC<Props> = (props) => {
             <Button
                 onClick={props.disconnect}
                 label="Disconnect"
-                size="medium"
-                appearance="secondary"
             />
         </Screen>
     );

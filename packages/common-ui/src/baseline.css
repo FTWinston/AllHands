@@ -13,6 +13,8 @@ html, body {
 body {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    
+    font-family: var(--main-font-family);
 }
 
 img, picture, video, canvas, svg {
@@ -48,6 +50,8 @@ ul, ol {
     --background-color: #333;
     --text-color: #bbc;
     --highlight-color: #fff;
+    --primary-color: #555ab9;
+    --main-font-family: 'Jura', sans-serif;
 
     background-color: var(--background-color);
     color: var(--text-color);

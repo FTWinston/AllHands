@@ -1,5 +1,5 @@
 import { Room } from 'colyseus.js';
-import { Screen } from 'common-ui';
+import { Screen } from 'common-ui/Screen';
 import React from 'react';
 
 interface GameProps {

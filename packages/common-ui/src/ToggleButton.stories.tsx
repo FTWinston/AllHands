@@ -1,12 +1,12 @@
 import { fn } from 'storybook/test';
 
-import { Button as Component } from './Button';
+import { ToggleButton as Component } from './ToggleButton';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-    title: 'common-ui/Button',
+    title: 'common-ui/ToggleButton',
     component: Component,
     parameters: {
         // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
@@ -22,8 +22,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const Button: Story = {
+export const ToggleButton: Story = {
     args: {
-        label: 'Button',
+        label: 'Toggle Button',
+        pressed: false,
+        onPressedChanged: fn(),
     },
 };

@@ -1,4 +1,4 @@
-import { ErrorBoundary } from 'common-ui';
+import { ErrorBoundary } from 'common-ui/ErrorBoundary';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -6,7 +6,7 @@ import { GameUI } from './components/GameUI';
 
 import type { ClientConfig, ServerAddress, ServerConfig } from 'common-types';
 
-import 'common-ui/main.css';
+import 'common-ui/baseline';
 
 declare global {
     interface Window {

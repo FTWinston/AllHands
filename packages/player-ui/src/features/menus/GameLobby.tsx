@@ -1,6 +1,7 @@
 import { getStateCallbacks, Room } from 'colyseus.js';
 import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, soloCrewIdentifier, tacticalClientRole } from 'common-types';
-import { Screen } from 'common-ui';
+import { Screen } from 'common-ui/Screen';
+import { ToggleButton } from 'common-ui/ToggleButton';
 import { useState, useEffect } from 'react';
 
 import type { GameState } from 'engine/classes/GameState';
@@ -82,11 +83,13 @@ export const GameLobby: React.FC<Props> = (props) => {
                 indicate that you are ready, and the game will start.
             </p>
 
-            <button disabled={!role} onClick={() => {
-                room.send('ready', !ready);
-            }}>
-                Ready
-            </button>
+            <ToggleButton
+                label="Ready"
+                pressed={ready}
+                onPressedChanged={(pressed) => {
+                    room.send('ready', pressed);
+                }}
+            />
         </Screen>
     );
 };

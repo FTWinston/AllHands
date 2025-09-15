@@ -1,5 +1,5 @@
 import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole, type ConnectionState } from 'common-types';
-import { Screen } from 'common-ui';
+import { Screen } from 'common-ui/Screen';
 import { useState } from 'react';
 
 import { Engineer } from '../features/engineer';

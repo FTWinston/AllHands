@@ -1,15 +1,17 @@
 import styles from './Button.module.css';
+import { classNames } from './classNames';
 
-type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+type Props = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
     label: string;
-    size: 'small' | 'medium' | 'large';
-    appearance: 'primary' | 'secondary';
+    type?: 'button' | 'submit' | 'reset';
+    className?: string;
 };
 
-export const Button: React.FC<ButtonProps> = ({ label, ...props }) => (
+export const Button: React.FC<Props> = ({ label, className, type, ...props }) => (
     <button
-        className={`${styles.button} ${styles[`button--${props.appearance}`]} ${styles[`button--${props.size}`]}`}
         {...props}
+        type={type ?? 'button'}
+        className={classNames(styles.button, className)}
     >
         {label}
     </button>

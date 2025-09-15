@@ -1,5 +1,7 @@
 import { ServerAddress } from 'common-types';
-import { Button, Screen } from 'common-ui';
+import { Button } from 'common-ui/Button';
+import { Input } from 'common-ui/Input';
+import { Screen } from 'common-ui/Screen';
 import { useState } from 'react';
 
 import styles from './MainMenu.module.css';
@@ -51,16 +53,16 @@ export const MainMenu: React.FC<Props> = (props) => {
 
                         {showJoining && (
                             <form className={styles.joiningForm}>
-                                <input
+                                <Input
                                     className={styles.addressInput}
-                                    placeholder="Server IP address"
+                                    placeholder="IP address"
                                     type="text"
                                     value={ipAddress}
                                     onChange={(e) =>
                                         setIpAddress(e.target.value)
                                     }
                                 />
-                                <input
+                                <Input
                                     className={styles.portInput}
                                     placeholder="Port"
                                     type="number"
@@ -70,8 +72,6 @@ export const MainMenu: React.FC<Props> = (props) => {
                                     }
                                 />
                                 <Button
-                                    appearance="primary"
-                                    size="large"
                                     label="Join"
                                     type="submit"
                                     disabled={!ipAddress || port <= 0}
