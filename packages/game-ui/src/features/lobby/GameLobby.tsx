@@ -1,26 +1,21 @@
 import { getStateCallbacks, Room } from 'colyseus.js';
-import { soloCrewIdentifier, type ServerAddress } from 'common-types';
-import { Button } from 'common-ui/Button';
-import { Screen } from 'common-ui/Screen';
+import { type ServerAddress } from 'common-types';
 import { useEffect, useState } from 'react';
-import QRCode from 'react-qr-code';
 
-import type { ServerType } from '../../hooks/useServerConnection';
+import { GameLobbyDisplay, type SystemState } from './GameLobbyDisplay';
+
 import type { GameState } from 'engine/classes/GameState';
 
 type Props = {
     serverAddress: ServerAddress;
-    serverType: ServerType;
     allowMultipleCrews: boolean;
     room: Room<GameState>;
     crewId: string;
     disconnect: () => void;
 };
 
-type SystemState = 'unoccupied' | 'occupied' | 'ready';
-
 export const GameLobby: React.FC<Props> = (props) => {
-    const { serverAddress, room, crewId } = props;
+    const { serverAddress, allowMultipleCrews, room, crewId, disconnect } = props;
 
     const [helmState, setHelmState] = useState<SystemState>('unoccupied');
     const [tacticalState, setTacticalState] = useState<SystemState>('unoccupied');
@@ -112,37 +107,17 @@ export const GameLobby: React.FC<Props> = (props) => {
 
     // TODO: show a message about starting when all roles are ready, across all ships (if allowMultipleCrews is true).
 
-    let serverUrl = `http://${serverAddress.ip}:${serverAddress.port}/`;
-    if (crewId !== soloCrewIdentifier) {
-        serverUrl += `?crew=${crewId}`;
-    }
-
     return (
-        <Screen>
-            <h1>Scan to connect</h1>
-            <p>
-                Open your phone camera and scan the QR code below to join the game.
-            </p>
-            <p>
-                Or open your browser and go to <strong>{serverUrl}</strong>
-            </p>
-            <QRCode value={serverUrl} size={256} />
-
-            <div>
-                <p>Your crew has the following roles:</p>
-                <ul>
-                    <li>Helm: {helmState}</li>
-                    <li>Tactical: {tacticalState}</li>
-                    <li>Sensors: {sensorsState}</li>
-                    <li>Engineer: {engineerState}</li>
-                </ul>
-                {numUnassigned > 0 && <p>There {numUnassigned === 1 ? 'is' : 'are'} also {numUnassigned} unassigned crew member{numUnassigned === 1 ? '' : 's'}.</p>}
-            </div>
-
-            <Button
-                onClick={props.disconnect}
-                label="Disconnect"
-            />
-        </Screen>
+        <GameLobbyDisplay
+            serverAddress={serverAddress}
+            crewId={crewId}
+            allowMultipleCrews={allowMultipleCrews}
+            disconnect={disconnect}
+            helmState={helmState}
+            tacticalState={tacticalState}
+            sensorsState={sensorsState}
+            engineerState={engineerState}
+            numUnassigned={numUnassigned}
+        />
     );
 };

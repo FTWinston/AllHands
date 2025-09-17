@@ -4,8 +4,8 @@ import { useRoomConnection } from 'game-ui/hooks/useRoomConnection';
 import { useState } from 'react';
 
 import { Game } from '../features/game/Game';
-import { GameLobby } from '../features/menus/GameLobby';
-import { MenuSelector } from '../features/menus/components/MenuSelector';
+import { GameLobby } from '../features/lobby/GameLobby';
+import { MenuSelector } from '../features/menus/MenuSelector';
 import { useServerConnection } from '../hooks/useServerConnection';
 
 export const GameUI = () => {
@@ -47,7 +47,6 @@ export const GameUI = () => {
                         serverAddress={serverAddress}
                         room={room}
                         crewId={crewId}
-                        serverType={serverType}
                         allowMultipleCrews={allowMultipleCrews}
                         disconnect={disconnect}
                     />

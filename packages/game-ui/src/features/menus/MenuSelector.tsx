@@ -1,9 +1,9 @@
 import { ServerAddress } from 'common-types';
 import { useState } from 'react';
 
-import { InGameMenu } from './InGameMenu';
-import { JoinMenu } from './JoinMenu';
-import { MainMenu } from './MainMenu';
+import { InGameMenu } from './components/InGameMenu';
+import { JoinMenu } from './components/JoinMenu';
+import { MainMenu } from './components/MainMenu';
 
 type Props = {
     isConnectedToGame: boolean;
