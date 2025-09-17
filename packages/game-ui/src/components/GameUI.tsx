@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 import { Game } from '../features/game/Game';
 import { GameLobby } from '../features/menus/GameLobby';
-import { MainMenu } from '../features/menus/MainMenu';
+import { MenuSelector } from '../features/menus/components/MenuSelector';
 import { useServerConnection } from '../hooks/useServerConnection';
 
 export const GameUI = () => {
@@ -29,7 +29,7 @@ export const GameUI = () => {
         setServerAddress(undefined);
     };
 
-    if (connectionState === 'connected') {
+    if (connectionState === 'connected' && serverState !== 'paused') {
         if (serverState === 'active') {
             if (room && crewId) {
                 return <Game room={room} crewID={crewId} disconnect={disconnect} />;
@@ -59,14 +59,13 @@ export const GameUI = () => {
                     },
                 );
             }
-        } else if (serverState === 'paused') {
-            return <Screen centered>paused</Screen>;
         } else {
             console.warn('unexpected serverState', serverState);
         }
-    } else if (connectionState === 'disconnected') {
+    } else if (connectionState === 'disconnected' || serverState === 'paused') {
         return (
-            <MainMenu
+            <MenuSelector
+                isConnectedToGame={connectionState === 'connected'}
                 hostSingleCrewServer={() => {
                     setAllowMultipleCrews(false);
                     setServerType('local');
@@ -79,6 +78,10 @@ export const GameUI = () => {
                     setServerType('remote');
                     setServerAddress(address);
                 }}
+                resumeGame={() => {
+                    console.log('TODO: resume paused game');
+                }}
+                disconnect={disconnect}
                 quit={window.electronAPI.quit}
             />
         );

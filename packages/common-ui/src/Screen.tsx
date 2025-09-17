@@ -1,5 +1,6 @@
 import { PropsWithChildren } from 'react';
 
+import { classNames } from './classNames';
 import styles from './Screen.module.css';
 
 export type Props = {
@@ -7,16 +8,10 @@ export type Props = {
     centered?: true;
 };
 
-export const Screen: React.FC<PropsWithChildren<Props>> = (props) => {
-    let classNames = styles.screen;
-
-    if (props.centered) {
-        classNames += ' ' + styles.centered;
-    }
-
-    if (props.className) {
-        classNames += ' ' + props.className;
-    }
-
-    return <main className={classNames}>{props.children}</main>;
-};
+export const Screen: React.FC<PropsWithChildren<Props>> = (props) => (
+    <main
+        className={classNames(styles.screen, props.centered ? styles.centered : undefined, props.className)}
+    >
+        {props.children}
+    </main>
+);

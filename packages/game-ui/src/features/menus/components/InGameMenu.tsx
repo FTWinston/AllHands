@@ -1,0 +1,28 @@
+import { Screen } from 'common-ui/Screen';
+
+import { Menu } from './Menu';
+import { MenuItem } from './MenuItem';
+
+type Props = {
+    resumeGame: () => void;
+    disconnect: () => void;
+};
+
+export const InGameMenu: React.FC<Props> = (props) => {
+    return (
+        <Screen>
+            <Menu title="Make It So">
+                <MenuItem
+                    text="Resume game"
+                    onClick={props.resumeGame}
+                />
+
+                <MenuItem
+                    text="Disconnect"
+                    onClick={props.disconnect}
+                    confirmPrompt="Are you sure you want to disconnect?"
+                />
+            </Menu>
+        </Screen>
+    );
+};

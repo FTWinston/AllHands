@@ -1,0 +1,26 @@
+.menuItem {
+    display: flex;
+    align-items: center;
+}
+
+.menuButton {
+    padding: 0.25em;
+    color: var(--text-color);
+    transition: color 0.2s ease;
+}
+
+.menuButton:disabled {
+    cursor: default;
+}
+
+.menuButton:hover:not(:disabled), .menuButton:active:not(:disabled) {
+    color: var(--highlight-color);
+}
+
+.childrenWrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-left: 1em;
+    flex-grow: 1;
+}

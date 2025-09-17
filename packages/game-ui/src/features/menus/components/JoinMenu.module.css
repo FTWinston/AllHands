@@ -1,0 +1,13 @@
+.joiningForm {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+}
+
+.addressInput {
+    width: 9em;
+}
+
+.portInput {
+    width: 5em;
+}

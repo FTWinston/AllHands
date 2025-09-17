@@ -39,10 +39,15 @@ p, h1, h2, h3, h4, h5, h6 {
 
 ul, ol {
     list-style-type: none;
+    padding: 0;
 }
 
 #root {
     isolation: isolate;
+}
+
+::selection {
+  background-color: var(--primary-color);
 }
 
 :root {

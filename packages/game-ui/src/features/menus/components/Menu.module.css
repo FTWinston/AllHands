@@ -1,0 +1,14 @@
+.title {
+    font-size: 3em;
+}
+
+.menuRoot {
+    margin: 0.5em 5em 1em 0.5em;
+    font-size: 2em;
+}
+
+.menuList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+}
