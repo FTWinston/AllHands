@@ -1,0 +1,46 @@
+.role {
+    background-color: var(--primary-color);
+    border-radius: 1em;
+    corner-shape: squircle;
+    padding: 0.5em 1em;
+    display: flex;
+    align-items: center;
+    position: relative;
+    font-size: 1.5em;
+}
+
+.name {
+    font-weight: bold;
+    width: 7em;
+}
+
+.state {
+    text-transform: capitalize;
+}
+
+.role::after {
+  position: absolute;
+  top: 0em;
+  bottom: 0;
+  right: 0.5em;
+  display: flex;
+  align-items: center;
+}
+
+.role.ready::after {
+  content: '✅';
+}
+
+.role.occupied::after {
+  content: '☑️';
+  opacity: 0.333;
+}
+
+.role.unoccupied::after {
+  content: '⚪';
+  opacity: 0.333;
+}
+
+.role.ready .state {
+    color: var(--highlight-color);
+}

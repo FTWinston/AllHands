@@ -12,7 +12,7 @@ type Props = {
 
 export const MainMenu: React.FC<Props> = (props) => {
     return (
-        <Screen>
+        <Screen padded>
             <Menu title="Make It So">
                 <MenuItem
                     text="Start single-crew game"

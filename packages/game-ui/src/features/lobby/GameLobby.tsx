@@ -21,6 +21,7 @@ export const GameLobby: React.FC<Props> = (props) => {
     const [tacticalState, setTacticalState] = useState<SystemState>('unoccupied');
     const [sensorsState, setSensorsState] = useState<SystemState>('unoccupied');
     const [engineerState, setEngineerState] = useState<SystemState>('unoccupied');
+    const [isFull, setIsFull] = useState(false);
     const [numUnassigned, setNumUnassigned] = useState(0);
 
     useEffect(() => {
@@ -55,6 +56,7 @@ export const GameLobby: React.FC<Props> = (props) => {
             if (crew.engineerClientId) {
                 numUnassigned -= 1;
             }
+            setIsFull(crew.crewReady.size >= 4);
             setNumUnassigned(numUnassigned);
         };
 
@@ -118,6 +120,7 @@ export const GameLobby: React.FC<Props> = (props) => {
             sensorsState={sensorsState}
             engineerState={engineerState}
             numUnassigned={numUnassigned}
+            isFull={isFull}
         />
     );
 };

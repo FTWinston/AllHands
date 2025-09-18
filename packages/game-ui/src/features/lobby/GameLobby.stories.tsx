@@ -37,6 +37,7 @@ export const SingleCrewEmpty: Story = {
         sensorsState: 'unoccupied',
         engineerState: 'unoccupied',
         numUnassigned: 0,
+        isFull: false,
     },
 };
 
@@ -48,7 +49,8 @@ export const SingleCrewPartiallyOccupied: Story = {
         tacticalState: 'occupied',
         sensorsState: 'unoccupied',
         engineerState: 'unoccupied',
-        numUnassigned: 2,
+        numUnassigned: 1,
+        isFull: false,
     },
 };
 
@@ -60,6 +62,7 @@ export const SingleCrewReady: Story = {
         tacticalState: 'ready',
         sensorsState: 'ready',
         engineerState: 'ready',
+        isFull: true,
     },
 };
 
@@ -72,6 +75,7 @@ export const MultipleCrewEmpty: Story = {
         sensorsState: 'unoccupied',
         engineerState: 'unoccupied',
         numUnassigned: 0,
+        isFull: false,
     },
 };
 
@@ -84,6 +88,7 @@ export const MultipleCrewPartiallyOccupied: Story = {
         sensorsState: 'occupied',
         engineerState: 'unoccupied',
         numUnassigned: 2,
+        isFull: true,
     },
 };
 

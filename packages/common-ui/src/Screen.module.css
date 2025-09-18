@@ -10,3 +10,7 @@
     justify-content: center;
     align-items: center;
 }
+
+.padded {
+    padding: 1em 3em;
+}

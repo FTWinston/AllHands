@@ -18,7 +18,7 @@ export const JoinMenu: React.FC<Props> = (props) => {
     const [port, setPort] = useState(0);
 
     return (
-        <Screen>
+        <Screen padded>
             <Menu title="Join multi-crew game">
                 <MenuItem
                     text="Server address"

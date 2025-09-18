@@ -10,7 +10,7 @@ type Props = {
 
 export const InGameMenu: React.FC<Props> = (props) => {
     return (
-        <Screen>
+        <Screen padded>
             <Menu title="Make It So">
                 <MenuItem
                     text="Resume game"

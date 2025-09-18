@@ -3,9 +3,12 @@ import { Button } from 'common-ui/Button';
 import { Screen } from 'common-ui/Screen';
 import QRCode from 'react-qr-code';
 
+import styles from './GameLobby.module.css';
+import { LobbyRole } from './LobbyRole';
+
 export type SystemState = 'unoccupied' | 'occupied' | 'ready';
 
-export type GameLobbyDisplayProps = {
+export type Props = {
     serverAddress: ServerAddress;
     crewId: string;
     allowMultipleCrews: boolean;
@@ -15,9 +18,11 @@ export type GameLobbyDisplayProps = {
     sensorsState: SystemState;
     engineerState: SystemState;
     numUnassigned: number;
+    numCrew: number;
+    isFull: boolean;
 };
 
-export const GameLobbyDisplay: React.FC<GameLobbyDisplayProps> = (props) => {
+export const GameLobbyDisplay: React.FC<Props> = (props) => {
     const { serverAddress, crewId, allowMultipleCrews, helmState, tacticalState, sensorsState, engineerState, numUnassigned } = props;
 
     let serverUrl = `http://${serverAddress.ip}:${serverAddress.port}/`;
@@ -26,35 +31,49 @@ export const GameLobbyDisplay: React.FC<GameLobbyDisplayProps> = (props) => {
     }
 
     return (
-        <Screen>
-            <h1>Scan to connect</h1>
-            <p>
-                Open your phone camera and scan the QR code below to join {allowMultipleCrews ? 'this crew' : 'the game'}.
-            </p>
-            <p>
-                Or open your browser and go to <strong>{serverUrl}</strong>
-            </p>
-            <QRCode value={serverUrl} size={256} />
-
-            <div>
-                <p>Your crew has the following roles:</p>
-                <ul>
-                    <li>Helm: {helmState}</li>
-                    <li>Tactical: {tacticalState}</li>
-                    <li>Sensors: {sensorsState}</li>
-                    <li>Engineer: {engineerState}</li>
-                </ul>
-                {numUnassigned > 0 && (
+        <Screen padded>
+            <h1 className={styles.title}>Crew setup</h1>
+            <div className={styles.sections}>
+                <div className={styles.section}>
+                    <h2 className={styles.sectionHeading}>Scan to connect</h2>
                     <p>
-                        There {numUnassigned === 1 ? 'is' : 'are'} also {numUnassigned} unassigned crew member{numUnassigned === 1 ? '' : 's'}.
+                        To join {allowMultipleCrews ? 'this crew' : 'the game'}, use your phone camera to scan the QR code below,
+                        or go to <strong className={styles.url}>{serverUrl}</strong> in your mobile browser.
                     </p>
-                )}
+                    <div className={styles.qrCodeContainer}>
+                        <QRCode
+                            className={styles.qrCode}
+                            value={serverUrl}
+                            size={256}
+                            bgColor="var(--text-color)"
+                        />
+                        {props.isFull && <div className={styles.fullSize}>🚫</div>}
+                    </div>
+                </div>
+                <div className={styles.section}>
+                    <h2 className={styles.sectionHeading}>Crew roles</h2>
+                    <p>
+                        This crew has 4 different roles. Each crew member must select one.
+                    </p>
+                    <ul className={styles.roleList}>
+                        <LobbyRole name="Helm" state={helmState} />
+                        <LobbyRole name="Tactical" state={tacticalState} />
+                        <LobbyRole name="Sensors" state={sensorsState} />
+                        <LobbyRole name="Engineer" state={engineerState} />
+                    </ul>
+                    {numUnassigned > 0 && (
+                        <p>
+                            There {numUnassigned === 1 ? 'is' : 'are'} also <span className={styles.numUnassigned}>{numUnassigned} unassigned</span> crew member{numUnassigned === 1 ? '' : 's'}.
+                        </p>
+                    )}
+                </div>
             </div>
-
-            <Button
-                onClick={props.disconnect}
-                label="Disconnect"
-            />
+            <div className={styles.footer}>
+                <Button
+                    onClick={props.disconnect}
+                    label="Disconnect"
+                />
+            </div>
         </Screen>
     );
 };
