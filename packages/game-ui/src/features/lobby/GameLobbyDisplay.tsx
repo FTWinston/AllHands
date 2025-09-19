@@ -3,7 +3,7 @@ import { Button } from 'common-ui/Button';
 import { Screen } from 'common-ui/Screen';
 import QRCode from 'react-qr-code';
 
-import styles from './GameLobby.module.css';
+import styles from './GameLobbyDisplay.module.css';
 import { LobbyRole } from './LobbyRole';
 
 export type SystemState = 'unoccupied' | 'occupied' | 'ready';
@@ -18,7 +18,6 @@ export type Props = {
     sensorsState: SystemState;
     engineerState: SystemState;
     numUnassigned: number;
-    numCrew: number;
     isFull: boolean;
 };
 

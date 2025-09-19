@@ -17,7 +17,7 @@ export const ToggleButton: React.FC<Props> = ({ label, pressed, onPressedChanged
         onPressedChange={onPressedChanged}
         {...props}
         render={(props, state) => (
-            <Button {...props} className={classNames(styles.toggle, state.pressed ? styles.pressed : styles.unpressed)} label={label} />
+            <Button {...props} className={classNames(styles.toggle, state.pressed ? styles.pressed : styles.unpressed, props.className)} label={label} />
         )}
     />
 );

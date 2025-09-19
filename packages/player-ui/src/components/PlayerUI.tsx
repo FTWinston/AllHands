@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { Engineer } from '../features/engineer';
 import { Helm } from '../features/helm';
-import { GameLobby } from '../features/menus/GameLobby';
+import { GameLobby } from '../features/lobby/GameLobby';
 import { Sensors } from '../features/sensors';
 import { Tactical } from '../features/tactical';
 import { useRoomConnection } from '../hooks/useRoomConnection';

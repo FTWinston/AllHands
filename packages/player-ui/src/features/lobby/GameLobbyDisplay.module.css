@@ -1,0 +1,17 @@
+.readyToggle {
+    width: 12em;
+}
+
+.roleList {
+    margin: 1em 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.footer {
+    display: flex;
+    justify-content: center;
+    gap: 2em;
+    margin-top: 2em;
+}
