@@ -1,9 +1,9 @@
-import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
-import tsconfigPaths from 'vite-tsconfig-paths';
+import { defineConfig, mergeConfig } from 'vite';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-    base: './',
-    plugins: [react(), tsconfigPaths()],
+import commonConfig from '../../vite.common.config';
+
+export default defineConfig((env) => {
+    return mergeConfig(commonConfig(env), {
+        base: './',
+    });
 });

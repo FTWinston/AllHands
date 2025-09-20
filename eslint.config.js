@@ -1,72 +1,94 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import stylistic from '@stylistic/eslint-plugin';
-import importPlugin from 'eslint-plugin-import';
-import reactPlugin from 'eslint-plugin-react';
-import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import storybook from 'eslint-plugin-storybook';
+import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
-import tseslint from 'typescript-eslint';
+import js from '@eslint/js';
+import stylistic from '@stylistic/eslint-plugin';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import parserTs from '@typescript-eslint/parser';
+import importPlugin from 'eslint-plugin-import';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
 
-export default [
+export default defineConfig([
+    globalIgnores([
+        '**/node_modules/**',
+        '**/dist/**',
+        'packages/am/src/features/api/types/endpoints.ts', // Do not lint auto-generated endpoint file.
+    ]),
     {
-        ignores: ['**/dist/', '**/node_modules/', '.vscode/'],
-    },
-    ...tseslint.configs.recommended,
-    {
-        files: ['**/*.{js,mts,ts,tsx}'],
-        plugins: {
-            react: reactPlugin,
-            'react-hooks': reactHooksPlugin,
-            '@stylistic': stylistic,
-            import: importPlugin,
-        },
+        files: ['packages/*/src/**/*.{js,mjs,cjs,ts,jsx,tsx}'],
         languageOptions: {
+            globals: globals.browser,
+            parser: parserTs,
             parserOptions: {
+                ecmaVersion: 'latest',
+                sourceType: 'module',
                 ecmaFeatures: {
                     jsx: true,
                 },
+                project: [
+                    './tsconfig.json',
+                    './tsconfig.node.json',
+                    './packages/*/tsconfig.json',
+                    './packages/*/tsconfig.node.json',
+                ],
+                tsconfigRootDir: import.meta.dirname,
             },
-            globals: {
-                ...globals.browser,
-                ...globals.node,
+        },
+        plugins: {
+            '@stylistic': stylistic,
+            '@typescript-eslint': tseslint,
+            'react-hooks': reactHooks,
+            'react-refresh': reactRefresh,
+            import: importPlugin,
+            js,
+            'jsx-a11y': jsxA11y,
+        },
+        settings: {
+            react: {
+                version: 'detect',
             },
         },
         rules: {
-            ...reactPlugin.configs.recommended.rules,
-            ...reactHooksPlugin.configs.recommended.rules,
-            'react/react-in-jsx-scope': 'off',
-            'react/prop-types': 'off',
-
-            // Stylistic/Whitespace rules
-            '@stylistic/indent': ['error', 4],
-            '@stylistic/quotes': ['error', 'single'],
-            '@stylistic/semi': ['error', 'always'],
-            '@stylistic/eol-last': ['error', 'always'],
-            '@stylistic/linebreak-style': ['error', 'windows'],
-            '@stylistic/comma-dangle': ['error', 'always-multiline'],
-            '@stylistic/object-curly-spacing': ['error', 'always'],
-            '@stylistic/array-bracket-spacing': ['error', 'never'],
-            '@stylistic/space-before-function-paren': ['error', 'never'],
-            '@stylistic/brace-style': ['error', '1tbs'],
-            '@stylistic/space-in-parens': ['error', 'never'],
-            '@stylistic/space-before-blocks': ['error', 'always'],
-            '@stylistic/keyword-spacing': ['error', { before: true, after: true }],
-            '@stylistic/comma-spacing': ['error', { before: false, after: true }],
-            '@stylistic/key-spacing': ['error', { beforeColon: false, afterColon: true }],
-            '@stylistic/no-trailing-spaces': 'error',
-            '@stylistic/no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0, maxBOF: 0 }],
-            '@stylistic/padded-blocks': ['error', 'never'],
-            '@stylistic/space-infix-ops': 'error',
-            '@stylistic/space-unary-ops': ['error', { words: true, nonwords: false }],
-            '@stylistic/arrow-spacing': ['error', { before: true, after: true }],
-            '@stylistic/block-spacing': ['error', 'always'],
-            '@stylistic/computed-property-spacing': ['error', 'never'],
-            '@stylistic/operator-linebreak': ['error', 'before'],
-            '@stylistic/rest-spread-spacing': ['error', 'never'],
-            '@stylistic/template-curly-spacing': ['error', 'never'],
-
-            // Import ordering and grouping rules
-            'import/order': ['error', {
+            ...js.configs.recommended.rules,
+            ...tseslint.configs.recommended.rules,
+            ...reactHooks.configs.recommended.rules,
+            ...jsxA11y.flatConfigs.recommended.rules,
+            ...stylistic.configs.recommended.rules,
+            '@stylistic/quotes': ['warn', 'single', { avoidEscape: true }],
+            ...jsdoc.configs['flat/recommended'].rules,
+            'arrow-spacing': ['warn', { before: true, after: true }],
+            'no-var': 'warn',
+            'no-redeclare': 'off',
+            '@typescript-eslint/no-redeclare': 'error',
+            '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+            '@stylistic/comma-dangle': ['warn', {
+                arrays: 'always-multiline',
+                objects: 'always-multiline',
+                functions: 'never',
+                imports: 'always-multiline',
+                enums: 'always-multiline',
+            }],
+            '@stylistic/semi': ['warn', 'always'],
+            '@stylistic/indent': ['warn', 4],
+            '@stylistic/indent-binary-ops': ['warn', 4],
+            '@stylistic/jsx-indent-props': ['warn', 4],
+            '@stylistic/jsx-closing-tag-location': ['warn', 'line-aligned'],
+            '@stylistic/member-delimiter-style': ['warn', {
+                multiline: {
+                    delimiter: 'semi',
+                    requireLast: true,
+                },
+                singleline: {
+                    delimiter: 'semi',
+                    requireLast: false,
+                },
+                multilineDetection: 'brackets',
+            }],
+            '@stylistic/max-statements-per-line': 'off',
+            '@stylistic/multiline-ternary': 'off',
+            '@stylistic/brace-style': ['warn', '1tbs'],
+            'import/order': ['warn', {
                 groups: [
                     'builtin',
                     'external',
@@ -76,33 +98,18 @@ export default [
                     'index',
                     'type',
                 ],
-                'newlines-between': 'always',
                 alphabetize: {
                     order: 'asc',
                     caseInsensitive: true,
                 },
-                pathGroups: [
-                    {
-                        pattern: '@/**',
-                        group: 'internal',
-                        position: 'before',
-                    },
-                ],
                 pathGroupsExcludedImportTypes: ['builtin'],
             }],
-            'import/newline-after-import': ['error', { count: 1 }],
-            'import/no-duplicates': 'error',
-            'import/first': 'error',
-
-            // Additional strict rules
-            curly: ['error', 'all'],
-            'no-var': 'error',
-        },
-        settings: {
-            react: {
-                version: 'detect',
-            },
+            'import/newline-after-import': ['warn', { count: 1 }],
+            'import/no-duplicates': ['warn', {
+                "considerQueryString": true,
+                "prefer-inline": true,
+            }],
+            'import/first': 'warn',
         },
     },
-    ...storybook.configs['flat/recommended'],
-];
+]);

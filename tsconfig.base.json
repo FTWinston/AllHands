@@ -17,20 +17,11 @@
       "common-types": [
         "./packages/common-types/src"
       ],
-      "common-ui": [
-        "./packages/common-ui/src"
-      ],
       "common-ui/*": [
         "./packages/common-ui/src/*"
       ],
-      "engine": [
-        "./packages/engine/src"
-      ],
       "engine/*": [
         "./packages/engine/src/*"
-      ],
-      "game-ui": [
-        "./packages/game-ui/src"
       ],
       "game-ui/*": [
         "./packages/game-ui/src/*"

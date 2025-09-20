@@ -1,6 +1,18 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "baseUrl": "."
-  }
+
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/common-types"
+    },
+    {
+      "path": "./packages/common-ui"
+    },
+    {
+      "path": "./packages/engine"
+    },
+    {
+      "path": "./packages/game-app"
+    }
+  ]
 }
