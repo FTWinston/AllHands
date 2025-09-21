@@ -18,7 +18,7 @@ export const LobbyRole: React.FC<Props> = (props) => {
         <li className={classNames(styles.role, styles[state])}>
             <span className={styles.icon}>{props.icon}</span>
             <span className={styles.name}>{name}</span>
-            <span className={styles.state}>{state}</span>
+            {props.state !== 'unoccupied' && <span className={styles.state}>{state}</span>}
         </li>
     );
 };

@@ -87,8 +87,8 @@ export const MultipleCrewPartiallyOccupied: Story = {
         tacticalState: 'unoccupied',
         sensorsState: 'occupied',
         engineerState: 'unoccupied',
-        numUnassigned: 2,
-        isFull: true,
+        numUnassigned: 1,
+        isFull: false,
     },
 };
 
@@ -101,5 +101,6 @@ export const MultipleCrewReady: Story = {
         sensorsState: 'ready',
         engineerState: 'ready',
         numUnassigned: 0,
+        isFull: true,
     },
 };

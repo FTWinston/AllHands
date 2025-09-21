@@ -1,5 +1,6 @@
 .role {
     background-color: var(--primary-color);
+    color: var(--highlight-color);
     border-radius: 1em;
     corner-shape: squircle;
     padding: 0.5em 1em;
@@ -12,11 +13,12 @@
 
 .name {
     font-weight: bold;
-    width: 7em;
+    flex-grow: 1;
 }
 
 .state {
     text-transform: capitalize;
+    margin-right: 1.75em;
 }
 
 .role::after {
@@ -37,13 +39,8 @@
   opacity: 0.333;
 }
 
-.role.unoccupied::after {
-  content: '⚪';
-  opacity: 0.333;
-}
-
-.role.ready .state {
-    color: var(--highlight-color);
+.role.occupied .state {
+    color: var(--text-color);
 }
 
 .icon {
