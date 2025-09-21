@@ -1,13 +1,11 @@
-import { fn } from 'storybook/test';
-
-import { Button as Component } from './Button';
+import { default as HelmIcon } from './helm.svg?react';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-    title: 'common-ui/Button',
-    component: Component,
+    title: 'common-ui/Icons/Crew',
+    component: HelmIcon,
     parameters: {
         // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
         layout: 'centered',
@@ -15,36 +13,14 @@ const meta = {
     // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
     tags: ['autodocs'],
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
-    args: { onClick: fn() },
-} satisfies Meta<typeof Component>;
+    args: { },
+} satisfies Meta<typeof HelmIcon>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Basic: Story = {
+// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+export const Button: Story = {
     args: {
-        label: 'Button',
-    },
-};
-
-export const StartIcon: Story = {
-    args: {
-        label: 'Button',
-        startIcon: '😊',
-    },
-};
-
-export const EndIcon: Story = {
-    args: {
-        label: 'Button',
-        endIcon: '😁',
-    },
-};
-
-export const BothIcons: Story = {
-    args: {
-        startIcon: '😊',
-        label: 'Button',
-        endIcon: '😁',
     },
 };

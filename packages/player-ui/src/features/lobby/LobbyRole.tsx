@@ -1,8 +1,10 @@
 import { Button, classNames, ToggleButton } from 'common-ui';
+import { JSX } from 'react';
 
 import styles from './LobbyRole.module.css';
 
 export type Props = {
+    icon?: JSX.Element;
     name: string;
     occupied: boolean;
     selected: boolean;
@@ -16,8 +18,9 @@ export const LobbyRole: React.FC<Props> = (props) => {
         return (
             <Button
                 className={styles.role}
-                label={props.name}
                 disabled
+                label={props.name}
+                startIcon={props.icon}
             />
         );
     }
@@ -26,9 +29,10 @@ export const LobbyRole: React.FC<Props> = (props) => {
         <ToggleButton
             className={classNames(styles.role, props.occupied && !props.selected ? styles.blocked : null)}
             disabled={props.occupied && !props.selected}
-            label={props.name}
             pressed={props.selected}
             onPressedChanged={props.onSelectionChange}
+            label={props.name}
+            startIcon={props.icon}
         />
     );
 };

@@ -5,6 +5,7 @@ import QRCode from 'react-qr-code';
 
 import styles from './GameLobbyDisplay.module.css';
 import { LobbyRole } from './LobbyRole';
+import { EngineeringIcon, HelmIcon, SensorsIcon, TacticalIcon } from 'common-ui/icons/crew';
 
 export type SystemState = 'unoccupied' | 'occupied' | 'ready';
 
@@ -55,10 +56,26 @@ export const GameLobbyDisplay: React.FC<Props> = (props) => {
                         This crew has 4 different roles. Each crew member must select one.
                     </p>
                     <ul className={styles.roleList}>
-                        <LobbyRole name="Helm" state={helmState} />
-                        <LobbyRole name="Tactical" state={tacticalState} />
-                        <LobbyRole name="Sensors" state={sensorsState} />
-                        <LobbyRole name="Engineer" state={engineerState} />
+                        <LobbyRole
+                            name="Helm"
+                            icon={<HelmIcon />}
+                            state={helmState}
+                        />
+                        <LobbyRole
+                            name="Tactical"
+                            icon={<TacticalIcon />}
+                            state={tacticalState}
+                        />
+                        <LobbyRole
+                            name="Sensors"
+                            icon={<SensorsIcon />}
+                            state={sensorsState}
+                        />
+                        <LobbyRole
+                            name="Engineer"
+                            icon={<EngineeringIcon />}
+                            state={engineerState}
+                        />
                     </ul>
                     {numUnassigned > 0 && (
                         <p>

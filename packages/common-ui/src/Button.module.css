@@ -1,5 +1,7 @@
 .button {
-  display: inline-block;
+  display: inline-flex;
+  gap: 0.5em;
+  align-items: center;
   cursor: pointer;
   border-radius: 3em;
   corner-shape: squircle;
@@ -32,4 +34,29 @@
   background-color: transparent;
   color: var(--text-color);
   cursor: not-allowed;
+}
+
+.label {
+  flex-grow: 1;
+  padding: 0 0.333em;
+}
+
+.hasStartIcon {
+  padding-left: 0.667em;
+}
+
+.hasEndIcon {
+  padding-right: 0.667em;
+}
+
+.icon {
+  font-size: 1.25em;
+  max-width: 1em;
+  display: flex;
+  justify-content: center;
+}
+
+.icon > svg {
+  height: 1em;
+  width: 1em;
 }
