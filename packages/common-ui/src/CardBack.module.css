@@ -1,0 +1,44 @@
+.card {
+  --card-background-color: color-mix(in srgb, var(--background-color) 65%, var(--primary-color));
+  --card-back-color: color-mix(in srgb, var(--background-color) 50%, var(--primary-color));
+
+  background-image:
+    repeating-linear-gradient(135deg, var(--card-back-color) 0 5px, transparent 5px 10px),
+    repeating-linear-gradient(225deg, var(--card-back-color) 0 5px, transparent 5px 10px);
+  background-size: 10px 10px;
+  color: var(--highlight-color);
+}
+
+.topSpacer {
+  height: 1.25em;
+}
+
+.crew {
+  height: 7.5em;
+  width: 7.5em;
+  flex-grow: 1;
+}
+
+.name {
+  height: 1.25em;
+  text-transform: capitalize;
+  background-color: var(--card-back-color);
+  line-height: 1.25em;
+}
+
+/* Adjust padding so background pattern is obscured to fit text width */
+.helm .name {
+  padding: 0 0.4em;
+}
+
+.tactical .name {
+  padding: 0 0.3em;
+}
+
+.sensors .name {
+  padding: 0 0.15em;
+}
+
+.engineer .name {
+  padding: 0 0.6em;
+}
