@@ -17,7 +17,8 @@ export const Helm: Story = {
     args: {
         crew: 'helm',
         name: 'Some Card',
-        description: 'A card that has a particular effect, for a particular crew role.',
+        description: 'A card that has a particular effect, for a particular crew role. Extra line!',
+        descriptionLineHeight: 1.25,
         image: <ExampleIcon />,
         cost: 1,
     },
@@ -26,7 +27,7 @@ export const Helm: Story = {
 export const Tactical: Story = {
     args: {
         crew: 'tactical',
-        name: 'Some Card',
+        name: 'Some Card with a longer title',
         description: 'A card that has a particular effect, for a particular crew role.',
         image: <ExampleIcon />,
         cost: 1,
@@ -36,7 +37,8 @@ export const Tactical: Story = {
 export const Sensors: Story = {
     args: {
         crew: 'sensors',
-        name: 'Some Card',
+        name: 'Some Card with a title that\'s really quite long',
+        nameFontSize: 0.9,
         description: 'A card that has a particular effect, for a particular crew role.',
         image: <ExampleIcon />,
         cost: 1,

@@ -2,33 +2,26 @@
   width: 11.2em;
   height: 16em;
   border: solid var(--text-color) 0.1em;
-  padding: 0.667em 1em;
+  padding: 0.667em;
   border-radius: 1.5em;
   corner-shape: squircle;
   transition: border-color 0.2s linear;
-  --card-background-color: color-mix(in srgb, var(--background-color) 90%, var(--primary-color));
-  background-color: var(--card-background-color);
+  background-color: oklch(from var(--primary-color) 0.3 0.03 h);
   position: relative;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 0.5em;
 }
 
 .helm {
-  --primary-color: #4caf50;
+  --primary-color: oklch(0.656 0.147 155.43);
 }
 
 .tactical {
-  --primary-color: #2196f3;
+  --primary-color: oklch(0.656 0.147 90);
 }
 
 .sensors {
-  --primary-color: #ff9800;
+  --primary-color: oklch(0.6559 0.147 260.12);
 }
 
 .engineer {
-  --primary-color: #9c27b0;
+  --primary-color: oklch(0.6559 0.147 292);
 }

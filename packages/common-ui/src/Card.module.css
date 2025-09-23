@@ -1,11 +1,30 @@
+.card {
+  align-items: stretch;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 7.5em 2em 1fr;
+  gap: 0.25em;
+}
+
 .image {
-  height: 7.5em;
-  width: 7.5em;
+  background-color: var(--background-color);
+  overflow: hidden;
+  border: solid var(--background-color) 0.1em;
+  outline: solid var(--text-color) 0.1em;
+  corner-shape: bevel;
+  corner-top-left-shape: scoop;
+  border-radius: 1.6em 0.25em 0.25em 0.25em;
+  flex-shrink: 0;
 }
 
 .name {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   transition: color 0.2s ease-in-out;
+  flex-shrink: 0;
+  line-height: 1.1em;
 }
 
 .card:hover {
@@ -17,14 +36,16 @@
 }
 
 .description {
-  font-size: 0.875em;
+  font-size: 0.825em;
+  display: flex;
+  flex-direction: column;
 }
 
 .cost {
   position: absolute;
-  top: 0.2em;
-  left: 0.2em;
-  font-size: 1.5em;
+  top: -0.3em;
+  left: -0.3em;
+  font-size: 2.75em;
   font-weight: bold;
   color: var(--highlight-color);
   background-color: var(--primary-color);
@@ -34,15 +55,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.crew {
-  width: 1.5em;
-  height: 1.5em;
-  position: absolute;
-  top: 0.3em;
-  right: 0.3em;
-  color: var(--text-color);
-  opacity: 0.5;
-  color: var(--highlight-color);
+  border: solid oklch(from var(--primary-color) 0.8 c h) 0.05em;
+  font-family: monospace;
 }

@@ -52,10 +52,10 @@ ul, ol {
 
 :root {
     user-select: none;
-    --background-color: #333;
-    --text-color: #bbc;
-    --highlight-color: #fff;
-    --primary-color: #555ab9;
+    --background-color: oklch(0.3211 0 0);
+    --text-color: oklch(0.7921 0 0);
+    --highlight-color: oklch(1 0 0);
+    --primary-color: oklch(0.5132 0.147 277.61);
     --main-font-family: 'Jura', sans-serif;
 
     background-color: var(--background-color);

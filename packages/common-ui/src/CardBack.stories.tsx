@@ -5,8 +5,6 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 const meta = {
     title: 'common-ui/Card Back',
     component: Component,
-    // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
-    tags: ['autodocs'],
 } satisfies Meta<typeof Component>;
 
 export default meta;

@@ -1,6 +1,10 @@
 .card {
-  --card-background-color: color-mix(in srgb, var(--background-color) 65%, var(--primary-color));
-  --card-back-color: color-mix(in srgb, var(--background-color) 50%, var(--primary-color));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: var(--primary-color);
+  --card-back-color: oklch(from var(--primary-color) calc(l * 0.9) 0.2 h);
 
   background-image:
     repeating-linear-gradient(135deg, var(--card-back-color) 0 5px, transparent 5px 10px),
