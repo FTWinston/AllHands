@@ -1,0 +1,15 @@
+.hand {
+    display: flex;
+    gap: 1em;
+    justify-content: center;
+    align-items: flex-end;
+    width: 100%;
+    height: 17.5em;
+    position: relative;
+}
+
+.cardWrapper {
+    position: absolute;
+    bottom: 0;
+    transition: transform 0.3s ease-in-out;
+}

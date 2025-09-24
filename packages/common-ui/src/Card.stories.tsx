@@ -6,8 +6,6 @@ import { default as ExampleIcon } from './icons/exampleIcon.svg?react';
 const meta = {
     title: 'common-ui/Card',
     component: Component,
-    // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
-    tags: ['autodocs'],
 } satisfies Meta<typeof Component>;
 
 export default meta;

@@ -1,10 +1,9 @@
 import styles from './Card.module.css';
 import { CrewRoleName } from 'common-types';
-import { HelmIcon, TacticalIcon, SensorsIcon, EngineeringIcon } from './icons/crew';
 import { CardBase } from './CardBase';
 import { classNames } from './classNames';
 
-export type Props = {
+export type CardProps = {
     name: string;
     crew: CrewRoleName;
     description: string;
@@ -15,25 +14,7 @@ export type Props = {
     descriptionLineHeight?: number;
 };
 
-export const Card: React.FC<Props> = (props) => {
-    let crewIcon: React.ReactNode;
-    switch (props.crew) {
-        case 'helm':
-            crewIcon = <HelmIcon className={styles.crew} />;
-            break;
-        case 'tactical':
-            crewIcon = <TacticalIcon className={styles.crew} />;
-            break;
-        case 'sensors':
-            crewIcon = <SensorsIcon className={styles.crew} />;
-            break;
-        case 'engineer':
-            crewIcon = <EngineeringIcon className={styles.crew} />;
-            break;
-        default:
-            crewIcon = null;
-    }
-
+export const Card: React.FC<CardProps> = (props) => {
     return (
         <CardBase className={classNames(styles.card, props.className)} crew={props.crew}>
             <div className={styles.image} role="presentation">{props.image}</div>

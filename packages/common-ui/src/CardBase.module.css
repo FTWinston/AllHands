@@ -1,7 +1,7 @@
 .card {
   width: 11.2em;
   height: 16em;
-  border: solid var(--text-color) 0.1em;
+  border: solid var(--text-color) 0.2em;
   padding: 0.667em;
   border-radius: 1.5em;
   corner-shape: squircle;
