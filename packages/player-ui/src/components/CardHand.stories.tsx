@@ -18,6 +18,13 @@ const meta: Meta<typeof CardHandDisplay> = {
     args: {
         onPlay: fn(),
     },
+    decorators: [
+        (Story) => (
+            <div style={{ height: '80vh', display: 'flex' }}>
+                <Story />
+            </div>
+        ),
+    ]
 };
 
 export default meta;
@@ -50,7 +57,7 @@ export const Three: Story = {
             {
                 crew: 'sensors',
                 name: 'Some Card with a title that\'s really quite long',
-                nameFontSize: 0.9,
+                nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
                 cost: 1,
@@ -81,7 +88,7 @@ export const Five: Story = {
             {
                 crew: 'sensors',
                 name: 'Some Card with a title that\'s really quite long',
-                nameFontSize: 0.9,
+                nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
                 cost: 1,
@@ -126,7 +133,7 @@ export const Nine: Story = {
             {
                 crew: 'sensors',
                 name: 'Some Card with a title that\'s really quite long',
-                nameFontSize: 0.9,
+                nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
                 cost: 1,
@@ -164,7 +171,7 @@ export const Nine: Story = {
             {
                 crew: 'sensors',
                 name: 'Some Card with a title that\'s really quite long',
-                nameFontSize: 0.9,
+                nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
                 cost: 1,

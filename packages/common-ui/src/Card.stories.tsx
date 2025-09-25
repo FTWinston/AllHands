@@ -36,7 +36,7 @@ export const Sensors: Story = {
     args: {
         crew: 'sensors',
         name: 'Some Card with a title that\'s really quite long',
-        nameFontSize: 0.9,
+        nameFontSize: 0.88,
         description: 'A card that has a particular effect, for a particular crew role.',
         image: <ExampleIcon />,
         cost: 1,

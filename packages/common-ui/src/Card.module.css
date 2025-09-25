@@ -24,7 +24,7 @@
   align-items: center;
   transition: color 0.2s ease-in-out;
   flex-shrink: 0;
-  line-height: 1.1em;
+  line-height: 1em;
 }
 
 .card:hover {
