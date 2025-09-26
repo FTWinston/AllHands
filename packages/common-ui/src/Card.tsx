@@ -4,6 +4,7 @@ import { CardBase } from './CardBase';
 import { classNames } from './classNames';
 
 export type CardProps = {
+    id: number;
     name: string;
     crew: CrewRoleName;
     description: string;
