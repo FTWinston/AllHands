@@ -14,7 +14,7 @@
 .cardWrapper {
     position: absolute;
     bottom: 0;
-    transition: transform 0.33s ease-in-out;
+    transition: transform 0.33s ease-in-out, opacity 0.33s ease-in-out;
     transform: translateX(var(--dx)) rotate(var(--r)) translateY(var(--dy)) scale(var(--scale));
     z-index: var(--index);
     --midOffset: calc(var(--index) - var(--midIndex));
@@ -32,6 +32,13 @@
     --scale: 1;
 }
 
-.cardWrapper.newlyAdding {
+.adding {
     transform: translateX(calc(50vw + 7em)) scale(var(--scale));
+}
+
+.removing {
+    --dy: -50vh;
+    --r: 0deg;
+    --scale: 0.1;
+    opacity: 0;
 }
