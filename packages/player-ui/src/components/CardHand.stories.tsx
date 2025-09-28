@@ -5,6 +5,7 @@ import { CardHandDisplay } from './CardHandDisplay';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { useState } from 'react';
 import { Button } from 'common-ui/Button';
+import { CardDropTarget } from './CardDropTarget';
 
 const meta: Meta<typeof CardHandDisplay> = {
     title: 'player-ui/Card Hand',
@@ -27,6 +28,20 @@ const meta: Meta<typeof CardHandDisplay> = {
         return (
             <div style={{ height: '100vh', display: 'flex' }}>
                 <CardHandDisplay {...args} cards={cards} />
+
+                <div style={{position: 'absolute', top: 10, left: 10}}>
+                    <CardDropTarget
+                        droppedCard={cardId => {
+                            console.log(`dropped card ${cardId} on example target`);
+                            // This should be a card ID that's passed, but we actually get an index.
+                            setCards(cards => cards.slice(0, cardId).concat(cards.slice(cardId + 1)));
+                            fn();
+                        }}
+                        targetId='example-target'
+                    >
+                        Drop it here
+                    </CardDropTarget>
+                </div>
 
                 <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', gap: '1em' }}>
                     <Button

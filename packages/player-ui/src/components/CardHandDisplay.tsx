@@ -1,4 +1,4 @@
-import { use, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Card, CardProps } from 'common-ui/Card';
 import styles from './CardHand.module.css';
 import { classNames } from 'common-ui/classNames';
@@ -8,18 +8,30 @@ type WrapperProps = React.PropsWithChildren<{
     index: number;
 }>
 
-const CardWrapper: React.FC<WrapperProps> = ({ children, state, index }) => (
-    <li
-        className={classNames(styles.cardWrapper, styles[state])}
-        style={{
-            // @ts-ignore
-            '--index': index,
-        }}
-        tabIndex={0}
-    >
-        {children}
-    </li>
-);
+const CardWrapper: React.FC<WrapperProps> = ({ children, state, index }) => {
+    const [dragging, setDragging] = useState(false);
+
+    return (
+        <li
+            className={classNames(styles.cardWrapper, styles[state], dragging ? styles.dragging : null)}
+            style={{
+                // @ts-ignore
+                '--index': index,
+            }}
+            tabIndex={0}
+            draggable={true}
+            onDragStart={(e) => {
+                // TODO: this should really be the card ID instead of the index.
+                e.dataTransfer.setData('text/card', index.toString());
+                e.dataTransfer.effectAllowed = 'move';
+                setDragging(true);
+            }}
+            onDragEnd={() => setDragging(false)}
+        >
+            {children}
+        </li>
+    );
+}
 
 type Props = {
     cards: CardProps[];
@@ -81,7 +93,7 @@ function useTrackCardChanges(cards: CardProps[]) {
             });
             
             knownCards.current = knownCards.current.filter(card => !newlyRemovingCards.some(removing => removing.id === card.id));
-        }, 500);
+        }, 330);
     }, [cards])
 
     return { knownCards: knownCards.current, inHandCardIds, removingCardIds };

@@ -15,6 +15,7 @@ body {
     -webkit-font-smoothing: antialiased;
     
     font-family: var(--main-font-family);
+    overscroll-behavior: none;
 }
 
 img, picture, video, canvas, svg {

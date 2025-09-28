@@ -20,7 +20,7 @@
     --midOffset: calc(var(--index) - var(--midIndex));
     --absMidOffset: sqrt((var(--midOffset)) * (var(--midOffset)));
     --dx: calc(min(7em, ((94vw - 8em) / (var(--numCards) - 1))) * (var(--index) - var(--midIndex)));
-    --dy: calc(var(--absMidOffset) * 0.8em);
+    --dy: calc(var(--absMidOffset) * var(--absMidOffset) * 0.2em);
     --r: calc((var(--index) - (var(--numCards) - 1) / 2) * 5deg);
     --scale: 0.75;
 }
@@ -41,4 +41,9 @@
     --r: 0deg;
     --scale: 0.1;
     opacity: 0;
+}
+
+.dragging {
+    transition: transform 0.33s ease-in-out;
+    opacity: 0.001;
 }

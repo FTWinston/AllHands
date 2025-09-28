@@ -1,0 +1,3 @@
+.dropping {
+    outline: solid var(--primary-color) 0.25em;
+}
