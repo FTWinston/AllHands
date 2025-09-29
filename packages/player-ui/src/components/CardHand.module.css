@@ -19,7 +19,8 @@
     z-index: var(--index);
     --midOffset: calc(var(--index) - var(--midIndex));
     --absMidOffset: sqrt((var(--midOffset)) * (var(--midOffset)));
-    --dx: calc(min(7em, ((94vw - 8em) / (var(--numCards) - 1))) * (var(--index) - var(--midIndex)));
+    --inHandDx: calc(min(8.5em, ((94vw - 8em) / (var(--numCards) - 1))) * (var(--index) - var(--midIndex)));
+    --dx: var(--inHandDx);
     --dy: calc(var(--absMidOffset) * var(--absMidOffset) * 0.2em);
     --r: calc((var(--index) - (var(--numCards) - 1) / 2) * 5deg);
     --scale: 0.75;
@@ -27,6 +28,7 @@
 
 .cardWrapper:focus {
     outline: none;
+    --dx: clamp(calc(-50vw + 6.5em), var(--inHandDx), calc(50vw - 6em));
     --dy: calc(var(--absMidOffset) * 0.8em - 15.25em);
     --r: 0deg;
     --scale: 1;
