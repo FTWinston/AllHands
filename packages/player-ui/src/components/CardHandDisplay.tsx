@@ -1,15 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Card, CardProps } from 'common-ui/Card';
 import styles from './CardHand.module.css';
 import { classNames } from 'common-ui/classNames';
+import { ActiveCardTargetTypeSetterContext } from './ActiveCardTargetTypeProvider';
 
-type WrapperProps = React.PropsWithChildren<{
+type WrapperProps = {
+    card: CardProps;
     state: 'in-hand' | 'adding' | 'removing';
     index: number;
-}>
+}
 
-const CardWrapper: React.FC<WrapperProps> = ({ children, state, index }) => {
+const CardWrapper: React.FC<WrapperProps> = ({ card, state, index }) => {
     const [dragging, setDragging] = useState(false);
+
+    const setDraggingCardType = useContext(ActiveCardTargetTypeSetterContext);
 
     return (
         <li
@@ -21,14 +25,27 @@ const CardWrapper: React.FC<WrapperProps> = ({ children, state, index }) => {
             tabIndex={0}
             draggable={true}
             onDragStart={(e) => {
-                // TODO: this should really be the card ID instead of the index.
-                e.dataTransfer.setData('text/card', index.toString());
+                e.dataTransfer.setData('text/card', card.id.toString());
                 e.dataTransfer.effectAllowed = 'move';
                 setDragging(true);
             }}
-            onDragEnd={() => setDragging(false)}
+            onDragEnd={e => {
+                setDragging(false);
+                setDraggingCardType(null);
+
+                // Clear focus from this element,
+                // so that it doesn't end up raised up in "focus mode" if it wasn't dropped somewhere valid.
+                e.currentTarget.blur();
+            }}
+            onFocus={() => {
+                setDraggingCardType(card.targetType);
+
+            }}
+            onBlur={() => {
+                setDraggingCardType(null);
+            }}
         >
-            {children}
+            <Card {...card} />
         </li>
     );
 }
@@ -111,9 +128,12 @@ export const CardHandDisplay: React.FC<Props> = ({ cards }) => {
             }}
         >
             {knownCards.map((card, index) => (
-                <CardWrapper key={card.id} index={index} state={removingCardIds.has(card.id) ? 'removing' : inHandCardIds.has(card.id) ?  'in-hand' : 'adding'}>
-                    <Card {...card} />
-                </CardWrapper>
+                <CardWrapper
+                    key={card.id}
+                    card={card}
+                    index={index}
+                    state={removingCardIds.has(card.id) ? 'removing' : inHandCardIds.has(card.id) ?  'in-hand' : 'adding'}
+                />
             ))}
         </ul>
     );

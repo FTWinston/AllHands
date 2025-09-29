@@ -1,3 +1,7 @@
 .dropping {
+    outline: solid var(--highlight-color) 0.25em;
+}
+
+.couldDrop {
     outline: solid var(--primary-color) 0.25em;
 }

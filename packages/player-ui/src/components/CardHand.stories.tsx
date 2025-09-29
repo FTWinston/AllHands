@@ -6,6 +6,7 @@ import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { useState } from 'react';
 import { Button } from 'common-ui/Button';
 import { CardDropTarget } from './CardDropTarget';
+import { ActiveCardTargetTypeProvider } from './ActiveCardTargetTypeProvider';
 
 const meta: Meta<typeof CardHandDisplay> = {
     title: 'player-ui/Card Hand',
@@ -26,51 +27,63 @@ const meta: Meta<typeof CardHandDisplay> = {
         const [nextId, setNextId] = useState(10);
 
         return (
-            <div style={{ height: '100vh', display: 'flex' }}>
-                <CardHandDisplay {...args} cards={cards} />
+            <ActiveCardTargetTypeProvider>
+                <div style={{ height: '100vh', display: 'flex' }}>
+                    <CardHandDisplay {...args} cards={cards} />
 
-                <div style={{position: 'absolute', top: 10, left: 10}}>
-                    <CardDropTarget
-                        droppedCard={cardId => {
-                            console.log(`dropped card ${cardId} on example target`);
-                            // This should be a card ID that's passed, but we actually get an index.
-                            setCards(cards => cards.slice(0, cardId).concat(cards.slice(cardId + 1)));
-                            fn();
-                        }}
-                        targetId='example-target'
-                    >
-                        Drop it here
-                    </CardDropTarget>
+                    <div style={{position: 'absolute', top: 10, left: 10, display: 'flex',  gap: '3em'}}>
+                        <CardDropTarget
+                            onCardDropped={cardId => {
+                                console.log(`dropped card ${cardId} on something target`);
+                                setCards(cards => cards.filter(card => card.id !== cardId));
+                                fn();
+                            }}
+                            targetType='something'
+                        >
+                            Drop "something" cards here
+                        </CardDropTarget>
+                        <CardDropTarget
+                            onCardDropped={cardId => {
+                                console.log(`dropped card ${cardId} on else target`);
+                                setCards(cards => cards.filter(card => card.id !== cardId));
+                                fn();
+                            }}
+                            targetType='else'
+                        >
+                            Drop "else" cards here
+                        </CardDropTarget>
+                    </div>
+
+                    <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', gap: '1em' }}>
+                        <Button
+                            label='Add card'
+                            onClick={() => {
+                                setCards(cards => [...cards, {
+                                    id: nextId,
+                                    crew: 'helm',
+                                    targetType: 'something',
+                                    name: 'New Card',
+                                    description: 'A new card description.',
+                                    image: <ExampleIcon />,
+                                    cost: 1,
+                                }]);
+                                setNextId(id => id + 1);
+                            }}
+                        />
+
+                        <Button
+                            label='Remove card'
+                                onClick={() => setCards(cards => {
+                                    if (cards.length === 0) {
+                                        return cards;
+                                    }
+                                    const idx = Math.floor(Math.random() * cards.length);
+                                    return cards.filter((_, i) => i !== idx);
+                                })}
+                        />   
+                    </div>
                 </div>
-
-                <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', gap: '1em' }}>
-                    <Button
-                        label='Add card'
-                        onClick={() => {
-                            setCards(cards => [...cards, {
-                                id: nextId,
-                                crew: 'helm',
-                                name: 'New Card',
-                                description: 'A new card description.',
-                                image: <ExampleIcon />,
-                                cost: 1,
-                            }]);
-                            setNextId(id => id + 1);
-                        }}
-                    />
-
-                    <Button
-                        label='Remove card'
-                            onClick={() => setCards(cards => {
-                                if (cards.length === 0) {
-                                    return cards;
-                                }
-                                const idx = Math.floor(Math.random() * cards.length);
-                                return cards.filter((_, i) => i !== idx);
-                            })}
-                    />   
-                </div>
-            </div>
+            </ActiveCardTargetTypeProvider>
         )
     }
 };
@@ -90,6 +103,7 @@ export const Three: Story = {
             {
                 id: 1,
                 crew: 'helm',
+                targetType: 'something',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -99,6 +113,7 @@ export const Three: Story = {
             {
                 id: 2,
                 crew: 'tactical',
+                targetType: 'else',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -107,6 +122,7 @@ export const Three: Story = {
             {
                 id: 3,
                 crew: 'sensors',
+                targetType: 'else',
                 name: 'Some Card with a title that\'s really quite long',
                 nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
@@ -124,6 +140,7 @@ export const Five: Story = {
             {
                 id: 1,
                 crew: 'helm',
+                targetType: 'something',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -133,6 +150,7 @@ export const Five: Story = {
             {
                 id: 2,
                 crew: 'tactical',
+                targetType: 'else',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -141,6 +159,7 @@ export const Five: Story = {
             {
                 id: 3,
                 crew: 'sensors',
+                targetType: 'else',
                 name: 'Some Card with a title that\'s really quite long',
                 nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
@@ -150,6 +169,7 @@ export const Five: Story = {
             {
                 id: 4,
                 crew: 'helm',
+                targetType: 'something',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -159,6 +179,7 @@ export const Five: Story = {
             {
                 id: 5,
                 crew: 'tactical',
+                targetType: 'else',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -174,6 +195,7 @@ export const Nine: Story = {
             {
                 id: 1,
                 crew: 'helm',
+                targetType: 'something',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -183,6 +205,7 @@ export const Nine: Story = {
             {
                 id: 2,
                 crew: 'tactical',
+                targetType: 'else',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -191,6 +214,7 @@ export const Nine: Story = {
             {
                 id: 3,
                 crew: 'sensors',
+                targetType: 'else',
                 name: 'Some Card with a title that\'s really quite long',
                 nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
@@ -200,6 +224,7 @@ export const Nine: Story = {
             {
                 id: 4,
                 crew: 'helm',
+                targetType: 'something',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -209,6 +234,7 @@ export const Nine: Story = {
             {
                 id: 5,
                 crew: 'tactical',
+                targetType: 'else',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -217,6 +243,7 @@ export const Nine: Story = {
             {
                 id: 6,
                 crew: 'helm',
+                targetType: 'something',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -226,6 +253,7 @@ export const Nine: Story = {
             {
                 id: 7,
                 crew: 'tactical',
+                targetType: 'else',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -234,6 +262,7 @@ export const Nine: Story = {
             {
                 id: 8,
                 crew: 'sensors',
+                targetType: 'else',
                 name: 'Some Card with a title that\'s really quite long',
                 nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
@@ -243,6 +272,7 @@ export const Nine: Story = {
             {
                 id: 9,
                 crew: 'helm',
+                targetType: 'something',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,

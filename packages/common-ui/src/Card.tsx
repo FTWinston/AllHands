@@ -7,6 +7,7 @@ export type CardProps = {
     id: number;
     name: string;
     crew: CrewRoleName;
+    targetType: string;
     description: string;
     image: React.ReactNode;
     cost: number;
