@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { Card, CardProps } from 'common-ui/Card';
 import styles from './CardHand.module.css';
 import { classNames } from 'common-ui/classNames';
-import { ActiveCardTargetTypeSetterContext } from './ActiveCardTargetTypeProvider';
+import { SetActiveCardContext } from './ActiveCardProvider';
 
 type WrapperProps = {
     card: CardProps;
@@ -13,7 +13,7 @@ type WrapperProps = {
 const CardWrapper: React.FC<WrapperProps> = ({ card, state, index }) => {
     const [dragging, setDragging] = useState(false);
 
-    const setDraggingCardType = useContext(ActiveCardTargetTypeSetterContext);
+    const setActiveCard = useContext(SetActiveCardContext);
 
     // Track if the element was focused before the click. If so, then clicking it again should blur it.
     const wasFocusedRef = useRef(false);
@@ -28,20 +28,19 @@ const CardWrapper: React.FC<WrapperProps> = ({ card, state, index }) => {
             tabIndex={0}
             draggable={true}
             onDragStart={(e) => {
-                e.dataTransfer.setData('text/card', card.id.toString());
                 e.dataTransfer.effectAllowed = 'move';
                 setDragging(true);
             }}
             onDragEnd={e => {
                 setDragging(false);
-                setDraggingCardType(null);
+                setActiveCard(null);
                 e.currentTarget.blur();
             }}
             onFocus={() => {
-                setDraggingCardType(card.targetType);
+                setActiveCard({ id: card.id, targetType: card.targetType });
             }}
             onBlur={() => {
-                setDraggingCardType(null);
+                setActiveCard(null);
             }}
             onMouseDown={e => {
                 // Store whether this element was focused before the click.

@@ -1,7 +1,7 @@
 import { classNames } from 'common-ui/classNames';
 import styles from './CardDropTarget.module.css'
 import { useContext, useState } from 'react';
-import { ActiveCardTargetTypeContext } from './ActiveCardTargetTypeProvider';
+import { ActiveCardContext } from './ActiveCardProvider';
 
 type Props = React.PropsWithChildren<{
     className?: string;
@@ -11,12 +11,10 @@ type Props = React.PropsWithChildren<{
 
 export const CardDropTarget: React.FC<Props> = (props) => {
     const [dropping, setDropping] = useState(false);
-    const draggingCardType = useContext(ActiveCardTargetTypeContext);
+    const activeCard = useContext(ActiveCardContext);
 
-    const matchesActiveCardTargetType = !props.targetType || props.targetType === draggingCardType;
-
+    const matchesActiveCardTargetType = activeCard && (!props.targetType || props.targetType === activeCard.targetType);
     const canDropHere = dropping && matchesActiveCardTargetType;
-
     const couldDropHere = !dropping && matchesActiveCardTargetType;
 
     return (
@@ -37,8 +35,7 @@ export const CardDropTarget: React.FC<Props> = (props) => {
                 setDropping(false);
 
                 if (matchesActiveCardTargetType) {
-                    const cardID = parseInt(e.dataTransfer.getData('text/card'), 10);
-                    props.onCardDropped(cardID);
+                    props.onCardDropped(activeCard.id);
                 }
             }}
         >

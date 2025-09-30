@@ -6,7 +6,7 @@ import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { useState } from 'react';
 import { Button } from 'common-ui/Button';
 import { CardDropTarget } from './CardDropTarget';
-import { ActiveCardTargetTypeProvider } from './ActiveCardTargetTypeProvider';
+import { ActiveCardProvider } from './ActiveCardProvider';
 
 const meta: Meta<typeof CardHandDisplay> = {
     title: 'player-ui/Card Hand',
@@ -27,7 +27,7 @@ const meta: Meta<typeof CardHandDisplay> = {
         const [nextId, setNextId] = useState(10);
 
         return (
-            <ActiveCardTargetTypeProvider>
+            <ActiveCardProvider>
                 <div style={{ height: '100vh', display: 'flex' }}>
                     <CardHandDisplay {...args} cards={cards} />
 
@@ -83,7 +83,7 @@ const meta: Meta<typeof CardHandDisplay> = {
                         />   
                     </div>
                 </div>
-            </ActiveCardTargetTypeProvider>
+            </ActiveCardProvider>
         )
     }
 };
