@@ -28,7 +28,7 @@ const meta: Meta<typeof CardHandDisplay> = {
 
         return (
             <ActiveCardProvider>
-                <div style={{ height: '100vh', display: 'flex' }}>
+                <div style={{ height: '100dvh', display: 'flex' }}>
                     <CardHandDisplay {...args} cards={cards} />
 
                     <div style={{position: 'absolute', top: 10, left: 10, display: 'flex',  gap: '3em'}}>
