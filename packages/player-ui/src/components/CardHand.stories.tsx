@@ -1,6 +1,6 @@
 import { fn } from 'storybook/test';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { CardHandDisplay } from './CardHandDisplay';
+import { CardHand } from './CardHand';
 
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { useState } from 'react';
@@ -8,9 +8,9 @@ import { Button } from 'common-ui/Button';
 import { CardDropTarget } from './CardDropTarget';
 import { ActiveCardProvider } from './ActiveCardProvider';
 
-const meta: Meta<typeof CardHandDisplay> = {
+const meta: Meta<typeof CardHand> = {
     title: 'player-ui/Card Hand',
-    component: CardHandDisplay,
+    component: CardHand,
     parameters: {
         layout: 'fullscreen',
         docs: {
@@ -29,7 +29,7 @@ const meta: Meta<typeof CardHandDisplay> = {
         return (
             <ActiveCardProvider>
                 <div style={{ height: '100dvh', display: 'flex' }}>
-                    <CardHandDisplay {...args} cards={cards} />
+                    <CardHand {...args} cards={cards} />
 
                     <div style={{position: 'absolute', top: 10, left: 10, display: 'flex',  gap: '3em'}}>
                         <CardDropTarget

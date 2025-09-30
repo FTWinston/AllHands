@@ -28,6 +28,7 @@ const CardWrapper: React.FC<WrapperProps> = ({ card, state, index }) => {
             tabIndex={0}
             draggable={true}
             onDragStart={(e) => {
+                setActiveCard({ id: card.id, targetType: card.targetType });
                 e.dataTransfer.effectAllowed = 'move';
                 setDragging(true);
             }}
@@ -124,7 +125,7 @@ function useTrackCardChanges(cards: CardProps[]) {
     return { knownCards: knownCards.current, inHandCardIds, removingCardIds };
 }
 
-export const CardHandDisplay: React.FC<Props> = ({ cards }) => {
+export const CardHand: React.FC<Props> = ({ cards }) => {
     const { knownCards, inHandCardIds, removingCardIds } = useTrackCardChanges(cards);
 
     return (
