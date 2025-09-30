@@ -15,6 +15,9 @@ const CardWrapper: React.FC<WrapperProps> = ({ card, state, index }) => {
 
     const setDraggingCardType = useContext(ActiveCardTargetTypeSetterContext);
 
+    // Track if the element was focused before the click. If so, then clicking it again should blur it.
+    const wasFocusedRef = useRef(false);
+
     return (
         <li
             className={classNames(styles.cardWrapper, styles[state], dragging ? styles.dragging : null)}
@@ -32,17 +35,23 @@ const CardWrapper: React.FC<WrapperProps> = ({ card, state, index }) => {
             onDragEnd={e => {
                 setDragging(false);
                 setDraggingCardType(null);
-
-                // Clear focus from this element,
-                // so that it doesn't end up raised up in "focus mode" if it wasn't dropped somewhere valid.
                 e.currentTarget.blur();
             }}
             onFocus={() => {
                 setDraggingCardType(card.targetType);
-
             }}
             onBlur={() => {
                 setDraggingCardType(null);
+            }}
+            onMouseDown={e => {
+                // Store whether this element was focused before the click.
+                wasFocusedRef.current = (e.currentTarget === document.activeElement);
+            }}
+            onClick={e => {
+                // Only blur if it was already focused before the click
+                if (wasFocusedRef.current) {
+                    e.currentTarget.blur();
+                }
             }}
         >
             <Card {...card} />
