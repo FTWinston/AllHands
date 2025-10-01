@@ -19,20 +19,20 @@ type Story = StoryObj<typeof meta>;
 
 export const Basic: Story = {
     args: {
-        label: 'Button',
+        children: 'Button',
     },
 };
 
 export const StartIcon: Story = {
     args: {
-        label: 'Button',
+        children: 'Button',
         startIcon: '😊',
     },
 };
 
 export const EndIcon: Story = {
     args: {
-        label: 'Button',
+        children: 'Button',
         endIcon: '😁',
     },
 };
@@ -40,7 +40,7 @@ export const EndIcon: Story = {
 export const BothIcons: Story = {
     args: {
         startIcon: '😊',
-        label: 'Button',
+        children: 'Button',
         endIcon: '😁',
     },
 };

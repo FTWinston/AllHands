@@ -20,7 +20,7 @@
   box-shadow: rgba(255, 255, 255, 0.15) 0px 0px 0px 1px inset;
 }
 
-.button:active {
+.button:active, .button[aria-expanded="true"] {
   background-color: var(--primary-color);
 }
 

@@ -56,7 +56,6 @@ const meta: Meta<typeof CardHand> = {
 
                     <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', gap: '1em' }}>
                         <Button
-                            label='Add card'
                             onClick={() => {
                                 setCards(cards => [...cards, {
                                     id: nextId,
@@ -69,18 +68,21 @@ const meta: Meta<typeof CardHand> = {
                                 }]);
                                 setNextId(id => id + 1);
                             }}
-                        />
+                        >
+                            Add card
+                        </Button>
 
                         <Button
-                            label='Remove card'
-                                onClick={() => setCards(cards => {
+                            onClick={() => setCards(cards => {
                                     if (cards.length === 0) {
                                         return cards;
                                     }
                                     const idx = Math.floor(Math.random() * cards.length);
                                     return cards.filter((_, i) => i !== idx);
                                 })}
-                        />   
+                        >
+                            Remove card
+                        </Button>
                     </div>
                 </div>
             </ActiveCardProvider>

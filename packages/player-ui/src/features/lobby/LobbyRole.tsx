@@ -19,9 +19,10 @@ export const LobbyRole: React.FC<Props> = (props) => {
             <Button
                 className={styles.role}
                 disabled
-                label={props.name}
                 startIcon={props.icon}
-            />
+            >
+                {props.name}
+            </Button>
         );
     }
 
@@ -31,8 +32,9 @@ export const LobbyRole: React.FC<Props> = (props) => {
             disabled={props.occupied && !props.selected}
             pressed={props.selected}
             onPressedChanged={props.onSelectionChange}
-            label={props.name}
             startIcon={props.icon}
-        />
+        >
+            {props.name}
+        </ToggleButton>
     );
 };

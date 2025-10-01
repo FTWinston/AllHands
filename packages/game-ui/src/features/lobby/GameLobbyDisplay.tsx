@@ -87,8 +87,9 @@ export const GameLobbyDisplay: React.FC<Props> = (props) => {
             <div className={styles.footer}>
                 <Button
                     onClick={props.disconnect}
-                    label="Disconnect"
-                />
+                >
+                    Disconnect
+                </Button>
             </div>
         </Screen>
     );

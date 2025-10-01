@@ -2,14 +2,13 @@ import styles from './Button.module.css';
 import { classNames } from './classNames';
 
 export type Props = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
-    label: string;
     type?: 'button' | 'submit' | 'reset';
     className?: string;
     startIcon?: React.ReactNode;
     endIcon?: React.ReactNode;
 };
 
-export const Button: React.FC<Props> = ({ label, className, type, startIcon, endIcon, ...props }) => (
+export const Button: React.FC<Props> = ({ children, className, type, startIcon, endIcon, ...props }) => (
     <button
         {...props}
         type={type ?? 'button'}
@@ -17,7 +16,7 @@ export const Button: React.FC<Props> = ({ label, className, type, startIcon, end
     >
         {startIcon && <span className={styles.icon}>{startIcon}</span>}
         <span className={styles.label}>
-            {label}
+            {children}
         </span>
         {endIcon && <span className={styles.icon}>{endIcon}</span>}
     </button>

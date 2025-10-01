@@ -9,19 +9,3 @@
   background-color: oklch(from var(--primary-color) 0.3 0.03 h);
   position: relative;
 }
-
-.helm {
-  --primary-color: oklch(0.656 0.147 155.43);
-}
-
-.tactical {
-  --primary-color: oklch(0.656 0.147 90);
-}
-
-.sensors {
-  --primary-color: oklch(0.6559 0.147 260.12);
-}
-
-.engineer {
-  --primary-color: oklch(0.6559 0.147 292);
-}

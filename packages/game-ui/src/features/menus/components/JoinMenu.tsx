@@ -50,7 +50,6 @@ export const JoinMenu: React.FC<Props> = (props) => {
                     <div style={{ flexGrow: 1 }} />
 
                     <Button
-                        label="Join"
                         type="submit"
                         disabled={!ipAddress || port <= 0}
                         onClick={(e) => {
@@ -60,7 +59,9 @@ export const JoinMenu: React.FC<Props> = (props) => {
                                 port,
                             });
                         }}
-                    />
+                    >
+                        Join
+                    </Button>
                 </MenuItem>
             </Menu>
         </Screen>

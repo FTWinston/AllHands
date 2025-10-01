@@ -17,7 +17,7 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const ToggleButton: Story = {
     args: {
-        label: 'Toggle Button',
+        children: 'Toggle Button',
         pressed: false,
         onPressedChanged: fn(),
     },

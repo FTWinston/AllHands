@@ -21,11 +21,11 @@ export const ConfirmDialog: React.FC<Props> = (props) => (
                     {props.prompt}
                 </Dialog.Description>
                 <div className={styles.actions}>
-                    <Dialog.Close render={<Button label="Cancel" />} />
-                    <Button label="OK" onClick={() => {
+                    <Dialog.Close render={<Button>Cancel</Button>} />
+                    <Button onClick={() => {
                         props.setOpen(false);
                         props.confirm();
-                    }} />
+                    }}>OK</Button>
                 </div>
             </Dialog.Popup>
         </Dialog.Portal>

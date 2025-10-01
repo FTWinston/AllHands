@@ -1,0 +1,15 @@
+.helm {
+  --primary-color: oklch(0.656 0.147 155.43);
+}
+
+.tactical {
+  --primary-color: oklch(0.656 0.147 90);
+}
+
+.sensors {
+  --primary-color: oklch(0.6559 0.147 260.12);
+}
+
+.engineer {
+  --primary-color: oklch(0.6559 0.147 292);
+}

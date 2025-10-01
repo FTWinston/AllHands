@@ -88,12 +88,13 @@ export const GameLobbyDisplay: React.FC<Props> = (props) => {
 
             <div className={styles.footer}>
                 <ToggleButton
-                    label={role !== null && ready ? 'Ready' : 'Not Ready'}
                     pressed={role !== null && ready}
                     disabled={role === null}
                     onPressedChanged={onReadyChange}
                     className={styles.readyToggle}
-                />
+                >
+                    {role !== null && ready ? 'Ready' : 'Not Ready'}
+                </ToggleButton>
             </div>
         </Screen>
     );

@@ -10,7 +10,7 @@ type Props = Omit<ButtonProps, 'onClick' | 'type' | 'endIcon'> & {
     onPressedChanged: (pressed: boolean) => void;
 };
 
-export const ToggleButton: React.FC<Props> = ({ label, pressed, onPressedChanged, ...props }) => (
+export const ToggleButton: React.FC<Props> = ({ children, pressed, onPressedChanged, ...props }) => (
     <Toggle
         pressed={pressed}
         onPressedChange={onPressedChanged}
@@ -19,7 +19,7 @@ export const ToggleButton: React.FC<Props> = ({ label, pressed, onPressedChanged
             <Button
                 {...props}
                 className={classNames(styles.toggle, state.pressed ? styles.pressed : styles.unpressed, props.className)}
-                label={label}
+                children={children}
                 endIcon={state.pressed ? '✅' : <span className={styles.inactiveEndIcon}>☑️</span>}
             />
         )}
