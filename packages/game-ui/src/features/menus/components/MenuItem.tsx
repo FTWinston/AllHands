@@ -1,5 +1,5 @@
 import { ConfirmDialog } from 'common-ui/ConfirmDialog';
-import { useState } from 'react';
+import { FC, PropsWithChildren, useState } from 'react';
 
 import styles from './MenuItem.module.css';
 
@@ -9,7 +9,7 @@ type Props = {
     confirmPrompt?: string;
 };
 
-export const MenuItem: React.FC<React.PropsWithChildren<Props>> = (props) => {
+export const MenuItem: FC<PropsWithChildren<Props>> = (props) => {
     const [showingConfirm, setShowingConfirm] = useState(false);
 
     const buttonClick = props.confirmPrompt
@@ -32,7 +32,8 @@ export const MenuItem: React.FC<React.PropsWithChildren<Props>> = (props) => {
                     isOpen={showingConfirm}
                     setOpen={setShowingConfirm}
                     confirm={props.onClick}
-                />)}
+                />
+            )}
             {props.children && <div className={styles.childrenWrapper}>{props.children}</div>}
         </li>
     );

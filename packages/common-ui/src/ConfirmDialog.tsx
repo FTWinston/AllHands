@@ -1,5 +1,6 @@
 import { Dialog } from '@base-ui-components/react/dialog';
 
+import { FC } from 'react';
 import { Button } from './Button';
 import styles from './ConfirmDialog.module.css';
 
@@ -11,7 +12,7 @@ type Props = {
     confirm: () => void;
 };
 
-export const ConfirmDialog: React.FC<Props> = (props) => (
+export const ConfirmDialog: FC<Props> = props => (
     <Dialog.Root open={props.isOpen} onOpenChange={props.setOpen}>
         <Dialog.Portal>
             <Dialog.Backdrop className={styles.backdrop} />
@@ -25,7 +26,10 @@ export const ConfirmDialog: React.FC<Props> = (props) => (
                     <Button onClick={() => {
                         props.setOpen(false);
                         props.confirm();
-                    }}>OK</Button>
+                    }}
+                    >
+                        OK
+                    </Button>
                 </div>
             </Dialog.Popup>
         </Dialog.Portal>

@@ -1,7 +1,7 @@
+import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { fn } from 'storybook/test';
 import { EngineerDisplay as Component } from './EngineerDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Engineer',
@@ -48,6 +48,6 @@ export const Engineer: Story = {
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
                 cost: 1,
-            },]
-    }
+            }],
+    },
 };

@@ -24,7 +24,7 @@ export const PlayerUI = () => {
                 console.warn(
                     'expected room, crewId & role to be set when serverState is active', {
                         room, crewId, role,
-                    },
+                    }
                 );
             }
         } else if (serverState === 'setup') {
@@ -41,7 +41,7 @@ export const PlayerUI = () => {
                 console.warn(
                     'expected room & crewId to be set when serverState is setup', {
                         room, crewId,
-                    },
+                    }
                 );
             }
         } else if (serverState === 'paused') {

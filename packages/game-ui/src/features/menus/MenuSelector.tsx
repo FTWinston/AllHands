@@ -1,5 +1,5 @@
 import { ServerAddress } from 'common-types';
-import { useState } from 'react';
+import { FC, useState } from 'react';
 
 import { InGameMenu } from './components/InGameMenu';
 import { JoinMenu } from './components/JoinMenu';
@@ -15,7 +15,7 @@ type Props = {
     quit: () => void;
 };
 
-export const MenuSelector: React.FC<Props> = (props) => {
+export const MenuSelector: FC<Props> = (props) => {
     const [joining, setJoining] = useState(false);
 
     if (props.isConnectedToGame) {

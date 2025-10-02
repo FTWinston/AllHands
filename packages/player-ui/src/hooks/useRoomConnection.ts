@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import type { GameState, GameStatus } from 'engine';
 
 export function useRoomConnection(
-    setConnectionState: (state: ConnectionState) => void,
+    setConnectionState: (state: ConnectionState) => void
 ) {
     const [connectedRoom, setConnectedRoom] = useState<Room<GameState> | null>(null);
     const [crewId, setCrewId] = useState<string | undefined>(undefined);
@@ -34,7 +34,7 @@ export function useRoomConnection(
                 setConnectedRoom(joiningRoom);
                 console.log('connected to game server', joiningRoom);
 
-                joinedRoom.onMessage<{ crewId: string }>('joined', message => {
+                joinedRoom.onMessage<{ crewId: string }>('joined', (message) => {
                     console.log(`joined crew ${message.crewId}`);
 
                     if (!joinedRoom) {
@@ -48,7 +48,7 @@ export function useRoomConnection(
                         console.error(`crew ${crewId} not found in room state`);
                         setConnectionState('disconnected');
                         joinedRoom.leave();
-                        return
+                        return;
                     }
 
                     // Update role and ready based on server state.
@@ -68,8 +68,8 @@ export function useRoomConnection(
                         } else {
                             setRole(null);
                         }
-                        setReady(crew.crewReady.get(joinedRoom.sessionId) ?? false);    
-                    }
+                        setReady(crew.crewReady.get(joinedRoom.sessionId) ?? false);
+                    };
                     updateRoleAndReady();
 
                     // Do this again when roles or ready states change.

@@ -1,27 +1,29 @@
-import { CrewRoleName } from 'common-types';
 import { Menu } from '@base-ui-components/react/menu';
-import styles from './CrewHeader.module.css';
+import { CrewRoleName } from 'common-types';
+import { Button } from 'common-ui/Button';
+import { classNames } from 'common-ui/classNames';
 import { CrewIcon } from 'common-ui/icons/crew';
 import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
-import { Button } from 'common-ui/Button';
+import { FC } from 'react';
 import { toggleFullscreen } from '../utils/fullscreen';
-import { classNames } from 'common-ui/classNames';
+import styles from './CrewHeader.module.css';
 
 type Props = {
     crew: CrewRoleName;
     onPause: () => void;
-}
+};
 
-export const CrewHeader: React.FC<Props> = (props) => {
+export const CrewHeader: FC<Props> = (props) => {
     return (
         <div className={styles.crewHeader}>
-            
+
             <Menu.Root>
-                <Menu.Trigger render={
+                <Menu.Trigger render={(
                     <Button className={styles.menuButton}>
                         <MenuIcon className={styles.menuButtonIcon} />
                     </Button>
-                }>
+                )}
+                >
                 </Menu.Trigger>
                 <Menu.Portal>
                     <Menu.Positioner sideOffset={8}>
@@ -44,10 +46,12 @@ export const CrewHeader: React.FC<Props> = (props) => {
                     </Menu.Positioner>
                 </Menu.Portal>
             </Menu.Root>
-            
+
             <CrewIcon crew={props.crew} className={styles.crewIcon} />
-            
-            hi {props.crew}
+
+            hi
+            {' '}
+            {props.crew}
         </div>
-    )
-}
+    );
+};

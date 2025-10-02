@@ -24,5 +24,5 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         <ErrorBoundary>
             <GameUI />
         </ErrorBoundary>
-    </StrictMode>,
+    </StrictMode>
 );

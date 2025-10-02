@@ -43,7 +43,7 @@ function createWebServer(ipAddress: string, httpPort: number): http.Server {
 
 function createGameServer(
     webServer: http.Server,
-    config: ServerConfig,
+    config: ServerConfig
 ): Server {
     const gameServer = new Server({
         transport: new WebSocketTransport({
@@ -56,7 +56,7 @@ function createGameServer(
 
     if (config.simulateLatencyMs > 0) {
         console.log(
-            `Simulating ${config.simulateLatencyMs}ms latency on all connections`,
+            `Simulating ${config.simulateLatencyMs}ms latency on all connections`
         );
         gameServer.simulateLatency(config.simulateLatencyMs);
     }
@@ -69,7 +69,7 @@ export function startServer(config: ServerConfig) {
 
     const gameServer = createGameServer(webServer, config);
 
-    return async() => {
+    return async () => {
         console.log('Stopping server...');
         await gameServer.gracefullyShutdown(true);
         webServer.close();

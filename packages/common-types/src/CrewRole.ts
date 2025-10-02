@@ -15,9 +15,9 @@ export const engineerClientRole = 4;
 
 export type CrewRole
     = | typeof helmClientRole
-    | typeof sensorClientRole
-    | typeof tacticalClientRole
-    | typeof engineerClientRole;
+        | typeof sensorClientRole
+        | typeof tacticalClientRole
+        | typeof engineerClientRole;
 
 export type CrewRoleName = 'helm' | 'sensors' | 'tactical' | 'engineer';
 

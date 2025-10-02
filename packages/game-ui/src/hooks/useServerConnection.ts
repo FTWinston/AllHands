@@ -8,7 +8,7 @@ export function useServerConnection(
     serverAddress: ServerAddress | undefined,
     allowMultipleCrews: boolean,
     setServerAddress: (value: ServerAddress) => void,
-    setConnectionState: (value: ConnectionState) => void,
+    setConnectionState: (value: ConnectionState) => void
 ) {
     const serverTypeState = useState<ServerType>();
     const serverType = serverTypeState[0];
@@ -21,7 +21,7 @@ export function useServerConnection(
             return;
         }
 
-        const startHosting = async() => {
+        const startHosting = async () => {
             setConnectionState('connecting');
             const startServerAddress = await window.electronAPI.startServer({
                 multiship: allowMultipleCrews,

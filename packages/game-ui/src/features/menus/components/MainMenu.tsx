@@ -1,5 +1,6 @@
 import { Screen } from 'common-ui/Screen';
 
+import { FC } from 'react';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
 
@@ -10,7 +11,7 @@ type Props = {
     quit: () => void;
 };
 
-export const MainMenu: React.FC<Props> = (props) => {
+export const MainMenu: FC<Props> = (props) => {
     return (
         <Screen padded>
             <Menu title="Make It So">

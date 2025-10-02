@@ -1,6 +1,6 @@
 import { getStateCallbacks, Room } from 'colyseus.js';
 import { type ServerAddress } from 'common-types';
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 
 import { GameLobbyDisplay, type SystemState } from './GameLobbyDisplay';
 
@@ -14,7 +14,7 @@ type Props = {
     disconnect: () => void;
 };
 
-export const GameLobby: React.FC<Props> = (props) => {
+export const GameLobby: FC<Props> = (props) => {
     const { serverAddress, allowMultipleCrews, room, crewId, disconnect } = props;
 
     const [helmState, setHelmState] = useState<SystemState>('unoccupied');
@@ -80,7 +80,7 @@ export const GameLobby: React.FC<Props> = (props) => {
         };
         const unbindAddCallback = callbacks(crew).crewReady.onAdd(readyStateChanged);
         const unbindRemoveCallback = callbacks(crew).crewReady.onRemove(readyStateChanged);
-        /*const unbindChangeCallback = */callbacks(crew).crewReady.onChange(readyStateChanged);
+        /* const unbindChangeCallback = */callbacks(crew).crewReady.onChange(readyStateChanged);
 
         // Also listen for changes to the role assignments.
         callbacks(crew).listen('helmClientId', (newClientId) => {
@@ -103,7 +103,7 @@ export const GameLobby: React.FC<Props> = (props) => {
         return () => {
             unbindAddCallback();
             unbindRemoveCallback();
-            //unbindChangeCallback();
+            // unbindChangeCallback();
         };
     }, [room, crewId]);
 

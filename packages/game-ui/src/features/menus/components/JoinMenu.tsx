@@ -2,7 +2,7 @@ import { ServerAddress } from 'common-types';
 import { Button } from 'common-ui/Button';
 import { Input } from 'common-ui/Input';
 import { Screen } from 'common-ui/Screen';
-import { useState } from 'react';
+import { FC, useState } from 'react';
 
 import styles from './JoinMenu.module.css';
 import { Menu } from './Menu';
@@ -13,7 +13,7 @@ type Props = {
     back: () => void;
 };
 
-export const JoinMenu: React.FC<Props> = (props) => {
+export const JoinMenu: FC<Props> = (props) => {
     const [ipAddress, setIpAddress] = useState('');
     const [port, setPort] = useState(0);
 
@@ -28,18 +28,16 @@ export const JoinMenu: React.FC<Props> = (props) => {
                         placeholder="IP address"
                         type="text"
                         value={ipAddress}
-                        onChange={(e) =>
-                            setIpAddress(e.target.value)
-                        }
+                        onChange={e =>
+                            setIpAddress(e.target.value)}
                     />
                     <Input
                         className={styles.portInput}
                         placeholder="Port"
                         type="number"
                         value={port === 0 ? '' : port}
-                        onChange={(e) =>
-                            setPort(Number(e.target.value))
-                        }
+                        onChange={e =>
+                            setPort(Number(e.target.value))}
                     />
                 </MenuItem>
 

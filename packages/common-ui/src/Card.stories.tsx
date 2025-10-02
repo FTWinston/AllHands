@@ -1,6 +1,6 @@
 import { Card as Component } from './Card';
-import type { Meta, StoryObj } from '@storybook/react-vite';
 import { default as ExampleIcon } from './icons/exampleIcon.svg?react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
     title: 'common-ui/Card',

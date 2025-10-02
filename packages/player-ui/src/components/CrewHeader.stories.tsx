@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { CrewHeader as Component } from './CrewHeader';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { fn } from 'storybook/test';
+import { CrewHeader as Component } from './CrewHeader';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Crew Header',
@@ -12,11 +12,11 @@ const meta: Meta<typeof Component> = {
     args: {
         onPause: fn(),
     },
-    render: (args) => (
+    render: args => (
         <div className={crewStyles[args.crew]}>
             <Component {...args} />
         </div>
-    )
+    ),
 };
 
 export default meta;

@@ -1,17 +1,18 @@
+import { Room } from 'colyseus.js';
 import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-types';
+import { GameState } from 'engine/classes/GameState';
+import { FC } from 'react';
 import { Engineer } from '../features/engineer/Engineer';
 import { Helm } from '../features/helm/Helm';
 import { Sensors } from '../features/sensors/Sensors';
 import { Tactical } from '../features/tactical/Tactical';
-import { GameState } from 'engine/classes/GameState';
-import { Room } from 'colyseus.js';
 
 type Props = {
     role: number;
     room: Room<GameState>;
-}
+};
 
-export const CrewUI: React.FC<Props> = (props) => {
+export const CrewUI: FC<Props> = (props) => {
     const { role, room } = props;
 
     switch (role) {
@@ -26,4 +27,4 @@ export const CrewUI: React.FC<Props> = (props) => {
         default:
             console.warn('unexpected role', role);
     }
-}
+};

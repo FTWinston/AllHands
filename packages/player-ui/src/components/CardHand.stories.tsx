@@ -1,12 +1,11 @@
-import { fn } from 'storybook/test';
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { CardHand } from './CardHand';
-
+import { Button } from 'common-ui/Button';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { useState } from 'react';
-import { Button } from 'common-ui/Button';
-import { CardDropTarget } from './CardDropTarget';
+import { fn } from 'storybook/test';
 import { ActiveCardProvider } from './ActiveCardProvider';
+import { CardDropTarget } from './CardDropTarget';
+import { CardHand } from './CardHand';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof CardHand> = {
     title: 'player-ui/Card Hand',
@@ -28,24 +27,24 @@ const meta: Meta<typeof CardHand> = {
                 <div style={{ height: '100dvh', display: 'flex' }}>
                     <CardHand {...args} cards={cards} />
 
-                    <div style={{position: 'absolute', top: 10, left: 10, display: 'flex',  gap: '3em'}}>
+                    <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', gap: '3em' }}>
                         <CardDropTarget
-                            onCardDropped={cardId => {
+                            onCardDropped={(cardId) => {
                                 console.log(`dropped card ${cardId} on something target`);
                                 setCards(cards => cards.filter(card => card.id !== cardId));
                                 fn();
                             }}
-                            targetType='something'
+                            targetType="something"
                         >
                             Drop "something" cards here
                         </CardDropTarget>
                         <CardDropTarget
-                            onCardDropped={cardId => {
+                            onCardDropped={(cardId) => {
                                 console.log(`dropped card ${cardId} on else target`);
                                 setCards(cards => cards.filter(card => card.id !== cardId));
                                 fn();
                             }}
-                            targetType='else'
+                            targetType="else"
                         >
                             Drop "else" cards here
                         </CardDropTarget>
@@ -70,21 +69,21 @@ const meta: Meta<typeof CardHand> = {
                         </Button>
 
                         <Button
-                            onClick={() => setCards(cards => {
-                                    if (cards.length === 0) {
-                                        return cards;
-                                    }
-                                    const idx = Math.floor(Math.random() * cards.length);
-                                    return cards.filter((_, i) => i !== idx);
-                                })}
+                            onClick={() => setCards((cards) => {
+                                if (cards.length === 0) {
+                                    return cards;
+                                }
+                                const idx = Math.floor(Math.random() * cards.length);
+                                return cards.filter((_, i) => i !== idx);
+                            })}
                         >
                             Remove card
                         </Button>
                     </div>
                 </div>
             </ActiveCardProvider>
-        )
-    }
+        );
+    },
 };
 
 export default meta;
@@ -92,7 +91,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Empty: Story = {
     args: {
-        cards: []
+        cards: [],
     },
 };
 
@@ -128,10 +127,9 @@ export const Three: Story = {
                 image: <ExampleIcon />,
                 cost: 1,
             },
-        ]
+        ],
     },
 };
-
 
 export const Five: Story = {
     args: {
@@ -184,7 +182,7 @@ export const Five: Story = {
                 image: <ExampleIcon />,
                 cost: 1,
             },
-        ]
+        ],
     },
 };
 
@@ -278,6 +276,6 @@ export const Nine: Story = {
                 image: <ExampleIcon />,
                 cost: 1,
             },
-        ]
+        ],
     },
 };

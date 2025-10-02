@@ -1,11 +1,11 @@
 import { getStateCallbacks, Room } from 'colyseus.js';
 import { CrewRole } from 'common-types';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FC } from 'react';
 
+import { enterFullscreen, exitFullscreen } from '../../utils/fullscreen';
 import { GameLobbyDisplay } from './GameLobbyDisplay';
 
 import type { GameState } from 'engine/classes/GameState';
-import { enterFullscreen, exitFullscreen } from '../../utils/fullscreen';
 
 type Props = {
     room: Room<GameState>;
@@ -14,7 +14,7 @@ type Props = {
     ready: boolean;
 };
 
-export const GameLobby: React.FC<Props> = (props) => {
+export const GameLobby: FC<Props> = (props) => {
     const { room, crewId, role, ready } = props;
 
     const [helmOccupied, setHelmOccupied] = useState(false);
@@ -40,10 +40,10 @@ export const GameLobby: React.FC<Props> = (props) => {
 
         const callbacks = getStateCallbacks(room);
 
-        const unbindHelmCallback = callbacks(crew).listen('helmClientId', (clientId) => setHelmOccupied(clientId !== ''));
-        const unbindTacticalCallback = callbacks(crew).listen('tacticalClientId', (clientId) => setTacticalOccupied(clientId !== ''));
-        const unbindSensorsCallback = callbacks(crew).listen('sensorsClientId', (clientId) => setSensorsOccupied(clientId !== ''));
-        const unbindEngineerCallback = callbacks(crew).listen('engineerClientId', (clientId) => setEngineerOccupied(clientId !== ''));
+        const unbindHelmCallback = callbacks(crew).listen('helmClientId', clientId => setHelmOccupied(clientId !== ''));
+        const unbindTacticalCallback = callbacks(crew).listen('tacticalClientId', clientId => setTacticalOccupied(clientId !== ''));
+        const unbindSensorsCallback = callbacks(crew).listen('sensorsClientId', clientId => setSensorsOccupied(clientId !== ''));
+        const unbindEngineerCallback = callbacks(crew).listen('engineerClientId', clientId => setEngineerOccupied(clientId !== ''));
 
         return () => {
             unbindHelmCallback();

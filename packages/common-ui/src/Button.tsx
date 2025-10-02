@@ -1,14 +1,15 @@
+import { ButtonHTMLAttributes, FC, ReactNode } from 'react';
 import styles from './Button.module.css';
 import { classNames } from './classNames';
 
-export type Props = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
+export type Props = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
     type?: 'button' | 'submit' | 'reset';
     className?: string;
-    startIcon?: React.ReactNode;
-    endIcon?: React.ReactNode;
+    startIcon?: ReactNode;
+    endIcon?: ReactNode;
 };
 
-export const Button: React.FC<Props> = ({ children, className, type, startIcon, endIcon, ...props }) => (
+export const Button: FC<Props> = ({ children, className, type, startIcon, endIcon, ...props }) => (
     <button
         {...props}
         type={type ?? 'button'}

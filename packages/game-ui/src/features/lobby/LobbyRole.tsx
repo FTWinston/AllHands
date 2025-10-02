@@ -1,5 +1,5 @@
 import { classNames } from 'common-ui';
-import { JSX } from 'react';
+import { FC, JSX } from 'react';
 
 import styles from './LobbyRole.module.css';
 
@@ -11,7 +11,7 @@ export type Props = {
     state: SystemState;
 };
 
-export const LobbyRole: React.FC<Props> = (props) => {
+export const LobbyRole: FC<Props> = (props) => {
     const { name, state } = props;
 
     return (

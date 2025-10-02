@@ -1,7 +1,7 @@
 import { Room } from 'colyseus.js';
-import { HelmDisplay } from './HelmDisplay';
-import { useState } from 'react';
 import { CardProps } from 'common-ui/Card';
+import { useState } from 'react';
+import { HelmDisplay } from './HelmDisplay';
 
 type Props = {
     room: Room;
@@ -9,7 +9,7 @@ type Props = {
 
 export const Helm = (props: Props) => {
     const [cards] = useState<CardProps[]>([]);
-    
+
     return (
         <HelmDisplay
             cards={cards}

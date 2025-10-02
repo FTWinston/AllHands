@@ -1,16 +1,16 @@
-import { useContext, useEffect, useRef, useState } from 'react';
 import { Card, CardProps } from 'common-ui/Card';
-import styles from './CardHand.module.css';
 import { classNames } from 'common-ui/classNames';
+import { FC, useContext, useEffect, useRef, useState } from 'react';
 import { SetActiveCardContext } from './ActiveCardProvider';
+import styles from './CardHand.module.css';
 
 type WrapperProps = {
     card: CardProps;
     state: 'in-hand' | 'adding' | 'removing';
     index: number;
-}
+};
 
-const CardWrapper: React.FC<WrapperProps> = ({ card, state, index }) => {
+const CardWrapper: FC<WrapperProps> = ({ card, state, index }) => {
     const [dragging, setDragging] = useState(false);
 
     const setActiveCard = useContext(SetActiveCardContext);
@@ -19,12 +19,14 @@ const CardWrapper: React.FC<WrapperProps> = ({ card, state, index }) => {
     const wasFocusedRef = useRef(false);
 
     return (
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
         <li
             className={classNames(styles.cardWrapper, styles[state], dragging ? styles.dragging : null)}
             style={{
-                // @ts-ignore
+                // @ts-expect-error CSS custom property
                 '--index': index,
             }}
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
             tabIndex={0}
             draggable={true}
             onDragStart={(e) => {
@@ -32,7 +34,7 @@ const CardWrapper: React.FC<WrapperProps> = ({ card, state, index }) => {
                 e.dataTransfer.effectAllowed = 'move';
                 setDragging(true);
             }}
-            onDragEnd={e => {
+            onDragEnd={(e) => {
                 setDragging(false);
                 setActiveCard(null);
                 e.currentTarget.blur();
@@ -43,11 +45,11 @@ const CardWrapper: React.FC<WrapperProps> = ({ card, state, index }) => {
             onBlur={() => {
                 setActiveCard(null);
             }}
-            onMouseDown={e => {
+            onMouseDown={(e) => {
                 // Store whether this element was focused before the click.
                 wasFocusedRef.current = (e.currentTarget === document.activeElement);
             }}
-            onClick={e => {
+            onClick={(e) => {
                 // Only blur if it was already focused before the click
                 if (wasFocusedRef.current) {
                     e.currentTarget.blur();
@@ -57,11 +59,11 @@ const CardWrapper: React.FC<WrapperProps> = ({ card, state, index }) => {
             <Card {...card} />
         </li>
     );
-}
+};
 
 type Props = {
     cards: CardProps[];
-}
+};
 
 function useTrackCardChanges(cards: CardProps[]) {
     const knownCards = useRef<CardProps[]>(cards);
@@ -98,7 +100,7 @@ function useTrackCardChanges(cards: CardProps[]) {
         }
 
         // Any cards in knownCards that are not in cards should be added to removingCardIds.
-        setRemovingCardIds(prev => {
+        setRemovingCardIds((prev) => {
             const newSet = new Set(prev);
             for (const card of newlyRemovingCards) {
                 newSet.add(card.id);
@@ -109,29 +111,29 @@ function useTrackCardChanges(cards: CardProps[]) {
         // Any items in removingCardIds should be removed from there (and from knownCards) after a 500ms delay.
         // (Not clearing this timeout if the effect runs again, so that further card removals won't delay in-progress removals.)
         setTimeout(() => {
-            setRemovingCardIds(prev => {
+            setRemovingCardIds((prev) => {
                 const newSet = new Set(prev);
                 for (const card of newlyRemovingCards) {
                     newSet.delete(card.id);
                 }
                 return newSet;
             });
-            
+
             knownCards.current = knownCards.current.filter(card => !newlyRemovingCards.some(removing => removing.id === card.id));
         }, 330);
-    }, [cards])
+    }, [cards, removingCardIds]);
 
     return { knownCards: knownCards.current, inHandCardIds, removingCardIds };
 }
 
-export const CardHand: React.FC<Props> = ({ cards }) => {
+export const CardHand: FC<Props> = ({ cards }) => {
     const { knownCards, inHandCardIds, removingCardIds } = useTrackCardChanges(cards);
 
     return (
         <ul
             className={styles.hand}
             style={{
-                // @ts-ignore
+                // @ts-expect-error CSS custom property
                 '--numCards': knownCards.length,
             }}
         >
@@ -140,7 +142,7 @@ export const CardHand: React.FC<Props> = ({ cards }) => {
                     key={card.id}
                     card={card}
                     index={index}
-                    state={removingCardIds.has(card.id) ? 'removing' : inHandCardIds.has(card.id) ?  'in-hand' : 'adding'}
+                    state={removingCardIds.has(card.id) ? 'removing' : inHandCardIds.has(card.id) ? 'in-hand' : 'adding'}
                 />
             ))}
         </ul>

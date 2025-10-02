@@ -7,8 +7,8 @@ export function getClientConfig(): ClientConfig {
     const clientConfigFromFile: Partial<ClientConfig> = JSON.parse(
         fs.readFileSync(
             path.join(__dirname, '..', 'config', 'client.json'),
-            'utf-8',
-        ),
+            'utf-8'
+        )
     );
 
     const clientDefaults: ClientConfig = {

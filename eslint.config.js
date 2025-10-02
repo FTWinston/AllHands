@@ -56,7 +56,6 @@ export default defineConfig([
             ...jsxA11y.flatConfigs.recommended.rules,
             ...stylistic.configs.recommended.rules,
             '@stylistic/quotes': ['warn', 'single', { avoidEscape: true }],
-            ...jsdoc.configs['flat/recommended'].rules,
             'arrow-spacing': ['warn', { before: true, after: true }],
             'no-var': 'warn',
             'no-redeclare': 'off',
@@ -110,6 +109,27 @@ export default defineConfig([
                 "prefer-inline": true,
             }],
             'import/first': 'warn',
+        },
+
+    },
+    // Define __dirname and process as globals for engine and game-app
+    {
+        files: [
+            'packages/engine/src/**/*.{js,ts}',
+            'packages/game-app/src/**/*.{js,ts}',
+        ],
+        languageOptions: {
+            globals: {
+                __dirname: 'readonly',
+                process: 'readonly',
+            },
+        },
+    },
+    // Disable react-hooks/rules-of-hooks for story files
+    {
+        files: ['**/*.stories.tsx'],
+        rules: {
+            'react-hooks/rules-of-hooks': 'off',
         },
     },
 ]);

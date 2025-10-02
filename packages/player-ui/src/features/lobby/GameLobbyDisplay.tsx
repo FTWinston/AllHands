@@ -3,6 +3,7 @@ import { HelmIcon, TacticalIcon, SensorsIcon, EngineeringIcon } from 'common-ui/
 import { Screen } from 'common-ui/Screen';
 import { ToggleButton } from 'common-ui/ToggleButton';
 
+import { FC } from 'react';
 import styles from './GameLobbyDisplay.module.css';
 import { LobbyRole } from './LobbyRole';
 
@@ -18,7 +19,7 @@ export type Props = {
     onReadyChange: (ready: boolean) => void;
 };
 
-export const GameLobbyDisplay: React.FC<Props> = (props) => {
+export const GameLobbyDisplay: FC<Props> = (props) => {
     const {
         crewId,
         role,
@@ -34,7 +35,13 @@ export const GameLobbyDisplay: React.FC<Props> = (props) => {
     return (
         <Screen padded>
             <h1>Choose your role</h1>
-            {crewId !== soloCrewIdentifier && <p>You are a member of crew {crewId}.</p>}
+            {crewId !== soloCrewIdentifier && (
+                <p>
+                    You are a member of crew
+                    {crewId}
+                    .
+                </p>
+            )}
             <ul className={styles.roleList}>
                 <li className={styles.roleItem}>
                     <LobbyRole

@@ -1,5 +1,6 @@
 import { Toggle } from '@base-ui-components/react/toggle';
 
+import { FC } from 'react';
 import { Button, Props as ButtonProps } from './Button';
 import { classNames } from './classNames';
 import styles from './ToggleButton.module.css';
@@ -10,7 +11,7 @@ type Props = Omit<ButtonProps, 'onClick' | 'type' | 'endIcon'> & {
     onPressedChanged: (pressed: boolean) => void;
 };
 
-export const ToggleButton: React.FC<Props> = ({ children, pressed, onPressedChanged, ...props }) => (
+export const ToggleButton: FC<Props> = ({ children, pressed, onPressedChanged, ...props }) => (
     <Toggle
         pressed={pressed}
         onPressedChange={onPressedChanged}

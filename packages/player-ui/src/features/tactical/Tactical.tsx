@@ -1,7 +1,7 @@
 import { Room } from 'colyseus.js';
-import { TacticalDisplay } from './TacticalDisplay';
-import { useState } from 'react';
 import { CardProps } from 'common-ui/Card';
+import { useState } from 'react';
+import { TacticalDisplay } from './TacticalDisplay';
 
 type Props = {
     room: Room;
@@ -9,7 +9,7 @@ type Props = {
 
 export const Tactical = (props: Props) => {
     const [cards] = useState<CardProps[]>([]);
-    
+
     return (
         <TacticalDisplay
             cards={cards}

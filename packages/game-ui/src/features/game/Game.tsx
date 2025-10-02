@@ -1,6 +1,6 @@
 import { Room } from 'colyseus.js';
 import { Screen } from 'common-ui/Screen';
-import React from 'react';
+import { FC } from 'react';
 
 interface GameProps {
     room: Room;
@@ -8,6 +8,6 @@ interface GameProps {
     disconnect: () => void;
 }
 
-export const Game: React.FC<GameProps> = () => {
+export const Game: FC<GameProps> = () => {
     return <Screen>This is your in-progress game</Screen>;
 };

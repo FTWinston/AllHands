@@ -6,7 +6,7 @@ import type { GameState, GameStatus } from 'engine';
 
 export function useRoomConnection(
     serverAddress: ServerAddress | undefined | null,
-    setConnectionState: (state: ConnectionState) => void,
+    setConnectionState: (state: ConnectionState) => void
 ) {
     const [room, setConnectedRoom] = useState<Room<GameState> | null>(null);
     const [crewId, setCrewId] = useState<string | undefined>(undefined);
@@ -31,7 +31,7 @@ export function useRoomConnection(
                 setConnectedRoom(joiningRoom);
                 console.log('connected to game server', joiningRoom);
 
-                joinedRoom.onMessage<{ crewId: string }>('joined', message => {
+                joinedRoom.onMessage<{ crewId: string }>('joined', (message) => {
                     console.log(`joined as ship for crew ${message.crewId}`);
                     setCrewId(message.crewId);
                     setConnectionState('connected');

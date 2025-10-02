@@ -24,8 +24,8 @@ export function getServerConfig() {
     const serverConfigFromFile: Partial<ServerConfig> = JSON.parse(
         fs.readFileSync(
             path.join(__dirname, '..', 'config', 'server.json'),
-            'utf-8',
-        ),
+            'utf-8'
+        )
     );
 
     // Delete settings that should never come from the server config file.

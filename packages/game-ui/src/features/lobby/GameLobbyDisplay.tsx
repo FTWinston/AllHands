@@ -1,11 +1,12 @@
 import { soloCrewIdentifier, type ServerAddress } from 'common-types';
 import { Button } from 'common-ui/Button';
+import { EngineeringIcon, HelmIcon, SensorsIcon, TacticalIcon } from 'common-ui/icons/crew';
 import { Screen } from 'common-ui/Screen';
+import { FC } from 'react';
 import QRCode from 'react-qr-code';
 
 import styles from './GameLobbyDisplay.module.css';
 import { LobbyRole } from './LobbyRole';
-import { EngineeringIcon, HelmIcon, SensorsIcon, TacticalIcon } from 'common-ui/icons/crew';
 
 export type SystemState = 'unoccupied' | 'occupied' | 'ready';
 
@@ -22,7 +23,7 @@ export type Props = {
     isFull: boolean;
 };
 
-export const GameLobbyDisplay: React.FC<Props> = (props) => {
+export const GameLobbyDisplay: FC<Props> = (props) => {
     const { serverAddress, crewId, allowMultipleCrews, helmState, tacticalState, sensorsState, engineerState, numUnassigned } = props;
 
     let serverUrl = `http://${serverAddress.ip}:${serverAddress.port}/`;
@@ -37,8 +38,15 @@ export const GameLobbyDisplay: React.FC<Props> = (props) => {
                 <div className={styles.section}>
                     <h2 className={styles.sectionHeading}>Scan to connect</h2>
                     <p>
-                        To join {allowMultipleCrews ? 'this crew' : 'the game'}, use your phone camera to scan the QR code below,
-                        or go to <strong className={styles.url}>{serverUrl}</strong> in your mobile browser.
+                        To join
+                        {' '}
+                        {allowMultipleCrews ? 'this crew' : 'the game'}
+                        , use your phone camera to scan the QR code below,
+                        or go to
+                        {' '}
+                        <strong className={styles.url}>{serverUrl}</strong>
+                        {' '}
+                        in your mobile browser.
                     </p>
                     <div className={styles.qrCodeContainer}>
                         <QRCode
@@ -79,7 +87,21 @@ export const GameLobbyDisplay: React.FC<Props> = (props) => {
                     </ul>
                     {numUnassigned > 0 && (
                         <p>
-                            There {numUnassigned === 1 ? 'is' : 'are'} also <span className={styles.numUnassigned}>{numUnassigned} unassigned</span> crew member{numUnassigned === 1 ? '' : 's'}.
+                            There
+                            {' '}
+                            {numUnassigned === 1 ? 'is' : 'are'}
+                            {' '}
+                            also
+                            {' '}
+                            <span className={styles.numUnassigned}>
+                                {numUnassigned}
+                                {' '}
+                                unassigned
+                            </span>
+                            {' '}
+                            crew member
+                            {numUnassigned === 1 ? '' : 's'}
+                            .
                         </p>
                     )}
                 </div>

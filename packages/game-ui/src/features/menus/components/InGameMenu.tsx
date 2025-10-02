@@ -1,5 +1,6 @@
 import { Screen } from 'common-ui/Screen';
 
+import { FC } from 'react';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
 
@@ -8,7 +9,7 @@ type Props = {
     disconnect: () => void;
 };
 
-export const InGameMenu: React.FC<Props> = (props) => {
+export const InGameMenu: FC<Props> = (props) => {
     return (
         <Screen padded>
             <Menu title="Make It So">

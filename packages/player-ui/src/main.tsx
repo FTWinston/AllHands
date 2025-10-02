@@ -10,5 +10,5 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         <ErrorBoundary>
             <PlayerUI />
         </ErrorBoundary>
-    </StrictMode>,
+    </StrictMode>
 );

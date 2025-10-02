@@ -1,5 +1,6 @@
-import styles from './Card.module.css';
 import { CrewRoleName } from 'common-types';
+import { FC, ReactNode } from 'react';
+import styles from './Card.module.css';
 import { CardBase } from './CardBase';
 import { classNames } from './classNames';
 
@@ -9,14 +10,14 @@ export type CardProps = {
     crew: CrewRoleName;
     targetType: string;
     description: string;
-    image: React.ReactNode;
+    image: ReactNode;
     cost: number;
     className?: string;
     nameFontSize?: number;
     descriptionLineHeight?: number;
 };
 
-export const Card: React.FC<CardProps> = (props) => {
+export const Card: FC<CardProps> = (props) => {
     return (
         <CardBase className={classNames(styles.card, props.className)} crew={props.crew}>
             <div className={styles.image} role="presentation">{props.image}</div>
@@ -35,4 +36,4 @@ export const Card: React.FC<CardProps> = (props) => {
             </p>
         </CardBase>
     );
-}
+};

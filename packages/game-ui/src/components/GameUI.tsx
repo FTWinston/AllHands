@@ -19,7 +19,7 @@ export const GameUI = () => {
         serverAddress,
         allowMultipleCrews,
         setServerAddress,
-        setConnectionState,
+        setConnectionState
     );
 
     const [room, crewId, serverState] = useRoomConnection(serverAddress, setConnectionState);
@@ -37,7 +37,7 @@ export const GameUI = () => {
                 console.warn(
                     'expected room & crewId to be set when connectionState is active', {
                         room, crewId,
-                    },
+                    }
                 );
             }
         } else if (serverState === 'setup') {
@@ -55,7 +55,7 @@ export const GameUI = () => {
                 console.warn(
                     'expected serverAddress, room, crewId & serverType to be set when connectionState is setup', {
                         serverAddress, room, crewId, serverType,
-                    },
+                    }
                 );
             }
         } else {

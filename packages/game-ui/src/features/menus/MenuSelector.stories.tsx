@@ -25,7 +25,7 @@ export const Selector: Story = {
     args: {
         isConnectedToGame: false,
     },
-    play: async({ canvasElement, args }) => {
+    play: async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
         const user = userEvent.setup();
 

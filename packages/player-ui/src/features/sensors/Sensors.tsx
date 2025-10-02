@@ -1,7 +1,7 @@
 import { Room } from 'colyseus.js';
-import { SensorsDisplay } from './SensorsDisplay';
 import { CardProps } from 'common-ui/Card';
 import { useState } from 'react';
+import { SensorsDisplay } from './SensorsDisplay';
 
 type Props = {
     room: Room;
