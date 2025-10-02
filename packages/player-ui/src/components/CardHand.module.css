@@ -7,6 +7,7 @@
     min-height: 17.5em;
     position: relative;
     overflow: hidden;
+    flex-grow: 1;
 
     --midIndex: calc((var(--numCards) - 1) / 2);
 }

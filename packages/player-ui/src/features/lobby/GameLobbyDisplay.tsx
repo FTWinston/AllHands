@@ -32,7 +32,7 @@ export const GameLobbyDisplay: React.FC<Props> = (props) => {
     } = props;
 
     return (
-        <Screen>
+        <Screen padded>
             <h1>Choose your role</h1>
             {crewId !== soloCrewIdentifier && <p>You are a member of crew {crewId}.</p>}
             <ul className={styles.roleList}>

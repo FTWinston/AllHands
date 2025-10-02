@@ -61,7 +61,6 @@ const CardWrapper: React.FC<WrapperProps> = ({ card, state, index }) => {
 
 type Props = {
     cards: CardProps[];
-    onPlay: (index: number) => void;
 }
 
 function useTrackCardChanges(cards: CardProps[]) {

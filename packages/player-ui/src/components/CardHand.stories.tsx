@@ -19,9 +19,6 @@ const meta: Meta<typeof CardHand> = {
             },
         },
     },
-    args: {
-        onPlay: fn(),
-    },
     render: (args) => {
         const [cards, setCards] = useState(args.cards);
         const [nextId, setNextId] = useState(10);

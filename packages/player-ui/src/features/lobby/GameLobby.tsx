@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { GameLobbyDisplay } from './GameLobbyDisplay';
 
 import type { GameState } from 'engine/classes/GameState';
+import { enterFullscreen, exitFullscreen } from '../../utils/fullscreen';
 
 type Props = {
     room: Room<GameState>;
@@ -66,6 +67,11 @@ export const GameLobby: React.FC<Props> = (props) => {
             }}
             onReadyChange={(newReady) => {
                 room.send('ready', newReady);
+                if (newReady) {
+                    enterFullscreen();
+                } else {
+                    exitFullscreen();
+                }
             }}
         />
     );

@@ -1,13 +1,9 @@
-import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole, type ConnectionState } from 'common-types';
+import { type ConnectionState } from 'common-types';
 import { Screen } from 'common-ui/Screen';
 import { useState } from 'react';
-
-import { Engineer } from '../features/engineer';
-import { Helm } from '../features/helm';
 import { GameLobby } from '../features/lobby/GameLobby';
-import { Sensors } from '../features/sensors';
-import { Tactical } from '../features/tactical';
 import { useRoomConnection } from '../hooks/useRoomConnection';
+import { CrewUI } from './CrewUI';
 
 export const PlayerUI = () => {
     const [connectionState, setConnectionState]
@@ -18,18 +14,12 @@ export const PlayerUI = () => {
     if (connectionState === 'connected') {
         if (serverState === 'active') {
             if (room && crewId && role) {
-                switch (role) {
-                    case helmClientRole:
-                        return <Helm room={room} />;
-                    case tacticalClientRole:
-                        return <Tactical room={room} />;
-                    case sensorClientRole:
-                        return <Sensors room={room} />;
-                    case engineerClientRole:
-                        return <Engineer room={room} />;
-                    default:
-                        console.warn('unexpected role', role);
-                }
+                return (
+                    <CrewUI
+                        role={role}
+                        room={room}
+                    />
+                );
             } else {
                 console.warn(
                     'expected room, crewId & role to be set when serverState is active', {
