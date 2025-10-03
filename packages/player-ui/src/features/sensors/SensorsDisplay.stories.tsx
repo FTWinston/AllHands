@@ -48,6 +48,7 @@ export const Sensors: Story = {
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
                 cost: 1,
-            }],
+            },
+        ],
     },
 };

@@ -17,7 +17,7 @@ export const TacticalDisplay = (props: Props) => {
                 onPause={props.onPause}
             />
 
-            <p>(not implemented yet)</p>
+            <p style={{ textAlign: 'center', padding: '2em' }}>(not implemented yet)</p>
 
             <CardHand cards={props.cards} />
         </Screen>
