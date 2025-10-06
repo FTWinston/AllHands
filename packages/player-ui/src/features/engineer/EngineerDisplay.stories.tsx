@@ -1,4 +1,5 @@
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
+import { useState } from 'react';
 import { fn } from 'storybook/test';
 import { EngineerDisplay as Component } from './EngineerDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -11,6 +12,17 @@ const meta: Meta<typeof Component> = {
     },
     args: {
         onPause: fn(),
+    },
+    render: (args) => {
+        const [priority, setPriority] = useState<'hand' | 'power'>(args.priority ?? 'hand');
+
+        return (
+            <Component
+                {...args}
+                priority={priority}
+                setPriority={setPriority}
+            />
+        );
     },
 };
 

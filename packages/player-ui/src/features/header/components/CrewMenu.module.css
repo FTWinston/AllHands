@@ -1,29 +1,3 @@
-.crewHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: oklch(from var(--primary-color) l c h / 10%);
-    border-bottom: solid var(--primary-color) 2px;
-    font-size: 1em;
-    padding: 0.25em 1em 0.25em 0.25em;
-}
-
-button.menuButton {
-    padding: 0.25em 0.5em;
-}
-
-.menuButtonIcon {
-    color: var(--text-color);
-    width: 1.5em;
-    height: 1.5em;
-}
-
-.crewIcon {
-    width: 2em;
-    height: 2em;
-    color: var(--primary-color);
-}
-
 .arrow {
     width: 1em;
     height: 9px;

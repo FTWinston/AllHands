@@ -1,0 +1,27 @@
+.indicator {
+    display: flex;
+    gap: 0.25em;
+    align-items: center;
+    flex-wrap: auto;
+}
+
+.indicatorText {
+    text-wrap: nowrap;
+    color: var(--text-color);
+}
+
+.currentValue {
+    font-weight: bold;
+    color: var(--highlight-color);
+}
+
+.maxValue {
+    color: var(--highlight-color);
+}
+
+.icon {
+    width: 2em;
+    height: 2em;
+    flex-shrink: 0;
+    color: var(--primary-color);
+}

@@ -1,0 +1,43 @@
+
+.switchArrow {
+    position: relative;
+    transition: all 250ms ease;
+
+    border-top-right-radius: 6em 1em;
+    border-bottom-right-radius: 6em 1em;
+    border-top-left-radius: 100%;
+    border-bottom-left-radius: 100%;
+
+    corner-top-left-shape: bevel;
+    corner-bottom-left-shape: bevel;
+    corner-top-right-shape: notch;
+    corner-bottom-right-shape: notch;
+
+    padding-left: 1em;
+    padding-right: 0;
+
+    left: -0.5em;
+
+    &[data-checked] {
+
+        border-top-left-radius: 6em 1em;
+        border-bottom-left-radius: 6em 1em;
+        border-top-right-radius: 100%;
+        border-bottom-right-radius: 100%;
+
+        corner-top-right-shape: bevel;
+        corner-bottom-right-shape: bevel;
+        corner-top-left-shape: notch;
+        corner-bottom-left-shape: notch;
+    
+        padding-left: 0;
+        padding-right: 1em;
+        
+        left: 0.5em;
+    }
+}
+
+.text {
+    position: relative;
+    bottom: 0.1em;
+}

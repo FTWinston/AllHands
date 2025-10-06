@@ -1,0 +1,49 @@
+.crewHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: oklch(from var(--primary-color) l c h / 10%);
+    border-bottom: solid var(--primary-color) 2px;
+    font-size: 1em;
+    gap: 1em;
+    padding: 0.25em 1em 0.25em 0.25em;
+}
+
+button.menuButton {
+    padding: 0.25em 0.5em;
+}
+
+.menuButtonIcon {
+    width: 1.5em;
+    height: 1.5em;
+}
+
+.title {
+    display: flex;
+    gap: 0.75em;
+    align-items: center;
+    color: var(--primary-color);
+}
+
+.titleIcon {
+    width: 2em;
+    height: 2em;
+}
+
+.titleText {
+    text-transform: capitalize;
+    font-size: 1.5em;
+    line-height: 1em;
+}
+
+@media (max-width: 650px) {
+    .titleText {
+        display: none;
+    }
+}
+
+.statusIcons {
+    display: flex;
+    gap: 0.75em;
+    align-items: center;
+}

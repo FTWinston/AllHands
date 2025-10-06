@@ -1,25 +1,27 @@
 import { CardProps } from 'common-ui/Card';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/Screen';
+import { ComponentProps } from 'react';
 import { CardHand } from '../../components/CardHand';
-import { CrewHeader } from '../../components/CrewHeader';
+import { CrewHeader } from '../header';
 
-type Props = {
+type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     cards: CardProps[];
-    onPause: () => void;
 };
 
 export const TacticalDisplay = (props: Props) => {
+    const { cards, ...headerProps } = props;
+
     return (
         <Screen className={crewStyles.tactical}>
             <CrewHeader
                 crew="tactical"
-                onPause={props.onPause}
+                {...headerProps}
             />
 
             <p style={{ textAlign: 'center', padding: '2em' }}>(not implemented yet)</p>
 
-            <CardHand cards={props.cards} />
+            <CardHand cards={cards} />
         </Screen>
     );
 };
