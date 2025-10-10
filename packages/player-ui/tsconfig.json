@@ -1,9 +1,16 @@
 {
   "extends": "../../tsconfig.vite.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "rootDir": "./src",
     "outDir": "./dist",
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "common-types": ["../common-types/src"],
+      "common-ui/*": ["../common-ui/src/*"],
+      "engine/*": ["../engine/src/*"],
+      "src/*": ["./src/*"]
+    }
   },
   "include": ["src"],
   "references": [

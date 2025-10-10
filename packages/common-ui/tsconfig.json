@@ -1,8 +1,14 @@
 {
   "extends": "../../tsconfig.vite.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "paths": {
+      "common-types": ["../common-types/src"],
+      "engine/*": ["../engine/src/*"],
+      "src/*": ["./src/*"]
+    }
   },
   "include": ["src"],
   "references": [

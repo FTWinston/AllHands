@@ -1,8 +1,16 @@
 {
   "extends": "../../tsconfig.node.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "paths": {
+      "common-types": ["../common-types/src"],
+      "common-ui/*": ["../common-ui/src/*"],
+      "engine/*": ["../engine/src/*"],
+      "game-ui/*": ["../game-ui/src/*"],
+      "src/*": ["./src/*"]
+    }
   },
   "include": ["src"],
   "references": [
