@@ -57,6 +57,7 @@ ul, ol {
     --text-color: oklch(0.7921 0 0);
     --highlight-color: oklch(1 0 0);
     --primary-color: oklch(0.5132 0.147 277.61);
+    --primary-highlight: color-mix(in srgb, var(--primary-color) 60%, var(--highlight-color));
     --main-font-family: 'Jura', sans-serif;
 
     background-color: var(--background-color);

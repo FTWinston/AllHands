@@ -1,6 +1,6 @@
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
-import { useState } from 'react';
 import { fn } from 'storybook/test';
+import { useFakePowerAndGeneration } from '../engineer/EngineerDisplay.stories';
 import { TacticalDisplay as Component } from './TacticalDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -14,13 +14,18 @@ const meta: Meta<typeof Component> = {
         onPause: fn(),
     },
     render: (args) => {
-        const [priority, setPriority] = useState<'hand' | 'power'>(args.priority ?? 'hand');
+        const { power, handSize, powerGeneration, cardGeneration, priority, setPriority } = useFakePowerAndGeneration(args);
 
         return (
             <Component
                 {...args}
                 priority={priority}
                 setPriority={setPriority}
+                powerGeneration={powerGeneration}
+                cardGeneration={cardGeneration}
+                handSize={handSize}
+                maxHandSize={args.maxHandSize}
+                power={power}
             />
         );
     },
@@ -62,5 +67,9 @@ export const Tactical: Story = {
                 cost: 1,
             },
         ],
+        power: 2,
+        maxPower: 5,
+        handSize: 4,
+        maxHandSize: 5,
     },
 };

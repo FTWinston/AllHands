@@ -4,6 +4,7 @@ import { Button } from 'common-ui/Button';
 import { CrewIcon } from 'common-ui/icons/crew';
 import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
 import { FC } from 'react';
+import { Cooldown } from 'src/types/Cooldown';
 import { default as HandIcon } from '../assets/card-hand.svg?react';
 import { default as PowerIcon } from '../assets/power.svg?react';
 import styles from './CrewHeader.module.css';
@@ -16,6 +17,12 @@ type Props = {
     onPause: () => void;
     priority: 'hand' | 'power';
     setPriority: (priority: 'hand' | 'power') => void;
+    power: number;
+    maxPower: number;
+    powerGeneration?: Cooldown;
+    handSize: number;
+    maxHandSize: number;
+    cardGeneration?: Cooldown;
 };
 
 export const CrewHeader: FC<Props> = (props) => {
@@ -40,9 +47,10 @@ export const CrewHeader: FC<Props> = (props) => {
             </div>
 
             <NumberIndicator
-                value={3}
-                maxValue={5}
+                value={props.power}
+                maxValue={props.maxPower}
                 icon={PowerIcon}
+                generation={props.powerGeneration}
             />
 
             <PrioritySwitch
@@ -51,9 +59,10 @@ export const CrewHeader: FC<Props> = (props) => {
             />
 
             <NumberIndicator
-                value={4}
-                maxValue={5}
+                value={props.handSize}
+                maxValue={props.maxHandSize}
                 icon={HandIcon}
+                generation={props.cardGeneration}
             />
         </div>
     );

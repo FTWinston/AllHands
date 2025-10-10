@@ -1,13 +1,40 @@
-.indicator {
+.indicatorRoot {
     display: flex;
-    gap: 0.25em;
     align-items: center;
     flex-wrap: auto;
 }
 
+.indicator {
+    position: relative;
+}
+
 .indicatorText {
-    text-wrap: nowrap;
+    display: flex;
+    gap: 0.2em;
     color: var(--text-color);
+    padding: 0.2em 0.45em;
+    position: relative;
+}
+
+.progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    border-radius: 1em;
+    background: conic-gradient(
+        var(--primary-highlight) calc(var(--fraction) * 100%), 
+        transparent 0
+    );
+
+    &::before {
+        content: "";
+        position: absolute;
+        border-radius: inherit;
+        inset: 0.15em;
+        background-color: var(--header-background);
+    }
 }
 
 .currentValue {
