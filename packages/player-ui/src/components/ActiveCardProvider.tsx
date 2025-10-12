@@ -1,8 +1,9 @@
+import { CardTargetType } from 'common-types';
 import { createContext, useState, ReactNode } from 'react';
 
 export type ActiveCardInfo = {
     id: number;
-    targetType: string;
+    targetType: CardTargetType;
 };
 
 export const ActiveCardContext = createContext<ActiveCardInfo | null>(null);

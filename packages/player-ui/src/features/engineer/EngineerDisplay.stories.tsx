@@ -91,7 +91,7 @@ export const Engineer: Story = {
             {
                 id: 1,
                 crew: 'engineer',
-                targetType: 'something',
+                targetType: 'no-target',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -101,7 +101,7 @@ export const Engineer: Story = {
             {
                 id: 2,
                 crew: 'engineer',
-                targetType: 'else',
+                targetType: 'no-target',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -110,7 +110,7 @@ export const Engineer: Story = {
             {
                 id: 3,
                 crew: 'engineer',
-                targetType: 'else',
+                targetType: 'no-target',
                 name: 'Some Card with a title that\'s really quite long',
                 nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',

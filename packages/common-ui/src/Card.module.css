@@ -13,7 +13,8 @@
   outline: solid var(--text-color) 0.1em;
   corner-shape: bevel;
   corner-top-left-shape: scoop;
-  border-radius: 1.6em 0.25em 0.25em 0.25em;
+  corner-top-right-shape: superellipse(-2);
+  border-radius: 1.6em 1.6em 0.25em 0.25em;
   flex-shrink: 0;
 }
 
@@ -57,4 +58,12 @@
   align-items: center;
   border: solid oklch(from var(--primary-color) 0.8 c h) 0.05em;
   font-family: monospace;
+}
+
+.targetType {
+  position: absolute;
+  top: 0.2em;
+  right: 0.3em;
+  width: 1.6em;
+  height: 1.6em;
 }

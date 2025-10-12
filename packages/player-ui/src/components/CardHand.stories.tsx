@@ -34,7 +34,7 @@ const meta: Meta<typeof CardHand> = {
                                 setCards(cards => cards.filter(card => card.id !== cardId));
                                 fn();
                             }}
-                            targetType="something"
+                            targetType="no-target"
                         >
                             Drop "something" cards here
                         </CardDropTarget>
@@ -44,7 +44,7 @@ const meta: Meta<typeof CardHand> = {
                                 setCards(cards => cards.filter(card => card.id !== cardId));
                                 fn();
                             }}
-                            targetType="else"
+                            targetType="no-target"
                         >
                             Drop "else" cards here
                         </CardDropTarget>
@@ -56,7 +56,7 @@ const meta: Meta<typeof CardHand> = {
                                 setCards(cards => [...cards, {
                                     id: nextId,
                                     crew: 'helm',
-                                    targetType: 'something',
+                                    targetType: 'no-target',
                                     name: 'New Card',
                                     description: 'A new card description.',
                                     image: <ExampleIcon />,
@@ -101,7 +101,7 @@ export const Three: Story = {
             {
                 id: 1,
                 crew: 'helm',
-                targetType: 'something',
+                targetType: 'location',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -111,7 +111,7 @@ export const Three: Story = {
             {
                 id: 2,
                 crew: 'tactical',
-                targetType: 'else',
+                targetType: 'weapon-slot',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -120,7 +120,7 @@ export const Three: Story = {
             {
                 id: 3,
                 crew: 'sensors',
-                targetType: 'else',
+                targetType: 'enemy',
                 name: 'Some Card with a title that\'s really quite long',
                 nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
@@ -137,7 +137,7 @@ export const Five: Story = {
             {
                 id: 1,
                 crew: 'helm',
-                targetType: 'something',
+                targetType: 'no-target',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -147,7 +147,7 @@ export const Five: Story = {
             {
                 id: 2,
                 crew: 'tactical',
-                targetType: 'else',
+                targetType: 'weapon',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -156,7 +156,7 @@ export const Five: Story = {
             {
                 id: 3,
                 crew: 'sensors',
-                targetType: 'else',
+                targetType: 'weapon-slot',
                 name: 'Some Card with a title that\'s really quite long',
                 nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
@@ -166,7 +166,7 @@ export const Five: Story = {
             {
                 id: 4,
                 crew: 'helm',
-                targetType: 'something',
+                targetType: 'system',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -176,7 +176,7 @@ export const Five: Story = {
             {
                 id: 5,
                 crew: 'tactical',
-                targetType: 'else',
+                targetType: 'enemy',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -192,7 +192,7 @@ export const Nine: Story = {
             {
                 id: 1,
                 crew: 'helm',
-                targetType: 'something',
+                targetType: 'no-target',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -202,7 +202,7 @@ export const Nine: Story = {
             {
                 id: 2,
                 crew: 'tactical',
-                targetType: 'else',
+                targetType: 'weapon-slot',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -211,7 +211,7 @@ export const Nine: Story = {
             {
                 id: 3,
                 crew: 'sensors',
-                targetType: 'else',
+                targetType: 'enemy',
                 name: 'Some Card with a title that\'s really quite long',
                 nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
@@ -221,7 +221,7 @@ export const Nine: Story = {
             {
                 id: 4,
                 crew: 'helm',
-                targetType: 'something',
+                targetType: 'no-target',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -231,7 +231,7 @@ export const Nine: Story = {
             {
                 id: 5,
                 crew: 'tactical',
-                targetType: 'else',
+                targetType: 'enemy',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -240,7 +240,7 @@ export const Nine: Story = {
             {
                 id: 6,
                 crew: 'helm',
-                targetType: 'something',
+                targetType: 'location',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -250,7 +250,7 @@ export const Nine: Story = {
             {
                 id: 7,
                 crew: 'tactical',
-                targetType: 'else',
+                targetType: 'weapon',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -259,7 +259,7 @@ export const Nine: Story = {
             {
                 id: 8,
                 crew: 'sensors',
-                targetType: 'else',
+                targetType: 'no-target',
                 name: 'Some Card with a title that\'s really quite long',
                 nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
@@ -269,7 +269,7 @@ export const Nine: Story = {
             {
                 id: 9,
                 crew: 'helm',
-                targetType: 'something',
+                targetType: 'location',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
