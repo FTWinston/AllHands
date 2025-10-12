@@ -27,26 +27,66 @@ const meta: Meta<typeof CardHand> = {
                 <div style={{ height: '100dvh', display: 'flex' }}>
                     <CardHand {...args} cards={cards} />
 
-                    <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', gap: '3em' }}>
+                    <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', maxWidth: 'calc(100vw - 20em)', flexWrap: 'wrap', gap: '3em' }}>
                         <CardDropTarget
                             onCardDropped={(cardId) => {
-                                console.log(`dropped card ${cardId} on something target`);
+                                console.log(`dropped card ${cardId} on no target`);
                                 setCards(cards => cards.filter(card => card.id !== cardId));
                                 fn();
                             }}
                             targetType="no-target"
                         >
-                            Drop "something" cards here
+                            No target drop
                         </CardDropTarget>
                         <CardDropTarget
                             onCardDropped={(cardId) => {
-                                console.log(`dropped card ${cardId} on else target`);
+                                console.log(`dropped card ${cardId} on location target`);
                                 setCards(cards => cards.filter(card => card.id !== cardId));
                                 fn();
                             }}
-                            targetType="no-target"
+                            targetType="location"
                         >
-                            Drop "else" cards here
+                            Location drop
+                        </CardDropTarget>
+                        <CardDropTarget
+                            onCardDropped={(cardId) => {
+                                console.log(`dropped card ${cardId} on enemy target`);
+                                setCards(cards => cards.filter(card => card.id !== cardId));
+                                fn();
+                            }}
+                            targetType="enemy"
+                        >
+                            Enemy drop
+                        </CardDropTarget>
+                        <CardDropTarget
+                            onCardDropped={(cardId) => {
+                                console.log(`dropped card ${cardId} on system target`);
+                                setCards(cards => cards.filter(card => card.id !== cardId));
+                                fn();
+                            }}
+                            targetType="system"
+                        >
+                            System drop
+                        </CardDropTarget>
+                        <CardDropTarget
+                            onCardDropped={(cardId) => {
+                                console.log(`dropped card ${cardId} on weapon slot target`);
+                                setCards(cards => cards.filter(card => card.id !== cardId));
+                                fn();
+                            }}
+                            targetType="weapon-slot"
+                        >
+                            Weapon slot drop
+                        </CardDropTarget>
+                        <CardDropTarget
+                            onCardDropped={(cardId) => {
+                                console.log(`dropped card ${cardId} on weapon target`);
+                                setCards(cards => cards.filter(card => card.id !== cardId));
+                                fn();
+                            }}
+                            targetType="weapon"
+                        >
+                            Weapon drop
                         </CardDropTarget>
                     </div>
 
