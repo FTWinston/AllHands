@@ -1,8 +1,9 @@
+import { useDraggable } from '@dnd-kit/core';
 import { Card, CardProps } from 'common-ui/Card';
 import { classNames } from 'common-ui/classNames';
-import { FC, useContext, useEffect, useRef, useState } from 'react';
-import { SetActiveCardContext } from './ActiveCardProvider';
+import { FC, useEffect, useRef, useState } from 'react';
 import styles from './CardHand.module.css';
+import { useActiveCard } from './DragCardProvider';
 
 type WrapperProps = {
     card: CardProps;
@@ -11,50 +12,23 @@ type WrapperProps = {
 };
 
 const CardWrapper: FC<WrapperProps> = ({ card, state, index }) => {
-    const [dragging, setDragging] = useState(false);
+    const activeCard = useActiveCard();
 
-    const setActiveCard = useContext(SetActiveCardContext);
-
-    // Track if the element was focused before the click. If so, then clicking it again should blur it.
-    const wasFocusedRef = useRef(false);
+    const { attributes, listeners, setNodeRef } = useDraggable({
+        id: card.id,
+        data: card,
+    });
 
     return (
-        // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
         <li
-            className={classNames(styles.cardWrapper, styles[state], dragging ? styles.dragging : null)}
+            ref={setNodeRef}
+            className={classNames(styles.cardWrapper, styles[state], activeCard?.id === card.id ? styles.dragging : null)}
             style={{
                 // @ts-expect-error CSS custom property
                 '--index': index,
             }}
-            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-            tabIndex={0}
-            draggable={true}
-            onDragStart={(e) => {
-                setActiveCard({ id: card.id, targetType: card.targetType });
-                e.dataTransfer.effectAllowed = 'move';
-                setDragging(true);
-            }}
-            onDragEnd={(e) => {
-                setDragging(false);
-                setActiveCard(null);
-                e.currentTarget.blur();
-            }}
-            onFocus={() => {
-                setActiveCard({ id: card.id, targetType: card.targetType });
-            }}
-            onBlur={() => {
-                setActiveCard(null);
-            }}
-            onMouseDown={(e) => {
-                // Store whether this element was focused before the click.
-                wasFocusedRef.current = (e.currentTarget === document.activeElement);
-            }}
-            onClick={(e) => {
-                // Only blur if it was already focused before the click
-                if (wasFocusedRef.current) {
-                    e.currentTarget.blur();
-                }
-            }}
+            {...listeners}
+            {...attributes}
         >
             <Card {...card} />
         </li>

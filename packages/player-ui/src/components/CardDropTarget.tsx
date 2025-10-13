@@ -1,43 +1,35 @@
+import { useDroppable } from '@dnd-kit/core';
 import { classNames } from 'common-ui/classNames';
-import { FC, PropsWithChildren, useContext, useState } from 'react';
-import { ActiveCardContext } from './ActiveCardProvider';
+import { FC, PropsWithChildren } from 'react';
 import styles from './CardDropTarget.module.css';
+import { useActiveCard } from './DragCardProvider';
 
 type Props = PropsWithChildren<{
+    id: string;
     className?: string;
-    onCardDropped: (cardID: number) => void;
     targetType?: string;
 }>;
 
 export const CardDropTarget: FC<Props> = (props) => {
-    const [dropping, setDropping] = useState(false);
-    const activeCard = useContext(ActiveCardContext);
+    const activeCard = useActiveCard();
 
     const matchesActiveCardTargetType = activeCard && (!props.targetType || props.targetType === activeCard.targetType);
-    const canDropHere = dropping && matchesActiveCardTargetType;
-    const couldDropHere = !dropping && matchesActiveCardTargetType;
+
+    const { setNodeRef, isOver, active } = useDroppable({
+        id: props.id,
+        data: {
+            targetType: props.targetType,
+        },
+        disabled: !matchesActiveCardTargetType,
+    });
+
+    const canDropHere = isOver && matchesActiveCardTargetType;
+    const couldDropHere = !isOver && matchesActiveCardTargetType;
 
     return (
         <div
+            ref={setNodeRef}
             className={classNames(canDropHere ? styles.dropping : null, couldDropHere ? styles.couldDrop : null, props.className)}
-            onDragOver={(e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = matchesActiveCardTargetType ? 'move' : 'none';
-                setDropping(true);
-            }}
-            onDragLeave={(e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'none';
-                setDropping(false);
-            }}
-            onDrop={(e) => {
-                e.preventDefault();
-                setDropping(false);
-
-                if (matchesActiveCardTargetType) {
-                    props.onCardDropped(activeCard.id);
-                }
-            }}
         >
             {props.children}
         </div>

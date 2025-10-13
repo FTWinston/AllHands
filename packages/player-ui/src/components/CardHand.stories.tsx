@@ -2,9 +2,9 @@ import { Button } from 'common-ui/Button';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
-import { ActiveCardProvider } from './ActiveCardProvider';
 import { CardDropTarget } from './CardDropTarget';
 import { CardHand } from './CardHand';
+import { DragCardProvider } from './DragCardProvider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof CardHand> = {
@@ -22,68 +22,50 @@ const meta: Meta<typeof CardHand> = {
         const [cards, setCards] = useState(args.cards);
         const [nextId, setNextId] = useState(10);
 
+        const handleCardDropped = (cardId: number, targetId: string | null) => {
+            console.log(`dropped card ${cardId} on target ${targetId}`);
+            setCards(cards => cards.filter(card => card.id !== cardId));
+            fn();
+        };
+
         return (
-            <ActiveCardProvider>
+            <DragCardProvider onCardDropped={handleCardDropped}>
                 <div style={{ height: '100dvh', display: 'flex' }}>
                     <CardHand {...args} cards={cards} />
 
                     <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', maxWidth: 'calc(100vw - 20em)', flexWrap: 'wrap', gap: '3em' }}>
                         <CardDropTarget
-                            onCardDropped={(cardId) => {
-                                console.log(`dropped card ${cardId} on no target`);
-                                setCards(cards => cards.filter(card => card.id !== cardId));
-                                fn();
-                            }}
+                            id="no-target-drop"
                             targetType="no-target"
                         >
                             No target drop
                         </CardDropTarget>
                         <CardDropTarget
-                            onCardDropped={(cardId) => {
-                                console.log(`dropped card ${cardId} on location target`);
-                                setCards(cards => cards.filter(card => card.id !== cardId));
-                                fn();
-                            }}
+                            id="location-drop"
                             targetType="location"
                         >
                             Location drop
                         </CardDropTarget>
                         <CardDropTarget
-                            onCardDropped={(cardId) => {
-                                console.log(`dropped card ${cardId} on enemy target`);
-                                setCards(cards => cards.filter(card => card.id !== cardId));
-                                fn();
-                            }}
+                            id="enemy-drop"
                             targetType="enemy"
                         >
                             Enemy drop
                         </CardDropTarget>
                         <CardDropTarget
-                            onCardDropped={(cardId) => {
-                                console.log(`dropped card ${cardId} on system target`);
-                                setCards(cards => cards.filter(card => card.id !== cardId));
-                                fn();
-                            }}
+                            id="system-drop"
                             targetType="system"
                         >
                             System drop
                         </CardDropTarget>
                         <CardDropTarget
-                            onCardDropped={(cardId) => {
-                                console.log(`dropped card ${cardId} on weapon slot target`);
-                                setCards(cards => cards.filter(card => card.id !== cardId));
-                                fn();
-                            }}
+                            id="weapon-slot-drop"
                             targetType="weapon-slot"
                         >
                             Weapon slot drop
                         </CardDropTarget>
                         <CardDropTarget
-                            onCardDropped={(cardId) => {
-                                console.log(`dropped card ${cardId} on weapon target`);
-                                setCards(cards => cards.filter(card => card.id !== cardId));
-                                fn();
-                            }}
+                            id="weapon-drop"
                             targetType="weapon"
                         >
                             Weapon drop
@@ -121,7 +103,7 @@ const meta: Meta<typeof CardHand> = {
                         </Button>
                     </div>
                 </div>
-            </ActiveCardProvider>
+            </DragCardProvider>
         );
     },
 };
