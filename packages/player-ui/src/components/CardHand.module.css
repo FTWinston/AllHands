@@ -52,5 +52,7 @@
 }
 
 .dragging {
-    display: none;
+    opacity: 0.5;
+    transition: opacity 0.33s ease-in-out;
+    z-index: 1;
 }

@@ -15,7 +15,7 @@ export const CardDropTarget: FC<Props> = (props) => {
 
     const matchesActiveCardTargetType = activeCard && (!props.targetType || props.targetType === activeCard.targetType);
 
-    const { setNodeRef, isOver, active } = useDroppable({
+    const { setNodeRef, isOver } = useDroppable({
         id: props.id,
         data: {
             targetType: props.targetType,

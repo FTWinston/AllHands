@@ -1,4 +1,5 @@
 import { useDraggable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
 import { Card, CardProps } from 'common-ui/Card';
 import { classNames } from 'common-ui/classNames';
 import { FC, useEffect, useRef, useState } from 'react';
@@ -9,14 +10,15 @@ type WrapperProps = {
     card: CardProps;
     state: 'in-hand' | 'adding' | 'removing';
     index: number;
+    numCards: number;
 };
 
-const CardWrapper: FC<WrapperProps> = ({ card, state, index }) => {
+const CardWrapper: FC<WrapperProps> = ({ card, state, index, numCards }) => {
     const activeCard = useActiveCard();
 
-    const { attributes, listeners, setNodeRef } = useDraggable({
+    const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: card.id,
-        data: card,
+        data: { ...card, index, numCards },
     });
 
     return (
@@ -26,6 +28,7 @@ const CardWrapper: FC<WrapperProps> = ({ card, state, index }) => {
             style={{
                 // @ts-expect-error CSS custom property
                 '--index': index,
+                'transform': CSS.Translate.toString(transform),
             }}
             {...listeners}
             {...attributes}
@@ -116,6 +119,7 @@ export const CardHand: FC<Props> = ({ cards }) => {
                     key={card.id}
                     card={card}
                     index={index}
+                    numCards={knownCards.length}
                     state={removingCardIds.has(card.id) ? 'removing' : inHandCardIds.has(card.id) ? 'in-hand' : 'adding'}
                 />
             ))}

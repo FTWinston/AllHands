@@ -1,12 +1,14 @@
-import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, useSensor, PointerSensor, useSensors, Modifier, defaultDropAnimation } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragStartEvent, useSensor, PointerSensor, useSensors, Modifier } from '@dnd-kit/core';
 import { CardTargetType } from 'common-types';
-import { Card, CardProps } from 'common-ui/Card';
+import { CardProps } from 'common-ui/Card';
 import { createContext, useState, ReactNode, useContext } from 'react';
-import styles from './DragCardProvider.module.css';
 
 export type ActiveCardInfo = {
     id: number;
     targetType: CardTargetType;
+    index: number;
+    numCards: number;
+    cardProps: CardProps;
 };
 
 export const ActiveCardContext = createContext<ActiveCardInfo | null>(null);
@@ -36,14 +38,18 @@ type Props = {
 };
 
 export const DragCardProvider = ({ children, onCardDropped }: Props) => {
-    const [activeCard, setActiveCard] = useState<CardProps | null>(null);
-    const [wasDropped, setWasDropped] = useState(false);
+    const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
 
     const handleDragStart = (event: DragStartEvent) => {
-        const data = event.active.data.current as CardProps | undefined;
+        const data = event.active.data.current as (CardProps & { index: number; numCards: number }) | undefined;
         if (data) {
-            setActiveCard(data);
-            setWasDropped(false);
+            setActiveCard({
+                id: data.id,
+                targetType: data.targetType,
+                index: data.index,
+                numCards: data.numCards,
+                cardProps: data,
+            });
         }
     };
 
@@ -53,16 +59,26 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
 
         if (targetId !== undefined && onCardDropped && typeof cardId === 'number') {
             onCardDropped(cardId, targetId ? String(targetId) : null);
-            setWasDropped(true);
+        }
+
+        // Blur the currently focused element (which is the dragged element)
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
         }
 
         setActiveCard(null);
     };
 
     const handleDragCancel = () => {
+        // Blur the currently focused element
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+        }
+
         setActiveCard(null);
     };
 
+    // You must move the touch 100 pixels to start a drag, so you can see focused cards nicely.
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -70,8 +86,6 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
             },
         })
     );
-
-    const dropAnimation = wasDropped ? null : defaultDropAnimation;
 
     return (
         <DndContext
@@ -84,9 +98,6 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
             <ActiveCardContext.Provider value={activeCard}>
                 {children}
             </ActiveCardContext.Provider>
-            <DragOverlay dropAnimation={dropAnimation}>
-                {activeCard && (<Card {...activeCard} className={styles.dragging} />)}
-            </DragOverlay>
         </DndContext>
     );
 };

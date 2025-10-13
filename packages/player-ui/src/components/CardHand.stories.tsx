@@ -271,8 +271,8 @@ export const Nine: Story = {
             },
             {
                 id: 7,
-                crew: 'tactical',
-                targetType: 'weapon',
+                crew: 'engineer',
+                targetType: 'system',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
