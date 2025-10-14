@@ -4,7 +4,7 @@ import { Card, CardProps } from 'common-ui/Card';
 import { classNames } from 'common-ui/classNames';
 import { FC, useEffect, useRef, useState } from 'react';
 import styles from './CardHand.module.css';
-import { useActiveCard } from './DragCardProvider';
+import { useActiveCard, useIsOverValidTarget } from './DragCardProvider';
 
 type WrapperProps = {
     card: CardProps;
@@ -15,16 +15,25 @@ type WrapperProps = {
 
 const CardWrapper: FC<WrapperProps> = ({ card, state, index, numCards }) => {
     const activeCard = useActiveCard();
+    const isOverValidTarget = useIsOverValidTarget();
 
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: card.id,
         data: { ...card, index, numCards },
     });
 
+    const isBeingDragged = activeCard?.id === card.id;
+    const canDrop = isBeingDragged && isOverValidTarget;
+
     return (
         <li
             ref={setNodeRef}
-            className={classNames(styles.cardWrapper, styles[state], activeCard?.id === card.id ? styles.dragging : null)}
+            className={classNames(
+                styles.cardWrapper,
+                styles[state],
+                isBeingDragged ? styles.dragging : null,
+                canDrop ? styles.canDrop : null
+            )}
             style={{
                 // @ts-expect-error CSS custom property
                 '--index': index,
