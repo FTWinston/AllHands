@@ -40,7 +40,7 @@ export const Helm: Story = {
             {
                 id: 1,
                 crew: 'helm',
-                targetType: 'no-target',
+                targetType: 'location',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -50,7 +50,7 @@ export const Helm: Story = {
             {
                 id: 2,
                 crew: 'helm',
-                targetType: 'no-target',
+                targetType: 'location',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,

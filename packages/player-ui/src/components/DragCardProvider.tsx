@@ -39,6 +39,12 @@ const snapTopCenterToCursor: Modifier = ({ transform, draggingNodeRect, activato
     return transform;
 };
 
+const clearFocus = () => {
+    if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+    }
+};
+
 type Props = {
     children: ReactNode;
     onCardDropped?: (cardId: number, targetId: string | null) => void;
@@ -59,6 +65,9 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
                 cardProps: data,
             });
         }
+
+        // Blur the currently focused element, because another card might be focused.
+        clearFocus();
     };
 
     const handleDragOver = (event: { over: { id: string | number; disabled?: boolean } | null }) => {
@@ -84,10 +93,8 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
     };
 
     const handleDragCancel = () => {
-        // Blur the currently focused element
-        if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-        }
+        // Blur the currently focused element.
+        clearFocus();
 
         setIsOverValidTarget(false);
         setActiveCard(null);

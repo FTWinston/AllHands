@@ -50,7 +50,7 @@ export const Sensors: Story = {
             {
                 id: 2,
                 crew: 'sensors',
-                targetType: 'no-target',
+                targetType: 'enemy',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -59,7 +59,7 @@ export const Sensors: Story = {
             {
                 id: 3,
                 crew: 'sensors',
-                targetType: 'no-target',
+                targetType: 'enemy',
                 name: 'Some Card with a title that\'s really quite long',
                 nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
