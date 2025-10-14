@@ -1,7 +1,23 @@
-.dropping {
+.dropTarget {
+    pointer-events: none;
+}
+
+.dropping, .couldDrop, .dropTarget > * {
+    pointer-events: initial;
+}
+
+.dropping:not(.noSpecificTarget) {
     outline: solid var(--highlight-color) 0.25em;
 }
 
-.couldDrop {
+.couldDrop:not(.noSpecificTarget) {
     outline: solid var(--primary-color) 0.25em;
+}
+
+.noSpecificTarget {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: calc(100dvh - 16em);
 }

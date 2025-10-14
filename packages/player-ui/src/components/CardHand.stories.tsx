@@ -35,12 +35,6 @@ const meta: Meta<typeof CardHand> = {
 
                     <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', maxWidth: 'calc(100vw - 20em)', flexWrap: 'wrap', gap: '3em' }}>
                         <CardDropTarget
-                            id="no-target-drop"
-                            targetType="no-target"
-                        >
-                            No target drop
-                        </CardDropTarget>
-                        <CardDropTarget
                             id="location-drop"
                             targetType="location"
                         >

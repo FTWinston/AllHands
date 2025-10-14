@@ -2,6 +2,7 @@ import { DndContext, DragEndEvent, DragStartEvent, useSensor, PointerSensor, use
 import { CardTargetType } from 'common-types';
 import { CardProps } from 'common-ui/Card';
 import { createContext, useState, ReactNode, useContext } from 'react';
+import { CardDropTarget } from './CardDropTarget';
 
 export type ActiveCardInfo = {
     id: number;
@@ -96,6 +97,10 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
             modifiers={[snapTopCenterToCursor]}
         >
             <ActiveCardContext.Provider value={activeCard}>
+                <CardDropTarget
+                    id="noTarget"
+                    targetType="no-target"
+                />
                 {children}
             </ActiveCardContext.Provider>
         </DndContext>
