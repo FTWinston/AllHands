@@ -3,14 +3,14 @@ import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/Screen';
 import { ComponentProps } from 'react';
 import { DragCardProvider } from 'src/components/DragCardProvider';
-import { CardHand } from '../../components/CardHand';
-import { CrewHeader } from '../header';
+import { CardHand } from '../../../components/CardHand';
+import { CrewHeader } from '../../header';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     cards: CardProps[];
 };
 
-export const TacticalDisplay = (props: Props) => {
+export const SensorsDisplay = (props: Props) => {
     const { cards, ...headerProps } = props;
 
     const handleCardDropped = (cardId: number, targetId: string | null) => {
@@ -18,10 +18,10 @@ export const TacticalDisplay = (props: Props) => {
     };
 
     return (
-        <Screen className={crewStyles.tactical}>
+        <Screen className={crewStyles.sensors}>
             <DragCardProvider onCardDropped={handleCardDropped}>
                 <CrewHeader
-                    crew="tactical"
+                    crew="sensors"
                     {...headerProps}
                 />
 

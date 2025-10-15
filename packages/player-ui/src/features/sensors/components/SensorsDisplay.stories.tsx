@@ -1,11 +1,11 @@
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { fn } from 'storybook/test';
-import { useFakePowerAndGeneration } from '../engineer/EngineerDisplay.stories';
-import { TacticalDisplay as Component } from './TacticalDisplay';
+import { useFakePowerAndGeneration } from '../../engineer/components/EngineerDisplay.stories';
+import { SensorsDisplay as Component } from './SensorsDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {
-    title: 'player-ui/Tactical',
+    title: 'player-ui/Sensors',
     component: Component,
     parameters: {
         layout: 'fullscreen',
@@ -34,12 +34,12 @@ const meta: Meta<typeof Component> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Tactical: Story = {
+export const Sensors: Story = {
     args: {
         cards: [
             {
                 id: 1,
-                crew: 'tactical',
+                crew: 'sensors',
                 targetType: 'no-target',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
@@ -49,8 +49,8 @@ export const Tactical: Story = {
             },
             {
                 id: 2,
-                crew: 'tactical',
-                targetType: 'weapon-slot',
+                crew: 'sensors',
+                targetType: 'enemy',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -58,8 +58,8 @@ export const Tactical: Story = {
             },
             {
                 id: 3,
-                crew: 'tactical',
-                targetType: 'weapon',
+                crew: 'sensors',
+                targetType: 'enemy',
                 name: 'Some Card with a title that\'s really quite long',
                 nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',

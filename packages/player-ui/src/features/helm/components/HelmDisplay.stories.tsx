@@ -1,6 +1,6 @@
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { fn } from 'storybook/test';
-import { useFakePowerAndGeneration } from '../engineer/EngineerDisplay.stories';
+import { useFakePowerAndGeneration } from '../../engineer/components/EngineerDisplay.stories';
 import { HelmDisplay as Component } from './HelmDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 

@@ -1,11 +1,11 @@
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { fn } from 'storybook/test';
-import { useFakePowerAndGeneration } from '../engineer/EngineerDisplay.stories';
-import { SensorsDisplay as Component } from './SensorsDisplay';
+import { useFakePowerAndGeneration } from '../../engineer/components/EngineerDisplay.stories';
+import { TacticalDisplay as Component } from './TacticalDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {
-    title: 'player-ui/Sensors',
+    title: 'player-ui/Tactical',
     component: Component,
     parameters: {
         layout: 'fullscreen',
@@ -34,12 +34,12 @@ const meta: Meta<typeof Component> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Sensors: Story = {
+export const Tactical: Story = {
     args: {
         cards: [
             {
                 id: 1,
-                crew: 'sensors',
+                crew: 'tactical',
                 targetType: 'no-target',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
@@ -49,8 +49,8 @@ export const Sensors: Story = {
             },
             {
                 id: 2,
-                crew: 'sensors',
-                targetType: 'enemy',
+                crew: 'tactical',
+                targetType: 'weapon-slot',
                 name: 'Some Card with a longer title',
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
@@ -58,15 +58,26 @@ export const Sensors: Story = {
             },
             {
                 id: 3,
-                crew: 'sensors',
-                targetType: 'enemy',
+                crew: 'tactical',
+                targetType: 'weapon',
                 name: 'Some Card with a title that\'s really quite long',
                 nameFontSize: 0.88,
                 description: 'A card that has a particular effect, for a particular crew role.',
                 image: <ExampleIcon />,
                 cost: 1,
             },
+            {
+                id: 4,
+                crew: 'tactical',
+                targetType: 'enemy',
+                name: 'Yet another card',
+                nameFontSize: 0.88,
+                description: 'This one targets an enemy, I guess.',
+                image: <ExampleIcon />,
+                cost: 3,
+            },
         ],
+        targets: ['Enemy 1', 'Enemy 2', 'Enemy 3', 'Enemy 4', 'Enemy 5', 'Enemy 6', 'Enemy 7', 'Enemy 8', 'Enemy 9', 'Enemy 10', 'Enemy 11', 'Enemy 12'],
         power: 2,
         maxPower: 5,
         handSize: 4,

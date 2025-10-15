@@ -1,0 +1,42 @@
+.viewport {
+    overscroll-behavior: contain;
+}
+
+.content {
+    display: flex;
+    padding: 1em;
+    gap: 1em;
+}
+
+.scrollbar {
+    display: flex;
+    justify-content: flex-start;
+    background-color: var(--text-color);
+    height: 0.5em;
+    border-radius: 0.25em;
+    overflow: hidden;
+    margin: 0.5rem;
+    opacity: 0.25;
+    transition: opacity 150ms 300ms;
+    pointer-events: none;
+
+    &[data-hovering],
+    &[data-scrolling] {
+        opacity: 1;
+        transition-duration: 75ms;
+        transition-delay: 0ms;
+        pointer-events: auto;
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+    }
+}
+
+.thumb {
+    height: 100%;
+    border-radius: inherit;
+    background-color: var(--primary-color);
+}
