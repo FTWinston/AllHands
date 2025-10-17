@@ -1,3 +1,12 @@
 .scrollArea {
     height: 50dvh;
 }
+
+.itemWrapper {
+    width: calc(100vw - var(--scroll-padding) * 2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+}

@@ -2,10 +2,15 @@
     overscroll-behavior: contain;
 }
 
+.snapViewport {
+    scroll-snap-type: x mandatory;
+}
+
 .content {
     display: flex;
-    padding: 1em;
     gap: 1em;
+    --scroll-padding: 1em;
+    padding: var(--scroll-padding);
 }
 
 .scrollbar {

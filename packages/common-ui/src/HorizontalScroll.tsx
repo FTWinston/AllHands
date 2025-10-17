@@ -7,11 +7,12 @@ export type Props = PropsWithChildren & {
     className?: string;
     contentClassName?: string;
     contentRender?: JSX.Element;
+    snap?: boolean;
 };
 
 export const HorizontalScroll: FC<Props> = props => (
     <ScrollArea.Root className={props.className}>
-        <ScrollArea.Viewport className={styles.viewport}>
+        <ScrollArea.Viewport className={classNames(styles.viewport, props.snap ? styles.snapViewport : undefined)}>
             <ScrollArea.Content
                 className={classNames(styles.content, props.contentClassName)}
                 render={props.contentRender}

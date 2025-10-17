@@ -13,9 +13,10 @@ export const TargetList = (props: Props) => {
             className={styles.scrollArea}
             contentClassName={styles.content}
             contentRender={<ul />}
+            snap={true}
         >
             {props.targets.map((target, index) => (
-                <li key={target.id}>
+                <li key={target.id} className={styles.itemWrapper}>
                     <CardDropTarget targetType="enemy" id={target.id}>
                         <Target
                             id={target.id}

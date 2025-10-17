@@ -1,6 +1,6 @@
 .target {
     aspect-ratio: 1 / 1;
-    height: min(100vw, calc(50dvh - 4em));
+    height: min(calc(100vw - var(--scroll-padding) * 2), calc(50dvh - 4em));
 
     border: solid var(--primary-color) 0.1em;
     border-radius: 3em;
