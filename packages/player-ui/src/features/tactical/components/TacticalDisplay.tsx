@@ -5,11 +5,12 @@ import { ComponentProps } from 'react';
 import { DragCardProvider } from 'src/components/DragCardProvider';
 import { CardHand } from '../../../components/CardHand';
 import { CrewHeader } from '../../header';
+import { TargetInfo } from './Target';
 import { TargetList } from './TargetList';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     cards: CardProps[];
-    targets: string[];
+    targets: TargetInfo[];
 };
 
 export const TacticalDisplay = (props: Props) => {

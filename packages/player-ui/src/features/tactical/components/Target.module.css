@@ -1,0 +1,33 @@
+.target {
+    aspect-ratio: 1 / 1;
+    height: min(100vw, calc(50dvh - 4em));
+
+    border: solid var(--primary-color) 0.1em;
+    border-radius: 3em;
+    corner-shape: squircle;
+    padding: 0.5em 1em;
+
+    display: grid;
+    grid-template-columns: 1fr 3.5em;
+    grid-template-rows: 1.5em 1fr;
+
+    grid-template-areas:
+        "name count"
+        "image image";
+}
+
+.name {
+    font-size: 1.25em;
+    grid-area: name;
+}
+
+.count {
+    grid-area: count;
+    justify-self: end;
+}
+
+.image {
+    grid-area: image;
+    object-fit: contain;
+    color: var(--primary-highlight);
+}

@@ -77,7 +77,28 @@ export const Tactical: Story = {
                 cost: 3,
             },
         ],
-        targets: ['Enemy 1', 'Enemy 2', 'Enemy 3', 'Enemy 4', 'Enemy 5', 'Enemy 6', 'Enemy 7', 'Enemy 8', 'Enemy 9', 'Enemy 10', 'Enemy 11', 'Enemy 12'],
+        targets: [
+            {
+                id: 'Enemy Ship 1',
+                appearance: 'scout',
+            },
+            {
+                id: 'Enemy Ship 2',
+                appearance: 'starfighter',
+            },
+            {
+                id: 'Enemy Ship 3',
+                appearance: 'satellite',
+            },
+            {
+                id: 'Enemy Ship 4',
+                appearance: 'interceptor',
+            },
+            {
+                id: 'Enemy Ship 5',
+                appearance: 'spaceship',
+            },
+        ],
         power: 2,
         maxPower: 5,
         handSize: 4,

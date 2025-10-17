@@ -11,7 +11,7 @@
 .scrollbar {
     display: flex;
     justify-content: flex-start;
-    background-color: var(--text-color);
+    background-color: color-mix(in srgb, var(--text-color) 20%, transparent);
     height: 0.5em;
     border-radius: 0.25em;
     overflow: hidden;
