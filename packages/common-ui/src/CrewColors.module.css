@@ -1,19 +1,21 @@
 .helm {
-  --primary-color: oklch(0.656 0.147 155.43);
-  --primary-highlight: color-mix(in srgb, var(--primary-color) 60%, var(--highlight-color));
+    --primary-color: oklch(0.656 0.147 155.43);
 }
 
 .tactical {
-  --primary-color: oklch(0.656 0.147 90);
-  --primary-highlight: color-mix(in srgb, var(--primary-color) 60%, var(--highlight-color));  
+    --primary-color: oklch(0.656 0.147 90);
 }
 
 .sensors {
-  --primary-color: oklch(0.6559 0.147 260.12);
-  --primary-highlight: color-mix(in srgb, var(--primary-color) 60%, var(--highlight-color));
+    --primary-color: oklch(0.6559 0.147 260.12);
 }
 
 .engineer {
-  --primary-color: oklch(0.6559 0.147 292);
-  --primary-highlight: color-mix(in srgb, var(--primary-color) 60%, var(--highlight-color));
+    --primary-color: oklch(0.6559 0.147 292);
+}
+
+.helm, .tactical, .sensors, .engineer {
+    --primary-highlight: color-mix(in srgb, var(--primary-color) 60%, var(--highlight-color));
+    --primary-dark: color-mix(in srgb, var(--primary-color) 40%, var(--background-color));
+    --primary-background: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
 }

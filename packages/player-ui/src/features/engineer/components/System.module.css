@@ -1,0 +1,72 @@
+.system {
+    border-radius: 1.5em;
+    corner-shape: squircle;
+    border: solid 0.1em var(--primary-color);
+    background-color: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
+    padding: 0.25em 0.5em;
+    justify-self: stretch;
+    align-self: stretch;
+    height: var(--system-height);
+
+    display: grid;
+    grid-template-rows: 2em 1fr 2em;
+    grid-template-columns: 2em 1fr 1fr 2em;
+
+    grid-template-areas:
+        "energy energy health health"
+        "negatives image image positives"
+        "negatives name name positives";
+    
+    align-items: center;
+    justify-items: center;
+    gap: 0.5em;
+}
+
+.name {
+    grid-area: name;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.image {
+    grid-area: image;
+    height: 100%;
+    color: var(--primary-highlight);
+}
+
+.energy {
+    grid-area: energy;
+}
+
+.health {
+    grid-area: health;
+}
+
+.attribute {
+    display: flex;
+    align-items: center;
+    flex-wrap: auto;
+    gap: 0.25em;
+}
+
+.attributeValue {
+    font-weight: bold;
+    font-size: 1.5em;
+    color: var(--highlight-color);
+}
+
+.attributeIcon {
+    width: 2em;
+    height: 2em;
+    flex-shrink: 0;
+    color: var(--primary-color);
+}
+
+.positiveEffects {
+    grid-area: positives;
+}
+
+.negativeEffects {
+    grid-area: negatives;
+}

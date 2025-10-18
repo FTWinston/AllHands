@@ -1,3 +1,5 @@
+import { classNames } from 'common-ui/index';
+import { InfoPopup } from 'common-ui/InfoPopup';
 import { FC } from 'react';
 import { useCooldownFraction } from 'src/hooks/useCooldown';
 import { Cooldown } from 'src/types/Cooldown';
@@ -7,18 +9,28 @@ type Props = {
     value: number;
     maxValue: number;
     generation?: Cooldown;
-    icon: FC<{ className: string }>;
+    valueName: string;
+    valueDescription: string;
+    maxName: string;
+    maxDescription: string;
+    valueIcon: FC<{ className: string }>;
+    maxIcon: FC<{ className: string }>;
 };
 
 export const NumberIndicator: FC<Props> = (props) => {
-    const Icon = props.icon;
+    const ValueIcon = props.valueIcon;
+    const MaxIcon = props.maxIcon;
     const generationProgress = useCooldownFraction(props.generation);
 
     return (
         <div className={styles.indicatorRoot}>
-            <Icon className={styles.icon} />
+            <InfoPopup
+                className={styles.indicator}
+                name={props.valueName}
+                description={props.valueDescription}
+            >
+                <ValueIcon className={styles.icon} />
 
-            <div className={styles.indicator}>
                 <div
                     className={styles.progress}
                     role="progressbar"
@@ -29,12 +41,24 @@ export const NumberIndicator: FC<Props> = (props) => {
                     style={{ '--fraction': generationProgress }}
                 />
 
-                <div className={styles.indicatorText}>
-                    <span className={styles.currentValue}>{props.value}</span>
-                    <span className={styles.separator}>/</span>
-                    <span className={styles.maxValue}>{props.maxValue}</span>
+                <div className={classNames(styles.indicatorText, styles.currentValue)}>
+                    {props.value}
                 </div>
-            </div>
+            </InfoPopup>
+
+            <div className={styles.separator}>/</div>
+
+            <InfoPopup
+                className={styles.indicator}
+                name={props.maxName}
+                description={props.maxDescription}
+            >
+                <MaxIcon className={styles.icon} />
+
+                <div className={classNames(styles.indicatorText, styles.maxValue)}>
+                    {props.maxValue}
+                </div>
+            </InfoPopup>
         </div>
     );
 };

@@ -1,0 +1,13 @@
+.effects {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.positiveEffects {
+    --primary-color: oklch(0.5132 0.147 277.61);
+}
+
+.negativeEffects {
+    --primary-color: oklch(0.4 0.2 50);
+}

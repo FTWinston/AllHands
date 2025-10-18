@@ -118,6 +118,38 @@ export const Engineer: Story = {
                 cost: 1,
             },
         ],
+        systems: [
+            {
+                system: 'hull',
+                health: 10,
+                power: 5,
+            },
+            {
+                system: 'shields',
+                health: 5,
+                power: 5,
+            },
+            {
+                system: 'helm',
+                health: 5,
+                power: 5,
+            },
+            {
+                system: 'sensors',
+                health: 5,
+                power: 5,
+            },
+            {
+                system: 'tactical',
+                health: 5,
+                power: 5,
+            },
+            {
+                system: 'engineer',
+                health: 5,
+                power: 5,
+            },
+        ],
         power: 2,
         maxPower: 5,
         handSize: 4,

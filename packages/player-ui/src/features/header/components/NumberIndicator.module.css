@@ -1,40 +1,20 @@
 .indicatorRoot {
     display: flex;
     align-items: center;
-    flex-wrap: auto;
+    gap: 0.75em;
 }
 
 .indicator {
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    overflow: hidden;
 }
 
 .indicatorText {
-    display: flex;
-    gap: 0.2em;
     color: var(--text-color);
-    padding: 0.2em 0.45em;
     position: relative;
-}
-
-.progress {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    border-radius: 1em;
-    background: conic-gradient(
-        var(--primary-highlight) calc(var(--fraction) * 100%), 
-        transparent 0
-    );
-
-    &::before {
-        content: "";
-        position: absolute;
-        border-radius: inherit;
-        inset: 0.15em;
-        background-color: var(--header-background);
-    }
 }
 
 .currentValue {
@@ -47,8 +27,35 @@
 }
 
 .icon {
+    z-index: 1;
     width: 2em;
     height: 2em;
     flex-shrink: 0;
     color: var(--primary-color);
+}
+
+.progress {
+    z-index: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: conic-gradient(
+        var(--primary-highlight) calc(var(--fraction) * 100%), 
+        transparent 0
+    );
+
+    &::before {
+        content: "";
+        position: absolute;
+        corner-shape: squircle;
+        border-radius: 1em;
+        inset: 0.1em;
+        background-color: var(--primary-background);
+    }
+}
+
+.separator {
+    opacity: 0.5;
 }

@@ -1,7 +1,7 @@
 .target {
     aspect-ratio: 1 / 1;
     height: min(calc(100vw - var(--scroll-padding) * 2), calc(50dvh - 4em));
-
+    background-color: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
     border: solid var(--primary-color) 0.1em;
     border-radius: 3em;
     corner-shape: squircle;

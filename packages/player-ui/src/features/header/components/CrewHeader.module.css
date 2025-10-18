@@ -2,8 +2,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    --header-background: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
-    background-color: var(--header-background);
+    background-color: var(--primary-background);
     border-bottom: solid var(--primary-color) 2px;
     font-size: 1em;
     gap: 1em;

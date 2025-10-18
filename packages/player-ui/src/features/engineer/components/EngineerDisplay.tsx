@@ -5,13 +5,16 @@ import { ComponentProps } from 'react';
 import { DragCardProvider } from 'src/components/DragCardProvider';
 import { CardHand } from '../../../components/CardHand';
 import { CrewHeader } from '../../header';
+import { SystemInfo } from './System';
+import { SystemList } from './SystemList';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     cards: CardProps[];
+    systems: SystemInfo[];
 };
 
 export const EngineerDisplay = (props: Props) => {
-    const { cards, ...headerProps } = props;
+    const { cards, systems, ...headerProps } = props;
 
     const handleCardDropped = (cardId: number, targetId: string | null) => {
         console.log(`dropped card ${cardId} on target ${targetId}`);
@@ -25,7 +28,7 @@ export const EngineerDisplay = (props: Props) => {
                     {...headerProps}
                 />
 
-                <p style={{ textAlign: 'center', padding: '2em' }}>(not implemented yet)</p>
+                <SystemList systems={systems} />
 
                 <CardHand cards={cards} />
             </DragCardProvider>

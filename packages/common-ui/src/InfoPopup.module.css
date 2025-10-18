@@ -1,0 +1,71 @@
+.item {
+    outline: 0;
+    border: 0.1em solid var(--primary-dark);
+    corner-shape: squircle;
+    border-radius: 1em;
+    color: var(--text-color);
+    user-select: none;
+
+    @media (hover: hover) {
+        &:hover {
+            background-color: var(--primary-background);
+        }
+    }
+
+    &:active, &[data-popup-open] {
+        border-color: var(--primary-color);
+        background-color: var(--primary-background);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: -1px;
+    }
+}
+
+.popup {
+    corner-shape: squircle;
+    padding: 1em 1.5em;
+    border-radius: 0.5em;
+    background-color: var(--primary-background);
+    transition:
+        transform 150ms,
+        opacity 150ms;
+
+    &[data-starting-style],
+    &[data-ending-style] {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    outline: 0.1em solid var(--primary-color);
+    outline-offset: -0.1em;
+    max-width: 80vw;
+}
+
+.arrow {
+    width: 1em;
+    height: 9px;
+    top: -8px;
+    background-color: var(--primary-background);
+    border: solid var(--primary-color) 0.1em;
+    border-bottom: none;
+    corner-shape: bevel;
+    border-top-left-radius: 1em;
+    border-top-right-radius: 1em;
+}
+
+.name {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 500;
+    color: var(--highlight-color);
+}
+
+.description {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: var(--text-color);
+}

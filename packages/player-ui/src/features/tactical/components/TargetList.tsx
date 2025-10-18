@@ -16,16 +16,14 @@ export const TargetList = (props: Props) => {
             snap={true}
         >
             {props.targets.map((target, index) => (
-                <li key={target.id} className={styles.itemWrapper}>
-                    <CardDropTarget targetType="enemy" id={target.id}>
-                        <Target
-                            id={target.id}
-                            appearance={target.appearance}
-                            targetNumber={index + 1}
-                            totalTargets={props.targets.length}
-                        />
-                    </CardDropTarget>
-                </li>
+                <CardDropTarget render="li" className={styles.itemWrapper} targetType="enemy" key={target.id} id={target.id}>
+                    <Target
+                        id={target.id}
+                        appearance={target.appearance}
+                        targetNumber={index + 1}
+                        totalTargets={props.targets.length}
+                    />
+                </CardDropTarget>
             ))}
         </HorizontalScroll>
     );

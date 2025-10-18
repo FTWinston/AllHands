@@ -1,7 +1,7 @@
 import { useDroppable } from '@dnd-kit/core';
 import { CardTargetType } from 'common-types';
 import { classNames } from 'common-ui/classNames';
-import { FC, PropsWithChildren } from 'react';
+import { ElementType, FC, PropsWithChildren } from 'react';
 import styles from './CardDropTarget.module.css';
 import { useActiveCard } from './DragCardProvider';
 
@@ -9,6 +9,7 @@ type Props = PropsWithChildren<{
     id: string;
     className?: string;
     targetType: CardTargetType;
+    render?: ElementType;
 }>;
 
 export const CardDropTarget: FC<Props> = (props) => {
@@ -27,8 +28,10 @@ export const CardDropTarget: FC<Props> = (props) => {
     const willDropHere = isOver && matchesActiveCardTargetType;
     const couldDropHere = !isOver && matchesActiveCardTargetType;
 
+    const Element = props.render ?? 'div';
+
     return (
-        <div
+        <Element
             ref={setNodeRef}
             className={classNames(
                 styles.dropTarget,
@@ -38,6 +41,6 @@ export const CardDropTarget: FC<Props> = (props) => {
                 props.className)}
         >
             {props.children}
-        </div>
+        </Element>
     );
 };
