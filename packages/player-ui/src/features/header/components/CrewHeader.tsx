@@ -51,12 +51,20 @@ export const CrewHeader: FC<Props> = (props) => {
             <NumberIndicator
                 value={props.power}
                 valueIcon={EnergyIcon}
-                valueName="Energy"
-                valueDescription="The number of available energy points to spend on playing cards. Recharges up to the current power value over time."
                 maxValue={props.maxPower}
                 maxIcon={PowerIcon}
-                maxName="Power"
-                maxDescription="The maximum energy that this system can store, as controlled by the Engineer."
+                name="Energy & Power"
+                description={(
+                    <>
+                        Energy
+                        <EnergyIcon />
+                        {' '}
+                        is the number of available points to spend on playing cards. This recharges over time, up to the system power value
+                        {' '}
+                        <PowerIcon />
+                        , which is controlled by the Engineer.
+                    </>
+                )}
                 generation={props.powerGeneration}
             />
 
@@ -68,12 +76,21 @@ export const CrewHeader: FC<Props> = (props) => {
             <NumberIndicator
                 value={props.handSize}
                 valueIcon={HandIcon}
-                valueName="Hand Size"
-                valueDescription="The number of cards currently in your hand. Replenishes over time as new cards are drawn, up to the system health value."
                 maxValue={props.maxHandSize}
                 maxIcon={HealthIcon}
-                maxName="System Health"
-                maxDescription="The maximum number of cards that can be held in your hand, as controlled by the Engineer."
+                name="Hand Size & Health"
+                description={(
+                    <>
+                        The number of cards in your hand
+                        {' '}
+                        <HandIcon />
+                        {' '}
+                        increases over time, up to the system health value
+                        {' '}
+                        <HealthIcon />
+                        , which is controlled by the Engineer.
+                    </>
+                )}
                 generation={props.cardGeneration}
             />
         </div>

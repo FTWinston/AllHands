@@ -1,12 +1,12 @@
 import { Popover } from '@base-ui-components/react/popover';
-import { FC, PropsWithChildren } from 'react';
+import { FC, JSX, PropsWithChildren } from 'react';
 import { classNames } from './classNames';
 import styles from './InfoPopup.module.css';
 
 type Props = PropsWithChildren<{
     className?: string;
     name: string;
-    description: string;
+    description: JSX.Element;
 }>;
 
 export const InfoPopup: FC<Props> = props => (

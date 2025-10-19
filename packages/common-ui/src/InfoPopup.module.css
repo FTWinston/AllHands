@@ -69,3 +69,11 @@
     line-height: 1.5rem;
     color: var(--text-color);
 }
+
+.popup svg {
+    width: 1em;
+    height: 1em;
+    display: inline;
+    vertical-align: middle;
+    color: var(--highlight-color);
+}
