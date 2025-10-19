@@ -3,6 +3,7 @@ import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/Screen';
 import { ComponentProps } from 'react';
 import { DragCardProvider } from 'src/components/DragCardProvider';
+import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CardHand } from '../../../components/CardHand';
 import { CrewHeader } from '../../header';
 
@@ -17,8 +18,10 @@ export const HelmDisplay = (props: Props) => {
         console.log(`dropped card ${cardId} on target ${targetId}`);
     };
 
+    useRootClassName(crewStyles.helm);
+
     return (
-        <Screen className={crewStyles.helm}>
+        <Screen>
             <DragCardProvider onCardDropped={handleCardDropped}>
                 <CrewHeader
                     crew="helm"

@@ -3,6 +3,7 @@ import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/Screen';
 import { ComponentProps } from 'react';
 import { DragCardProvider } from 'src/components/DragCardProvider';
+import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CardHand } from '../../../components/CardHand';
 import { CrewHeader } from '../../header';
 import { SystemInfo } from './System';
@@ -20,8 +21,10 @@ export const EngineerDisplay = (props: Props) => {
         console.log(`dropped card ${cardId} on target ${targetId}`);
     };
 
+    useRootClassName(crewStyles.engineer);
+
     return (
-        <Screen className={crewStyles.engineer}>
+        <Screen>
             <DragCardProvider onCardDropped={handleCardDropped}>
                 <CrewHeader
                     crew="engineer"
