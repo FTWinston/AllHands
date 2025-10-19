@@ -15,6 +15,7 @@ export const InfoPopup: FC<Props> = props => (
             {props.children}
         </Popover.Trigger>
         <Popover.Portal>
+            <Popover.Backdrop className={styles.backdrop} />
             <Popover.Positioner sideOffset={8}>
                 <Popover.Popup className={styles.popup}>
                     <Popover.Arrow className={styles.arrow} />

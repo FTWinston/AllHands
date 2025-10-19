@@ -6,6 +6,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    corner-shape: squircle;
     border: solid 0.1em var(--primary-color);
     background-color: var(--primary-background);
 }
