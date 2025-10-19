@@ -1,5 +1,5 @@
+import { Cooldown } from 'common-types';
 import { useEffect, useState } from 'react';
-import { Cooldown } from '../types/Cooldown';
 
 export const useCooldownFraction = (cooldown?: Cooldown) => {
     let startTime: number;

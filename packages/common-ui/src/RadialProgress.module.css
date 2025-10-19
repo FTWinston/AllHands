@@ -1,0 +1,23 @@
+.progress {
+    position: absolute;
+    top: -0.1em;
+    left: -0.1em;
+    bottom: -0.1em;
+    right: -0.1em;
+    border-radius: inherit;
+    corner-shape: inherit;
+    
+    background: conic-gradient(
+        var(--primary-highlight) calc(var(--fraction) * 100%), 
+        transparent 0
+    );
+
+    &::before {
+        content: "";
+        position: absolute;
+        border-radius: inherit;
+        corner-shape: inherit;
+        inset: 0.1em;
+        background-color: var(--primary-background);
+    }
+}

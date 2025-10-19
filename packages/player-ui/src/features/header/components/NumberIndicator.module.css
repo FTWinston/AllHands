@@ -20,12 +20,8 @@
     color: var(--text-color);
 }
 
-.currentValue {
+.currentValue, .maxValue {
     font-weight: bold;
-    color: var(--highlight-color);
-}
-
-.maxValue {
     color: var(--highlight-color);
 }
 
@@ -38,28 +34,12 @@
 
 .progress {
     z-index: 0;
-    position: absolute;
-    top: -0.1em;
-    left: -0.1em;
-    bottom: -0.1em;
-    right: -0.1em;
-    border-radius: inherit;
-    corner-shape: inherit;
-    background: conic-gradient(
-        var(--primary-highlight) calc(var(--fraction) * 100%), 
-        transparent 0
-    );
-
-    &::before {
-        content: "";
-        position: absolute;
-        border-radius: inherit;
-        corner-shape: inherit;
-        inset: 0.1em;
-        background-color: var(--primary-background);
-    }
 }
 
 .separator {
+    width: 1px;
+    background-color: var(--primary-color);
+    height: 1.5em;
     opacity: 0.5;
+    transform: rotate(10deg);
 }

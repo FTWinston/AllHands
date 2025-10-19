@@ -1,6 +1,7 @@
 export * from './CardTargetType.js';
 export * from './ClientConfig.js';
 export * from './ConnectionState.js';
+export * from './Cooldown.js';
 export * from './CrewRole.js';
 export * from './ServerConfig.js';
 export * from './ServerAddress.js';
