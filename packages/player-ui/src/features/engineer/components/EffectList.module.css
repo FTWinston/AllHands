@@ -1,13 +1,19 @@
 .effects {
     display: flex;
     flex-direction: column;
-    gap: 0.5em;
+    justify-content: flex-end;
+    align-self: flex-end;
+    gap: 0.25em;
+    padding-bottom: 0.33em;
+
+    --primary-background: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
+
 }
 
 .positiveEffects {
-    --primary-color: oklch(0.5132 0.147 277.61);
+    --primary-color: oklch(0.656 0.147 270);
 }
 
 .negativeEffects {
-    --primary-color: oklch(0.4 0.2 50);
+    --primary-color: oklch(0.656 0.147 40);
 }

@@ -3,7 +3,8 @@ import { SystemIcon } from 'common-ui/icons/systems';
 import { classNames } from 'common-ui/index';
 import { default as HealthIcon } from '../../header/assets/health.svg?react';
 import { default as PowerIcon } from '../../header/assets/power.svg?react';
-import { EffectList, SystemEffect } from './EffectList';
+import { SystemEffect } from './EffectIndicator';
+import { EffectList } from './EffectList';
 import styles from './System.module.css';
 
 export type SystemInfo = {

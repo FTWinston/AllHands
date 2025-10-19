@@ -1,7 +1,10 @@
+import { Cooldown } from 'common-types';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { useEffect, useRef, useState } from 'react';
-import { Cooldown } from 'src/types/Cooldown';
 import { fn } from 'storybook/test';
+import { default as ExampleIcon1 } from '../../header/assets/energy.svg?react';
+import { default as ExampleIcon3 } from '../../header/assets/health.svg?react';
+import { default as ExampleIcon2 } from '../../header/assets/power.svg?react';
 import { EngineerDisplay as Component } from './EngineerDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -123,6 +126,31 @@ export const Engineer: Story = {
                 system: 'hull',
                 health: 10,
                 power: 5,
+                positiveEffects: [
+                    {
+                        id: 'test1',
+                        icon: ExampleIcon1,
+                        name: 'Reinforced Plating',
+                        description: <>Increases hull integrity by 2 for the next 30 seconds.</>,
+                        duration: { startTime: Date.now(), endTime: Date.now() + 30000 },
+                    },
+                    {
+                        id: 'test2',
+                        icon: ExampleIcon2,
+                        name: 'Emergency Repairs',
+                        description: <>Increases hull integrity by 2 for the next 10 seconds.</>,
+                        duration: { startTime: Date.now(), endTime: Date.now() + 10000 },
+                    },
+                ],
+                negativeEffects: [
+                    {
+                        id: 'test3',
+                        icon: ExampleIcon3,
+                        name: 'Corrosion',
+                        description: <>Increases hull integrity by 2 for the next 30 seconds.</>,
+                        duration: { startTime: Date.now(), endTime: Date.now() + 20000 },
+                    },
+                ],
             },
             {
                 system: 'shields',

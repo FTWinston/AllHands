@@ -1,0 +1,22 @@
+.effect {
+    position: relative;
+    border-radius: 2em;
+    width: 1.75em;
+    height: 1.75em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: solid 0.1em var(--primary-color);
+    background-color: var(--primary-background);
+}
+
+.icon {
+    z-index: 1;
+    width: 1.5em;
+    height: 1.5em;
+    color: var(--primary-color);
+}
+
+.progress {
+    z-index: 0;
+}

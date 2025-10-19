@@ -1,10 +1,9 @@
 import { Menu } from '@base-ui-components/react/menu';
-import { CrewRoleName } from 'common-types';
+import { Cooldown, CrewRoleName } from 'common-types';
 import { Button } from 'common-ui/Button';
 import { CrewIcon } from 'common-ui/icons/crew';
 import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
 import { FC } from 'react';
-import { Cooldown } from 'src/types/Cooldown';
 import { default as HandIcon } from '../assets/card-hand.svg?react';
 import { default as EnergyIcon } from '../assets/energy.svg?react';
 import { default as HealthIcon } from '../assets/health.svg?react';
