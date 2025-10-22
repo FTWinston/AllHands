@@ -8,6 +8,7 @@ import styles from './EffectIndicator.module.css';
 export type SystemEffect = {
     id: string;
     icon: FC<{ className: string }>;
+    positive: boolean;
     name: string;
     description: JSX.Element;
     duration?: Cooldown;
@@ -22,7 +23,7 @@ export const EffectIndicator = (props: Props) => {
 
     return (
         <InfoPopup
-            className={classNames(styles.effect, props.className)}
+            className={classNames(styles.effect, props.positive ? styles.positive : styles.negative, props.className)}
             name={props.name}
             description={props.description}
         >

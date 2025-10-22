@@ -1,14 +1,14 @@
 .progress {
     position: absolute;
-    top: -0.1em;
-    left: -0.1em;
-    bottom: -0.1em;
-    right: -0.1em;
+    top: -0.05em;
+    left: -0.05em;
+    bottom: -0.05em;
+    right: -0.05em;
     border-radius: inherit;
     corner-shape: inherit;
     
     background: conic-gradient(
-        var(--primary-highlight) calc(var(--fraction) * 100%), 
+        currentColor calc(var(--fraction) * 100%), 
         transparent 0
     );
 
@@ -17,7 +17,7 @@
         position: absolute;
         border-radius: inherit;
         corner-shape: inherit;
-        inset: 0.1em;
+        inset: 0.15em;
         background-color: var(--primary-background);
     }
 }

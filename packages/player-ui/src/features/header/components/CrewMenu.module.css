@@ -10,6 +10,16 @@
     border-top-right-radius: 1em;
 }
 
+.backdrop {
+    background-color: black;
+    opacity: 0.2;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
 .popup {
     box-sizing: border-box;
     padding-block: 0.25rem;

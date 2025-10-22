@@ -1,19 +1,31 @@
 .effects {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-self: flex-end;
-    gap: 0.25em;
-    padding-bottom: 0.33em;
+    position: relative;
 
-    --primary-background: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
-
+    /* Calculate spacing between items (center to center) */
+    /* For few items: 3em spacing (2.5em item + 0.5em gap) */
+    /* For many items: reduces and overlaps to fit in container */
+    --item-width: 2.5em;
+    --max-spacing: 3em;
+    
+    /* Calculate ideal total width if we use max spacing */
+    --ideal-total-width: calc((var(--count) * var(--item-width)) + ((var(--count) - 1) * (var(--max-spacing) - var(--item-width))));
+    
+    /* If ideal width fits, use max spacing. Otherwise, compress to fit container */
+    --available-for-items: 11.5em;
+    --calculated-spacing: calc(var(--available-for-items) / max(var(--count) - 1, 1));
+    --spacing: min(var(--calculated-spacing), var(--max-spacing));
+    
+    /* Position: offset from center based on index */
+    --center-index: calc((var(--count) - 1) / 2);
 }
 
-.positiveEffects {
-    --primary-color: oklch(0.656 0.147 270);
-}
+.effectItem {
+    position: absolute;
+    left: 50%;
+    top: 1em;
+    transition: transform 0.33s ease-in-out;
 
-.negativeEffects {
-    --primary-color: oklch(0.656 0.147 40);
+    --offset: calc(var(--index) - var(--center-index));
+    
+    transform: translateX(calc(-50% + var(--offset) * var(--spacing)));
 }

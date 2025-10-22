@@ -11,6 +11,7 @@ type Props = {
 export const CrewMenu: FC<Props> = (props) => {
     return (
         <Menu.Portal>
+            <Menu.Backdrop className={styles.backdrop} />
             <Menu.Positioner sideOffset={8}>
                 <Menu.Popup className={styles.popup}>
                     <Menu.Arrow className={styles.arrow} />

@@ -1,21 +1,32 @@
 .effect {
     position: relative;
     border-radius: 2em;
-    width: 1.75em;
-    height: 1.75em;
+    width: 2.5em;
+    height: 2.5em;
     display: flex;
     align-items: center;
     justify-content: center;
-    corner-shape: squircle;
-    border: solid 0.1em var(--primary-color);
-    background-color: var(--primary-background);
+    corner-shape: round;
+    border: solid 0.125em black;
+
+    color: var(--light-color);
+    border-color: var(--dark-color);
+}
+
+.positive {
+    --light-color: oklch(0.8 0.22 148.23);
+    --dark-color: oklch(0.43 0.25 148.23);
+}
+
+.negative {
+    --light-color: oklch(0.715 0.25 10);
+    --dark-color: oklch(0.3 0.25 10);
 }
 
 .icon {
     z-index: 1;
     width: 1.5em;
     height: 1.5em;
-    color: var(--primary-color);
 }
 
 .progress {

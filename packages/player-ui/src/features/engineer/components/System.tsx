@@ -11,8 +11,7 @@ export type SystemInfo = {
     system: ShipSystem;
     power: number;
     health: number;
-    positiveEffects?: SystemEffect[];
-    negativeEffects?: SystemEffect[];
+    effects?: SystemEffect[];
 };
 
 type Props = SystemInfo;
@@ -20,21 +19,29 @@ type Props = SystemInfo;
 export const System = (props: Props) => {
     return (
         <div className={styles.system}>
-            <h2 className={styles.name}>{props.system}</h2>
-            <SystemIcon
-                system={props.system}
-                className={styles.image}
-            />
-            <div className={classNames(styles.energy, styles.attribute)}>
-                <PowerIcon className={styles.attributeIcon} />
-                <div className={styles.attributeValue}>{props.power}</div>
+            <h2 className={styles.name}>
+                <SystemIcon
+                    system={props.system}
+                    className={styles.image}
+                />
+
+                {props.system}
+            </h2>
+
+            <div className={styles.attributes}>
+                <div className={styles.attribute}>
+                    <PowerIcon className={styles.attributeIcon} />
+                    <div className={styles.attributeValue}>{props.power}</div>
+                    <div className={styles.attributeMax}>/ 5</div>
+                </div>
+                <div className={styles.attribute}>
+                    <HealthIcon className={styles.attributeIcon} />
+                    <div className={styles.attributeValue}>{props.health}</div>
+                    <div className={styles.attributeMax}>/ 5</div>
+                </div>
             </div>
-            <div className={classNames(styles.health, styles.attribute)}>
-                <HealthIcon className={styles.attributeIcon} />
-                <div className={styles.attributeValue}>{props.health}</div>
-            </div>
-            <EffectList className={styles.negativeEffects} effects={props.negativeEffects} isPositive={false} />
-            <EffectList className={styles.positiveEffects} effects={props.positiveEffects} isPositive={true} />
+
+            <EffectList className={styles.effects} effects={props.effects} />
         </div>
     );
 };

@@ -3,49 +3,42 @@
     corner-shape: squircle;
     border: solid 0.1em var(--primary-color);
     background-color: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
-    padding: 0.25em 0.5em;
+    padding: 0.25em 0.5em 0.5em 0.5em;
     justify-self: stretch;
     align-self: stretch;
     height: var(--system-height);
 
-    display: grid;
-    grid-template-rows: 2em 1fr 2em;
-    grid-template-columns: 2em 1fr 1fr 2em;
+    display: flex;
+    flex-direction: column;
 
-    grid-template-areas:
-        "energy energy health health"
-        "negatives image image positives"
-        "negatives name name positives";
-    
-    align-items: center;
+    gap: 1em;
     justify-items: center;
-    gap: 0.5em;
 }
 
 .name {
-    grid-area: name;
-    font-size: 1.5em;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    justify-self: flex-start;
+
+    font-size: 1.75em;
     font-weight: bold;
     text-transform: capitalize;
 }
 
 .image {
-    grid-area: image;
-    height: 100%;
+    height: 1em;
     color: var(--primary-highlight);
 }
 
-.energy {
-    grid-area: energy;
-}
-
-.health {
-    grid-area: health;
+.attributes {
+    display: flex;
+    justify-content: space-evenly;
 }
 
 .attribute {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     flex-wrap: auto;
     gap: 0.25em;
 }
@@ -57,16 +50,13 @@
 }
 
 .attributeIcon {
-    width: 2em;
-    height: 2em;
+    width: 1.5em;
+    height: 1.5em;
     flex-shrink: 0;
     color: var(--primary-color);
+    align-self: center;
 }
 
-.positiveEffects {
-    grid-area: positives;
-}
-
-.negativeEffects {
-    grid-area: negatives;
+.effects {
+    flex-grow: 1;
 }
