@@ -7,20 +7,41 @@
     align-items: center;
     justify-content: center;
     corner-shape: round;
-    border: solid 0.125em black;
+    border: solid 0.2em black;
 
     color: var(--light-color);
     border-color: var(--dark-color);
+    transition: ease-in-out 0.3s transform;
+
+    &:active, &[data-popup-open] {
+        border-color: var(--dark-color); /* prevent info popup from overriding this */
+
+        & .icon {
+            color: var(--highlight-color);
+        }
+    }
 }
 
 .positive {
     --light-color: oklch(0.8 0.22 148.23);
-    --dark-color: oklch(0.43 0.25 148.23);
+    --dark-color: oklch(0.45 0.25 148.23);
+    --primary-background: oklch(0.25 0.7 148.23);
+
+    &:hover, &:active, &[data-popup-open] {
+        --dark-color: oklch(0.5 0.25 148.23);
+        --primary-background: oklch(0.28 0.7 148.23);
+    }
 }
 
 .negative {
     --light-color: oklch(0.715 0.25 10);
     --dark-color: oklch(0.3 0.25 10);
+    --primary-background: oklch(0.18 0.25 10);
+
+    &:hover, &:active, &[data-popup-open] {
+        --dark-color: oklch(0.35 0.25 10);
+        --primary-background: oklch(0.22 0.25 10);
+    }
 }
 
 .icon {
@@ -31,4 +52,8 @@
 
 .progress {
     z-index: 0;
+}
+
+.hidden {
+    transform: scale(0);
 }

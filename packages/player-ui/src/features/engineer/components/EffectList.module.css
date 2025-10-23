@@ -28,4 +28,9 @@
     --offset: calc(var(--index) - var(--center-index));
     
     transform: translateX(calc(-50% + var(--offset) * var(--spacing)));
+
+    /* Bring to front when active or popup is open */
+    &:has(:active), &:has([data-popup-open]) {
+        z-index: 1;
+    }
 }
