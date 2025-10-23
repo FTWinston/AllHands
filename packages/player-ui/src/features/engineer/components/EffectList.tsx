@@ -1,4 +1,5 @@
 import { classNames } from 'common-ui/classNames';
+import { useArrayChanges } from 'src/hooks/useArrayChanges';
 import { EffectIndicator, SystemEffect } from './EffectIndicator';
 import styles from './EffectList.module.css';
 
@@ -10,13 +11,15 @@ type Props = {
 export const EffectList = (props: Props) => {
     const count = props.effects?.length ?? 0;
 
+    const { knownItems: knownEffects, removingItemIds: removingEffectIds } = useArrayChanges(props.effects ?? []);
+
     return (
         <ul
             className={classNames(styles.effects, props.className)}
             // @ts-expect-error CSS custom property
             style={{ '--count': count }}
         >
-            {props.effects?.map((effect, index) => (
+            {knownEffects.map((effect, index) => (
                 <li
                     key={effect.id}
                     className={styles.effectItem}
@@ -30,6 +33,7 @@ export const EffectList = (props: Props) => {
                         name={effect.name}
                         description={effect.description}
                         duration={effect.duration}
+                        hidden={removingEffectIds.has(effect.id)}
                     />
                 </li>
             ))}
