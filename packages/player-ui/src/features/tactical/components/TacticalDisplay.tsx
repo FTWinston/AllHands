@@ -8,14 +8,16 @@ import { CardHand } from '../../../components/CardHand';
 import { CrewHeader } from '../../header';
 import { TargetInfo } from './Target';
 import { TargetList } from './TargetList';
+import { SlotProps, WeaponSlots } from './WeaponSlots';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     cards: CardProps[];
+    slots: SlotProps[];
     targets: TargetInfo[];
 };
 
 export const TacticalDisplay = (props: Props) => {
-    const { cards, targets, ...headerProps } = props;
+    const { cards, slots, targets, ...headerProps } = props;
 
     const handleCardDropped = (cardId: number, targetId: string | null) => {
         console.log(`dropped card ${cardId} on target ${targetId}`);
@@ -33,7 +35,7 @@ export const TacticalDisplay = (props: Props) => {
 
                 <TargetList targets={targets} />
 
-                <p style={{ textAlign: 'center', padding: '2em' }}>(not implemented yet)</p>
+                <WeaponSlots slots={slots} />
 
                 <CardHand cards={cards} />
             </DragCardProvider>

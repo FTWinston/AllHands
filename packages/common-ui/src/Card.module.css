@@ -11,11 +11,20 @@
   overflow: hidden;
   border: solid var(--background-color) 0.1em;
   outline: solid var(--text-color) 0.1em;
+  flex-shrink: 0;
   corner-shape: bevel;
+}
+
+.cutouts {
   corner-top-left-shape: scoop;
   corner-top-right-shape: superellipse(-2);
   border-radius: 1.6em 1.6em 0.25em 0.25em;
-  flex-shrink: 0;
+}
+
+.noCutouts {
+  corner-top-left-shape: squircle;
+  corner-top-right-shape: squircle;
+  border-radius: 1em 1em 0.25em 0.25em;
 }
 
 .name {

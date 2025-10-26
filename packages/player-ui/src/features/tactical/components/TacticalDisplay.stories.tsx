@@ -77,6 +77,26 @@ export const Tactical: Story = {
                 cost: 3,
             },
         ],
+        slots: [
+            {
+                name: 'Weapon slot 1',
+                tapped: false,
+                card: null,
+            },
+            {
+                name: 'Weapon slot 2',
+                tapped: false,
+                card: {
+                    id: 5,
+                    crew: 'tactical',
+                    targetType: 'weapon-slot',
+                    name: 'Some Card with a longer title',
+                    description: 'A card that has a particular effect, for a particular crew role.',
+                    image: <ExampleIcon />,
+                    cost: 1,
+                },
+            },
+        ],
         targets: [
             {
                 id: 'Enemy Ship 1',
