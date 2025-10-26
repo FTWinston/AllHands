@@ -9,17 +9,15 @@ type Props = {
 };
 
 export const EffectList = (props: Props) => {
-    const count = props.effects?.length ?? 0;
-
-    const { knownItems: knownEffects, removingItemIds: removingEffectIds } = useArrayChanges(props.effects ?? []);
+    const { knownItems, currentItemIds, removingItemIds } = useArrayChanges(props.effects ?? []);
 
     return (
         <ul
             className={classNames(styles.effects, props.className)}
             // @ts-expect-error CSS custom property
-            style={{ '--count': count }}
+            style={{ '--count': knownItems.length }}
         >
-            {knownEffects.map((effect, index) => (
+            {knownItems.map((effect, index) => (
                 <li
                     key={effect.id}
                     className={styles.effectItem}
@@ -33,7 +31,7 @@ export const EffectList = (props: Props) => {
                         name={effect.name}
                         description={effect.description}
                         duration={effect.duration}
-                        hidden={removingEffectIds.has(effect.id)}
+                        hidden={removingItemIds.has(effect.id) || !currentItemIds.has(effect.id)}
                     />
                 </li>
             ))}
