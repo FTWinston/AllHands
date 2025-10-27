@@ -5,7 +5,7 @@ import { SensorsDisplay as Component } from './SensorsDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {
-    title: 'player-ui/Sensors',
+    title: 'player-ui/Sensors/UI',
     component: Component,
     parameters: {
         layout: 'fullscreen',
@@ -34,7 +34,7 @@ const meta: Meta<typeof Component> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Sensors: Story = {
+export const UI: Story = {
     args: {
         cards: [
             {

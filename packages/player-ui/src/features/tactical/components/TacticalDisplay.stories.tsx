@@ -5,7 +5,7 @@ import { TacticalDisplay as Component } from './TacticalDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {
-    title: 'player-ui/Tactical',
+    title: 'player-ui/Tactical/UI',
     component: Component,
     parameters: {
         layout: 'fullscreen',
@@ -34,7 +34,7 @@ const meta: Meta<typeof Component> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Tactical: Story = {
+export const UI: Story = {
     args: {
         cards: [
             {

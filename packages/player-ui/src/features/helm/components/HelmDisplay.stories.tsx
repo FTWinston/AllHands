@@ -5,7 +5,7 @@ import { HelmDisplay as Component } from './HelmDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {
-    title: 'player-ui/Helm',
+    title: 'player-ui/Helm/UI',
     component: Component,
     parameters: {
         layout: 'fullscreen',
@@ -34,7 +34,7 @@ const meta: Meta<typeof Component> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Helm: Story = {
+export const UI: Story = {
     args: {
         cards: [
             {

@@ -9,7 +9,7 @@ import { EngineerDisplay as Component } from './EngineerDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {
-    title: 'player-ui/Engineer',
+    title: 'player-ui/Engineer/UI',
     component: Component,
     parameters: {
         layout: 'fullscreen',
@@ -88,7 +88,7 @@ export const useFakePowerAndGeneration = (args: { power: number; maxPower: numbe
     return { power, handSize, powerGeneration, cardGeneration, priority, setPriority };
 };
 
-export const Engineer: Story = {
+export const UI: Story = {
     args: {
         cards: [
             {

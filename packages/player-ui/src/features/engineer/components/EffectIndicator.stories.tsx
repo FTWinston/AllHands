@@ -5,7 +5,7 @@ import { EffectIndicator as Component } from './EffectIndicator';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {
-    title: 'player-ui/EffectIndicator',
+    title: 'player-ui/Engineer/EffectIndicator',
     component: Component,
 };
 

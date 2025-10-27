@@ -1,12 +1,12 @@
 import { Cooldown } from 'common-types';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { Button } from 'common-ui/index';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { EffectList as Component } from './EffectList';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {
-    title: 'player-ui/EffectList',
+    title: 'player-ui/Engineer/EffectList',
     component: Component,
 };
 
