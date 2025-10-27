@@ -22,7 +22,7 @@
 .effectItem {
     position: absolute;
     left: 50%;
-    top: 1em;
+    top: calc(50% - var(--item-width) / 2);
     transition: transform 0.33s ease-in-out;
 
     --offset: calc(var(--index) - var(--center-index));

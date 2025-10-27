@@ -5,8 +5,8 @@
     gap: 1em;
     padding: 1em 0.5em 0.5em 0.5em;
 
-    height: calc(100dvh - 17em);
-    --system-height: calc((100dvh - 20em) / 3);
+    height: calc(100dvh - 17rem);
+    --system-height: calc((100dvh - 20rem) / 3);
 }
 
 .itemWrapper {

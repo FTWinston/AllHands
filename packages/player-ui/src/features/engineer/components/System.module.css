@@ -7,12 +7,33 @@
     justify-self: stretch;
     align-self: stretch;
     height: var(--system-height);
+    font-size: min(3vw, calc(var(--system-height) / 12));
+    font-size: calc(var(--system-height) / 12);
+    font-size: 3vw;
 
     display: flex;
     flex-direction: column;
 
-    gap: 1em;
+    gap: 0em;
     justify-items: center;
+}
+
+@media (min-width: 400px) {
+    .system {
+        gap: 0.25em;
+    }
+}
+
+@media (min-width: 600px) {
+    .system {
+        gap: 0.5em;
+    }
+}
+
+@media (min-width: 800px) {
+    .system {
+        gap: 1em;
+    }
 }
 
 .name {
