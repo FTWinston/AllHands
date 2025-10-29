@@ -3,31 +3,3 @@
     display: flex;
     justify-content: space-evenly;
 }
-
-.weaponSlot {
-    background-color: var(--primary-background);
-    padding: 0.125em 0.5em 0.5em 0.5em;
-    border-radius: 1em;
-}
-
-.slotName {
-    font-size: 0.95em;
-    text-align: center;
-    margin-bottom: 0.25em;
-}
-
-.card {
-    font-size: 0.667em;
-}
-
-.noCard {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.667em;
-    border: solid var(--primary-dark) 0.1em;
-}
-
-.noCardLabel {
-    font-size: 2em;
-}

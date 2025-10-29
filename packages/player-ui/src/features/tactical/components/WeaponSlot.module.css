@@ -1,0 +1,59 @@
+.weaponSlot {
+    background-color: var(--primary-background);
+    padding: 0.125em 0.5em 0.5em 0.5em;
+    border-radius: 0.75em;
+    border-shape: squircle;
+    border: solid 0.1em var(--primary-dark);
+    display: grid;
+    grid-template-columns: auto 2em;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+        "name name"
+        "card fireButton"
+        "card discardButton";
+    justify-content: space-evenly;
+    gap: 0.5em;
+
+    .button {
+        padding: 1em 0;
+    }
+
+    transition: transform 0.333s ease;
+}
+
+.slotName {
+    font-size: 0.95em;
+    text-align: center;
+    grid-area: name;
+}
+
+.cardWrapper {
+    grid-area: card;
+    font-size: 0.667em;
+}
+
+.hasNoCard .card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: solid var(--primary-color) 0.1em;
+}
+
+.noCardLabel {
+    font-size: 2em;
+}
+
+.fireButton {
+    grid-area: fireButton;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+}
+
+.discardButton {
+    grid-area: discardButton;
+    background-color: var(--danger-color);
+}
+
+.tapped {
+    transform: rotate(90deg) scale(0.835);
+}

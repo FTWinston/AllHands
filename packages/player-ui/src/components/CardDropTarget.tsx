@@ -22,7 +22,6 @@ export const CardDropTarget: FC<Props> = (props) => {
         data: {
             targetType: props.targetType,
         },
-        disabled: !matchesActiveCardTargetType,
     });
 
     const willDropHere = isOver && matchesActiveCardTargetType;

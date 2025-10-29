@@ -61,6 +61,7 @@ ul, ol {
     --primary-dark: color-mix(in srgb, var(--primary-color) 40%, var(--background-color));
     --primary-background: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
     --main-font-family: 'Jura', sans-serif;
+    --danger-color: oklch(0.5 0.147 10);
 
     background-color: var(--background-color);
     color: var(--text-color);
