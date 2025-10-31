@@ -13,17 +13,23 @@ export type CardProps = {
     targetType: CardTargetType;
     description: string;
     image: ReactNode;
-    cost: number;
     className?: string;
     nameFontSize?: number;
     descriptionLineHeight?: number;
-    hideStats?: boolean;
-};
+} & ({
+    cost: number;
+    slotted?: false;
+} | {
+    cost?: number;
+    slotted: true;
+});
 
 export const Card: FC<CardProps> = (props) => {
+    const hasCost = props.cost !== undefined;
+
     return (
-        <CardBase className={classNames(styles.card, crewStyles[props.crew], props.className)}>
-            <div className={classNames(styles.image, props.hideStats ? styles.noCutouts : styles.cutouts)} role="presentation">{props.image}</div>
+        <CardBase className={classNames(styles.card, props.slotted ? styles.slotted : null, crewStyles[props.crew], props.className)}>
+            <div className={classNames(styles.image, props.slotted ? (hasCost ? styles.noRightCutout : styles.noCutouts) : styles.cutouts)} role="presentation">{props.image}</div>
             <h3
                 className={styles.name}
                 style={props.nameFontSize ? { fontSize: `${props.nameFontSize}em` } : undefined}
@@ -31,9 +37,9 @@ export const Card: FC<CardProps> = (props) => {
                 {props.name}
             </h3>
 
-            {props.hideStats ? null : <div className={styles.cost}>{props.cost}</div>}
+            {props.slotted && !hasCost ? null : <div className={styles.cost}>{props.cost}</div>}
 
-            {props.hideStats ? null : <CardTargetIcon targetType={props.targetType} className={styles.targetType} />}
+            {props.slotted ? null : <CardTargetIcon targetType={props.targetType} className={styles.targetType} />}
 
             <p
                 className={styles.description}

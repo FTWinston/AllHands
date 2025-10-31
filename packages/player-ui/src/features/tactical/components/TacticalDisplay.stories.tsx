@@ -1,6 +1,6 @@
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { fn } from 'storybook/test';
-import { useFakePowerAndGeneration } from '../../engineer/components/EngineerDisplay.stories';
+import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
 import { TacticalDisplay as Component } from './TacticalDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -14,7 +14,20 @@ const meta: Meta<typeof Component> = {
         onPause: fn(),
     },
     render: (args) => {
-        const { power, handSize, powerGeneration, cardGeneration, priority, setPriority } = useFakePowerAndGeneration(args);
+        const { power, cards, expendCard, handSize, powerGeneration, cardGeneration, priority, setPriority } = useFakePowerAndCards({
+            ...args,
+            cards: args.cards || [],
+            createCard: (id: number) => ({
+                id,
+                crew: 'tactical',
+                targetType: 'no-target',
+                name: 'Some Card',
+                description: 'A card that has a particular effect, for a particular crew role. Extra line!',
+                descriptionLineHeight: 1.25,
+                image: <ExampleIcon />,
+                cost: 1,
+            }),
+        });
 
         return (
             <Component
@@ -26,6 +39,11 @@ const meta: Meta<typeof Component> = {
                 handSize={handSize}
                 maxHandSize={args.maxHandSize}
                 power={power}
+                cards={cards}
+                playCard={(cardId, targetType, targetId) => {
+                    console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);
+                    expendCard(cardId);
+                }}
             />
         );
     },
@@ -80,12 +98,11 @@ export const UI: Story = {
         slots: [
             {
                 name: 'Weapon slot 1',
-                tapped: false,
                 card: null,
             },
             {
                 name: 'Weapon slot 2',
-                tapped: false,
+                costToReactivate: 0,
                 card: {
                     id: 5,
                     crew: 'tactical',

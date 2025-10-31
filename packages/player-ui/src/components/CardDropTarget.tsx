@@ -10,17 +10,19 @@ type Props = PropsWithChildren<{
     className?: string;
     targetType: CardTargetType;
     render?: ElementType;
+    disabled?: boolean;
 }>;
 
 export const CardDropTarget: FC<Props> = (props) => {
     const activeCard = useActiveCard();
 
-    const matchesActiveCardTargetType = activeCard && (!props.targetType || props.targetType === activeCard.targetType);
+    const matchesActiveCardTargetType = !props.disabled && activeCard && (!props.targetType || props.targetType === activeCard.targetType);
 
     const { setNodeRef, isOver } = useDroppable({
         id: props.id,
         data: {
             targetType: props.targetType,
+            allowed: matchesActiveCardTargetType,
         },
     });
 

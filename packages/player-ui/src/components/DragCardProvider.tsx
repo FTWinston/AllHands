@@ -47,7 +47,7 @@ const clearFocus = () => {
 
 type Props = {
     children: ReactNode;
-    onCardDropped?: (cardId: number, targetId: string | null) => void;
+    onCardDropped?: (cardId: number, targetType: CardTargetType, targetId: string) => void;
 };
 
 export const DragCardProvider = ({ children, onCardDropped }: Props) => {
@@ -77,10 +77,14 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
 
     const handleDragEnd = (event: DragEndEvent) => {
         const cardId = event.active.id;
-        const targetId = event.over?.id;
 
-        if (targetId !== undefined && onCardDropped && typeof cardId === 'number') {
-            onCardDropped(cardId, targetId ? String(targetId) : null);
+        if (event.over?.id && onCardDropped && typeof cardId === 'number') {
+            const dropData = event.over.data.current;
+            if (dropData?.allowed) {
+                const targetType = dropData?.targetType as CardTargetType;
+
+                onCardDropped(cardId, targetType, String(event.over.id));
+            }
         }
 
         // Blur the currently focused element (which is the dragged element)

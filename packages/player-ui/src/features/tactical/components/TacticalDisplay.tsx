@@ -1,3 +1,4 @@
+import { CardTargetType } from 'common-types';
 import { CardProps } from 'common-ui/Card';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/Screen';
@@ -11,6 +12,7 @@ import { TargetList } from './TargetList';
 import { SlotProps, WeaponSlots } from './WeaponSlots';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
+    playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
     cards: CardProps[];
     slots: SlotProps[];
     targets: TargetInfo[];
@@ -19,15 +21,11 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
 export const TacticalDisplay = (props: Props) => {
     const { cards, slots, targets, ...headerProps } = props;
 
-    const handleCardDropped = (cardId: number, targetId: string | null) => {
-        console.log(`dropped card ${cardId} on target ${targetId}`);
-    };
-
     useRootClassName(crewStyles.tactical);
 
     return (
         <Screen>
-            <DragCardProvider onCardDropped={handleCardDropped}>
+            <DragCardProvider onCardDropped={props.playCard}>
                 <CrewHeader
                     crew="tactical"
                     {...headerProps}

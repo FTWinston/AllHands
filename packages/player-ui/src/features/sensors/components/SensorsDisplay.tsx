@@ -1,3 +1,4 @@
+import { CardTargetType } from 'common-types';
 import { CardProps } from 'common-ui/Card';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/Screen';
@@ -8,21 +9,18 @@ import { CardHand } from '../../../components/CardHand';
 import { CrewHeader } from '../../header';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
+    playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
     cards: CardProps[];
 };
 
 export const SensorsDisplay = (props: Props) => {
     const { cards, ...headerProps } = props;
 
-    const handleCardDropped = (cardId: number, targetId: string | null) => {
-        console.log(`dropped card ${cardId} on target ${targetId}`);
-    };
-
     useRootClassName(crewStyles.sensors);
 
     return (
         <Screen>
-            <DragCardProvider onCardDropped={handleCardDropped}>
+            <DragCardProvider onCardDropped={props.playCard}>
                 <CrewHeader
                     crew="sensors"
                     {...headerProps}

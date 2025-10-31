@@ -8,7 +8,7 @@ import styles from './WeaponSlot.module.css';
 
 export type SlotProps = {
     name: string;
-    tapped: boolean;
+    costToReactivate?: number;
     card: CardProps | null;
 };
 
@@ -18,28 +18,32 @@ type Props = SlotProps & {
 };
 
 export const WeaponSlot = (props: Props) => {
+    const isTapped = !!props.costToReactivate;
+
     return (
         <CardDropTarget
             render="li"
-            className={classNames(styles.weaponSlot, props.card ? styles.hasCard : styles.hasNoCard, props.tapped ? styles.tapped : null)}
+            className={classNames(styles.weaponSlot, props.card ? styles.hasCard : styles.hasNoCard, isTapped ? styles.tapped : null)}
             targetType="weapon"
             id={props.name}
+            disabled={!props.card}
         >
             <div className={styles.slotName}>{props.name}</div>
             <CardDropTarget
                 className={styles.cardWrapper}
                 targetType="weapon-slot"
                 id={props.name}
+                disabled={!!props.card}
             >
                 {props.card
-                    ? <Card className={styles.card} {...props.card} hideStats={true} />
+                    ? <Card className={styles.card} {...props.card} slotted={true} cost={isTapped ? props.costToReactivate : undefined} />
                     : (
                         <CardBase className={styles.card}>
                             <div className={styles.noCardLabel}>No card</div>
                         </CardBase>
                     )}
             </CardDropTarget>
-            <Button onClick={props.onDeactivate} className={classNames(styles.button, styles.fireButton)} disabled={!props.card || props.tapped}>
+            <Button onClick={props.onDeactivate} className={classNames(styles.button, styles.fireButton)} disabled={!props.card || isTapped}>
                 Fire
             </Button>
 

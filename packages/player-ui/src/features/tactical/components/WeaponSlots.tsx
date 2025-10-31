@@ -4,7 +4,7 @@ import styles from './WeaponSlots.module.css';
 
 export type SlotProps = {
     name: string;
-    tapped: boolean;
+    costToReactivate?: number;
     card: CardProps | null;
 };
 

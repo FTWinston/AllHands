@@ -29,7 +29,6 @@ type Story = StoryObj<typeof meta>;
 export const Empty: Story = {
     args: {
         name: 'Weapon slot 1',
-        tapped: false,
         card: null,
     },
 };
@@ -37,7 +36,7 @@ export const Empty: Story = {
 export const WithCard: Story = {
     args: {
         name: 'Weapon slot 2',
-        tapped: false,
+        costToReactivate: 0,
         card: {
             id: 5,
             crew: 'tactical',
@@ -53,7 +52,7 @@ export const WithCard: Story = {
 export const Tapped: Story = {
     args: {
         name: 'Weapon slot 2',
-        tapped: true,
+        costToReactivate: 3,
         card: {
             id: 5,
             crew: 'tactical',
