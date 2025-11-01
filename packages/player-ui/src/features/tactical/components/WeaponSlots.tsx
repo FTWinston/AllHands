@@ -10,6 +10,8 @@ export type SlotProps = {
 
 type Props = {
     slots: SlotProps[];
+    onFired: (slotIndex: number) => void;
+    onDeactivate: (slotIndex: number) => void;
 };
 
 export const WeaponSlots = (props: Props) => {
@@ -19,8 +21,8 @@ export const WeaponSlots = (props: Props) => {
                 <WeaponSlot
                     {...slot}
                     key={index}
-                    onFired={() => {}}
-                    onDeactivate={() => {}}
+                    onFired={() => props.onFired(index)}
+                    onDeactivate={() => props.onDeactivate(index)}
                 />
             ))}
         </ol>

@@ -13,6 +13,8 @@ import { SlotProps, WeaponSlots } from './WeaponSlots';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
+    slotFired: (slotIndex: number) => void;
+    slotDeactivated: (slotIndex: number) => void;
     cards: CardProps[];
     slots: SlotProps[];
     targets: TargetInfo[];
@@ -33,7 +35,11 @@ export const TacticalDisplay = (props: Props) => {
 
                 <TargetList targets={targets} />
 
-                <WeaponSlots slots={slots} />
+                <WeaponSlots
+                    slots={slots}
+                    onFired={props.slotFired}
+                    onDeactivate={props.slotDeactivated}
+                />
 
                 <CardHand cards={cards} />
             </DragCardProvider>

@@ -1,4 +1,5 @@
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
+import { useState } from 'react';
 import { fn } from 'storybook/test';
 import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
 import { TacticalDisplay as Component } from './TacticalDisplay';
@@ -29,6 +30,8 @@ const meta: Meta<typeof Component> = {
             }),
         });
 
+        const [slots, setSlots] = useState(args.slots || []);
+
         return (
             <Component
                 {...args}
@@ -43,6 +46,20 @@ const meta: Meta<typeof Component> = {
                 playCard={(cardId, targetType, targetId) => {
                     console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);
                     expendCard(cardId);
+
+                    if (targetType === 'weapon-slot') {
+                        const card = cards.find(c => c.id === cardId) || null;
+                        setSlots(prevSlots => prevSlots.map(slot => slot.name === targetId ? { ...slot, card } : slot));
+                    }
+                }}
+                slots={slots}
+                slotFired={(slotIndex) => {
+                    console.log(`fired slot ${slotIndex}`);
+                    setSlots(prevSlots => prevSlots.map((slot, index) => index === slotIndex ? { ...slot, costToReactivate: 2 } : slot));
+                }}
+                slotDeactivated={(slotIndex) => {
+                    console.log(`deactivated slot ${slotIndex}`);
+                    setSlots(prevSlots => prevSlots.map((slot, index) => index === slotIndex ? { ...slot, card: null, costToReactivate: undefined } : slot));
                 }}
             />
         );

@@ -49,7 +49,7 @@ export const WeaponSlot = (props: Props) => {
             <div className={styles.slotName}>{props.name}</div>
 
             {cardWrapper}
-            <Button onClick={props.onDeactivate} className={classNames(styles.button, styles.fireButton)} disabled={!props.card || isTapped}>
+            <Button onClick={props.onFired} className={classNames(styles.button, styles.fireButton)} disabled={!props.card || isTapped}>
                 Fire
             </Button>
 
