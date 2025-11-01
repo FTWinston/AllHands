@@ -20,29 +20,35 @@ type Props = SlotProps & {
 export const WeaponSlot = (props: Props) => {
     const isTapped = !!props.costToReactivate;
 
-    return (
-        <CardDropTarget
-            render="li"
-            className={classNames(styles.weaponSlot, props.card ? styles.hasCard : styles.hasNoCard, isTapped ? styles.tapped : null)}
-            targetType="weapon"
-            id={props.name}
-            disabled={!props.card}
-        >
-            <div className={styles.slotName}>{props.name}</div>
+    const cardElement = props.card
+        ? <Card className={styles.card} {...props.card} slotted={true} cost={isTapped ? props.costToReactivate : undefined} />
+        : (
+            <CardBase className={styles.card}>
+                <div className={styles.noCardLabel}>No card</div>
+            </CardBase>
+        );
+
+    const cardWrapper = props.card
+        ? (
+            <div className={styles.cardWrapper}>
+                {cardElement}
+            </div>
+        )
+        : (
             <CardDropTarget
                 className={styles.cardWrapper}
                 targetType="weapon-slot"
                 id={props.name}
-                disabled={!!props.card}
             >
-                {props.card
-                    ? <Card className={styles.card} {...props.card} slotted={true} cost={isTapped ? props.costToReactivate : undefined} />
-                    : (
-                        <CardBase className={styles.card}>
-                            <div className={styles.noCardLabel}>No card</div>
-                        </CardBase>
-                    )}
+                {cardElement}
             </CardDropTarget>
+        );
+
+    const content = (
+        <>
+            <div className={styles.slotName}>{props.name}</div>
+
+            {cardWrapper}
             <Button onClick={props.onDeactivate} className={classNames(styles.button, styles.fireButton)} disabled={!props.card || isTapped}>
                 Fire
             </Button>
@@ -50,6 +56,24 @@ export const WeaponSlot = (props: Props) => {
             <Button onClick={props.onDeactivate} className={classNames(styles.button, styles.discardButton)} disabled={!props.card}>
                 <DiscardIcon />
             </Button>
-        </CardDropTarget>
+        </>
     );
+
+    return props.card
+        ? (
+            <CardDropTarget
+                render="li"
+                className={classNames(styles.weaponSlot, props.card ? styles.hasCard : styles.hasNoCard, isTapped ? styles.tapped : null)}
+                targetType="weapon"
+                id={props.name}
+            >
+                {content}
+            </CardDropTarget>
+        ) : (
+            <li
+                className={classNames(styles.weaponSlot, props.card ? styles.hasCard : styles.hasNoCard, isTapped ? styles.tapped : null)}
+            >
+                {content}
+            </li>
+        );
 };
