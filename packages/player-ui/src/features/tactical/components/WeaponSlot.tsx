@@ -20,8 +20,25 @@ type Props = SlotProps & {
 export const WeaponSlot = (props: Props) => {
     const isTapped = !!props.costToReactivate;
 
+    // Energy charge bar for tapped state
+    const energyBar = (props.card && isTapped && props.costToReactivate && props.card.cost) ? (
+        <div className={styles.energyBarWrapper}>
+            <div
+                className={styles.energyBar}
+                style={{ width: `${Math.min(100, Math.round((props.costToReactivate / props.card.cost) * 100))}%` }}
+            />
+            <span className={styles.energyBarLabel}>
+                {props.card.cost - props.costToReactivate}
+                {' / '}
+                {props.card.cost}
+            </span>
+        </div>
+    ) : null;
+
     const cardElement = props.card
-        ? <Card className={styles.card} {...props.card} slotted={true} cost={isTapped ? props.costToReactivate : undefined} />
+        ? (
+            <Card className={classNames(styles.card, isTapped ? styles.tappedCard : null)} {...props.card} slotted={true} />
+        )
         : (
             <CardBase className={styles.card}>
                 <div className={styles.noCardLabel}>No card</div>
@@ -32,6 +49,7 @@ export const WeaponSlot = (props: Props) => {
         ? (
             <div className={styles.cardWrapper}>
                 {cardElement}
+                {energyBar}
             </div>
         )
         : (
@@ -47,12 +65,10 @@ export const WeaponSlot = (props: Props) => {
     const content = (
         <>
             <div className={styles.slotName}>{props.name}</div>
-
             {cardWrapper}
             <Button onClick={props.onFired} className={classNames(styles.button, styles.fireButton)} disabled={!props.card || isTapped}>
                 Fire
             </Button>
-
             <Button onClick={props.onDeactivate} className={classNames(styles.button, styles.discardButton)} disabled={!props.card}>
                 <DiscardIcon />
             </Button>

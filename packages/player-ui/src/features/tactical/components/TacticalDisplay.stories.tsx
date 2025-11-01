@@ -50,12 +50,21 @@ const meta: Meta<typeof Component> = {
                     if (targetType === 'weapon-slot') {
                         const card = cards.find(c => c.id === cardId) || null;
                         setSlots(prevSlots => prevSlots.map(slot => slot.name === targetId ? { ...slot, card } : slot));
+                    } else if (targetType === 'weapon') {
+                        const cardCost = cards.find(c => c.id === cardId)?.cost || 0;
+
+                        if (cardCost) {
+                            setSlots(prevSlots => prevSlots.map(slot => slot.name === targetId ? {
+                                ...slot,
+                                costToReactivate: slot.costToReactivate ? Math.max(0, slot.costToReactivate - cardCost) : slot.costToReactivate,
+                            } : slot));
+                        }
                     }
                 }}
                 slots={slots}
                 slotFired={(slotIndex) => {
                     console.log(`fired slot ${slotIndex}`);
-                    setSlots(prevSlots => prevSlots.map((slot, index) => index === slotIndex ? { ...slot, costToReactivate: 2 } : slot));
+                    setSlots(prevSlots => prevSlots.map((slot, index) => index === slotIndex && slot.card ? { ...slot, costToReactivate: slot.card.cost } : slot));
                 }}
                 slotDeactivated={(slotIndex) => {
                     console.log(`deactivated slot ${slotIndex}`);
@@ -75,7 +84,7 @@ export const UI: Story = {
             {
                 id: 1,
                 crew: 'tactical',
-                targetType: 'no-target',
+                targetType: 'weapon',
                 name: 'Some Card',
                 description: 'A card that has a particular effect, for a particular crew role. Extra line!',
                 descriptionLineHeight: 1.25,
@@ -127,7 +136,7 @@ export const UI: Story = {
                     name: 'Some Card with a longer title',
                     description: 'A card that has a particular effect, for a particular crew role.',
                     image: <ExampleIcon />,
-                    cost: 1,
+                    cost: 2,
                 },
             },
         ],

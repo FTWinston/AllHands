@@ -21,12 +21,6 @@
   border-radius: 1.6em 1.6em 0.25em 0.25em;
 }
 
-.noRightCutout {
-  corner-top-left-shape: superellipse(-2);
-  corner-top-right-shape: squircle;
-  border-radius: 1.6em 1em 0.25em 0.25em;
-}
-
 .noCutouts {
   corner-top-left-shape: squircle;
   corner-top-right-shape: squircle;
@@ -73,15 +67,6 @@
   border: solid oklch(from var(--primary-color) 0.8 c h) 0.05em;
   font-family: monospace;
   transition: transform 0.333s ease;
-}
-
-.card.slotted {
-  --primary-color: oklch(0.656 0.147 292);
-
-  .cost {
-    transform: rotate(-90deg);
-    corner-shape: squircle;
-  }
 }
 
 .targetType {

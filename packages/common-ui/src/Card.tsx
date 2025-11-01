@@ -16,20 +16,14 @@ export type CardProps = {
     className?: string;
     nameFontSize?: number;
     descriptionLineHeight?: number;
-} & ({
     cost: number;
-    slotted?: false;
-} | {
-    cost?: number;
-    slotted: true;
-});
+    slotted?: boolean;
+};
 
 export const Card: FC<CardProps> = (props) => {
-    const hasCost = props.cost !== undefined;
-
     return (
         <CardBase className={classNames(styles.card, props.slotted ? styles.slotted : null, crewStyles[props.crew], props.className)}>
-            <div className={classNames(styles.image, props.slotted ? (hasCost ? styles.noRightCutout : styles.noCutouts) : styles.cutouts)} role="presentation">{props.image}</div>
+            <div className={classNames(styles.image, props.slotted ? styles.noCutouts : styles.cutouts)} role="presentation">{props.image}</div>
             <h3
                 className={styles.name}
                 style={props.nameFontSize ? { fontSize: `${props.nameFontSize}em` } : undefined}
@@ -37,7 +31,7 @@ export const Card: FC<CardProps> = (props) => {
                 {props.name}
             </h3>
 
-            {props.slotted && !hasCost ? null : <div className={styles.cost}>{props.cost}</div>}
+            {props.slotted ? null : <div className={styles.cost}>{props.cost}</div>}
 
             {props.slotted ? null : <CardTargetIcon targetType={props.targetType} className={styles.targetType} />}
 

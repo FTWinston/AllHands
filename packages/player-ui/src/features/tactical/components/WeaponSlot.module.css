@@ -30,6 +30,11 @@
 .cardWrapper {
     grid-area: card;
     font-size: 0.667em;
+    position: relative;
+}
+
+.tappedCard {
+    opacity: 0.6;
 }
 
 .hasNoCard .card {
@@ -54,6 +59,39 @@
     background-color: var(--danger-color);
 }
 
-.tapped {
-    transform: rotate(90deg) scale(0.835);
+.energyBarWrapper {
+    position: absolute;
+    left: 1em;
+    right: 1em;
+    bottom: 1em;
+    height: 1.1em;
+    display: flex;
+    align-items: center;
+    z-index: 3;
+    background: rgba(0,0,0,0.2);
+    border-radius: 0.5em;
+    overflow: hidden;
+    font-size: 1em;
+    pointer-events: none;
 }
+
+.energyBar {
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+    height: 100%;
+    transition: width 0.3s;
+    border-radius: 0.5em 0 0 0.5em;
+    min-width: 0.5em;
+}
+
+.energyBarLabel {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    font-size: 0.85em;
+    font-weight: bold;
+    pointer-events: none;
+    text-shadow: 0 0 2px #000, 0 0 4px #000;
+}
+
+
