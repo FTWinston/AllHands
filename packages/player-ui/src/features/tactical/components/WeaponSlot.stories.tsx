@@ -52,7 +52,7 @@ export const WithCard: Story = {
 export const Tapped: Story = {
     args: {
         name: 'Weapon slot 2',
-        costToReactivate: 3,
+        costToReactivate: 2,
         card: {
             id: 5,
             crew: 'tactical',
@@ -60,7 +60,7 @@ export const Tapped: Story = {
             name: 'Some Card with a longer title',
             description: 'A card that has a particular effect, for a particular crew role.',
             image: <ExampleIcon />,
-            cost: 1,
+            cost: 3,
         },
     },
 };

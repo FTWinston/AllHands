@@ -4,6 +4,7 @@ import { classNames } from 'common-ui/classNames';
 import { Button } from 'common-ui/index';
 import { CardDropTarget } from 'src/components/CardDropTarget';
 import { default as DiscardIcon } from '../assets/discard.svg?react';
+import { RechargeIndicator } from './RechargeIndicator';
 import styles from './WeaponSlot.module.css';
 
 export type SlotProps = {
@@ -18,26 +19,15 @@ type Props = SlotProps & {
 };
 
 export const WeaponSlot = (props: Props) => {
-    const isTapped = !!props.costToReactivate;
+    const isRecharging = !!props.costToReactivate;
 
-    // Energy charge bar for tapped state
-    const energyBar = (props.card && isTapped && props.costToReactivate && props.card.cost) ? (
-        <div className={styles.energyBarWrapper}>
-            <div
-                className={styles.energyBar}
-                style={{ width: `${Math.min(100, Math.round((props.costToReactivate / props.card.cost) * 100))}%` }}
-            />
-            <span className={styles.energyBarLabel}>
-                {props.card.cost - props.costToReactivate}
-                {' / '}
-                {props.card.cost}
-            </span>
-        </div>
+    const rechargeBar = (props.card && isRecharging && props.costToReactivate && props.card.cost) ? (
+        <RechargeIndicator current={props.card.cost - props.costToReactivate} max={props.card.cost} />
     ) : null;
 
     const cardElement = props.card
         ? (
-            <Card className={classNames(styles.card, isTapped ? styles.tappedCard : null)} {...props.card} slotted={true} />
+            <Card className={classNames(styles.card, isRecharging ? styles.rechargingCard : null)} {...props.card} slotted={true} />
         )
         : (
             <CardBase className={styles.card}>
@@ -49,7 +39,7 @@ export const WeaponSlot = (props: Props) => {
         ? (
             <div className={styles.cardWrapper}>
                 {cardElement}
-                {energyBar}
+                {rechargeBar}
             </div>
         )
         : (
@@ -66,7 +56,7 @@ export const WeaponSlot = (props: Props) => {
         <>
             <div className={styles.slotName}>{props.name}</div>
             {cardWrapper}
-            <Button onClick={props.onFired} className={classNames(styles.button, styles.fireButton)} disabled={!props.card || isTapped}>
+            <Button onClick={props.onFired} className={classNames(styles.button, styles.fireButton)} disabled={!props.card || isRecharging}>
                 Fire
             </Button>
             <Button onClick={props.onDeactivate} className={classNames(styles.button, styles.discardButton)} disabled={!props.card}>
@@ -79,16 +69,16 @@ export const WeaponSlot = (props: Props) => {
         ? (
             <CardDropTarget
                 render="li"
-                className={classNames(styles.weaponSlot, props.card ? styles.hasCard : styles.hasNoCard, isTapped ? styles.tapped : null)}
+                className={classNames(styles.weaponSlot, styles.hasCard, isRecharging ? styles.recharging : null)}
                 targetType="weapon"
-                acceptAnyCardType={isTapped}
+                acceptAnyCardType={isRecharging}
                 id={props.name}
             >
                 {content}
             </CardDropTarget>
         ) : (
             <li
-                className={classNames(styles.weaponSlot, props.card ? styles.hasCard : styles.hasNoCard, isTapped ? styles.tapped : null)}
+                className={classNames(styles.weaponSlot, styles.hasNoCard)}
             >
                 {content}
             </li>

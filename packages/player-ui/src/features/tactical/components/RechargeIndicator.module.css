@@ -1,0 +1,55 @@
+.rechargeBarWrapper {
+    position: absolute;
+    top: 0.867em;
+    left: 0.867em;
+    right: 0.867em;
+    height: 7.4em;
+    background: rgba(0,0,0,0.7);
+    border: solid transparent 0.2em;
+    border-radius: 1em 1em 0.25em 0.25em;
+    corner-shape: bevel;
+    corner-top-left-shape: squircle;
+    corner-top-right-shape: squircle;
+    box-sizing: border-box;
+    font-size: 1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.5em 0.5em 0.7em 0.5em;
+}
+
+.rechargeBarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    margin-bottom: 0.4em;
+
+    color: var(--highlight-color);
+    font-size: 0.85em;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+.rechargeBarSegments {
+    display: flex;
+    gap: 0.15em;
+    width: 100%;
+    margin-top: 0.1em;
+    justify-content: stretch;
+}
+
+.rechargeBarSegment {
+    flex: 1 1 0;
+    height: 0.6em;
+    border-radius: 0.2em;
+    background: var(--primary-dark);
+    box-shadow: 0 0 2px #0008;
+    transition: background 0.2s;
+}
+.rechargeBarSegment.filled {
+    background: linear-gradient(90deg, var(--primary-highlight), var(--primary-color));
+}
+.rechargeBarSegment.empty {
+    background: var(--primary-dark);
+}
