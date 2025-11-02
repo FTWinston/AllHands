@@ -81,6 +81,7 @@ export const WeaponSlot = (props: Props) => {
                 render="li"
                 className={classNames(styles.weaponSlot, props.card ? styles.hasCard : styles.hasNoCard, isTapped ? styles.tapped : null)}
                 targetType="weapon"
+                acceptAnyCardType={isTapped}
                 id={props.name}
             >
                 {content}

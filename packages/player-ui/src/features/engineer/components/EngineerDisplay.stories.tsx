@@ -115,7 +115,7 @@ export const useFakePowerAndGeneration = (args: UseFakePowerAndGenerationArgs) =
         return () => clearInterval(interval);
     }, [maxPower, maxHandSize, itemToGenerate, generateCard]);
 
-    const usePowerAndCard = (powerCost: number) => {
+    const drainPowerAndCard = (powerCost: number) => {
         if (power >= powerCost) {
             setPower(power - powerCost);
             setHandSize(handSize => Math.max(0, handSize - 1));
@@ -125,7 +125,7 @@ export const useFakePowerAndGeneration = (args: UseFakePowerAndGenerationArgs) =
         return false;
     };
 
-    return { power, usePowerAndCard, handSize, powerGeneration, cardGeneration, priority, setPriority };
+    return { power, drainPowerAndCard, handSize, powerGeneration, cardGeneration, priority, setPriority };
 };
 
 type UseFakePowerAndCardsArgs = UseFakePowerAndGenerationArgs & {
@@ -152,17 +152,17 @@ export const useFakePowerAndCards = (args: UseFakePowerAndCardsArgs) => {
         generateCard,
     };
 
-    const { usePowerAndCard, ...powerAndGenerationResults } = useFakePowerAndGeneration(fakePowerAndGenerationArgs);
+    const { drainPowerAndCard, ...powerAndGenerationResults } = useFakePowerAndGeneration(fakePowerAndGenerationArgs);
 
     const expendCard = useCallback((cardId: number) => {
         setCards((cards) => {
             const playedCard = cards.find(c => c.id === cardId);
-            if (playedCard && playedCard.cost !== undefined) {
-                usePowerAndCard(playedCard.cost);
+            if (playedCard && playedCard.cost !== undefined && drainPowerAndCard(playedCard.cost)) {
+                return cards.filter(card => card !== playedCard);
             }
-            return cards.filter(card => card !== playedCard);
+            return cards;
         });
-    }, [usePowerAndCard]);
+    }, [drainPowerAndCard]);
 
     return {
         ...powerAndGenerationResults,
