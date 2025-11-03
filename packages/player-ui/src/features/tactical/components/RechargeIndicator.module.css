@@ -4,7 +4,7 @@
     left: 0.867em;
     right: 0.867em;
     height: 7.4em;
-    background: rgba(0,0,0,0.7);
+    background: oklch(from var(--background-color) l c h / 0.85);
     border: solid transparent 0.2em;
     border-radius: 1em 1em 0.25em 0.25em;
     corner-shape: bevel;

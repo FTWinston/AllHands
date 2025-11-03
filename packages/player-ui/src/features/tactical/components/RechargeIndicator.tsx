@@ -13,7 +13,7 @@ export const RechargeIndicator: React.FC<RechargeIndicatorProps> = ({ current, m
     return (
         <div className={styles.rechargeBarWrapper}>
             <div className={styles.rechargeBarHeader}>
-                <span className={styles.rechargeBarLabel}>Recharging</span>
+                <span className={styles.rechargeBarLabel}>Charge</span>
                 <span className={styles.rechargeBarCount}>
                     {current}
                     /
