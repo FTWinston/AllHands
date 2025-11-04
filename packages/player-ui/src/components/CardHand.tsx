@@ -1,29 +1,33 @@
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { Card, CardProps } from 'common-ui/Card';
+import { CardInstance, CardType } from 'common-types';
+import { CardDisplay } from 'common-ui/CardDisplay';
 import { classNames } from 'common-ui/classNames';
+import { getCardDefinition } from 'common-ui/uiCardDefinitions';
 import { FC } from 'react';
 import { useArrayChanges } from 'src/hooks/useArrayChanges';
 import styles from './CardHand.module.css';
 import { useActiveCard, useIsOverValidTarget } from './DragCardProvider';
 
 type WrapperProps = {
-    card: CardProps;
+    id: number;
+    type: CardType;
     state: 'in-hand' | 'adding' | 'removing';
     index: number;
-    numCards: number;
 };
 
-const CardWrapper: FC<WrapperProps> = ({ card, state, index, numCards }) => {
+const CardWrapper: FC<WrapperProps> = ({ id, type, state, index }) => {
     const activeCard = useActiveCard();
     const isOverValidTarget = useIsOverValidTarget();
 
+    const definition = getCardDefinition(type);
+
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
-        id: card.id,
-        data: { ...card, index, numCards },
+        id,
+        data: { id, targetType: definition.targetType },
     });
 
-    const isBeingDragged = activeCard?.id === card.id;
+    const isBeingDragged = activeCard?.id === id;
     const canDrop = isBeingDragged && isOverValidTarget;
 
     return (
@@ -43,13 +47,13 @@ const CardWrapper: FC<WrapperProps> = ({ card, state, index, numCards }) => {
             {...listeners}
             {...attributes}
         >
-            <Card {...card} />
+            <CardDisplay {...definition} />
         </li>
     );
 };
 
 type Props = {
-    cards: CardProps[];
+    cards: CardInstance[];
 };
 
 export const CardHand: FC<Props> = ({ cards }) => {
@@ -66,9 +70,9 @@ export const CardHand: FC<Props> = ({ cards }) => {
             {knownCards.map((card, index) => (
                 <CardWrapper
                     key={card.id}
-                    card={card}
+                    id={card.id}
+                    type={card.type}
                     index={index}
-                    numCards={knownCards.length}
                     state={removingCardIds.has(card.id) ? 'removing' : inHandCardIds.has(card.id) ? 'in-hand' : 'adding'}
                 />
             ))}

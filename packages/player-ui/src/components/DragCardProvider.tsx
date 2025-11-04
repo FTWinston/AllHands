@@ -1,15 +1,11 @@
 import { DndContext, DragEndEvent, DragStartEvent, useSensor, PointerSensor, useSensors, Modifier } from '@dnd-kit/core';
 import { CardTargetType } from 'common-types';
-import { CardProps } from 'common-ui/Card';
 import { createContext, useState, ReactNode, useContext } from 'react';
 import { CardDropTarget } from './CardDropTarget';
 
 export type ActiveCardInfo = {
     id: number;
     targetType: CardTargetType;
-    index: number;
-    numCards: number;
-    cardProps: CardProps;
 };
 
 type DragContextValue = {
@@ -55,14 +51,11 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
     const [isOverValidTarget, setIsOverValidTarget] = useState(false);
 
     const handleDragStart = (event: DragStartEvent) => {
-        const data = event.active.data.current as (CardProps & { index: number; numCards: number }) | undefined;
+        const data = event.active.data.current as ActiveCardInfo | undefined;
         if (data) {
             setActiveCard({
                 id: data.id,
                 targetType: data.targetType,
-                index: data.index,
-                numCards: data.numCards,
-                cardProps: data,
             });
         }
 

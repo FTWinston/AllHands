@@ -1,5 +1,4 @@
 import crewStyles from 'common-ui/CrewColors.module.css';
-import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { fn } from 'storybook/test';
 import { WeaponSlot as Component } from './WeaponSlot';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -39,12 +38,7 @@ export const WithCard: Story = {
         costToReactivate: 0,
         card: {
             id: 5,
-            crew: 'tactical',
-            targetType: 'weapon-slot',
-            name: 'Some Card with a longer title',
-            description: 'A card that has a particular effect, for a particular crew role.',
-            image: <ExampleIcon />,
-            cost: 1,
+            type: 'exampleWeaponSlotTarget',
         },
     },
 };
@@ -55,12 +49,7 @@ export const Tapped: Story = {
         costToReactivate: 2,
         card: {
             id: 5,
-            crew: 'tactical',
-            targetType: 'weapon-slot',
-            name: 'Some Card with a longer title',
-            description: 'A card that has a particular effect, for a particular crew role.',
-            image: <ExampleIcon />,
-            cost: 3,
+            type: 'exampleWeaponSlotTarget',
         },
     },
 };

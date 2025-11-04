@@ -1,7 +1,9 @@
-import { Card, CardProps } from 'common-ui/Card';
+import { CardInstance } from 'common-types';
+import { Card } from 'common-ui/Card';
 import { CardBase } from 'common-ui/CardBase';
 import { classNames } from 'common-ui/classNames';
 import { Button } from 'common-ui/index';
+import { getCardDefinition } from 'common-ui/uiCardDefinitions';
 import { CardDropTarget } from 'src/components/CardDropTarget';
 import { default as DiscardIcon } from '../assets/discard.svg?react';
 import { RechargeIndicator } from './RechargeIndicator';
@@ -10,7 +12,7 @@ import styles from './WeaponSlot.module.css';
 export type SlotProps = {
     name: string;
     costToReactivate?: number;
-    card: CardProps | null;
+    card: CardInstance | null;
 };
 
 type Props = SlotProps & {
@@ -21,8 +23,10 @@ type Props = SlotProps & {
 export const WeaponSlot = (props: Props) => {
     const isRecharging = !!props.costToReactivate;
 
-    const rechargeBar = (props.card && isRecharging && props.costToReactivate && props.card.cost) ? (
-        <RechargeIndicator current={props.card.cost - props.costToReactivate} max={props.card.cost} />
+    const cardDefinition = props.card ? getCardDefinition(props.card.type) : null;
+
+    const rechargeBar = (isRecharging && props.costToReactivate && cardDefinition?.cost) ? (
+        <RechargeIndicator current={cardDefinition.cost - props.costToReactivate} max={cardDefinition.cost} />
     ) : null;
 
     const cardElement = props.card

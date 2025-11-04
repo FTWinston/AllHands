@@ -1,5 +1,7 @@
 export * from './CardTargetType.js';
 export * from './ClientConfig.js';
+export * from './CardDefinition.js';
+export * from './CardInstance.js';
 export * from './ConnectionState.js';
 export * from './Cooldown.js';
 export * from './CrewRole.js';
@@ -7,5 +9,6 @@ export * from './ServerConfig.js';
 export * from './ServerAddress.js';
 export * from './ShipAppearance.js';
 export * from './ShipSystem.js';
+export * from './cardDefinitions.js';
 export const roomIdentifier = 'game';
 export const soloCrewIdentifier = 'x';

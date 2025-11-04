@@ -1,7 +1,7 @@
 import { ServerAddress, type ConnectionState } from 'common-types';
 import { Screen } from 'common-ui/Screen';
-import { useRoomConnection } from 'game-ui/hooks/useRoomConnection';
 import { useState } from 'react';
+import { useRoomConnection } from 'src/hooks/useRoomConnection';
 
 import { Game } from '../features/game/Game';
 import { GameLobby } from '../features/lobby/GameLobby';

@@ -1,5 +1,4 @@
-import { CardTargetType } from 'common-types';
-import { CardProps } from 'common-ui/Card';
+import { CardInstance, CardTargetType } from 'common-types';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/Screen';
 import { ComponentProps } from 'react';
@@ -15,7 +14,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
     slotFired: (slotIndex: number) => void;
     slotDeactivated: (slotIndex: number) => void;
-    cards: CardProps[];
+    cards: CardInstance[];
     slots: SlotProps[];
     targets: TargetInfo[];
 };

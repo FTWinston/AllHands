@@ -1,7 +1,5 @@
 import ErrorBoundary from 'common-ui/ErrorBoundary';
-import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { FC } from 'react';
-import { fn } from 'storybook/test';
 import styles from './CombinedCrew.module.css';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 

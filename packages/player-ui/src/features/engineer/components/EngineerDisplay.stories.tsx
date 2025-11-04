@@ -1,6 +1,5 @@
-import { Cooldown } from 'common-types';
-import { CardProps } from 'common-ui/Card';
-import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
+import { CardInstance, Cooldown } from 'common-types';
+import { getCardDefinition } from 'common-ui/uiCardDefinitions';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fn } from 'storybook/test';
 import { default as ExampleIcon1 } from '../../header/assets/energy.svg?react';
@@ -25,13 +24,7 @@ const meta: Meta<typeof Component> = {
             cards: args.cards || [],
             createCard: (id: number) => ({
                 id,
-                crew: 'engineer',
-                targetType: 'no-target',
-                name: 'Some Card',
-                description: 'A card that has a particular effect, for a particular crew role. Extra line!',
-                descriptionLineHeight: 1.25,
-                image: <ExampleIcon />,
-                cost: 1,
+                type: 'exampleSystemTarget',
             }),
         });
 
@@ -129,8 +122,8 @@ export const useFakePowerAndGeneration = (args: UseFakePowerAndGenerationArgs) =
 };
 
 type UseFakePowerAndCardsArgs = UseFakePowerAndGenerationArgs & {
-    cards: CardProps[];
-    createCard: (id: number) => CardProps;
+    cards: CardInstance[];
+    createCard: (id: number) => CardInstance;
 };
 
 export const useFakePowerAndCards = (args: UseFakePowerAndCardsArgs) => {
@@ -157,7 +150,8 @@ export const useFakePowerAndCards = (args: UseFakePowerAndCardsArgs) => {
     const expendCard = useCallback((cardId: number) => {
         setCards((cards) => {
             const playedCard = cards.find(c => c.id === cardId);
-            if (playedCard && playedCard.cost !== undefined && drainPowerAndCard(playedCard.cost)) {
+            const cost = playedCard ? getCardDefinition(playedCard.type).cost : 0;
+            if (playedCard && cost && drainPowerAndCard(cost)) {
                 return cards.filter(card => card !== playedCard);
             }
             return cards;
@@ -176,32 +170,15 @@ export const UI: Story = {
         cards: [
             {
                 id: 1,
-                crew: 'engineer',
-                targetType: 'no-target',
-                name: 'Some Card',
-                description: 'A card that has a particular effect, for a particular crew role. Extra line!',
-                descriptionLineHeight: 1.25,
-                image: <ExampleIcon />,
-                cost: 1,
+                type: 'exampleLocationTarget',
             },
             {
                 id: 2,
-                crew: 'engineer',
-                targetType: 'system',
-                name: 'Some Card with a longer title',
-                description: 'A card that has a particular effect, for a particular crew role.',
-                image: <ExampleIcon />,
-                cost: 1,
+                type: 'exampleLocationTarget',
             },
             {
                 id: 3,
-                crew: 'engineer',
-                targetType: 'system',
-                name: 'Some Card with a title that\'s really quite long',
-                nameFontSize: 0.88,
-                description: 'A card that has a particular effect, for a particular crew role.',
-                image: <ExampleIcon />,
-                cost: 1,
+                type: 'exampleLocationTarget',
             },
         ],
         systems: [

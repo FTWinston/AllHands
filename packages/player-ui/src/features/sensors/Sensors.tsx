@@ -1,5 +1,5 @@
 import { Room } from 'colyseus.js';
-import { CardProps } from 'common-ui/Card';
+import { CardInstance } from 'common-types';
 import { useState } from 'react';
 import { SensorsDisplay } from './components/SensorsDisplay';
 
@@ -8,7 +8,7 @@ type Props = {
 };
 
 export const Sensors = (props: Props) => {
-    const [cards] = useState<CardProps[]>([]);
+    const [cards] = useState<CardInstance[]>([]);
 
     return (
         <SensorsDisplay

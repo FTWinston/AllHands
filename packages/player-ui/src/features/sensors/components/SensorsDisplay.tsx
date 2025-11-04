@@ -1,5 +1,4 @@
-import { CardTargetType } from 'common-types';
-import { CardProps } from 'common-ui/Card';
+import { CardInstance, CardTargetType } from 'common-types';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/Screen';
 import { ComponentProps } from 'react';
@@ -10,7 +9,7 @@ import { CrewHeader } from '../../header';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
-    cards: CardProps[];
+    cards: CardInstance[];
 };
 
 export const SensorsDisplay = (props: Props) => {

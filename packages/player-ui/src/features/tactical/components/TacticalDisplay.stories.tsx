@@ -1,4 +1,4 @@
-import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
+import { getCardDefinition } from 'common-ui/uiCardDefinitions';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
@@ -18,16 +18,25 @@ const meta: Meta<typeof Component> = {
         const { power, cards, expendCard, handSize, powerGeneration, cardGeneration, priority, setPriority } = useFakePowerAndCards({
             ...args,
             cards: args.cards || [],
-            createCard: (id: number) => ({
-                id,
-                crew: 'tactical',
-                targetType: 'no-target',
-                name: 'Some Card',
-                description: 'A card that has a particular effect, for a particular crew role. Extra line!',
-                descriptionLineHeight: 1.25,
-                image: <ExampleIcon />,
-                cost: 1,
-            }),
+            createCard: (id: number) => {
+                switch (Math.floor(Math.random() * 3)) {
+                    case 0:
+                        return {
+                            id,
+                            type: 'exampleWeaponSlotTarget',
+                        };
+                    case 1:
+                        return {
+                            id,
+                            type: 'exampleWeaponTarget',
+                        };
+                    default:
+                        return {
+                            id,
+                            type: 'exampleEnemyTarget',
+                        };
+                }
+            },
         });
 
         const [slots, setSlots] = useState(args.slots || []);
@@ -51,7 +60,8 @@ const meta: Meta<typeof Component> = {
                         const card = cards.find(c => c.id === cardId) || null;
                         setSlots(prevSlots => prevSlots.map(slot => slot.name === targetId ? { ...slot, card } : slot));
                     } else if (targetType === 'weapon') {
-                        const cardCost = cards.find(c => c.id === cardId)?.cost || 0;
+                        const card = cards.find(c => c.id === cardId);
+                        const cardCost = card ? getCardDefinition(card.type).cost : 0;
 
                         if (cardCost) {
                             setSlots(prevSlots => prevSlots.map(slot => slot.name === targetId ? {
@@ -64,7 +74,7 @@ const meta: Meta<typeof Component> = {
                 slots={slots}
                 slotFired={(slotIndex) => {
                     console.log(`fired slot ${slotIndex}`);
-                    setSlots(prevSlots => prevSlots.map((slot, index) => index === slotIndex && slot.card ? { ...slot, costToReactivate: slot.card.cost } : slot));
+                    setSlots(prevSlots => prevSlots.map((slot, index) => index === slotIndex && slot.card ? { ...slot, costToReactivate: getCardDefinition(slot.card.type).cost } : slot));
                 }}
                 slotDeactivated={(slotIndex) => {
                     console.log(`deactivated slot ${slotIndex}`);
@@ -83,42 +93,19 @@ export const UI: Story = {
         cards: [
             {
                 id: 1,
-                crew: 'tactical',
-                targetType: 'weapon',
-                name: 'Some Card',
-                description: 'A card that has a particular effect, for a particular crew role. Extra line!',
-                descriptionLineHeight: 1.25,
-                image: <ExampleIcon />,
-                cost: 1,
+                type: 'exampleWeaponSlotTarget',
             },
             {
                 id: 2,
-                crew: 'tactical',
-                targetType: 'weapon-slot',
-                name: 'Some Card with a longer title',
-                description: 'A card that has a particular effect, for a particular crew role.',
-                image: <ExampleIcon />,
-                cost: 1,
+                type: 'exampleWeaponTarget',
             },
             {
                 id: 3,
-                crew: 'tactical',
-                targetType: 'weapon',
-                name: 'Some Card with a title that\'s really quite long',
-                nameFontSize: 0.88,
-                description: 'A card that has a particular effect, for a particular crew role.',
-                image: <ExampleIcon />,
-                cost: 1,
+                type: 'exampleEnemyTarget',
             },
             {
                 id: 4,
-                crew: 'tactical',
-                targetType: 'enemy',
-                name: 'Yet another card',
-                nameFontSize: 0.88,
-                description: 'This one targets an enemy, I guess.',
-                image: <ExampleIcon />,
-                cost: 3,
+                type: 'exampleEnemyTarget',
             },
         ],
         slots: [
@@ -131,12 +118,7 @@ export const UI: Story = {
                 costToReactivate: 0,
                 card: {
                     id: 5,
-                    crew: 'tactical',
-                    targetType: 'weapon-slot',
-                    name: 'Some Card with a longer title',
-                    description: 'A card that has a particular effect, for a particular crew role.',
-                    image: <ExampleIcon />,
-                    cost: 2,
+                    type: 'exampleWeaponSlotTarget',
                 },
             },
         ],

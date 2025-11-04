@@ -1,6 +1,5 @@
-import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { fn } from 'storybook/test';
-import { useFakePowerAndCards, useFakePowerAndGeneration } from '../../engineer/components/EngineerDisplay.stories';
+import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
 import { HelmDisplay as Component } from './HelmDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -19,13 +18,7 @@ const meta: Meta<typeof Component> = {
             cards: args.cards || [],
             createCard: (id: number) => ({
                 id,
-                crew: 'helm',
-                targetType: 'no-target',
-                name: 'Some Card',
-                description: 'A card that has a particular effect, for a particular crew role. Extra line!',
-                descriptionLineHeight: 1.25,
-                image: <ExampleIcon />,
-                cost: 1,
+                type: 'exampleLocationTarget',
             }),
         });
 
@@ -57,32 +50,15 @@ export const UI: Story = {
         cards: [
             {
                 id: 1,
-                crew: 'helm',
-                targetType: 'location',
-                name: 'Some Card',
-                description: 'A card that has a particular effect, for a particular crew role. Extra line!',
-                descriptionLineHeight: 1.25,
-                image: <ExampleIcon />,
-                cost: 1,
+                type: 'exampleLocationTarget',
             },
             {
                 id: 2,
-                crew: 'helm',
-                targetType: 'location',
-                name: 'Some Card with a longer title',
-                description: 'A card that has a particular effect, for a particular crew role.',
-                image: <ExampleIcon />,
-                cost: 1,
+                type: 'exampleLocationTarget',
             },
             {
                 id: 3,
-                crew: 'helm',
-                targetType: 'no-target',
-                name: 'Some Card with a title that\'s really quite long',
-                nameFontSize: 0.88,
-                description: 'A card that has a particular effect, for a particular crew role.',
-                image: <ExampleIcon />,
-                cost: 1,
+                type: 'exampleLocationTarget',
             },
         ],
         power: 2,

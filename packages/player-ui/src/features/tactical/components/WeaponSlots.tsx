@@ -1,11 +1,11 @@
-import { CardProps } from 'common-ui/Card';
+import { CardInstance } from 'common-types';
 import { WeaponSlot } from './WeaponSlot';
 import styles from './WeaponSlots.module.css';
 
 export type SlotProps = {
     name: string;
     costToReactivate?: number;
-    card: CardProps | null;
+    card: CardInstance | null;
 };
 
 type Props = {
