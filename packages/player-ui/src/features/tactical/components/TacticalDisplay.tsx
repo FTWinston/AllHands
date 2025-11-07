@@ -1,28 +1,39 @@
 import { CardInstance, CardTargetType } from 'common-types';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/Screen';
-import { ComponentProps } from 'react';
+import { ComponentProps, useMemo, useState } from 'react';
 import { DragCardProvider } from 'src/components/DragCardProvider';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CardHand } from '../../../components/CardHand';
 import { CrewHeader } from '../../header';
-import { TargetInfo } from './Target';
-import { TargetList } from './TargetList';
+import { ListTargetInfo, TargetList } from './TargetList';
 import { SlotProps, WeaponSlots } from './WeaponSlots';
+
+type SlotPropsNoTarget = Omit<SlotProps, 'currentTargetState'>;
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
     slotFired: (slotIndex: number) => void;
     slotDeactivated: (slotIndex: number) => void;
     cards: CardInstance[];
-    slots: SlotProps[];
-    targets: TargetInfo[];
+    slots: SlotPropsNoTarget[];
+    targets: ListTargetInfo[];
 };
 
 export const TacticalDisplay = (props: Props) => {
     const { cards, slots, targets, ...headerProps } = props;
 
     useRootClassName(crewStyles.tactical);
+
+    const [currentTarget, setCurrentTarget] = useState<ListTargetInfo | null>(null);
+
+    const slotsWithTargetState = useMemo<SlotProps[]>(
+        () => slots.map((slot, index) => ({
+            ...slot,
+            noFireReason: currentTarget?.slotNoFireReasons[index],
+        })),
+        [currentTarget, slots]
+    );
 
     return (
         <Screen>
@@ -32,10 +43,13 @@ export const TacticalDisplay = (props: Props) => {
                     {...headerProps}
                 />
 
-                <TargetList targets={targets} />
+                <TargetList
+                    targets={targets}
+                    onVisibleTargetChange={setCurrentTarget}
+                />
 
                 <WeaponSlots
-                    slots={slots}
+                    slots={slotsWithTargetState}
                     onFired={props.slotFired}
                     onDeactivate={props.slotDeactivated}
                 />

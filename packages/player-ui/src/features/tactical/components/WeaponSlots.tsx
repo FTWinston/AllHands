@@ -6,6 +6,7 @@ export type SlotProps = {
     name: string;
     costToReactivate?: number;
     card: CardInstance | null;
+    noFireReason?: string | null;
 };
 
 type Props = {

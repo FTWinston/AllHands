@@ -6,13 +6,14 @@ import { Button } from 'common-ui/index';
 import { getCardDefinition } from 'common-ui/uiCardDefinitions';
 import { CardDropTarget } from 'src/components/CardDropTarget';
 import { default as DiscardIcon } from '../assets/discard.svg?react';
-import { RechargeIndicator } from './RechargeIndicator';
+import { StatusIndicator } from './StatusIndicator';
 import styles from './WeaponSlot.module.css';
 
 export type SlotProps = {
     name: string;
     costToReactivate?: number;
     card: CardInstance | null;
+    noFireReason?: string | null;
 };
 
 type Props = SlotProps & {
@@ -23,19 +24,13 @@ type Props = SlotProps & {
 export const WeaponSlot = (props: Props) => {
     const isRecharging = !!props.costToReactivate;
 
-    const cardDefinition = props.card ? getCardDefinition(props.card.type) : null;
-
-    const rechargeBar = (isRecharging && props.costToReactivate && cardDefinition?.cost) ? (
-        <RechargeIndicator current={cardDefinition.cost - props.costToReactivate} max={cardDefinition.cost} />
-    ) : null;
-
     const cardElement = props.card
         ? (
             <Card className={classNames(styles.card, isRecharging ? styles.rechargingCard : null)} {...props.card} slotted={true} />
         )
         : (
             <CardBase className={styles.card}>
-                <div className={styles.noCardLabel}>No card</div>
+                <div className={styles.noCardLabel}>Drop here</div>
             </CardBase>
         );
 
@@ -43,7 +38,6 @@ export const WeaponSlot = (props: Props) => {
         ? (
             <div className={styles.cardWrapper}>
                 {cardElement}
-                {rechargeBar}
             </div>
         )
         : (
@@ -60,10 +54,13 @@ export const WeaponSlot = (props: Props) => {
         <>
             <div className={styles.slotName}>{props.name}</div>
             {cardWrapper}
-            <Button onClick={props.onFired} className={classNames(styles.button, styles.fireButton)} disabled={!props.card || isRecharging}>
-                Fire
-            </Button>
-            <Button onClick={props.onDeactivate} className={classNames(styles.button, styles.discardButton)} disabled={!props.card}>
+            <StatusIndicator
+                className={styles.statusIndicator}
+                chargeRemaining={props.costToReactivate}
+                totalCharge={props.card ? getCardDefinition(props.card.type).cost : null}
+                cannotFireReason={props.noFireReason}
+            />
+            <Button onClick={props.onDeactivate} className={styles.discardButton} disabled={!props.card}>
                 <DiscardIcon />
             </Button>
         </>

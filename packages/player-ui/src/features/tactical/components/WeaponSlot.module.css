@@ -9,13 +9,13 @@
     grid-template-rows: auto auto auto;
     grid-template-areas:
         "name name"
-        "card fireButton"
+        "card status"
         "card discardButton";
     justify-content: space-evenly;
     gap: 0.5em;
 
-    .button {
-        padding: 1em 0;
+    .discardButton {
+        padding: 0.5em 0;
     }
 
     transition: transform 0.333s ease;
@@ -46,12 +46,12 @@
 
 .noCardLabel {
     font-size: 2em;
+    opacity: 0.4;
 }
 
-.fireButton {
-    grid-area: fireButton;
-    writing-mode: vertical-rl;
-    text-orientation: upright;
+.statusIndicator {
+    grid-area: status;
+    height: 7.5em;
 }
 
 .discardButton {

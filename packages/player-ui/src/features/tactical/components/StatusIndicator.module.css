@@ -1,0 +1,41 @@
+.statusIndicator {
+    letter-spacing: 0.2em;
+    font-weight: bold;
+    padding-left: -0.2em;
+    text-transform: uppercase;
+    overflow: hidden;
+    writing-mode: sideways-lr;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.charging, .needsCharge {
+    background-color: oklch(0.25 0.05 240);    
+    border-color: oklch(0.7 0.2 240);
+    color: oklch(0.9 0.15 240);
+}
+
+.charging {
+    align-items: stretch;
+}
+
+.chargeSegment {
+    flex-grow: 1;
+}
+
+.filledSegment {
+    background-color: oklch(0.7 0.4 240);
+}
+
+.notReady {
+    color: var(--highlight-color);
+    background-color: var(--danger-background);
+    border-color: var(--danger-color);
+}
+
+.ready {
+    color: var(--highlight-color);
+    background-color: var(--primary-color);
+}

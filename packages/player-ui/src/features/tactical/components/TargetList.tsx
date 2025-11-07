@@ -3,25 +3,49 @@ import { CardDropTarget } from 'src/components/CardDropTarget';
 import { Target, TargetInfo } from './Target';
 import styles from './TargetList.module.css';
 
+export type ListTargetInfo = TargetInfo & {
+    slotNoFireReasons: Array<string | null>; // TODO: type this
+};
+
 type Props = {
-    targets: TargetInfo[];
+    targets: ListTargetInfo[];
+    /**
+     * Optional callback that receives the currently visible target based on scroll fraction.
+     */
+    onVisibleTargetChange?: (target: ListTargetInfo) => void;
 };
 
 export const TargetList = (props: Props) => {
+    const { targets, onVisibleTargetChange } = props;
+
+    // Handler for HorizontalScroll's onScrollFractionChange
+    const handleScrollFractionChange = (fraction: number) => {
+        if (!onVisibleTargetChange || targets.length === 0) {
+            return;
+        }
+
+        // Clamp fraction to [0, 1]
+        const clamped = Math.max(0, Math.min(1, fraction));
+        // Compute index (round to nearest)
+        const index = Math.round(clamped * (targets.length - 1));
+        onVisibleTargetChange(targets[index]);
+    };
+
     return (
         <HorizontalScroll
             className={styles.scrollArea}
             contentClassName={styles.content}
             contentRender={<ul />}
             snap={true}
+            onScrollFractionChange={handleScrollFractionChange}
         >
-            {props.targets.map((target, index) => (
+            {targets.map((target, index) => (
                 <CardDropTarget render="li" className={styles.itemWrapper} targetType="enemy" key={target.id} id={target.id}>
                     <Target
                         id={target.id}
                         appearance={target.appearance}
                         targetNumber={index + 1}
-                        totalTargets={props.targets.length}
+                        totalTargets={targets.length}
                     />
                 </CardDropTarget>
             ))}

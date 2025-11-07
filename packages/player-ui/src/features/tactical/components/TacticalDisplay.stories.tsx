@@ -115,7 +115,7 @@ export const UI: Story = {
             },
             {
                 name: 'Weapon slot 2',
-                costToReactivate: 0,
+                costToReactivate: 2,
                 card: {
                     id: 5,
                     type: 'exampleWeaponSlotTarget',
@@ -126,22 +126,27 @@ export const UI: Story = {
             {
                 id: 'Enemy Ship 1',
                 appearance: 'scout',
+                slotNoFireReasons: ['range', 'bearing'],
             },
             {
                 id: 'Enemy Ship 2',
                 appearance: 'starfighter',
+                slotNoFireReasons: [null, 'range'],
             },
             {
                 id: 'Enemy Ship 3',
                 appearance: 'satellite',
+                slotNoFireReasons: [null, null],
             },
             {
                 id: 'Enemy Ship 4',
                 appearance: 'interceptor',
+                slotNoFireReasons: [null, null],
             },
             {
                 id: 'Enemy Ship 5',
                 appearance: 'spaceship',
+                slotNoFireReasons: [null, null],
             },
         ],
         power: 2,
