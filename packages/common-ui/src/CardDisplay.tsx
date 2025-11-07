@@ -21,7 +21,7 @@ type Props = {
 
 export const CardDisplay: FC<Props> = (props) => {
     return (
-        <CardBase className={classNames(styles.card, props.slotted ? styles.slotted : null, crewStyles[props.crew], props.className)}>
+        <CardBase className={classNames(styles.card, crewStyles[props.crew], props.className)}>
             <div className={classNames(styles.image, props.slotted ? styles.noCutouts : styles.cutouts)} role="presentation">{props.image}</div>
             <h3
                 className={styles.name}

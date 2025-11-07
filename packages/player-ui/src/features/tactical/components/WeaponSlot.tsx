@@ -5,6 +5,7 @@ import { classNames } from 'common-ui/classNames';
 import { Button } from 'common-ui/index';
 import { getCardDefinition } from 'common-ui/uiCardDefinitions';
 import { CardDropTarget } from 'src/components/CardDropTarget';
+import { DraggableCard } from 'src/components/DraggableCard';
 import { default as DiscardIcon } from '../assets/discard.svg?react';
 import { StatusIndicator } from './StatusIndicator';
 import styles from './WeaponSlot.module.css';
@@ -21,34 +22,58 @@ type Props = SlotProps & {
     onDeactivate: () => void;
 };
 
-export const WeaponSlot = (props: Props) => {
-    const isRecharging = !!props.costToReactivate;
-
-    const cardElement = props.card
-        ? (
-            <Card className={classNames(styles.card, isRecharging ? styles.rechargingCard : null)} {...props.card} slotted={true} />
-        )
-        : (
-            <CardBase className={styles.card}>
-                <div className={styles.noCardLabel}>Drop here</div>
-            </CardBase>
-        );
-
-    const cardWrapper = props.card
-        ? (
-            <div className={styles.cardWrapper}>
-                {cardElement}
-            </div>
-        )
-        : (
+function getCardWrapper(props: Props, isRecharging: boolean) {
+    if (!props.card) {
+        return (
             <CardDropTarget
                 className={styles.cardWrapper}
                 targetType="weapon-slot"
                 id={props.name}
             >
-                {cardElement}
+                <CardBase className={classNames(styles.card, styles.cardSpace)}>
+                    <div className={styles.noCardLabel}>Drop here</div>
+                </CardBase>
             </CardDropTarget>
         );
+    }
+
+    if (isRecharging) {
+        return (
+            <div className={styles.cardWrapper}>
+                <Card
+                    className={classNames(styles.card, styles.rechargingCard)}
+                    {...props.card}
+                    slotted={true}
+                />
+            </div>
+        );
+    }
+
+    return (
+        <>
+            <div className={styles.cardWrapper}>
+                <CardBase className={classNames(styles.card, styles.cardSpace)}>
+                    <div className={styles.noCardLabel}>Drop here</div>
+                </CardBase>
+            </div>
+            <div className={styles.cardWrapper}>
+                <DraggableCard
+                    index={0}
+                    className={classNames(styles.card)}
+                    {...props.card}
+                    element="div"
+                    targetType="enemy"
+                    slotted={true}
+                />
+            </div>
+        </>
+    );
+}
+
+export const WeaponSlot = (props: Props) => {
+    const isRecharging = !!props.costToReactivate;
+
+    const cardWrapper = getCardWrapper(props, isRecharging);
 
     const content = (
         <>

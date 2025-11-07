@@ -1,0 +1,57 @@
+import { useDraggable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
+import { CardTargetType, CardType } from 'common-types';
+import { CardDisplay } from 'common-ui/CardDisplay';
+import { classNames } from 'common-ui/classNames';
+import { getCardDefinition } from 'common-ui/uiCardDefinitions';
+import { FC } from 'react';
+import { useActiveCard, useIsOverValidTarget } from './DragCardProvider';
+import styles from './DraggableCard.module.css';
+
+type Props = {
+    className?: string;
+    element: 'li' | 'div';
+    id: number;
+    type: CardType;
+    index: number;
+    targetType?: CardTargetType;
+    slotted?: boolean;
+};
+
+export const DraggableCard: FC<Props> = (props) => {
+    const activeCard = useActiveCard();
+    const isOverValidTarget = useIsOverValidTarget();
+
+    const definition = getCardDefinition(props.type);
+
+    const { attributes, listeners, setNodeRef, transform } = useDraggable({
+        id: props.id,
+        data: { id: props.id, targetType: props.targetType ?? definition.targetType },
+    });
+
+    const isBeingDragged = activeCard?.id === props.id;
+    const canDrop = isBeingDragged && isOverValidTarget;
+
+    const Element = props.element;
+
+    return (
+        <Element
+            ref={setNodeRef}
+            className={classNames(
+                styles.card,
+                isBeingDragged ? styles.dragging : null,
+                canDrop ? styles.canDrop : null,
+                props.className
+            )}
+            style={{
+                // @ts-expect-error CSS custom property
+                '--index': props.index,
+                'transform': CSS.Translate.toString(transform),
+            }}
+            {...listeners}
+            {...attributes}
+        >
+            <CardDisplay {...definition} slotted={props.slotted} />
+        </Element>
+    );
+};

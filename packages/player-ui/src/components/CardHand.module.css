@@ -15,7 +15,7 @@
     --midIndex: calc((var(--numCards) - 1) / 2);
 }
 
-.cardWrapper {
+.card {
     position: absolute;
     bottom: 0;
     transition: transform 0.33s ease-in-out, opacity 0.33s ease-in-out;
@@ -28,12 +28,9 @@
     --dy: calc(var(--absMidOffset) * var(--absMidOffset) * 0.2em + 3em);
     --r: calc((var(--index) - (var(--numCards) - 1) / 2) * 5deg);
     --scale: 0.75;
-    pointer-events: all;
-    touch-action: none;
 }
 
-.cardWrapper:focus {
-    outline: none;
+.card:focus {
     --dx: clamp(calc(-50vw + 6.5em), var(--inHandDx), calc(50vw - 6em));
     --dy: -12em;
     --r: 0deg;
@@ -49,14 +46,4 @@
     --r: 0deg;
     --scale: 0.1;
     opacity: 0;
-}
-
-.dragging {
-    opacity: 0.5;
-    transition: opacity 0.33s ease-in-out;
-    z-index: 50;
-}
-
-.canDrop {
-    filter: drop-shadow(0 0 8px rgba(0, 255, 0, 1));
 }
