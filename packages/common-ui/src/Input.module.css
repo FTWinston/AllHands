@@ -1,10 +1,10 @@
 .input {
-  background-color: var(--background-color);
-  border: 1px solid var(--text-color);
-  color: var(--text-color);
+  background-color: var(--grey-darkest);
+  border: 1px solid var(--grey-mid);
+  color: var(--grey-mid);
   padding: 0 0.5em;
 }
 
 .input:focus {
-  color: var(--highlight-color);
+  color: var(--grey-lightest);
 }

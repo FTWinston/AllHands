@@ -1,5 +1,4 @@
 .weaponSlots {
-    /*height: 25dvh;*/
     display: flex;
     justify-content: space-evenly;
 }

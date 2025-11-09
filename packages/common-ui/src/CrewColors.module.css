@@ -1,21 +1,39 @@
 .helm {
-    --primary-color: oklch(0.656 0.147 155.43);
+    --primary-darkest-muted: oklch(0.322 0.01 155);
+    --primary-darkest: oklch(0.322 0.05 155);
+    --primary-dark: oklch(0.4 0.13 155);
+    --primary-mid: oklch(0.51 0.25 155);
+    --primary-light: oklch(0.65 0.25 155);
+    --primary-lightest: oklch(0.9 0.147 155);
 }
 
 .tactical {
-    --primary-color: oklch(0.656 0.147 90);
+    --primary-darkest-muted: oklch(0.322 0.01 90);
+    --primary-darkest: oklch(0.322 0.05 90);
+    --primary-dark: oklch(0.4 0.13 90);
+    --primary-mid: oklch(0.56 0.12 90);
+    --primary-light: oklch(0.75 0.14 90);
+    --primary-lightest: oklch(0.9 0.147 90);
 }
 
 .sensors {
-    --primary-color: oklch(0.656 0.147 260.12);
+    --primary-darkest-muted: oklch(0.322 0.01 260);
+    --primary-darkest: oklch(0.322 0.05 260);
+    --primary-dark: oklch(0.4 0.13 260);
+    --primary-mid: oklch(0.575 0.2 260);
+    --primary-light: oklch(0.75 0.25 260);
+    --primary-lightest: oklch(0.9 0.147 260);
 }
 
 .engineer {
-    --primary-color: oklch(0.656 0.147 292);
+    --primary-darkest-muted: oklch(0.322 0.01 292);
+    --primary-darkest: oklch(0.322 0.05 292);
+    --primary-dark: oklch(0.4 0.13 292);
+    --primary-mid: oklch(0.585 0.2 292);
+    --primary-light: oklch(0.75 0.2 292);
+    --primary-lightest: oklch(0.9 0.147 292);
 }
 
-.helm, .tactical, .sensors, .engineer {
-    --primary-highlight: color-mix(in srgb, var(--primary-color) 60%, var(--highlight-color));
-    --primary-dark: color-mix(in srgb, var(--primary-color) 40%, var(--background-color));
-    --primary-background: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
+.engineer, .helm, .sensors, .tactical {
+    --primary-darkest-muted: color-mix(in srgb, var(--primary-darkest) 50%, var(--grey-darkest));
 }

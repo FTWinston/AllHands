@@ -170,15 +170,15 @@ export const UI: Story = {
         cards: [
             {
                 id: 1,
-                type: 'exampleLocationTarget',
+                type: 'exampleSystemTarget',
             },
             {
                 id: 2,
-                type: 'exampleLocationTarget',
+                type: 'exampleSystemTarget',
             },
             {
                 id: 3,
-                type: 'exampleLocationTarget',
+                type: 'exampleSystemTarget',
             },
         ],
         systems: [

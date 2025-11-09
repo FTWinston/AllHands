@@ -48,22 +48,45 @@ ul, ol {
 }
 
 ::selection {
-  background-color: var(--primary-color);
+  background-color: var(--primary-mid);
 }
 
 :root {
     user-select: none;
-    --background-color: oklch(0.3211 0 0);
-    --text-color: oklch(0.7921 0 0);
-    --highlight-color: oklch(1 0 0);
-    --primary-color: oklch(0.5132 0.147 277.61);
-    --primary-highlight: color-mix(in srgb, var(--primary-color) 60%, var(--highlight-color));
-    --primary-dark: color-mix(in srgb, var(--primary-color) 40%, var(--background-color));
-    --primary-background: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
-    --main-font-family: 'Jura', sans-serif;
-    --danger-color: oklch(0.5 0.147 10);
-    --danger-background: oklch(0.25 0.147 10);
+    --grey-darkest: oklch(0.322 0 0);
+    --grey-dark: oklch(0.4 0 0);
+    --grey-mid: oklch(0.7 0 0);
+    --grey-light: oklch(0.82 0 0);
+    --grey-lightest: oklch(1 0 0);
+    
+    --primary-darkest-muted: color-mix(in srgb, var(--primary-darkest) 50%, var(--grey-darkest));
+    --primary-darkest: oklch(0.322 0.05 277);
+    --primary-dark: oklch(0.4 0.13 277);
+    --primary-mid: oklch(0.58 0.2 277);
+    --primary-light: oklch(0.75 0.147 277);
+    --primary-lightest: oklch(0.9 0.147 277);
+   
+    --danger-darkest: oklch(0.18 0.25 10);
+    --danger-dark: oklch(0.3 0.25 10);
+    --danger-mid: oklch(0.5 0.147 10);
+    --danger-light: oklch(0.715 0.25 10);
+    --danger-lightest: oklch(0.9 0.2 10);
 
-    background-color: var(--background-color);
-    color: var(--text-color);
+    --good-darkest: oklch(0.25 0.25 148);
+    --good-dark: oklch(0.34 0.25 148);
+    --good-mid: oklch(0.53 0.22 148);
+    --good-light: oklch(0.8 0.18 148);
+    --good-lightest: oklch(0.9 0.12 148);
+
+    --energy-darkest: oklch(0.30 0.0917 200);
+    --energy-dark: oklch(0.345 0.25 200);
+    --energy-mid: oklch(0.496 0.25 200);
+    --energy-light: oklch(0.8 0.22 200);
+    --energy-lightest: oklch(0.9 0.09 200);
+
+    --lightest-contrast-dark: oklch(0 0 0);
+
+    --main-font-family: 'Jura', sans-serif;
+    background-color: var(--grey-darkest);
+    color: var(--grey-mid);
 }

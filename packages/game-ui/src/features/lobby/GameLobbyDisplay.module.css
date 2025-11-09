@@ -16,7 +16,7 @@
 }
 
 .url {
-    color: var(--highlight-color);
+    color: var(--grey-lightest);
 }
 
 .qrCodeContainer {
@@ -51,7 +51,7 @@
 }
 
 .numUnassigned {
-    color: var(--highlight-color);
+    color: var(--grey-lightest);
 }
 
 .footer {

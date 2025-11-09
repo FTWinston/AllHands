@@ -1,6 +1,6 @@
 .role {
-    background-color: var(--primary-color);
-    color: var(--highlight-color);
+    background-color: var(--primary-mid);
+    color: var(--grey-lightest);
     border-radius: 1em;
     corner-shape: squircle;
     padding: 0.5em 1em;
@@ -40,7 +40,7 @@
 }
 
 .role.occupied .state {
-    color: var(--text-color);
+    color: var(--grey-mid);
 }
 
 .icon {

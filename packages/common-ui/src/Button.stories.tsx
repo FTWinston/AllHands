@@ -20,6 +20,8 @@ type Story = StoryObj<typeof meta>;
 export const Basic: Story = {
     args: {
         children: 'Button',
+        palette: 'primary',
+        disabled: false,
     },
 };
 

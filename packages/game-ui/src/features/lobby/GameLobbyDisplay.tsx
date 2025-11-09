@@ -53,7 +53,7 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                             className={styles.qrCode}
                             value={serverUrl}
                             size={256}
-                            bgColor="var(--text-color)"
+                            bgColor="var(--grey-mid)"
                         />
                         {props.isFull && <div className={styles.fullSize}>🚫</div>}
                     </div>

@@ -1,4 +1,5 @@
 import { classNames } from 'common-ui/classNames';
+import { ColorPalette } from 'common-ui/ColorPalette';
 import { InfoPopup } from 'common-ui/InfoPopup';
 import React from 'react';
 import styles from './StatusIndicator.module.css';
@@ -13,6 +14,7 @@ export interface Props {
 export const StatusIndicator: React.FC<Props> = (props) => {
     let content;
     let stateClass;
+    let palette: ColorPalette | undefined;
     let heading;
     let description;
 
@@ -22,7 +24,6 @@ export const StatusIndicator: React.FC<Props> = (props) => {
             const numFilledSegments = Math.max(0, Math.min(numSegments, props.totalCharge - props.chargeRemaining));
 
             if (numFilledSegments === 0) {
-                stateClass = styles.needsCharge;
                 heading = 'Needs charged';
                 content = 'charge';
             } else {
@@ -40,20 +41,20 @@ export const StatusIndicator: React.FC<Props> = (props) => {
                 ));
             }
             description = <>Drag other cards onto this weapon slot to charge it up.</>;
+            palette = 'energy';
         } else if (props.cannotFireReason) {
             content = props.cannotFireReason;
-            stateClass = styles.notReady;
             heading = 'Unable to fire';
             description = <>Target is out of weapon range.</>;
+            palette = 'danger';
         } else {
             content = 'ready';
-            stateClass = styles.ready;
             heading = 'Ready to fire';
             description = <>Drag this slot's card onto the current target to fire.</>;
+            palette = 'good';
         }
     } else {
         content = 'no card';
-        stateClass = styles.empty;
         heading = 'Empty slot';
         description = <>Drag a card into this weapon slot to be able to fire it.</>;
     }
@@ -63,6 +64,7 @@ export const StatusIndicator: React.FC<Props> = (props) => {
             className={classNames(props.className, styles.statusIndicator, stateClass)}
             name={heading}
             description={description}
+            palette={palette}
         >
             {content}
         </InfoPopup>

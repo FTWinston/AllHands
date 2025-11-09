@@ -1,4 +1,6 @@
 import { ShipAppearance } from 'common-types';
+import { classNames } from 'common-ui/classNames';
+import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { ShipIcon } from 'common-ui/icons/ships';
 import styles from './Target.module.css';
 
@@ -14,7 +16,7 @@ type Props = TargetInfo & {
 
 export const Target = (props: Props) => {
     return (
-        <div className={styles.target}>
+        <div className={classNames(styles.target, colorPalettes.primary)}>
             <h2 className={styles.name}>{props.id}</h2>
             <div className={styles.count}>
                 #

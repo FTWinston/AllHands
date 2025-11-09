@@ -1,8 +1,8 @@
 .system {
     border-radius: 1.5em;
     corner-shape: squircle;
-    border: solid 0.1em var(--primary-color);
-    background-color: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
+    border: solid 0.1em var(--primary-mid);
+    background-color: var(--primary-darkest-muted);
     padding: 0.25em 0.5em 0.5em 0.5em;
     justify-self: stretch;
     align-self: stretch;
@@ -49,7 +49,7 @@
 
 .image {
     height: 1em;
-    color: var(--primary-highlight);
+    color: var(--primary-light);
 }
 
 .attributes {
@@ -65,19 +65,20 @@
     align-items: baseline;
     flex-wrap: auto;
     gap: 0.25em;
+    color: var(--grey-light);
 }
 
 .attributeValue {
     font-weight: bold;
     font-size: 1.5em;
-    color: var(--highlight-color);
+    color: var(--grey-lightest);
 }
 
 .attributeIcon {
     width: 1.5em;
     height: 1.5em;
     flex-shrink: 0;
-    color: var(--primary-color);
+    color: var(--primary-light);
     align-self: center;
 }
 

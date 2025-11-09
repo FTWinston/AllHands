@@ -1,8 +1,8 @@
 .target {
     aspect-ratio: 1 / 1;
     height: min(calc(100vw - var(--scroll-padding) * 2), calc(50dvh - 4em));
-    background-color: color-mix(in srgb, var(--primary-color) 10%, var(--background-color));
-    border: solid var(--primary-color) 0.1em;
+    background-color: var(--primary-darkest-muted);
+    border: solid var(--color-mid) 0.1em;
     border-radius: 3em;
     corner-shape: squircle;
     padding: 0.5em 1em;
@@ -19,6 +19,7 @@
 .name {
     font-size: 1.25em;
     grid-area: name;
+    color: var(--grey-light);
 }
 
 .count {
@@ -29,5 +30,5 @@
 .image {
     grid-area: image;
     object-fit: contain;
-    color: var(--primary-highlight);
+    color: var(--color-lightest);
 }

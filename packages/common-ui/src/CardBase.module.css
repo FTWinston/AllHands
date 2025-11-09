@@ -1,11 +1,11 @@
 .card {
   width: 11.2em;
   height: 16em;
-  border: solid var(--text-color) 0.2em;
+  border: solid var(--grey-mid) 0.2em;
   padding: 0.667em;
   border-radius: 1.5em;
   corner-shape: squircle;
   transition: border-color 0.2s linear;
-  background-color: oklch(from var(--primary-color) 0.3 0.03 h);
+  background-color: var(--primary-darkest-muted);
   position: relative;
 }

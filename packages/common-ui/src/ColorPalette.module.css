@@ -1,0 +1,31 @@
+.primary {
+    --color-darkest: var(--primary-darkest);
+    --color-dark: var(--primary-dark);
+    --color-mid: var(--primary-mid);
+    --color-light: var(--primary-light);
+    --color-lightest: var(--primary-lightest);
+}
+
+.danger {
+    --color-darkest: var(--danger-darkest);
+    --color-dark: var(--danger-dark);
+    --color-mid: var(--danger-mid);
+    --color-light: var(--danger-light);
+    --color-lightest: var(--danger-lightest);
+}
+
+.good {
+    --color-darkest: var(--good-darkest);
+    --color-dark: var(--good-dark);
+    --color-mid: var(--good-mid);
+    --color-light: var(--good-light);
+    --color-lightest: var(--good-lightest);
+}
+
+.energy {
+    --color-darkest: var(--energy-darkest);
+    --color-dark: var(--energy-dark);
+    --color-mid: var(--energy-mid);
+    --color-light: var(--energy-light);
+    --color-lightest: var(--energy-lightest);
+}

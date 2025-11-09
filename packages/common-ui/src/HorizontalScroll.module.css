@@ -16,7 +16,7 @@
 .scrollbar {
     display: flex;
     justify-content: flex-start;
-    background-color: color-mix(in srgb, var(--text-color) 20%, transparent);
+    background-color: color-mix(in srgb, var(--grey-mid) 20%, transparent);
     height: 0.5em;
     border-radius: 0.25em;
     overflow: hidden;
@@ -43,5 +43,5 @@
 .thumb {
     height: 100%;
     border-radius: inherit;
-    background-color: var(--primary-color);
+    background-color: var(--primary-mid);
 }

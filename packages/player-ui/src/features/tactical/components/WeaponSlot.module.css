@@ -1,5 +1,5 @@
 .weaponSlot {
-    background-color: var(--primary-background);
+    background-color: var(--primary-darkest);
     padding: 0.125em 0.5em 0.5em 0.5em;
     border-radius: 0.75em;
     border-shape: squircle;
@@ -25,6 +25,7 @@
     font-size: 0.95em;
     text-align: center;
     grid-area: name;
+    color: var(--grey-light);
 }
 
 .cardWrapper {
@@ -41,7 +42,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: solid var(--primary-color) 0.1em;
+    border: solid var(--primary-mid) 0.1em;
 }
 
 .noCardLabel {
@@ -56,5 +57,5 @@
 
 .discardButton {
     grid-area: discardButton;
-    background-color: var(--danger-color);
+    background-color: var(--danger-mid);
 }

@@ -11,8 +11,8 @@
   padding: 0.5em 1em;
   line-height: 1;
   font-family: var(--main-font-family);
-  background-color: color-mix(in srgb, var(--primary-color) 80%, transparent);
-  color: var(--highlight-color);
+  background-color: var(--color-mid);
+  color: var(--grey-lightest);
   transition: background-color 0.2s ease;
 }
 
@@ -21,7 +21,8 @@
 }
 
 .button:active, .button[aria-expanded="true"] {
-  background-color: var(--primary-color);
+  background-color: var(--color-light);
+  color: var(--lightest-contrast-dark);
 }
 
 .button:focus {
@@ -32,7 +33,7 @@
 .button:disabled {
   box-shadow: rgba(255, 255, 255, 0.15) 0px 0px 0px 1px inset;
   background-color: transparent;
-  color: var(--text-color);
+  color: var(--grey-mid);
   cursor: not-allowed;
 }
 

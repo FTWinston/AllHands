@@ -18,6 +18,6 @@
         border-radius: inherit;
         corner-shape: inherit;
         inset: 0.2em;
-        background-color: var(--primary-background);
+        background-color: var(--color-darkest);
     }
 }

@@ -5,7 +5,7 @@
 
 .menuButton {
     padding: 0.25em;
-    color: var(--text-color);
+    color: var(--grey-mid);
     transition: color 0.2s ease;
 }
 
@@ -14,7 +14,7 @@
 }
 
 .menuButton:hover:not(:disabled), .menuButton:active:not(:disabled) {
-    color: var(--highlight-color);
+    color: var(--grey-lightest);
 }
 
 .childrenWrapper {

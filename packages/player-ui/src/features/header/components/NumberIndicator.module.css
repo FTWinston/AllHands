@@ -16,30 +16,26 @@
     gap: 0.25em;
 }
 
-.indicatorText {
-    color: var(--text-color);
-}
-
 .currentValue, .maxValue {
     font-weight: bold;
-    color: var(--highlight-color);
+    color: var(--grey-lightest);
 }
 
 .icon {
     width: 2em;
     height: 2em;
     flex-shrink: 0;
-    color: var(--primary-color);
+    color: var(--color-light);
 }
 
 .progress {
     z-index: 0;
-    color: var(--primary-highlight);
+    color: var(--color-lightest);
 }
 
 .separator {
     width: 1px;
-    background-color: var(--primary-color);
+    background-color: var(--color-mid);
     height: 1.5em;
     opacity: 0.5;
     transform: rotate(10deg);

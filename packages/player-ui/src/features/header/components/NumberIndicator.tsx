@@ -1,5 +1,4 @@
 import { Cooldown } from 'common-types';
-import { classNames } from 'common-ui/index';
 import { InfoPopup } from 'common-ui/InfoPopup';
 import { RadialProgress } from 'common-ui/RadialProgress';
 import { FC, JSX } from 'react';
@@ -72,7 +71,7 @@ export const NumberIndicator: FC<Props> = (props) => {
             <div className={styles.indicator}>
                 <ValueIcon className={styles.icon} />
 
-                <div className={classNames(styles.indicatorText, styles.currentValue)}>
+                <div className={styles.currentValue}>
                     {props.value}
                 </div>
             </div>
@@ -82,7 +81,7 @@ export const NumberIndicator: FC<Props> = (props) => {
             <div className={styles.indicator}>
                 <MaxIcon className={styles.icon} />
 
-                <div className={classNames(styles.indicatorText, styles.maxValue)}>
+                <div className={styles.maxValue}>
                     {props.maxValue}
                 </div>
             </div>

@@ -21,12 +21,12 @@ type Props = SystemEffect & {
 
 export const EffectIndicator = (props: Props) => {
     const Icon = props.icon;
-
     return (
         <InfoPopup
-            className={classNames(styles.effect, props.positive ? styles.positive : styles.negative, props.hidden ? styles.hidden : undefined, props.className)}
+            className={classNames(styles.effect, props.hidden ? styles.hidden : undefined, props.className)}
             name={props.name}
             description={props.description}
+            palette={props.positive ? 'good' : 'danger'}
         >
             <Icon className={styles.icon} />
 

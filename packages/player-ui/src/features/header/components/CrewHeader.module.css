@@ -2,8 +2,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--primary-background);
-    border-bottom: solid var(--primary-color) 2px;
+    background-color: var(--primary-darkest);
+    border-bottom: solid var(--primary-mid) 2px;
     font-size: 1em;
     gap: 1em;
     padding: 0.25em 1em 0.25em 0.25em;
@@ -22,7 +22,7 @@ button.menuButton {
     display: flex;
     gap: 0.75em;
     align-items: center;
-    color: var(--primary-color);
+    color: var(--primary-light);
 }
 
 .titleIcon {

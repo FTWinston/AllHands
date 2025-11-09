@@ -23,9 +23,9 @@
   padding: 1.5rem;
   border-radius: 3em;
   corner-shape: squircle;
-  outline: 1px solid var(--primary-color);
-  background-color: var(--background-color);
-  color: var(--highlight-color);
+  outline: 1px solid var(--primary-mid);
+  background-color: var(--grey-darkest);
+  color: var(--grey-lightest);
   transition: all 150ms;
 
   &[data-starting-style],

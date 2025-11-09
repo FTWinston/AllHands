@@ -1,25 +1,27 @@
 .item {
     outline: 0;
-    border: 0.1em solid var(--primary-dark);
+    border: 0.1em solid var(--color-dark);
     corner-shape: squircle;
     border-radius: 1em;
-    color: var(--text-color);
+    color: var(--color-lightest);
     user-select: none;
+    background-color: var(--color-dark);
 
     @media (hover: hover) {
         &:hover {
-            background-color: var(--primary-background);
+            background-color: var(--color-darkest);
+            color: var(--grey-lightest);
         }
     }
 
     &:active, &[data-popup-open] {
-        border-color: var(--primary-color);
-        background-color: var(--primary-background);
+        outline: 1px solid var(--color-light);
+        background-color: var(--color-darkest);
         z-index: 1;
     }
 
     &:focus-visible {
-        outline: 2px solid var(--color-primary);
+        outline: 2px solid var(--color-light);
         outline-offset: -1px;
     }
 }
@@ -28,7 +30,7 @@
     corner-shape: squircle;
     padding: 1em 1.5em;
     border-radius: 0.5em;
-    background-color: var(--primary-background);
+    background-color: var(--primary-darkest);
     transition:
         transform 150ms,
         opacity 150ms;
@@ -39,7 +41,7 @@
         transform: scale(0.9);
     }
 
-    outline: 0.1em solid var(--primary-color);
+    outline: 0.1em solid var(--primary-mid);
     outline-offset: -0.1em;
     max-width: 80vw;
 }
@@ -48,8 +50,8 @@
     width: 1em;
     height: 9px;
     top: -8px;
-    background-color: var(--primary-background);
-    border: solid var(--primary-color) 0.1em;
+    background-color: var(--primary-darkest);
+    border: solid var(--primary-mid) 0.1em;
     border-bottom: none;
     corner-shape: bevel;
     border-top-left-radius: 1em;
@@ -61,14 +63,14 @@
     font-size: 1rem;
     line-height: 1.5rem;
     font-weight: 500;
-    color: var(--highlight-color);
+    color: var(--grey-lightest);
 }
 
 .description {
     margin: 0;
     font-size: 1rem;
     line-height: 1.5rem;
-    color: var(--text-color);
+    color: var(--grey-mid);
 }
 
 .popup svg {
@@ -76,7 +78,7 @@
     height: 1em;
     display: inline;
     vertical-align: middle;
-    color: var(--highlight-color);
+    color: var(--grey-lightest);
 }
 
 .backdrop {

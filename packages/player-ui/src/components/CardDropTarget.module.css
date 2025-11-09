@@ -7,11 +7,11 @@
 }
 
 .dropping:not(.noSpecificTarget) {
-    outline: solid var(--highlight-color) 0.25em;
+    outline: solid var(--grey-lightest) 0.25em;
 }
 
 .couldDrop:not(.noSpecificTarget) {
-    outline: solid var(--primary-color) 0.25em;
+    outline: solid var(--primary-mid) 0.25em;
 }
 
 .noSpecificTarget {
