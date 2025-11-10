@@ -57,5 +57,4 @@
 
 .discardButton {
     grid-area: discardButton;
-    background-color: var(--danger-mid);
 }

@@ -5,7 +5,7 @@
     border-radius: 1em;
     color: var(--color-lightest);
     user-select: none;
-    background-color: var(--color-dark);
+    background-color: var(--color-darkest);
 
     @media (hover: hover) {
         &:hover {

@@ -85,7 +85,7 @@ export const WeaponSlot = (props: Props) => {
                 totalCharge={props.card ? getCardDefinition(props.card.type).cost : null}
                 cannotFireReason={props.noFireReason}
             />
-            <Button onClick={props.onDeactivate} className={styles.discardButton} disabled={!props.card}>
+            <Button onClick={props.onDeactivate} className={styles.discardButton} palette="danger" disabled={!props.card}>
                 <DiscardIcon />
             </Button>
         </>
