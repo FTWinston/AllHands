@@ -39,10 +39,6 @@
   opacity: 0.333;
 }
 
-.role.occupied .state {
-    color: var(--grey-mid);
-}
-
 .icon {
   font-size: 1.25em;
   max-width: 1em;

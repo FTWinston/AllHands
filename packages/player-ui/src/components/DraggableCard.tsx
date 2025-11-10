@@ -10,7 +10,6 @@ import styles from './DraggableCard.module.css';
 
 type Props = {
     className?: string;
-    element: 'li' | 'div';
     id: number;
     type: CardType;
     index: number;
@@ -32,10 +31,8 @@ export const DraggableCard: FC<Props> = (props) => {
     const isBeingDragged = activeCard?.id === props.id;
     const canDrop = isBeingDragged && isOverValidTarget;
 
-    const Element = props.element;
-
     return (
-        <Element
+        <div
             ref={setNodeRef}
             className={classNames(
                 styles.card,
@@ -52,6 +49,6 @@ export const DraggableCard: FC<Props> = (props) => {
             {...attributes}
         >
             <CardDisplay {...definition} slotted={props.slotted} />
-        </Element>
+        </div>
     );
 };

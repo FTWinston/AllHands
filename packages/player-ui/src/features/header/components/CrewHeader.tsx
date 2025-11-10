@@ -33,7 +33,7 @@ export const CrewHeader: FC<Props> = (props) => {
                 <Menu.Root>
                     <Menu.Trigger
                         render={(
-                            <Button className={styles.menuButton}>
+                            <Button className={styles.menuButton} title="Menu">
                                 <MenuIcon className={styles.menuButtonIcon} />
                             </Button>
                         )}

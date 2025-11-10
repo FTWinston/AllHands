@@ -9,6 +9,7 @@ import { CardTargetIcon } from './icons/cardTargetTypes';
 type Props = {
     className?: string;
     slotted?: boolean;
+    disabled?: boolean;
     name: string;
     crew: CrewRoleName;
     targetType: CardTargetType;
@@ -21,7 +22,12 @@ type Props = {
 
 export const CardDisplay: FC<Props> = (props) => {
     return (
-        <CardBase className={classNames(styles.card, crewStyles[props.crew], props.className)}>
+        <CardBase className={classNames(
+            styles.card,
+            crewStyles[props.crew],
+            props.disabled ? styles.disabled : undefined,
+            props.className)}
+        >
             <div className={classNames(styles.image, props.slotted ? styles.noCutouts : styles.cutouts)} role="presentation">{props.image}</div>
             <h3
                 className={styles.name}

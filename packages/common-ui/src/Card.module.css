@@ -6,6 +6,10 @@
   gap: 0.25em;
 }
 
+.disabled {
+  border: solid var(--grey-dark) 0.2em !important;
+}
+
 .image {
   background-color: var(--grey-darkest);
   overflow: hidden;
@@ -37,7 +41,7 @@
   line-height: 1em;
 }
 
-.card:hover {
+.card:not(.disabled):hover {
   border-color: var(--grey-lightest);
   .name {
     color: var(--grey-lightest);

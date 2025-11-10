@@ -7,6 +7,7 @@ type Props = {
     type: CardType;
     className?: string;
     slotted?: boolean;
+    disabled?: boolean;
 };
 
 export const Card: FC<Props> = (props) => {
@@ -17,6 +18,7 @@ export const Card: FC<Props> = (props) => {
             {...definition}
             className={props.className}
             slotted={props.slotted}
+            disabled={props.disabled}
         />
     );
 };

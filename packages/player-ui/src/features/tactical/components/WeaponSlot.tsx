@@ -41,9 +41,10 @@ function getCardWrapper(props: Props, isRecharging: boolean) {
         return (
             <div className={styles.cardWrapper}>
                 <Card
-                    className={classNames(styles.card, styles.rechargingCard)}
+                    className={styles.card}
                     {...props.card}
                     slotted={true}
+                    disabled={true}
                 />
             </div>
         );
@@ -61,7 +62,6 @@ function getCardWrapper(props: Props, isRecharging: boolean) {
                     index={0}
                     className={classNames(styles.card)}
                     {...props.card}
-                    element="div"
                     targetType="enemy"
                     slotted={true}
                 />
@@ -85,7 +85,13 @@ export const WeaponSlot = (props: Props) => {
                 totalCharge={props.card ? getCardDefinition(props.card.type).cost : null}
                 cannotFireReason={props.noFireReason}
             />
-            <Button onClick={props.onDeactivate} className={styles.discardButton} palette="danger" disabled={!props.card}>
+            <Button
+                onClick={props.onDeactivate}
+                className={styles.discardButton}
+                palette="danger"
+                title="Remove card"
+                disabled={!props.card}
+            >
                 <DiscardIcon />
             </Button>
         </>

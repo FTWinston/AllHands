@@ -33,6 +33,7 @@ export const EffectIndicator = (props: Props) => {
             <RadialProgress
                 className={styles.progress}
                 progress={props.duration}
+                title={`${props.name} progress`}
             />
         </InfoPopup>
     );

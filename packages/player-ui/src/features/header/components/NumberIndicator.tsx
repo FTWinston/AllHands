@@ -90,6 +90,7 @@ export const NumberIndicator: FC<Props> = (props) => {
                 className={styles.progress}
                 progress={props.generation}
                 visualAdjustment={adjustProgressForIndicatorShape}
+                title={`${props.name} generation`}
             />
         </InfoPopup>
     );

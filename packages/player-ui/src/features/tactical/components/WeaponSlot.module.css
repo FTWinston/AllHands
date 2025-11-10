@@ -34,10 +34,6 @@
     position: relative;
 }
 
-.rechargingCard {
-    opacity: 0.5;
-}
-
 .cardSpace {
     display: flex;
     align-items: center;
@@ -47,7 +43,7 @@
 
 .noCardLabel {
     font-size: 2em;
-    opacity: 0.4;
+    color: var(--grey-mid);
 }
 
 .statusIndicator {

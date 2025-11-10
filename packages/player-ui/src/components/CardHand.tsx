@@ -13,7 +13,7 @@ export const CardHand: FC<Props> = ({ cards }) => {
     const { knownItems: knownCards, currentItemIds: inHandCardIds, removingItemIds: removingCardIds } = useArrayChanges(cards);
 
     return (
-        <ul
+        <div
             className={styles.hand}
             style={{
                 // @ts-expect-error CSS custom property
@@ -24,7 +24,6 @@ export const CardHand: FC<Props> = ({ cards }) => {
                 <DraggableCard
                     key={card.id}
                     id={card.id}
-                    element="li"
                     type={card.type}
                     index={index}
                     className={classNames(
@@ -33,6 +32,6 @@ export const CardHand: FC<Props> = ({ cards }) => {
                     )}
                 />
             ))}
-        </ul>
+        </div>
     );
 };
