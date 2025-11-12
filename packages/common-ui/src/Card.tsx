@@ -1,7 +1,7 @@
 import { CardType } from 'common-types';
 import { FC } from 'react';
 import { CardDisplay } from './CardDisplay';
-import { getCardDefinition } from './uiCardDefinitions';
+import { getCardDefinition } from './getCardDefinition';
 
 type Props = {
     type: CardType;

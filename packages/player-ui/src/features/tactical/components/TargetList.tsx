@@ -1,3 +1,4 @@
+import { Vulnerability } from 'common-types';
 import { HorizontalScroll } from 'common-ui/HorizontalScroll';
 import { CardDropTarget } from 'src/components/CardDropTarget';
 import { Target, TargetInfo } from './Target';
@@ -9,14 +10,14 @@ export type ListTargetInfo = TargetInfo & {
 
 type Props = {
     targets: ListTargetInfo[];
-    /**
-     * Optional callback that receives the currently visible target based on scroll fraction.
-     */
-    onVisibleTargetChange?: (target: ListTargetInfo) => void;
+    visibleTarget: ListTargetInfo | null;
+    onVisibleTargetChange: (target: ListTargetInfo) => void;
+    selectedVulnerability: Vulnerability | null;
+    onSelectVulnerability: (vulnerability: Vulnerability | null) => void;
 };
 
 export const TargetList = (props: Props) => {
-    const { targets, onVisibleTargetChange } = props;
+    const { targets, visibleTarget, onVisibleTargetChange } = props;
 
     // Handler for HorizontalScroll's onScrollFractionChange
     const handleScrollFractionChange = (fraction: number) => {
@@ -44,6 +45,9 @@ export const TargetList = (props: Props) => {
                     <Target
                         id={target.id}
                         appearance={target.appearance}
+                        vulnerabilities={target.vulnerabilities}
+                        selectedVulnerability={target === visibleTarget ? props.selectedVulnerability : null}
+                        selectVulnerability={target === visibleTarget ? props.onSelectVulnerability : undefined}
                         targetNumber={index + 1}
                         totalTargets={targets.length}
                     />

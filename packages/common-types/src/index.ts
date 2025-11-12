@@ -10,5 +10,6 @@ export * from './ServerAddress.js';
 export * from './ShipAppearance.js';
 export * from './ShipSystem.js';
 export * from './cardDefinitions.js';
+export * from './Vulnerability.js';
 export const roomIdentifier = 'game';
 export const soloCrewIdentifier = 'x';

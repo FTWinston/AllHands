@@ -1,4 +1,4 @@
-import { getCardDefinition } from 'common-ui/uiCardDefinitions';
+import { getCardDefinition } from 'common-ui/getCardDefinition';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
@@ -137,16 +137,19 @@ export const UI: Story = {
                 id: 'Enemy Ship 3',
                 appearance: 'satellite',
                 slotNoFireReasons: [null, null],
+                vulnerabilities: ['engine'],
             },
             {
                 id: 'Enemy Ship 4',
                 appearance: 'interceptor',
                 slotNoFireReasons: [null, null],
+                vulnerabilities: ['shields', 'weapons'],
             },
             {
                 id: 'Enemy Ship 5',
                 appearance: 'spaceship',
                 slotNoFireReasons: [null, null],
+                vulnerabilities: ['shields', 'weapons', 'engine'],
             },
         ],
         power: 2,

@@ -7,13 +7,15 @@
     corner-shape: squircle;
     padding: 0.5em 1em;
 
+    position: relative;
     display: grid;
     grid-template-columns: 1fr 3.5em;
-    grid-template-rows: 1.5em 1fr;
+    grid-template-rows: 1.5em 1fr 4em;
 
     grid-template-areas:
         "name count"
-        "image image";
+        "image image"
+        "vulnerabilities vulnerabilities";
 }
 
 .name {
@@ -31,4 +33,13 @@
     grid-area: image;
     object-fit: contain;
     color: var(--color-lightest);
+    height: 100%;
+    justify-self: center;
+}
+
+.vulnerabilities {
+    grid-area: vulnerabilities;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
 }

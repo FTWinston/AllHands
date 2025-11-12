@@ -1,7 +1,7 @@
-import { CardInstance, CardTargetType } from 'common-types';
+import { CardInstance, CardTargetType, Vulnerability } from 'common-types';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/Screen';
-import { ComponentProps, useMemo, useState } from 'react';
+import { ComponentProps, useEffect, useMemo, useState } from 'react';
 import { DragCardProvider } from 'src/components/DragCardProvider';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CardHand } from '../../../components/CardHand';
@@ -26,6 +26,13 @@ export const TacticalDisplay = (props: Props) => {
     useRootClassName(crewStyles.tactical);
 
     const [currentTarget, setCurrentTarget] = useState<ListTargetInfo | null>(null);
+    const [currentVulnerability, setCurrentVulnerability] = useState<Vulnerability | null>(null);
+
+    useEffect(() => {
+        if (currentTarget === null) {
+            setCurrentVulnerability(null);
+        }
+    }, [currentTarget]);
 
     const slotsWithTargetState = useMemo<SlotProps[]>(
         () => slots.map((slot, index) => ({
@@ -45,7 +52,10 @@ export const TacticalDisplay = (props: Props) => {
 
                 <TargetList
                     targets={targets}
+                    visibleTarget={currentTarget}
                     onVisibleTargetChange={setCurrentTarget}
+                    selectedVulnerability={currentVulnerability}
+                    onSelectVulnerability={setCurrentVulnerability}
                 />
 
                 <WeaponSlots
