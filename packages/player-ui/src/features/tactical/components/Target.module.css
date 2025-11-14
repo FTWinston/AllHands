@@ -33,8 +33,17 @@
     grid-area: image;
     object-fit: contain;
     color: var(--color-lightest);
-    height: 100%;
     justify-self: center;
+     /* Allow smooth transitions between the default (overflowing) size and the reduced size.
+         Use max-height because height:auto is not animatable; give a bit of extra so the
+         default state visually appears to overflow the allocated area. */
+     max-height: calc(100% + 4em);
+     transition: max-height 250ms ease-in-out;
+     will-change: max-height;
+}
+
+.hasVulnerabilities .image {
+     max-height: 100%;
 }
 
 .imageWithSelectedVulnerability {

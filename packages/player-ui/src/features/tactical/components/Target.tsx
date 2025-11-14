@@ -26,7 +26,12 @@ export const Target = (props: Props) => {
         <CardDropTarget
             targetType="enemy"
             id={props.id}
-            className={classNames(styles.target, colorPalettes.primary, props.selectedVulnerability ? styles.vulnerabilitySelected : null)}
+            className={classNames(
+                styles.target,
+                colorPalettes.primary,
+                props.selectedVulnerability ? styles.vulnerabilitySelected : null,
+                props.vulnerabilities && props.vulnerabilities.length > 0 ? styles.hasVulnerabilities : null
+            )}
             disabled={!!props.selectedVulnerability}
         >
             <h2 className={styles.name}>{props.id}</h2>
@@ -44,20 +49,21 @@ export const Target = (props: Props) => {
                 className={classNames(styles.image, props.selectedVulnerability ? styles.imageWithSelectedVulnerability : undefined)}
             />
 
-            <div className={styles.vulnerabilities}>
-                {props.vulnerabilities && props.vulnerabilities.length > 0
-                    ? props.vulnerabilities.map(vulnerability => (
-                        <VulnerabilityIndicator
-                            key={vulnerability}
-                            targetId={props.id}
-                            vulnerability={vulnerability}
-                            isSelected={props.selectedVulnerability === vulnerability}
-                            anySelected={!!props.selectedVulnerability}
-                            onSelected={isSelected => selectVulnerability?.(isSelected ? vulnerability : null)}
-                        />
-                    ))
-                    : <>No vulnerabilities detected</>}
-            </div>
+            {props.vulnerabilities && props.vulnerabilities.length > 0
+                && (
+                    <div className={styles.vulnerabilities}>
+                        {props.vulnerabilities.map(vulnerability => (
+                            <VulnerabilityIndicator
+                                key={vulnerability}
+                                targetId={props.id}
+                                vulnerability={vulnerability}
+                                isSelected={props.selectedVulnerability === vulnerability}
+                                anySelected={!!props.selectedVulnerability}
+                                onSelected={isSelected => selectVulnerability?.(isSelected ? vulnerability : null)}
+                            />
+                        ))}
+                    </div>
+                )}
         </CardDropTarget>
     );
 };
