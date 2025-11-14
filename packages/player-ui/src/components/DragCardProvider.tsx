@@ -1,4 +1,4 @@
-import { DndContext, DragEndEvent, DragStartEvent, useSensor, PointerSensor, useSensors, Modifier } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragStartEvent, useSensor, PointerSensor, useSensors, DragOverlay, Modifier } from '@dnd-kit/core';
 import { CardTargetType } from 'common-types';
 import { createContext, useState, ReactNode, useContext } from 'react';
 import { CardDropTarget } from './CardDropTarget';
@@ -125,6 +125,7 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
                     targetType="no-target"
                 />
                 {children}
+                <DragOverlay />
             </ActiveCardContext.Provider>
         </DndContext>
     );
