@@ -37,6 +37,10 @@
     justify-self: center;
 }
 
+.imageWithSelectedVulnerability {
+    color: var(--color-mid);
+}
+
 .vulnerabilities {
     grid-area: vulnerabilities;
     display: flex;

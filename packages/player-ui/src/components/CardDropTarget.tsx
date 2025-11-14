@@ -11,15 +11,16 @@ type Props = PropsWithChildren<{
     targetType: CardTargetType;
     acceptAnyCardType?: boolean;
     render?: ElementType;
+    disabled?: boolean;
 }>;
 
 export const CardDropTarget: FC<Props> = (props) => {
     const activeCard = useActiveCard();
 
-    const matchesActiveCardTargetType = activeCard && (props.acceptAnyCardType || props.targetType === activeCard.targetType);
+    const matchesActiveCardTargetType = props.disabled !== true && activeCard && (props.acceptAnyCardType || props.targetType === activeCard.targetType);
 
     const { setNodeRef, isOver } = useDroppable({
-        id: props.id,
+        id: props.disabled ? '' : props.id,
         disabled: !matchesActiveCardTargetType,
         data: {
             acceptAnyCardType: props.acceptAnyCardType,
@@ -32,15 +33,18 @@ export const CardDropTarget: FC<Props> = (props) => {
 
     const Element = props.render ?? 'div';
 
+    const className = classNames(
+        styles.dropTarget,
+        props.targetType === 'no-target' ? styles.noSpecificTarget : null,
+        willDropHere ? styles.dropping : null,
+        couldDropHere ? styles.couldDrop : null,
+        props.className);
+
     return (
         <Element
-            ref={setNodeRef}
-            className={classNames(
-                styles.dropTarget,
-                props.targetType === 'no-target' ? styles.noSpecificTarget : null,
-                willDropHere ? styles.dropping : null,
-                couldDropHere ? styles.couldDrop : null,
-                props.className)}
+            ref={props.disabled ? undefined : setNodeRef}
+            key={props.disabled ? 1 : 0}
+            className={className}
         >
             {props.children}
         </Element>

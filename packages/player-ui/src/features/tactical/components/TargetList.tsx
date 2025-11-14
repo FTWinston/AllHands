@@ -1,6 +1,5 @@
 import { Vulnerability } from 'common-types';
 import { HorizontalScroll } from 'common-ui/HorizontalScroll';
-import { CardDropTarget } from 'src/components/CardDropTarget';
 import { Target, TargetInfo } from './Target';
 import styles from './TargetList.module.css';
 
@@ -41,7 +40,7 @@ export const TargetList = (props: Props) => {
             onScrollFractionChange={handleScrollFractionChange}
         >
             {targets.map((target, index) => (
-                <CardDropTarget render="li" className={styles.itemWrapper} targetType="enemy" key={target.id} id={target.id}>
+                <li className={styles.itemWrapper} key={target.id}>
                     <Target
                         id={target.id}
                         appearance={target.appearance}
@@ -51,7 +50,7 @@ export const TargetList = (props: Props) => {
                         targetNumber={index + 1}
                         totalTargets={targets.length}
                     />
-                </CardDropTarget>
+                </li>
             ))}
         </HorizontalScroll>
     );

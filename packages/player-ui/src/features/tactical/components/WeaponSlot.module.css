@@ -32,6 +32,8 @@
     grid-area: card;
     font-size: 0.667em;
     position: relative;
+    corner-shape: squircle;
+    border-radius: 1.5em;
 }
 
 .cardSpace {

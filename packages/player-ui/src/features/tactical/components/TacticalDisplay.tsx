@@ -28,11 +28,8 @@ export const TacticalDisplay = (props: Props) => {
     const [currentTarget, setCurrentTarget] = useState<ListTargetInfo | null>(null);
     const [currentVulnerability, setCurrentVulnerability] = useState<Vulnerability | null>(null);
 
-    useEffect(() => {
-        if (currentTarget === null) {
-            setCurrentVulnerability(null);
-        }
-    }, [currentTarget]);
+    // Clear the targeted vulnerability whenever the target changes
+    useEffect(() => setCurrentVulnerability(null), [currentTarget]);
 
     const slotsWithTargetState = useMemo<SlotProps[]>(
         () => slots.map((slot, index) => ({

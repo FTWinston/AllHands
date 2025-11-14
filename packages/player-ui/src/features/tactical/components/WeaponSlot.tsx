@@ -97,22 +97,16 @@ export const WeaponSlot = (props: Props) => {
         </>
     );
 
-    return props.card
-        ? (
-            <CardDropTarget
-                render="li"
-                className={classNames(styles.weaponSlot, styles.hasCard, isRecharging ? styles.recharging : null)}
-                targetType="weapon"
-                acceptAnyCardType={isRecharging}
-                id={props.name}
-            >
-                {content}
-            </CardDropTarget>
-        ) : (
-            <li
-                className={classNames(styles.weaponSlot, styles.hasNoCard)}
-            >
-                {content}
-            </li>
-        );
+    return (
+        <CardDropTarget
+            render="li"
+            className={classNames(styles.weaponSlot, styles.hasCard, isRecharging ? styles.recharging : null)}
+            targetType="weapon"
+            acceptAnyCardType={isRecharging}
+            id={props.name}
+            disabled={!props.card}
+        >
+            {content}
+        </CardDropTarget>
+    );
 };
