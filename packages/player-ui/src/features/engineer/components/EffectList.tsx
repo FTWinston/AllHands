@@ -8,8 +8,10 @@ type Props = {
     effects: SystemEffect[] | undefined;
 };
 
+const getEffectId = (effect: SystemEffect) => effect.id;
+
 export const EffectList = (props: Props) => {
-    const { knownItems, currentItemIds, removingItemIds } = useArrayChanges(props.effects ?? []);
+    const { knownItems, currentItemIds, removingItemIds } = useArrayChanges(props.effects ?? [], getEffectId);
 
     return (
         <ul

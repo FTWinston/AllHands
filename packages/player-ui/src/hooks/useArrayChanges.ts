@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
-export function useArrayChanges<TItem extends { id: TItemId }, TItemId>(items: TItem[]) {
+export function useArrayChanges<TItem, TItemId>(items: TItem[], getId: (item: TItem) => TItemId) {
     const knownItems = useRef<TItem[]>(items);
-    const [currentItemIds, setCurrentItemIds] = useState<Set<TItemId>>(() => new Set(items.map(item => item.id)));
+    const [currentItemIds, setCurrentItemIds] = useState<Set<TItemId>>(() => new Set(items.map(getId)));
     const [removingItemIds, setRemovingItemIds] = useState<Set<TItemId>>(() => new Set());
     const isFirstRender = useRef(true);
 
@@ -11,7 +11,7 @@ export function useArrayChanges<TItem extends { id: TItemId }, TItemId>(items: T
             isFirstRender.current = false;
             return;
         }
-        const itemIds = items.map(item => item.id);
+        const itemIds = items.map(getId);
         const idsToAdd = itemIds.filter(id => !currentItemIds.has(id));
         const idsToRemove = [...currentItemIds].filter(id => !itemIds.includes(id));
         if (idsToAdd.length > 0 || idsToRemove.length > 0) {
@@ -22,13 +22,19 @@ export function useArrayChanges<TItem extends { id: TItemId }, TItemId>(items: T
             });
             return () => cancelAnimationFrame(frame);
         }
-    }, [items, currentItemIds]);
+    }, [items, getId, currentItemIds]);
 
     // Add any items from items into knownItems, if not already in there.
-    knownItems.current = [...knownItems.current, ...items.filter(item => !knownItems.current.some(knownItem => knownItem.id === item.id))];
+    knownItems.current = [...knownItems.current, ...items.filter((item) => {
+        const itemId = getId(item);
+        return !knownItems.current.some(knownItem => getId(knownItem) === itemId);
+    })];
 
     useEffect(() => {
-        const newlyRemovingItems = knownItems.current.filter(knownItem => !items.some(item => item.id === knownItem.id) && !removingItemIds.has(knownItem.id));
+        const newlyRemovingItems = knownItems.current.filter((knownItem) => {
+            const knownItemId = getId(knownItem);
+            return !items.some(item => getId(item) === knownItemId) && !removingItemIds.has(knownItemId);
+        });
 
         if (newlyRemovingItems.length === 0) {
             return;
@@ -38,7 +44,7 @@ export function useArrayChanges<TItem extends { id: TItemId }, TItemId>(items: T
         setRemovingItemIds((prev) => {
             const newSet = new Set(prev);
             for (const item of newlyRemovingItems) {
-                newSet.add(item.id);
+                newSet.add(getId(item));
             }
             return newSet;
         });
@@ -49,14 +55,17 @@ export function useArrayChanges<TItem extends { id: TItemId }, TItemId>(items: T
             setRemovingItemIds((prev) => {
                 const newSet = new Set(prev);
                 for (const item of newlyRemovingItems) {
-                    newSet.delete(item.id);
+                    newSet.delete(getId(item));
                 }
                 return newSet;
             });
 
-            knownItems.current = knownItems.current.filter(item => !newlyRemovingItems.some(removing => removing.id === item.id));
+            knownItems.current = knownItems.current.filter((item) => {
+                const itemId = getId(item);
+                return !newlyRemovingItems.some(removing => getId(removing) === itemId);
+            });
         }, 330);
-    }, [items, removingItemIds]);
+    }, [items, getId, removingItemIds]);
 
     return { knownItems: knownItems.current, currentItemIds, removingItemIds };
 }

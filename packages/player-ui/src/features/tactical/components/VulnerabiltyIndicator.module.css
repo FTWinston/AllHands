@@ -1,6 +1,11 @@
 .dropTarget {
     corner-shape: squircle;
     border-radius: 1em;
+    transition: transform 300ms ease-in-out;
+}
+
+.hiddenDropTarget {
+    transform: scaleY(0.001);
 }
 
 .vulnerability {

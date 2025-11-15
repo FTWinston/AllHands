@@ -4,7 +4,7 @@ import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { ShipIcon } from 'common-ui/icons/ships';
 import { CardDropTarget } from 'src/components/CardDropTarget';
 import styles from './Target.module.css';
-import { VulnerabilityIndicator } from './VulnerabilityIndicator';
+import { VulnerabilityList } from './VulnerabilityList';
 
 export type TargetInfo = {
     id: string;
@@ -20,8 +20,6 @@ type Props = TargetInfo & {
 };
 
 export const Target = (props: Props) => {
-    const { selectVulnerability } = props;
-
     return (
         <CardDropTarget
             targetType="enemy"
@@ -35,6 +33,7 @@ export const Target = (props: Props) => {
             disabled={!!props.selectedVulnerability}
         >
             <h2 className={styles.name}>{props.id}</h2>
+
             <div className={styles.count}>
                 #
                 {' '}
@@ -44,26 +43,19 @@ export const Target = (props: Props) => {
                 {' '}
                 {props.totalTargets}
             </div>
+
             <ShipIcon
                 appearance={props.appearance}
                 className={classNames(styles.image, props.selectedVulnerability ? styles.imageWithSelectedVulnerability : undefined)}
             />
 
-            {props.vulnerabilities && props.vulnerabilities.length > 0
-                && (
-                    <div className={styles.vulnerabilities}>
-                        {props.vulnerabilities.map(vulnerability => (
-                            <VulnerabilityIndicator
-                                key={vulnerability}
-                                targetId={props.id}
-                                vulnerability={vulnerability}
-                                isSelected={props.selectedVulnerability === vulnerability}
-                                anySelected={!!props.selectedVulnerability}
-                                onSelected={isSelected => selectVulnerability?.(isSelected ? vulnerability : null)}
-                            />
-                        ))}
-                    </div>
-                )}
+            <VulnerabilityList
+                className={styles.vulnerabilities}
+                vulnerabilities={props.vulnerabilities ?? []}
+                selectedVulnerability={props.selectedVulnerability}
+                selectVulnerability={props.selectVulnerability}
+                targetId={props.id}
+            />
         </CardDropTarget>
     );
 };

@@ -9,8 +9,10 @@ type Props = {
     cards: CardInstance[];
 };
 
+const getCardId = (card: CardInstance) => card.id;
+
 export const CardHand: FC<Props> = ({ cards }) => {
-    const { knownItems: knownCards, currentItemIds: inHandCardIds, removingItemIds: removingCardIds } = useArrayChanges(cards);
+    const { knownItems: knownCards, currentItemIds: inHandCardIds, removingItemIds: removingCardIds } = useArrayChanges(cards, getCardId);
 
     return (
         <div
