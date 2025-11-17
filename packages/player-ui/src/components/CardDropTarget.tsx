@@ -1,7 +1,7 @@
 import { useDroppable } from '@dnd-kit/core';
 import { CardTargetType } from 'common-types';
 import { classNames } from 'common-ui/classNames';
-import { ElementType, FC, PropsWithChildren } from 'react';
+import { CSSProperties, ElementType, FC, PropsWithChildren } from 'react';
 import styles from './CardDropTarget.module.css';
 import { useActiveCard } from './DragCardProvider';
 
@@ -12,6 +12,7 @@ type Props = PropsWithChildren<{
     acceptAnyCardType?: boolean;
     render?: ElementType;
     disabled?: boolean;
+    style?: CSSProperties;
 }>;
 
 export const CardDropTarget: FC<Props> = (props) => {
@@ -45,6 +46,7 @@ export const CardDropTarget: FC<Props> = (props) => {
             ref={props.disabled ? undefined : setNodeRef}
             key={props.disabled ? 1 : 0}
             className={className}
+            style={props.style}
         >
             {props.children}
         </Element>

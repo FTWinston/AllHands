@@ -1,11 +1,13 @@
 .target {
     aspect-ratio: 1 / 1;
-    height: min(calc(100vw - var(--scroll-padding) * 2), calc(50dvh - 4em));
+    --targetSize: min(calc(100vw - var(--scroll-padding) * 2), calc(50dvh - 4em));
+    --targetSidePadding: 1em;
+    height: var(--targetSize);
     background-color: var(--primary-darkest-muted);
     border: solid var(--color-mid) 0.1em;
     border-radius: 3em;
     corner-shape: squircle;
-    padding: 0.5em 1em;
+    padding: 0.5em var(--targetSidePadding);
 
     position: relative;
     display: grid;
@@ -53,6 +55,4 @@
 .vulnerabilities {
     grid-area: vulnerabilities;
     display: flex;
-    align-items: center;
-    justify-content: space-evenly;
 }

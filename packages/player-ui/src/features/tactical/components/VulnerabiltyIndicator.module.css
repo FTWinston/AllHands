@@ -1,17 +1,32 @@
 .dropTarget {
     corner-shape: squircle;
     border-radius: 1em;
-    transition: transform 300ms ease-in-out;
+
+    position: absolute;
+    left: 50%;
+    top: calc(50% - var(--item-width) / 2);
+    transition: transform 0.33s ease-in-out;
+
+    --offset: calc(var(--index) - var(--center-index));
+
+    --scaleY: 1;
+    
+    transform: translateX(calc(-50% + var(--offset) * var(--spacing))) scaleY(var(--scaleY));
+
+    /* Bring to front when active or popup is open */
+    &:has(:active), &:has([data-popup-open]) {
+        z-index: 1;
+    }
 }
 
 .hiddenDropTarget {
-    transform: scaleY(0.001);
+    --scaleY: 0.001;
 }
 
 .vulnerability {
     padding: 0.25em;
-    width: 4em;
-    height: 4em;
+    width: var(--item-width);
+    height: var(--item-width);
     border-width: 0.2em;
 }
 

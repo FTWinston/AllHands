@@ -1,0 +1,16 @@
+.list {
+    position: relative;
+    --item-width: 4em;
+    --max-spacing: 7em;
+
+    /* Calculate ideal total width if we use max spacing */
+    --ideal-total-width: calc((var(--count) * var(--item-width)) + ((var(--count) - 1) * (var(--max-spacing) - var(--item-width))));
+    
+    /* If ideal width fits, use max spacing. Otherwise, compress to fit container */
+    --available-for-items: calc(var(--targetSize) - 2 * var(--targetSidePadding));
+    --calculated-spacing: calc(var(--available-for-items) / max(var(--count) - 1, 1));
+    --spacing: min(var(--calculated-spacing), var(--max-spacing));
+    
+    /* Position: offset from center based on index */
+    --center-index: calc((var(--count) - 1) / 2);
+}
