@@ -13,6 +13,8 @@
     display: flex;
     justify-content: stretch;
     align-content: stretch;
+    border-radius: 1.5em;
+    corner-shape: squircle;
 }
 
 .itemWrapper > * {

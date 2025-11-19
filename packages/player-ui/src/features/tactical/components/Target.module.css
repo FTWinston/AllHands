@@ -1,6 +1,6 @@
 .target {
     aspect-ratio: 1 / 1;
-    --targetSize: min(calc(100vw - var(--scroll-padding) * 2), calc(50dvh - 4em));
+    --targetSize: min(calc(100vw - var(--scroll-padding) * 2), calc(40dvh - 4em));
     --targetSidePadding: 1em;
     height: var(--targetSize);
     background-color: var(--primary-darkest-muted);
