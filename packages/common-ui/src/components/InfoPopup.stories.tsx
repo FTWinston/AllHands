@@ -2,7 +2,7 @@ import { InfoPopup as Component } from './InfoPopup';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {
-    title: 'common-ui/Info Popup',
+    title: 'common-ui/components/Info Popup',
     component: Component,
 };
 

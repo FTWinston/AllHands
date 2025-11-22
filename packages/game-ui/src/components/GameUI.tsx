@@ -1,5 +1,5 @@
 import { ServerAddress, type ConnectionState } from 'common-types';
-import { Screen } from 'common-ui/Screen';
+import { Screen } from 'common-ui/components/Screen';
 import { useState } from 'react';
 import { useRoomConnection } from 'src/hooks/useRoomConnection';
 

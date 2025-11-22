@@ -1,4 +1,6 @@
-import { Button, classNames, ToggleButton } from 'common-ui';
+import { Button } from 'common-ui/components/Button';
+import { ToggleButton } from 'common-ui/components/ToggleButton';
+import { classNames } from 'common-ui/utils/classNames';
 import { FC, JSX } from 'react';
 
 import styles from './LobbyRole.module.css';

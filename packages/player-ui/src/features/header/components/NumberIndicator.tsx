@@ -1,6 +1,6 @@
 import { Cooldown } from 'common-types';
-import { InfoPopup } from 'common-ui/InfoPopup';
-import { RadialProgress } from 'common-ui/RadialProgress';
+import { InfoPopup } from 'common-ui/components/InfoPopup';
+import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { FC, JSX } from 'react';
 import styles from './NumberIndicator.module.css';
 

@@ -1,9 +1,9 @@
 import { CardInstance } from 'common-types';
-import { Card } from 'common-ui/Card';
-import { CardBase } from 'common-ui/CardBase';
-import { classNames } from 'common-ui/classNames';
-import { getCardDefinition } from 'common-ui/getCardDefinition';
-import { Button } from 'common-ui/index';
+import { Button } from 'common-ui/components/Button';
+import { Card } from 'common-ui/features/cards/components/Card';
+import { CardBase } from 'common-ui/features/cards/components/CardBase';
+import { getCardDefinition } from 'common-ui/features/cards/utils/getCardDefinition';
+import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/components/CardDropTarget';
 import { DraggableCard } from 'src/components/DraggableCard';
 import { default as DiscardIcon } from '../assets/discard.svg?react';

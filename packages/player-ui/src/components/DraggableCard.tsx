@@ -1,9 +1,9 @@
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { CardTargetType, CardType } from 'common-types';
-import { CardDisplay } from 'common-ui/CardDisplay';
-import { classNames } from 'common-ui/classNames';
-import { getCardDefinition } from 'common-ui/getCardDefinition';
+import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
+import { getCardDefinition } from 'common-ui/features/cards/utils/getCardDefinition';
+import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
 import { useActiveCard, useIsOverValidTarget } from './DragCardProvider';
 import styles from './DraggableCard.module.css';

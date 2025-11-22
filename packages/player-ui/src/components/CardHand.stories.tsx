@@ -1,4 +1,4 @@
-import { Button } from 'common-ui/Button';
+import { Button } from 'common-ui/components/Button';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 import { CardDropTarget } from './CardDropTarget';

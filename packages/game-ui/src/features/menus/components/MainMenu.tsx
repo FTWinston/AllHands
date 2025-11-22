@@ -1,4 +1,4 @@
-import { Screen } from 'common-ui/Screen';
+import { Screen } from 'common-ui/components/Screen';
 
 import { FC } from 'react';
 import { Menu } from './Menu';

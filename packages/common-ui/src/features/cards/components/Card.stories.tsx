@@ -1,9 +1,8 @@
-import { CardBack as Component } from './CardBack';
+import { Card as Component } from './Card';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-// More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-    title: 'common-ui/Card Back',
+    title: 'common-ui/features/cards/Card',
     component: Component,
 } satisfies Meta<typeof Component>;
 
@@ -12,24 +11,24 @@ type Story = StoryObj<typeof meta>;
 
 export const Helm: Story = {
     args: {
-        crew: 'helm',
+        type: 'exampleLocationTarget',
     },
 };
 
 export const Tactical: Story = {
     args: {
-        crew: 'tactical',
+        type: 'exampleWeaponTarget',
     },
 };
 
 export const Sensors: Story = {
     args: {
-        crew: 'sensors',
+        type: 'exampleNoTarget',
     },
 };
 
 export const Engineering: Story = {
     args: {
-        crew: 'engineer',
+        type: 'exampleSystemTarget',
     },
 };

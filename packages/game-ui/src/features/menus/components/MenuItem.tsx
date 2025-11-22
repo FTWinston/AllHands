@@ -1,4 +1,4 @@
-import { ConfirmDialog } from 'common-ui/ConfirmDialog';
+import { ConfirmDialog } from 'common-ui/components/ConfirmDialog';
 import { FC, PropsWithChildren, useState } from 'react';
 
 import styles from './MenuItem.module.css';

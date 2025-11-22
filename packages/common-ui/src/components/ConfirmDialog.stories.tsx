@@ -1,48 +1,31 @@
 import { fn } from 'storybook/test';
 
-import { Button as Component } from './Button';
+import { ConfirmDialog as Component } from './ConfirmDialog';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
-    title: 'common-ui/Button',
+    title: 'common-ui/components/Confirm Dialog',
     component: Component,
+    parameters: {
+        // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
+        layout: 'centered',
+    },
     // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
     tags: ['autodocs'],
     // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
-    args: { onClick: fn() },
+    args: { setOpen: fn(), confirm: fn() },
 } satisfies Meta<typeof Component>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Basic: Story = {
+// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+export const ConfirmDialog: Story = {
     args: {
-        children: 'Button',
-        palette: 'primary',
-        disabled: false,
-    },
-};
-
-export const StartIcon: Story = {
-    args: {
-        children: 'Button',
-        startIcon: '😊',
-    },
-};
-
-export const EndIcon: Story = {
-    args: {
-        children: 'Button',
-        endIcon: '😁',
-    },
-};
-
-export const BothIcons: Story = {
-    args: {
-        startIcon: '😊',
-        children: 'Button',
-        endIcon: '😁',
+        title: 'Confirm Action',
+        prompt: 'Are you sure you want to proceed?',
+        isOpen: true,
     },
 };

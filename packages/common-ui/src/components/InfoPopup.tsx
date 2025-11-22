@@ -1,8 +1,8 @@
 import { Popover } from '@base-ui-components/react/popover';
 import { FC, JSX, PropsWithChildren } from 'react';
-import { classNames } from './classNames';
-import { ColorPalette } from './ColorPalette';
-import colorPalletes from './ColorPalette.module.css';
+import colorPalletes from '../ColorPalette.module.css';
+import { ColorPalette } from '../types/ColorPalette';
+import { classNames } from '../utils/classNames';
 import styles from './InfoPopup.module.css';
 
 type Props = PropsWithChildren<{

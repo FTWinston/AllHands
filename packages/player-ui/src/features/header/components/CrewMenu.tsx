@@ -1,5 +1,5 @@
 import { Menu } from '@base-ui-components/react/menu';
-import { classNames } from 'common-ui/classNames';
+import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
 import { toggleFullscreen } from '../../../utils/fullscreen';
 import styles from './CrewMenu.module.css';

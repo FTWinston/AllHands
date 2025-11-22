@@ -1,4 +1,4 @@
-import { classNames } from 'common-ui';
+import { classNames } from 'common-ui/utils/classNames';
 import { FC, JSX } from 'react';
 
 import styles from './LobbyRole.module.css';

@@ -1,4 +1,4 @@
-import ErrorBoundary from 'common-ui/ErrorBoundary';
+import ErrorBoundary from 'common-ui/components/ErrorBoundary';
 import { FC } from 'react';
 import styles from './CombinedCrew.module.css';
 import type { Meta, StoryObj } from '@storybook/react-vite';

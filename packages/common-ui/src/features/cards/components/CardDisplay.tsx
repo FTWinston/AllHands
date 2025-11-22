@@ -1,10 +1,10 @@
 import { CardTargetType, CrewRoleName } from 'common-types';
 import { FC, ReactNode } from 'react';
+import crewStyles from 'src/CrewColors.module.css';
+import { classNames } from 'src/utils/classNames';
+import { CardTargetIcon } from '../assets/cardTargetTypes';
 import styles from './Card.module.css';
 import { CardBase } from './CardBase';
-import { classNames } from './classNames';
-import crewStyles from './CrewColors.module.css';
-import { CardTargetIcon } from './icons/cardTargetTypes';
 
 type Props = {
     className?: string;

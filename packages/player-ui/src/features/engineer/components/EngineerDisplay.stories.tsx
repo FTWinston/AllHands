@@ -1,5 +1,5 @@
 import { CardInstance, Cooldown } from 'common-types';
-import { getCardDefinition } from 'common-ui/getCardDefinition';
+import { getCardDefinition } from 'common-ui/features/cards/utils/getCardDefinition';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fn } from 'storybook/test';
 import { default as ExampleIcon1 } from '../../header/assets/energy.svg?react';

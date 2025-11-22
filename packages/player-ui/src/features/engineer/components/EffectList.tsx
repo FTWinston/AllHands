@@ -1,4 +1,4 @@
-import { classNames } from 'common-ui/classNames';
+import { classNames } from 'common-ui/utils/classNames';
 import { useArrayChanges } from 'src/hooks/useArrayChanges';
 import { EffectIndicator, SystemEffect } from './EffectIndicator';
 import styles from './EffectList.module.css';

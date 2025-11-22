@@ -1,5 +1,5 @@
 import { Switch } from '@base-ui-components/react/switch';
-import { Button } from 'common-ui/Button';
+import { Button } from 'common-ui/components/Button';
 import { FC } from 'react';
 import styles from './PrioritySwitch.module.css';
 

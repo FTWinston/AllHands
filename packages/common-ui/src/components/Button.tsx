@@ -1,8 +1,8 @@
 import { ButtonHTMLAttributes, FC, ReactNode } from 'react';
+import colorPalletes from '../ColorPalette.module.css';
+import { ColorPalette } from '../types/ColorPalette';
+import { classNames } from '../utils/classNames';
 import styles from './Button.module.css';
-import { classNames } from './classNames';
-import { ColorPalette } from './ColorPalette';
-import colorPalletes from './ColorPalette.module.css';
 
 export type Props = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
     type?: 'button' | 'submit' | 'reset';

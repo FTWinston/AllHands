@@ -1,6 +1,6 @@
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { FC, JSX, PropsWithChildren, useRef, useCallback, useEffect } from 'react';
-import { classNames } from './classNames';
+import { classNames } from '../utils/classNames';
 import styles from './HorizontalScroll.module.css';
 
 export type Props = PropsWithChildren<{

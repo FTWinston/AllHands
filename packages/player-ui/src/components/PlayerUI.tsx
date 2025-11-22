@@ -1,5 +1,5 @@
 import { type ConnectionState } from 'common-types';
-import { Screen } from 'common-ui/Screen';
+import { Screen } from 'common-ui/components/Screen';
 import { useState } from 'react';
 import { GameLobby } from '../features/lobby/GameLobby';
 import { useRoomConnection } from '../hooks/useRoomConnection';

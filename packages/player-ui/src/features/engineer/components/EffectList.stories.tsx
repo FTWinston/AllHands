@@ -1,6 +1,6 @@
 import { Cooldown } from 'common-types';
+import { Button } from 'common-ui/components/Button';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
-import { Button } from 'common-ui/index';
 import { useState } from 'react';
 import { EffectList as Component } from './EffectList';
 import type { Meta, StoryObj } from '@storybook/react-vite';

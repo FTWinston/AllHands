@@ -1,7 +1,7 @@
 import { Cooldown } from 'common-types';
 import { FC } from 'react';
-import { classNames } from './classNames';
-import { useCooldownFraction } from './hooks/useCooldownFraction';
+import { classNames } from '../utils/classNames';
+import { useCooldownFraction } from '../hooks/useCooldownFraction';
 import styles from './RadialProgress.module.css';
 
 export type Props = {

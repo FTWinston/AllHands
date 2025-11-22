@@ -1,5 +1,5 @@
 import { CardInstance } from 'common-types';
-import { classNames } from 'common-ui/classNames';
+import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
 import { useArrayChanges } from 'src/hooks/useArrayChanges';
 import styles from './CardHand.module.css';

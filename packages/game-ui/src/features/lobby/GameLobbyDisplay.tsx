@@ -1,7 +1,7 @@
 import { soloCrewIdentifier, type ServerAddress } from 'common-types';
-import { Button } from 'common-ui/Button';
+import { Button } from 'common-ui/components/Button';
 import { EngineeringIcon, HelmIcon, SensorsIcon, TacticalIcon } from 'common-ui/icons/crew';
-import { Screen } from 'common-ui/Screen';
+import { Screen } from 'common-ui/components/Screen';
 import { FC } from 'react';
 import QRCode from 'react-qr-code';
 

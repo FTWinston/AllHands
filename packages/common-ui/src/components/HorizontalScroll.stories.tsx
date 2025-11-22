@@ -2,7 +2,7 @@ import { HorizontalScroll as Component } from './HorizontalScroll';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
-    title: 'common-ui/HorizontalScroll',
+    title: 'common-ui/components/HorizontalScroll',
     component: Component,
 } satisfies Meta<typeof Component>;
 

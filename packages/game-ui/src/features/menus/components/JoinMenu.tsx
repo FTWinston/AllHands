@@ -1,7 +1,7 @@
 import { ServerAddress } from 'common-types';
-import { Button } from 'common-ui/Button';
-import { Input } from 'common-ui/Input';
-import { Screen } from 'common-ui/Screen';
+import { Button } from 'common-ui/components/Button';
+import { Input } from 'common-ui/components/Input';
+import { Screen } from 'common-ui/components/Screen';
 import { FC, useState } from 'react';
 
 import styles from './JoinMenu.module.css';

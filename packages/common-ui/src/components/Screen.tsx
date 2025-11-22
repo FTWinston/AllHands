@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren } from 'react';
 
-import { classNames } from './classNames';
+import { classNames } from '../utils/classNames';
 import styles from './Screen.module.css';
 
 export type Props = {

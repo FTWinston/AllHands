@@ -1,5 +1,5 @@
 import { Vulnerability } from 'common-types';
-import { HorizontalScroll } from 'common-ui/HorizontalScroll';
+import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
 import { Target, TargetInfo } from './Target';
 import styles from './TargetList.module.css';
 

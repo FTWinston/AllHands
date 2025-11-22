@@ -1,6 +1,6 @@
 import { CardInstance, CardTargetType, Vulnerability } from 'common-types';
 import crewStyles from 'common-ui/CrewColors.module.css';
-import { Screen } from 'common-ui/Screen';
+import { Screen } from 'common-ui/components/Screen';
 import { ComponentProps, useEffect, useMemo, useState } from 'react';
 import { DragCardProvider } from 'src/components/DragCardProvider';
 import { useRootClassName } from 'src/hooks/useRootClassName';
