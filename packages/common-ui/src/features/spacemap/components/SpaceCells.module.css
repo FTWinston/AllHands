@@ -1,0 +1,8 @@
+.cells {
+    --cellWidth: 2.3094em;
+    --cellHeight: 2em;
+    --cellGap: 0.025em;
+
+    display: grid;
+    gap: var(--cellGap);
+}
