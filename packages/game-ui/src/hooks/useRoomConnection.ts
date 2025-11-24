@@ -1,7 +1,7 @@
 import { Room, Client, getStateCallbacks } from 'colyseus.js';
 import { roomIdentifier, type ServerAddress, type ConnectionState } from 'common-types';
-import { useEffect, useState } from 'react';
-
+import { TimeSynchronizer } from 'common-ui/classes/TimeSynchronizer';
+import { useEffect, useRef, useState } from 'react';
 import type { GameState, GameStatus } from 'engine';
 
 export function useRoomConnection(
@@ -9,6 +9,7 @@ export function useRoomConnection(
     setConnectionState: (state: ConnectionState) => void
 ) {
     const [room, setConnectedRoom] = useState<Room<GameState> | null>(null);
+    const timeSynchronizer = useRef<TimeSynchronizer | null>(null);
     const [crewId, setCrewId] = useState<string | undefined>(undefined);
     const [gameStatus, setGameStatus] = useState<GameStatus>('setup');
 
@@ -30,6 +31,10 @@ export function useRoomConnection(
                 joinedRoom = joiningRoom;
                 setConnectedRoom(joiningRoom);
                 console.log('connected to game server', joiningRoom);
+
+                timeSynchronizer.current = new TimeSynchronizer(joiningRoom);
+
+                timeSynchronizer.current.start();
 
                 joinedRoom.onMessage<{ crewId: string }>('joined', (message) => {
                     console.log(`joined as ship for crew ${message.crewId}`);
@@ -57,9 +62,10 @@ export function useRoomConnection(
             });
 
         return () => {
+            timeSynchronizer.current?.stop();
             joinedRoom?.leave();
         };
     }, [serverAddress, setConnectionState]);
 
-    return [room, crewId, gameStatus] as const;
+    return [room, crewId, gameStatus, timeSynchronizer.current] as const;
 }

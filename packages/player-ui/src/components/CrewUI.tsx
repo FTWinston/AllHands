@@ -1,5 +1,6 @@
 import { Room } from 'colyseus.js';
 import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-types';
+import { ITimeSynchronizer } from 'common-ui/types/ITimeSynchronizer';
 import { GameState } from 'engine/classes/GameState';
 import { FC } from 'react';
 import { Engineer } from '../features/engineer/Engineer';
@@ -10,14 +11,15 @@ import { Tactical } from '../features/tactical/Tactical';
 type Props = {
     role: number;
     room: Room<GameState>;
+    timeSynchronizer: ITimeSynchronizer;
 };
 
 export const CrewUI: FC<Props> = (props) => {
-    const { role, room } = props;
+    const { role, room, timeSynchronizer } = props;
 
     switch (role) {
         case helmClientRole:
-            return <Helm room={room} />;
+            return <Helm room={room} timeSynchronizer={timeSynchronizer} />;
         case tacticalClientRole:
             return <Tactical room={room} />;
         case sensorClientRole:

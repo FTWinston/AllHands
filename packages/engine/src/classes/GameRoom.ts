@@ -44,6 +44,14 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
             this.broadcast('messages', `(${client.sessionId}) ${message}`);
         });
 
+        this.onMessage('ping', (client, message) => {
+            // Echo the client's timestamp back, and add the server's timestamp.
+            client.send('pong', {
+                clientSendTime: message.clientSendTime,
+                serverTime: Date.now(),
+            });
+        });
+
         this.onMessage('role', (client, role: CrewRole | '') => {
             console.log(`Role message from ${client.sessionId}: ${role}`);
 

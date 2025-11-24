@@ -9,20 +9,21 @@ export const PlayerUI = () => {
     const [connectionState, setConnectionState]
         = useState<ConnectionState>('connecting');
 
-    const [room, crewId, role, ready, serverState] = useRoomConnection(setConnectionState);
+    const [room, crewId, role, ready, serverState, timeSynchronizer] = useRoomConnection(setConnectionState);
 
     if (connectionState === 'connected') {
         if (serverState === 'active') {
-            if (room && crewId && role) {
+            if (room && crewId && role && timeSynchronizer) {
                 return (
                     <CrewUI
                         role={role}
                         room={room}
+                        timeSynchronizer={timeSynchronizer}
                     />
                 );
             } else {
                 console.warn(
-                    'expected room, crewId & role to be set when serverState is active', {
+                    'expected room, crewId, role & timeSynchronizer to be set when serverState is active', {
                         room, crewId, role,
                     }
                 );

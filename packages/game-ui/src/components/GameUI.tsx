@@ -22,7 +22,7 @@ export const GameUI = () => {
         setConnectionState
     );
 
-    const [room, crewId, serverState] = useRoomConnection(serverAddress, setConnectionState);
+    const [room, crewId, serverState, timeSynchronizer] = useRoomConnection(serverAddress, setConnectionState);
 
     const disconnect = () => {
         setServerType(undefined);
@@ -31,11 +31,18 @@ export const GameUI = () => {
 
     if (connectionState === 'connected' && serverState !== 'paused') {
         if (serverState === 'active') {
-            if (room && crewId) {
-                return <Game room={room} crewID={crewId} disconnect={disconnect} />;
+            if (room && crewId && timeSynchronizer) {
+                return (
+                    <Game
+                        room={room}
+                        crewID={crewId}
+                        disconnect={disconnect}
+                        timeSynchronizer={timeSynchronizer}
+                    />
+                );
             } else {
                 console.warn(
-                    'expected room & crewId to be set when connectionState is active', {
+                    'expected room, crewId & timeSynchronizer to be set when connectionState is active', {
                         room, crewId,
                     }
                 );
