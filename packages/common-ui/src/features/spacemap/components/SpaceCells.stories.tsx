@@ -12,7 +12,22 @@ type Story = StoryObj<typeof meta>;
 
 export const Tiny: Story = {
     args: {
-        columns: 3,
-        cells: [true, true, true, true, true, true, null, true, null],
+        columns: 5,
+        cells: [
+            { id: 1 },
+            { id: 2 },
+            { id: 3 },
+            { id: 4 },
+            { id: 5 },
+            { id: 6 },
+            { id: 7 },
+            { id: 8 },
+            { id: 9 },
+            { id: 10 },
+            null,
+            { id: 11 },
+            null,
+            { id: 12 },
+        ],
     },
 };

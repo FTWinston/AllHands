@@ -1,11 +1,12 @@
 import { CardInstance, CardTargetType } from 'common-types';
-import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/components/Screen';
+import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps } from 'react';
 import { DragCardProvider } from 'src/components/DragCardProvider';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CardHand } from '../../../components/CardHand';
 import { CrewHeader } from '../../header';
+import { HelmSpaceMap } from './HelmSpaceMap';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
@@ -25,7 +26,7 @@ export const HelmDisplay = (props: Props) => {
                     {...headerProps}
                 />
 
-                <p style={{ textAlign: 'center', padding: '2em' }}>(not implemented yet)</p>
+                <HelmSpaceMap />
 
                 <CardHand cards={cards} />
             </DragCardProvider>

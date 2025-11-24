@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren } from 'react';
+import { forwardRef, PropsWithChildren } from 'react';
 import { classNames } from 'src/utils/classNames';
 import styles from './SpaceCell.module.css';
 
@@ -8,13 +8,16 @@ type Props = PropsWithChildren<{
     gridRow?: string;
 }>;
 
-export const SpaceCell: FC<Props> = ({ gridColumn, gridRow, className, children }) => {
-    return (
-        <div
-            className={classNames(styles.cell, className)}
-            style={{ gridRow, gridColumn }}
-        >
-            {children}
-        </div>
-    );
-};
+export const SpaceCell = forwardRef<HTMLDivElement, Props>(
+    ({ gridColumn, gridRow, className, children }, ref) => {
+        return (
+            <div
+                ref={ref}
+                className={classNames(styles.cell, className)}
+                style={{ gridRow, gridColumn }}
+            >
+                {children}
+            </div>
+        );
+    }
+);

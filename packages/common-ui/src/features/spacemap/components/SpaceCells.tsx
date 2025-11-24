@@ -1,20 +1,26 @@
 import { FC, JSX } from 'react';
 import { classNames } from 'src/utils/classNames';
+import { CellInfo } from '../types/CellInfo';
 import { SpaceCell } from './SpaceCell';
 import styles from './SpaceCells.module.css';
 
+type SpaceCellProps = {
+    gridColumn: string;
+    gridRow: string;
+};
+
 type Props = {
     columns: number;
-    cells: Array<true | null>;
+    cells: Array<CellInfo | null>;
     className?: string;
-    renderOverride?: (index: number, cellComponent: JSX.Element) => JSX.Element;
+    renderOverride?: (id: string, CellComponent: typeof SpaceCell, cellProps: SpaceCellProps) => JSX.Element;
 };
 
 export const SpaceCells: FC<Props> = (props) => {
     const { columns, cells, renderOverride } = props;
     const rows = Math.ceil(cells.length / columns);
 
-    const renderCell = (cell: true | null, index: number) => {
+    const renderCell = (cell: CellInfo | null, index: number) => {
         if (cell === null) {
             return null;
         }
@@ -27,18 +33,24 @@ export const SpaceCells: FC<Props> = (props) => {
         }
         col = col * 2 + 1;
 
-        const cellComponent = (
-            <SpaceCell
-                key={index}
-                gridColumn={`${col} / span 3`}
-                gridRow={`${row} / span 2`}
-            />
-        );
+        const cellProps: SpaceCellProps = {
+            gridColumn: `${col} / span 3`,
+            gridRow: `${row} / span 2`,
+        };
 
         // Pass the cell component to the render override function, if provided.
         // (That can be used to e.g. render each cell as a CardDropTarget.)
         // If not, render the cell directly.
-        return renderOverride?.(index, cellComponent) ?? cellComponent;
+        if (renderOverride) {
+            return renderOverride(cell.id, SpaceCell, cellProps);
+        }
+
+        return (
+            <SpaceCell
+                key={cell.id}
+                {...cellProps}
+            />
+        );
     };
 
     return (

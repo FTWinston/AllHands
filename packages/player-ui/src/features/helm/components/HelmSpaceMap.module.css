@@ -1,0 +1,18 @@
+.dropping {
+    background-color: var(--grey-lightest);
+}
+
+.couldDrop {
+    background-color: var(--primary-mid);
+}
+
+.dropping, .couldDrop {
+    &::before {
+        content: "";
+        font-size: 0.85em;
+        width: var(--cellWidth);
+        height: var(--cellHeight);
+        clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0);
+        background-color: black;
+    }
+}

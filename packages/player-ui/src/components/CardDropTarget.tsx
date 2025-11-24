@@ -1,54 +1,59 @@
 import { useDroppable } from '@dnd-kit/core';
 import { CardTargetType } from 'common-types';
 import { classNames } from 'common-ui/utils/classNames';
-import { CSSProperties, ElementType, FC, PropsWithChildren } from 'react';
+import { ComponentPropsWithoutRef, ElementType, PropsWithChildren } from 'react';
 import styles from './CardDropTarget.module.css';
 import { useActiveCard } from './DragCardProvider';
 
-type Props = PropsWithChildren<{
+type Props<C extends ElementType = 'div'> = PropsWithChildren<{
     id: string;
     className?: string;
     targetType: CardTargetType;
     acceptAnyCardType?: boolean;
-    render?: ElementType;
+    render?: C;
     disabled?: boolean;
-    style?: CSSProperties;
-}>;
+    droppingClassName?: string;
+    couldDropClassName?: string;
+}> & ComponentPropsWithoutRef<C>;
 
-export const CardDropTarget: FC<Props> = (props) => {
+export function CardDropTarget<C extends ElementType = 'div'>(props: Props<C>) {
     const activeCard = useActiveCard();
 
-    const matchesActiveCardTargetType = props.disabled !== true && activeCard && (props.acceptAnyCardType || props.targetType === activeCard.targetType);
+    const { id, className, targetType, acceptAnyCardType, render, disabled, children, ...otherProps } = props;
+
+    const matchesActiveCardTargetType = disabled !== true && activeCard && (acceptAnyCardType || targetType === activeCard.targetType);
 
     const { setNodeRef, isOver } = useDroppable({
-        id: props.disabled ? '' : props.id,
+        id: disabled ? '' : id,
         disabled: !matchesActiveCardTargetType,
         data: {
-            acceptAnyCardType: props.acceptAnyCardType,
-            targetType: props.targetType,
+            acceptAnyCardType: acceptAnyCardType,
+            targetType: targetType,
         },
     });
 
     const willDropHere = isOver && matchesActiveCardTargetType;
     const couldDropHere = !isOver && matchesActiveCardTargetType;
 
-    const Element = props.render ?? 'div';
+    const Component = render ?? 'div';
 
-    const className = classNames(
+    const componentClasses = classNames(
         styles.dropTarget,
-        props.targetType === 'no-target' ? styles.noSpecificTarget : null,
+        targetType === 'no-target' ? styles.noSpecificTarget : null,
         willDropHere ? styles.dropping : null,
+        willDropHere ? props.droppingClassName : null,
         couldDropHere ? styles.couldDrop : null,
-        props.className);
+        couldDropHere ? props.couldDropClassName : null,
+        className);
 
     return (
-        <Element
-            ref={props.disabled ? undefined : setNodeRef}
-            key={props.disabled ? 1 : 0}
-            className={className}
-            style={props.style}
+        <Component
+            ref={disabled ? undefined : setNodeRef}
+            key={disabled ? 1 : 0}
+            className={componentClasses}
+            {...otherProps}
         >
-            {props.children}
-        </Element>
+            {children}
+        </Component>
     );
 };
