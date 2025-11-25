@@ -1,4 +1,5 @@
-import { FC, JSX } from 'react';
+import { Vector2D } from 'common-types';
+import { FC, JSX, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { classNames } from 'src/utils/classNames';
 import { CellInfo } from '../types/CellInfo';
 import { SpaceCell } from './SpaceCell';
@@ -10,15 +11,71 @@ type SpaceCellProps = {
 };
 
 type Props = {
-    columns: number;
-    cells: Array<CellInfo | null>;
+    center: Vector2D;
+    fontSizeEm: number;
     className?: string;
     renderOverride?: (id: string, CellComponent: typeof SpaceCell, cellProps: SpaceCellProps) => JSX.Element;
 };
 
+const cellWidthEm = 2.3094;
+const cellHeightEm = 2.0;
+
 export const SpaceCells: FC<Props> = (props) => {
-    const { columns, cells, renderOverride } = props;
-    const rows = Math.ceil(cells.length / columns);
+    const ref = useRef<HTMLDivElement>(null);
+
+    const { center, fontSizeEm, renderOverride } = props;
+
+    const [columns, setColumns] = useState<number>(1);
+    const [rows, setRows] = useState<number>(1);
+
+    useLayoutEffect(
+        () => {
+            const updateSize = () => {
+                if (!ref.current) {
+                    return;
+                }
+
+                const bounds = ref.current.getBoundingClientRect();
+
+                const containerWidthPx = bounds.width;
+                const containerHeightPx = bounds.height;
+
+                const fontSizePx = parseFloat(
+                    window.getComputedStyle(ref.current).fontSize
+                );
+                const cellWidthPx = cellWidthEm * fontSizePx + 1; // +1px for gap
+                const cellHeightPx = cellHeightEm * fontSizePx + 1; // +1px for gap
+
+                const numColumnsToFit = Math.ceil(4 / 3 * containerWidthPx / cellWidthPx - 0.25);
+                const numRowsToFit = Math.ceil(containerHeightPx / cellHeightPx - 0.25);
+
+                setColumns(Math.min(100, Math.max(1, numColumnsToFit)));
+                setRows(Math.min(100, Math.max(1, numRowsToFit)));
+            };
+
+            updateSize();
+
+            const resizeObserver = new ResizeObserver(() => updateSize());
+            resizeObserver.observe(ref.current!);
+
+            return () => resizeObserver.disconnect();
+        },
+        [fontSizeEm]
+    );
+
+    const cells = useMemo(
+        () => {
+            // Create an array of cells, of length rows * columns, using the index as each object's ID.
+            const result = Array.from<CellInfo | null>({ length: rows * columns })
+                .map((_, index) => {
+                    const cellId = (index + 1).toString();
+                    return { id: cellId };
+                });
+
+            return result;
+        },
+        [rows, columns]
+    );
 
     const renderCell = (cell: CellInfo | null, index: number) => {
         if (cell === null) {
@@ -49,16 +106,23 @@ export const SpaceCells: FC<Props> = (props) => {
             <SpaceCell
                 key={cell.id}
                 {...cellProps}
-            />
+            >
+                {cell.id}
+            </SpaceCell>
         );
     };
 
     return (
         <div
             className={classNames(styles.cells, props.className)}
+            ref={ref}
             style={{
-                gridTemplateColumns: `repeat(${columns}, calc(var(--cellWidth) * 0.25) calc(var(--cellWidth) * 0.5)) calc(var(--cellWidth) * 0.25)`,
-                gridTemplateRows: `repeat(${rows * 2}, calc(var(--cellHeight) / 2))`,
+                'fontSize': `${fontSizeEm}em`,
+                // @ts-expect-error CSS custom property
+                '--cellWidth': `${cellWidthEm}em`,
+                '--cellHeight': `${cellHeightEm}em`,
+                'gridTemplateColumns': `repeat(${columns}, calc(var(--cellWidth) * 0.25) calc(var(--cellWidth) * 0.5)) calc(var(--cellWidth) * 0.25)`,
+                'gridTemplateRows': `repeat(${rows * 2}, calc(var(--cellHeight) / 2))`,
             }}
         >
             {cells.map(renderCell)}

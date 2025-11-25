@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { SpaceCells as Component } from './SpaceCells';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -10,24 +11,44 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Tiny: Story = {
+export const Static: Story = {
     args: {
-        columns: 5,
-        cells: [
-            { id: '1' },
-            { id: '2' },
-            { id: '3' },
-            { id: '4' },
-            { id: '5' },
-            { id: '6' },
-            { id: '7' },
-            { id: '8' },
-            { id: '9' },
-            { id: '10' },
-            null,
-            { id: '11' },
-            null,
-            { id: '12' },
-        ],
+        fontSizeEm: 4,
+        center: { x: 0, y: 0 },
+    },
+    render: args => (
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+            <Component {...args} />
+        </div>
+    ),
+};
+
+export const Moving: Story = {
+    ...Static,
+    render: (args) => {
+        const [center, setCenter] = useState<{ x: number; y: number }>(args.center);
+
+        useEffect(() => {
+            let angle = 0;
+            const radius = 3;
+            let animationFrameId: number;
+
+            const animate = () => {
+                const x = radius * Math.cos(angle);
+                const y = radius * Math.sin(angle);
+                setCenter({ x, y });
+                angle += 0.025;
+                animationFrameId = requestAnimationFrame(animate);
+            };
+
+            animationFrameId = requestAnimationFrame(animate);
+            return () => cancelAnimationFrame(animationFrameId);
+        }, []);
+
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+                <Component {...args} center={center} />
+            </div>
+        );
     },
 };

@@ -1,5 +1,5 @@
 import { Room } from 'colyseus.js';
-import { ITimeSynchronizer } from 'src/types/ITimeSynchronizer';
+import { ITimeProvider } from 'src/types/ITimeProvider';
 
 type PongMessage = {
     clientSendTime: number;
@@ -9,7 +9,7 @@ type PongMessage = {
 /**
  * Provide access to a predicted server clock, from on the client, in a Colyseus multiplayer environment.
  */
-export class TimeSynchronizer implements ITimeSynchronizer {
+export class TimeSynchronizer implements ITimeProvider {
     private room: Room;
 
     /** The current offset, which is the main output. */

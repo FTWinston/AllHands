@@ -1,84 +1,19 @@
+import { ITimeProvider } from 'common-types';
 import { SpaceCells } from 'common-ui/features/spacemap/components/SpaceCells';
 import { CardDropTarget } from 'src/components/CardDropTarget';
 import styles from './HelmSpaceMap.module.css';
 
 type Props = {
     className?: string;
+    timeSynchronizer: ITimeProvider;
 };
 
 export const HelmSpaceMap = (props: Props) => {
-    const columns = 7;
-    const cells = [
-        { id: '1' },
-        { id: '2' },
-        { id: '3' },
-        { id: '4' },
-        { id: '5' },
-        { id: '6' },
-        { id: '7' },
-        { id: '8' },
-        { id: '9' },
-        { id: '10' },
-        { id: '11' },
-        { id: '12' },
-        { id: '13' },
-        { id: '14' },
-        { id: '15' },
-        { id: '16' },
-        { id: '17' },
-        { id: '18' },
-        { id: '19' },
-        { id: '20' },
-        { id: '21' },
-        { id: '22' },
-        { id: '23' },
-        { id: '24' },
-        { id: '25' },
-        { id: '26' },
-        { id: '27' },
-        { id: '28' },
-        { id: '29' },
-        { id: '30' },
-        { id: '31' },
-        { id: '32' },
-        { id: '33' },
-        { id: '34' },
-        { id: '35' },
-        { id: '36' },
-        { id: '37' },
-        { id: '38' },
-        { id: '39' },
-        { id: '40' },
-        { id: '41' },
-        { id: '42' },
-        { id: '43' },
-        { id: '44' },
-        { id: '45' },
-        { id: '46' },
-        { id: '47' },
-        { id: '48' },
-        { id: '49' },
-        { id: '50' },
-        { id: '51' },
-        { id: '52' },
-        { id: '53' },
-        { id: '54' },
-        { id: '55' },
-        { id: '56' },
-        null,
-        { id: '57' },
-        null,
-        { id: '59' },
-        null,
-        { id: '61' },
-        null,
-    ];
-
     return (
         <SpaceCells
             className={props.className}
-            cells={cells}
-            columns={columns}
+            center={{ x: 0, y: 0 }}
+            fontSizeEm={2}
             renderOverride={(id, CellComponent, cellProps) => (
                 <CardDropTarget
                     id={id}

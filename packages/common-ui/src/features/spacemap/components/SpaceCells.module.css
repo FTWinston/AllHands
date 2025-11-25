@@ -1,10 +1,6 @@
 .cells {
-    font-size: 2rem;
-
-    --cellWidth: 2.3094em;
-    --cellHeight: 2em;
-    --cellGap: 1px;
-
     display: grid;
-    gap: var(--cellGap);
+    gap: 1px;
+    flex-grow: 1;
+    overflow: hidden;
 }
