@@ -106,7 +106,7 @@ export class TimeSynchronizer implements ITimeSynchronizer {
             this.pingHistory.shift();
         }
 
-        // 5. Calculate Target (Filtering Outliers)
+        // 5. Calculate Target
         this.targetOffset = this.calculateAverageOffset();
     }
 
@@ -115,32 +115,9 @@ export class TimeSynchronizer implements ITimeSynchronizer {
             return 0;
         }
 
-        // If we don't have enough data for stats, just simple average
-        if (this.pingHistory.length < 4) {
-            return this.pingHistory.reduce((a, b) => a + b, 0) / this.pingHistory.length;
-        }
-
-        // A. Calculate Mean
         const sum = this.pingHistory.reduce((a, b) => a + b, 0);
         const mean = sum / this.pingHistory.length;
 
-        // B. Calculate Standard Deviation
-        const squaredDiffs = this.pingHistory.map(val => Math.pow(val - mean, 2));
-        const avgSquaredDiff = squaredDiffs.reduce((a, b) => a + b, 0) / squaredDiffs.length;
-        const stdDev = Math.sqrt(avgSquaredDiff);
-
-        // C. Filter: Keep values within 1 standard deviation (approx 68% of data)
-        // For stricter filtering, use 0.5 stdDev, for looser, use 1.5.
-        // On a stable LAN, outliers are rare, so this mostly catches OS hiccups.
-        const filtered = this.pingHistory.filter(val =>
-            Math.abs(val - mean) <= stdDev
-        );
-
-        // D. Recalculate Mean of filtered data
-        if (filtered.length === 0) {
-            return mean; // Fallback if data is chaotic
-        }
-
-        return filtered.reduce((a, b) => a + b, 0) / filtered.length;
+        return mean;
     }
 }
