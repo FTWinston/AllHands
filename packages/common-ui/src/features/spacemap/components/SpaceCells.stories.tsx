@@ -1,5 +1,5 @@
-import { Vector2D } from 'common-types';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useLoopingKeyframes } from 'src/hooks/useLoopingKeyframes';
 import { SpaceCells as Component } from './SpaceCells';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -15,10 +15,11 @@ type Story = StoryObj<typeof meta>;
 export const Static: Story = {
     args: {
         fontSizeEm: 4,
-        center: { x: 0, y: 0 },
+        center: [{ time: 0, val: { x: 0, y: 0 } }],
+        timeProvider: { getServerTime: () => Date.now() },
     },
     render: args => (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 2em)' }}>
             <Component {...args} />
         </div>
     ),
@@ -27,31 +28,15 @@ export const Static: Story = {
 export const Moving: Story = {
     ...Static,
     render: (args) => {
-        const [center, setCenter] = useState<Vector2D>(args.center);
+        const [center, setCenter] = useState(() => ([
+            { time: Date.now(), val: { x: 0, y: 0 } },
+            { time: Date.now() + 5000, val: { x: 2, y: 0 } },
+            { time: Date.now() + 10000, val: { x: 2, y: 2 } },
+            { time: Date.now() + 15000, val: { x: 0, y: 2 } },
+            { time: Date.now() + 20000, val: { x: 0, y: 0 } },
+        ]));
 
-        useEffect(() => {
-            const radius = 3;
-            const angularSpeed = 0.5; // radians per second
-            let animationFrameId: number;
-            let lastTime: number | null = null;
-            let angle = 0;
-
-            const animate = (currentTime: number) => {
-                if (lastTime !== null) {
-                    const deltaTime = (currentTime - lastTime) / 1000; // convert to seconds
-                    angle += angularSpeed * deltaTime;
-                }
-                lastTime = currentTime;
-
-                const x = radius * Math.cos(angle);
-                const y = radius * Math.sin(angle);
-                setCenter({ x, y });
-                animationFrameId = requestAnimationFrame(animate);
-            };
-
-            animationFrameId = requestAnimationFrame(animate);
-            return () => cancelAnimationFrame(animationFrameId);
-        }, []);
+        useLoopingKeyframes(setCenter, args.timeProvider, 20000);
 
         return (
             <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 2em)' }}>

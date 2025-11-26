@@ -1,4 +1,4 @@
-import { CardInstance, CardTargetType, ITimeProvider, Vector2D } from 'common-types';
+import { CardInstance, CardTargetType, ITimeProvider, Keyframes, Vector2D } from 'common-types';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps } from 'react';
@@ -11,7 +11,7 @@ import { HelmSpaceMap } from './HelmSpaceMap';
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
     cards: CardInstance[];
-    center: Vector2D;
+    center: Keyframes<Vector2D>;
     timeProvider: ITimeProvider;
 };
 

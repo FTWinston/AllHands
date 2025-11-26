@@ -1,5 +1,5 @@
-import { Vector2D } from 'common-types';
-import { useEffect, useState } from 'react';
+import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
+import { useState } from 'react';
 import { fn } from 'storybook/test';
 import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
 import { HelmDisplay as Component } from './HelmDisplay';
@@ -24,31 +24,14 @@ const meta: Meta<typeof Component> = {
             }),
         });
 
-        const [center, setCenter] = useState<Vector2D>(args.center);
+        const [center, setCenter] = useState(() => ([
+            { time: Date.now(), val: { x: 0, y: 0 } },
+            { time: Date.now() + 5000, val: { x: 5, y: 0 } },
+            { time: Date.now() + 10000, val: { x: 5, y: 5 } },
+            { time: Date.now() + 15000, val: { x: 0, y: 5 } },
+        ]));
 
-        useEffect(() => {
-            const radius = 3;
-            const angularSpeed = 0.5; // radians per second
-            let animationFrameId: number;
-            let lastTime: number | null = null;
-            let angle = 0;
-
-            const animate = (currentTime: number) => {
-                if (lastTime !== null) {
-                    const deltaTime = (currentTime - lastTime) / 1000; // convert to seconds
-                    angle += angularSpeed * deltaTime;
-                }
-                lastTime = currentTime;
-
-                const x = radius * Math.cos(angle);
-                const y = radius * Math.sin(angle);
-                setCenter({ x, y });
-                animationFrameId = requestAnimationFrame(animate);
-            };
-
-            animationFrameId = requestAnimationFrame(animate);
-            return () => cancelAnimationFrame(animationFrameId);
-        }, []);
+        useLoopingKeyframes(setCenter, args.timeProvider, 20000);
 
         return (
             <Component
@@ -94,6 +77,6 @@ export const UI: Story = {
         maxPower: 5,
         handSize: 3,
         maxHandSize: 5,
-        center: { x: 0, y: 0 },
+        timeProvider: { getServerTime: () => Date.now() },
     },
 };

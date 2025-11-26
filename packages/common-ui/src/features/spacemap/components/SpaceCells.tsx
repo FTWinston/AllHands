@@ -1,6 +1,8 @@
-import { Vector2D } from 'common-types';
-import { FC, JSX, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { interpolateVector, ITimeProvider, Keyframes, Vector2D } from 'common-types';
+import { FC, JSX, useLayoutEffect, useRef, useState } from 'react';
+import { useAnimationFrame } from 'src/hooks/useAnimationFrame';
 import { classNames } from 'src/utils/classNames';
+import { useFreezeVector } from '../hooks/useFreezeVector';
 import { CellInfo } from '../types/CellInfo';
 import { SpaceCell } from './SpaceCell';
 import styles from './SpaceCells.module.css';
@@ -11,7 +13,9 @@ type SpaceCellProps = {
 };
 
 type Props = {
-    center: Vector2D;
+    center: Keyframes<Vector2D>;
+    freezeCenter?: boolean;
+    timeProvider: ITimeProvider;
     fontSizeEm: number;
     className?: string;
     renderOverride?: (id: string, CellComponent: typeof SpaceCell, cellProps: SpaceCellProps) => JSX.Element;
@@ -29,7 +33,7 @@ const cellSpacingEmY = cellHeightEm;
 export const SpaceCells: FC<Props> = (props) => {
     const ref = useRef<HTMLDivElement>(null);
 
-    const { center, fontSizeEm, renderOverride } = props;
+    const { center, timeProvider, fontSizeEm, renderOverride } = props;
 
     const [containerInfo, setContainerInfo] = useState<{ width: number; height: number; fontSizePx: number }>({ width: 0, height: 0, fontSizePx: 16 });
 
@@ -57,67 +61,64 @@ export const SpaceCells: FC<Props> = (props) => {
         [fontSizeEm]
     );
 
-    const gridData = useMemo(() => {
-        if (containerInfo.width === 0 || containerInfo.height === 0) {
-            return { cells: [], columns: 0, rows: 0, offsetX: 0, offsetY: 0, startX: 0, startY: 0 };
+    useAnimationFrame();
+
+    let centerVector = interpolateVector(center, timeProvider.getServerTime());
+
+    // If freezing is enabled, do not update the center position.
+    centerVector = useFreezeVector(!!props.freezeCenter, centerVector);
+
+    // Calculate cell spacing in pixels using the computed font size.
+    const spacingPxX = cellSpacingEmX * containerInfo.fontSizePx;
+    const spacingPxY = cellSpacingEmY * containerInfo.fontSizePx;
+
+    // Calculate how many cells we need to fill the container (with some buffer).
+    const numColumnsToFit = Math.ceil(containerInfo.width / spacingPxX + 3);
+    const numRowsToFit = Math.ceil(containerInfo.height / spacingPxY + 1.25);
+
+    const columns = Math.min(100, Math.max(1, numColumnsToFit));
+    const rows = Math.min(100, Math.max(1, numRowsToFit));
+
+    // Calculate the world-space cell that contains the center point.
+    const centerCellX = Math.floor(centerVector.x + 0.5);
+    const centerCellY = Math.floor(centerVector.y + 0.5);
+
+    // Calculate the fractional offset from the center cell.
+    // This determines how much to shift the entire grid.
+    const fractionalX = centerVector.x - centerCellX;
+    const fractionalY = centerVector.y - centerCellY;
+
+    // Calculate the starting world-space coordinates.
+    // We want to center the grid around centerCellX, centerCellY.
+    const halfColumns = Math.floor(columns / 2);
+    const halfRows = Math.floor(rows / 2);
+
+    // Ensure startX is always even to prevent the hexagonal offset pattern from jumping
+    // when the grid scrolls. We'll adjust the offset to compensate.
+    let startX = centerCellX - halfColumns;
+    let offsetXAdjust = 0;
+
+    // If startX is odd, shift it to be even and compensate with pixel offset.
+    if (Math.abs(startX) % 2 === 1) {
+        startX -= 1;
+        offsetXAdjust = -spacingPxX;
+    }
+
+    const startY = centerCellY - halfRows;
+
+    // Convert fractional offset to pixels.
+    const offsetX = -fractionalX * spacingPxX + offsetXAdjust;
+    const offsetY = -fractionalY * spacingPxY;
+
+    // Generate cells with world-space coordinates.
+    const cells: CellInfo[] = [];
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < columns; col++) {
+            const worldX = startX + col;
+            const worldY = startY + row;
+            cells.push({ id: `${worldX},${worldY}` });
         }
-
-        // Calculate cell spacing in pixels using the computed font size.
-        const spacingPxX = cellSpacingEmX * containerInfo.fontSizePx;
-        const spacingPxY = cellSpacingEmY * containerInfo.fontSizePx;
-
-        // Calculate how many cells we need to fill the container (with some buffer).
-        const numColumnsToFit = Math.ceil(containerInfo.width / spacingPxX + 3);
-        const numRowsToFit = Math.ceil(containerInfo.height / spacingPxY + 1.25);
-
-        const columns = Math.min(100, Math.max(1, numColumnsToFit));
-        const rows = Math.min(100, Math.max(1, numRowsToFit));
-
-        // Calculate the world-space cell that contains the center point.
-        const centerCellX = Math.floor(center.x + 0.5);
-        const centerCellY = Math.floor(center.y + 0.5);
-
-        // Calculate the fractional offset from the center cell.
-        // This determines how much to shift the entire grid.
-        const fractionalX = center.x - centerCellX;
-        const fractionalY = center.y - centerCellY;
-
-        // Calculate the starting world-space coordinates.
-        // We want to center the grid around centerCellX, centerCellY.
-        const halfColumns = Math.floor(columns / 2);
-        const halfRows = Math.floor(rows / 2);
-
-        // Ensure startX is always even to prevent the hexagonal offset pattern from jumping
-        // when the grid scrolls. We'll adjust the offset to compensate.
-        let startX = centerCellX - halfColumns;
-        let offsetXAdjust = 0;
-
-        // If startX is odd, shift it to be even and compensate with pixel offset.
-        if (Math.abs(startX) % 2 === 1) {
-            startX -= 1;
-            offsetXAdjust = -spacingPxX;
-        }
-
-        const startY = centerCellY - halfRows;
-
-        // Convert fractional offset to pixels.
-        const offsetX = -fractionalX * spacingPxX + offsetXAdjust;
-        const offsetY = -fractionalY * spacingPxY;
-
-        // Generate cells with world-space coordinates.
-        const cells: CellInfo[] = [];
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < columns; col++) {
-                const worldX = startX + col;
-                const worldY = startY + row;
-                cells.push({ id: `${worldX},${worldY}` });
-            }
-        }
-
-        return { cells, columns, rows, offsetX, offsetY, startX, startY };
-    }, [center.x, center.y, containerInfo]);
-
-    const { cells, columns, rows, offsetX, offsetY, startX } = gridData;
+    }
 
     const renderCell = (cell: CellInfo, index: number) => {
         // Parse the world coordinates from the cell ID.
