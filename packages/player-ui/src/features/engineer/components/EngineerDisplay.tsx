@@ -16,13 +16,13 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
 };
 
 export const EngineerDisplay = (props: Props) => {
-    const { cards, systems, ...headerProps } = props;
+    const { cards, systems, playCard, ...headerProps } = props;
 
     useRootClassName(crewStyles.engineer);
 
     return (
         <Screen>
-            <DragCardProvider onCardDropped={props.playCard}>
+            <DragCardProvider onCardDropped={playCard}>
                 <CrewHeader
                     crew="engineer"
                     {...headerProps}

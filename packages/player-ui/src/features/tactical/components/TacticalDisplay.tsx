@@ -21,7 +21,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
 };
 
 export const TacticalDisplay = (props: Props) => {
-    const { cards, slots, targets, ...headerProps } = props;
+    const { cards, slots, playCard, targets, ...headerProps } = props;
 
     useRootClassName(crewStyles.tactical);
 
@@ -41,7 +41,7 @@ export const TacticalDisplay = (props: Props) => {
 
     return (
         <Screen>
-            <DragCardProvider onCardDropped={props.playCard}>
+            <DragCardProvider onCardDropped={playCard}>
                 <CrewHeader
                     crew="tactical"
                     {...headerProps}

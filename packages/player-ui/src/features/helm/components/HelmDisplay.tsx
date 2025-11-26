@@ -1,7 +1,6 @@
-import { CardInstance, CardTargetType } from 'common-types';
+import { CardInstance, CardTargetType, ITimeProvider, Vector2D } from 'common-types';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
-import { ITimeSynchronizer } from 'common-ui/types/ITimeSynchronizer';
 import { ComponentProps } from 'react';
 import { DragCardProvider } from 'src/components/DragCardProvider';
 import { useRootClassName } from 'src/hooks/useRootClassName';
@@ -12,17 +11,18 @@ import { HelmSpaceMap } from './HelmSpaceMap';
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
     cards: CardInstance[];
-    timeSynchronzier: ITimeSynchronizer;
+    center: Vector2D;
+    timeSynchronzier: ITimeProvider;
 };
 
 export const HelmDisplay = (props: Props) => {
-    const { cards, timeSynchronzier, ...headerProps } = props;
+    const { cards, center, playCard, timeSynchronzier, ...headerProps } = props;
 
     useRootClassName(crewStyles.helm);
 
     return (
         <Screen>
-            <DragCardProvider onCardDropped={props.playCard}>
+            <DragCardProvider onCardDropped={playCard}>
                 <CrewHeader
                     crew="helm"
                     {...headerProps}
@@ -30,6 +30,7 @@ export const HelmDisplay = (props: Props) => {
 
                 <HelmSpaceMap
                     timeSynchronizer={timeSynchronzier}
+                    center={center}
                 />
 
                 <CardHand cards={cards} />

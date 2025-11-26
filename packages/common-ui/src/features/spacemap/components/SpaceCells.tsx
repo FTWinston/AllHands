@@ -17,16 +17,21 @@ type Props = {
     renderOverride?: (id: string, CellComponent: typeof SpaceCell, cellProps: SpaceCellProps) => JSX.Element;
 };
 
+// Cell dimensions in em units
 const cellWidthEm = 2.3094;
 const cellHeightEm = 2.0;
+
+// Horizontal spacing between cell centers (3/4 of cell width due to hexagonal packing)
+const cellSpacingEmX = cellWidthEm * 0.75;
+// Vertical spacing between cell centers
+const cellSpacingEmY = cellHeightEm;
 
 export const SpaceCells: FC<Props> = (props) => {
     const ref = useRef<HTMLDivElement>(null);
 
     const { center, fontSizeEm, renderOverride } = props;
 
-    const [columns, setColumns] = useState<number>(1);
-    const [rows, setRows] = useState<number>(1);
+    const [containerInfo, setContainerInfo] = useState<{ width: number; height: number; fontSizePx: number }>({ width: 0, height: 0, fontSizePx: 16 });
 
     useLayoutEffect(
         () => {
@@ -36,21 +41,10 @@ export const SpaceCells: FC<Props> = (props) => {
                 }
 
                 const bounds = ref.current.getBoundingClientRect();
-
-                const containerWidthPx = bounds.width;
-                const containerHeightPx = bounds.height;
-
                 const fontSizePx = parseFloat(
                     window.getComputedStyle(ref.current).fontSize
                 );
-                const cellWidthPx = cellWidthEm * fontSizePx + 1; // +1px for gap
-                const cellHeightPx = cellHeightEm * fontSizePx + 1; // +1px for gap
-
-                const numColumnsToFit = Math.ceil(4 / 3 * containerWidthPx / cellWidthPx - 0.25);
-                const numRowsToFit = Math.ceil(containerHeightPx / cellHeightPx - 0.25);
-
-                setColumns(Math.min(100, Math.max(1, numColumnsToFit)));
-                setRows(Math.min(100, Math.max(1, numRowsToFit)));
+                setContainerInfo({ width: bounds.width, height: bounds.height, fontSizePx });
             };
 
             updateSize();
@@ -63,41 +57,96 @@ export const SpaceCells: FC<Props> = (props) => {
         [fontSizeEm]
     );
 
-    const cells = useMemo(
-        () => {
-            // Create an array of cells, of length rows * columns, using the index as each object's ID.
-            const result = Array.from<CellInfo | null>({ length: rows * columns })
-                .map((_, index) => {
-                    const cellId = (index + 1).toString();
-                    return { id: cellId };
-                });
-
-            return result;
-        },
-        [rows, columns]
-    );
-
-    const renderCell = (cell: CellInfo | null, index: number) => {
-        if (cell === null) {
-            return null;
+    const gridData = useMemo(() => {
+        if (containerInfo.width === 0 || containerInfo.height === 0) {
+            return { cells: [], columns: 0, rows: 0, offsetX: 0, offsetY: 0, startX: 0, startY: 0 };
         }
 
-        let row = Math.floor(index / columns) * 2 + 1;
-        let col = (index % columns);
+        // Calculate cell spacing in pixels using the computed font size.
+        const spacingPxX = cellSpacingEmX * containerInfo.fontSizePx;
+        const spacingPxY = cellSpacingEmY * containerInfo.fontSizePx;
 
-        if (col % 2 === 0) {
-            row += 1;
+        // Calculate how many cells we need to fill the container (with some buffer).
+        const numColumnsToFit = Math.ceil(containerInfo.width / spacingPxX + 2.25);
+        const numRowsToFit = Math.ceil(containerInfo.height / spacingPxY + 1);
+
+        const columns = Math.min(100, Math.max(1, numColumnsToFit));
+        const rows = Math.min(100, Math.max(1, numRowsToFit));
+
+        // Calculate the world-space cell that contains the center point.
+        const centerCellX = Math.floor(center.x + 0.5);
+        const centerCellY = Math.floor(center.y + 0.5);
+
+        // Calculate the fractional offset from the center cell.
+        // This determines how much to shift the entire grid.
+        const fractionalX = center.x - centerCellX;
+        const fractionalY = center.y - centerCellY;
+
+        // Calculate the starting world-space coordinates.
+        // We want to center the grid around centerCellX, centerCellY.
+        const halfColumns = Math.floor(columns / 2);
+        const halfRows = Math.floor(rows / 2);
+
+        // Ensure startX is always even to prevent the hexagonal offset pattern from jumping
+        // when the grid scrolls. We'll adjust the offset to compensate.
+        let startX = centerCellX - halfColumns;
+        let offsetXAdjust = 0;
+
+        // If startX is odd, shift it to be even and compensate with pixel offset.
+        if (Math.abs(startX) % 2 === 1) {
+            startX -= 1;
+            offsetXAdjust = -spacingPxX;
         }
-        col = col * 2 + 1;
+
+        const startY = centerCellY - halfRows;
+
+        // Convert fractional offset to pixels.
+        const offsetX = -fractionalX * spacingPxX + offsetXAdjust;
+        const offsetY = -fractionalY * spacingPxY;
+
+        // Generate cells with world-space coordinates.
+        const cells: CellInfo[] = [];
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < columns; col++) {
+                const worldX = startX + col;
+                const worldY = startY + row;
+                cells.push({ id: `${worldX},${worldY}` });
+            }
+        }
+
+        return { cells, columns, rows, offsetX, offsetY, startX, startY };
+    }, [center.x, center.y, containerInfo]);
+
+    const { cells, columns, rows, offsetX, offsetY, startX } = gridData;
+
+    const renderCell = (cell: CellInfo, index: number) => {
+        // Parse the world coordinates from the cell ID.
+        const [worldXStr, _worldYStr] = cell.id.split(',');
+        const worldX = parseInt(worldXStr, 10);
+
+        // Calculate grid position.
+        // Column position in the grid (relative to startX).
+        const colIndex = worldX - startX;
+
+        // Grid column: each hex column takes up 2 grid tracks, plus we need 3 for the first hex.
+        const gridCol = colIndex * 2 + 1;
+
+        // Grid row: each hex row takes up 2 grid tracks.
+        // Odd columns (in world space) are offset by half a cell.
+        let gridRow = (index / columns | 0) * 2 + 1;
+
+        // Apply vertical offset for odd columns in world space.
+        // This creates the characteristic hexagonal stagger.
+        // Use Math.abs to handle negative world coordinates correctly.
+        if (Math.abs(worldX) % 2 === 1) {
+            gridRow += 1;
+        }
 
         const cellProps: SpaceCellProps = {
-            gridColumn: `${col} / span 3`,
-            gridRow: `${row} / span 2`,
+            gridColumn: `${gridCol} / span 3`,
+            gridRow: `${gridRow} / span 2`,
         };
 
-        // Pass the cell component to the render override function, if provided.
-        // (That can be used to e.g. render each cell as a CardDropTarget.)
-        // If not, render the cell directly.
         if (renderOverride) {
             return renderOverride(cell.id, SpaceCell, cellProps);
         }
@@ -121,11 +170,20 @@ export const SpaceCells: FC<Props> = (props) => {
                 // @ts-expect-error CSS custom property
                 '--cellWidth': `${cellWidthEm}em`,
                 '--cellHeight': `${cellHeightEm}em`,
-                'gridTemplateColumns': `repeat(${columns}, calc(var(--cellWidth) * 0.25) calc(var(--cellWidth) * 0.5)) calc(var(--cellWidth) * 0.25)`,
-                'gridTemplateRows': `repeat(${rows * 2}, calc(var(--cellHeight) / 2))`,
             }}
         >
-            {cells.map(renderCell)}
+            <div
+                className={styles.gridContainer}
+                style={{
+                    // @ts-expect-error CSS custom property
+                    '--offsetX': `${offsetX}px`,
+                    '--offsetY': `${offsetY}px`,
+                    'gridTemplateColumns': `repeat(${columns}, calc(var(--cellWidth) * 0.25) calc(var(--cellWidth) * 0.5)) calc(var(--cellWidth) * 0.25)`,
+                    'gridTemplateRows': `repeat(${rows * 2}, calc(var(--cellHeight) / 2))`,
+                }}
+            >
+                {cells.map(renderCell)}
+            </div>
         </div>
     );
 };

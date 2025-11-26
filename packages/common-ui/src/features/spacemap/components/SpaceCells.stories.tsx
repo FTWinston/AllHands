@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { SpaceCells as Component } from './SpaceCells';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Vector2D } from 'common-types';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -26,18 +27,25 @@ export const Static: Story = {
 export const Moving: Story = {
     ...Static,
     render: (args) => {
-        const [center, setCenter] = useState<{ x: number; y: number }>(args.center);
+        const [center, setCenter] = useState<Vector2D>(args.center);
 
         useEffect(() => {
-            let angle = 0;
             const radius = 3;
+            const angularSpeed = 0.5; // radians per second
             let animationFrameId: number;
+            let lastTime: number | null = null;
+            let angle = 0;
 
-            const animate = () => {
+            const animate = (currentTime: number) => {
+                if (lastTime !== null) {
+                    const deltaTime = (currentTime - lastTime) / 1000; // convert to seconds
+                    angle += angularSpeed * deltaTime;
+                }
+                lastTime = currentTime;
+
                 const x = radius * Math.cos(angle);
                 const y = radius * Math.sin(angle);
                 setCenter({ x, y });
-                angle += 0.025;
                 animationFrameId = requestAnimationFrame(animate);
             };
 

@@ -1,3 +1,5 @@
+import { Vector2D } from 'common-types';
+import { useEffect, useState } from 'react';
 import { fn } from 'storybook/test';
 import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
 import { HelmDisplay as Component } from './HelmDisplay';
@@ -22,6 +24,32 @@ const meta: Meta<typeof Component> = {
             }),
         });
 
+        const [center, setCenter] = useState<Vector2D>(args.center);
+
+        useEffect(() => {
+            const radius = 3;
+            const angularSpeed = 0.5; // radians per second
+            let animationFrameId: number;
+            let lastTime: number | null = null;
+            let angle = 0;
+
+            const animate = (currentTime: number) => {
+                if (lastTime !== null) {
+                    const deltaTime = (currentTime - lastTime) / 1000; // convert to seconds
+                    angle += angularSpeed * deltaTime;
+                }
+                lastTime = currentTime;
+
+                const x = radius * Math.cos(angle);
+                const y = radius * Math.sin(angle);
+                setCenter({ x, y });
+                animationFrameId = requestAnimationFrame(animate);
+            };
+
+            animationFrameId = requestAnimationFrame(animate);
+            return () => cancelAnimationFrame(animationFrameId);
+        }, []);
+
         return (
             <Component
                 {...args}
@@ -33,6 +61,7 @@ const meta: Meta<typeof Component> = {
                 maxHandSize={args.maxHandSize}
                 power={power}
                 cards={cards}
+                center={center}
                 playCard={(cardId, targetType, targetId) => {
                     console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);
                     expendCard(cardId);
@@ -65,5 +94,6 @@ export const UI: Story = {
         maxPower: 5,
         handSize: 3,
         maxHandSize: 5,
+        center: { x: 0, y: 0 },
     },
 };

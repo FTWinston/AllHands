@@ -13,13 +13,13 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
 };
 
 export const SensorsDisplay = (props: Props) => {
-    const { cards, ...headerProps } = props;
+    const { cards, playCard, ...headerProps } = props;
 
     useRootClassName(crewStyles.sensors);
 
     return (
         <Screen>
-            <DragCardProvider onCardDropped={props.playCard}>
+            <DragCardProvider onCardDropped={playCard}>
                 <CrewHeader
                     crew="sensors"
                     {...headerProps}

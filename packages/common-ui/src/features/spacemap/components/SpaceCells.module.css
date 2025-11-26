@@ -1,6 +1,17 @@
 .cells {
-    display: grid;
-    gap: 1px;
     flex-grow: 1;
     overflow: hidden;
+    position: relative;
+}
+
+.gridContainer {
+    display: grid;
+    gap: 1px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(
+        calc(-50% + var(--offsetX, 0px)),
+        calc(-50% + var(--offsetY, 0px))
+    );
 }
