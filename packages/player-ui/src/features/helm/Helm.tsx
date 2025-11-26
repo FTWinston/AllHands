@@ -1,12 +1,11 @@
 import { Room } from 'colyseus.js';
-import { CardInstance } from 'common-types';
-import { ITimeSynchronizer } from 'common-ui/types/ITimeSynchronizer';
+import { CardInstance, ITimeProvider } from 'common-types';
 import { useState } from 'react';
 import { HelmDisplay } from './components/HelmDisplay';
 
 type Props = {
     room: Room;
-    timeSynchronizer: ITimeSynchronizer;
+    timeProvider: ITimeProvider;
 };
 
 export const Helm = (props: Props) => {
@@ -16,6 +15,7 @@ export const Helm = (props: Props) => {
         <HelmDisplay
             cards={cards}
             onPause={() => console.log('pause please')}
+            timeProvider={props.timeProvider}
         />
     );
 };

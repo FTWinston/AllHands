@@ -12,11 +12,11 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
     cards: CardInstance[];
     center: Vector2D;
-    timeSynchronzier: ITimeProvider;
+    timeProvider: ITimeProvider;
 };
 
 export const HelmDisplay = (props: Props) => {
-    const { cards, center, playCard, timeSynchronzier, ...headerProps } = props;
+    const { cards, center, playCard, timeProvider, ...headerProps } = props;
 
     useRootClassName(crewStyles.helm);
 
@@ -29,7 +29,7 @@ export const HelmDisplay = (props: Props) => {
                 />
 
                 <HelmSpaceMap
-                    timeSynchronizer={timeSynchronzier}
+                    timeProvider={timeProvider}
                     center={center}
                 />
 

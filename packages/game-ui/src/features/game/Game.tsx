@@ -1,11 +1,11 @@
 import { Room } from 'colyseus.js';
+import { ITimeProvider } from 'common-types';
 import { Screen } from 'common-ui/components/Screen';
-import { ITimeSynchronizer } from 'common-ui/types/ITimeSynchronizer';
 import { FC } from 'react';
 
 interface GameProps {
     room: Room;
-    timeSynchronizer: ITimeSynchronizer;
+    timeProvider: ITimeProvider;
     crewID: string;
     disconnect: () => void;
 }

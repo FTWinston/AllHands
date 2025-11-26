@@ -1,7 +1,7 @@
+import { Vector2D } from 'common-types';
 import { useEffect, useState } from 'react';
 import { SpaceCells as Component } from './SpaceCells';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Vector2D } from 'common-types';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
@@ -54,7 +54,7 @@ export const Moving: Story = {
         }, []);
 
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 2em)' }}>
                 <Component {...args} center={center} />
             </div>
         );

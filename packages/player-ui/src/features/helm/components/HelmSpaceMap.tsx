@@ -7,7 +7,7 @@ import styles from './HelmSpaceMap.module.css';
 
 type Props = {
     className?: string;
-    timeSynchronizer: ITimeProvider;
+    timeProvider: ITimeProvider;
     center: Vector2D;
 };
 

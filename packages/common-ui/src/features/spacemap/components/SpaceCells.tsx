@@ -67,8 +67,8 @@ export const SpaceCells: FC<Props> = (props) => {
         const spacingPxY = cellSpacingEmY * containerInfo.fontSizePx;
 
         // Calculate how many cells we need to fill the container (with some buffer).
-        const numColumnsToFit = Math.ceil(containerInfo.width / spacingPxX + 2.25);
-        const numRowsToFit = Math.ceil(containerInfo.height / spacingPxY + 1);
+        const numColumnsToFit = Math.ceil(containerInfo.width / spacingPxX + 3);
+        const numRowsToFit = Math.ceil(containerInfo.height / spacingPxY + 1.25);
 
         const columns = Math.min(100, Math.max(1, numColumnsToFit));
         const rows = Math.min(100, Math.max(1, numRowsToFit));
