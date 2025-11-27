@@ -73,6 +73,7 @@ export const UI: Story = {
                 type: 'exampleLocationTarget',
             },
         ],
+        mapItems: [],
         power: 2,
         maxPower: 5,
         handSize: 3,

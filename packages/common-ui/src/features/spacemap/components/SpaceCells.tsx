@@ -1,6 +1,7 @@
-import { interpolateVector, ITimeProvider, Keyframes, Vector2D } from 'common-types';
-import { FC, JSX, useLayoutEffect, useRef, useState } from 'react';
+import { interpolatePosition, interpolateVector, ITimeProvider, Keyframes, Vector2D } from 'common-types';
+import { FC, JSX, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useAnimationFrame } from 'src/hooks/useAnimationFrame';
+import { ShipIcon } from 'src/icons/ships';
 import { classNames } from 'src/utils/classNames';
 import { useFreezeVector } from '../hooks/useFreezeVector';
 import { CellInfo } from '../types/CellInfo';
@@ -65,7 +66,9 @@ export const SpaceCells: FC<Props> = (props) => {
 
     useAnimationFrame();
 
-    let centerVector = interpolateVector(center, timeProvider.getServerTime());
+    const currentTime = timeProvider.getServerTime();
+
+    let centerVector = interpolateVector(center, currentTime);
 
     // If freezing is enabled, do not update the center position.
     centerVector = useFreezeVector(!!props.freezeCenter, centerVector);
@@ -90,53 +93,58 @@ export const SpaceCells: FC<Props> = (props) => {
     const fractionalX = centerVector.x - centerCellX;
     const fractionalY = centerVector.y - centerCellY;
 
-    // Calculate the starting world-space coordinates.
-    // We want to center the grid around centerCellX, centerCellY.
-    const halfColumns = Math.floor(columns / 2);
-    const halfRows = Math.floor(rows / 2);
+    // Memoize the cell extent calculation - this only changes when centerCellX/centerCellY changes,
+    // not every frame. This prevents the grid template from being recalculated every frame.
+    const cellExtent = useMemo(() => {
+        const halfColumns = Math.floor(columns / 2);
+        const halfRows = Math.floor(rows / 2);
 
-    // Ensure startX is always even to prevent the hexagonal offset pattern from jumping
-    // when the grid scrolls. We'll adjust the offset to compensate.
-    let startX = centerCellX - halfColumns;
-    let offsetXAdjust = 0;
+        // Ensure startX is always even to prevent the hexagonal offset pattern from jumping
+        // when the grid scrolls. We'll adjust the offset to compensate.
+        let startX = centerCellX - halfColumns;
+        let startXIsOdd = false;
 
-    // If startX is odd, shift it to be even and compensate with pixel offset.
-    if (Math.abs(startX) % 2 === 1) {
-        startX -= 1;
-        offsetXAdjust = -spacingPxX;
-    }
+        // If startX is odd, shift it to be even and compensate with pixel offset.
+        if (Math.abs(startX) % 2 === 1) {
+            startX -= 1;
+            startXIsOdd = true;
+        }
 
-    const startY = centerCellY - halfRows;
+        const startY = centerCellY - halfRows;
 
-    // Convert fractional offset to pixels.
+        // Generate cells with world-space coordinates.
+        const cells: CellInfo[] = [];
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < columns; col++) {
+                const worldX = startX + col;
+                const worldY = startY + row;
+                cells.push({ id: `${worldX},${worldY}` });
+            }
+        }
+
+        return { columns, rows, startX, startY, startXIsOdd, cells };
+    }, [columns, rows, centerCellX, centerCellY]);
+
+    // Calculate pixel offsets every frame for smooth motion.
+    const offsetXAdjust = cellExtent.startXIsOdd ? -spacingPxX : 0;
     const offsetX = -fractionalX * spacingPxX + offsetXAdjust;
     const offsetY = -fractionalY * spacingPxY;
 
-    // Generate cells with world-space coordinates.
-    const cells: CellInfo[] = [];
-    for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < columns; col++) {
-            const worldX = startX + col;
-            const worldY = startY + row;
-            cells.push({ id: `${worldX},${worldY}` });
-        }
-    }
-
     const renderCell = (cell: CellInfo, index: number) => {
         // Parse the world coordinates from the cell ID.
-        const [worldXStr, _worldYStr] = cell.id.split(',');
+        const [worldXStr] = cell.id.split(',');
         const worldX = parseInt(worldXStr, 10);
 
         // Calculate grid position.
         // Column position in the grid (relative to startX).
-        const colIndex = worldX - startX;
+        const colIndex = worldX - cellExtent.startX;
 
-        // Grid column: each hex column takes up 2 grid tracks, plus we need 3 for the first hex.
+        // Grid column: each hex column takes up 2 grid tracks, and we need an extra one for the first hex.
         const gridCol = colIndex * 2 + 1;
 
         // Grid row: each hex row takes up 2 grid tracks.
         // Odd columns (in world space) are offset by half a cell.
-        let gridRow = (index / columns | 0) * 2 + 1;
+        let gridRow = (index / cellExtent.columns | 0) * 2 + 1;
 
         // Apply vertical offset for odd columns in world space.
         // This creates the characteristic hexagonal stagger.
@@ -164,6 +172,36 @@ export const SpaceCells: FC<Props> = (props) => {
         );
     };
 
+    const renderItem = (item: MapItem) => {
+        const position = interpolatePosition(item.position, currentTime);
+
+        // Calculate item position relative to the center in world space.
+        const relativeX = position.x - centerVector.x;
+        const relativeY = position.y - centerVector.y;
+
+        // Convert world space offset to pixels.
+        const itemOffsetX = relativeX * spacingPxX;
+        const itemOffsetY = relativeY * spacingPxY;
+
+        return (
+            <ShipIcon
+                key={item.id}
+                className={styles.item}
+                appearance={item.appearance}
+                angle={position.angle}
+                offsetX={itemOffsetX}
+                offsetY={itemOffsetY}
+                size={item.size}
+            />
+        );
+    };
+
+    // Memoize the grid container style so it only changes when the grid extent changes.
+    const gridContainerStyle = useMemo(() => ({
+        gridTemplateColumns: `repeat(${cellExtent.columns}, calc(var(--cellWidth) * 0.25) calc(var(--cellWidth) * 0.5)) calc(var(--cellWidth) * 0.25)`,
+        gridTemplateRows: `repeat(${cellExtent.rows * 2}, calc(var(--cellHeight) / 2))`,
+    }), [cellExtent.columns, cellExtent.rows]);
+
     return (
         <div
             className={classNames(styles.cells, props.className)}
@@ -173,20 +211,18 @@ export const SpaceCells: FC<Props> = (props) => {
                 // @ts-expect-error CSS custom property
                 '--cellWidth': `${cellWidthEm}em`,
                 '--cellHeight': `${cellHeightEm}em`,
+                // Offset is on parent so grid container's style object is stable
+                '--offsetX': `${offsetX}px`,
+                '--offsetY': `${offsetY}px`,
             }}
         >
             <div
                 className={styles.gridContainer}
-                style={{
-                    // @ts-expect-error CSS custom property
-                    '--offsetX': `${offsetX}px`,
-                    '--offsetY': `${offsetY}px`,
-                    'gridTemplateColumns': `repeat(${columns}, calc(var(--cellWidth) * 0.25) calc(var(--cellWidth) * 0.5)) calc(var(--cellWidth) * 0.25)`,
-                    'gridTemplateRows': `repeat(${rows * 2}, calc(var(--cellHeight) / 2))`,
-                }}
+                style={gridContainerStyle}
             >
-                {cells.map(renderCell)}
+                {cellExtent.cells.map(renderCell)}
             </div>
+            {props.items.map(renderItem)}
         </div>
     );
 };

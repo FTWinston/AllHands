@@ -15,3 +15,10 @@
         calc(-50% + var(--offsetY, 0px))
     );
 }
+
+.item {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    pointer-events: none;
+}

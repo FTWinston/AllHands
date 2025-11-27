@@ -1,5 +1,5 @@
 import { ShipAppearance } from 'common-types';
-import { FC } from 'react';
+import { CSSProperties, FC } from 'react';
 import { default as AfterburnIcon } from './afterburn.svg?react';
 import { default as ApolloIcon } from './apollo-capsule.svg?react';
 import { default as SatelliteIcon } from './beam-satellite.svg?react';
@@ -17,36 +17,66 @@ import { default as StrafeIcon } from './strafe.svg?react';
 type IconProps = {
     appearance: ShipAppearance;
     className?: string;
+    /** Horizontal offset in pixels */
+    offsetX?: number;
+    /** Vertical offset in pixels */
+    offsetY?: number;
+    /** Rotation angle in radians */
+    angle?: number;
+    /** Font size in em units */
+    size?: number;
 };
 
-export const ShipIcon: FC<IconProps> = ({ className, appearance }) => {
+export const ShipIcon: FC<IconProps> = ({ className, appearance, offsetX, offsetY, angle, size }) => {
+    const style: CSSProperties = {};
+
+    if (offsetX || offsetY) {
+        style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    }
+
+    if (angle !== undefined) {
+        const rotate = `rotate(${angle}rad)`;
+        if (style.transform) {
+            style.transform += ` ${rotate}`;
+        } else {
+            style.transform = rotate;
+        }
+    }
+
+    if (size !== undefined) {
+        style.width = `${size}em`;
+        style.height = `${size}em`;
+    }
+
+    const iconProps = { className, style };
+
     switch (appearance) {
         case 'afterburn':
-            return <AfterburnIcon className={className} />;
+            return <AfterburnIcon {...iconProps} />;
         case 'apollo':
-            return <ApolloIcon className={className} />;
+            return <ApolloIcon {...iconProps} />;
         case 'satellite':
-            return <SatelliteIcon className={className} />;
+            return <SatelliteIcon {...iconProps} />;
         case 'hypersonic':
-            return <HypersonicIcon className={className} />;
+            return <HypersonicIcon {...iconProps} />;
         case 'interceptor':
-            return <InterceptorIcon className={className} />;
+            return <InterceptorIcon {...iconProps} />;
         case 'jetpack':
-            return <JetpackIcon className={className} />;
+            return <JetpackIcon {...iconProps} />;
         case 'pathfinder':
-            return <PathfinderIcon className={className} />;
+            return <PathfinderIcon {...iconProps} />;
         case 'rocket':
-            return <RocketIcon className={className} />;
+            return <RocketIcon {...iconProps} />;
         case 'scout':
-            return <ScoutIcon className={className} />;
+            return <ScoutIcon {...iconProps} />;
         case 'spaceship':
-            return <SpaceshipIcon className={className} />;
+            return <SpaceshipIcon {...iconProps} />;
         case 'spiderbot':
-            return <SpiderbotIcon className={className} />;
+            return <SpiderbotIcon {...iconProps} />;
         case 'starfighter':
-            return <StarfighterIcon className={className} />;
+            return <StarfighterIcon {...iconProps} />;
         case 'strafe':
-            return <StrafeIcon className={className} />;
+            return <StrafeIcon {...iconProps} />;
         default:
             return null;
     }

@@ -60,10 +60,10 @@ export const MovingWithItem: Story = {
         useLoopingKeyframes(setCenter, args.timeProvider, 20000);
 
         const [itemPos, setItemPos] = useState(() => ([
-            { time: Date.now(), val: { x: 0, y: 0, angle: Math.PI / 2 } },
-            { time: Date.now() + 5000, val: { x: 0, y: 2, angle: Math.PI } },
-            { time: Date.now() + 10000, val: { x: 2, y: 2, angle: -Math.PI / 2 } },
-            { time: Date.now() + 15000, val: { x: 2, y: 0, angle: 0 } },
+            { time: Date.now(), val: { x: 0, y: 0, angle: 5 * Math.PI / 4 } }, // Down and left
+            { time: Date.now() + 5000, val: { x: 0, y: 2, angle: 3 * Math.PI / 4 } }, // Down and right ... expected this to be 7 PI / 4
+            { time: Date.now() + 10000, val: { x: 2, y: 2, angle: Math.PI / 4 } }, // Up and right
+            { time: Date.now() + 15000, val: { x: 2, y: 0, angle: 7 * Math.PI / 4 } }, // Up and left ... expected this to be 3 PI / 4
         ]));
 
         useLoopingKeyframes(setItemPos, args.timeProvider, 20000);
