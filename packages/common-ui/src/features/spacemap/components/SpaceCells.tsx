@@ -4,6 +4,7 @@ import { useAnimationFrame } from 'src/hooks/useAnimationFrame';
 import { classNames } from 'src/utils/classNames';
 import { useFreezeVector } from '../hooks/useFreezeVector';
 import { CellInfo } from '../types/CellInfo';
+import { MapItem } from '../types/MapItem';
 import { SpaceCell } from './SpaceCell';
 import styles from './SpaceCells.module.css';
 
@@ -14,6 +15,7 @@ type SpaceCellProps = {
 
 type Props = {
     center: Keyframes<Vector2D>;
+    items: MapItem[];
     freezeCenter?: boolean;
     timeProvider: ITimeProvider;
     fontSizeEm: number;
