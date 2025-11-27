@@ -1,5 +1,5 @@
 import { Room } from 'colyseus.js';
-import { ITimeProvider } from 'src/types/ITimeProvider';
+import { ITimeProvider } from 'common-types';
 
 type PongMessage = {
     clientSendTime: number;

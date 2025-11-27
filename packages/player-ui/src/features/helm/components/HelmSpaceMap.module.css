@@ -16,3 +16,17 @@
         background-color: black;
     }
 }
+
+.zoomIn {
+    position: absolute;
+    bottom: 33em;
+    right: 1em;
+    padding: 1em;
+}
+
+.zoomOut {
+    position: absolute;
+    bottom: 29em;
+    right: 1em;
+    padding: 1em;
+}
