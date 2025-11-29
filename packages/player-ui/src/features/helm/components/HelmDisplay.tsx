@@ -1,7 +1,6 @@
-import { CardInstance, CardTargetType, ITimeProvider, Keyframes, Vector2D } from 'common-types';
+import { CardInstance, CardTargetType, ITimeProvider, Keyframes, MapItem, Vector2D } from 'common-types';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
-import { MapItem } from 'common-ui/features/spacemap/types/MapItem';
 import { ComponentProps } from 'react';
 import { DragCardProvider } from 'src/components/DragCardProvider';
 import { useRootClassName } from 'src/hooks/useRootClassName';

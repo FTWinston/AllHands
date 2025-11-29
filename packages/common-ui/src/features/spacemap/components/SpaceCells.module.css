@@ -22,3 +22,19 @@
     left: 50%;
     pointer-events: none;
 }
+
+.item--self {
+    color: #6cf;
+}
+
+.item--friendly {
+    color: #3f3;
+}
+
+.item--enemy {
+    color: red;
+}
+
+.item--neutral {
+    color: goldenrod;
+}

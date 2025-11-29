@@ -1,11 +1,10 @@
-import { interpolatePosition, interpolateVector, ITimeProvider, Keyframes, Vector2D } from 'common-types';
+import { interpolatePosition, interpolateVector, ITimeProvider, Keyframes, MapItem, Vector2D } from 'common-types';
 import { FC, JSX, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useAnimationFrame } from 'src/hooks/useAnimationFrame';
 import { ShipIcon } from 'src/icons/ships';
 import { classNames } from 'src/utils/classNames';
 import { useFreezeVector } from '../hooks/useFreezeVector';
 import { CellInfo } from '../types/CellInfo';
-import { MapItem } from '../types/MapItem';
 import { SpaceCell } from './SpaceCell';
 import styles from './SpaceCells.module.css';
 
@@ -186,7 +185,7 @@ export const SpaceCells: FC<Props> = (props) => {
         return (
             <ShipIcon
                 key={item.id}
-                className={styles.item}
+                className={classNames(styles.item, styles[`item--${item.color}`])}
                 appearance={item.appearance}
                 angle={position.angle}
                 offsetX={itemOffsetX}

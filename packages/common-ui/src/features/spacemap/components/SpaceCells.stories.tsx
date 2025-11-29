@@ -1,6 +1,6 @@
+import { MapItem } from 'common-types';
 import { useMemo, useState } from 'react';
 import { useLoopingKeyframes } from 'src/hooks/useLoopingKeyframes';
-import { MapItem } from '../types/MapItem';
 import { SpaceCells as Component } from './SpaceCells';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -73,6 +73,7 @@ export const MovingWithItem: Story = {
                 id: 'item1',
                 size: 1,
                 appearance: 'interceptor',
+                color: 'self',
                 position: itemPos,
             },
         ], [itemPos]);

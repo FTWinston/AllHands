@@ -5,6 +5,7 @@ export * from './CardInstance.js';
 export * from './ConnectionState.js';
 export * from './Cooldown.js';
 export * from './CrewRole.js';
+export * from './MapItem.js';
 export * from './ServerConfig.js';
 export * from './ServerAddress.js';
 export * from './ShipAppearance.js';

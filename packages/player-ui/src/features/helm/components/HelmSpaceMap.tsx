@@ -1,7 +1,6 @@
-import { ITimeProvider, Keyframes, Vector2D } from 'common-types';
+import { ITimeProvider, Keyframes, MapItem, Vector2D } from 'common-types';
 import { Button } from 'common-ui/components/Button';
 import { SpaceCells } from 'common-ui/features/spacemap/components/SpaceCells';
-import { MapItem } from 'common-ui/features/spacemap/types/MapItem';
 import { useState } from 'react';
 import { CardDropTarget } from 'src/components/CardDropTarget';
 import { useActiveCard } from 'src/components/DragCardProvider';
