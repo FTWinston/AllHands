@@ -23,9 +23,11 @@ export const DraggableCard: FC<Props> = (props) => {
 
     const definition = getCardDefinition(props.type);
 
+    const targetType = props.targetType ?? definition.targetType;
+
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: props.id,
-        data: { id: props.id, targetType: props.targetType ?? definition.targetType },
+        data: { id: props.id, targetType },
     });
 
     const isBeingDragged = activeCard?.id === props.id;
@@ -37,6 +39,7 @@ export const DraggableCard: FC<Props> = (props) => {
             className={classNames(
                 styles.card,
                 isBeingDragged ? styles.dragging : null,
+                styles[`card--${targetType}`],
                 canDrop ? styles.canDrop : null,
                 props.className
             )}

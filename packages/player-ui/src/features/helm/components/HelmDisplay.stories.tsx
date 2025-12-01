@@ -62,7 +62,7 @@ export const UI: Story = {
         cards: [
             {
                 id: 1,
-                type: 'exampleLocationTarget',
+                type: 'exampleNoTarget',
             },
             {
                 id: 2,

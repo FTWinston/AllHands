@@ -18,6 +18,8 @@ export const HelmSpaceMap = (props: Props) => {
 
     const [zoomLevel, setZoomLevel] = useState(2.5);
 
+    const draggingLocationCard = activeCard?.targetType === 'location';
+
     return (
         <>
             <SpaceCells
@@ -43,7 +45,7 @@ export const HelmSpaceMap = (props: Props) => {
             <Button
                 className={styles.zoomIn}
                 onClick={() => setZoomLevel(level => Math.min(4.5, level + 0.5))}
-                disabled={zoomLevel >= 4.5}
+                disabled={draggingLocationCard || zoomLevel >= 4.5}
                 focusableWhenDisabled
             >
                 +
@@ -52,7 +54,7 @@ export const HelmSpaceMap = (props: Props) => {
             <Button
                 className={styles.zoomOut}
                 onClick={() => setZoomLevel(level => Math.max(1, level - 0.5))}
-                disabled={zoomLevel <= 1}
+                disabled={draggingLocationCard || zoomLevel <= 1}
                 focusableWhenDisabled
             >
                 -

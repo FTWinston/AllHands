@@ -26,6 +26,8 @@ const snapTopCenterToCursor: Modifier = ({ transform, draggingNodeRect, activato
             y: (activatorEvent as PointerEvent).clientY,
         };
 
+        // Note: this offset is different if you start the drag very rapidly,
+        // compared to if you do it very slowly. Not sure why. Should investigate, cos it's noticably inconsistent.
         return {
             ...transform,
             x: transform.x + (activatorCoordinates.x - draggingNodeRect.left - draggingNodeRect.width / 2),
