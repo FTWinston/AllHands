@@ -1,0 +1,35 @@
+.cells {
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.cell {
+    position: absolute;
+    width: var(--cellWidth);
+    height: var(--cellHeight);
+    /* Flat-top hexagon: flat sides on top and bottom, points on left and right */
+    clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dropping {
+    background-color: var(--grey-lightest);
+}
+
+.couldDrop {
+    background-color: var(--primary-mid);
+}
+
+.dropping, .couldDrop {
+    &::before {
+        content: "";
+        width: calc(var(--cellWidth) * 0.85);
+        height: calc(var(--cellHeight) * 0.85);
+        /* Flat-top hexagon: flat sides on top and bottom, points on left and right */
+        clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0);
+        background-color: black;
+    }
+}

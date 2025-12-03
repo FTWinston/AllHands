@@ -1,51 +1,68 @@
-import { ITimeProvider, Keyframes, MapItem, Vector2D } from 'common-types';
+import { GameObjectInfo, interpolateVector, ITimeProvider, Keyframes, Vector2D } from 'common-types';
 import { Button } from 'common-ui/components/Button';
-import { SpaceCells } from 'common-ui/features/spacemap/components/SpaceCells';
-import { useState } from 'react';
-import { CardDropTarget } from 'src/components/CardDropTarget';
+import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
+import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
+import { useRef, useState } from 'react';
 import { useActiveCard } from 'src/components/DragCardProvider';
+import { useFreezeVector } from '../hooks/useFreezeVector';
+import { DropCells } from './DropCells';
 import styles from './HelmSpaceMap.module.css';
 
 type Props = {
-    className?: string;
     timeProvider: ITimeProvider;
     center: Keyframes<Vector2D>;
-    items: MapItem[];
+    objects: GameObjectInfo[];
 };
+
+// Base cell radius in pixels for both SpaceMap and SpaceCells
+const BASE_CELL_RADIUS = 32;
 
 export const HelmSpaceMap = (props: Props) => {
     const activeCard = useActiveCard();
 
-    const [zoomLevel, setZoomLevel] = useState(2.5);
+    const [zoomLevel, setZoomLevel] = useState(1);
 
     const draggingLocationCard = activeCard?.targetType === 'location';
 
+    // Calculate cell radius based on zoom level
+    const cellRadius = BASE_CELL_RADIUS * zoomLevel;
+
+    const canvas = useRef<HTMLCanvasElement>(null);
+
+    useAnimationFrame();
+
+    const currentTime = props.timeProvider.getServerTime();
+
+    let centerVector = interpolateVector(props.center, currentTime);
+
+    // Freeze the center position while dropping cards, to make that easier.
+    // Lerp to catch back up again when that's done.
+    centerVector = useFreezeVector(!!draggingLocationCard, centerVector);
+
     return (
-        <>
-            <SpaceCells
-                className={props.className}
-                center={props.center}
-                freezeCenter={activeCard?.targetType === 'location'}
+        <div className={styles.spaceMapContainer}>
+            <SpaceMap
+                className={styles.spaceMap}
                 timeProvider={props.timeProvider}
-                fontSizeEm={zoomLevel}
-                items={props.items}
-                renderOverride={(id, CellComponent, cellProps) => (
-                    <CardDropTarget
-                        id={id}
-                        key={id}
-                        render={CellComponent}
-                        targetType="location"
-                        couldDropClassName={styles.couldDrop}
-                        droppingClassName={styles.dropping}
-                        {...cellProps}
-                    />
-                )}
+                center={centerVector}
+                objects={props.objects}
+                cellRadius={cellRadius}
+                gridColor="green"
+                ref={canvas}
             />
+
+            {draggingLocationCard && (
+                <DropCells
+                    className={styles.dropCellsOverlay}
+                    center={centerVector}
+                    cellRadius={cellRadius}
+                />
+            )}
 
             <Button
                 className={styles.zoomIn}
-                onClick={() => setZoomLevel(level => Math.min(4.5, level + 0.5))}
-                disabled={draggingLocationCard || zoomLevel >= 4.5}
+                onClick={() => setZoomLevel(level => Math.min(4, level * 1.25))}
+                disabled={draggingLocationCard || zoomLevel >= 4}
                 focusableWhenDisabled
             >
                 +
@@ -53,12 +70,12 @@ export const HelmSpaceMap = (props: Props) => {
 
             <Button
                 className={styles.zoomOut}
-                onClick={() => setZoomLevel(level => Math.max(1, level - 0.5))}
-                disabled={draggingLocationCard || zoomLevel <= 1}
+                onClick={() => setZoomLevel(level => Math.max(0.5, level / 1.25))}
+                disabled={draggingLocationCard || zoomLevel <= 0.5}
                 focusableWhenDisabled
             >
                 -
             </Button>
-        </>
+        </div>
     );
 };

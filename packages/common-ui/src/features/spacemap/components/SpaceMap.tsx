@@ -1,4 +1,4 @@
-import { GameObjectInfo, interpolateVector, ITimeProvider, Keyframes, Vector2D } from 'common-types';
+import { GameObjectInfo, ITimeProvider, Vector2D } from 'common-types';
 import { CSSProperties, forwardRef } from 'react';
 import { Canvas } from 'src/components/Canvas';
 import { classNames } from 'src/utils/classNames';
@@ -12,7 +12,7 @@ type Props = {
     gridColor: string;
     cellRadius: number;
     timeProvider: ITimeProvider;
-    center: Keyframes<Vector2D>;
+    center: Vector2D;
     drawExtraForeground?: drawFunction;
     drawExtraBackground?: drawFunction;
 };
@@ -32,8 +32,7 @@ export const SpaceMap = forwardRef<HTMLCanvasElement, Props>((props, ref) => {
 
     const draw = (ctx: CanvasRenderingContext2D, bounds: DOMRect) => {
         const currentTime = timeProvider.getServerTime();
-        const centerVector = interpolateVector(center, currentTime);
-        drawMap(ctx, bounds, gridColor, cellRadius, centerVector, currentTime, objects, drawExtraBackground, drawExtraForeground);
+        drawMap(ctx, bounds, gridColor, cellRadius, center, currentTime, objects, drawExtraBackground, drawExtraForeground);
     };
 
     return (
@@ -41,7 +40,6 @@ export const SpaceMap = forwardRef<HTMLCanvasElement, Props>((props, ref) => {
             ref={ref}
             className={classNames(styles.container, className)}
             style={style}
-            animate={true}
             draw={draw}
         />
     );

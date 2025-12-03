@@ -1,4 +1,4 @@
-import { CardInstance, CardTargetType, ITimeProvider, Keyframes, MapItem, Vector2D } from 'common-types';
+import { CardInstance, CardTargetType, GameObjectInfo, ITimeProvider, Keyframes, Vector2D } from 'common-types';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps } from 'react';
@@ -12,12 +12,12 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
     cards: CardInstance[];
     center: Keyframes<Vector2D>;
-    mapItems: MapItem[];
+    objects: GameObjectInfo[];
     timeProvider: ITimeProvider;
 };
 
 export const HelmDisplay = (props: Props) => {
-    const { cards, playCard, center, mapItems, timeProvider, ...headerProps } = props;
+    const { cards, playCard, center, objects, timeProvider, ...headerProps } = props;
 
     useRootClassName(crewStyles.helm);
 
@@ -32,7 +32,7 @@ export const HelmDisplay = (props: Props) => {
                 <HelmSpaceMap
                     timeProvider={timeProvider}
                     center={center}
-                    items={mapItems}
+                    objects={objects}
                 />
 
                 <CardHand cards={cards} />

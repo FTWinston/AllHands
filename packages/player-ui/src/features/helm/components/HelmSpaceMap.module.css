@@ -1,20 +1,20 @@
-.dropping {
-    background-color: var(--grey-lightest);
+.spaceMapContainer {
+    flex-grow: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
-.couldDrop {
-    background-color: var(--primary-mid);
+.spaceMap {
+    flex-grow: 1;
 }
 
-.dropping, .couldDrop {
-    &::before {
-        content: "";
-        font-size: 0.85em;
-        width: var(--cellWidth);
-        height: var(--cellHeight);
-        clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0);
-        background-color: black;
-    }
+.dropCellsOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
 .zoomIn {

@@ -4,6 +4,7 @@ import { useLoopingKeyframes } from 'src/hooks/useLoopingKeyframes';
 import { getClosestCellCenter } from '../utils/drawHexGrid';
 import { SpaceMap as Component } from './SpaceMap';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { useAnimationFrame } from 'src/hooks/useAnimationFrame';
 
 const meta = {
     title: 'common-ui/features/spacemap/Space Map',
@@ -15,7 +16,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Static: Story = {
     args: {
-        center: [{ time: 0, val: { x: 0, y: 0 } }],
+        center: { x: 0, y: 0 },
         timeProvider: { getServerTime: () => Date.now() },
         cellRadius: 32,
         gridColor: 'green',
@@ -61,14 +62,7 @@ export const Static: Story = {
 export const Moving: Story = {
     ...Static,
     render: (args) => {
-        const [center, setCenter] = useState(() => ([
-            { time: Date.now(), val: { x: 0, y: 0 } },
-            { time: Date.now() + 5000, val: { x: 2, y: 0 } },
-            { time: Date.now() + 10000, val: { x: 2, y: 2 } },
-            { time: Date.now() + 15000, val: { x: 0, y: 2 } },
-        ]));
-
-        useLoopingKeyframes(setCenter, args.timeProvider, 20000);
+        const center = { x: 0, y: 0 };
 
         const [itemPos, setItemPos] = useState(() => ([
             { time: Date.now(), val: { ...getClosestCellCenter(0, 0), angle: 5 * Math.PI / 4 } }, // Down and left
@@ -76,6 +70,8 @@ export const Moving: Story = {
             { time: Date.now() + 10000, val: { ...getClosestCellCenter(3, 2), angle: 1 * Math.PI / 4 } }, // Up and right
             { time: Date.now() + 15000, val: { ...getClosestCellCenter(3, 0), angle: 3 * Math.PI / 4 } }, // Up and left
         ]));
+
+        useAnimationFrame();
 
         useLoopingKeyframes(setItemPos, args.timeProvider, 20000);
 
