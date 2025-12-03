@@ -1,14 +1,14 @@
-import { Rectangle } from 'common-types';
+import { Rectangle, Vector2D } from 'common-types';
 
-export const horizontalHexSpacing = 1.7320508075688772;
-export const verticalHexSpacing = 1.5;
+export const horizontalHexSpacing = 1.5;
+export const verticalHexSpacing = 1.7320508075688772;
 
 export function drawHex(ctx: CanvasRenderingContext2D, radius: number, numPoints: number) {
     ctx.beginPath();
 
     let angle, x, y;
     for (let point = 0; point <= numPoints; point++) {
-        angle = 2 * Math.PI / 6 * (point + 0.5);
+        angle = 2 * Math.PI / 6 * point;
         x = radius * Math.cos(angle);
         y = radius * Math.sin(angle);
 
@@ -20,9 +20,9 @@ export function drawHex(ctx: CanvasRenderingContext2D, radius: number, numPoints
     }
 }
 
-export function getClosestCellCenter(x: number, y: number, cellRadius: number) {
-    const fCol = (x * Math.sqrt(3) - y) / 3 / cellRadius;
-    const fRow = y * 2 / 3 / cellRadius;
+export function getClosestCellCenter(x: number, y: number, cellRadius: number = 1): Vector2D {
+    const fCol = x * 2 / 3 / cellRadius;
+    const fRow = (x - Math.sqrt(3) * y) / -3 / cellRadius;
     const fThirdCoord = -fCol - fRow;
 
     let iCol = Math.round(fCol);
@@ -42,8 +42,8 @@ export function getClosestCellCenter(x: number, y: number, cellRadius: number) {
     }
 
     return {
-        x: horizontalHexSpacing * (iCol + iRow / 2) * cellRadius,
-        y: verticalHexSpacing * iRow * cellRadius,
+        x: horizontalHexSpacing * iCol * cellRadius,
+        y: verticalHexSpacing * (iRow + iCol / 2) * cellRadius,
     };
 }
 
@@ -60,8 +60,8 @@ export function drawHexGrid(
         cellRadius
     );
 
-    const insetStartX = currentCell.x;
-    const outsetStartX = currentCell.x - cellRadius * horizontalHexSpacing / 2;
+    const insetStartY = currentCell.y;
+    const outsetStartY = currentCell.y - cellRadius * verticalHexSpacing / 2;
 
     let outset = true;
     ctx.lineWidth = lineWidth;
@@ -70,8 +70,8 @@ export function drawHexGrid(
     const maxX = bounds.x + bounds.width + cellRadius;
     const maxY = bounds.y + bounds.height + cellRadius;
 
-    while (currentCell.y < maxY) {
-        while (currentCell.x < maxX) {
+    while (currentCell.x < maxX) {
+        while (currentCell.y < maxY) {
             ctx.translate(currentCell.x, currentCell.y);
 
             drawHex(ctx, cellRadius, 3);
@@ -79,13 +79,13 @@ export function drawHexGrid(
 
             ctx.translate(-currentCell.x, -currentCell.y);
 
-            currentCell.x += horizontalHexSpacing * cellRadius;
+            currentCell.y += verticalHexSpacing * cellRadius;
         }
 
-        currentCell.y += verticalHexSpacing * cellRadius;
-        currentCell.x = outset
-            ? outsetStartX
-            : insetStartX;
+        currentCell.x += horizontalHexSpacing * cellRadius;
+        currentCell.y = outset
+            ? outsetStartY
+            : insetStartY;
 
         outset = !outset;
     }

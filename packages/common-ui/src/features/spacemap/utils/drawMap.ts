@@ -77,11 +77,11 @@ export function drawMap(
         const position = interpolatePosition(obj.motion, currentTime);
 
         ctx.translate(position.x, position.y);
-        ctx.rotate(position.angle);
+        ctx.rotate(-position.angle);
 
         drawObject(ctx, obj.draw, obj.relationship);
 
-        ctx.rotate(-position.angle);
+        ctx.rotate(position.angle);
         ctx.translate(-position.x, -position.y);
     }
 
