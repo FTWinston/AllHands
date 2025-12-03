@@ -5,9 +5,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "paths": {
-      "common-types": ["../common-types/src"],
-      "engine/*": ["../engine/src/*"],
-      "src/*": ["./src/*"]
+      "common-types": ["../common-types/src"]
     }
   },
   "include": ["src"],

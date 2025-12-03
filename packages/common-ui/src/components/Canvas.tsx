@@ -1,5 +1,5 @@
 import { useRef, useEffect, forwardRef, useState, CSSProperties, useLayoutEffect, PropsWithChildren, RefObject } from 'react';
-import { classNames } from 'src/utils/classNames';
+import { classNames } from '../utils/classNames';
 import styles from './Canvas.module.css';
 
 type Props = {

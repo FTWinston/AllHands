@@ -1,8 +1,8 @@
 import { CrewRoleName } from 'common-types';
 import { FC } from 'react';
-import crewStyles from 'src/CrewColors.module.css';
-import { CrewIcon } from 'src/icons/crew';
-import { classNames } from 'src/utils/classNames';
+import { CrewIcon } from '../../../icons/crew';
+import { classNames } from '../../../utils/classNames';
+import crewStyles from '../../CrewColors.module.css';
 import styles from './CardBack.module.css';
 import { CardBase } from './CardBase';
 

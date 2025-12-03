@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren } from 'react';
-import styles from './CardBase.module.css';
 import { classNames } from '../../../utils/classNames';
+import styles from './CardBase.module.css';
 
 export type Props = PropsWithChildren<{
     className?: string;

@@ -1,7 +1,7 @@
 import { GameObjectInfo, ITimeProvider, Vector2D } from 'common-types';
 import { CSSProperties, forwardRef } from 'react';
-import { Canvas } from 'src/components/Canvas';
-import { classNames } from 'src/utils/classNames';
+import { Canvas } from '../../../components/Canvas';
+import { classNames } from '../../../utils/classNames';
 import { drawFunction, drawMap } from '../utils/drawMap';
 import styles from './SpaceMap.module.css';
 

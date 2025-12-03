@@ -1,6 +1,6 @@
 import { CardInstance, CardTargetType, Vulnerability } from 'common-types';
-import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/components/Screen';
+import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps, useEffect, useMemo, useState } from 'react';
 import { DragCardProvider } from 'src/features/cardhand/components/DragCardProvider';
 import { useRootClassName } from 'src/hooks/useRootClassName';
@@ -9,7 +9,7 @@ import { CrewHeader } from '../../header';
 import { ListTargetInfo, TargetList } from './TargetList';
 import { SlotProps, WeaponSlots } from './WeaponSlots';
 
-type SlotPropsNoTarget = Omit<SlotProps, 'currentTargetState'>;
+export type SlotPropsNoTarget = Omit<SlotProps, 'currentTargetState'>;
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;

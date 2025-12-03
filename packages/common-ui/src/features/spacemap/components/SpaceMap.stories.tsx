@@ -1,10 +1,10 @@
 import { GameObjectInfo, RelationshipType } from 'common-types';
 import { useMemo, useRef, useState } from 'react';
-import { useLoopingKeyframes } from 'src/hooks/useLoopingKeyframes';
+import { useAnimationFrame } from '../../../hooks/useAnimationFrame';
+import { useLoopingKeyframes } from '../../../hooks/useLoopingKeyframes';
 import { getClosestCellCenter } from '../utils/drawHexGrid';
 import { SpaceMap as Component } from './SpaceMap';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useAnimationFrame } from 'src/hooks/useAnimationFrame';
 
 const meta = {
     title: 'common-ui/features/spacemap/Space Map',

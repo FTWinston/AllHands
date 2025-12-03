@@ -1,6 +1,6 @@
 import { CardType, cardDefinitions } from 'common-types';
-import { CardDescription, UICardDefinition } from 'src/features/cards/types/UICardDefinition';
-import { default as ExampleIcon } from 'src/icons/exampleIcon.svg?react';
+import { default as ExampleIcon } from '../../../icons/exampleIcon.svg?react';
+import { CardDescription, UICardDefinition } from '../types/UICardDefinition';
 
 function loadCardDefinitions() {
     const cardDescriptions: Record<CardType, CardDescription> = {

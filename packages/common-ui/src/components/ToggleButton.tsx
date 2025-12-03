@@ -1,8 +1,7 @@
 import { Toggle } from '@base-ui-components/react/toggle';
-
 import { FC } from 'react';
-import { Button, Props as ButtonProps } from './Button';
 import { classNames } from '../utils/classNames';
+import { Button, Props as ButtonProps } from './Button';
 import styles from './ToggleButton.module.css';
 
 type Props = Omit<ButtonProps, 'onClick' | 'type' | 'endIcon'> & {

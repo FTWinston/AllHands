@@ -48,7 +48,6 @@ export const JoinMenu: FC<Props> = (props) => {
                     <div style={{ flexGrow: 1 }} />
 
                     <Button
-                        type="submit"
                         disabled={!ipAddress || port <= 0}
                         onClick={(e) => {
                             e.preventDefault();
