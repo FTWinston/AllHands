@@ -1,4 +1,4 @@
-import { CardDropTarget } from 'src/components/CardDropTarget';
+import { CardDropTarget } from 'src/features/cardhand/components/CardDropTarget';
 import { System, SystemInfo } from './System';
 import styles from './SystemList.module.css';
 

@@ -2,7 +2,7 @@ import { ShipAppearance, Vulnerability } from 'common-types';
 import { classNames } from 'common-ui/utils/classNames';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { ShipIcon } from 'common-ui/icons/ships';
-import { CardDropTarget } from 'src/components/CardDropTarget';
+import { CardDropTarget } from 'src/features/cardhand/components/CardDropTarget';
 import styles from './Target.module.css';
 import { VulnerabilityList } from './VulnerabilityList';
 

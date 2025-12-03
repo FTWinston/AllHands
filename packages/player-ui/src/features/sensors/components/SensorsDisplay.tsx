@@ -2,9 +2,9 @@ import { CardInstance, CardTargetType } from 'common-types';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/components/Screen';
 import { ComponentProps } from 'react';
-import { DragCardProvider } from 'src/components/DragCardProvider';
+import { DragCardProvider } from 'src/features/cardhand/components/DragCardProvider';
 import { useRootClassName } from 'src/hooks/useRootClassName';
-import { CardHand } from '../../../components/CardHand';
+import { CardHand } from '../../cardhand/components/CardHand';
 import { CrewHeader } from '../../header';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
