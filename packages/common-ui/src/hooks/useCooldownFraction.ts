@@ -1,4 +1,4 @@
-import { Cooldown } from 'common-types';
+import { Cooldown } from 'common-data/types/Cooldown';
 import { useEffect, useState } from 'react';
 
 export const useCooldownFraction = (cooldown?: Cooldown) => {

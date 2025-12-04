@@ -9,7 +9,7 @@
     "package": "electron-builder"
   },
   "dependencies": {
-    "common-types": "1.0.0",
+    "common-data": "1.0.0",
     "engine": "1.0.0"
   },
   "build": {

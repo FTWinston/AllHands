@@ -1,6 +1,8 @@
 import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
-import { soloCrewIdentifier, type CrewRole, type ServerConfig } from 'common-types';
+import { soloCrewIdentifier } from 'common-data/utils/constants';
+import type { CrewRole } from 'common-data/types/CrewRole';
+import type { ServerConfig } from 'common-data/types/ServerConfig';
 import { customAlphabet } from 'nanoid/non-secure';
 
 import { CrewState } from './CrewState';

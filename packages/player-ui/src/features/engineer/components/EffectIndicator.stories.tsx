@@ -1,4 +1,4 @@
-import { Cooldown } from 'common-types';
+import { Cooldown } from 'common-data/types/Cooldown';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { useEffect, useState } from 'react';
 import { EffectIndicator as Component } from './EffectIndicator';

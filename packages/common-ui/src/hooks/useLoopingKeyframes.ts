@@ -1,4 +1,6 @@
-import { getFirstFutureIndex, ITimeProvider, Keyframes } from 'common-types';
+import { getFirstFutureIndex } from 'common-data/utils/interpolate';
+import { ITimeProvider } from 'common-data/types/ITimeProvider';
+import { Keyframes } from 'common-data/types/Keyframes';
 import { SetStateAction, useEffect } from 'react';
 
 /** Update the given keyframes, moving past values onto the end and increasing their timestamp, so the given frames loop indefinitely. */

@@ -1,4 +1,5 @@
-import { ShipAppearance, Vulnerability } from 'common-types';
+import { ShipAppearance } from 'common-data/types/ShipAppearance';
+import { Vulnerability } from 'common-data/types/Vulnerability';
 import { classNames } from 'common-ui/utils/classNames';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { ShipIcon } from 'common-ui/icons/ships';

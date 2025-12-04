@@ -14,8 +14,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "common-types": [
-        "./packages/common-types/src"
+      "common-data/*": [
+        "./packages/common-data/src/*"
       ],
       "common-ui/*": [
         "./packages/common-ui/src/*"

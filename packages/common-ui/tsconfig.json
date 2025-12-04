@@ -5,11 +5,11 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "paths": {
-      "common-types": ["../common-types/src"]
+      "common-data/*": ["../common-data/src/*"]
     }
   },
   "include": ["src"],
   "references": [
-    { "path": "../common-types" }
+    { "path": "../common-data" }
   ]
 }

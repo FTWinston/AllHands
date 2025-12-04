@@ -6,7 +6,8 @@ import { startServer } from 'engine';
 import { getClientConfig } from './getClientConfig';
 import { getServerConfig } from './getServerConfig';
 
-import type { ServerAddress, ServerConfig } from 'common-types';
+import type { ServerAddress } from 'common-data/types/ServerAddress';
+import type { ServerConfig } from 'common-data/types/ServerConfig';
 
 // Add global error handlers to prevent app from quitting on errors
 process.on('uncaughtException', (error) => {

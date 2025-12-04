@@ -1,4 +1,6 @@
-import { GameObjectInfo, ITimeProvider, Vector2D } from 'common-types';
+import { GameObjectInfo } from 'common-data/types/GameObjectInfo';
+import { ITimeProvider } from 'common-data/types/ITimeProvider';
+import { Vector2D } from 'common-data/types/Vector2D';
 import { CSSProperties, forwardRef } from 'react';
 import { Canvas } from '../../../components/Canvas';
 import { classNames } from '../../../utils/classNames';

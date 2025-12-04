@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { Vulnerability } from 'common-types';
+import { Vulnerability } from 'common-data/types/Vulnerability';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { useState } from 'react';
 import { Target as Component } from './Target';

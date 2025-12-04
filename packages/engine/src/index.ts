@@ -3,7 +3,8 @@ import path from 'path';
 
 import { WebSocketTransport } from '@colyseus/ws-transport';
 import { Server } from 'colyseus';
-import { roomIdentifier, ServerConfig } from 'common-types';
+import { roomIdentifier } from 'common-data/utils/constants';
+import type { ServerConfig } from 'common-data/types/ServerConfig';
 import { app as electronApp } from 'electron';
 import express from 'express';
 

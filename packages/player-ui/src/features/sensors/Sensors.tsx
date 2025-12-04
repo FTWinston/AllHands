@@ -1,5 +1,5 @@
 import { Room } from 'colyseus.js';
-import { CardInstance } from 'common-types';
+import { CardInstance } from 'common-data/types/CardInstance';
 import { useState } from 'react';
 import { SensorsDisplay } from './components/SensorsDisplay';
 

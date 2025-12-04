@@ -1,4 +1,4 @@
-import { ServerConfig } from 'common-types';
+import { ServerConfig } from 'common-data/types/ServerConfig';
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('electronAPI', {

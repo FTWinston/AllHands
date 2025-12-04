@@ -1,4 +1,5 @@
-import { CardInstance, Cooldown } from 'common-types';
+import { CardInstance } from 'common-data/types/CardInstance';
+import { Cooldown } from 'common-data/types/Cooldown';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getCardDefinition';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fn } from 'storybook/test';

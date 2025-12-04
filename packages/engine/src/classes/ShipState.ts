@@ -1,5 +1,5 @@
 import { Schema, type, view } from '@colyseus/schema';
-import { helmClientRole, sensorClientRole, tacticalClientRole, engineerClientRole } from 'common-types';
+import { helmClientRole, sensorClientRole, tacticalClientRole, engineerClientRole } from 'common-data/types/CrewRole';
 
 import { CrewState } from './CrewState';
 import { EngineerState } from './EngineerState';

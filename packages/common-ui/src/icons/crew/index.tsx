@@ -1,4 +1,4 @@
-import { CrewRoleName } from 'common-types';
+import { CrewRoleName } from 'common-data/types/CrewRole';
 
 import { FC } from 'react';
 import { default as EngineeringIcon } from './engineering.svg?react';

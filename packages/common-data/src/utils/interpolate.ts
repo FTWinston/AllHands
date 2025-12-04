@@ -1,6 +1,6 @@
-import { Keyframe, Keyframes } from './Keyframes';
-import { Position } from './Position';
-import { Vector2D } from './Vector2D';
+import { Keyframe, Keyframes } from '../types/Keyframes';
+import { Position } from '../types/Position';
+import { Vector2D } from '../types/Vector2D';
 
 /** Get the index of the first keyframe whose time is greater than currentTime. */
 export function getFirstFutureIndex<T>(keyframes: Keyframes<T>, currentTime: number): number {

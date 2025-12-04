@@ -1,4 +1,4 @@
-import { CardType } from './cardDefinitions';
+import { CardType } from '../utils/cardDefinitions';
 
 export type CardInstance = {
     id: number;

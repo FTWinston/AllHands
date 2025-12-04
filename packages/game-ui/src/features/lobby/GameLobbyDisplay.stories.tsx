@@ -1,4 +1,4 @@
-import { soloCrewIdentifier } from 'common-types';
+import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { fn } from 'storybook/test';
 
 import { GameLobbyDisplay } from './GameLobbyDisplay';

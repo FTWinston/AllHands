@@ -1,4 +1,4 @@
-import { Cooldown } from 'common-types';
+import { Cooldown } from 'common-data/types/Cooldown';
 import { FC } from 'react';
 import { useCooldownFraction } from '../hooks/useCooldownFraction';
 import { classNames } from '../utils/classNames';

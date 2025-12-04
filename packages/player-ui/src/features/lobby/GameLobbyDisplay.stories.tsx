@@ -1,4 +1,5 @@
-import { engineerClientRole, helmClientRole, sensorClientRole, soloCrewIdentifier, tacticalClientRole } from 'common-types';
+import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/types/CrewRole';
+import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { fn } from 'storybook/test';
 
 import { GameLobbyDisplay } from './GameLobbyDisplay';

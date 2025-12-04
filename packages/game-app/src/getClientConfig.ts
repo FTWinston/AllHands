@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import type { ClientConfig } from 'common-types';
+import type { ClientConfig } from 'common-data/types/ClientConfig';
 
 export function getClientConfig(): ClientConfig {
     const clientConfigFromFile: Partial<ClientConfig> = JSON.parse(

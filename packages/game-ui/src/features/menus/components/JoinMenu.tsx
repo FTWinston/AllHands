@@ -1,4 +1,4 @@
-import { ServerAddress } from 'common-types';
+import { ServerAddress } from 'common-data/types/ServerAddress';
 import { Button } from 'common-ui/components/Button';
 import { Input } from 'common-ui/components/Input';
 import { Screen } from 'common-ui/components/Screen';

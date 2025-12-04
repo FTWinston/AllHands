@@ -1,4 +1,5 @@
-import { Rectangle, Vector2D } from 'common-types';
+import { Rectangle } from 'common-data/types/Rectangle';
+import { Vector2D } from 'common-data/types/Vector2D';
 
 export const horizontalHexSpacing = 1.5;
 export const verticalHexSpacing = 1.7320508075688772;

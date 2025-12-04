@@ -1,4 +1,4 @@
-import { CardType } from 'common-types';
+import { CardType } from 'common-data/utils/cardDefinitions';
 import { FC } from 'react';
 import { getCardDefinition } from '../utils/getCardDefinition';
 import { CardDisplay } from './CardDisplay';

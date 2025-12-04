@@ -1,4 +1,4 @@
-import { CardInstance } from 'common-types';
+import { CardInstance } from 'common-data/types/CardInstance';
 import { WeaponSlot } from './WeaponSlot';
 import styles from './WeaponSlots.module.css';
 

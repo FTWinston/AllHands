@@ -5,7 +5,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "paths": {
-      "common-types": ["../common-types/src"],
+      "common-data/*": ["../common-data/src/*"],
       "common-ui/*": ["../common-ui/src/*"],
       "engine/*": ["../engine/src/*"],
       "game-ui/*": ["../game-ui/src/*"],
@@ -14,7 +14,7 @@
   },
   "include": ["src"],
   "references": [
-    { "path": "../common-types" },
+    { "path": "../common-data" },
     { "path": "../engine" }
   ]
 }

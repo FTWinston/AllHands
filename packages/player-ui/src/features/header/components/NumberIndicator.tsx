@@ -1,4 +1,4 @@
-import { Cooldown } from 'common-types';
+import { Cooldown } from 'common-data/types/Cooldown';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { FC, JSX } from 'react';

@@ -1,5 +1,5 @@
 import { getStateCallbacks, Room } from 'colyseus.js';
-import { type ServerAddress } from 'common-types';
+import { type ServerAddress } from 'common-data/types/ServerAddress';
 import { FC, useEffect, useState } from 'react';
 
 import { GameLobbyDisplay, type SystemState } from './GameLobbyDisplay';

@@ -1,5 +1,5 @@
 import { DndContext, DragEndEvent, DragStartEvent, useSensor, PointerSensor, useSensors, DragOverlay, Modifier } from '@dnd-kit/core';
-import { CardTargetType } from 'common-types';
+import { CardTargetType } from 'common-data/types/CardTargetType';
 import { createContext, useState, ReactNode, useContext } from 'react';
 import { CardDropTarget } from './CardDropTarget';
 

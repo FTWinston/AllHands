@@ -1,4 +1,4 @@
-import { CardDefinition } from 'common-types';
+import { CardDefinition } from 'common-data/types/CardDefinition';
 import { ReactNode } from 'react';
 
 export interface CardDescription {

@@ -1,4 +1,4 @@
-import { type ConnectionState } from 'common-types';
+import { type ConnectionState } from 'common-data/types/ConnectionState';
 import { Screen } from 'common-ui/components/Screen';
 import { useState } from 'react';
 import { GameLobby } from '../features/lobby/GameLobby';

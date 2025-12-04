@@ -1,6 +1,7 @@
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { CardTargetType, CardType } from 'common-types';
+import { CardTargetType } from 'common-data/types/CardTargetType';
+import { CardType } from 'common-data/utils/cardDefinitions';
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getCardDefinition';
 import { classNames } from 'common-ui/utils/classNames';

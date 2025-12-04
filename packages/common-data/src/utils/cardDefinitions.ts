@@ -1,5 +1,5 @@
-import { CardDefinition } from 'src/CardDefinition';
-import { CardTargetType } from './CardTargetType';
+import { CardDefinition } from '../types/CardDefinition';
+import { CardTargetType } from '../types/CardTargetType';
 
 // Enforce that values are of a card definition type, without widening the key type to "string"
 function defineCardDefinitions<T extends Record<string, CardDefinition>>(defs: T) {

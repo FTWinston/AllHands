@@ -6,7 +6,7 @@
     "outDir": "./dist",
     "noEmit": true,
     "paths": {
-      "common-types": ["../common-types/src"],
+      "common-data/*": ["../common-data/src/*"],
       "common-ui/*": ["../common-ui/src/*"],
       "engine/*": ["../engine/src/*"],
       "src/*": ["./src/*"]
@@ -14,7 +14,7 @@
   },
   "include": ["src"],
   "references": [
-    { "path": "../common-types" },
+    { "path": "../common-data" },
     { "path": "../common-ui" },
     { "path": "../engine" }
   ]

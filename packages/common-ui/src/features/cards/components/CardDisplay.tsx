@@ -1,4 +1,5 @@
-import { CardTargetType, CrewRoleName } from 'common-types';
+import { CardTargetType } from 'common-data/types/CardTargetType';
+import { CrewRoleName } from 'common-data/types/CrewRole';
 import { FC, ReactNode } from 'react';
 import crewStyles from '../../../CrewColors.module.css';
 import { classNames } from '../../../utils/classNames';

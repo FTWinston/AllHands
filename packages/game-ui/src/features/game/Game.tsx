@@ -1,5 +1,5 @@
 import { Room } from 'colyseus.js';
-import { ITimeProvider } from 'common-types';
+import { ITimeProvider } from 'common-data/types/ITimeProvider';
 import { Screen } from 'common-ui/components/Screen';
 import { FC } from 'react';
 

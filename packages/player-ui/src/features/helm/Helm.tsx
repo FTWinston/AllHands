@@ -1,5 +1,9 @@
 import { Room } from 'colyseus.js';
-import { CardInstance, GameObjectInfo, ITimeProvider, Keyframes, Vector2D } from 'common-types';
+import { CardInstance } from 'common-data/types/CardInstance';
+import { GameObjectInfo } from 'common-data/types/GameObjectInfo';
+import { ITimeProvider } from 'common-data/types/ITimeProvider';
+import { Keyframes } from 'common-data/types/Keyframes';
+import { Vector2D } from 'common-data/types/Vector2D';
 import { useState } from 'react';
 import { HelmDisplay } from './components/HelmDisplay';
 

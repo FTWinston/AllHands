@@ -1,4 +1,8 @@
-import { GameObjectInfo, interpolatePosition, Rectangle, scaleToRange, Vector2D } from 'common-types';
+import { GameObjectInfo } from 'common-data/types/GameObjectInfo';
+import { Rectangle } from 'common-data/types/Rectangle';
+import { Vector2D } from 'common-data/types/Vector2D';
+import { interpolatePosition } from 'common-data/utils/interpolate';
+import { scaleToRange } from 'common-data/utils/scaleToRange';
 import { drawHexGrid } from './drawHexGrid';
 import { drawObject } from './drawObject';
 

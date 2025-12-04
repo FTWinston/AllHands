@@ -1,4 +1,5 @@
-import { CardInstance, CardTargetType } from 'common-types';
+import { CardInstance } from 'common-data/types/CardInstance';
+import { CardTargetType } from 'common-data/types/CardTargetType';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { Screen } from 'common-ui/components/Screen';
 import { ComponentProps } from 'react';

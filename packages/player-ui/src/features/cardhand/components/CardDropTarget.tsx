@@ -1,5 +1,5 @@
 import { useDroppable } from '@dnd-kit/core';
-import { CardTargetType } from 'common-types';
+import { CardTargetType } from 'common-data/types/CardTargetType';
 import { classNames } from 'common-ui/utils/classNames';
 import { ComponentPropsWithoutRef, ElementType, PropsWithChildren } from 'react';
 import styles from './CardDropTarget.module.css';

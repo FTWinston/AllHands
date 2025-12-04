@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import type { ConnectionState, ServerAddress } from 'common-types';
+import type { ConnectionState } from 'common-data/types/ConnectionState';
+import type { ServerAddress } from 'common-data/types/ServerAddress';
 
 export type ServerType = 'local' | 'remote';
 

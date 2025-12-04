@@ -1,4 +1,4 @@
-import { CardType, cardDefinitions } from 'common-types';
+import { CardType, cardDefinitions } from 'common-data/utils/cardDefinitions';
 import { default as ExampleIcon } from '../../../icons/exampleIcon.svg?react';
 import { CardDescription, UICardDefinition } from '../types/UICardDefinition';
 

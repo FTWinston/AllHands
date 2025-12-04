@@ -1,4 +1,5 @@
-import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, soloCrewIdentifier, tacticalClientRole } from 'common-types';
+import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/types/CrewRole';
+import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { HelmIcon, TacticalIcon, SensorsIcon, EngineeringIcon } from 'common-ui/icons/crew';
 import { Screen } from 'common-ui/components/Screen';
 import { ToggleButton } from 'common-ui/components/ToggleButton';

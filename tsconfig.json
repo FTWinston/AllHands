@@ -3,7 +3,7 @@
   "files": [],
   "references": [
     {
-      "path": "./packages/common-types"
+      "path": "./packages/common-data"
     },
     {
       "path": "./packages/common-ui"

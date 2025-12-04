@@ -4,7 +4,9 @@ import ReactDOM from 'react-dom/client';
 
 import { GameUI } from './components/GameUI';
 
-import type { ClientConfig, ServerAddress, ServerConfig } from 'common-types';
+import type { ClientConfig } from 'common-data/types/ClientConfig';
+import type { ServerAddress } from 'common-data/types/ServerAddress';
+import type { ServerConfig } from 'common-data/types/ServerConfig';
 
 import 'common-ui/baseline';
 
