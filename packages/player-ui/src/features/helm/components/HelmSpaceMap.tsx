@@ -1,8 +1,8 @@
-import { GameObjectInfo } from 'common-data/types/GameObjectInfo';
-import { ITimeProvider } from 'common-data/types/ITimeProvider';
-import { Keyframes } from 'common-data/types/Keyframes';
-import { Vector2D } from 'common-data/types/Vector2D';
-import { interpolateVector } from 'common-data/utils/interpolate';
+import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
+import { Keyframes } from 'common-data/features/space/types/Keyframes';
+import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { interpolateVector } from 'common-data/features/space/utils/interpolate';
 import { Button } from 'common-ui/components/Button';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';

@@ -1,4 +1,4 @@
-import { ShipSystem } from 'common-data/types/ShipSystem';
+import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemIcon } from 'common-ui/icons/systems';
 import { default as HealthIcon } from '../../header/assets/health.svg?react';
 import { default as PowerIcon } from '../../header/assets/power.svg?react';

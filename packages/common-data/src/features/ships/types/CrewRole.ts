@@ -21,19 +21,6 @@ export type CrewRole
 
 export type CrewRoleName = 'helm' | 'sensors' | 'tactical' | 'engineer';
 
-export const getRoleName = (role: CrewRole): CrewRoleName => {
-    switch (role) {
-        case helmClientRole:
-            return 'helm';
-        case sensorClientRole:
-            return 'sensors';
-        case tacticalClientRole:
-            return 'tactical';
-        case engineerClientRole:
-            return 'engineer';
-    }
-};
-
 export const crewRoleNames: CrewRoleName[] = [
     'helm',
     'sensors',

@@ -1,6 +1,6 @@
 import { Menu } from '@base-ui-components/react/menu';
+import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { Cooldown } from 'common-data/types/Cooldown';
-import { CrewRoleName } from 'common-data/types/CrewRole';
 import { Button } from 'common-ui/components/Button';
 import { CrewIcon } from 'common-ui/icons/crew';
 import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';

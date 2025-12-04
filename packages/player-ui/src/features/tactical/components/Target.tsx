@@ -1,8 +1,8 @@
-import { ShipAppearance } from 'common-data/types/ShipAppearance';
-import { Vulnerability } from 'common-data/types/Vulnerability';
-import { classNames } from 'common-ui/utils/classNames';
+import { ShipAppearance } from 'common-data/features/ships/types/ShipAppearance';
+import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { ShipIcon } from 'common-ui/icons/ships';
+import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardhand/components/CardDropTarget';
 import styles from './Target.module.css';
 import { VulnerabilityList } from './VulnerabilityList';

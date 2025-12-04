@@ -1,5 +1,5 @@
 import { getStateCallbacks, Room } from 'colyseus.js';
-import { CrewRole } from 'common-data/types/CrewRole';
+import { CrewRole } from 'common-data/features/ships/types/CrewRole';
 import { useState, useEffect, FC } from 'react';
 
 import { enterFullscreen, exitFullscreen } from '../../utils/fullscreen';

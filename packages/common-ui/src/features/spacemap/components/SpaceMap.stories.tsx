@@ -1,5 +1,5 @@
-import { GameObjectInfo } from 'common-data/types/GameObjectInfo';
-import { RelationshipType } from 'common-data/types/RelationshipType';
+import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { useMemo, useRef, useState } from 'react';
 import { useAnimationFrame } from '../../../hooks/useAnimationFrame';
 import { useLoopingKeyframes } from '../../../hooks/useLoopingKeyframes';

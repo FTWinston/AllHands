@@ -1,10 +1,9 @@
 import { Room, Client, getStateCallbacks } from 'colyseus.js';
-import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/types/CrewRole';
-import type { ConnectionState } from 'common-data/types/ConnectionState';
-import type { CrewRole } from 'common-data/types/CrewRole';
+import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole, type CrewRole } from 'common-data/features/ships/types/CrewRole';
 import { roomIdentifier, soloCrewIdentifier } from 'common-data/utils/constants';
 import { TimeSynchronizer } from 'common-ui/classes/TimeSynchronizer';
 import { useEffect, useRef, useState } from 'react';
+import type { ConnectionState } from 'common-data/types/ConnectionState';
 
 import type { GameState, GameStatus } from 'engine';
 

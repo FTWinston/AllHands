@@ -1,4 +1,4 @@
-import { CardInstance } from 'common-data/types/CardInstance';
+import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
 import { useArrayChanges } from 'src/hooks/useArrayChanges';

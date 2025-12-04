@@ -1,4 +1,4 @@
-import { CrewRoleName } from 'common-data/types/CrewRole';
+import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { FC } from 'react';
 import { CrewIcon } from '../../../icons/crew';
 import { classNames } from '../../../utils/classNames';

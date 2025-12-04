@@ -1,6 +1,6 @@
-import { CardInstance } from 'common-data/types/CardInstance';
-import { CardTargetType } from 'common-data/types/CardTargetType';
-import { Vulnerability } from 'common-data/types/Vulnerability';
+import { CardInstance } from 'common-data/features/cards/types/CardInstance';
+import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps, useEffect, useMemo, useState } from 'react';

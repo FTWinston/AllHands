@@ -1,5 +1,5 @@
+import { CrewRoleName } from '../../ships/types/CrewRole';
 import { CardTargetType } from './CardTargetType';
-import { CrewRoleName } from './CrewRole';
 
 interface CommonCardDefinition {
     targetType: CardTargetType;

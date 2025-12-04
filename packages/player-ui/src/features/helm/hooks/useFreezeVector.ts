@@ -1,4 +1,4 @@
-import { Vector2D } from 'common-data/types/Vector2D';
+import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { useRef } from 'react';
 
 const INTERPOLATION_DURATION_MS = 2000;

@@ -1,5 +1,4 @@
-import { CardTargetType } from 'common-data/types/CardTargetType';
-
+import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { FC } from 'react';
 import { default as EnemyIcon } from './enemy.svg?react';
 import { default as LocationIcon } from './location.svg?react';

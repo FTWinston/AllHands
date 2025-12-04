@@ -1,5 +1,5 @@
-import { ObjectAppearance } from 'common-data/types/ObjectAppearance';
-import { RelationshipType } from 'common-data/types/RelationshipType';
+import { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
+import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { DrawFunction } from '../types/DrawFunction';
 import { drawChevron } from './appearances/drawChevron';
 import { drawCircle } from './appearances/drawCircle';

@@ -1,14 +1,12 @@
 import http from 'http';
 import path from 'path';
-
 import { WebSocketTransport } from '@colyseus/ws-transport';
 import { Server } from 'colyseus';
 import { roomIdentifier } from 'common-data/utils/constants';
-import type { ServerConfig } from 'common-data/types/ServerConfig';
 import { app as electronApp } from 'electron';
 import express from 'express';
-
 import { GameRoom } from './classes/GameRoom';
+import type { ServerConfig } from 'common-data/types/ServerConfig';
 
 // Export state types for use in UI.
 export type { GameState } from './classes/GameState';

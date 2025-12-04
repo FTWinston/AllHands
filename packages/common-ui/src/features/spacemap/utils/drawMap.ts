@@ -1,8 +1,8 @@
-import { GameObjectInfo } from 'common-data/types/GameObjectInfo';
-import { Rectangle } from 'common-data/types/Rectangle';
-import { Vector2D } from 'common-data/types/Vector2D';
-import { interpolatePosition } from 'common-data/utils/interpolate';
+import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
 import { scaleToRange } from 'common-data/utils/scaleToRange';
+import { Rectangle } from '../types/Rectangle';
 import { drawHexGrid } from './drawHexGrid';
 import { drawObject } from './drawObject';
 

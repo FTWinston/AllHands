@@ -1,13 +1,12 @@
 import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
-import type { CrewRole } from 'common-data/types/CrewRole';
-import type { ServerConfig } from 'common-data/types/ServerConfig';
 import { customAlphabet } from 'nanoid/non-secure';
-
 import { CrewState } from './CrewState';
 import { GameState } from './GameState';
 import { ShipState } from './ShipState';
+import type { CrewRole } from 'common-data/features/ships/types/CrewRole';
+import type { ServerConfig } from 'common-data/types/ServerConfig';
 
 interface JoinOptions {
     type?: 'ship' | 'crew';

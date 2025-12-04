@@ -1,4 +1,4 @@
-import { ShipAppearance } from 'common-data/types/ShipAppearance';
+import { ShipAppearance } from 'common-data/features/ships/types/ShipAppearance';
 import { CSSProperties, FC } from 'react';
 import { default as AfterburnIcon } from './afterburn.svg?react';
 import { default as ApolloIcon } from './apollo-capsule.svg?react';

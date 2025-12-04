@@ -1,4 +1,4 @@
-import { CardInstance } from 'common-data/types/CardInstance';
+import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { Button } from 'common-ui/components/Button';
 import { Card } from 'common-ui/features/cards/components/Card';
 import { CardBase } from 'common-ui/features/cards/components/CardBase';

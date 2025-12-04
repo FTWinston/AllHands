@@ -1,4 +1,4 @@
-import { ShipSystem } from 'common-data/types/ShipSystem';
+import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { FC } from 'react';
 import { EngineeringIcon, HelmIcon, SensorsIcon, TacticalIcon } from '../crew';
 import { default as HullIcon } from './hull.svg?react';

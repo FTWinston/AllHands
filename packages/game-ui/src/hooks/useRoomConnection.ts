@@ -1,9 +1,9 @@
 import { Room, Client, getStateCallbacks } from 'colyseus.js';
 import { roomIdentifier } from 'common-data/utils/constants';
-import type { ServerAddress } from 'common-data/types/ServerAddress';
-import type { ConnectionState } from 'common-data/types/ConnectionState';
 import { TimeSynchronizer } from 'common-ui/classes/TimeSynchronizer';
 import { useEffect, useRef, useState } from 'react';
+import type { ConnectionState } from 'common-data/types/ConnectionState';
+import type { ServerAddress } from 'common-data/types/ServerAddress';
 import type { GameState, GameStatus } from 'engine';
 
 export function useRoomConnection(

@@ -1,6 +1,6 @@
 import { Room } from 'colyseus.js';
-import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/types/CrewRole';
-import { ITimeProvider } from 'common-data/types/ITimeProvider';
+import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { GameState } from 'engine/classes/GameState';
 import { FC } from 'react';
 import { Engineer } from '../features/engineer/Engineer';

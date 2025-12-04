@@ -1,7 +1,7 @@
-import { CardInstance } from 'common-data/types/CardInstance';
-import { CardTargetType } from 'common-data/types/CardTargetType';
-import crewStyles from 'common-ui/CrewColors.module.css';
+import { CardInstance } from 'common-data/features/cards/types/CardInstance';
+import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { Screen } from 'common-ui/components/Screen';
+import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps } from 'react';
 import { DragCardProvider } from 'src/features/cardhand/components/DragCardProvider';
 import { useRootClassName } from 'src/hooks/useRootClassName';

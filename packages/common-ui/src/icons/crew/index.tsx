@@ -1,5 +1,4 @@
-import { CrewRoleName } from 'common-data/types/CrewRole';
-
+import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { FC } from 'react';
 import { default as EngineeringIcon } from './engineering.svg?react';
 import { default as HelmIcon } from './helm.svg?react';

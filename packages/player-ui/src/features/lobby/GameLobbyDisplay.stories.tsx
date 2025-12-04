@@ -1,4 +1,4 @@
-import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/types/CrewRole';
+import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { fn } from 'storybook/test';
 

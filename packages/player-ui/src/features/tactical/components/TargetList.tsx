@@ -1,4 +1,4 @@
-import { Vulnerability } from 'common-data/types/Vulnerability';
+import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
 import { Target, TargetInfo } from './Target';
 import styles from './TargetList.module.css';

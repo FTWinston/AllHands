@@ -1,7 +1,4 @@
-export interface Vector2D {
-    x: number;
-    y: number;
-}
+import { Vector2D } from '../types/Vector2D';
 
 const tolerance = 0.001;
 

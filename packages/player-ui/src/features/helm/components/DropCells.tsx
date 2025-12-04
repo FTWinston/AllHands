@@ -1,4 +1,4 @@
-import { Vector2D } from 'common-data/types/Vector2D';
+import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { CardDropTarget } from 'src/features/cardhand/components/CardDropTarget';

@@ -1,13 +1,12 @@
 import { ServerAddress } from 'common-data/types/ServerAddress';
-import type { ConnectionState } from 'common-data/types/ConnectionState';
 import { Screen } from 'common-ui/components/Screen';
 import { useState } from 'react';
 import { useRoomConnection } from 'src/hooks/useRoomConnection';
-
 import { Game } from '../features/game/Game';
 import { GameLobby } from '../features/lobby/GameLobby';
 import { MenuSelector } from '../features/menus/MenuSelector';
 import { useServerConnection } from '../hooks/useServerConnection';
+import type { ConnectionState } from 'common-data/types/ConnectionState';
 
 export const GameUI = () => {
     const [connectionState, setConnectionState]

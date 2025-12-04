@@ -1,7 +1,7 @@
 import { Cooldown } from 'common-data/types/Cooldown';
-import { classNames } from 'common-ui/utils/classNames';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
+import { classNames } from 'common-ui/utils/classNames';
 import { FC, JSX } from 'react';
 import styles from './EffectIndicator.module.css';
 

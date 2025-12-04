@@ -1,8 +1,8 @@
-import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/types/CrewRole';
+import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
-import { HelmIcon, TacticalIcon, SensorsIcon, EngineeringIcon } from 'common-ui/icons/crew';
 import { Screen } from 'common-ui/components/Screen';
 import { ToggleButton } from 'common-ui/components/ToggleButton';
+import { HelmIcon, TacticalIcon, SensorsIcon, EngineeringIcon } from 'common-ui/icons/crew';
 
 import { FC } from 'react';
 import styles from './GameLobbyDisplay.module.css';

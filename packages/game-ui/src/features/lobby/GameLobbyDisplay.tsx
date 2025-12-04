@@ -1,13 +1,13 @@
 import { soloCrewIdentifier } from 'common-data/utils/constants';
-import type { ServerAddress } from 'common-data/types/ServerAddress';
 import { Button } from 'common-ui/components/Button';
-import { EngineeringIcon, HelmIcon, SensorsIcon, TacticalIcon } from 'common-ui/icons/crew';
 import { Screen } from 'common-ui/components/Screen';
+import { EngineeringIcon, HelmIcon, SensorsIcon, TacticalIcon } from 'common-ui/icons/crew';
 import { FC } from 'react';
 import QRCode from 'react-qr-code';
 
 import styles from './GameLobbyDisplay.module.css';
 import { LobbyRole } from './LobbyRole';
+import type { ServerAddress } from 'common-data/types/ServerAddress';
 
 export type SystemState = 'unoccupied' | 'occupied' | 'ready';
 
