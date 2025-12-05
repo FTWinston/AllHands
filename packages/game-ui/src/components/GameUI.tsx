@@ -36,7 +36,7 @@ export const GameUI = () => {
                     <Game
                         room={room}
                         crewID={crewId}
-                        disconnect={disconnect}
+                        showMenu={disconnect} /* TODO: show an in-game menu rather than straight-up disconnecting */
                         timeProvider={timeProvider}
                     />
                 );

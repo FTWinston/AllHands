@@ -2,7 +2,7 @@ import { getStateCallbacks, Room } from 'colyseus.js';
 import { type ServerAddress } from 'common-data/types/ServerAddress';
 import { FC, useEffect, useState } from 'react';
 
-import { GameLobbyDisplay, type SystemState } from './GameLobbyDisplay';
+import { GameLobbyDisplay, type SystemState } from './components/GameLobbyDisplay';
 
 import type { GameState } from 'engine/classes/GameState';
 

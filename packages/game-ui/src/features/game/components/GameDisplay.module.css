@@ -1,0 +1,16 @@
+.spaceMap {
+    flex-grow: 1;
+}
+
+.menuButton {
+    position: absolute;
+    top: 0.5em;
+    left: 0.5em;
+    z-index: 1;
+    padding: 0.25em !important;
+}
+
+.menuButtonIcon {
+    color: black;
+    height: 1.5em;
+}
