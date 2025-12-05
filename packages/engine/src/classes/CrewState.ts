@@ -122,56 +122,56 @@ export class CrewState extends Schema {
     /** Add the ship to each client's view, in the correct view role. */
     assignToShip(ship: ShipState, room: GameRoom) {
         const shipClient = room.clients.getById(this.shipClientId);
-        if (shipClient) {
-            shipClient.view?.add(ship, shipClientRole);
+        if (shipClient?.view) {
+            shipClient.view.add(ship, shipClientRole);
         }
 
         const helmClient = room.clients.getById(this.helmClientId);
-        if (helmClient) {
-            helmClient.view?.add(ship, helmClientRole);
+        if (helmClient?.view) {
+            helmClient.view.add(ship, helmClientRole);
         }
 
         const tacticalClient = room.clients.getById(this.tacticalClientId);
-        if (tacticalClient) {
-            tacticalClient.view?.add(ship, tacticalClientRole);
+        if (tacticalClient?.view) {
+            tacticalClient.view.add(ship, tacticalClientRole);
         }
 
         const sensorsClient = room.clients.getById(this.sensorsClientId);
-        if (sensorsClient) {
-            sensorsClient.view?.add(ship, sensorsClientRole);
+        if (sensorsClient?.view) {
+            sensorsClient.view.add(ship, sensorsClientRole);
         }
 
         const engineerClient = room.clients.getById(this.engineerClientId);
-        if (engineerClient) {
-            engineerClient.view?.add(ship, engineerClientRole);
+        if (engineerClient?.view) {
+            engineerClient.view.add(ship, engineerClientRole);
         }
     }
 
     /** Remove the ship from each client's view, allowing roles to change. */
     unassignFromShip(ship: ShipState, room: GameRoom) {
         const shipClient = room.clients.getById(this.shipClientId);
-        if (shipClient) {
-            shipClient.view?.remove(ship, shipClientRole);
+        if (shipClient?.view) {
+            shipClient.view.remove(ship, shipClientRole);
         }
 
         const helmClient = room.clients.getById(this.helmClientId);
-        if (helmClient) {
-            helmClient.view?.remove(ship, helmClientRole);
+        if (helmClient?.view) {
+            helmClient.view.remove(ship, helmClientRole);
         }
 
         const tacticalClient = room.clients.getById(this.tacticalClientId);
-        if (tacticalClient) {
-            tacticalClient.view?.remove(ship, tacticalClientRole);
+        if (tacticalClient?.view) {
+            tacticalClient.view.remove(ship, tacticalClientRole);
         }
 
         const sensorsClient = room.clients.getById(this.sensorsClientId);
-        if (sensorsClient) {
-            sensorsClient.view?.remove(ship, sensorsClientRole);
+        if (sensorsClient?.view) {
+            sensorsClient.view.remove(ship, sensorsClientRole);
         }
 
         const engineerClient = room.clients.getById(this.engineerClientId);
-        if (engineerClient) {
-            engineerClient.view?.remove(ship, engineerClientRole);
+        if (engineerClient?.view) {
+            engineerClient.view.remove(ship, engineerClientRole);
         }
     }
 }

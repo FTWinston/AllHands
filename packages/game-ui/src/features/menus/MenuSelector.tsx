@@ -1,6 +1,5 @@
 import { ServerAddress } from 'common-data/types/ServerAddress';
 import { FC, useState } from 'react';
-
 import { InGameMenu } from './components/InGameMenu';
 import { JoinMenu } from './components/JoinMenu';
 import { MainMenu } from './components/MainMenu';

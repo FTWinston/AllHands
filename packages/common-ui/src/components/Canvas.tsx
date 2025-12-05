@@ -77,14 +77,15 @@ export const Canvas = forwardRef<HTMLCanvasElement, PropsWithChildren<Props>>((p
     useEffect(
         () => {
             const display = canvasRef.current;
+            const outer = outerRef.current;
 
-            if (!display) {
+            if (!display || !outer) {
                 return;
             }
 
             const updateCanvasSize = () => {
-                const displayWidth = outerRef.current!.clientWidth;
-                const displayHeight = outerRef.current!.clientHeight;
+                const displayWidth = outer.clientWidth;
+                const displayHeight = outer.clientHeight;
 
                 if (display.width !== displayWidth || display.height !== displayHeight) {
                     display.width = displayWidth;
@@ -111,7 +112,7 @@ export const Canvas = forwardRef<HTMLCanvasElement, PropsWithChildren<Props>>((p
             updateCanvasSize();
 
             const resizeObserver = new ResizeObserver(() => updateCanvasSize());
-            resizeObserver.observe(outerRef.current!);
+            resizeObserver.observe(outer);
 
             return () => resizeObserver.disconnect();
         },

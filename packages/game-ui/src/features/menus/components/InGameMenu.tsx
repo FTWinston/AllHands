@@ -1,5 +1,4 @@
 import { Screen } from 'common-ui/components/Screen';
-
 import { FC } from 'react';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';

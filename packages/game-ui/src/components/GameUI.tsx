@@ -1,6 +1,6 @@
 import { ServerAddress } from 'common-data/types/ServerAddress';
 import { Screen } from 'common-ui/components/Screen';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRoomConnection } from 'src/hooks/useRoomConnection';
 import { Game } from '../features/game/Game';
 import { GameLobby } from '../features/lobby/GameLobby';
@@ -24,10 +24,18 @@ export const GameUI = () => {
 
     const [room, crewId, serverState, timeProvider] = useRoomConnection(serverAddress, setConnectionState);
 
-    const disconnect = () => {
+    const disconnect = useCallback(() => {
         setServerType(undefined);
         setServerAddress(undefined);
-    };
+    }, [setServerType, setServerAddress]);
+
+    const pause = useCallback(() => {
+        room?.send('pause');
+    }, [room]);
+
+    const resume = useCallback(() => {
+        room?.send('resume');
+    }, [room]);
 
     if (connectionState === 'connected' && serverState !== 'paused') {
         if (serverState === 'active') {
@@ -36,7 +44,7 @@ export const GameUI = () => {
                     <Game
                         room={room}
                         crewID={crewId}
-                        showMenu={disconnect} /* TODO: show an in-game menu rather than straight-up disconnecting */
+                        showMenu={pause}
                         timeProvider={timeProvider}
                     />
                 );
@@ -84,9 +92,7 @@ export const GameUI = () => {
                     setServerType('remote');
                     setServerAddress(address);
                 }}
-                resumeGame={() => {
-                    console.log('TODO: resume paused game');
-                }}
+                resumeGame={resume}
                 disconnect={disconnect}
                 quit={window.electronAPI.quit}
             />

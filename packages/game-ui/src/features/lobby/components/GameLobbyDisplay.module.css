@@ -17,6 +17,7 @@
 
 .url {
     color: var(--grey-lightest);
+    user-select: all;
 }
 
 .qrCodeContainer {

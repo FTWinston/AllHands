@@ -79,6 +79,22 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
             }
         });
 
+        this.onMessage('pause', () => {
+            if (this.state.gameStatus === 'active') {
+                this.pause();
+            } else {
+                console.warn('Cannot pause: game is not active');
+            }
+        });
+
+        this.onMessage('resume', () => {
+            if (this.state.gameStatus === 'paused') {
+                this.startOrResume();
+            } else {
+                console.warn('Cannot resume: game is not paused');
+            }
+        });
+
         this.onMessage('ready', (client, ready: boolean) => {
             console.log(`Ready message from ${client.sessionId}: ${ready}`);
 
