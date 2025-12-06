@@ -1,6 +1,5 @@
-export interface Keyframe<T> {
+export type Keyframe<T> = Omit<T, 'time'> & {
     time: number;
-    val: T;
-}
+};
 
 export type Keyframes<T> = Keyframe<T>[];

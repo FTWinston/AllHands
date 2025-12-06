@@ -1,4 +1,5 @@
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { Position } from 'common-data/features/space/types/Position';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { useMemo, useRef, useState } from 'react';
 import { useAnimationFrame } from '../../../hooks/useAnimationFrame';
@@ -29,19 +30,15 @@ export const Static: Story = {
                 motion: [
                     {
                         time: Date.now(),
-                        val: {
-                            x: 0,
-                            y: 0,
-                            angle: 0,
-                        },
+                        x: 0,
+                        y: 0,
+                        angle: 0,
                     },
                     {
                         time: Date.now() + 3000,
-                        val: {
-                            x: 5,
-                            y: 0,
-                            angle: Math.PI,
-                        },
+                        x: 5,
+                        y: 0,
+                        angle: Math.PI,
                     },
                 ],
             },
@@ -66,15 +63,15 @@ export const Moving: Story = {
         const center = { x: 0, y: 0 };
 
         const [itemPos, setItemPos] = useState(() => ([
-            { time: Date.now(), val: { ...getClosestCellCenter(0, 0), angle: 5 * Math.PI / 4 } }, // Down and left
-            { time: Date.now() + 5000, val: { ...getClosestCellCenter(0, 2), angle: 7 * Math.PI / 4 } }, // Down and right
-            { time: Date.now() + 10000, val: { ...getClosestCellCenter(3, 2), angle: 1 * Math.PI / 4 } }, // Up and right
-            { time: Date.now() + 15000, val: { ...getClosestCellCenter(3, 0), angle: 3 * Math.PI / 4 } }, // Up and left
+            { time: Date.now(), ...getClosestCellCenter(0, 0), angle: 5 * Math.PI / 4 }, // Down and left
+            { time: Date.now() + 5000, ...getClosestCellCenter(0, 2), angle: 7 * Math.PI / 4 }, // Down and right
+            { time: Date.now() + 10000, ...getClosestCellCenter(3, 2), angle: 1 * Math.PI / 4 }, // Up and right
+            { time: Date.now() + 15000, ...getClosestCellCenter(3, 0), angle: 3 * Math.PI / 4 }, // Up and left
         ]));
 
         useAnimationFrame();
 
-        useLoopingKeyframes(setItemPos, args.timeProvider, 20000);
+        useLoopingKeyframes<Position>(setItemPos, args.timeProvider, 20000);
 
         const objects: GameObjectInfo[] = useMemo(() => [
             {

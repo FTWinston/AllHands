@@ -101,33 +101,6 @@ function getCompletedFraction(startFrame: Keyframe<unknown>, endFrame: Keyframe<
     return Math.max(0, Math.min(1, fraction));
 }
 
-function interpolateNumeric(
-    keyframes: Keyframes<number>,
-    currentTime: number,
-    resolveValue: typeof resolveCurveValue
-): number {
-    const index2 = getFirstFutureIndex(keyframes, currentTime);
-
-    if (index2 === -1) {
-        // If the whole curve is in the past, hold on the last position.
-        return keyframes[keyframes.length - 1].val;
-    }
-
-    const frame2 = keyframes[index2];
-
-    if (index2 === 0) {
-        // If the whole curve is in the future, hold on the first position.
-        return frame2.val;
-    }
-
-    const frame0 = keyframes[index2 - 2];
-    const frame1 = keyframes[index2 - 1];
-    const frame3 = keyframes[index2 + 1];
-    const fraction = getCompletedFraction(frame1, frame2, currentTime);
-
-    return resolveValue(frame0?.val, frame1.val, frame2.val, frame3?.val, fraction);
-}
-
 type KeyCurveResolution<T> = ReadonlyArray<[keyof T, typeof resolveCurveValue]>;
 
 function interpolateObjectKeys<T extends object>(keyframes: Keyframes<T>, currentTime: number, fieldResolution: KeyCurveResolution<T>): T {
@@ -135,24 +108,24 @@ function interpolateObjectKeys<T extends object>(keyframes: Keyframes<T>, curren
 
     if (index2 === -1) {
         // If the whole curve is in the past, hold on the last position.
-        return keyframes[keyframes.length - 1].val;
+        return keyframes[keyframes.length - 1] as T;
     }
 
     const frame2 = keyframes[index2];
 
     if (index2 === 0) {
         // If the whole curve is in the future, hold on the first position.
-        return frame2.val;
+        return frame2 as T;
     }
 
     const frame0 = keyframes[index2 - 2];
     const frame1 = keyframes[index2 - 1];
     const frame3 = keyframes[index2 + 1];
 
-    const val0 = (frame0?.val ?? {}) as Record<keyof T, number>;
-    const val1 = frame1.val as Record<keyof T, number>;
-    const val2 = frame2.val as Record<keyof T, number>;
-    const val3 = (frame3?.val ?? {}) as Record<keyof T, number>;
+    const val0 = (frame0 ?? {}) as Record<keyof T, number>;
+    const val1 = frame1 as Record<keyof T, number>;
+    const val2 = frame2 as Record<keyof T, number>;
+    const val3 = (frame3 ?? {}) as Record<keyof T, number>;
 
     const fraction = getCompletedFraction(frame1, frame2, currentTime);
     const result = {} as Record<keyof T, number>;
@@ -163,14 +136,6 @@ function interpolateObjectKeys<T extends object>(keyframes: Keyframes<T>, curren
     }
 
     return result as T;
-}
-
-export function interpolateNumber(keyframes: Keyframes<number>, currentTime: number): number {
-    return interpolateNumeric(keyframes, currentTime, resolveCurveValue);
-}
-
-export function interpolateAngle(keyframes: Keyframes<number>, currentTime: number): number {
-    return interpolateNumeric(keyframes, currentTime, resolveCurveValueForAngle);
 }
 
 const vectorKeys = Object.entries({

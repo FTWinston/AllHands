@@ -14,7 +14,7 @@ interface GameProps {
 }
 
 export const Game: FC<GameProps> = (props) => {
-    const [center] = useState<Keyframes<Vector2D>>([{ time: 0, val: { x: 0, y: 0 } }]);
+    const [center] = useState<Keyframes<Vector2D>>([{ time: 0, x: 0, y: 0 }]);
     const [objects] = useState<GameObjectInfo[]>([]);
 
     return (

@@ -14,7 +14,7 @@ type Props = {
 
 export const Helm = (props: Props) => {
     const [cards] = useState<CardInstance[]>([]);
-    const [center] = useState<Keyframes<Vector2D>>([{ time: 0, val: { x: 0, y: 0 } }]);
+    const [center] = useState<Keyframes<Vector2D>>([{ time: 0, x: 0, y: 0 }]);
     const [objects] = useState<GameObjectInfo[]>([]);
     const [power] = useState<number>(2);
     const [maxPower] = useState<number>(5);
