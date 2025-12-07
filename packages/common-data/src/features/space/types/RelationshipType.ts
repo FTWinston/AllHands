@@ -1,4 +1,4 @@
-export enum RelationshipType {
+export const enum RelationshipType {
     None = 0,
     Hostile = 1,
     Neutral = 2,

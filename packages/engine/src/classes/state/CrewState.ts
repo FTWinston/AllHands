@@ -1,7 +1,7 @@
 import { Schema, type, view, MapSchema } from '@colyseus/schema';
 import { CrewRole, helmClientRole, sensorClientRole as sensorsClientRole, tacticalClientRole, engineerClientRole, shipClientRole } from 'common-data/features/ships/types/CrewRole';
-import { GameRoom } from './GameRoom';
-import { ShipState } from './ShipState';
+import { GameRoom } from '../GameRoom';
+import { PlayerShip } from './PlayerShip';
 
 export class CrewState extends Schema {
     constructor(shipClientId: string, crewId: string) {
@@ -11,6 +11,8 @@ export class CrewState extends Schema {
     }
 
     crewId: string; // unique ID of this crew
+
+    ship: PlayerShip | null = null;
 
     shipClientId: string; // sessionId of the ship client
 
@@ -120,58 +122,66 @@ export class CrewState extends Schema {
     }
 
     /** Add the ship to each client's view, in the correct view role. */
-    assignToShip(ship: ShipState, room: GameRoom) {
+    assignToShip(room: GameRoom) {
+        if (this.ship === null) {
+            throw new Error(`Crew ${this.crewId} has no ship to assign to`);
+        }
+
         const shipClient = room.clients.getById(this.shipClientId);
         if (shipClient?.view) {
-            shipClient.view.add(ship, shipClientRole);
+            shipClient.view.add(this.ship, shipClientRole);
         }
 
         const helmClient = room.clients.getById(this.helmClientId);
         if (helmClient?.view) {
-            helmClient.view.add(ship, helmClientRole);
+            helmClient.view.add(this.ship, helmClientRole);
         }
 
         const tacticalClient = room.clients.getById(this.tacticalClientId);
         if (tacticalClient?.view) {
-            tacticalClient.view.add(ship, tacticalClientRole);
+            tacticalClient.view.add(this.ship, tacticalClientRole);
         }
 
         const sensorsClient = room.clients.getById(this.sensorsClientId);
         if (sensorsClient?.view) {
-            sensorsClient.view.add(ship, sensorsClientRole);
+            sensorsClient.view.add(this.ship, sensorsClientRole);
         }
 
         const engineerClient = room.clients.getById(this.engineerClientId);
         if (engineerClient?.view) {
-            engineerClient.view.add(ship, engineerClientRole);
+            engineerClient.view.add(this.ship, engineerClientRole);
         }
     }
 
     /** Remove the ship from each client's view, allowing roles to change. */
-    unassignFromShip(ship: ShipState, room: GameRoom) {
+    unassignFromShip(room: GameRoom) {
+        if (this.ship === null) {
+            throw new Error(`Crew ${this.crewId} has no ship to unassign from`);
+        }
+
         const shipClient = room.clients.getById(this.shipClientId);
         if (shipClient?.view) {
-            shipClient.view.remove(ship, shipClientRole);
+            shipClient.view.remove(this.ship, shipClientRole);
         }
 
         const helmClient = room.clients.getById(this.helmClientId);
         if (helmClient?.view) {
-            helmClient.view.remove(ship, helmClientRole);
+            helmClient.view.remove(this.ship, helmClientRole);
         }
 
         const tacticalClient = room.clients.getById(this.tacticalClientId);
         if (tacticalClient?.view) {
-            tacticalClient.view.remove(ship, tacticalClientRole);
+            tacticalClient.view.remove(this.ship, tacticalClientRole);
         }
 
         const sensorsClient = room.clients.getById(this.sensorsClientId);
         if (sensorsClient?.view) {
-            sensorsClient.view.remove(ship, sensorsClientRole);
+            sensorsClient.view.remove(this.ship, sensorsClientRole);
         }
 
         const engineerClient = room.clients.getById(this.engineerClientId);
         if (engineerClient?.view) {
-            engineerClient.view.remove(ship, engineerClientRole);
+            engineerClient.view.remove(this.ship, engineerClientRole);
         }
     }
 }

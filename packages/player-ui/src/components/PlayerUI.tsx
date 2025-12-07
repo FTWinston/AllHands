@@ -16,8 +16,9 @@ export const PlayerUI = () => {
             if (room && crewId && role && timeProvider) {
                 return (
                     <CrewUI
-                        role={role}
                         room={room}
+                        crewId={crewId}
+                        role={role}
                         timeProvider={timeProvider}
                     />
                 );

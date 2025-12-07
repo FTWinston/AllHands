@@ -1,11 +1,12 @@
-import { Room } from 'colyseus.js';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { useState } from 'react';
 import { SlotPropsNoTarget, TacticalDisplay } from './components/TacticalDisplay';
 import { ListTargetInfo } from './components/TargetList';
+import type { Room } from 'colyseus.js';
+import type { GameState } from 'engine/classes/state/GameState';
 
 type Props = {
-    room: Room;
+    room: Room<GameState>;
 };
 
 export const Tactical = (_props: Props) => {

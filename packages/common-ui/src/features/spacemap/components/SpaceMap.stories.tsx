@@ -24,8 +24,8 @@ export const Static: Story = {
         gridColor: 'green',
         objects: [
             {
-                id: 1,
-                draw: 'chevron',
+                id: '1',
+                appearance: 'chevron',
                 relationship: RelationshipType.Self,
                 motion: [
                     {
@@ -75,8 +75,8 @@ export const Moving: Story = {
 
         const objects: GameObjectInfo[] = useMemo(() => [
             {
-                id: 1,
-                draw: 'chevron',
+                id: '1',
+                appearance: 'chevron',
                 relationship: RelationshipType.Self,
                 motion: itemPos,
             },

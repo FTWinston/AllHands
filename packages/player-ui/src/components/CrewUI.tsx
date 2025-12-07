@@ -1,15 +1,16 @@
 import { Room } from 'colyseus.js';
-import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
-import { GameState } from 'engine/classes/GameState';
 import { FC } from 'react';
 import { Engineer } from '../features/engineer/Engineer';
 import { Helm } from '../features/helm/Helm';
 import { Sensors } from '../features/sensors/Sensors';
 import { Tactical } from '../features/tactical/Tactical';
+import type { GameState } from 'engine/classes/state/GameState';
 
 type Props = {
-    role: number;
+    crewId: string;
+    role: CrewRole;
     room: Room<GameState>;
     timeProvider: ITimeProvider;
 };

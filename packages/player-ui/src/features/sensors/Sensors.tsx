@@ -1,10 +1,11 @@
-import { Room } from 'colyseus.js';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { useState } from 'react';
 import { SensorsDisplay } from './components/SensorsDisplay';
+import type { Room } from 'colyseus.js';
+import type { GameState } from 'engine/classes/state/GameState';
 
 type Props = {
-    room: Room;
+    room: Room<GameState>;
 };
 
 export const Sensors = (_props: Props) => {

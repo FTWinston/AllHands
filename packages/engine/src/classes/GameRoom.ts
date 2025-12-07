@@ -2,9 +2,9 @@ import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { customAlphabet } from 'nanoid/non-secure';
-import { CrewState } from './CrewState';
-import { GameState } from './GameState';
-import { ShipState } from './ShipState';
+import { CrewState } from './state/CrewState';
+import { GameState } from './state/GameState';
+import { PlayerShip } from './state/PlayerShip';
 import type { CrewRole } from 'common-data/features/ships/types/CrewRole';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
 
@@ -37,13 +37,6 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         this.allowMultipleCrews = config.multiship;
 
         this.state = new GameState();
-
-        // Temporary message handler for testing.
-        this.onMessage('message', (client, message) => {
-            console.log(`Message from ${client.sessionId}:`, message);
-
-            this.broadcast('messages', `(${client.sessionId}) ${message}`);
-        });
 
         this.onMessage('ping', (client, message) => {
             // Echo the client's timestamp back, and add the server's timestamp.
@@ -185,7 +178,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         client.view = new StateView();
         client.view.add(crew);
 
-        // Send the ship ID back to the ship client, for providing a link for crew members to join.
+        // Send the crew ID back to the ship client, for providing a link for crew members to join.
         client.send('joined', { crewId });
     }
 
@@ -210,7 +203,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         client.view = new StateView();
         client.view.add(crew);
 
-        // Send the ship ID back to the crew client, for reference.
+        // Send the crew ID back to the crew client, for reference.
         client.send('joined', { crewId });
     }
 
@@ -281,11 +274,11 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
         // TODO: create enemies, scenario elements, etc.
 
-        let nextShipId = 1;
         for (const crew of this.state.crews.values()) {
-            const ship = new ShipState();
+            const ship = new PlayerShip(this.state.getNewId(), { x: 0, y: 0, angle: 0 });
             ship.crew = crew;
-            this.state.ships.set(`ship${nextShipId++}`, ship);
+            crew.ship = ship;
+            this.state.add(ship);
         }
 
         this.startOrResume();
@@ -294,8 +287,8 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
     startOrResume() {
         this.state.gameStatus = 'active';
 
-        for (const ship of this.state.ships.values()) {
-            ship.crew?.assignToShip(ship, this);
+        for (const crew of this.state.crews.values()) {
+            crew.assignToShip(this);
         }
     }
 
@@ -303,8 +296,8 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         console.log('Game paused');
         this.state.gameStatus = 'paused';
 
-        for (const ship of this.state.ships.values()) {
-            ship.crew?.unassignFromShip(ship, this);
+        for (const crew of this.state.crews.values()) {
+            crew.unassignFromShip(this);
         }
     }
 }

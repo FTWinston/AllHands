@@ -4,8 +4,8 @@ import { roomIdentifier, soloCrewIdentifier } from 'common-data/utils/constants'
 import { TimeSynchronizer } from 'common-ui/classes/TimeSynchronizer';
 import { useEffect, useRef, useState } from 'react';
 import type { ConnectionState } from 'common-data/types/ConnectionState';
-
-import type { GameState, GameStatus } from 'engine';
+import type { GameState } from 'engine/classes/state/GameState';
+import type { GameStatus } from 'engine/types/GameStatus';
 
 export function useRoomConnection(
     setConnectionState: (state: ConnectionState) => void

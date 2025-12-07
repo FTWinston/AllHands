@@ -83,7 +83,7 @@ export function drawMap(
         ctx.translate(position.x, position.y);
         ctx.rotate(-position.angle);
 
-        drawObject(ctx, obj.draw, obj.relationship);
+        drawObject(ctx, obj.appearance, obj.relationship);
 
         ctx.rotate(position.angle);
         ctx.translate(-position.x, -position.y);

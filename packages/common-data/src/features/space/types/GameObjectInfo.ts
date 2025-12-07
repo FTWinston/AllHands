@@ -3,11 +3,11 @@ import { ObjectAppearance } from './ObjectAppearance';
 import { Position } from './Position';
 import { RelationshipType } from './RelationshipType';
 
-export type ObjectId = number;
+export type ObjectId = string;
 
 export interface GameObjectInfo {
     id: ObjectId;
-    draw: ObjectAppearance;
+    appearance: ObjectAppearance;
     relationship: RelationshipType;
     motion: Keyframes<Position>;
 }

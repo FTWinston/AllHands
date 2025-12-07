@@ -1,4 +1,3 @@
-import { Room } from 'colyseus.js';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
@@ -6,9 +5,11 @@ import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { useState } from 'react';
 import { HelmDisplay } from './components/HelmDisplay';
+import type { Room } from 'colyseus.js';
+import type { GameState } from 'engine/classes/state/GameState';
 
 type Props = {
-    room: Room;
+    room: Room<GameState>;
     timeProvider: ITimeProvider;
 };
 

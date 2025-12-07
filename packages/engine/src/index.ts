@@ -8,16 +8,6 @@ import express from 'express';
 import { GameRoom } from './classes/GameRoom';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
 
-// Export state types for use in UI.
-export type { GameState } from './classes/GameState';
-export type { GameStatus } from './types/GameStatus';
-export type { ShipState } from './classes/ShipState';
-export type { EngineerState } from './classes/EngineerState';
-export type { HelmState } from './classes/HelmState';
-export type { SensorState } from './classes/SensorState';
-export type { TacticalState } from './classes/TacticalState';
-export type { GameRoom } from './classes/GameRoom';
-
 function createWebServer(ipAddress: string, httpPort: number): http.Server {
     const expressApp = express();
     expressApp.use(express.json());
