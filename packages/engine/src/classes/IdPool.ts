@@ -1,4 +1,6 @@
-export class IdPool {
+import { IdProvider } from 'src/types/IdProvider';
+
+export class IdPool implements IdProvider {
     private availableIdQueue: string[] = [];
     private nextNewId: number = 1;
     private minBuffer: number;
@@ -16,7 +18,7 @@ export class IdPool {
      * Retrieves an ID from the front of the queue.
      * If the queue is low, it expands with fresh IDs first.
      */
-    public getAvailableId(): string {
+    public getId(): string {
         // 1. Ensure the pool respects the minimum buffer size
         this.ensureBuffer();
 

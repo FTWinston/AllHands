@@ -1,6 +1,8 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
+import { Position } from 'common-data/features/space/types/Position';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
+import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
 import { MotionKeyframe } from './MotionKeyframe';
 
 export abstract class GameObject extends Schema {
@@ -21,6 +23,10 @@ export abstract class GameObject extends Schema {
     @type('number') relationship: RelationshipType;
 
     @type([MotionKeyframe]) motion = new ArraySchema<MotionKeyframe>();
+
+    getPosition(currentTime: number): Position {
+        return interpolatePosition(this.motion, currentTime);
+    }
 
     public tick(currentTime: number) {
         this.updateMotion(currentTime);

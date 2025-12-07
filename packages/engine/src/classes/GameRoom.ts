@@ -2,6 +2,7 @@ import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { customAlphabet } from 'nanoid/non-secure';
+import { IdPool } from './IdPool';
 import { CrewState } from './state/CrewState';
 import { GameState } from './state/GameState';
 import { PlayerShip } from './state/PlayerShip';
@@ -36,7 +37,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
     onCreate(config: ServerConfig) {
         this.allowMultipleCrews = config.multiship;
 
-        this.state = new GameState();
+        this.state = new GameState(new IdPool());
 
         this.onMessage('ping', (client, message) => {
             // Echo the client's timestamp back, and add the server's timestamp.

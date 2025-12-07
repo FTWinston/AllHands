@@ -1,4 +1,5 @@
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { useMemo, useRef, useState } from 'react';
@@ -62,7 +63,7 @@ export const Moving: Story = {
     render: (args) => {
         const center = { x: 0, y: 0 };
 
-        const [itemPos, setItemPos] = useState(() => ([
+        const [itemPos, setItemPos] = useState<Keyframes<Position>>(() => ([
             { time: Date.now(), ...getClosestCellCenter(0, 0), angle: 5 * Math.PI / 4 }, // Down and left
             { time: Date.now() + 5000, ...getClosestCellCenter(0, 2), angle: 7 * Math.PI / 4 }, // Down and right
             { time: Date.now() + 10000, ...getClosestCellCenter(3, 2), angle: 1 * Math.PI / 4 }, // Up and right

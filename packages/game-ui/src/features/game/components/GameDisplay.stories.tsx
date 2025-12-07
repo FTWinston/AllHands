@@ -1,3 +1,4 @@
+import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
 import { useState } from 'react';
@@ -16,7 +17,7 @@ const meta: Meta<typeof Component> = {
         showMenu: fn(),
     },
     render: (args) => {
-        const [center, setCenter] = useState(() => ([
+        const [center, setCenter] = useState<Keyframes<Vector2D>>(() => ([
             { time: Date.now(), x: 0, y: 0 },
             { time: Date.now() + 5000, x: 5, y: 0 },
             { time: Date.now() + 10000, x: 5, y: 5 },

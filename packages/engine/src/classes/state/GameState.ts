@@ -1,7 +1,7 @@
 import { Schema, type, MapSchema, view } from '@colyseus/schema';
+import { IdProvider } from 'src/types/IdProvider';
 import { IReadonlyStateMap } from 'src/types/IReadonlyStateMap';
 import { GameStatus } from '../../types/GameStatus';
-import { IdPool } from '../IdPool';
 import { CrewState } from './CrewState';
 import { GameObject } from './GameObject';
 
@@ -10,14 +10,16 @@ export class GameState extends Schema {
     @view() @type({ map: GameObject }) private _objects = new MapSchema<GameObject>();
     @view() @type({ map: CrewState }) crews = new MapSchema<CrewState>();
 
+    constructor(private readonly idPool: IdProvider) {
+        super();
+    }
+
     public get objects(): IReadonlyStateMap<GameObject> {
         return this._objects;
     }
 
-    private readonly idPool = new IdPool();
-
     public getNewId(): string {
-        return this.idPool.getAvailableId();
+        return this.idPool.getId();
     }
 
     public add(object: GameObject) {
