@@ -7,12 +7,14 @@ import { Ship } from './Ship';
 import { ViewState } from './ViewState';
 
 export class PlayerShip extends Ship {
+    @type('boolean') dummy1 = true; // TODO: remove when class has its own @type fields
+
     constructor(
         id: string,
         position: Position) {
         super(id, RelationshipType.Self, 'chevron', position);
     }
 
-    @view() crew: CrewState | null = null;
+    crew: CrewState | null = null;
     @view(shipClientRole) @type(ViewState) viewState: ViewState = new ViewState();
 }
