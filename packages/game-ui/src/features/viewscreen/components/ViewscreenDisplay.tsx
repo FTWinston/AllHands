@@ -9,16 +9,16 @@ import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
 import { FC, useRef } from 'react';
-import styles from './GameDisplay.module.css';
+import styles from './ViewscreenDisplay.module.css';
 
-interface GameProps {
+type Props = {
     timeProvider: ITimeProvider;
     center: Keyframes<Vector2D>;
     objects: GameObjectInfo[];
     showMenu: () => void;
-}
+};
 
-export const GameDisplay: FC<GameProps> = (props) => {
+export const ViewscreenDisplay: FC<Props> = (props) => {
     const canvas = useRef<HTMLCanvasElement>(null);
 
     useAnimationFrame();

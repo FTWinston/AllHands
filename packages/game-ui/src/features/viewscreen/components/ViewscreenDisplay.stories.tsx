@@ -3,11 +3,11 @@ import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
-import { GameDisplay as Component } from './GameDisplay';
+import { ViewscreenDisplay as Component } from './ViewscreenDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {
-    title: 'game-ui/Game Display',
+    title: 'game-ui/Viewscreen Display',
     component: Component,
     parameters: {
         layout: 'fullscreen',

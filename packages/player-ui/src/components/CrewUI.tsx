@@ -9,7 +9,7 @@ import { Tactical } from '../features/tactical/Tactical';
 import type { GameState } from 'engine/classes/state/GameState';
 
 type Props = {
-    crewId: string;
+    shipId: string;
     role: CrewRole;
     room: Room<GameState>;
     timeProvider: ITimeProvider;
@@ -20,13 +20,34 @@ export const CrewUI: FC<Props> = (props) => {
 
     switch (role) {
         case helmClientRole:
-            return <Helm room={room} timeProvider={timeProvider} />;
+            return (
+                <Helm
+                    room={room}
+                    shipId={props.shipId}
+                    timeProvider={timeProvider}
+                />
+            );
         case tacticalClientRole:
-            return <Tactical room={room} />;
+            return (
+                <Tactical
+                    room={room}
+                    shipId={props.shipId}
+                />
+            );
         case sensorClientRole:
-            return <Sensors room={room} />;
+            return (
+                <Sensors
+                    room={room}
+                    shipId={props.shipId}
+                />
+            );
         case engineerClientRole:
-            return <Engineer room={room} />;
+            return (
+                <Engineer
+                    room={room}
+                    shipId={props.shipId}
+                />
+            );
         default:
             console.warn('unexpected role', role);
     }

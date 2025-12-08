@@ -17,7 +17,7 @@ export const PlayerUI = () => {
                 return (
                     <CrewUI
                         room={room}
-                        crewId={crewId}
+                        shipId={crewId} /* TODO: dont use the crew ID here, we need useRoomConnection to provide ship ID */
                         role={role}
                         timeProvider={timeProvider}
                     />

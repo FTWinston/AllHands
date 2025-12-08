@@ -3,6 +3,6 @@ export type Keyframe<T> = Omit<T, 'time'> & {
 };
 
 // Take Array<T>, but remove concat and array-returning methods, so it can work with Colyseus ArraySchema.
-type ArrayLikeWithoutConcat<T> = Omit<Array<T>, 'concat' | 'reverse' | 'sort' | 'fill' | 'copyWithin'>;
+type ArrayLike<T> = Omit<Array<T>, 'concat' | 'reverse' | 'sort' | 'fill' | 'copyWithin'>;
 
-export type Keyframes<T> = ArrayLikeWithoutConcat<Keyframe<T>>;
+export type Keyframes<T> = ArrayLike<Keyframe<T>>;

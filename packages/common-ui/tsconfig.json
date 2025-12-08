@@ -5,11 +5,13 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "paths": {
-      "common-data/*": ["../common-data/src/*"]
+      "common-data/*": ["../common-data/src/*"],
+      "engine/*": ["../engine/src/*"],
     }
   },
   "include": ["src"],
   "references": [
-    { "path": "../common-data" }
+    { "path": "../common-data" },
+    { "path": "../engine" }
   ]
 }

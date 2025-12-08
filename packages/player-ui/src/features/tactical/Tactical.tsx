@@ -1,4 +1,5 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
+import { useGameObjects } from 'common-ui/hooks/useGameObjects';
 import { useState } from 'react';
 import { SlotPropsNoTarget, TacticalDisplay } from './components/TacticalDisplay';
 import { ListTargetInfo } from './components/TargetList';
@@ -7,9 +8,11 @@ import type { GameState } from 'engine/classes/state/GameState';
 
 type Props = {
     room: Room<GameState>;
+    shipId: string;
 };
 
-export const Tactical = (_props: Props) => {
+export const Tactical = (props: Props) => {
+    const objects = useGameObjects(props.room);
     const [cards] = useState<CardInstance[]>([]);
     const [slots] = useState<SlotPropsNoTarget[]>([]);
     const [targets] = useState<ListTargetInfo[]>([]); ;
@@ -18,6 +21,8 @@ export const Tactical = (_props: Props) => {
     const [handSize] = useState<number>(2);
     const [maxHandSize] = useState<number>(5);
     const [priority, setPriority] = useState<'hand' | 'power'>('hand');
+
+    console.log(`Render sees ${objects.length} objects`);
 
     return (
         <TacticalDisplay
