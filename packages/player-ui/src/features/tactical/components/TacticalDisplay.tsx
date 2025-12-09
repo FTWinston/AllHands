@@ -1,6 +1,7 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
+import { MinimalArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps, useEffect, useMemo, useState } from 'react';
@@ -17,7 +18,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
     slotFired: (slotIndex: number) => void;
     slotDeactivated: (slotIndex: number) => void;
-    cards: CardInstance[];
+    cards: MinimalArray<CardInstance>;
     slots: SlotPropsNoTarget[];
     targets: ListTargetInfo[];
 };

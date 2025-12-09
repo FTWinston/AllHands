@@ -1,4 +1,3 @@
-import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { useGameObjects } from 'common-ui/hooks/useGameObjects';
 import { useState } from 'react';
 import { EngineerDisplay } from './components/EngineerDisplay';
@@ -12,26 +11,25 @@ type Props = {
 };
 
 export const Engineer = (props: Props) => {
-    const [objects, _localShip] = useGameObjects(props.room, props.shipId);
-    const [cards] = useState<CardInstance[]>([]);
-    const [power] = useState<number>(2);
-    const [maxPower] = useState<number>(5);
-    const [handSize] = useState<number>(2);
-    const [maxHandSize] = useState<number>(5);
+    const [_objects, localShip] = useGameObjects(props.room, props.shipId);
     const [priority, setPriority] = useState<'hand' | 'power'>('hand');
     const [systems] = useState<SystemInfo[]>([]);
 
-    console.log(`Render sees ${objects.length} objects`);
+    if (!localShip?.engineerState) {
+        return <div>unable to load</div>;
+    }
+
+    const engineerState = localShip.engineerState;
 
     return (
         <EngineerDisplay
-            cards={cards}
+            cards={engineerState.hand}
             systems={systems}
             onPause={() => console.log('pause please')}
-            power={power}
-            maxPower={maxPower}
-            handSize={handSize}
-            maxHandSize={maxHandSize}
+            power={engineerState.energy}
+            maxPower={engineerState.powerLevel}
+            handSize={engineerState.hand.length}
+            maxHandSize={engineerState.health}
             playCard={() => {}}
             priority={priority}
             setPriority={setPriority}

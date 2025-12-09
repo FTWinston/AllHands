@@ -1,3 +1,5 @@
+import { CardInstance } from 'src/features/cards/types/CardInstance';
+import { MinimalArray } from 'src/types/MinimalArray';
 import { Keyframes } from './Keyframes';
 import { ObjectAppearance } from './ObjectAppearance';
 import { Position } from './Position';
@@ -12,7 +14,16 @@ export interface GameObjectInfo {
     motion: Keyframes<Position>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface ShipInfo extends GameObjectInfo {
+export interface SystemInfo {
+    hand: MinimalArray<CardInstance>;
+    energy: number;
+    powerLevel: number;
+    health: number;
+}
 
+export interface ShipInfo extends GameObjectInfo {
+    helmState: SystemInfo;
+    sensorState: SystemInfo;
+    tacticalState: SystemInfo;
+    engineerState: SystemInfo;
 }

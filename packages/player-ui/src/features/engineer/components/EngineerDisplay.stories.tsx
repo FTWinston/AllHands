@@ -1,5 +1,6 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { Cooldown } from 'common-data/types/Cooldown';
+import { MinimalArray } from 'common-data/types/MinimalArray';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getCardDefinition';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fn } from 'storybook/test';
@@ -123,7 +124,7 @@ export const useFakePowerAndGeneration = (args: UseFakePowerAndGenerationArgs) =
 };
 
 type UseFakePowerAndCardsArgs = UseFakePowerAndGenerationArgs & {
-    cards: CardInstance[];
+    cards: MinimalArray<CardInstance>;
     createCard: (id: number) => CardInstance;
 };
 

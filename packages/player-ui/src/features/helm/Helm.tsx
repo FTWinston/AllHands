@@ -1,7 +1,4 @@
-import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
-import { Keyframes } from 'common-data/features/space/types/Keyframes';
-import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { useGameObjects } from 'common-ui/hooks/useGameObjects';
 import { useState } from 'react';
 import { HelmDisplay } from './components/HelmDisplay';
@@ -14,28 +11,27 @@ type Props = {
     timeProvider: ITimeProvider;
 };
 
-const defaultCenter: Keyframes<Vector2D> = [{ time: 0, x: 0, y: 0 }];
-
 export const Helm = (props: Props) => {
     const [objects, localShip] = useGameObjects(props.room, props.shipId);
-    const [cards] = useState<CardInstance[]>([]);
-    const [power] = useState<number>(2);
-    const [maxPower] = useState<number>(5);
-    const [handSize] = useState<number>(2);
-    const [maxHandSize] = useState<number>(5);
     const [priority, setPriority] = useState<'hand' | 'power'>('hand');
+
+    if (!localShip?.helmState) {
+        return <div>unable to load</div>;
+    }
+
+    const helmState = localShip.helmState;
 
     return (
         <HelmDisplay
-            cards={cards}
+            cards={helmState.hand}
             onPause={() => console.log('pause please')}
             timeProvider={props.timeProvider}
-            center={localShip ? localShip.motion : defaultCenter}
+            center={localShip.motion}
             objects={objects}
-            power={power}
-            maxPower={maxPower}
-            handSize={handSize}
-            maxHandSize={maxHandSize}
+            power={helmState.energy}
+            maxPower={helmState.powerLevel}
+            handSize={helmState.hand.length}
+            maxHandSize={helmState.health}
             playCard={() => {}}
             priority={priority}
             setPriority={setPriority}

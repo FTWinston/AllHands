@@ -15,7 +15,7 @@ export const useGameObjects = (room: Room<GameState>, localShipId: string | unde
             setObjects([...room.state.objects.values()]);
             setLocalShip(
                 localShipId
-                    ? room.state.objects.get(localShipId) || null
+                    ? room.state.objects.get(localShipId) as ShipInfo | undefined || null
                     : null
             );
         };

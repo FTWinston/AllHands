@@ -4,6 +4,7 @@ import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo'
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { MinimalArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps } from 'react';
@@ -15,7 +16,7 @@ import { HelmSpaceMap } from './HelmSpaceMap';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
-    cards: CardInstance[];
+    cards: MinimalArray<CardInstance>;
     center: Keyframes<Vector2D>;
     objects: GameObjectInfo[];
     timeProvider: ITimeProvider;

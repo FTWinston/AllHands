@@ -1,7 +1,8 @@
+import { MinimalArray } from 'common-data/types/MinimalArray';
 import { useEffect, useRef, useState } from 'react';
 
-export function useArrayChanges<TItem, TItemId>(items: TItem[], getId: (item: TItem) => TItemId) {
-    const knownItems = useRef<TItem[]>(items);
+export function useArrayChanges<TItem, TItemId>(items: MinimalArray<TItem>, getId: (item: TItem) => TItemId) {
+    const knownItems = useRef<MinimalArray<TItem>>(items);
     const [currentItemIds, setCurrentItemIds] = useState<Set<TItemId>>(() => new Set(items.map(getId)));
     const [removingItemIds, setRemovingItemIds] = useState<Set<TItemId>>(() => new Set());
     const isFirstRender = useRef(true);

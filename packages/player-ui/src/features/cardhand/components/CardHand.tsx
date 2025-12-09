@@ -1,4 +1,5 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
+import { MinimalArray } from 'common-data/types/MinimalArray';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
 import { useArrayChanges } from 'src/hooks/useArrayChanges';
@@ -6,7 +7,7 @@ import styles from './CardHand.module.css';
 import { DraggableCard } from './DraggableCard';
 
 type Props = {
-    cards: CardInstance[];
+    cards: MinimalArray<CardInstance>;
 };
 
 const getCardId = (card: CardInstance) => card.id;
