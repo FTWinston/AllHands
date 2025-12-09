@@ -12,7 +12,18 @@ export class CrewState extends Schema {
 
     crewId: string; // unique ID of this crew
 
+    setShip(ship: PlayerShip | null) {
+        if (ship) {
+            ship.crew = this;
+        }
+
+        this.ship = ship;
+        this.shipId = ship?.id ?? null;
+    }
+
     ship: PlayerShip | null = null;
+
+    @type('string') shipId: string | null = null;
 
     shipClientId: string; // sessionId of the ship client
 

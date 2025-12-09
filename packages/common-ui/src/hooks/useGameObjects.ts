@@ -1,10 +1,11 @@
 import { getStateCallbacks, type Room } from 'colyseus.js';
-import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useEffect, useState } from 'react';
 import type { GameState } from 'engine/classes/state/GameState';
 
-export const useGameObjects = (room: Room<GameState>) => {
+export const useGameObjects = (room: Room<GameState>, localShipId: string | undefined = undefined) => {
     const [objects, setObjects] = useState<GameObjectInfo[]>([]);
+    const [localShip, setLocalShip] = useState<ShipInfo | null>(null);
 
     useEffect(() => {
         const callbacks = getStateCallbacks(room);
@@ -12,6 +13,11 @@ export const useGameObjects = (room: Room<GameState>) => {
         // Helper to force a React re-render by getting an array of the latest object states.
         const refreshObjects = () => {
             setObjects([...room.state.objects.values()]);
+            setLocalShip(
+                localShipId
+                    ? room.state.objects.get(localShipId) || null
+                    : null
+            );
         };
 
         // When an obect is added to the array...
@@ -41,7 +47,7 @@ export const useGameObjects = (room: Room<GameState>) => {
             unbindAdd();
             unbindRemove();
         };
-    }, [room]);
+    }, [room, localShipId]);
 
-    return objects;
+    return [objects, localShip] as const;
 };

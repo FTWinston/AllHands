@@ -16,5 +16,6 @@ export class PlayerShip extends Ship {
     }
 
     crew: CrewState | null = null;
+
     @view(shipClientRole) @type(ViewState) viewState: ViewState = new ViewState();
 }

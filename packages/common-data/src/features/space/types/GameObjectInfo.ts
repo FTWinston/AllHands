@@ -11,3 +11,8 @@ export interface GameObjectInfo {
     relationship: RelationshipType;
     motion: Keyframes<Position>;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ShipInfo extends GameObjectInfo {
+
+}

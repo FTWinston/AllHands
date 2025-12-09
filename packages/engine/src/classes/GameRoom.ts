@@ -277,9 +277,8 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
         for (const crew of this.state.crews.values()) {
             const ship = new PlayerShip(this.state.getNewId(), { x: 0, y: 0, angle: 0 });
-            ship.crew = crew;
-            crew.ship = ship;
             this.state.add(ship);
+            crew.setShip(ship);
         }
 
         this.startOrResume();

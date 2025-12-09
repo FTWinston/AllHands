@@ -9,23 +9,23 @@ export const PlayerUI = () => {
     const [connectionState, setConnectionState]
         = useState<ConnectionState>('connecting');
 
-    const [room, crewId, role, ready, serverState, timeProvider] = useRoomConnection(setConnectionState);
+    const [room, crewId, shipId, role, ready, serverState, timeProvider] = useRoomConnection(setConnectionState);
 
     if (connectionState === 'connected') {
         if (serverState === 'active') {
-            if (room && crewId && role && timeProvider) {
+            if (room && shipId && role && timeProvider) {
                 return (
                     <CrewUI
                         room={room}
-                        shipId={crewId} /* TODO: dont use the crew ID here, we need useRoomConnection to provide ship ID */
+                        shipId={shipId}
                         role={role}
                         timeProvider={timeProvider}
                     />
                 );
             } else {
                 console.warn(
-                    'expected room, crewId, role & timeProvider to be set when serverState is active', {
-                        room, crewId, role,
+                    'expected room, shipId, role & timeProvider to be set when serverState is active', {
+                        room, shipId, role,
                     }
                 );
             }

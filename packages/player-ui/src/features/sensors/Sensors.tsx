@@ -11,7 +11,7 @@ type Props = {
 };
 
 export const Sensors = (props: Props) => {
-    const objects = useGameObjects(props.room);
+    const [objects, _localShip] = useGameObjects(props.room, props.shipId);
     const [cards] = useState<CardInstance[]>([]);
     const [power] = useState<number>(2);
     const [maxPower] = useState<number>(5);

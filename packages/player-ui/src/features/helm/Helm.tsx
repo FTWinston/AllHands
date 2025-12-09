@@ -14,10 +14,11 @@ type Props = {
     timeProvider: ITimeProvider;
 };
 
+const defaultCenter: Keyframes<Vector2D> = [{ time: 0, x: 0, y: 0 }];
+
 export const Helm = (props: Props) => {
-    const objects = useGameObjects(props.room);
+    const [objects, localShip] = useGameObjects(props.room, props.shipId);
     const [cards] = useState<CardInstance[]>([]);
-    const [center] = useState<Keyframes<Vector2D>>([{ time: 0, x: 0, y: 0 }]);
     const [power] = useState<number>(2);
     const [maxPower] = useState<number>(5);
     const [handSize] = useState<number>(2);
@@ -29,7 +30,7 @@ export const Helm = (props: Props) => {
             cards={cards}
             onPause={() => console.log('pause please')}
             timeProvider={props.timeProvider}
-            center={center}
+            center={localShip ? localShip.motion : defaultCenter}
             objects={objects}
             power={power}
             maxPower={maxPower}

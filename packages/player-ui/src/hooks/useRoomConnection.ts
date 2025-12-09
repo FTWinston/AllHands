@@ -12,7 +12,8 @@ export function useRoomConnection(
 ) {
     const [connectedRoom, setConnectedRoom] = useState<Room<GameState> | null>(null);
     const timeSynchronizer = useRef<TimeSynchronizer | null>(null);
-    const [crewId, setCrewId] = useState<string | undefined>(undefined);
+    const [crewId, setCrewId] = useState<string | null>(null);
+    const [shipId, setShipId] = useState<string | null>(null);
     const [gameStatus, setGameStatus] = useState<GameStatus>('setup');
     const [role, setRole] = useState<CrewRole | null>(null);
     const [ready, setReady] = useState(false);
@@ -89,6 +90,14 @@ export function useRoomConnection(
 
                 const callbacks = getStateCallbacks(joinedRoom);
 
+                callbacks(joinedRoom.state).crews.onAdd((crew) => {
+                    callbacks(crew).listen('shipId', (newId) => {
+                        setShipId(newId);
+                    });
+
+                    setShipId(crew.crewId);
+                });
+
                 setGameStatus(joinedRoom.state.gameStatus);
 
                 callbacks(joinedRoom.state).listen('gameStatus', (newGameStatus: GameStatus) => {
@@ -112,5 +121,5 @@ export function useRoomConnection(
         };
     }, [setConnectionState]);
 
-    return [connectedRoom, crewId, role, ready, gameStatus, timeSynchronizer.current] as const;
+    return [connectedRoom, crewId, shipId, role, ready, gameStatus, timeSynchronizer.current] as const;
 }

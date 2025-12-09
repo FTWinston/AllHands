@@ -22,7 +22,7 @@ export const GameUI = () => {
         setConnectionState
     );
 
-    const [room, crewId, serverState, timeProvider] = useRoomConnection(serverAddress, setConnectionState);
+    const [room, crewId, shipId, serverState, timeProvider] = useRoomConnection(serverAddress, setConnectionState);
 
     const disconnect = useCallback(() => {
         setServerType(undefined);
@@ -39,19 +39,19 @@ export const GameUI = () => {
 
     if (connectionState === 'connected' && serverState !== 'paused') {
         if (serverState === 'active') {
-            if (room && crewId && timeProvider) {
+            if (room && shipId && timeProvider) {
                 return (
                     <Viewscreen
                         room={room}
-                        crewID={crewId}
+                        shipId={shipId}
                         showMenu={pause}
                         timeProvider={timeProvider}
                     />
                 );
             } else {
                 console.warn(
-                    'expected room, crewId & timeProvider to be set when connectionState is active', {
-                        room, crewId,
+                    'expected room, shipId & timeProvider to be set when serverState is active', {
+                        room, shipId,
                     }
                 );
             }

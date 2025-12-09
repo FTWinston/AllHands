@@ -12,7 +12,7 @@ type Props = {
 };
 
 export const Tactical = (props: Props) => {
-    const objects = useGameObjects(props.room);
+    const [objects, _localShip] = useGameObjects(props.room, props.shipId);
     const [cards] = useState<CardInstance[]>([]);
     const [slots] = useState<SlotPropsNoTarget[]>([]);
     const [targets] = useState<ListTargetInfo[]>([]); ;
