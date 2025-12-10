@@ -14,11 +14,17 @@ export interface GameObjectInfo {
     motion: Keyframes<Position>;
 }
 
+export type SystemPowerPriority = typeof handPriority | typeof powerPriority;
+
+export const handPriority = 1;
+export const powerPriority = 2;
+
 export interface SystemInfo {
     hand: MinimalArray<CardInstance>;
     energy: number;
     powerLevel: number;
     health: number;
+    priority: SystemPowerPriority;
 }
 
 export interface ShipInfo extends GameObjectInfo {

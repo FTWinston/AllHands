@@ -14,7 +14,6 @@ export const Tactical = (props: Props) => {
     const [_objects, localShip] = useGameObjects(props.room, props.shipId);
     const [slots] = useState<SlotPropsNoTarget[]>([]);
     const [targets] = useState<ListTargetInfo[]>([]); ;
-    const [priority, setPriority] = useState<'hand' | 'power'>('hand');
 
     if (!localShip?.tacticalState) {
         return <div>unable to load</div>;
@@ -30,13 +29,12 @@ export const Tactical = (props: Props) => {
             onPause={() => console.log('pause please')}
             slotDeactivated={() => {}}
             slotFired={() => {}}
-            power={tacticalState.energy}
+            energy={tacticalState.energy}
             maxPower={tacticalState.powerLevel}
-            handSize={tacticalState.hand.length}
             maxHandSize={tacticalState.health}
             playCard={() => {}}
-            priority={priority}
-            setPriority={setPriority}
+            priority={tacticalState.priority}
+            setPriority={() => {}}
         />
     );
 };

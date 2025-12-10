@@ -1,5 +1,5 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
-import { SystemInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { powerPriority, SystemInfo, SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import { IRandom } from 'common-data/types/IRandom';
 import { CardState } from './CardState';
 
@@ -45,4 +45,5 @@ export class SystemState extends Schema implements SystemInfo {
     @type('number') energy: number = 1;
     @type('number') powerLevel: number = 1;
     @type('number') health: number = 1;
+    @type('number') priority: SystemPowerPriority = powerPriority;
 }

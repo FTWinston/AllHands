@@ -1,19 +1,20 @@
 import { Switch } from '@base-ui-components/react/switch';
+import { handPriority, powerPriority, SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import { Button } from 'common-ui/components/Button';
 import { FC } from 'react';
 import styles from './PrioritySwitch.module.css';
 
 type Props = {
-    priority: 'hand' | 'power';
-    onChange: (priority: 'hand' | 'power') => void;
+    priority: SystemPowerPriority;
+    onChange: (priority: SystemPowerPriority) => void;
 };
 
 export const PrioritySwitch: FC<Props> = (props) => {
     return (
         <Switch.Root
-            checked={props.priority === 'hand'}
+            checked={props.priority === handPriority}
             onCheckedChange={(checked) => {
-                props.onChange(checked ? 'hand' : 'power');
+                props.onChange(checked ? handPriority : powerPriority);
             }}
             render={(
                 <Button

@@ -1,5 +1,6 @@
 import { Menu } from '@base-ui-components/react/menu';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
+import { SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import { Cooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';
 import { CrewIcon } from 'common-ui/icons/crew';
@@ -17,9 +18,9 @@ import { PrioritySwitch } from './PrioritySwitch';
 type Props = {
     crew: CrewRoleName;
     onPause: () => void;
-    priority: 'hand' | 'power';
-    setPriority: (priority: 'hand' | 'power') => void;
-    power: number;
+    priority: SystemPowerPriority;
+    setPriority: (priority: SystemPowerPriority) => void;
+    energy: number;
     maxPower: number;
     powerGeneration?: Cooldown;
     handSize: number;
@@ -49,7 +50,7 @@ export const CrewHeader: FC<Props> = (props) => {
             </div>
 
             <NumberIndicator
-                value={props.power}
+                value={props.energy}
                 valueIcon={EnergyIcon}
                 maxValue={props.maxPower}
                 maxIcon={PowerIcon}

@@ -11,7 +11,7 @@ import { CrewHeader } from '../../header';
 import { SystemInfo } from './System';
 import { SystemList } from './SystemList';
 
-type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
+type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
     cards: MinimalArray<CardInstance>;
     systems: SystemInfo[];
@@ -27,6 +27,7 @@ export const EngineerDisplay = (props: Props) => {
             <DragCardProvider onCardDropped={playCard}>
                 <CrewHeader
                     crew="engineer"
+                    handSize={cards.length}
                     {...headerProps}
                 />
 

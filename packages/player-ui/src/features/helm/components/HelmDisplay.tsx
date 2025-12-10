@@ -14,7 +14,7 @@ import { CardHand } from '../../cardhand/components/CardHand';
 import { CrewHeader } from '../../header';
 import { HelmSpaceMap } from './HelmSpaceMap';
 
-type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
+type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
     cards: MinimalArray<CardInstance>;
     center: Keyframes<Vector2D>;
@@ -32,6 +32,7 @@ export const HelmDisplay = (props: Props) => {
             <DragCardProvider onCardDropped={playCard}>
                 <CrewHeader
                     crew="helm"
+                    handSize={cards.length}
                     {...headerProps}
                 />
 

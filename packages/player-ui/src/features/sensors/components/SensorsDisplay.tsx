@@ -9,7 +9,7 @@ import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CardHand } from '../../cardhand/components/CardHand';
 import { CrewHeader } from '../../header';
 
-type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
+type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
     cards: MinimalArray<CardInstance>;
 };
@@ -24,6 +24,7 @@ export const SensorsDisplay = (props: Props) => {
             <DragCardProvider onCardDropped={playCard}>
                 <CrewHeader
                     crew="sensors"
+                    handSize={cards.length}
                     {...headerProps}
                 />
 

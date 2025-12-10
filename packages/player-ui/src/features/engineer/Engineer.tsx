@@ -12,7 +12,6 @@ type Props = {
 
 export const Engineer = (props: Props) => {
     const [_objects, localShip] = useGameObjects(props.room, props.shipId);
-    const [priority, setPriority] = useState<'hand' | 'power'>('hand');
     const [systems] = useState<SystemInfo[]>([]);
 
     if (!localShip?.engineerState) {
@@ -26,13 +25,12 @@ export const Engineer = (props: Props) => {
             cards={engineerState.hand}
             systems={systems}
             onPause={() => console.log('pause please')}
-            power={engineerState.energy}
+            energy={engineerState.energy}
             maxPower={engineerState.powerLevel}
-            handSize={engineerState.hand.length}
             maxHandSize={engineerState.health}
             playCard={() => {}}
-            priority={priority}
-            setPriority={setPriority}
+            priority={engineerState.priority}
+            setPriority={() => {}}
         />
     );
 };

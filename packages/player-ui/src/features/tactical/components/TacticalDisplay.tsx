@@ -14,7 +14,7 @@ import { SlotProps, WeaponSlots } from './WeaponSlots';
 
 export type SlotPropsNoTarget = Omit<SlotProps, 'currentTargetState'>;
 
-type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew'> & {
+type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
     slotFired: (slotIndex: number) => void;
     slotDeactivated: (slotIndex: number) => void;
@@ -47,6 +47,7 @@ export const TacticalDisplay = (props: Props) => {
             <DragCardProvider onCardDropped={playCard}>
                 <CrewHeader
                     crew="tactical"
+                    handSize={cards.length}
                     {...headerProps}
                 />
 

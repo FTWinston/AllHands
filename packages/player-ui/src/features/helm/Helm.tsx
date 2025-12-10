@@ -1,6 +1,5 @@
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { useGameObjects } from 'common-ui/hooks/useGameObjects';
-import { useState } from 'react';
 import { HelmDisplay } from './components/HelmDisplay';
 import type { Room } from 'colyseus.js';
 import type { GameState } from 'engine/classes/state/GameState';
@@ -13,7 +12,6 @@ type Props = {
 
 export const Helm = (props: Props) => {
     const [objects, localShip] = useGameObjects(props.room, props.shipId);
-    const [priority, setPriority] = useState<'hand' | 'power'>('hand');
 
     if (!localShip?.helmState) {
         return <div>unable to load</div>;
@@ -28,13 +26,12 @@ export const Helm = (props: Props) => {
             timeProvider={props.timeProvider}
             center={localShip.motion}
             objects={objects}
-            power={helmState.energy}
+            energy={helmState.energy}
             maxPower={helmState.powerLevel}
-            handSize={helmState.hand.length}
             maxHandSize={helmState.health}
             playCard={() => {}}
-            priority={priority}
-            setPriority={setPriority}
+            priority={helmState.priority}
+            setPriority={() => {}}
         />
     );
 };

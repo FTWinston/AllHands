@@ -1,5 +1,7 @@
+import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { MinimalArray } from 'common-data/types/MinimalArray';
 import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
@@ -17,9 +19,9 @@ const meta: Meta<typeof Component> = {
         onPause: fn(),
     },
     render: (args) => {
-        const { power, cards, expendCard, handSize, powerGeneration, cardGeneration, priority, setPriority } = useFakePowerAndCards({
+        const { energy, cards, expendCard, powerGeneration, cardGeneration, priority, setPriority } = useFakePowerAndCards({
             ...args,
-            cards: args.cards || [],
+            cards: args.cards || [] as MinimalArray<CardInstance>,
             createCard: (id: number) => ({
                 id,
                 type: 'exampleLocationTarget',
@@ -42,9 +44,8 @@ const meta: Meta<typeof Component> = {
                 setPriority={setPriority}
                 powerGeneration={powerGeneration}
                 cardGeneration={cardGeneration}
-                handSize={handSize}
                 maxHandSize={args.maxHandSize}
-                power={power}
+                energy={energy}
                 cards={cards}
                 center={center}
                 playCard={(cardId, targetType, targetId) => {
@@ -76,9 +77,8 @@ export const UI: Story = {
             },
         ],
         objects: [],
-        power: 2,
+        energy: 2,
         maxPower: 5,
-        handSize: 3,
         maxHandSize: 5,
         timeProvider: { getServerTime: () => Date.now() },
     },
