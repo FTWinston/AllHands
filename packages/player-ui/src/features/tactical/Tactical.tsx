@@ -1,5 +1,7 @@
+import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import { useGameObjects } from 'common-ui/hooks/useGameObjects';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { SlotPropsNoTarget, TacticalDisplay } from './components/TacticalDisplay';
 import { ListTargetInfo } from './components/TargetList';
 import type { Room } from 'colyseus.js';
@@ -13,7 +15,25 @@ type Props = {
 export const Tactical = (props: Props) => {
     const [_objects, localShip] = useGameObjects(props.room, props.shipId);
     const [slots] = useState<SlotPropsNoTarget[]>([]);
-    const [targets] = useState<ListTargetInfo[]>([]); ;
+    const [targets] = useState<ListTargetInfo[]>([]);
+
+    const pause = useCallback(() => {
+        props.room.send('pause');
+    }, [props.room]);
+
+    const playCard = useCallback((cardId: number, targetType: CardTargetType, targetId: string) => {
+        props.room.send('playCard', {
+            cardId,
+            targetType,
+            targetId,
+        });
+    }, [props.room]);
+
+    const setPriority = useCallback((priority: SystemPowerPriority) => {
+        props.room.send('setPriority', {
+            priority,
+        });
+    }, [props.room]);
 
     if (!localShip?.tacticalState) {
         return <div>unable to load</div>;
@@ -26,15 +46,15 @@ export const Tactical = (props: Props) => {
             cards={tacticalState.hand}
             slots={slots}
             targets={targets}
-            onPause={() => console.log('pause please')}
+            onPause={pause}
             slotDeactivated={() => {}}
             slotFired={() => {}}
             energy={tacticalState.energy}
             maxPower={tacticalState.powerLevel}
             maxHandSize={tacticalState.health}
-            playCard={() => {}}
+            playCard={playCard}
             priority={tacticalState.priority}
-            setPriority={() => {}}
+            setPriority={setPriority}
         />
     );
 };

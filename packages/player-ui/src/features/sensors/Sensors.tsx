@@ -1,4 +1,7 @@
+import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import { useGameObjects } from 'common-ui/hooks/useGameObjects';
+import { useCallback } from 'react';
 import { SensorsDisplay } from './components/SensorsDisplay';
 import type { Room } from 'colyseus.js';
 import type { GameState } from 'engine/classes/state/GameState';
@@ -11,6 +14,24 @@ type Props = {
 export const Sensors = (props: Props) => {
     const [_objects, localShip] = useGameObjects(props.room, props.shipId);
 
+    const pause = useCallback(() => {
+        props.room.send('pause');
+    }, [props.room]);
+
+    const playCard = useCallback((cardId: number, targetType: CardTargetType, targetId: string) => {
+        props.room.send('playCard', {
+            cardId,
+            targetType,
+            targetId,
+        });
+    }, [props.room]);
+
+    const setPriority = useCallback((priority: SystemPowerPriority) => {
+        props.room.send('setPriority', {
+            priority,
+        });
+    }, [props.room]);
+
     if (!localShip?.sensorState) {
         return <div>unable to load</div>;
     }
@@ -20,13 +41,13 @@ export const Sensors = (props: Props) => {
     return (
         <SensorsDisplay
             cards={sensorState.hand}
-            onPause={() => console.log('pause please')}
+            onPause={pause}
             energy={sensorState.energy}
             maxPower={sensorState.powerLevel}
             maxHandSize={sensorState.health}
-            playCard={() => {}}
+            playCard={playCard}
             priority={sensorState.priority}
-            setPriority={() => {}}
+            setPriority={setPriority}
         />
     );
 };

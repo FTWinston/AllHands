@@ -1,12 +1,14 @@
 import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
+import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole, type CrewRole } from 'common-data/features/ships/types/CrewRole';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { customAlphabet } from 'nanoid/non-secure';
 import { IdPool } from './IdPool';
 import { CrewState } from './state/CrewState';
 import { GameState } from './state/GameState';
 import { PlayerShip } from './state/PlayerShip';
-import type { CrewRole } from 'common-data/features/ships/types/CrewRole';
+import type { SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
 
 interface JoinOptions {
@@ -113,6 +115,88 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
                 this.checkIfEveryoneIsReady();
             }
         });
+
+        this.onMessage('playCard', (client, message: { cardId: number; targetType: CardTargetType; targetId: string }) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const { cardId, targetType, targetId } = message;
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                throw new Error('No ship found for client');
+            }
+
+            const systemState = this.getSystemState(ship, clientRole);
+
+            const card = systemState.playCard(cardId, targetType, targetId);
+            if (!card) {
+                throw new Error(`Card ${cardId} not found in hand`);
+            }
+
+            console.log(`${client.sessionId} played card ${cardId} (${card.type}) on ${clientRole} targeting ${targetType}:${targetId}`);
+        });
+
+        this.onMessage('setPriority', (client, message: { priority: SystemPowerPriority }) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                throw new Error('No ship found for client');
+            }
+
+            const systemState = this.getSystemState(ship, clientRole);
+
+            systemState.priority = message.priority;
+        });
+    }
+
+    /**
+     * Get the ship associated with the given client via their crew.
+     */
+    private getShipForClient(client: Client<ClientData>): [null, null] | [PlayerShip, CrewRole] {
+        const crewId = client.userData?.crewId;
+        if (!crewId) {
+            return [null, null];
+        }
+
+        const crew = this.state.crews.get(crewId);
+        if (!crew || !crew.ship) {
+            return [null, null];
+        }
+
+        if (client.sessionId == crew.helmClientId) {
+            return [crew.ship, helmClientRole];
+        } else if (client.sessionId == crew.tacticalClientId) {
+            return [crew.ship, tacticalClientRole];
+        } else if (client.sessionId == crew.sensorsClientId) {
+            return [crew.ship, sensorClientRole];
+        } else if (client.sessionId == crew.engineerClientId) {
+            return [crew.ship, engineerClientRole];
+        } else {
+            return [null, null];
+        }
+    }
+
+    /**
+     * Get the system state for a given system on a ship.
+     */
+    private getSystemState(ship: PlayerShip, system: CrewRole) {
+        switch (system) {
+            case helmClientRole:
+                return ship.helmState;
+            case tacticalClientRole:
+                return ship.tacticalState;
+            case sensorClientRole:
+                return ship.sensorState;
+            case engineerClientRole:
+                return ship.engineerState;
+            default:
+                throw new Error(`Invalid system role: ${system}`);
+        }
     }
 
     onAuth(_client: Client<ClientData>, options: JoinOptions) {

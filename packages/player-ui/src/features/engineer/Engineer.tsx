@@ -1,5 +1,7 @@
+import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import { useGameObjects } from 'common-ui/hooks/useGameObjects';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { EngineerDisplay } from './components/EngineerDisplay';
 import { SystemInfo } from './components/System';
 import type { Room } from 'colyseus.js';
@@ -14,6 +16,24 @@ export const Engineer = (props: Props) => {
     const [_objects, localShip] = useGameObjects(props.room, props.shipId);
     const [systems] = useState<SystemInfo[]>([]);
 
+    const pause = useCallback(() => {
+        props.room.send('pause');
+    }, [props.room]);
+
+    const playCard = useCallback((cardId: number, targetType: CardTargetType, targetId: string) => {
+        props.room.send('playCard', {
+            cardId,
+            targetType,
+            targetId,
+        });
+    }, [props.room]);
+
+    const setPriority = useCallback((priority: SystemPowerPriority) => {
+        props.room.send('setPriority', {
+            priority,
+        });
+    }, [props.room]);
+
     if (!localShip?.engineerState) {
         return <div>unable to load</div>;
     }
@@ -24,13 +44,13 @@ export const Engineer = (props: Props) => {
         <EngineerDisplay
             cards={engineerState.hand}
             systems={systems}
-            onPause={() => console.log('pause please')}
+            onPause={pause}
             energy={engineerState.energy}
             maxPower={engineerState.powerLevel}
             maxHandSize={engineerState.health}
-            playCard={() => {}}
+            playCard={playCard}
             priority={engineerState.priority}
-            setPriority={() => {}}
+            setPriority={setPriority}
         />
     );
 };

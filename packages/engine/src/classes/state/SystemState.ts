@@ -1,4 +1,5 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
+import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { powerPriority, SystemInfo, SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import { IRandom } from 'common-data/types/IRandom';
 import { CardState } from './CardState';
@@ -46,4 +47,23 @@ export class SystemState extends Schema implements SystemInfo {
     @type('number') powerLevel: number = 1;
     @type('number') health: number = 1;
     @type('number') priority: SystemPowerPriority = powerPriority;
+
+    /**
+     * Play a card from the hand by moving it to the discard pile.
+     * Returns the card if found and played, null otherwise.
+     */
+    playCard(cardId: number, _targetType: CardTargetType, _targetId: string): CardState | null {
+        const cardIndex = this.hand.findIndex(card => card.id === cardId);
+        if (cardIndex === -1) {
+            return null;
+        }
+
+        const card = this.hand[cardIndex];
+        this.hand.splice(cardIndex, 1);
+        this.discardPile.push(card);
+
+        // TODO: Apply card effects based on targetType and targetId
+
+        return card;
+    }
 }
