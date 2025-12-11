@@ -14,7 +14,7 @@ type Props = {
 export const MainMenu: FC<Props> = (props) => {
     return (
         <Screen padded>
-            <Menu title="Make It So">
+            <Menu title="All Hands">
                 <MenuItem
                     text="Start single-crew game"
                     onClick={props.hostSingleCrewServer}

@@ -13,8 +13,8 @@
     "engine": "1.0.0"
   },
   "build": {
-    "appId": "com.ftwinston.makeitso",
-    "productName": "Make It So",
+    "appId": "com.ftwinston.allhands",
+    "productName": "All Hands",
     "files": [
       "dist/**/*"
     ],

@@ -11,7 +11,7 @@ type Props = {
 export const InGameMenu: FC<Props> = (props) => {
     return (
         <Screen padded>
-            <Menu title="Make It So">
+            <Menu title="All Hands">
                 <MenuItem
                     text="Resume game"
                     onClick={props.resumeGame}
