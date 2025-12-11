@@ -1,18 +1,41 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
-import { powerPriority, SystemInfo, SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
+import { powerPriority, SystemInfo, SystemPowerPriority, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { IRandom } from 'common-data/types/IRandom';
 import { CardState } from './CardState';
 
 export class SystemState extends Schema implements SystemInfo {
-    constructor(cards: CardState[]) {
+    constructor(setup: SystemSetupInfo, getCardId: () => number) {
         super();
-        this.drawPile = cards;
+
+        // The first initialHandSize cards go straight into the hand.
+        this.hand = new ArraySchema<CardState>(
+            ...setup.cards
+                .slice(0, setup.initialHandSize)
+                .map(cardType => new CardState(getCardId(), cardType))
+        );
+
+        // All remianing cards form the draw pile.
+        this.drawPile = setup.cards
+            .slice(setup.initialHandSize)
+            .map(cardType => new CardState(getCardId(), cardType));
+
+        this.discardPile = [];
+
+        this.energy = setup.energy;
+        this.powerLevel = setup.powerLevel;
+        this.health = setup.health;
+        this.priority = powerPriority;
     }
 
-    @type([CardState]) hand = new ArraySchema<CardState>();
+    @type([CardState]) hand: ArraySchema<CardState>;
     drawPile: CardState[];
-    discardPile: CardState[] = [];
+    discardPile: CardState[];
+
+    @type('number') energy: number;
+    @type('number') powerLevel: number;
+    @type('number') health: number;
+    @type('number') priority: SystemPowerPriority;
 
     /**
      * Take card(s) from the draw pile and add them to the hand,
@@ -42,11 +65,6 @@ export class SystemState extends Schema implements SystemInfo {
             this.discardPile.push(card);
         }
     }
-
-    @type('number') energy: number = 1;
-    @type('number') powerLevel: number = 1;
-    @type('number') health: number = 1;
-    @type('number') priority: SystemPowerPriority = powerPriority;
 
     /**
      * Play a card from the hand by moving it to the discard pile.

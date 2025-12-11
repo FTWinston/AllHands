@@ -132,7 +132,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
             const card = systemState.playCard(cardId, targetType, targetId);
             if (!card) {
-                throw new Error(`Card ${cardId} not found in hand`);
+                throw new Error(`Card ${cardId} not found in ${clientRole} hand`);
             }
 
             console.log(`${client.sessionId} played card ${cardId} (${card.type}) on ${clientRole} targeting ${targetType}:${targetId}`);
@@ -360,7 +360,40 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         // TODO: create enemies, scenario elements, etc.
 
         for (const crew of this.state.crews.values()) {
-            const ship = new PlayerShip(this.state.getNewId(), { x: 0, y: 0, angle: 0 });
+            const ship = new PlayerShip(
+                this.state.getNewId(),
+                {
+                    position: { x: 0, y: 0, angle: 0 },
+                    helm: {
+                        cards: ['exampleLocationTarget', 'exampleLocationTarget', 'exampleNoTarget', 'exampleLocationTarget', 'exampleNoTarget', 'exampleLocationTarget'],
+                        energy: 3,
+                        powerLevel: 3,
+                        initialHandSize: 1,
+                        health: 5,
+                    },
+                    sensors: {
+                        cards: ['exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget'],
+                        energy: 3,
+                        powerLevel: 3,
+                        initialHandSize: 1,
+                        health: 5,
+                    },
+                    tactical: {
+                        cards: ['exampleWeaponSlotTarget', 'exampleWeaponTarget', 'exampleEnemyTarget', 'exampleNoTarget', 'exampleWeaponSlotTarget', 'exampleWeaponTarget', 'exampleEnemyTarget', 'exampleNoTarget'],
+                        energy: 3,
+                        powerLevel: 3,
+                        initialHandSize: 1,
+                        health: 5,
+                    },
+                    engineer: {
+                        cards: ['exampleSystemTarget', 'exampleSystemTarget', 'exampleNoTarget', 'exampleSystemTarget', 'exampleSystemTarget', 'exampleNoTarget'],
+                        energy: 3,
+                        powerLevel: 3,
+                        initialHandSize: 1,
+                        health: 5,
+                    },
+                }
+            );
             this.state.add(ship);
             crew.setShip(ship);
         }

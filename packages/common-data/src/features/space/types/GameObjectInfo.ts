@@ -1,4 +1,5 @@
 import { CardInstance } from 'src/features/cards/types/CardInstance';
+import { CardType } from 'src/features/cards/utils/cardDefinitions';
 import { MinimalArray } from 'src/types/MinimalArray';
 import { Keyframes } from './Keyframes';
 import { ObjectAppearance } from './ObjectAppearance';
@@ -32,4 +33,20 @@ export interface ShipInfo extends GameObjectInfo {
     sensorState: SystemInfo;
     tacticalState: SystemInfo;
     engineerState: SystemInfo;
+}
+
+export interface SystemSetupInfo {
+    cards: CardType[];
+    energy: number;
+    powerLevel: number;
+    initialHandSize: number;
+    health: number;
+}
+
+export interface ShipSetupInfo {
+    position: Position;
+    helm: SystemSetupInfo;
+    sensors: SystemSetupInfo;
+    tactical: SystemSetupInfo;
+    engineer: SystemSetupInfo;
 }
