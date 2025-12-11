@@ -1,42 +1,53 @@
-import { chromium, Browser, BrowserContext, Page } from 'playwright';
-
-// First, launch the browser
-const browser: Browser = await chromium.launch({
-    headless: false, // Must be false to visually see the game
-    args: ['--disable-infobars']
-});
+import { chromium, BrowserContext, Page } from 'playwright';
+import { mkdtempSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
 
 const GAME_URL = 'http://localhost:23552/';
 const TOTAL_PLAYERS = 4;
 
-// Screen dimensions for 2x2 tiling (assuming 1920x1080 screen)
-const width = 900;
-const height = 500;
+// Portrait mobile aspect ratio (same viewport size as Pixel 8a).
+// These will tile in a 4x1 row.
+const width = 412 + 14; // Extra pixels to account for window borders.
+const height = 945 + 7;
 
 const xOffset = -1920; // Set to 0 for main screen, the width of your screen to move to a monitor on the right, or -the width of a screen to the left to move onto that instead.
 
 console.log(`Launching ${TOTAL_PLAYERS} players...`);
+const pages: Page[] = [];
 
+// Create browser windows for each player, positioning in a row.
 for (let i = 0; i < TOTAL_PLAYERS; i++) {
     console.log(`Creating window for player ${i + 1}...`);
 
-    // Create browser windows for each player, positioning in a 2x2 grid.
-    const x = (i % 2) * width + xOffset;
-    const y = Math.floor(i / 2) * height;
+    const x = i * width + xOffset;
+    const y = 0;
 
-    const context: BrowserContext = await browser.newContext({
-        viewport: { width, height },
-        screen: { width: 1920, height: 1080 }
+    // Each player needs a unique user data directory for persistent context
+    const userDataDir = mkdtempSync(join(tmpdir(), `player-${i}-`));
+
+    // Launch using persistent context with app mode flags.
+    // This properly respects Chrome args and removes browser chrome.
+    const context: BrowserContext = await chromium.launchPersistentContext(userDataDir, {
+        headless: false,
+        viewport: null, // Dynamic viewport - resizes with window
+        args: [
+            `--app=${GAME_URL}`,           // App mode: no address bar or tabs
+            '--disable-infobars',
+            `--window-size=${width},${height}`,
+            `--window-position=${x},${y}`,
+        ]
     });
 
-    const page: Page = await context.newPage();
+    // Get the page that was automatically created
+    const page: Page = context.pages()[0] || await context.newPage();
     
-    // Position the window (requires using CDPSession for window bounds)
-    // This connects directly to the browser protocol to move the window.
+    // Position the window using CDP to ensure correct placement
     const session = await context.newCDPSession(page);
+    const { windowId } = await session.send('Browser.getWindowForTarget');
     await session.send('Browser.setWindowBounds', {
-      windowId: (await session.send('Browser.getWindowForTarget')).windowId,
-      bounds: { left: x, top: y, width, height }
+        windowId,
+        bounds: { left: x, top: y, width, height, windowState: 'normal' }
     });
 
     await page.addInitScript(() => {
@@ -52,20 +63,26 @@ for (let i = 0; i < TOTAL_PLAYERS; i++) {
         document.exitFullscreen = () => Promise.resolve();
     });
 
+    pages.push(page);
+}
+
+for (let i = 0; i < TOTAL_PLAYERS; i++) {
     console.log(`Setting up player ${i + 1}...`);
+    const page = pages[i];
     
     try {
-        await page.goto(GAME_URL, { waitUntil: 'load' });
+        // Wait for the page to load.
+        await page.waitForLoadState('load');
 
         // Wait for buttons to load to ensure DOM is ready
-        // Using a generic 'button' selector, but waiting for at least 4 to exist
+        // Using a generic 'button' selector, but waiting for at least 4 to exist.
         await page.waitForFunction(() => document.querySelectorAll('button').length >= 4);
 
         // Click the specific role button (1st, 2nd, 3rd, 4th)
         // .nth(i) is 0-indexed, so it clicks the 1st button for player 0, etc.
         await page.locator('button').nth(i).click();
         
-        // Click the last button (The "Ready" button)
+        // Click the last button (the "Ready" button).
         await page.locator('button').last().click();
 
         console.log(`✅ Player ${i + 1} ready!`);
