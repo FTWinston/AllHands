@@ -40,6 +40,6 @@ type Story = StoryObj<typeof meta>;
 
 export const UI: Story = {
     args: {
-        objects: [],
+        objects: {},
     },
 };

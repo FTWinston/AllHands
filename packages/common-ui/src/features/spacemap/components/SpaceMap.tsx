@@ -10,7 +10,7 @@ import styles from './SpaceMap.module.css';
 type Props = {
     className?: string;
     style?: CSSProperties;
-    objects: Iterable<GameObjectInfo>;
+    objects: Record<string, GameObjectInfo>;
     gridColor: string;
     cellRadius: number;
     timeProvider: ITimeProvider;
@@ -34,7 +34,7 @@ export const SpaceMap = forwardRef<HTMLCanvasElement, Props>((props, ref) => {
 
     const draw = (ctx: CanvasRenderingContext2D, bounds: DOMRect) => {
         const currentTime = timeProvider.getServerTime();
-        drawMap(ctx, bounds, gridColor, cellRadius, center, currentTime, objects, drawExtraBackground, drawExtraForeground);
+        drawMap(ctx, bounds, gridColor, cellRadius, center, currentTime, Object.values(objects), drawExtraBackground, drawExtraForeground);
     };
 
     return (

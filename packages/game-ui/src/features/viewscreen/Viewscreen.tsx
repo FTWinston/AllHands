@@ -1,7 +1,7 @@
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
-import { useGameObjects } from 'common-ui/hooks/useGameObjects';
+import { useImmutableRoomState } from 'common-ui/hooks/useImmutableRoomState';
 import { FC } from 'react';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import type { Room } from 'colyseus.js';
@@ -17,7 +17,9 @@ type Props = {
 const defaultCenter: Keyframes<Vector2D> = [{ time: 0, x: 0, y: 0 }];
 
 export const Viewscreen: FC<Props> = (props) => {
-    const [objects, localShip] = useGameObjects(props.room, props.shipId);
+    const state = useImmutableRoomState(props.room);
+    const objects = state.objects;
+    const localShip = objects[props.shipId];
 
     return (
         <ViewscreenDisplay

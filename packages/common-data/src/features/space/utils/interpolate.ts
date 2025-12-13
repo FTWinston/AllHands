@@ -1,9 +1,9 @@
-import { Keyframe, Keyframes } from '../types/Keyframes';
+import { Keyframe, Keyframes, ReadonlyKeyframes } from '../types/Keyframes';
 import { Position } from '../types/Position';
 import { Vector2D } from '../types/Vector2D';
 
 /** Get the index of the first keyframe whose time is greater than currentTime. */
-export function getFirstFutureIndex<T>(keyframes: Keyframes<T>, currentTime: number): number {
+export function getFirstFutureIndex<T>(keyframes: ReadonlyKeyframes<T>, currentTime: number): number {
     return keyframes.findIndex(keyframe => keyframe.time > currentTime);
 }
 
@@ -20,7 +20,7 @@ export function pruneKeyframes(keyframes: Keyframes<unknown>, currentTime: numbe
 }
 
 /** Indicates whether additional frames should be added to properly animate these keyframes. */
-export function wantsMoreKeyframes(keyframes: Keyframes<unknown>, currentTime: number): boolean {
+export function wantsMoreKeyframes(keyframes: ReadonlyKeyframes<unknown>, currentTime: number): boolean {
     if (keyframes.length < 2) {
         return true;
     }
@@ -103,7 +103,7 @@ function getCompletedFraction(startFrame: Keyframe<unknown>, endFrame: Keyframe<
 
 type KeyCurveResolution<T> = ReadonlyArray<[keyof T, typeof resolveCurveValue]>;
 
-function interpolateObjectKeys<T extends object>(keyframes: Keyframes<T>, currentTime: number, fieldResolution: KeyCurveResolution<T>): T {
+function interpolateObjectKeys<T extends object>(keyframes: ReadonlyKeyframes<T>, currentTime: number, fieldResolution: KeyCurveResolution<T>): T {
     const index2 = getFirstFutureIndex(keyframes, currentTime);
 
     if (index2 === -1) {
@@ -143,7 +143,7 @@ const vectorKeys = Object.entries({
     y: resolveCurveValue,
 }) as KeyCurveResolution<Vector2D>;
 
-export function interpolateVector(keyframes: Keyframes<Vector2D>, currentTime: number): Vector2D {
+export function interpolateVector(keyframes: ReadonlyKeyframes<Vector2D>, currentTime: number): Vector2D {
     return interpolateObjectKeys<Vector2D>(keyframes, currentTime, vectorKeys);
 }
 
@@ -153,6 +153,6 @@ const positionKeys = Object.entries({
     angle: resolveCurveValueForAngle,
 }) as KeyCurveResolution<Position>;
 
-export function interpolatePosition(keyframes: Keyframes<Position>, currentTime: number): Position {
+export function interpolatePosition(keyframes: ReadonlyKeyframes<Position>, currentTime: number): Position {
     return interpolateObjectKeys<Position>(keyframes, currentTime, positionKeys);
 }

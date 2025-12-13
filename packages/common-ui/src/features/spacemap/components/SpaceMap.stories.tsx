@@ -23,8 +23,8 @@ export const Static: Story = {
         timeProvider: { getServerTime: () => Date.now() },
         cellRadius: 32,
         gridColor: 'green',
-        objects: [
-            {
+        objects: {
+            1: {
                 id: '1',
                 appearance: 'chevron',
                 relationship: RelationshipType.Self,
@@ -43,7 +43,7 @@ export const Static: Story = {
                     },
                 ],
             },
-        ],
+        },
         style: { width: 'calc(100vw - 2em)', height: 'calc(100vh - 2em)' },
     },
     render: (args) => {
@@ -74,14 +74,14 @@ export const Moving: Story = {
 
         useLoopingKeyframes<Position>(setItemPos, args.timeProvider, 20000);
 
-        const objects: GameObjectInfo[] = useMemo(() => [
-            {
+        const objects: Record<string, GameObjectInfo> = useMemo(() => ({
+            1: {
                 id: '1',
                 appearance: 'chevron',
                 relationship: RelationshipType.Self,
                 motion: itemPos,
             },
-        ], [itemPos]);
+        }), [itemPos]);
 
         const canvas = useRef<HTMLCanvasElement>(null);
 

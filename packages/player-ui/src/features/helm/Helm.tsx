@@ -1,7 +1,7 @@
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
-import { SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, ShipInfo, SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
-import { useGameObjects } from 'common-ui/hooks/useGameObjects';
+import { useImmutableRoomState } from 'common-ui/hooks/useImmutableRoomState';
 import { useCallback } from 'react';
 import { HelmDisplay } from './components/HelmDisplay';
 import type { Room } from 'colyseus.js';
@@ -14,7 +14,9 @@ type Props = {
 };
 
 export const Helm = (props: Props) => {
-    const [objects, localShip] = useGameObjects(props.room, props.shipId);
+    const state = useImmutableRoomState(props.room);
+    const objects = state.objects as Record<string, GameObjectInfo>;
+    const localShip = objects[props.shipId] as ShipInfo;
 
     const pause = useCallback(() => {
         props.room.send('pause');

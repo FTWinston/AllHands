@@ -1,4 +1,4 @@
-import { MinimalArray } from './MinimalArray';
+import { MinimalArray, MinimalReadonlyArray } from './MinimalArray';
 
 export interface IRandom {
     getFloat(min: number, max: number): number;
@@ -7,7 +7,7 @@ export interface IRandom {
 
     getInt(maxExclusive: number): number;
 
-    pick<T>(values: MinimalArray<T>): T;
+    pick<T>(values: MinimalReadonlyArray<T>): T;
 
     insert<T>(array: MinimalArray<T>, value: T): void;
 

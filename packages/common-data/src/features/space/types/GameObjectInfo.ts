@@ -1,7 +1,7 @@
 import { CardInstance } from 'src/features/cards/types/CardInstance';
 import { CardType } from 'src/features/cards/utils/cardDefinitions';
-import { MinimalArray } from 'src/types/MinimalArray';
-import { Keyframes } from './Keyframes';
+import { MinimalReadonlyArray } from 'src/types/MinimalArray';
+import { ReadonlyKeyframes } from './Keyframes';
 import { ObjectAppearance } from './ObjectAppearance';
 import { Position } from './Position';
 import { RelationshipType } from './RelationshipType';
@@ -12,7 +12,7 @@ export interface GameObjectInfo {
     id: ObjectId;
     appearance: ObjectAppearance;
     relationship: RelationshipType;
-    motion: Keyframes<Position>;
+    motion: ReadonlyKeyframes<Position>;
 }
 
 export type SystemPowerPriority = typeof handPriority | typeof powerPriority;
@@ -21,7 +21,7 @@ export const handPriority = 1;
 export const powerPriority = 2;
 
 export interface SystemInfo {
-    hand: MinimalArray<CardInstance>;
+    hand: MinimalReadonlyArray<CardInstance>;
     energy: number;
     powerLevel: number;
     health: number;

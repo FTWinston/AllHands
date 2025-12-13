@@ -1,6 +1,6 @@
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
-import { Keyframes } from 'common-data/features/space/types/Keyframes';
+import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { interpolateVector } from 'common-data/features/space/utils/interpolate';
 import { Button } from 'common-ui/components/Button';
@@ -14,8 +14,8 @@ import styles from './HelmSpaceMap.module.css';
 
 type Props = {
     timeProvider: ITimeProvider;
-    center: Keyframes<Vector2D>;
-    objects: GameObjectInfo[];
+    center: ReadonlyKeyframes<Vector2D>;
+    objects: Record<string, GameObjectInfo>;
 };
 
 // Base cell radius in pixels for both SpaceMap and SpaceCells

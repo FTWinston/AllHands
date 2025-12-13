@@ -1,6 +1,6 @@
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
-import { SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
-import { useGameObjects } from 'common-ui/hooks/useGameObjects';
+import { GameObjectInfo, ShipInfo, SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
+import { useImmutableRoomState } from 'common-ui/hooks/useImmutableRoomState';
 import { useCallback, useState } from 'react';
 import { SlotPropsNoTarget, TacticalDisplay } from './components/TacticalDisplay';
 import { ListTargetInfo } from './components/TargetList';
@@ -13,7 +13,9 @@ type Props = {
 };
 
 export const Tactical = (props: Props) => {
-    const [_objects, localShip] = useGameObjects(props.room, props.shipId);
+    const state = useImmutableRoomState(props.room);
+    const objects = state.objects as Record<string, GameObjectInfo>;
+    const localShip = objects[props.shipId] as ShipInfo;
     const [slots] = useState<SlotPropsNoTarget[]>([]);
     const [targets] = useState<ListTargetInfo[]>([]);
 
