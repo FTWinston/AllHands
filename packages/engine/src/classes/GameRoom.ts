@@ -54,24 +54,28 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
             const crewId = client.userData?.crewId;
             if (!crewId) {
-                throw new Error('Client has no crew ID assigned');
+                console.error('Client has no crew ID assigned');
+                return;
             }
 
             if (this.state.gameStatus === 'active') {
-                throw new Error('Cannot change roles while game is active');
+                console.warn('Cannot change roles while game is active');
+                return;
             }
 
             const crew = this.state.crews.get(crewId);
 
             if (!crew) {
-                throw new Error(`Crew ${crewId} not found`);
+                console.error(`Crew ${crewId} not found`);
+                return;
             }
 
             // Update crew's state to account for client's role (change).
             if (role === '') {
                 crew.unassignRole(client.sessionId);
             } else if (!crew.tryAssignRole(client.sessionId, role)) {
-                throw new Error(`Role ${role} is already taken on crew ${crew.crewId}`);
+                console.warn(`Role ${role} is already taken on crew ${crew.crewId}`);
+                return;
             }
         });
 
@@ -96,17 +100,20 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
             const crewId = client.userData?.crewId;
             if (!crewId) {
-                throw new Error('Client has no crew ID assigned');
+                console.error('Client has no crew ID assigned');
+                return;
             }
 
             if (this.state.gameStatus === 'active') {
-                throw new Error('Cannot update ready status while game is active');
+                console.error('Cannot update ready status while game is active');
+                return;
             }
 
             const crew = this.state.crews.get(crewId);
 
             if (!crew) {
-                throw new Error(`Crew ${crewId} not found`);
+                console.error(`Crew ${crewId} not found`);
+                return;
             }
 
             crew.crewReady.set(client.sessionId, ready);
@@ -125,14 +132,16 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
             const [ship, clientRole] = this.getShipForClient(client);
             if (!ship) {
-                throw new Error('No ship found for client');
+                console.error('No ship found for client');
+                return;
             }
 
             const systemState = this.getSystemState(ship, clientRole);
 
             const card = systemState.playCard(cardId, targetType, targetId);
             if (!card) {
-                throw new Error(`Card ${cardId} not found in ${clientRole} hand`);
+                console.error(`Card ${cardId} not found in ${clientRole} hand`);
+                return;
             }
 
             console.log(`${client.sessionId} played card ${cardId} (${card.type}) on ${clientRole} targeting ${targetType}:${targetId}`);
@@ -145,7 +154,8 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
             const [ship, clientRole] = this.getShipForClient(client);
             if (!ship) {
-                throw new Error('No ship found for client');
+                console.error('No ship found for client');
+                return;
             }
 
             const systemState = this.getSystemState(ship, clientRole);
