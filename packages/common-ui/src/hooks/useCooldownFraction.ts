@@ -1,7 +1,7 @@
 import { Cooldown } from 'common-data/types/Cooldown';
 import { useEffect, useState } from 'react';
 
-export const useCooldownFraction = (cooldown?: Cooldown) => {
+export const useCooldownFraction = (cooldown?: Cooldown | null) => {
     let startTime: number;
     let endTime: number;
 

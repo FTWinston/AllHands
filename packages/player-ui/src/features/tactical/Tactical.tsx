@@ -57,6 +57,8 @@ export const Tactical = (props: Props) => {
             playCard={playCard}
             priority={tacticalState.priority}
             setPriority={setPriority}
+            cardGeneration={tacticalState.cardGeneration}
+            powerGeneration={tacticalState.powerGeneration}
         />
     );
 };

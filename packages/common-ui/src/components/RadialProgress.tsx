@@ -6,7 +6,7 @@ import styles from './RadialProgress.module.css';
 
 export type Props = {
     className?: string;
-    progress?: Cooldown;
+    progress?: Cooldown | null;
     visualAdjustment?: (fraction: number) => number;
     title: string;
 };

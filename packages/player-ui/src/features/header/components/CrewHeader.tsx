@@ -22,10 +22,10 @@ type Props = {
     setPriority: (priority: SystemPowerPriority) => void;
     energy: number;
     maxPower: number;
-    powerGeneration?: Cooldown;
+    powerGeneration?: Cooldown | null;
     handSize: number;
     maxHandSize: number;
-    cardGeneration?: Cooldown;
+    cardGeneration?: Cooldown | null;
 };
 
 export const CrewHeader: FC<Props> = (props) => {

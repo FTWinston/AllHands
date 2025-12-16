@@ -7,7 +7,7 @@ import styles from './NumberIndicator.module.css';
 type Props = {
     value: number;
     maxValue: number;
-    generation?: Cooldown;
+    generation?: Cooldown | null;
     name: string;
     description: JSX.Element;
     valueIcon: FC<{ className: string }>;

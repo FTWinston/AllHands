@@ -1,4 +1,7 @@
 import { Schema, type, MapSchema, view } from '@colyseus/schema';
+import Clock from '@colyseus/timer';
+import { Random } from 'common-data/classes/Random';
+import { IRandom } from 'common-data/types/IRandom';
 import { IdProvider } from 'src/types/IdProvider';
 import { GameStatus } from '../../types/GameStatus';
 import { CrewState } from './CrewState';
@@ -8,9 +11,11 @@ export class GameState extends Schema {
     @type('string') gameStatus: GameStatus = 'setup';
     @view() @type({ map: GameObject }) objects = new MapSchema<GameObject>();
     @view() @type({ map: CrewState }) crews = new MapSchema<CrewState>();
+    public readonly random: IRandom;
 
-    constructor(private readonly idPool: IdProvider) {
+    constructor(private readonly idPool: IdProvider, public readonly clock: Clock) {
         super();
+        this.random = new Random(Math.random);
     }
 
     public getNewId(): string {
@@ -26,9 +31,9 @@ export class GameState extends Schema {
         this.idPool.releaseId(object.id);
     }
 
-    public tick(currentTime: number) {
+    public tick(deltaTime: number) {
         for (const object of this.objects.values()) {
-            object.tick(currentTime);
+            object.tick(deltaTime);
         }
     }
 }

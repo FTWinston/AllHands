@@ -55,6 +55,8 @@ export const Helm = (props: Props) => {
             playCard={playCard}
             priority={helmState.priority}
             setPriority={setPriority}
+            cardGeneration={helmState.cardGeneration}
+            powerGeneration={helmState.powerGeneration}
         />
     );
 };

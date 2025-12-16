@@ -4,15 +4,17 @@ import { ObjectAppearance } from 'common-data/features/space/types/ObjectAppeara
 import { Position } from 'common-data/features/space/types/Position';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
+import { IRandom } from 'common-data/types/IRandom';
+import { GameState } from './GameState';
 import { MotionKeyframe } from './MotionKeyframe';
 
 export abstract class GameObject extends Schema implements GameObjectInfo {
     constructor(
-        id: string,
+        protected readonly gameState: GameState,
         relationship: RelationshipType,
         appearance: ObjectAppearance) {
         super();
-        this.id = id;
+        this.id = gameState.getNewId();
         this.relationship = relationship;
         this.appearance = appearance;
     }
@@ -29,9 +31,13 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
         return interpolatePosition(this.motion, currentTime);
     }
 
-    public tick(currentTime: number) {
-        this.updateMotion(currentTime);
+    public get random(): IRandom {
+        return this.gameState.random;
     }
 
-    protected abstract updateMotion(currentTime: number): void;
+    public tick(_deltaTime: number) {
+        this.updateMotion();
+    }
+
+    protected abstract updateMotion(): void;
 }

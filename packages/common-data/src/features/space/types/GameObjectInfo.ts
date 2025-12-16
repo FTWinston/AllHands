@@ -1,5 +1,6 @@
 import { CardInstance } from 'src/features/cards/types/CardInstance';
 import { CardType } from 'src/features/cards/utils/cardDefinitions';
+import { Cooldown } from 'src/types/Cooldown';
 import { MinimalReadonlyArray } from 'src/types/MinimalArray';
 import { ReadonlyKeyframes } from './Keyframes';
 import { ObjectAppearance } from './ObjectAppearance';
@@ -26,6 +27,8 @@ export interface SystemInfo {
     powerLevel: number;
     health: number;
     priority: SystemPowerPriority;
+    cardGeneration?: Cooldown | null;
+    powerGeneration?: Cooldown | null;
 }
 
 export interface ShipInfo extends GameObjectInfo {

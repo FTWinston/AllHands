@@ -35,6 +35,8 @@ export function getServerConfig() {
         ipAddress: getIpAddress(),
         httpPort: 2567,
         pingInterval: 1000,
+        tickRate: 40,
+        patchRate: 20,
         simulateLatencyMs: 0,
         gameMode: 'survival',
         multiship: false,

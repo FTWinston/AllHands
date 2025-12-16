@@ -3,15 +3,16 @@ import { ObjectAppearance } from 'common-data/features/space/types/ObjectAppeara
 import { Position } from 'common-data/features/space/types/Position';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { GameObject } from './GameObject';
+import { GameState } from './GameState';
 import { MotionKeyframe } from './MotionKeyframe';
 
 export abstract class MobileObject extends GameObject {
     constructor(
-        id: string,
+        gameState: GameState,
         relationship: RelationshipType,
         appearance: ObjectAppearance,
         position: Position) {
-        super(id, relationship, appearance);
+        super(gameState, relationship, appearance);
 
         this.motion.push(new MotionKeyframe(0, position.x, position.y, position.angle));
     }

@@ -39,13 +39,13 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
     onCreate(config: ServerConfig) {
         this.allowMultipleCrews = config.multiship;
 
-        this.state = new GameState(new IdPool());
+        this.state = new GameState(new IdPool(), this.clock);
 
         this.onMessage('ping', (client, message) => {
             // Echo the client's timestamp back, and add the server's timestamp.
             client.send('pong', {
                 clientSendTime: message.clientSendTime,
-                serverTime: Date.now(),
+                serverTime: this.clock.currentTime,
             });
         });
 
@@ -162,6 +162,11 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
             systemState.priority = message.priority;
         });
+
+        this.patchRate = 1000 / config.patchRate;
+
+        // Convert tick rate (per second) to milliseconds, and have the room update the state that often.
+        this.setSimulationInterval(deltaTime => this.update(deltaTime), 1000 / config.tickRate);
     }
 
     /**
@@ -371,12 +376,12 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
         for (const crew of this.state.crews.values()) {
             const ship = new PlayerShip(
-                this.state.getNewId(),
+                this.state,
                 {
                     position: { x: 0, y: 0, angle: 0 },
                     helm: {
                         cards: ['exampleLocationTarget', 'exampleLocationTarget', 'exampleNoTarget', 'exampleLocationTarget', 'exampleNoTarget', 'exampleLocationTarget'],
-                        energy: 3,
+                        energy: 2,
                         powerLevel: 3,
                         initialHandSize: 1,
                         health: 5,
@@ -426,5 +431,9 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         for (const crew of this.state.crews.values()) {
             crew.unassignFromShip(this);
         }
+    }
+
+    update(deltaTime: number) {
+        this.state.tick(deltaTime);
     }
 }
