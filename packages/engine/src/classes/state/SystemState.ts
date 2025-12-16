@@ -2,6 +2,7 @@ import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { handPriority, powerPriority, SystemInfo, SystemPowerPriority, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { IRandom } from 'common-data/types/IRandom';
+import { getCardDefinition } from '../../cards/getCardDefinition';
 import { CardState } from './CardState';
 import { CooldownState } from './CooldownState';
 import { Ship } from './Ship';
@@ -53,6 +54,11 @@ export class SystemState extends Schema implements SystemInfo {
                 this.drawPile = this.discardPile;
                 this.ship.random.shuffle(this.drawPile);
                 this.discardPile = [];
+                card = this.drawPile.pop();
+            }
+
+            if (card) {
+                this.hand.push(card);
             }
         }
     }
@@ -73,19 +79,31 @@ export class SystemState extends Schema implements SystemInfo {
 
     /**
      * Play a card from the hand by moving it to the discard pile.
+     * Removes the card's cost worth of energy, and performs its play action.
      * Returns the card if found and played, null otherwise.
      */
     playCard(cardId: number, _targetType: CardTargetType, _targetId: string): CardState | null {
         const cardIndex = this.hand.findIndex(card => card.id === cardId);
         if (cardIndex === -1) {
+            console.warn('card not found');
             return null;
         }
 
         const card = this.hand[cardIndex];
+
+        const cardDefinition = getCardDefinition(card.type);
+
+        if (this.energy < cardDefinition.cost) {
+            console.warn('insufficient energy to play card');
+            return null;
+        }
+
+        this.energy -= cardDefinition.cost;
         this.hand.splice(cardIndex, 1);
         this.discardPile.push(card);
 
         // TODO: Apply card effects based on targetType and targetId
+        cardDefinition.play();
 
         return card;
     }

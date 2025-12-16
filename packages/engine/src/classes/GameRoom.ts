@@ -140,7 +140,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
             const card = systemState.playCard(cardId, targetType, targetId);
             if (!card) {
-                console.error(`Card ${cardId} not found in ${clientRole} hand`);
+                console.error(`Failed play card ${cardId} targeting ${targetType}:${targetId} for ${clientRole} of ship ${ship.id}`);
                 return;
             }
 
