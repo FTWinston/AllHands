@@ -3,14 +3,11 @@ import { Schema, ArraySchema, MapSchema, CallbackProxy } from '@colyseus/schema'
 import { getStateCallbacks, type Room } from 'colyseus.js';
 import { useSyncExternalStore, useMemo } from 'react';
 
-// Utility type to get the names of properties that are functions.
-type FunctionPropertyNames<T> = {
+// Utility type to remove keys from a type if their values are functions.
+type OmitFunctions<T> = Omit<T, {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     [K in keyof T]: T[K] extends Function ? K : never;
-}[keyof T];
-
-// Utility type to remove function properties from a type.
-type DataOnly<T> = Omit<T, FunctionPropertyNames<T>>;
+}[keyof T]>;
 
 // Utility type to make all properties (including nested ones) readonly.
 type DeepReadonly<T>
@@ -20,13 +17,13 @@ type DeepReadonly<T>
         }
             : T;
 
-// A utility type to convert Colyseus Schema types to their plain JavaScript equivalents,
-// excluding any functions and making the entire structure readonly.
-type Normalized<T> = DeepReadonly<
+// Utility type to convert Colyseus Schema types to their plain JavaScript equivalents,
+// excluding any functions, and making the entire structure readonly.
+export type Normalized<T> = DeepReadonly<
     T extends ArraySchema<infer U> ? Normalized<U>[]
         : T extends MapSchema<infer U> ? Record<string, Normalized<U>>
             : T extends Schema ? {
-                [K in keyof DataOnly<T>]: Normalized<DataOnly<T>[K]>;
+                [K in keyof OmitFunctions<T>]: Normalized<OmitFunctions<T>[K]>;
             }
                 : T
 >;
@@ -57,12 +54,12 @@ function normalize<T>(node: T): Normalized<T> {
     // Handle Schema instances, but exclude MapSchema/ArraySchema which inherit from it.
     if (node instanceof Schema) {
         const obj: any = {};
-        // Iterate over all enumerable properties (including inherited fields from base schemas)
+        // Iterate over all enumerable properties (including inherited fields from base schemas).
         for (const key in node) {
             const value = (node as Record<string, any>)[key];
 
-            // Exclude Colyseus internal fields (starts with '_'), functions, and the 'listeners' key.
-            if (!key.startsWith('_') && typeof value !== 'function' && key !== 'listeners') {
+            // Exclude functions, normalize everything else.
+            if (typeof value !== 'function') {
                 obj[key] = normalize(value);
             }
         }
