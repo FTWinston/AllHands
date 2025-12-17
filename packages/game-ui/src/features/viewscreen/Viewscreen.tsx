@@ -1,3 +1,4 @@
+import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
@@ -17,8 +18,7 @@ type Props = {
 const defaultCenter: Keyframes<Vector2D> = [{ time: 0, x: 0, y: 0 }];
 
 export const Viewscreen: FC<Props> = (props) => {
-    const state = useImmutableRoomState(props.room);
-    const objects = state.objects;
+    const objects = useImmutableRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
     const localShip = objects[props.shipId];
 
     return (

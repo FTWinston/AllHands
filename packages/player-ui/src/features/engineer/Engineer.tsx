@@ -13,8 +13,7 @@ type Props = {
 };
 
 export const Engineer = (props: Props) => {
-    const state = useImmutableRoomState(props.room);
-    const objects = state.objects as Record<string, GameObjectInfo>;
+    const objects = useImmutableRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
     const localShip = objects[props.shipId] as ShipInfo;
     const [systems] = useState<SystemInfo[]>([]);
 

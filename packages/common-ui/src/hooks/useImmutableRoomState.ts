@@ -158,11 +158,15 @@ function attachListeners(
 /**
  * Create a store that tracks immutable snapshots of Colyseus state.
  */
-function createColyseusStore<T extends SchemaType>(room: Room<T>) {
+function createColyseusStore<T extends SchemaType, U extends SchemaType = T>(room: Room<T>, selector?: (state: T) => U) {
     const getProxy = getStateCallbacks(room) as ProxyGenerator;
 
+    if (selector === undefined) {
+        selector = (state: T) => (state as any as U);
+    }
+
     // Normalize the initial room state.
-    let current: Normalized<T> = normalize(room.state);
+    let current: Normalized<U> = normalize(selector(room.state));
 
     const listeners = new Set<() => void>();
 
@@ -206,7 +210,7 @@ function createColyseusStore<T extends SchemaType>(room: Room<T>) {
     };
 
     // Attach listeners to the root proxy and its current children.
-    attachListeners(room.state, getProxy, notifyChange);
+    attachListeners(selector(room.state), getProxy, notifyChange);
 
     return {
         subscribe: (fn: () => void) => {
@@ -222,9 +226,10 @@ function createColyseusStore<T extends SchemaType>(room: Room<T>) {
  * @param room The Colyseus Room instance.
  * @returns An immutable, plain JavaScript object/array representing the Colyseus state.
  */
-export function useImmutableRoomState<T extends SchemaType>(room: Room<T>): Normalized<T> {
-    // Create the store only once per room.
-    const store = useMemo(() => createColyseusStore(room), [room]);
+export function useImmutableRoomState<T extends SchemaType, U extends SchemaType = T>(room: Room<T>, selector?: (roomState: T) => U): Normalized<U> {
+    // Create the store only once per room. Don't recreate it if the selector changes, to be forgiving if it is unstable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const store = useMemo(() => createColyseusStore(room, selector), [room]);
 
     // Use React's hook to subscribe to this external store.
     return useSyncExternalStore(store.subscribe, store.getSnapshot);
