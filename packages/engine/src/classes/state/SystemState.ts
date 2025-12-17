@@ -2,7 +2,7 @@ import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { handPriority, powerPriority, SystemInfo, SystemPowerPriority, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { IRandom } from 'common-data/types/IRandom';
-import { getCardDefinition } from '../../cards/getCardDefinition';
+import { getCardDefinition } from '../../cards/getEngineCardDefinition';
 import { CardState } from './CardState';
 import { CooldownState } from './CooldownState';
 import { Ship } from './Ship';
@@ -82,7 +82,7 @@ export class SystemState extends Schema implements SystemInfo {
      * Removes the card's cost worth of energy, and performs its play action.
      * Returns the card if found and played, null otherwise.
      */
-    playCard(cardId: number, _targetType: CardTargetType, _targetId: string): CardState | null {
+    playCard(cardId: number, targetType: CardTargetType, _targetId: string): CardState | null {
         const cardIndex = this.hand.findIndex(card => card.id === cardId);
         if (cardIndex === -1) {
             console.warn('card not found');
@@ -98,12 +98,50 @@ export class SystemState extends Schema implements SystemInfo {
             return null;
         }
 
+        if (targetType !== cardDefinition.targetType) {
+            console.error('playing card on incorrect target type');
+            return null;
+        }
+
+        if (cardDefinition.targetType === 'no-target') {
+            if (!cardDefinition.play()) {
+                console.log('card refused to play');
+                return null;
+            }
+        } else if (cardDefinition.targetType === 'weapon-slot') {
+            if (!cardDefinition.play(1)) {
+                console.log('card refused to play');
+                return null;
+            }
+        } else if (cardDefinition.targetType === 'weapon') {
+            if (!cardDefinition.play(1)) {
+                console.log('card refused to play');
+                return null;
+            }
+        } else if (cardDefinition.targetType === 'enemy') {
+            if (!cardDefinition.play('1')) {
+                console.log('card refused to play');
+                return null;
+            }
+        } else if (cardDefinition.targetType === 'system') {
+            if (!cardDefinition.play(1)) {
+                console.log('card refused to play');
+                return null;
+            }
+        } else if (cardDefinition.targetType === 'location') {
+            if (!cardDefinition.play([])) {
+                console.log('card refused to play');
+                return null;
+            }
+        } else {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            console.error(`unhandled card target type: ${(cardDefinition as any).targetType}`);
+            return null;
+        }
+
         this.energy -= cardDefinition.cost;
         this.hand.splice(cardIndex, 1);
         this.discardPile.push(card);
-
-        // TODO: Apply card effects based on targetType and targetId
-        cardDefinition.play();
 
         return card;
     }

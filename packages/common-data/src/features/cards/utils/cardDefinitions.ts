@@ -79,3 +79,11 @@ type KeysWithTargetType<TRecord, TKey extends CardTargetType> = {
 export type UntargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'no-target'>;
 
 export type WeaponSlotTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'weapon-slot'>;
+
+export type WeaponTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'weapon'>;
+
+export type SystemSlotTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'system'>;
+
+export type EnemyTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'enemy'>;
+
+export type LocationTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'location'>;

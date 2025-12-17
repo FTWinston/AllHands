@@ -13,27 +13,22 @@ export type NoTargetCardDefinition = CommonCardDefinition & {
 
 export type WeaponSlotTargetCardDefinition = CommonCardDefinition & {
     targetType: 'weapon-slot';
-    canPlay?: () => boolean;
 };
 
 export type WeaponTargetCardDefinition = CommonCardDefinition & {
     targetType: 'weapon';
-    canPlay?: () => boolean;
 };
 
 export type EnemyTargetCardDefinition = CommonCardDefinition & {
     targetType: 'enemy';
-    canPlay?: () => boolean;
 };
 
 export type SystemTargetCardDefinition = CommonCardDefinition & {
     targetType: 'system';
-    canPlay?: () => boolean;
 };
 
 export type LocationTargetCardDefinition = CommonCardDefinition & {
     targetType: 'location';
-    canPlay?: () => boolean;
 };
 
 export type CardDefinition = NoTargetCardDefinition | WeaponSlotTargetCardDefinition | WeaponTargetCardDefinition | EnemyTargetCardDefinition | SystemTargetCardDefinition | LocationTargetCardDefinition;
