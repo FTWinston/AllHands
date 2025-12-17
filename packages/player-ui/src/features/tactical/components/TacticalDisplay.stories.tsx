@@ -1,4 +1,4 @@
-import { getCardDefinition } from 'common-ui/features/cards/utils/getCardDefinition';
+import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';

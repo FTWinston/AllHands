@@ -53,8 +53,8 @@ export const Engineer = (props: Props) => {
             playCard={playCard}
             priority={engineerState.priority}
             setPriority={setPriority}
-            cardGeneration={engineerState.cardGeneration}
-            powerGeneration={engineerState.powerGeneration}
+            cardGeneration={engineerState.cardGeneration[0]}
+            powerGeneration={engineerState.powerGeneration[0]}
         />
     );
 };

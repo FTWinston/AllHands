@@ -2,7 +2,7 @@ import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { Button } from 'common-ui/components/Button';
 import { Card } from 'common-ui/features/cards/components/Card';
 import { CardBase } from 'common-ui/features/cards/components/CardBase';
-import { getCardDefinition } from 'common-ui/features/cards/utils/getCardDefinition';
+import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardhand/components/CardDropTarget';
 import { DraggableCard } from 'src/features/cardhand/components/DraggableCard';

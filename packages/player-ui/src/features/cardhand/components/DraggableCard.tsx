@@ -3,7 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
-import { getCardDefinition } from 'common-ui/features/cards/utils/getCardDefinition';
+import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
 import { useActiveCard, useIsOverValidTarget } from './DragCardProvider';

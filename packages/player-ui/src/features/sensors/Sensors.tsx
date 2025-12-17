@@ -50,8 +50,8 @@ export const Sensors = (props: Props) => {
             playCard={playCard}
             priority={sensorState.priority}
             setPriority={setPriority}
-            cardGeneration={sensorState.cardGeneration}
-            powerGeneration={sensorState.powerGeneration}
+            cardGeneration={sensorState.cardGeneration[0]}
+            powerGeneration={sensorState.powerGeneration[0]}
         />
     );
 };

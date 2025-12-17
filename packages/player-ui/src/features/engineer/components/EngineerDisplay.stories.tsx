@@ -2,7 +2,7 @@ import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { handPriority, powerPriority, SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import { Cooldown } from 'common-data/types/Cooldown';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
-import { getCardDefinition } from 'common-ui/features/cards/utils/getCardDefinition';
+import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fn } from 'storybook/test';
 import { default as ExampleIcon1 } from '../../header/assets/energy.svg?react';

@@ -27,8 +27,8 @@ export interface SystemInfo {
     powerLevel: number;
     health: number;
     priority: SystemPowerPriority;
-    cardGeneration?: Cooldown | null;
-    powerGeneration?: Cooldown | null;
+    cardGeneration: MinimalReadonlyArray<Cooldown>;
+    powerGeneration: MinimalReadonlyArray<Cooldown>;
 }
 
 export interface ShipInfo extends GameObjectInfo {

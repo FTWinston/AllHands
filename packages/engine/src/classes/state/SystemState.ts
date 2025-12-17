@@ -40,8 +40,13 @@ export class SystemState extends Schema implements SystemInfo {
     @type('number') health: number;
     @type('number') priority: SystemPowerPriority;
 
-    @type(CooldownState) powerGeneration: CooldownState | null = null;
-    @type(CooldownState) cardGeneration: CooldownState | null = null;
+    // I'd have liked these to be nullable CooldownState objects,
+    // but they're not synchronizing to the client if reassigned.
+    // So instead, they're arrays that either have zero or one CooldownState in them.
+    // This works, as long as you don't overwrite the item in the array.
+    // Instead, clear the array then push a new item if needed.
+    @type([CooldownState]) powerGeneration = new ArraySchema<CooldownState>();
+    @type([CooldownState]) cardGeneration = new ArraySchema<CooldownState>();
 
     /**
      * Take card(s) from the draw pile and add them to the hand,
@@ -147,54 +152,69 @@ export class SystemState extends Schema implements SystemInfo {
     }
 
     update(currentTime: number) {
-        const toGenerate = this.priority === powerPriority && this.energy < this.powerLevel
-            ? powerPriority
-            : this.hand.length < this.health
-                ? handPriority
-                : null;
+        const toGenerate = this.determineGeneration();
 
         // TODO: card and power generation are currently fixed durations, but they should be variable.
         // They should also be able to change part-way through!
 
         if (toGenerate === handPriority) {
             // If priority is hand, generate cards until hand is full.
-            if (this.powerGeneration) {
-                this.powerGeneration = null;
+            if (this.powerGeneration.length > 0) {
+                // Stop power generation if it was happening.
+                this.powerGeneration.clear();
             }
 
             if (this.hand.length < this.health) {
-                if (!this.cardGeneration) {
-                    this.cardGeneration = new CooldownState(currentTime, currentTime + 5000);
-                } else if (this.cardGeneration.endTime <= currentTime) {
+                if (this.cardGeneration.length === 0) {
+                    this.cardGeneration.push(new CooldownState(currentTime, currentTime + 5000));
+                } else if (this.cardGeneration[0].endTime <= currentTime) {
                     this.draw();
 
+                    this.cardGeneration.clear();
                     if (this.hand.length < this.health) {
-                        this.cardGeneration.startTime = currentTime;
-                        this.cardGeneration.endTime = currentTime + 5000;
-                    } else {
-                        this.cardGeneration = null;
+                        this.cardGeneration[0] = new CooldownState(currentTime, currentTime + 5000);
                     }
                 }
             }
         } else if (toGenerate === powerPriority) {
-            if (this.cardGeneration) {
-                this.cardGeneration = null;
+            if (this.cardGeneration.length > 0) {
+                // Stop card generation if it was happening.
+                this.cardGeneration.clear();
             }
 
             if (this.energy < this.powerLevel) {
-                if (!this.powerGeneration) {
-                    this.powerGeneration = new CooldownState(currentTime, currentTime + 5000);
-                } else if (this.powerGeneration.endTime <= currentTime) {
+                if (this.powerGeneration.length === 0) {
+                    this.powerGeneration.push(new CooldownState(currentTime, currentTime + 5000));
+                } else if (this.powerGeneration[0].endTime <= currentTime) {
                     this.energy += 1;
 
+                    this.powerGeneration.clear();
                     if (this.energy < this.powerLevel) {
-                        this.powerGeneration.startTime = currentTime;
-                        this.powerGeneration.endTime = currentTime + 5000;
-                    } else {
-                        this.powerGeneration = null;
+                        this.powerGeneration.push(new CooldownState(currentTime, currentTime + 5000));
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Generate the priority target, unless it's full, in which case do the other.
+     * Return null if both are full.
+     */
+    private determineGeneration() {
+        if (this.priority === handPriority) {
+            if (this.hand.length < this.health) {
+                return handPriority;
+            } else if (this.energy < this.powerLevel) {
+                return powerPriority;
+            }
+        } else if (this.priority === powerPriority) {
+            if (this.energy < this.powerLevel) {
+                return powerPriority;
+            } else if (this.hand.length < this.health) {
+                return handPriority;
+            }
+        }
+        return null;
     }
 }
