@@ -16,25 +16,33 @@
 }
 
 .dropping {
-    background-color: var(--grey-lightest);
+    background-color: transparent;
     
     &::before {
         content: "";
-        width: calc(var(--cellWidth) * 0.85);
-        height: calc(var(--cellHeight) * 0.85);
-        clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0);
-        background-color: black;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        /* Flat top hexagon RING: effectively a border that is 15% of the width of the cell. */
+        clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0, 75% 0, 71.25% 7.5%, 28.75% 7.5%, 7.5% 50%, 28.75% 92.5%, 71.25% 92.5%, 92.5% 50%, 71.25% 7.5%);
+        background-color: var(--grey-lightest);
     }
 }
 
 .couldDrop {
-    background-color: var(--primary-mid);
+    background-color: transparent;
     
     &::before {
         content: "";
-        width: calc(var(--cellWidth) * 0.95);
-        height: calc(var(--cellHeight) * 0.95);
-        clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0);
-        background-color: black;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        /* Flat top hexagon RING: effectively a border that is 5% of the width of the cell. */
+        clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0, 75% 0, 73.75% 2.5%, 26.25% 2.5%, 2.5% 50%, 26.25% 97.5%, 73.75% 97.5%, 97.5% 50%, 73.75% 2.5%);
+        background-color: var(--primary-mid);
     }
 }
