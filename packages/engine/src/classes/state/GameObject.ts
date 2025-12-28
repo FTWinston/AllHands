@@ -12,11 +12,14 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
     constructor(
         protected readonly gameState: GameState,
         relationship: RelationshipType,
-        appearance: ObjectAppearance) {
+        appearance: ObjectAppearance,
+        position: Position
+    ) {
         super();
         this.id = gameState.getNewId();
         this.relationship = relationship;
         this.appearance = appearance;
+        this.motion.push(new MotionKeyframe(0, position.x, position.y, position.angle));
     }
 
     @type('string') public readonly id: string;
@@ -35,9 +38,5 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
         return this.gameState.random;
     }
 
-    public tick(_deltaTime: number) {
-        this.updateMotion();
-    }
-
-    protected abstract updateMotion(): void;
+    public tick(_deltaTime: number) {}
 }

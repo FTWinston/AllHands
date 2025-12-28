@@ -4,7 +4,6 @@ import { Position } from 'common-data/features/space/types/Position';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
-import { MotionKeyframe } from './MotionKeyframe';
 
 export abstract class MobileObject extends GameObject {
     constructor(
@@ -12,10 +11,16 @@ export abstract class MobileObject extends GameObject {
         relationship: RelationshipType,
         appearance: ObjectAppearance,
         position: Position) {
-        super(gameState, relationship, appearance);
-
-        this.motion.push(new MotionKeyframe(0, position.x, position.y, position.angle));
+        super(gameState, relationship, appearance, position);
     }
+
+    public override tick(deltaTime: number) {
+        super.tick(deltaTime);
+
+        this.updateMotion();
+    }
+
+    protected abstract updateMotion(): void;
 
     @type('boolean') dummy2 = true; // TODO: remove when class has its own @type fields
 }
