@@ -1,24 +1,20 @@
-import { type, view } from '@colyseus/schema';
+import { entity, type, view } from '@colyseus/schema';
 import { helmClientRole, sensorClientRole, tacticalClientRole, engineerClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
-import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { GameState } from './GameState';
 import { MobileObject } from './MobileObject';
 import { MotionKeyframe } from './MotionKeyframe';
 import { SystemState } from './SystemState';
 
+@entity
 export abstract class Ship extends MobileObject implements ShipInfo {
     constructor(
         gameState: GameState,
-        relationship: RelationshipType,
-        appearance: ObjectAppearance,
         setup: ShipSetupInfo
     ) {
         super(
             gameState,
-            relationship,
-            appearance,
+            setup,
             new MotionKeyframe(gameState.clock.currentTime, setup.position.x, setup.position.y, setup.position.angle)
         );
 

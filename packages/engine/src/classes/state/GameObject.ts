@@ -1,5 +1,5 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
-import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, GameObjectSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
 import { Position } from 'common-data/features/space/types/Position';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
@@ -11,13 +11,12 @@ import { MotionKeyframe } from './MotionKeyframe';
 export abstract class GameObject extends Schema implements GameObjectInfo {
     constructor(
         protected readonly gameState: GameState,
-        relationship: RelationshipType,
-        appearance: ObjectAppearance
+        setup: GameObjectSetupInfo
     ) {
         super();
         this.id = gameState.getNewId();
-        this.relationship = relationship;
-        this.appearance = appearance;
+        this.relationship = setup.relationship;
+        this.appearance = setup.appearance;
     }
 
     @type('string') public readonly id: string;

@@ -46,10 +46,17 @@ export interface SystemSetupInfo {
     health: number;
 }
 
-export interface ShipSetupInfo {
+export interface GameObjectSetupInfo {
+    appearance: ObjectAppearance;
+    relationship: RelationshipType;
+}
+
+export interface ShipSetupInfo extends GameObjectSetupInfo {
     position: Position;
     helm: SystemSetupInfo;
     sensors: SystemSetupInfo;
     tactical: SystemSetupInfo;
     engineer: SystemSetupInfo;
 }
+
+export type PlayerShipSetupInfo = Omit<ShipSetupInfo, 'appearance' | 'relationship'>;

@@ -1,6 +1,5 @@
 import { entity } from '@colyseus/schema';
-import { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
-import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
+import { GameObjectSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { MotionKeyframe } from './MotionKeyframe';
@@ -9,11 +8,10 @@ import { MotionKeyframe } from './MotionKeyframe';
 export abstract class MobileObject extends GameObject {
     constructor(
         gameState: GameState,
-        relationship: RelationshipType,
-        appearance: ObjectAppearance,
+        setup: GameObjectSetupInfo,
         ...motion: MotionKeyframe[]
     ) {
-        super(gameState, relationship, appearance);
+        super(gameState, setup);
 
         this.motion.push(...motion);
     }
