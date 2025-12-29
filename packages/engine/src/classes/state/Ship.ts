@@ -5,6 +5,7 @@ import { ObjectAppearance } from 'common-data/features/space/types/ObjectAppeara
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { GameState } from './GameState';
 import { MobileObject } from './MobileObject';
+import { MotionKeyframe } from './MotionKeyframe';
 import { SystemState } from './SystemState';
 
 export abstract class Ship extends MobileObject implements ShipInfo {
@@ -14,7 +15,12 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         appearance: ObjectAppearance,
         setup: ShipSetupInfo
     ) {
-        super(gameState, relationship, appearance, setup.position);
+        super(
+            gameState,
+            relationship,
+            appearance,
+            new MotionKeyframe(gameState.clock.currentTime, setup.position.x, setup.position.y, setup.position.angle)
+        );
 
         const getCardId = () => this.getCardId();
         this.helmState = new SystemState(setup.helm, this, getCardId);

@@ -12,14 +12,12 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
     constructor(
         protected readonly gameState: GameState,
         relationship: RelationshipType,
-        appearance: ObjectAppearance,
-        position: Position
+        appearance: ObjectAppearance
     ) {
         super();
         this.id = gameState.getNewId();
         this.relationship = relationship;
         this.appearance = appearance;
-        this.motion.push(new MotionKeyframe(0, position.x, position.y, position.angle));
     }
 
     @type('string') public readonly id: string;
