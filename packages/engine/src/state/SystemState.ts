@@ -2,7 +2,7 @@ import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { handPriority, powerPriority, SystemInfo, SystemPowerPriority, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { IRandom } from 'common-data/types/IRandom';
-import { getCardDefinition } from '../../cards/getEngineCardDefinition';
+import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { CardState } from './CardState';
 import { CooldownState } from './CooldownState';
 import { Ship } from './Ship';

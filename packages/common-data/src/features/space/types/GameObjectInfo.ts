@@ -60,3 +60,8 @@ export interface ShipSetupInfo extends GameObjectSetupInfo {
 }
 
 export type PlayerShipSetupInfo = Omit<ShipSetupInfo, 'appearance' | 'relationship'>;
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface AiShipSetupInfo extends ShipSetupInfo {
+
+}

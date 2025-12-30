@@ -4,10 +4,10 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole, type CrewRole } from 'common-data/features/ships/types/CrewRole';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { customAlphabet } from 'nanoid/non-secure';
+import { CrewState } from '../state/CrewState';
+import { GameState } from '../state/GameState';
+import { PlayerShip } from '../state/PlayerShip';
 import { IdPool } from './IdPool';
-import { CrewState } from './state/CrewState';
-import { GameState } from './state/GameState';
-import { PlayerShip } from './state/PlayerShip';
 import type { SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
 

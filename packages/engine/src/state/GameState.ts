@@ -3,7 +3,7 @@ import Clock from '@colyseus/timer';
 import { Random } from 'common-data/classes/Random';
 import { IRandom } from 'common-data/types/IRandom';
 import { IdProvider } from 'src/types/IdProvider';
-import { GameStatus } from '../../types/GameStatus';
+import { GameStatus } from '../types/GameStatus';
 import { CrewState } from './CrewState';
 import { GameObject } from './GameObject';
 

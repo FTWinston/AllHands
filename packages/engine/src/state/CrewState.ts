@@ -1,6 +1,6 @@
 import { Schema, type, view, MapSchema } from '@colyseus/schema';
 import { CrewRole, helmClientRole, sensorClientRole as sensorsClientRole, tacticalClientRole, engineerClientRole, shipClientRole } from 'common-data/features/ships/types/CrewRole';
-import { GameRoom } from '../GameRoom';
+import { GameRoom } from '../classes/GameRoom';
 import { PlayerShip } from './PlayerShip';
 
 export class CrewState extends Schema {
