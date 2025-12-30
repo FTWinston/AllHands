@@ -3,7 +3,7 @@ import { CrewRole } from 'common-data/features/ships/types/CrewRole';
 import { useState, useEffect, FC } from 'react';
 import { enterFullscreen, exitFullscreen } from '../../utils/fullscreen';
 import { GameLobbyDisplay } from './GameLobbyDisplay';
-import type { GameState } from 'engine/classes/state/GameState';
+import type { GameState } from 'engine/state/GameState';
 
 type Props = {
     room: Room<GameState>;

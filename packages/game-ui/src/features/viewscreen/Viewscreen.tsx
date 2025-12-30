@@ -6,7 +6,7 @@ import { useRoomState } from 'common-ui/features/useRoomState/utils/useRoomState
 import { FC } from 'react';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import type { Room } from 'colyseus.js';
-import type { GameState } from 'engine/classes/state/GameState';
+import type { GameState } from 'engine/state/GameState';
 
 type Props = {
     room: Room<GameState>;

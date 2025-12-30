@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react';
 import { EngineerDisplay } from './components/EngineerDisplay';
 import { SystemInfo } from './components/System';
 import type { Room } from 'colyseus.js';
-import type { GameState } from 'engine/classes/state/GameState';
+import type { GameState } from 'engine/state/GameState';
 
 type Props = {
     room: Room<GameState>;

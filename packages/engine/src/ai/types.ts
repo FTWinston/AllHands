@@ -1,10 +1,10 @@
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
-import { AiPersonality } from 'common-data/features/space/types/GameObjectInfo';
+import { AiPersonality, AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 
 // Re-export for convenience
-export type { AiPersonality } from 'common-data/features/space/types/GameObjectInfo';
+export type { AiPersonality, AiSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 
 // ============================================================================
 // STRATEGIC GOALS & ACTION PLANS
@@ -216,6 +216,16 @@ export interface AiActionTarget {
 }
 
 /**
+ * Per-system preference multipliers extracted from AiShipSetupInfo.
+ */
+export interface SystemPreferences {
+    helm: number;
+    sensors: number;
+    tactical: number;
+    engineer: number;
+}
+
+/**
  * Configuration for AI behavior, loaded from scenario data.
  */
 export interface AiConfig {
@@ -224,7 +234,35 @@ export interface AiConfig {
 
     /** Multiplier for reassessment interval (higher = slower reactions). Default 1.0 */
     reactionMultiplier: number;
+
+    /**
+     * Per-system preference weights that affect AI decision making.
+     * Higher values increase the priority of that system's wants and actions.
+     */
+    systemPreferences: SystemPreferences;
 }
+
+/**
+ * Extract system preferences from AiShipSetupInfo.
+ */
+export function extractSystemPreferences(setup: AiShipSetupInfo): SystemPreferences {
+    return {
+        helm: setup.helm.preferenceMultiplier ?? 1.0,
+        sensors: setup.sensors.preferenceMultiplier ?? 1.0,
+        tactical: setup.tactical.preferenceMultiplier ?? 1.0,
+        engineer: setup.engineer.preferenceMultiplier ?? 1.0,
+    };
+}
+
+/**
+ * Default system preference weights.
+ */
+export const defaultSystemPreferences: SystemPreferences = {
+    helm: 1.0,
+    sensors: 1.0,
+    tactical: 1.0,
+    engineer: 1.0,
+};
 
 /**
  * Default AI configuration values.
@@ -232,4 +270,5 @@ export interface AiConfig {
 export const defaultAiConfig: AiConfig = {
     personality: 'balanced',
     reactionMultiplier: 1.0,
+    systemPreferences: { ...defaultSystemPreferences },
 };

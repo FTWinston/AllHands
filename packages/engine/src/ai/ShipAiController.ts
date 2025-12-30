@@ -1,4 +1,5 @@
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
+import { AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { AiShip } from '../state/AiShip';
 import { SystemState } from '../state/SystemState';
 import {
@@ -11,6 +12,7 @@ import {
     ActionPlan,
     AiConfig,
     defaultAiConfig,
+    extractSystemPreferences,
     PlanStep,
     StrategicGoal,
     StrategicGoalType,
@@ -55,9 +57,14 @@ export class ShipAiController {
 
     constructor(
         private readonly ship: AiShip,
-        config?: Partial<AiConfig>
+        setup: AiShipSetupInfo
     ) {
-        this.config = { ...defaultAiConfig, ...config };
+        this.config = {
+            ...defaultAiConfig,
+            personality: setup.personality,
+            reactionMultiplier: setup.reactionMultiplier ?? defaultAiConfig.reactionMultiplier,
+            systemPreferences: extractSystemPreferences(setup),
+        };
 
         // Initialize system controllers
         this.helmAi = new HelmAiController();
@@ -345,20 +352,40 @@ export class ShipAiController {
 
     /**
      * Resolve range conflict between different system wants.
+     * Uses system preferences as multipliers for each system's priority.
      */
     private resolveRangeConflict(rangeWants: SystemWant[]): 'close' | 'far' {
         let closeScore = 0;
         let farScore = 0;
 
         for (const want of rangeWants) {
+            const preference = this.getSystemPreference(want.system);
+            const weightedPriority = want.priority * preference;
+
             if (want.type === 'close-range') {
-                closeScore += want.priority;
+                closeScore += weightedPriority;
             } else if (want.type === 'long-range') {
-                farScore += want.priority;
+                farScore += weightedPriority;
             }
         }
 
         return closeScore >= farScore ? 'close' : 'far';
+    }
+
+    /**
+     * Get the preference weight for a given system.
+     */
+    private getSystemPreference(system: CrewRoleName): number {
+        switch (system) {
+            case 'helm':
+                return this.config.systemPreferences.helm;
+            case 'sensors':
+                return this.config.systemPreferences.sensors;
+            case 'tactical':
+                return this.config.systemPreferences.tactical;
+            case 'engineer':
+                return this.config.systemPreferences.engineer;
+        }
     }
 
     /**

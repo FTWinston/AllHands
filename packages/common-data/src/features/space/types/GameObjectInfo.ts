@@ -41,9 +41,11 @@ export interface ShipInfo extends GameObjectInfo {
 export interface SystemSetupInfo {
     cards: CardType[];
     energy: number;
-    powerLevel: number;
+    initialPowerLevel: number;
+    maxPowerLevel: number;
     initialHandSize: number;
     health: number;
+    maxHealth: number;
 }
 
 export interface GameObjectSetupInfo {
@@ -66,10 +68,21 @@ export type PlayerShipSetupInfo = Omit<ShipSetupInfo, 'appearance' | 'relationsh
  */
 export type AiPersonality = 'aggressive' | 'defensive' | 'balanced' | 'patrol';
 
-/**
- * Configuration for AI ship behavior.
- */
+export interface AiSystemSetupInfo extends SystemSetupInfo {
+    /**
+     * Preference weight for AI decision making.
+     * Higher values increase the priority of this system's wants and actions.
+     * Default: 1.0
+     */
+    preferenceMultiplier?: number;
+}
+
 export interface AiShipSetupInfo extends ShipSetupInfo {
+    helm: AiSystemSetupInfo;
+    sensors: AiSystemSetupInfo;
+    tactical: AiSystemSetupInfo;
+    engineer: AiSystemSetupInfo;
+
     /**
      * The behavior profile of the AI.
      * - 'aggressive': Prioritizes attacks and weapon usage

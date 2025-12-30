@@ -6,7 +6,7 @@ import { Engineer } from '../features/engineer/Engineer';
 import { Helm } from '../features/helm/Helm';
 import { Sensors } from '../features/sensors/Sensors';
 import { Tactical } from '../features/tactical/Tactical';
-import type { GameState } from 'engine/classes/state/GameState';
+import type { GameState } from 'engine/state/GameState';
 
 type Props = {
     shipId: string;

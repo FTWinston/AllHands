@@ -11,10 +11,7 @@ export class AiShip extends Ship {
     constructor(gameState: GameState, setup: AiShipSetupInfo) {
         super(gameState, setup);
 
-        this.aiController = new ShipAiController(this, {
-            personality: setup.personality,
-            reactionMultiplier: setup.reactionMultiplier,
-        });
+        this.aiController = new ShipAiController(this, setup);
     }
 
     public override tick(deltaTime: number): void {

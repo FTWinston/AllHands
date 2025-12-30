@@ -26,8 +26,10 @@ export class SystemState extends Schema implements SystemInfo {
         this.discardPile = [];
 
         this.energy = setup.energy;
-        this.powerLevel = setup.powerLevel;
+        this.powerLevel = setup.initialPowerLevel;
+        this.maxPowerLevel = setup.maxPowerLevel;
         this.health = setup.health;
+        this.maxHealth = setup.maxHealth;
         this.priority = powerPriority;
     }
 
@@ -37,7 +39,9 @@ export class SystemState extends Schema implements SystemInfo {
 
     @type('number') energy: number;
     @type('number') powerLevel: number;
+    maxPowerLevel: number;
     @type('number') health: number;
+    maxHealth: number;
     @type('number') priority: SystemPowerPriority;
 
     // I'd have liked these to be nullable CooldownState objects,

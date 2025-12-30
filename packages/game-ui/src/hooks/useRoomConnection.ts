@@ -4,7 +4,7 @@ import { TimeSynchronizer } from 'common-ui/classes/TimeSynchronizer';
 import { useEffect, useRef, useState } from 'react';
 import type { ConnectionState } from 'common-data/types/ConnectionState';
 import type { ServerAddress } from 'common-data/types/ServerAddress';
-import type { GameState } from 'engine/classes/state/GameState';
+import type { GameState } from 'engine/state/GameState';
 import type { GameStatus } from 'engine/types/GameStatus';
 
 export function useRoomConnection(
