@@ -61,7 +61,27 @@ export interface ShipSetupInfo extends GameObjectSetupInfo {
 
 export type PlayerShipSetupInfo = Omit<ShipSetupInfo, 'appearance' | 'relationship'>;
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface AiShipSetupInfo extends ShipSetupInfo {
+/**
+ * AI personality profiles that affect decision-making priorities.
+ */
+export type AiPersonality = 'aggressive' | 'defensive' | 'balanced' | 'patrol';
 
+/**
+ * Configuration for AI ship behavior.
+ */
+export interface AiShipSetupInfo extends ShipSetupInfo {
+    /**
+     * The behavior profile of the AI.
+     * - 'aggressive': Prioritizes attacks and weapon usage
+     * - 'defensive': Prioritizes repairs and defensive actions
+     * - 'balanced': Equal priority across all systems
+     * - 'patrol': Prioritizes scanning and movement
+     */
+    personality: AiPersonality;
+
+    /**
+     * Multiplier for reaction time (higher = slower reactions).
+     * Default: 1.0
+     */
+    reactionMultiplier?: number;
 }
