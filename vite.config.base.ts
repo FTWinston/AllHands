@@ -20,6 +20,10 @@ export const preventSVGEmit: () => PluginOption = () => ({
 
 // Base configuration shared by all packages
 export const baseViteConfig = {
+    build: {
+        sourcemap: true,
+    },
+
     css: {
         preprocessorOptions: {
             scss: {

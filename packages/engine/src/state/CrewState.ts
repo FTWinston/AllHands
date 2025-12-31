@@ -1,20 +1,21 @@
 import { ClientArray } from '@colyseus/core';
 import { Schema, type, view, MapSchema } from '@colyseus/schema';
 import { CrewRole, helmClientRole, sensorClientRole as sensorsClientRole, tacticalClientRole, engineerClientRole, shipClientRole } from 'common-data/features/ships/types/CrewRole';
-import { GameRoom } from '../classes/GameRoom';
 import { GameObject } from './GameObject';
+import { GameState } from './GameState';
 import { PlayerShip } from './PlayerShip';
 
 export class CrewState extends Schema {
-    constructor(shipClientId: string, crewId: string) {
+    constructor(clients: ClientArray, shipClientId: string, crewId: string) {
         super();
+        this.clients = clients;
         this.shipClientId = shipClientId;
         this.crewId = crewId;
     }
 
     crewId: string; // unique ID of this crew
 
-    private clients: ClientArray | null = null;
+    private clients: ClientArray;
 
     setShip(ship: PlayerShip | null) {
         if (ship) {
@@ -143,17 +144,17 @@ export class CrewState extends Schema {
         }
 
         const shipClient = this.clients.getById(this.shipClientId);
-        if (shipClient?.view) {
+        if (shipClient?.view && !shipClient.view.has(object)) {
             shipClient.view.add(object);
         }
 
         const helmClient = this.clients.getById(this.helmClientId);
-        if (helmClient?.view) {
+        if (helmClient?.view && !helmClient.view.has(object)) {
             helmClient.view.add(object);
         }
 
         const tacticalClient = this.clients.getById(this.tacticalClientId);
-        if (tacticalClient?.view) {
+        if (tacticalClient?.view && !tacticalClient.view.has(object)) {
             tacticalClient.view.add(object);
         }
     }
@@ -191,12 +192,10 @@ export class CrewState extends Schema {
     }
 
     /** Add the ship to each client's view, in the correct view role. */
-    assignToShip(room: GameRoom) {
+    assignToShip(state: GameState) {
         if (this.ship === null) {
             throw new Error(`Crew ${this.crewId} has no ship to assign to`);
         }
-
-        this.clients = room.clients;
 
         const shipClient = this.clients.getById(this.shipClientId);
         if (shipClient?.view) {
@@ -224,19 +223,15 @@ export class CrewState extends Schema {
         }
 
         // Add all game objects to the viewscreen, helm and tactical clients' views.
-        for (const object of room.state.objects.values()) {
+        for (const object of state.objects.values()) {
             this.addObjectToViews(object);
         }
     }
 
     /** Remove the ship from each client's view, allowing roles to change. */
-    unassignFromShip(room: GameRoom) {
+    unassignFromShip(state: GameState) {
         if (this.ship === null) {
             throw new Error(`Crew ${this.crewId} has no ship to unassign from`);
-        }
-
-        if (!this.clients) {
-            return;
         }
 
         const shipClient = this.clients.getById(this.shipClientId);
@@ -265,10 +260,8 @@ export class CrewState extends Schema {
         }
 
         // Remove all game objects from all client views.
-        for (const object of room.state.objects.values()) {
+        for (const object of state.objects.values()) {
             this.removeObjectFromViews(object);
         }
-
-        this.clients = null;
     }
 }

@@ -299,7 +299,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
             crew.shipClientId = client.sessionId;
         } else {
             crewId = this.getCrewId();
-            crew = new CrewState(client.sessionId, crewId);
+            crew = new CrewState(this.clients, client.sessionId, crewId);
             this.state.crews.set(crewId, crew);
         }
 
@@ -401,7 +401,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
     }
 
     populateGameWorld() {
-        console.log(`All crew members are ready! Starting scenario: ${this.scenario.name}`);
+        console.log(`All crew members are ready! Initializing scenario: ${this.scenario.name}`);
 
         // Create a player ship for each crew using the scenario's player setup.
         for (const crew of this.state.crews.values()) {
@@ -434,10 +434,11 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
     }
 
     startOrResume() {
+        console.log(this.state.gameStatus === 'paused' ? 'Game resumed' : 'Game started');
         this.state.gameStatus = 'active';
 
         for (const crew of this.state.crews.values()) {
-            crew.assignToShip(this);
+            crew.assignToShip(this.state);
         }
     }
 
@@ -446,7 +447,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         this.state.gameStatus = 'paused';
 
         for (const crew of this.state.crews.values()) {
-            crew.unassignFromShip(this);
+            crew.unassignFromShip(this.state);
         }
     }
 
