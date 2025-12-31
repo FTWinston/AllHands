@@ -394,14 +394,15 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         }
 
         if (this.state.gameStatus === 'setup') {
-            this.populateGameWorld();
-        } else {
-            this.startOrResume();
+            console.log('All crew members are ready!');
+            this.populateScenario();
         }
+
+        this.startOrResume();
     }
 
-    populateGameWorld() {
-        console.log(`All crew members are ready! Initializing scenario: ${this.scenario.name}`);
+    populateScenario() {
+        console.log(`Initializing scenario: ${this.scenario.name}`);
 
         // Create a player ship for each crew using the scenario's player setup.
         for (const crew of this.state.crews.values()) {
@@ -413,8 +414,6 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         this.encounterQueue = [...this.scenario.encounters];
 
         this.loadNextEncounter();
-
-        this.startOrResume();
     }
 
     private loadNextEncounter(): boolean {

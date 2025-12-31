@@ -1,5 +1,6 @@
 import { entity } from '@colyseus/schema';
 import { GameObjectSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { pruneKeyframes } from 'common-data/features/space/utils/interpolate';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { MotionKeyframe } from './MotionKeyframe';
@@ -16,11 +17,13 @@ export abstract class MobileObject extends GameObject {
         this.motion.push(...motion);
     }
 
-    public override tick(deltaTime: number) {
-        super.tick(deltaTime);
+    public override tick(deltaTime: number, currentTime: number) {
+        super.tick(deltaTime, currentTime);
 
-        this.updateMotion();
+        this.updateMotion(currentTime);
     }
 
-    protected abstract updateMotion(): void;
+    protected updateMotion(currentTime: number) {
+        pruneKeyframes(this.motion, currentTime);
+    }
 }

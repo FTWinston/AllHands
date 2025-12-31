@@ -40,18 +40,12 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
     // TODO: array of slotted weapons. @view(tacticalClientRole)
 
-    public tick(deltaTime: number) {
-        super.tick(deltaTime);
-
-        const currentTime = this.gameState.clock.currentTime;
+    public tick(deltaTime: number, currentTime: number) {
+        super.tick(deltaTime, currentTime);
 
         this.helmState.update(currentTime);
         this.sensorState.update(currentTime);
         this.tacticalState.update(currentTime);
         this.engineerState.update(currentTime);
-    }
-
-    protected updateMotion() {
-        // TODO: this
     }
 }

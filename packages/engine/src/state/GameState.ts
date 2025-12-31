@@ -47,10 +47,12 @@ export class GameState extends Schema {
     }
 
     public tick(deltaTime: number) {
-        // FUTURE: update visibility of each object, for each crew.
+        // TODO: update visibility of each object, for each crew.
+
+        const currentTime = this.clock.currentTime;
 
         for (const object of this.objects.values()) {
-            object.tick(deltaTime);
+            object.tick(deltaTime, currentTime);
         }
     }
 }

@@ -14,11 +14,9 @@ export class AiShip extends Ship {
         this.aiController = new ShipAiController(this, setup);
     }
 
-    public override tick(deltaTime: number): void {
-        super.tick(deltaTime);
+    public override tick(deltaTime: number, currentTime: number): void {
+        super.tick(deltaTime, currentTime);
 
-        // Pass current time from the game clock to the AI controller
-        const currentTime = this.gameState.clock.currentTime;
         this.aiController.update(deltaTime, currentTime);
     }
 }

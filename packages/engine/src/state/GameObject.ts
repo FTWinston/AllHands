@@ -35,5 +35,5 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
         return this.gameState.random;
     }
 
-    public tick(_deltaTime: number) {}
+    public tick(_deltaTime: number, _currentTime: number) {}
 }
