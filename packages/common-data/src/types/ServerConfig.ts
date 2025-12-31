@@ -5,6 +5,5 @@ export type ServerConfig = {
     simulateLatencyMs: number;
     tickRate: number;
     patchRate: number;
-    gameMode: 'survival' | 'adventure';
     multiship: boolean;
 };

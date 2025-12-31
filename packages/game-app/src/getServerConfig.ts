@@ -38,7 +38,6 @@ export function getServerConfig() {
         tickRate: 20,
         patchRate: 20,
         simulateLatencyMs: 0,
-        gameMode: 'survival',
         multiship: false,
     };
 

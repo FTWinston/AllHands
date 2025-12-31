@@ -1,14 +1,19 @@
+import fs from 'fs';
+import path from 'path';
 import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole, type CrewRole } from 'common-data/features/ships/types/CrewRole';
+import { Encounter } from 'common-data/features/space/types/Encounter';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { customAlphabet } from 'nanoid/non-secure';
+import { AiShip } from '../state/AiShip';
 import { CrewState } from '../state/CrewState';
 import { GameState } from '../state/GameState';
 import { PlayerShip } from '../state/PlayerShip';
 import { IdPool } from './IdPool';
 import type { SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
+import type { ScenarioConfig } from 'common-data/types/ScenarioConfig';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
 
 interface JoinOptions {
@@ -21,6 +26,8 @@ type ClientData = Required<JoinOptions>;
 export class GameRoom extends Room<GameState, unknown, ClientData> {
     private idGenerator = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 3);
     private allowMultipleCrews = false;
+    private encounterQueue: Encounter[] = [];
+    private scenario: ScenarioConfig = this.loadScenario('default');
 
     getCrewId() {
         if (!this.allowMultipleCrews) {
@@ -35,6 +42,18 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
         return id;
     };
+
+    private loadScenario(scenarioName: string): ScenarioConfig {
+        // Look for scenario files in a 'scenarios' directory relative to the engine package
+        const scenarioPath = path.join(__dirname, '..', '..', 'scenarios', `${scenarioName}.json`);
+
+        if (!fs.existsSync(scenarioPath)) {
+            throw new Error(`Scenario file not found: ${scenarioPath}`);
+        }
+
+        const scenarioData = fs.readFileSync(scenarioPath, 'utf-8');
+        return JSON.parse(scenarioData) as ScenarioConfig;
+    }
 
     onCreate(config: ServerConfig) {
         this.allowMultipleCrews = config.multiship;
@@ -92,6 +111,21 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
                 this.startOrResume();
             } else {
                 console.warn('Cannot resume: game is not paused');
+            }
+        });
+
+        this.onMessage('scenario', (client, scenarioName: string) => {
+            console.log(`Scenario change request from ${client.sessionId}: ${scenarioName}`);
+            if (this.state.gameStatus !== 'setup') {
+                console.error('Cannot change scenario after game has started');
+                return;
+            }
+
+            try {
+                this.scenario = this.loadScenario(scenarioName);
+                console.log(`Scenario changed to ${scenarioName}`);
+            } catch (error) {
+                console.error(`Failed to load scenario ${scenarioName}:`, error);
             }
         });
 
@@ -367,61 +401,36 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
     }
 
     populateGameWorld() {
-        console.log('All crew members are ready! Starting game...');
-        // Create a ship for each crew.
+        console.log(`All crew members are ready! Starting scenario: ${this.scenario.name}`);
 
-        // TODO: these should have locations in the world, initial system states, etc.
-
-        // TODO: create enemies, scenario elements, etc.
-
+        // Create a player ship for each crew using the scenario's player setup.
         for (const crew of this.state.crews.values()) {
-            const ship = new PlayerShip(
-                this.state,
-                {
-                    position: { x: 0, y: 0, angle: 0 },
-                    helm: {
-                        cards: ['exampleLocationTarget', 'exampleLocationTarget', 'exampleNoTarget', 'exampleLocationTarget', 'exampleNoTarget', 'exampleLocationTarget'],
-                        energy: 2,
-                        initialPowerLevel: 3,
-                        maxPowerLevel: 5,
-                        initialHandSize: 1,
-                        health: 5,
-                        maxHealth: 5,
-                    },
-                    sensors: {
-                        cards: ['exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget'],
-                        energy: 3,
-                        initialPowerLevel: 3,
-                        maxPowerLevel: 3,
-                        initialHandSize: 1,
-                        health: 5,
-                        maxHealth: 5,
-                    },
-                    tactical: {
-                        cards: ['exampleWeaponSlotTarget', 'exampleWeaponTarget', 'exampleEnemyTarget', 'exampleNoTarget', 'exampleWeaponSlotTarget', 'exampleWeaponTarget', 'exampleEnemyTarget', 'exampleNoTarget'],
-                        energy: 3,
-                        initialPowerLevel: 3,
-                        maxPowerLevel: 3,
-                        initialHandSize: 1,
-                        health: 5,
-                        maxHealth: 5,
-                    },
-                    engineer: {
-                        cards: ['exampleSystemTarget', 'exampleSystemTarget', 'exampleNoTarget', 'exampleSystemTarget', 'exampleSystemTarget', 'exampleNoTarget'],
-                        energy: 3,
-                        initialPowerLevel: 3,
-                        maxPowerLevel: 3,
-                        initialHandSize: 1,
-                        health: 5,
-                        maxHealth: 5,
-                    },
-                }
-            );
+            const ship = new PlayerShip(this.state, this.scenario.player);
             this.state.add(ship);
             crew.setShip(ship);
         }
 
+        this.encounterQueue = [...this.scenario.encounters];
+
+        this.loadNextEncounter();
+
         this.startOrResume();
+    }
+
+    private loadNextEncounter(): boolean {
+        const encounter = this.encounterQueue.shift();
+        if (!encounter) {
+            console.log('No more encounters in the scenario');
+            return false;
+        }
+
+        // Create AI-controlled enemy ships for the first encounter in the scenario.
+        for (const enemySetup of encounter.enemies) {
+            const aiShip = new AiShip(this.state, enemySetup);
+            this.state.add(aiShip);
+        }
+
+        return true;
     }
 
     startOrResume() {

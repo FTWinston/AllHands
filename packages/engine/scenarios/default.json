@@ -1,0 +1,92 @@
+{
+    "name": "Default Scenario",
+    "description": "A basic starting scenario with one player ship and one enemy.",
+    "gameMode": "survival",
+    "player": {
+        "position": { "x": 0, "y": 0, "angle": 0 },
+        "helm": {
+            "cards": ["exampleLocationTarget", "exampleLocationTarget", "exampleNoTarget", "exampleLocationTarget", "exampleNoTarget", "exampleLocationTarget"],
+            "energy": 2,
+            "initialPowerLevel": 3,
+            "maxPowerLevel": 5,
+            "initialHandSize": 1,
+            "health": 5,
+            "maxHealth": 5
+        },
+        "sensors": {
+            "cards": ["exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget"],
+            "energy": 3,
+            "initialPowerLevel": 3,
+            "maxPowerLevel": 3,
+            "initialHandSize": 1,
+            "health": 5,
+            "maxHealth": 5
+        },
+        "tactical": {
+            "cards": ["exampleWeaponSlotTarget", "exampleWeaponTarget", "exampleEnemyTarget", "exampleNoTarget", "exampleWeaponSlotTarget", "exampleWeaponTarget", "exampleEnemyTarget", "exampleNoTarget"],
+            "energy": 3,
+            "initialPowerLevel": 3,
+            "maxPowerLevel": 3,
+            "initialHandSize": 1,
+            "health": 5,
+            "maxHealth": 5
+        },
+        "engineer": {
+            "cards": ["exampleSystemTarget", "exampleSystemTarget", "exampleNoTarget", "exampleSystemTarget", "exampleSystemTarget", "exampleNoTarget"],
+            "energy": 3,
+            "initialPowerLevel": 3,
+            "maxPowerLevel": 3,
+            "initialHandSize": 1,
+            "health": 5,
+            "maxHealth": 5
+        }
+    },
+    "encounters": [
+        {
+            "enemies": [
+                {
+                    "appearance": "circle",
+                    "relationship": 1,
+                    "position": { "x": 10, "y": 5, "angle": 3.14159 },
+                    "personality": "balanced",
+                    "helm": {
+                        "cards": ["exampleLocationTarget", "exampleNoTarget"],
+                        "energy": 2,
+                        "initialPowerLevel": 2,
+                        "maxPowerLevel": 3,
+                        "initialHandSize": 1,
+                        "health": 3,
+                        "maxHealth": 3
+                    },
+                    "sensors": {
+                        "cards": ["exampleNoTarget", "exampleNoTarget"],
+                        "energy": 2,
+                        "initialPowerLevel": 2,
+                        "maxPowerLevel": 2,
+                        "initialHandSize": 1,
+                        "health": 3,
+                        "maxHealth": 3
+                    },
+                    "tactical": {
+                        "cards": ["exampleWeaponSlotTarget", "exampleEnemyTarget", "exampleNoTarget"],
+                        "energy": 2,
+                        "initialPowerLevel": 2,
+                        "maxPowerLevel": 2,
+                        "initialHandSize": 1,
+                        "health": 3,
+                        "maxHealth": 3
+                    },
+                    "engineer": {
+                        "cards": ["exampleSystemTarget", "exampleNoTarget"],
+                        "energy": 2,
+                        "initialPowerLevel": 2,
+                        "maxPowerLevel": 2,
+                        "initialHandSize": 1,
+                        "health": 3,
+                        "maxHealth": 3
+                    }
+                }
+            ]
+        }
+    ]
+}
