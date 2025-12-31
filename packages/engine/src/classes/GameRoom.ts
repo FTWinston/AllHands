@@ -117,7 +117,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         this.onMessage('scenario', (client, scenarioName: string) => {
             console.log(`Scenario change request from ${client.sessionId}: ${scenarioName}`);
             if (this.state.gameStatus !== 'setup') {
-                console.error('Cannot change scenario after game has started');
+                console.warn('Cannot change scenario after game has started');
                 return;
             }
 
@@ -424,7 +424,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
             return false;
         }
 
-        // Create AI-controlled enemy ships for the first encounter in the scenario.
+        // Create AI-controlled enemy ships for the first encounter in the queue.
         for (const enemySetup of encounter.enemies) {
             const aiShip = new AiShip(this.state, enemySetup);
             this.state.add(aiShip);

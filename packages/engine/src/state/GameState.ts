@@ -24,14 +24,31 @@ export class GameState extends Schema {
 
     public add(object: GameObject) {
         this.objects.set(object.id, object);
+
+        if (this.gameStatus === 'active') {
+            // Add object to the viewscreen, helm and tactical clients' views on every crew.
+            for (const crew of this.crews.values()) {
+                crew.addObjectToViews(object);
+            }
+        }
     }
 
     public remove(object: GameObject) {
         this.objects.delete(object.id);
+
+        if (this.gameStatus === 'active') {
+            // Remove object from all crew client views.
+            for (const crew of this.crews.values()) {
+                crew.removeObjectFromViews(object);
+            }
+        }
+
         this.idPool.releaseId(object.id);
     }
 
     public tick(deltaTime: number) {
+        // FUTURE: update visibility of each object, for each crew.
+
         for (const object of this.objects.values()) {
             object.tick(deltaTime);
         }

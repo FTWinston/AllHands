@@ -45,9 +45,9 @@
         {
             "enemies": [
                 {
-                    "appearance": "circle",
+                    "appearance": "chevron",
                     "relationship": 1,
-                    "position": { "x": 10, "y": 5, "angle": 3.14159 },
+                    "position": { "x": 5, "y": 5, "angle": -3.14159 },
                     "personality": "balanced",
                     "helm": {
                         "cards": ["exampleLocationTarget", "exampleNoTarget"],
