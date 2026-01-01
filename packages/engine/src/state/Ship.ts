@@ -19,10 +19,10 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         );
 
         const getCardId = () => this.getCardId();
-        this.helmState = new SystemState(setup.helm, this, getCardId);
-        this.sensorState = new SystemState(setup.sensors, this, getCardId);
-        this.tacticalState = new SystemState(setup.tactical, this, getCardId);
-        this.engineerState = new SystemState(setup.engineer, this, getCardId);
+        this.helmState = new SystemState(setup.helm, gameState, this, getCardId);
+        this.sensorState = new SystemState(setup.sensors, gameState, this, getCardId);
+        this.tacticalState = new SystemState(setup.tactical, gameState, this, getCardId);
+        this.engineerState = new SystemState(setup.engineer, gameState, this, getCardId);
     }
 
     private nextCardId = 1;

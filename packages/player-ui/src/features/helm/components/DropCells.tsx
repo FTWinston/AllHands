@@ -1,4 +1,5 @@
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { serializeVector } from 'common-data/features/space/utils/vectors';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { CardDropTarget } from 'src/features/cardhand/components/CardDropTarget';
@@ -123,10 +124,9 @@ export const DropCells: FC<Props> = (props) => {
     }, [centerHex.col, centerHex.row, halfCols, halfRows]);
 
     const renderCell = (cell: CellInfo) => {
-        const cellId = `${cell.col},${cell.row}`;
-
         // Get world position of this hex center
         const worldPos = hexToWorld(cell.col, cell.row);
+        const cellId = serializeVector(worldPos);
 
         // Convert to screen position relative to view center
         // The view center (in world coords) is at the screen center

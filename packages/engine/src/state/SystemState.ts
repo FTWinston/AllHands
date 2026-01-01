@@ -1,14 +1,16 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { handPriority, powerPriority, SystemInfo, SystemPowerPriority, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { parseVectors } from 'common-data/features/space/utils/vectors';
 import { IRandom } from 'common-data/types/IRandom';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { CardState } from './CardState';
 import { CooldownState } from './CooldownState';
+import { GameState } from './GameState';
 import { Ship } from './Ship';
 
 export class SystemState extends Schema implements SystemInfo {
-    constructor(setup: SystemSetupInfo, private readonly ship: Ship, getCardId: () => number) {
+    constructor(setup: SystemSetupInfo, private readonly gameState: GameState, private readonly ship: Ship, getCardId: () => number) {
         super();
 
         // The first initialHandSize cards go straight into the hand.
@@ -91,7 +93,7 @@ export class SystemState extends Schema implements SystemInfo {
      * Removes the card's cost worth of energy, and performs its play action.
      * Returns the card if found and played, null otherwise.
      */
-    playCard(cardId: number, targetType: CardTargetType, _targetId: string): CardState | null {
+    playCard(cardId: number, targetType: CardTargetType, targetId: string): CardState | null {
         const cardIndex = this.hand.findIndex(card => card.id === cardId);
         if (cardIndex === -1) {
             console.warn('card not found');
@@ -113,32 +115,36 @@ export class SystemState extends Schema implements SystemInfo {
         }
 
         if (cardDefinition.targetType === 'no-target') {
-            if (!cardDefinition.play()) {
+            if (!cardDefinition.play(this.gameState, this.ship)) {
                 console.log('card refused to play');
                 return null;
             }
         } else if (cardDefinition.targetType === 'weapon-slot') {
-            if (!cardDefinition.play(1)) {
+            if (!cardDefinition.play(this.gameState, this.ship, parseInt(targetId))) {
                 console.log('card refused to play');
                 return null;
             }
         } else if (cardDefinition.targetType === 'weapon') {
-            if (!cardDefinition.play(1)) {
+            if (!cardDefinition.play(this.gameState, this.ship, parseInt(targetId))) {
                 console.log('card refused to play');
                 return null;
             }
         } else if (cardDefinition.targetType === 'enemy') {
-            if (!cardDefinition.play('1')) {
+            if (!cardDefinition.play(this.gameState, this.ship, targetId)) {
                 console.log('card refused to play');
                 return null;
             }
         } else if (cardDefinition.targetType === 'system') {
-            if (!cardDefinition.play(1)) {
+            if (!cardDefinition.play(this.gameState, this.ship, parseInt(targetId))) {
                 console.log('card refused to play');
                 return null;
             }
         } else if (cardDefinition.targetType === 'location') {
-            if (!cardDefinition.play([])) {
+            const vectors = parseVectors(targetId);
+            if (vectors.length === 0) {
+                console.log('invalid location target', targetId);
+                return null;
+            } else if (!cardDefinition.play(this.gameState, this.ship, vectors)) {
                 console.log('card refused to play');
                 return null;
             }

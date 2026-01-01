@@ -1,4 +1,5 @@
 import { CardType, EnemyTargetedCardType, LocationTargetedCardType, SystemSlotTargetedCardType, UntargetedCardType, WeaponSlotTargetedCardType, WeaponTargetedCardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
+import { MotionKeyframe } from '../state/MotionKeyframe';
 import { NoTargetCardFunctionality, WeaponSlotTargetCardFunctionality, WeaponTargetCardFunctionality, EnemyTargetCardFunctionality, SystemTargetCardFunctionality, LocationTargetCardFunctionality, EngineCardDefinition, EngineCardFunctionality } from './EngineCardDefinition';
 
 type CardFunctionalityLookup = Record<UntargetedCardType, NoTargetCardFunctionality>
@@ -11,63 +12,73 @@ type CardFunctionalityLookup = Record<UntargetedCardType, NoTargetCardFunctional
 function loadCardDefinitions() {
     const cardFunctionalities: CardFunctionalityLookup = {
         flare: {
-            play: () => {
+            play: (_ship) => {
                 console.log('played flare'); return true;
             },
         },
         smokeScreen: {
-            play: () => {
+            play: (_ship) => {
                 console.log('played smokeScreen'); return true;
             },
         },
         phaserCannon: {
-            play: (_slot) => {
+            play: (_gameState, _ship, _slot) => {
                 console.log('played phaserCannon'); return true;
             },
         },
         phaserStrip: {
-            play: (_slot) => {
+            play: (_gameState, _ship, _slot) => {
                 console.log('played phaserStrip'); return true;
             },
         },
         photonTorpedo: {
-            play: (_slot) => {
+            play: (_gameState, _ship, _slot) => {
                 console.log('played photonTorpedo'); return true;
             },
         },
         photonicCannon: {
-            play: (_slot) => {
+            play: (_gameState, _ship, _slot) => {
                 console.log('played photonicCannon'); return true;
             },
         },
 
         exampleWeaponTarget: {
-            play: (_weapon) => {
+            play: (_gameState, _ship, _weapon) => {
                 console.log('played exampleWeaponTarget'); return true;
             },
         },
         exampleWeaponSlotTarget: {
-            play: (_slot) => {
+            play: (_gameState, _ship, _slot) => {
                 console.log('played exampleWeaponSlotTarget'); return true;
             },
         },
         exampleEnemyTarget: {
-            play: (_targetId) => {
+            play: (_gameState, _ship, _targetId) => {
                 console.log('played exampleEnemyTarget'); return true;
             },
         },
         exampleSystemTarget: {
-            play: (_system) => {
+            play: (_gameState, _ship, _system) => {
                 console.log('played exampleSystemTarget'); return true;
             },
         },
         exampleLocationTarget: {
-            play: (_locations) => {
-                console.log('played exampleLocationTarget'); return true;
+            play: (gameState, ship, locations) => {
+                console.log('played exampleLocationTarget at', locations);
+
+                // TODO: consider angle and duration.
+                ship.motion.push(new MotionKeyframe(
+                    gameState.clock.currentTime + 10000,
+                    locations[0].x,
+                    locations[0].y,
+                    0
+                ));
+
+                return true;
             },
         },
         exampleNoTarget: {
-            play: () => {
+            play: (_gameState, _ship) => {
                 console.log('played exampleNoTarget'); return true;
             },
         },

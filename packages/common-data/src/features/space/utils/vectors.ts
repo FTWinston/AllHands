@@ -96,3 +96,25 @@ export function rotatePolar(fromPos: Vector2D, rotateAngle: number) {
     const distance = getMagnitude(fromPos.x, fromPos.y);
     return polarToCartesian(polarAngle + rotateAngle, distance);
 }
+
+export function serializeVector(vector: Vector2D): string {
+    return `${vector.x.toFixed(3)},${vector.y.toFixed(3)}`;
+}
+
+export function parseVectors(input: string): Vector2D[] {
+    const vectors: Vector2D[] = [];
+    const entries = input.split(';');
+
+    for (const entry of entries) {
+        const parts = entry.split(',', 2);
+        if (parts.length !== 2) {
+            return [];
+        }
+
+        const x = parseFloat(parts[0]);
+        const y = parseFloat(parts[1]);
+        vectors.push({ x, y });
+    }
+
+    return vectors;
+}
