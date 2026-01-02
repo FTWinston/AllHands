@@ -1,6 +1,6 @@
 import { entity } from '@colyseus/schema';
 import { GameObjectSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { pruneKeyframes } from 'common-data/features/space/utils/interpolate';
+import { cullFutureKeyframes, prunePastKeyframes } from 'common-data/features/space/utils/interpolate';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { MotionKeyframe } from './MotionKeyframe';
@@ -24,6 +24,22 @@ export abstract class MobileObject extends GameObject {
     }
 
     protected updateMotion(currentTime: number) {
-        pruneKeyframes(this.motion, currentTime);
+        prunePastKeyframes(this.motion, currentTime);
+    }
+
+    public setMotion(...keyframes: MotionKeyframe[]) {
+        const currentPosition = this.getPosition(this.gameState.clock.currentTime);
+
+        // Remove future keyframes, add a "now" keyframe, then add the new keyframes.
+        cullFutureKeyframes(this.motion, this.gameState.clock.currentTime);
+
+        this.motion.push(new MotionKeyframe(
+            this.gameState.clock.currentTime,
+            currentPosition.x,
+            currentPosition.y,
+            currentPosition.angle
+        ));
+
+        this.motion.push(...keyframes);
     }
 }

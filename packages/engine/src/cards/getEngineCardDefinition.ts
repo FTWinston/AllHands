@@ -67,12 +67,14 @@ function loadCardDefinitions() {
                 console.log('played exampleLocationTarget at', locations);
 
                 // TODO: consider angle and duration.
-                ship.motion.push(new MotionKeyframe(
-                    gameState.clock.currentTime + 10000,
-                    locations[0].x,
-                    locations[0].y,
-                    0
-                ));
+                ship.setMotion(
+                    new MotionKeyframe(
+                        gameState.clock.currentTime + 10000,
+                        locations[0].x,
+                        locations[0].y,
+                        0
+                    )
+                );
 
                 return true;
             },

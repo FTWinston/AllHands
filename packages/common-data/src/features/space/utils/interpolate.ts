@@ -8,11 +8,23 @@ export function getFirstFutureIndex<T>(keyframes: ReadonlyKeyframes<T>, currentT
 }
 
 /** Remove keyframes that are more than 2 frames into the past. Return true if any were removed. */
-export function pruneKeyframes(keyframes: Keyframes<unknown>, currentTime: number): boolean {
+export function prunePastKeyframes(keyframes: Keyframes<unknown>, currentTime: number): boolean {
     const firstFutureIndex = getFirstFutureIndex(keyframes, currentTime);
 
     if (firstFutureIndex >= 2) {
         keyframes.splice(0, firstFutureIndex - 2);
+        return true;
+    }
+
+    return false;
+}
+
+/** Remove keyframes that are in the future. Return true if any were removed. */
+export function cullFutureKeyframes(keyframes: Keyframes<unknown>, currentTime: number): boolean {
+    const firstFutureIndex = getFirstFutureIndex(keyframes, currentTime);
+
+    if (firstFutureIndex !== -1) {
+        keyframes.splice(firstFutureIndex);
         return true;
     }
 
