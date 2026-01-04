@@ -4,7 +4,6 @@ import { PlayerShipSetupInfo } from 'common-data/features/space/types/GameObject
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { CrewState } from './CrewState';
 import { GameState } from './GameState';
-import { MotionKeyframe } from './MotionKeyframe';
 import { Ship } from './Ship';
 import { ViewState } from './ViewState';
 
@@ -16,13 +15,6 @@ export class PlayerShip extends Ship {
             appearance: 'chevron',
             relationship: RelationshipType.Self,
         });
-
-        this.motion.push(new MotionKeyframe(
-            gameState.clock.currentTime + 30000,
-            setup.position.x + 5,
-            setup.position.y + 2,
-            Math.PI
-        ));
     }
 
     crew: CrewState | null = null;

@@ -62,6 +62,12 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'location',
         crew: 'helm',
         cost: 1,
+        motionData: [
+            {
+                face: 'finalVector',
+                baseSpeed: 1,
+            },
+        ],
     },
     exampleNoTarget: {
         targetType: 'no-target',

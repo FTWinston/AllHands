@@ -1,6 +1,24 @@
-import { CardType, EnemyTargetedCardType, LocationTargetedCardType, SystemSlotTargetedCardType, UntargetedCardType, WeaponSlotTargetedCardType, WeaponTargetedCardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
-import { MotionKeyframe } from '../state/MotionKeyframe';
-import { NoTargetCardFunctionality, WeaponSlotTargetCardFunctionality, WeaponTargetCardFunctionality, EnemyTargetCardFunctionality, SystemTargetCardFunctionality, LocationTargetCardFunctionality, EngineCardDefinition, EngineCardFunctionality } from './EngineCardDefinition';
+import {
+    CardType,
+    EnemyTargetedCardType,
+    LocationTargetedCardType,
+    SystemSlotTargetedCardType,
+    UntargetedCardType,
+    WeaponSlotTargetedCardType,
+    WeaponTargetedCardType,
+    cardDefinitions,
+} from 'common-data/features/cards/utils/cardDefinitions';
+import { applyMotionCard } from './applyMotionCard';
+import {
+    NoTargetCardFunctionality,
+    WeaponSlotTargetCardFunctionality,
+    WeaponTargetCardFunctionality,
+    EnemyTargetCardFunctionality,
+    SystemTargetCardFunctionality,
+    LocationTargetCardFunctionality,
+    EngineCardDefinition,
+    EngineCardFunctionality,
+} from './EngineCardDefinition';
 
 type CardFunctionalityLookup = Record<UntargetedCardType, NoTargetCardFunctionality>
     & Record<WeaponSlotTargetedCardType, WeaponSlotTargetCardFunctionality>
@@ -63,21 +81,7 @@ function loadCardDefinitions() {
             },
         },
         exampleLocationTarget: {
-            play: (gameState, ship, locations) => {
-                console.log('played exampleLocationTarget at', locations);
-
-                // TODO: consider angle and duration.
-                ship.setMotion(
-                    new MotionKeyframe(
-                        gameState.clock.currentTime + 10000,
-                        locations[0].x,
-                        locations[0].y,
-                        0
-                    )
-                );
-
-                return true;
-            },
+            play: applyMotionCard,
         },
         exampleNoTarget: {
             play: (_gameState, _ship) => {

@@ -28,17 +28,8 @@ export abstract class MobileObject extends GameObject {
     }
 
     public setMotion(...keyframes: MotionKeyframe[]) {
-        const currentPosition = this.getPosition(this.gameState.clock.currentTime);
-
-        // Remove future keyframes, add a "now" keyframe, then add the new keyframes.
+        // Remove future keyframes, then add the new keyframes, which should include a "now" keyframe.
         cullFutureKeyframes(this.motion, this.gameState.clock.currentTime);
-
-        this.motion.push(new MotionKeyframe(
-            this.gameState.clock.currentTime,
-            currentPosition.x,
-            currentPosition.y,
-            currentPosition.angle
-        ));
 
         this.motion.push(...keyframes);
     }

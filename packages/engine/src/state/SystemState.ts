@@ -144,7 +144,7 @@ export class SystemState extends Schema implements SystemInfo {
             if (vectors.length === 0) {
                 console.log('invalid location target', targetId);
                 return null;
-            } else if (!cardDefinition.play(this.gameState, this.ship, vectors)) {
+            } else if (!cardDefinition.play(this.gameState, this.ship, cardDefinition.motionData, vectors)) {
                 console.log('card refused to play');
                 return null;
             }

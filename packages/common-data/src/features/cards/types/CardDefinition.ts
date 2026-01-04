@@ -29,6 +29,12 @@ export type SystemTargetCardDefinition = CommonCardDefinition & {
 
 export type LocationTargetCardDefinition = CommonCardDefinition & {
     targetType: 'location';
+    motionData: CardMotionDataPoint[];
+};
+
+export type CardMotionDataPoint = {
+    face?: 'nextVector' | 'previousVector' | 'finalVector';
+    baseSpeed: number;
 };
 
 export type CardDefinition = NoTargetCardDefinition | WeaponSlotTargetCardDefinition | WeaponTargetCardDefinition | EnemyTargetCardDefinition | SystemTargetCardDefinition | LocationTargetCardDefinition;
