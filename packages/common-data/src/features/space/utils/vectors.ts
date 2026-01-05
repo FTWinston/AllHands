@@ -22,9 +22,20 @@ export function distance(v1: Vector2D, v2: Vector2D) {
 export function unit(v1: Vector2D, v2: Vector2D) {
     const dist = distance(v1, v2);
 
+    if (dist === 0) {
+        return { x: 0, y: 0 };
+    }
+
     return {
         x: (v2.x - v1.x) / dist,
         y: (v2.y - v1.y) / dist,
+    };
+}
+
+export function perpendicular(vector: Vector2D) {
+    return {
+        x: -vector.y,
+        y: vector.x,
     };
 }
 
@@ -52,12 +63,6 @@ export function determineAngle(fromPos: Vector2D, toPos: Vector2D, valueIfEqual:
         : getAngle(toPos.x - fromPos.x, toPos.y - fromPos.y);
 }
 
-export function determineMidAngle(fromPos: Vector2D, midPos: Vector2D, endPos: Vector2D, valueIfEqual: number) {
-    const firstAngle = determineAngle(fromPos, midPos, valueIfEqual);
-    const secondAngle = determineAngle(midPos, endPos, valueIfEqual);
-    return getMidAngle(firstAngle, secondAngle);
-}
-
 export function clampAngle(angle: number) {
     while (angle <= -Math.PI) {
         angle += Math.PI * 2;
@@ -70,18 +75,34 @@ export function clampAngle(angle: number) {
     return angle;
 }
 
-function getMidAngle(angle1: number, angle2: number) {
+export function getAnglesBetween(angle1: number, angle2: number, numMidAngles: number) {
     if (angle2 < angle1) {
         [angle1, angle2] = [angle2, angle1];
     }
 
-    if (angle2 - angle1 > Math.PI) {
+    while (angle2 - angle1 > Math.PI) {
         angle1 += Math.PI * 2;
     }
 
-    let midAngle = (angle1 + angle2) / 2;
+    const angleStep = (angle2 - angle1) / (numMidAngles + 1);
 
-    return clampAngle(midAngle);
+    return new Array(numMidAngles)
+        .fill(0)
+        .map((_, i) => {
+            return clampAngle(angle1 + angleStep * (i + 1));
+        });
+}
+
+export function getVectorsBetween(vector1: Vector2D, vector2: Vector2D, numMidVectors: number) {
+    const xStep = (vector2.x - vector1.x) / (numMidVectors + 1);
+    const yStep = (vector2.y - vector1.y) / (numMidVectors + 1);
+
+    return new Array(numMidVectors)
+        .fill(0)
+        .map((_, i) => ({
+            x: vector1.x + xStep * (i + 1),
+            y: vector1.y + yStep * (i + 1),
+        }));
 }
 
 export function polarToCartesian(angle: number, distance: number) {

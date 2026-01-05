@@ -1,4 +1,4 @@
-import { CardDefinition } from '../types/CardDefinition';
+import { CardDefinition, CardMotionSegmentFacing, CardMotionSegmentRotationBehavior } from '../types/CardDefinition';
 import { CardTargetType } from '../types/CardTargetType';
 
 // Enforce that values are of a card definition type, without widening the key type to "string"
@@ -64,7 +64,9 @@ export const cardDefinitions = defineCardDefinitions({
         cost: 1,
         motionData: [
             {
-                face: 'finalVector',
+                behavior: CardMotionSegmentRotationBehavior.RotateWhileMoving,
+                endFacing: CardMotionSegmentFacing.FinalVector,
+                baseRotationSpeed: 1,
                 baseSpeed: 1,
             },
         ],

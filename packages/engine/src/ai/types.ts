@@ -176,40 +176,6 @@ export type ConcernType = 'low-energy'
     | 'target-escaping'
     | 'overheating';
 
-// ============================================================================
-// LEGACY TYPES (kept for compatibility, may be removed later)
-// ============================================================================
-
-/**
- * Represents a proposed action from a system AI to the command AI.
- * @deprecated Use SystemCapability instead
- */
-export interface AiActionProposal {
-    /** The system that owns this card */
-    system: CrewRoleName;
-
-    /** The ID of the card to play */
-    cardId: number;
-
-    /** The type of the card to play */
-    cardType: CardType;
-
-    /** The energy cost of playing this card */
-    cost: number;
-
-    /**
-     * A score representing how valuable this action is right now.
-     * Higher is better. Scale: 0.0 to 100.0
-     */
-    score: number;
-
-    /** The target required for this card, if any */
-    target?: AiActionTarget;
-
-    /** Debug description of why this action is proposed */
-    reasoning?: string;
-}
-
 export interface AiActionTarget {
     type: CardTargetType;
     id: string;

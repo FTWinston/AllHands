@@ -29,12 +29,28 @@ export type SystemTargetCardDefinition = CommonCardDefinition & {
 
 export type LocationTargetCardDefinition = CommonCardDefinition & {
     targetType: 'location';
-    motionData: CardMotionDataPoint[];
+    motionData: CardMotionSegment[];
 };
 
-export type CardMotionDataPoint = {
-    face?: 'nextVector' | 'previousVector' | 'finalVector';
+export enum CardMotionSegmentFacing {
+    Initial,
+    NextVector,
+    PreviousVector,
+    FinalVector,
+}
+
+export enum CardMotionSegmentRotationBehavior {
+    RotateSeparateFromMoving,
+    RotateWhileMoving,
+}
+
+export type CardMotionSegment = {
+    behavior: CardMotionSegmentRotationBehavior;
+    endFacing: CardMotionSegmentFacing;
+    endFacingOffset?: number;
     baseSpeed: number;
+    baseRotationSpeed: number;
+    perpendicularPositionOffsets?: number[];
 };
 
 export type CardDefinition = NoTargetCardDefinition | WeaponSlotTargetCardDefinition | WeaponTargetCardDefinition | EnemyTargetCardDefinition | SystemTargetCardDefinition | LocationTargetCardDefinition;
