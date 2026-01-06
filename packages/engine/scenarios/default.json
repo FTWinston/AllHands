@@ -5,7 +5,7 @@
     "player": {
         "position": { "x": 0, "y": 0, "angle": 0 },
         "helm": {
-            "cards": ["exampleLocationTarget", "exampleLocationTarget", "exampleNoTarget", "exampleLocationTarget", "exampleNoTarget", "exampleLocationTarget"],
+            "cards": ["slowAndSteady", "zigZag", "slowAndSteady", "exampleNoTarget", "slowAndSteady", "zigZag", "slowAndSteady"],
             "energy": 2,
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
@@ -50,7 +50,7 @@
                     "position": { "x": 5, "y": 5, "angle": -3.14159 },
                     "personality": "balanced",
                     "helm": {
-                        "cards": ["exampleLocationTarget", "exampleNoTarget"],
+                        "cards": ["slowAndSteady", "exampleNoTarget"],
                         "energy": 2,
                         "initialPowerLevel": 2,
                         "maxPowerLevel": 3,

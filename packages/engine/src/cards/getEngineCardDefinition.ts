@@ -80,7 +80,10 @@ function loadCardDefinitions() {
                 console.log('played exampleSystemTarget'); return true;
             },
         },
-        exampleLocationTarget: {
+        slowAndSteady: {
+            play: applyMotionCard,
+        },
+        zigZag: {
             play: applyMotionCard,
         },
         exampleNoTarget: {

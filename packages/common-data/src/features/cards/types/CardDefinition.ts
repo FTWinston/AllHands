@@ -51,6 +51,8 @@ export type CardMotionSegment = {
     baseSpeed: number;
     baseRotationSpeed: number;
     perpendicularPositionOffsets?: number[];
+    minDistance?: number;
+    maxDistance?: number;
 };
 
 export type CardDefinition = NoTargetCardDefinition | WeaponSlotTargetCardDefinition | WeaponTargetCardDefinition | EnemyTargetCardDefinition | SystemTargetCardDefinition | LocationTargetCardDefinition;

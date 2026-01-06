@@ -58,16 +58,31 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'engineer',
         cost: 2,
     },
-    exampleLocationTarget: {
+    slowAndSteady: {
         targetType: 'location',
         crew: 'helm',
         cost: 1,
         motionData: [
             {
-                behavior: CardMotionSegmentRotationBehavior.RotateWhileMoving,
+                behavior: CardMotionSegmentRotationBehavior.RotateSeparateFromMoving,
                 endFacing: CardMotionSegmentFacing.FinalVector,
-                baseRotationSpeed: 1,
+                baseRotationSpeed: 0.75,
+                baseSpeed: 0.75,
+            },
+        ],
+    },
+    zigZag: {
+        targetType: 'location',
+        crew: 'helm',
+        cost: 2,
+        motionData: [
+            {
+                behavior: CardMotionSegmentRotationBehavior.RotateSeparateFromMoving,
+                endFacing: CardMotionSegmentFacing.FinalVector,
+                baseRotationSpeed: 1.25,
                 baseSpeed: 1,
+                perpendicularPositionOffsets: [-0.33, 0.5, -0.5, 0.33],
+                minDistance: 3,
             },
         ],
     },

@@ -24,7 +24,7 @@ const meta: Meta<typeof Component> = {
             cards: args.cards || [] as MinimalReadonlyArray<CardInstance>,
             createCard: (id: number) => ({
                 id,
-                type: 'exampleLocationTarget',
+                type: 'slowAndSteady',
             }),
         });
 
@@ -69,11 +69,11 @@ export const UI: Story = {
             },
             {
                 id: 2,
-                type: 'exampleLocationTarget',
+                type: 'slowAndSteady',
             },
             {
                 id: 3,
-                type: 'exampleLocationTarget',
+                type: 'slowAndSteady',
             },
         ],
         objects: {},

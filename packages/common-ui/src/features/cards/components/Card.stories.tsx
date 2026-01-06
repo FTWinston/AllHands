@@ -11,7 +11,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Helm: Story = {
     args: {
-        type: 'exampleLocationTarget',
+        type: 'slowAndSteady',
     },
 };
 

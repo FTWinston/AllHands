@@ -70,6 +70,14 @@ export function applyMotionCard(
 
         const totalMoveDistance = distance(location, prevKeyframe);
 
+        // Ensure that this move respects the limits set in the card data.
+        if (dataPoint.minDistance !== undefined && totalMoveDistance < dataPoint.minDistance) {
+            return false;
+        }
+        if (dataPoint.maxDistance !== undefined && totalMoveDistance > dataPoint.maxDistance) {
+            return false;
+        }
+
         if (totalMoveDistance > 0.001 && dataPoint.baseSpeed > 0) {
             if (dataPoint.perpendicularPositionOffsets?.length) {
                 const intermediateStepAngles = getAnglesBetween(startAngle, endAngle, dataPoint.perpendicularPositionOffsets.length);

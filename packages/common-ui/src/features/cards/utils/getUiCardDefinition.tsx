@@ -55,9 +55,14 @@ function loadCardDefinitions() {
             description: 'A card that has a particular effect, for a particular crew role.',
             image: <ExampleIcon />,
         },
-        exampleLocationTarget: {
-            name: 'Some Card',
-            description: 'A card that has a particular effect, for a particular crew role. Extra line!',
+        slowAndSteady: {
+            name: 'Slow & Steady',
+            description: 'Turn towards a target then move towards it at a steady pace.',
+            image: <ExampleIcon />,
+        },
+        zigZag: {
+            name: 'Zig-zag',
+            description: 'Move from side to side while advancing towards a target, facing it the whole time.',
             descriptionLineHeight: 1.25,
             image: <ExampleIcon />,
         },

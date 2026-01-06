@@ -70,7 +70,7 @@ const meta: Meta<typeof CardHand> = {
                             onClick={() => {
                                 setCards(cards => [...cards, {
                                     id: nextId,
-                                    type: 'exampleLocationTarget',
+                                    type: 'slowAndSteady',
                                 }]);
                                 setNextId(id => id + 1);
                             }}
@@ -110,7 +110,7 @@ export const Three: Story = {
         cards: [
             {
                 id: 1,
-                type: 'exampleLocationTarget',
+                type: 'slowAndSteady',
             },
             {
                 id: 2,
@@ -141,7 +141,7 @@ export const Five: Story = {
             },
             {
                 id: 4,
-                type: 'exampleLocationTarget',
+                type: 'slowAndSteady',
             },
             {
                 id: 5,
@@ -168,7 +168,7 @@ export const Nine: Story = {
             },
             {
                 id: 4,
-                type: 'exampleLocationTarget',
+                type: 'slowAndSteady',
             },
             {
                 id: 5,
@@ -188,7 +188,7 @@ export const Nine: Story = {
             },
             {
                 id: 9,
-                type: 'exampleLocationTarget',
+                type: 'slowAndSteady',
             },
         ],
     },
