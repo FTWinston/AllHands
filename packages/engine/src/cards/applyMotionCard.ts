@@ -87,7 +87,7 @@ export function applyMotionCard(
                 const stepMoveDuration = (totalMoveDistance / dataPoint.baseSpeed) * 1000;
 
                 // Add a keyframe for each perpendincular offset step in turn.
-                for (let stepIndex = 0; stepIndex <= dataPoint.perpendicularPositionOffsets.length; stepIndex++) {
+                for (let stepIndex = 0; stepIndex < dataPoint.perpendicularPositionOffsets.length; stepIndex++) {
                     const stepAngle = intermediateStepAngles[stepIndex];
                     const stepLocation = intermediateStepLocations[stepIndex];
 

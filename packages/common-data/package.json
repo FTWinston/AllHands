@@ -4,12 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc && tsc-alias --resolve-full-paths"
   },
   "exports": {
     "./*": {
       "types": "./src/*.ts",
       "default": "./dist/*.js"
     }
+  },
+  "devDependencies": {
+    "tsc-alias": "^1.8.16"
   }
 }
