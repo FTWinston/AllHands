@@ -83,8 +83,11 @@ export function applyMotionCard(
                 const intermediateStepAngles = getAnglesBetween(startAngle, endAngle, dataPoint.perpendicularPositionOffsets.length);
                 const intermediateStepLocations = getVectorsBetween(prevKeyframe, location, dataPoint.perpendicularPositionOffsets.length);
 
+                // Get the unit vector for the direction of movement, then get the perpendicular equivalent.
+                const perpendicularUnit = perpendicular(unit(prevKeyframe, location));
+
                 // TODO: apply helm power (or other ship movement modifiers) to the base speed here.
-                const stepMoveDuration = (totalMoveDistance / dataPoint.baseSpeed) * 1000;
+                const stepMoveDuration = totalMoveDistance / (intermediateStepLocations.length + 1) / dataPoint.baseSpeed * 1000;
 
                 // Add a keyframe for each perpendincular offset step in turn.
                 for (let stepIndex = 0; stepIndex < dataPoint.perpendicularPositionOffsets.length; stepIndex++) {
@@ -93,9 +96,6 @@ export function applyMotionCard(
 
                     // Each step keyframe should have its perpendicular offset applied, scaled to fit the total move distance.
                     const stepPerpendincularOffsetDistance = dataPoint.perpendicularPositionOffsets[stepIndex] * totalMoveDistance;
-
-                    // Get the unit vector for the direction of movement, then get the perpendicular equivalent.
-                    const perpendicularUnit = perpendicular(unit(prevKeyframe, stepLocation));
 
                     // Add the scaled perpendicular offset to the step location.
                     const stepKeyframe = new MotionKeyframe(

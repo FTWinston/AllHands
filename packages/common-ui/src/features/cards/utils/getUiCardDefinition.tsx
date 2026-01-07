@@ -66,6 +66,11 @@ function loadCardDefinitions() {
             descriptionLineHeight: 1.25,
             image: <ExampleIcon />,
         },
+        strafe: {
+            name: 'Strafe',
+            description: 'Slowly move a short distance without rotating at all.',
+            image: <ExampleIcon />,
+        },
         exampleNoTarget: {
             name: 'Some Card with a title that\'s really quite long',
             nameFontSize: 0.88,

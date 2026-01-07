@@ -5,7 +5,7 @@
     "player": {
         "position": { "x": 0, "y": 0, "angle": 0 },
         "helm": {
-            "cards": ["slowAndSteady", "zigZag", "slowAndSteady", "exampleNoTarget", "slowAndSteady", "zigZag", "slowAndSteady"],
+            "cards": ["slowAndSteady", "zigZag", "strafe", "exampleNoTarget", "slowAndSteady", "zigZag", "slowAndSteady"],
             "energy": 2,
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,

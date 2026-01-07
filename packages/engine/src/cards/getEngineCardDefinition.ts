@@ -86,6 +86,9 @@ function loadCardDefinitions() {
         zigZag: {
             play: applyMotionCard,
         },
+        strafe: {
+            play: applyMotionCard,
+        },
         exampleNoTarget: {
             play: (_gameState, _ship) => {
                 console.log('played exampleNoTarget'); return true;

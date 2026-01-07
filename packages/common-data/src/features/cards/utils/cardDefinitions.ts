@@ -81,8 +81,22 @@ export const cardDefinitions = defineCardDefinitions({
                 endFacing: CardMotionSegmentFacing.FinalVector,
                 baseRotationSpeed: 1.25,
                 baseSpeed: 1,
-                perpendicularPositionOffsets: [-0.33, 0.5, -0.5, 0.33],
+                perpendicularPositionOffsets: [-0.25, 0.4, -0.4, 0.25],
                 minDistance: 3,
+            },
+        ],
+    },
+    strafe: {
+        targetType: 'location',
+        crew: 'helm',
+        cost: 1,
+        motionData: [
+            {
+                behavior: CardMotionSegmentRotationBehavior.RotateWhileMoving,
+                endFacing: CardMotionSegmentFacing.Initial,
+                baseRotationSpeed: 1,
+                baseSpeed: 0.4,
+                maxDistance: 4,
             },
         ],
     },
