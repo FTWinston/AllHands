@@ -33,23 +33,39 @@ export type LocationTargetCardDefinition = CommonCardDefinition & {
 };
 
 export enum CardMotionSegmentFacing {
-    Initial,
+    /** Keep the current angle, don't change facing */
+    Current,
+    /** Face towards the next location in the sequence */
     NextVector,
+    /** Face towards the previous location (or starting position) */
     PreviousVector,
+    /** Face towards the final destination */
     FinalVector,
 }
 
-export enum CardMotionSegmentRotationBehavior {
-    RotateSeparateFromMoving,
-    RotateWhileMoving,
-}
-
 export type CardMotionSegment = {
-    behavior: CardMotionSegmentRotationBehavior;
-    endFacing: CardMotionSegmentFacing;
+    /**
+     * The direction to face at the start of the movement.
+     * If specified (and different from current), the ship rotates to this angle BEFORE moving.
+     * If not specified, the ship keeps its current angle at the start and any rotation happens during movement.
+     */
+    startFacing?: CardMotionSegmentFacing;
+    /** Offset (in radians) to add to the calculated startFacing angle. */
+    startFacingOffset?: number;
+    /**
+     * The direction to face at the end of the movement.
+     * The ship will rotate towards this angle during movement (interpolated across intermediate steps).
+     * Defaults to Current if not specified.
+     */
+    endFacing?: CardMotionSegmentFacing;
+    /** Offset (in radians) to add to the calculated endFacing angle. */
     endFacingOffset?: number;
     baseSpeed: number;
     baseRotationSpeed: number;
+    /**
+     * Explicit lateral offsets at intermediate points, scaled by total distance.
+     * Positive values offset to the right of the movement direction, negative to the left.
+     */
     perpendicularPositionOffsets?: number[];
     minDistance?: number;
     maxDistance?: number;

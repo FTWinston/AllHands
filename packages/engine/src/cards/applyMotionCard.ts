@@ -1,9 +1,32 @@
-import { CardMotionSegment, CardMotionSegmentFacing, CardMotionSegmentRotationBehavior } from 'common-data/features/cards/types/CardDefinition';
+import { CardMotionSegment, CardMotionSegmentFacing } from 'common-data/features/cards/types/CardDefinition';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { clampAngle, determineAngle, distance, getAnglesBetween, getVectorsBetween, perpendicular, unit } from 'common-data/features/space/utils/vectors';
 import { GameState } from '../state/GameState';
 import { MotionKeyframe } from '../state/MotionKeyframe';
 import { Ship } from '../state/Ship';
+
+/**
+ * Calculate an angle based on a CardMotionSegmentFacing value.
+ */
+function calculateFacingAngle(
+    facing: CardMotionSegmentFacing | undefined,
+    currentAngle: number,
+    prevKeyframe: Vector2D,
+    location: Vector2D,
+    locations: Vector2D[],
+    segmentIndex: number
+): number {
+    if (facing === CardMotionSegmentFacing.NextVector && segmentIndex + 1 < locations.length) {
+        return determineAngle(location, locations[segmentIndex + 1]);
+    } else if (facing === CardMotionSegmentFacing.PreviousVector) {
+        return determineAngle(prevKeyframe, location);
+    } else if (facing === CardMotionSegmentFacing.FinalVector && locations.length >= 1) {
+        return determineAngle(prevKeyframe, locations[locations.length - 1]);
+    } else {
+        // CardMotionSegmentFacing.Current or undefined - keep current angle
+        return currentAngle;
+    }
+}
 
 export function applyMotionCard(
     gameState: GameState,
@@ -26,27 +49,35 @@ export function applyMotionCard(
         const dataPoint = motionData[i];
         const location = locations[i];
 
-        let startAngle = prevKeyframe.angle;
-        let endAngle: number;
-
-        if (dataPoint.endFacing === CardMotionSegmentFacing.NextVector && i + 1 < locations.length) {
-            const nextVector = locations[i + 1];
-            endAngle = determineAngle(location, nextVector);
-        } else if (dataPoint.endFacing === CardMotionSegmentFacing.PreviousVector && i - 1 >= 0) {
-            endAngle = determineAngle(prevKeyframe, location);
-        } else if (dataPoint.endFacing === CardMotionSegmentFacing.FinalVector && locations.length >= 1) {
-            const finalVector = locations[locations.length - 1];
-            endAngle = determineAngle(prevKeyframe, finalVector);
-        } else {
-            endAngle = prevKeyframe.angle;
+        // Calculate start and end angles using the same logic for both
+        let movementStartAngle = calculateFacingAngle(
+            dataPoint.startFacing,
+            prevKeyframe.angle,
+            prevKeyframe,
+            location,
+            locations,
+            i
+        );
+        if (dataPoint.startFacingOffset) {
+            movementStartAngle += dataPoint.startFacingOffset;
         }
+
+        let endAngle = calculateFacingAngle(
+            dataPoint.endFacing,
+            prevKeyframe.angle,
+            prevKeyframe,
+            location,
+            locations,
+            i
+        );
         if (dataPoint.endFacingOffset) {
             endAngle += dataPoint.endFacingOffset;
         }
 
-        // Rotate (if needed and if separate from moving), then move.
-        if (dataPoint.behavior === CardMotionSegmentRotationBehavior.RotateSeparateFromMoving && dataPoint.baseRotationSpeed > 0) {
-            const angleDiff = Math.abs(clampAngle(endAngle - startAngle));
+        // If startFacing is specified, rotate to that angle before moving.
+        // If not specified, any rotation to reach endFacing happens during movement.
+        if (dataPoint.startFacing !== undefined && dataPoint.baseRotationSpeed > 0) {
+            const angleDiff = Math.abs(clampAngle(movementStartAngle - prevKeyframe.angle));
 
             if (angleDiff > 0.001) {
                 // TODO: apply helm power (or other ship rotation modifiers) to the rotation speed here.
@@ -56,15 +87,11 @@ export function applyMotionCard(
                     prevKeyframe.time + rotateDuration,
                     prevKeyframe.x,
                     prevKeyframe.y,
-                    endAngle
+                    movementStartAngle
                 );
 
                 keyframes.push(rotatedKeyframe);
                 prevKeyframe = rotatedKeyframe;
-
-                // If we have rotated, and the movement has perpendicular offsets, each offset step should use the same angle.
-                // If we have not rotated, and will instead be rotating while moving, each offset step will be at a different angle.
-                startAngle = endAngle;
             }
         }
 
@@ -79,29 +106,30 @@ export function applyMotionCard(
         }
 
         if (totalMoveDistance > 0.001 && dataPoint.baseSpeed > 0) {
-            if (dataPoint.perpendicularPositionOffsets?.length) {
-                const intermediateStepAngles = getAnglesBetween(startAngle, endAngle, dataPoint.perpendicularPositionOffsets.length);
-                const intermediateStepLocations = getVectorsBetween(prevKeyframe, location, dataPoint.perpendicularPositionOffsets.length);
+            const stepCount = dataPoint.perpendicularPositionOffsets?.length ?? 0;
+
+            if (stepCount > 0) {
+                const intermediateStepAngles = getAnglesBetween(movementStartAngle, endAngle, stepCount);
+                const intermediateStepLocations = getVectorsBetween(prevKeyframe, location, stepCount);
 
                 // Get the unit vector for the direction of movement, then get the perpendicular equivalent.
                 const perpendicularUnit = perpendicular(unit(prevKeyframe, location));
 
                 // TODO: apply helm power (or other ship movement modifiers) to the base speed here.
-                const stepMoveDuration = totalMoveDistance / (intermediateStepLocations.length + 1) / dataPoint.baseSpeed * 1000;
+                const stepMoveDuration = totalMoveDistance / (stepCount + 1) / dataPoint.baseSpeed * 1000;
 
-                // Add a keyframe for each perpendincular offset step in turn.
-                for (let stepIndex = 0; stepIndex < dataPoint.perpendicularPositionOffsets.length; stepIndex++) {
+                // Add a keyframe for each intermediate step
+                for (let stepIndex = 0; stepIndex < stepCount; stepIndex++) {
                     const stepAngle = intermediateStepAngles[stepIndex];
                     const stepLocation = intermediateStepLocations[stepIndex];
 
-                    // Each step keyframe should have its perpendicular offset applied, scaled to fit the total move distance.
-                    const stepPerpendincularOffsetDistance = dataPoint.perpendicularPositionOffsets[stepIndex] * totalMoveDistance;
+                    // Apply perpendicular offset scaled by total distance
+                    const offsetDistance = dataPoint.perpendicularPositionOffsets![stepIndex] * totalMoveDistance;
 
-                    // Add the scaled perpendicular offset to the step location.
                     const stepKeyframe = new MotionKeyframe(
                         prevKeyframe.time + stepMoveDuration,
-                        stepLocation.x + perpendicularUnit.x * stepPerpendincularOffsetDistance,
-                        stepLocation.y + perpendicularUnit.y * stepPerpendincularOffsetDistance,
+                        stepLocation.x + perpendicularUnit.x * offsetDistance,
+                        stepLocation.y + perpendicularUnit.y * offsetDistance,
                         stepAngle
                     );
 
@@ -109,7 +137,7 @@ export function applyMotionCard(
                     prevKeyframe = stepKeyframe;
                 }
 
-                // Also add a keyframe for the end step, which never has an offset.
+                // Add the final keyframe at the destination (no offset)
                 const endKeyframe = new MotionKeyframe(
                     prevKeyframe.time + stepMoveDuration,
                     location.x,
@@ -120,6 +148,7 @@ export function applyMotionCard(
                 keyframes.push(endKeyframe);
                 prevKeyframe = endKeyframe;
             } else {
+                // Straight line movement with no intermediate steps
                 // TODO: apply helm power (or other ship movement modifiers) to the base speed here.
                 const moveDuration = (totalMoveDistance / dataPoint.baseSpeed) * 1000;
 

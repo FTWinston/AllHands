@@ -89,6 +89,12 @@ function loadCardDefinitions() {
         strafe: {
             play: applyMotionCard,
         },
+        sweepLeft: {
+            play: applyMotionCard,
+        },
+        sweepRight: {
+            play: applyMotionCard,
+        },
         exampleNoTarget: {
             play: (_gameState, _ship) => {
                 console.log('played exampleNoTarget'); return true;

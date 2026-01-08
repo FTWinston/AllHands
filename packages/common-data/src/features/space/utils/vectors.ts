@@ -76,15 +76,19 @@ export function clampAngle(angle: number) {
 }
 
 export function getAnglesBetween(angle1: number, angle2: number, numMidAngles: number) {
-    if (angle2 < angle1) {
-        [angle1, angle2] = [angle2, angle1];
+    // Normalize the angle difference to take the shortest path around the circle.
+    // We preserve direction: if angle2 < angle1, we rotate in the negative direction.
+    let diff = angle2 - angle1;
+
+    // Normalize diff to be within (-π, π] to take the shortest path
+    while (diff > Math.PI) {
+        diff -= Math.PI * 2;
+    }
+    while (diff <= -Math.PI) {
+        diff += Math.PI * 2;
     }
 
-    while (angle2 - angle1 > Math.PI) {
-        angle1 += Math.PI * 2;
-    }
-
-    const angleStep = (angle2 - angle1) / (numMidAngles + 1);
+    const angleStep = diff / (numMidAngles + 1);
 
     return new Array(numMidAngles)
         .fill(0)

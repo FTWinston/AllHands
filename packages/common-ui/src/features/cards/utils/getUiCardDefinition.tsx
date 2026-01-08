@@ -71,6 +71,16 @@ function loadCardDefinitions() {
             description: 'Slowly move a short distance without rotating at all.',
             image: <ExampleIcon />,
         },
+        sweepLeft: {
+            name: 'Sweep Left',
+            description: 'Curve left towards the destination, turning through 90 degrees during the movement.',
+            image: <ExampleIcon />,
+        },
+        sweepRight: {
+            name: 'Sweep Right',
+            description: 'Curve right towards the destination, turning through 90 degrees during the movement.',
+            image: <ExampleIcon />,
+        },
         exampleNoTarget: {
             name: 'Some Card with a title that\'s really quite long',
             nameFontSize: 0.88,

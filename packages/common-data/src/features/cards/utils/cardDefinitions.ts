@@ -1,4 +1,4 @@
-import { CardDefinition, CardMotionSegmentFacing, CardMotionSegmentRotationBehavior } from '../types/CardDefinition';
+import { CardDefinition, CardMotionSegmentFacing } from '../types/CardDefinition';
 import { CardTargetType } from '../types/CardTargetType';
 
 // Enforce that values are of a card definition type, without widening the key type to "string"
@@ -64,7 +64,8 @@ export const cardDefinitions = defineCardDefinitions({
         cost: 1,
         motionData: [
             {
-                behavior: CardMotionSegmentRotationBehavior.RotateSeparateFromMoving,
+                // Rotate to face target first, then move straight towards it
+                startFacing: CardMotionSegmentFacing.FinalVector,
                 endFacing: CardMotionSegmentFacing.FinalVector,
                 baseRotationSpeed: 0.75,
                 baseSpeed: 0.75,
@@ -77,11 +78,12 @@ export const cardDefinitions = defineCardDefinitions({
         cost: 2,
         motionData: [
             {
-                behavior: CardMotionSegmentRotationBehavior.RotateSeparateFromMoving,
+                // Rotate to face target first, then zig-zag towards it
+                startFacing: CardMotionSegmentFacing.FinalVector,
                 endFacing: CardMotionSegmentFacing.FinalVector,
                 baseRotationSpeed: 1.25,
                 baseSpeed: 1,
-                perpendicularPositionOffsets: [-0.25, 0.4, -0.4, 0.25],
+                perpendicularPositionOffsets: [-0.15, 0.25, -0.25, 0.15],
                 minDistance: 3,
             },
         ],
@@ -92,11 +94,44 @@ export const cardDefinitions = defineCardDefinitions({
         cost: 1,
         motionData: [
             {
-                behavior: CardMotionSegmentRotationBehavior.RotateWhileMoving,
-                endFacing: CardMotionSegmentFacing.Initial,
+                // Don't rotate before moving, keep current heading throughout
                 baseRotationSpeed: 1,
                 baseSpeed: 0.4,
                 maxDistance: 4,
+            },
+        ],
+    },
+    sweepLeft: {
+        targetType: 'location',
+        crew: 'helm',
+        cost: 2,
+        motionData: [
+            {
+                startFacing: CardMotionSegmentFacing.FinalVector,
+                startFacingOffset: -Math.PI / 4, // Start facing 45 degrees left of destination
+                endFacing: CardMotionSegmentFacing.FinalVector,
+                endFacingOffset: Math.PI / 4, // End facing 45 degrees right of destination
+                baseRotationSpeed: 1,
+                baseSpeed: 1,
+                // Sine curve bulging right (positive = right of movement direction)
+                perpendicularPositionOffsets: [0.14, 0.26, 0.35, 0.39, 0.39, 0.35, 0.26, 0.14],
+            },
+        ],
+    },
+    sweepRight: {
+        targetType: 'location',
+        crew: 'helm',
+        cost: 2,
+        motionData: [
+            {
+                startFacing: CardMotionSegmentFacing.FinalVector,
+                startFacingOffset: Math.PI / 4, // Start facing 45 degrees right of destination
+                endFacing: CardMotionSegmentFacing.FinalVector,
+                endFacingOffset: -Math.PI / 4, // End facing 45 degrees left of destination
+                baseRotationSpeed: 1,
+                baseSpeed: 1,
+                // Sine curve bulging left (negative = left of movement direction)
+                perpendicularPositionOffsets: [-0.14, -0.26, -0.35, -0.39, -0.39, -0.35, -0.26, -0.14],
             },
         ],
     },
