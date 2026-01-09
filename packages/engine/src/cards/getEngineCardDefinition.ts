@@ -95,6 +95,9 @@ function loadCardDefinitions() {
         sweepRight: {
             play: applyMotionCard,
         },
+        faceTarget: {
+            play: applyMotionCard,
+        },
         exampleNoTarget: {
             play: (_gameState, _ship) => {
                 console.log('played exampleNoTarget'); return true;

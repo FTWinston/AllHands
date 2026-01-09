@@ -81,6 +81,11 @@ function loadCardDefinitions() {
             description: 'Curve right towards the destination, turning through 90 degrees during the movement.',
             image: <ExampleIcon />,
         },
+        faceTarget: {
+            name: 'Face Target',
+            description: 'Rotate to face the selected location without moving.',
+            image: <ExampleIcon />,
+        },
         exampleNoTarget: {
             name: 'Some Card with a title that\'s really quite long',
             nameFontSize: 0.88,

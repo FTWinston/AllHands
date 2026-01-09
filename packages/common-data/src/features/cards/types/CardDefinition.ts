@@ -60,6 +60,7 @@ export type CardMotionSegment = {
     endFacing?: CardMotionSegmentFacing;
     /** Offset (in radians) to add to the calculated endFacing angle. */
     endFacingOffset?: number;
+    /** Movement speed. If 0, the ship only rotates without moving. */
     baseSpeed: number;
     baseRotationSpeed: number;
     /**

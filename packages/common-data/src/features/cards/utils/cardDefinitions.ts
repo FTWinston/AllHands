@@ -135,6 +135,19 @@ export const cardDefinitions = defineCardDefinitions({
             },
         ],
     },
+    faceTarget: {
+        targetType: 'location',
+        crew: 'helm',
+        cost: 1,
+        motionData: [
+            {
+                // Rotate to face the target, no movement
+                startFacing: CardMotionSegmentFacing.FinalVector,
+                baseRotationSpeed: 1,
+                baseSpeed: 0,
+            },
+        ],
+    },
     exampleNoTarget: {
         targetType: 'no-target',
         crew: 'sensors',
