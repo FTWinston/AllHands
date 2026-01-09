@@ -83,6 +83,9 @@ function loadCardDefinitions() {
         slowAndSteady: {
             play: applyMotionCard,
         },
+        fullReverse: {
+            play: applyMotionCard,
+        },
         zigZag: {
             play: applyMotionCard,
         },

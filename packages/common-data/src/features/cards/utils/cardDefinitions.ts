@@ -72,6 +72,22 @@ export const cardDefinitions = defineCardDefinitions({
             },
         ],
     },
+    fullReverse: {
+        targetType: 'location',
+        crew: 'helm',
+        cost: 2,
+        motionData: [
+            {
+                // Rotate to face away from target, then reverse towards it
+                startFacing: CardMotionSegmentFacing.FinalVector,
+                startFacingOffset: Math.PI,
+                endFacing: CardMotionSegmentFacing.FinalVector,
+                endFacingOffset: Math.PI,
+                baseRotationSpeed: 0.75,
+                baseSpeed: 0.5,
+            },
+        ],
+    },
     zigZag: {
         targetType: 'location',
         crew: 'helm',

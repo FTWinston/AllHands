@@ -60,6 +60,11 @@ function loadCardDefinitions() {
             description: 'Turn towards a target then move towards it at a steady pace.',
             image: <ExampleIcon />,
         },
+        fullReverse: {
+            name: 'Full Reverse',
+            description: 'Turn away from the target then reverse slowly towards it.',
+            image: <ExampleIcon />,
+        },
         zigZag: {
             name: 'Zig-zag',
             description: 'Move from side to side while advancing towards a target, facing it the whole time.',
