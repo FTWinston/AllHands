@@ -1,4 +1,4 @@
-import { CardMotionSegment, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { CardMotionSegment, ChoiceCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';
@@ -6,6 +6,8 @@ import { Ship } from 'src/state/Ship';
 export type NoTargetCardFunctionality = {
     play: (gameState: GameState, ship: Ship) => boolean;
 };
+
+export type ChoiceTargetCardFunctionality = object;
 
 export type WeaponSlotTargetCardFunctionality = {
     play: (gameState: GameState, ship: Ship, slot: number) => boolean;
@@ -28,6 +30,7 @@ export type LocationTargetCardFunctionality = {
 };
 
 export type EngineCardFunctionality = NoTargetCardFunctionality
+    | ChoiceTargetCardFunctionality
     | WeaponSlotTargetCardFunctionality
     | WeaponTargetCardFunctionality
     | SystemTargetCardFunctionality
@@ -35,6 +38,8 @@ export type EngineCardFunctionality = NoTargetCardFunctionality
     | LocationTargetCardFunctionality;
 
 export type EngineNoTargetCardDefinition = NoTargetCardFunctionality & NoTargetCardDefinition;
+
+export type EngineChoiceTargetCardDefinition = ChoiceTargetCardFunctionality & ChoiceCardDefinition;
 
 export type EngineWeaponSlotCardDefinition = WeaponSlotTargetCardFunctionality & WeaponSlotTargetCardDefinition;
 
@@ -47,6 +52,7 @@ export type EngineSystemTargetCardDefinition = SystemTargetCardFunctionality & S
 export type EngineLocationTargetCardDefinition = LocationTargetCardFunctionality & LocationTargetCardDefinition;
 
 export type EngineCardDefinition = EngineNoTargetCardDefinition
+    | EngineChoiceTargetCardDefinition
     | EngineWeaponSlotCardDefinition
     | EngineWeaponTargetCardDefinition
     | EngineEnemyTargetCardDefinition

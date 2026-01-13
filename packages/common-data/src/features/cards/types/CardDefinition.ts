@@ -11,6 +11,11 @@ export type NoTargetCardDefinition = CommonCardDefinition & {
     targetType: 'no-target';
 };
 
+export type ChoiceCardDefinition<TCardKey extends string = string> = CommonCardDefinition & {
+    targetType: 'choice';
+    cards: [TCardKey, TCardKey] | [TCardKey, TCardKey, TCardKey];
+};
+
 export type WeaponSlotTargetCardDefinition = CommonCardDefinition & {
     targetType: 'weapon-slot';
 };
@@ -72,4 +77,11 @@ export type CardMotionSegment = {
     maxDistance?: number;
 };
 
-export type CardDefinition = NoTargetCardDefinition | WeaponSlotTargetCardDefinition | WeaponTargetCardDefinition | EnemyTargetCardDefinition | SystemTargetCardDefinition | LocationTargetCardDefinition;
+// The TCardKey generic allows choice cards to reference other cards without creating a circular reference.
+export type CardDefinition<TCardKey extends string = string> = NoTargetCardDefinition
+    | ChoiceCardDefinition<TCardKey>
+    | WeaponSlotTargetCardDefinition
+    | WeaponTargetCardDefinition
+    | EnemyTargetCardDefinition
+    | SystemTargetCardDefinition
+    | LocationTargetCardDefinition;

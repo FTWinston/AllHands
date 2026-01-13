@@ -1,5 +1,6 @@
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { FC } from 'react';
+import { default as ChoiceIcon } from './choice.svg?react';
 import { default as EnemyIcon } from './enemy.svg?react';
 import { default as LocationIcon } from './location.svg?react';
 import { default as NoTargetIcon } from './no-target.svg?react';
@@ -16,6 +17,8 @@ export const CardTargetIcon: FC<IconProps> = ({ className, targetType }) => {
     switch (targetType) {
         case 'no-target':
             return <NoTargetIcon className={className} />;
+        case 'choice':
+            return <ChoiceIcon className={className} />;
         case 'weapon-slot':
             return <WeaponSlotIcon className={className} />;
         case 'weapon':

@@ -76,6 +76,11 @@ function loadCardDefinitions() {
             description: 'Slowly move a short distance without rotating at all.',
             image: <ExampleIcon />,
         },
+        sweep: {
+            name: 'Sweep',
+            description: 'Curve towards the destination, turning through 90 degrees during the movement.',
+            image: <ExampleIcon />,
+        },
         sweepLeft: {
             name: 'Sweep Left',
             description: 'Curve left towards the destination, turning through 90 degrees during the movement.',

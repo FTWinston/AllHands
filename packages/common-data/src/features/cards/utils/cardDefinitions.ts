@@ -1,8 +1,9 @@
 import { CardDefinition, CardMotionSegmentFacing } from '../types/CardDefinition';
 import { CardTargetType } from '../types/CardTargetType';
 
-// Enforce that values are of a card definition type, without widening the key type to "string"
-function defineCardDefinitions<T extends Record<string, CardDefinition>>(defs: T) {
+// Enforce that values are of a card definition type, without widening the key type to "string".
+// The self-referential constraint ensures choice cards can only reference keys from this same object.
+function defineCardDefinitions<T extends Record<string, CardDefinition<Extract<keyof T, string>>>>(defs: T) {
     return defs;
 }
 
@@ -117,6 +118,12 @@ export const cardDefinitions = defineCardDefinitions({
             },
         ],
     },
+    sweep: {
+        targetType: 'choice',
+        crew: 'helm',
+        cost: 2,
+        cards: ['sweepLeft', 'sweepRight'],
+    },
     sweepLeft: {
         targetType: 'location',
         crew: 'helm',
@@ -188,3 +195,5 @@ export type SystemSlotTargetedCardType = KeysWithTargetType<typeof cardDefinitio
 export type EnemyTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'enemy'>;
 
 export type LocationTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'location'>;
+
+export type ChoiceCardType = KeysWithTargetType<typeof cardDefinitions, 'choice'>;
