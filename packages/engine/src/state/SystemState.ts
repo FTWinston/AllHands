@@ -1,5 +1,6 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { handPriority, powerPriority, SystemInfo, SystemPowerPriority, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { parseVectors } from 'common-data/features/space/utils/vectors';
 import { IRandom } from 'common-data/types/IRandom';
@@ -93,7 +94,7 @@ export class SystemState extends Schema implements SystemInfo {
      * Removes the card's cost worth of energy, and performs its play action.
      * Returns the card if found and played, null otherwise.
      */
-    playCard(cardId: number, targetType: CardTargetType, targetId: string): CardState | null {
+    playCard(cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string): CardState | null {
         const cardIndex = this.hand.findIndex(card => card.id === cardId);
         if (cardIndex === -1) {
             console.warn('card not found');
@@ -102,7 +103,21 @@ export class SystemState extends Schema implements SystemInfo {
 
         const card = this.hand[cardIndex];
 
-        const cardDefinition = getCardDefinition(card.type);
+        let cardDefinition = getCardDefinition(card.type);
+
+        if (cardDefinition.targetType === 'choice') {
+            if (!cardDefinition.cards.includes(cardType)) {
+                console.error('card choice mismatch');
+                return null;
+            }
+
+            // If playing a choice card and the specified type is one of that card's choices,
+            // use that type's definition for the rest of the checks and play.
+            cardDefinition = getCardDefinition(cardType);
+        } else if (card.type !== cardType) {
+            console.error('card type mismatch');
+            return null;
+        }
 
         if (this.energy < cardDefinition.cost) {
             console.warn('insufficient energy to play card');

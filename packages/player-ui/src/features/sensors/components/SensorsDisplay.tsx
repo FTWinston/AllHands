@@ -1,5 +1,6 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
@@ -10,7 +11,7 @@ import { CardHand } from '../../cardhand/components/CardHand';
 import { CrewHeader } from '../../header';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
-    playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
+    playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cards: MinimalReadonlyArray<CardInstance>;
 };
 

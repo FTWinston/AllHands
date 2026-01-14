@@ -1,4 +1,5 @@
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo, ShipInfo, SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import { useRoomState } from 'common-ui/features/useRoomState/utils/useRoomState';
 import { useCallback, useState } from 'react';
@@ -21,9 +22,10 @@ export const Engineer = (props: Props) => {
         props.room.send('pause');
     }, [props.room]);
 
-    const playCard = useCallback((cardId: number, targetType: CardTargetType, targetId: string) => {
+    const playCard = useCallback((cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => {
         props.room.send('playCard', {
             cardId,
+            cardType,
             targetType,
             targetId,
         });

@@ -1,5 +1,6 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
@@ -15,7 +16,7 @@ import { SlotProps, WeaponSlots } from './WeaponSlots';
 export type SlotPropsNoTarget = Omit<SlotProps, 'currentTargetState'>;
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
-    playCard: (cardId: number, targetType: CardTargetType, targetId: string) => void;
+    playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     slotFired: (slotIndex: number) => void;
     slotDeactivated: (slotIndex: number) => void;
     cards: MinimalReadonlyArray<CardInstance>;

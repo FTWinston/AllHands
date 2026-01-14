@@ -3,6 +3,7 @@ import path from 'path';
 import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole, type CrewRole } from 'common-data/features/ships/types/CrewRole';
 import { Encounter } from 'common-data/features/space/types/Encounter';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
@@ -157,12 +158,12 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
             }
         });
 
-        this.onMessage('playCard', (client, message: { cardId: number; targetType: CardTargetType; targetId: string }) => {
+        this.onMessage('playCard', (client, message: { cardId: number; cardType: CardType; targetType: CardTargetType; targetId: string }) => {
             if (this.state.gameStatus !== 'active') {
                 return;
             }
 
-            const { cardId, targetType, targetId } = message;
+            const { cardId, cardType, targetType, targetId } = message;
 
             const [ship, clientRole] = this.getShipForClient(client);
             if (!ship) {
@@ -172,13 +173,13 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
 
             const systemState = this.getSystemState(ship, clientRole);
 
-            const card = systemState.playCard(cardId, targetType, targetId);
+            const card = systemState.playCard(cardId, cardType, targetType, targetId);
             if (!card) {
-                console.error(`Failed play card ${cardId} targeting ${targetType}:${targetId} for ${clientRole} of ship ${ship.id}`);
+                console.error(`Failed play card ${cardId} type ${cardType} targeting ${targetType}:${targetId} for ${clientRole} of ship ${ship.id}`);
                 return;
             }
 
-            console.log(`${client.sessionId} played card ${cardId} (${card.type}) on ${clientRole} targeting ${targetType}:${targetId}`);
+            console.log(`${client.sessionId} played card ${cardId} type ${cardType} (${card.type}) on ${clientRole} targeting ${targetType}:${targetId}`);
         });
 
         this.onMessage('setPriority', (client, message: { priority: SystemPowerPriority }) => {

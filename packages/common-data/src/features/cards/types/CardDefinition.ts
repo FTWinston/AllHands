@@ -1,4 +1,5 @@
 import { CrewRoleName } from '../../ships/types/CrewRole';
+import { CardType } from '../utils/cardDefinitions';
 import { CardTargetType } from './CardTargetType';
 
 interface CommonCardDefinition {
@@ -11,7 +12,7 @@ export type NoTargetCardDefinition = CommonCardDefinition & {
     targetType: 'no-target';
 };
 
-export type ChoiceCardDefinition<TCardKey extends string = string> = CommonCardDefinition & {
+export type ChoiceCardDefinition<TCardKey extends string = CardType> = CommonCardDefinition & {
     targetType: 'choice';
     cards: [TCardKey, TCardKey] | [TCardKey, TCardKey, TCardKey];
 };
@@ -78,7 +79,7 @@ export type CardMotionSegment = {
 };
 
 // The TCardKey generic allows choice cards to reference other cards without creating a circular reference.
-export type CardDefinition<TCardKey extends string = string> = NoTargetCardDefinition
+export type CardDefinition<TCardKey extends string = CardType> = NoTargetCardDefinition
     | ChoiceCardDefinition<TCardKey>
     | WeaponSlotTargetCardDefinition
     | WeaponTargetCardDefinition

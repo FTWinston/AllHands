@@ -28,7 +28,7 @@ export const DraggableCard: FC<Props> = (props) => {
 
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: props.id,
-        data: { id: props.id, targetType },
+        data: { id: props.id, targetType, cardType: props.type },
     });
 
     const isBeingDragged = activeCard?.id === props.id;
