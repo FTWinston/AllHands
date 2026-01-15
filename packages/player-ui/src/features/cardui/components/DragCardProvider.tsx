@@ -1,10 +1,7 @@
 import { DndContext, DragEndEvent, DragStartEvent, useSensor, PointerSensor, useSensors, DragOverlay, Modifier } from '@dnd-kit/core';
-import { ChoiceCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
-import { createContext, useState, ReactNode, useContext } from 'react';
-import { CardDropTarget } from './CardDropTarget';
+import { createContext, useState, useContext, PropsWithChildren } from 'react';
 
 export type ActiveCardInfo = {
     id: number;
@@ -47,20 +44,13 @@ const clearFocus = () => {
     }
 };
 
-type Props = {
-    children: ReactNode;
+type Props = PropsWithChildren<{
     onCardDropped: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
-};
-
-type ChoiceInfo = {
-    choiceCardId: number;
-    options: CardType[];
-};
+}>;
 
 export const DragCardProvider = ({ children, onCardDropped }: Props) => {
     const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
     const [isOverValidTarget, setIsOverValidTarget] = useState(false);
-    const [choice, setChoice] = useState<ChoiceInfo | null>(null);
 
     const handleDragStart = (event: DragStartEvent) => {
         const data = event.active.data.current as ActiveCardInfo | undefined;
@@ -92,15 +82,7 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
                 const allowed = dropData.acceptAnyCardType || targetType === activeCard.targetType;
 
                 if (allowed) {
-                    if (targetType === 'choice') {
-                        const options = (getCardDefinition(activeCard.cardType) as ChoiceCardDefinition).cards;
-                        setChoice({ choiceCardId: cardId, options });
-                    } else {
-                        if (choice) {
-                            setChoice(null);
-                        }
-                        onCardDropped(cardId, activeCard.cardType, targetType, String(event.over.id));
-                    }
+                    onCardDropped(cardId, activeCard.cardType, targetType, String(event.over.id));
                 }
             }
         }
@@ -141,23 +123,7 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
             modifiers={[snapTopCenterToCursor]}
         >
             <ActiveCardContext.Provider value={{ activeCard, isOverValidTarget }}>
-                <CardDropTarget
-                    id="noTarget"
-                    targetType="no-target"
-                />
-                <CardDropTarget
-                    id="choiceTarget"
-                    targetType="choice"
-                />
                 {children}
-                {/* choice && (
-                    <CardChoice
-                        // TODO: the choice component needs to fade out (ALMOST?) completely when dragging a choice card.
-                        cardId={choice.choiceCardId}
-                        cardTypes={choice.options}
-                        onCancel={() => setChoice(null)}
-                    />
-                ) */}
                 <DragOverlay />
             </ActiveCardContext.Provider>
         </DndContext>

@@ -5,9 +5,8 @@ import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps } from 'react';
-import { DragCardProvider } from 'src/features/cardhand/components/DragCardProvider';
+import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
-import { CardHand } from '../../cardhand/components/CardHand';
 import { CrewHeader } from '../../header';
 import { SystemInfo } from './System';
 import { SystemList } from './SystemList';
@@ -25,7 +24,7 @@ export const EngineerDisplay = (props: Props) => {
 
     return (
         <Screen>
-            <DragCardProvider onCardDropped={playCard}>
+            <CardUI playCard={playCard} cardHand={cards}>
                 <CrewHeader
                     crew="engineer"
                     handSize={cards.length}
@@ -33,9 +32,7 @@ export const EngineerDisplay = (props: Props) => {
                 />
 
                 <SystemList systems={systems} />
-
-                <CardHand cards={cards} />
-            </DragCardProvider>
+            </CardUI>
         </Screen>
     );
 };

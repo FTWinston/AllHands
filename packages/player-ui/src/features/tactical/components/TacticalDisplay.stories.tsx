@@ -51,7 +51,7 @@ const meta: Meta<typeof Component> = {
                 maxHandSize={args.maxHandSize}
                 energy={energy}
                 cards={cards}
-                playCard={(cardId, targetType, targetId) => {
+                playCard={(cardId, _cardType, targetType, targetId) => {
                     console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);
                     expendCard(cardId);
 

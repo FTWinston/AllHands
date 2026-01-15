@@ -5,9 +5,8 @@ import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps } from 'react';
-import { DragCardProvider } from 'src/features/cardhand/components/DragCardProvider';
+import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
-import { CardHand } from '../../cardhand/components/CardHand';
 import { CrewHeader } from '../../header';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
@@ -22,7 +21,7 @@ export const SensorsDisplay = (props: Props) => {
 
     return (
         <Screen>
-            <DragCardProvider onCardDropped={playCard}>
+            <CardUI playCard={playCard} cardHand={cards}>
                 <CrewHeader
                     crew="sensors"
                     handSize={cards.length}
@@ -30,9 +29,7 @@ export const SensorsDisplay = (props: Props) => {
                 />
 
                 <p style={{ textAlign: 'center', padding: '2em' }}>(not implemented yet)</p>
-
-                <CardHand cards={cards} />
-            </DragCardProvider>
+            </CardUI>
         </Screen>
     );
 };

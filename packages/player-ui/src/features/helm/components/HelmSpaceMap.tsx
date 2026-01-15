@@ -7,7 +7,7 @@ import { Button } from 'common-ui/components/Button';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useRef, useState } from 'react';
-import { useActiveCard } from 'src/features/cardhand/components/DragCardProvider';
+import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
 import { useFreezeVector } from '../hooks/useFreezeVector';
 import { DropCells } from './DropCells';
 import styles from './HelmSpaceMap.module.css';

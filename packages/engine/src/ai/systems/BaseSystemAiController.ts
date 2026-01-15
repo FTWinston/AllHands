@@ -39,13 +39,17 @@ export abstract class BaseSystemAiController {
 
     executeAction(
         _ship: Ship,
-        system: SystemState,
-        cardId: number,
-        targetType: string,
-        targetId: string
+        _system: SystemState,
+        _cardId: number,
+        /* TODO: add this parameter! cardType: CardType, */
+        _targetType: string,
+        _targetId: string
     ): boolean {
-        const result = system.playCard(cardId, targetType as CardTargetType, targetId);
+        return false;
+        /*
+        const result = system.playCard(cardId, cardType, targetType as CardTargetType, targetId);
         return result !== null;
+        */
     }
 
     /**

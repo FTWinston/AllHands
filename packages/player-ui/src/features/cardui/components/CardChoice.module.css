@@ -1,0 +1,30 @@
+.choice {
+    display: flex;
+    gap: 1em;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    flex-grow: 1;
+    pointer-events: none;
+
+    --midIndex: calc((var(--numCards) - 1) / 2);
+}
+
+.card {
+    position: absolute;
+    bottom: 0;
+    transition: transform 0.33s ease-in-out, opacity 0.33s ease-in-out;
+    transform: translateX(var(--dx)) rotate(var(--r)) translateY(var(--dy)) scale(var(--scale));
+    --midOffset: calc(var(--index) - var(--midIndex));
+    --absMidOffset: sqrt((var(--midOffset)) * (var(--midOffset)));
+    --inHandDx: calc(min(8.5em, ((94vw - 8em) / (var(--numCards) - 1))) * (var(--index) - var(--midIndex)));
+    --dx: var(--inHandDx);
+    --dy: 0;
+    --r: 0deg;
+    --scale: 0.75;
+}

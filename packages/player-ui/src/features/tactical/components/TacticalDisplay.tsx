@@ -6,9 +6,8 @@ import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps, useEffect, useMemo, useState } from 'react';
-import { DragCardProvider } from 'src/features/cardhand/components/DragCardProvider';
+import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
-import { CardHand } from '../../cardhand/components/CardHand';
 import { CrewHeader } from '../../header';
 import { ListTargetInfo, TargetList } from './TargetList';
 import { SlotProps, WeaponSlots } from './WeaponSlots';
@@ -45,7 +44,7 @@ export const TacticalDisplay = (props: Props) => {
 
     return (
         <Screen>
-            <DragCardProvider onCardDropped={playCard}>
+            <CardUI playCard={playCard} cardHand={cards}>
                 <CrewHeader
                     crew="tactical"
                     handSize={cards.length}
@@ -65,9 +64,7 @@ export const TacticalDisplay = (props: Props) => {
                     onFired={props.slotFired}
                     onDeactivate={props.slotDeactivated}
                 />
-
-                <CardHand cards={cards} />
-            </DragCardProvider>
+            </CardUI>
         </Screen>
     );
 };
