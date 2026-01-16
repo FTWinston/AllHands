@@ -17,6 +17,7 @@ export const CardChoice: FC<Props> = ({ cardId, cardTypes, onCancel }) => {
 
     return (
         <div className={classNames(styles.choiceRoot, activeCard ? styles.choiceRootActive : null)}>
+            <h2 className={styles.title}>Choose:</h2>
             <div
                 className={styles.cards}
                 style={{
