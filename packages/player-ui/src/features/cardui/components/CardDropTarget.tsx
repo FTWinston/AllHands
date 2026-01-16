@@ -39,7 +39,7 @@ export function CardDropTarget<C extends ElementType = 'div'>(props: Props<C>) {
 
     const componentClasses = classNames(
         styles.dropTarget,
-        targetType === 'no-target' ? styles.noSpecificTarget : null,
+        targetType === 'no-target' || targetType === 'choice' ? styles.noSpecificTarget : null,
         willDropHere ? styles.dropping : null,
         willDropHere ? props.droppingClassName : null,
         couldDropHere ? styles.couldDrop : null,

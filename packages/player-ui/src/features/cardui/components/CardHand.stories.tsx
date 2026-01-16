@@ -11,11 +11,6 @@ const meta: Meta<typeof CardHand> = {
     component: CardHand,
     parameters: {
         layout: 'fullscreen',
-        docs: {
-            description: {
-                component: 'Display component for the player lobby where crew members choose their roles and indicate readiness.',
-            },
-        },
     },
     render: (args) => {
         const [cards, setCards] = useState(args.cards);

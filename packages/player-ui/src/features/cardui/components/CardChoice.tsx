@@ -1,7 +1,9 @@
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { Button } from 'common-ui/components/Button';
+import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
-import styles from './CardHand.module.css';
+import styles from './CardChoice.module.css';
+import { useActiveCard } from './DragCardProvider';
 import { DraggableCard } from './DraggableCard';
 
 type Props = {
@@ -10,26 +12,31 @@ type Props = {
     onCancel: () => void;
 };
 
-export const CardChoice: FC<Props> = ({ cardId, cardTypes, onCancel }) => (
-    <>
-        <div
-            className={styles.choice}
-            style={{
-            // @ts-expect-error CSS custom property
-                '--numCards': cardTypes.length,
-            }}
-        >
-            {cardTypes.map((cardType, index) => (
-                <DraggableCard
-                    key={cardType}
-                    id={cardId}
-                    type={cardType}
-                    index={index}
-                    className={styles.card}
-                />
-            ))}
-        </div>
+export const CardChoice: FC<Props> = ({ cardId, cardTypes, onCancel }) => {
+    const activeCard = useActiveCard();
 
-        <Button onClick={onCancel} style={{ position: 'relative', top: '20em' }}>Cancel</Button>
-    </>
-);
+    return (
+        <div className={classNames(styles.choiceRoot, activeCard ? styles.choiceRootActive : null)}>
+            <div
+                className={styles.cards}
+                style={{
+                    // @ts-expect-error CSS custom property
+                    '--numCards': cardTypes.length,
+                }}
+            >
+                {cardTypes.map((cardType, index) => (
+                    <DraggableCard
+                        key={cardType}
+                        id={cardId}
+                        elementId={`${cardId}-choice${index}`}
+                        type={cardType}
+                        index={index}
+                        className={styles.card}
+                    />
+                ))}
+            </div>
+
+            <Button onClick={onCancel} className={styles.cancelButton}>Cancel</Button>
+        </div>
+    );
+};

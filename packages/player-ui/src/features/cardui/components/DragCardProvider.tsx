@@ -72,10 +72,10 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
-        const cardId = event.active.id;
-
-        if (event.over?.id && typeof cardId === 'number' && activeCard) {
+        if (event.over?.id && activeCard) {
             // Recalculate allowed using the latest activeCard and drop target type.
+            const cardId = activeCard.id;
+
             const dropData = event.over.data.current;
             if (dropData) {
                 const targetType = dropData.targetType;

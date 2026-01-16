@@ -12,6 +12,7 @@ import styles from './DraggableCard.module.css';
 type Props = {
     className?: string;
     id: number;
+    elementId?: string;
     type: CardType;
     index: number;
     targetType?: CardTargetType;
@@ -27,11 +28,11 @@ export const DraggableCard: FC<Props> = (props) => {
     const targetType = props.targetType ?? definition.targetType;
 
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
-        id: props.id,
+        id: props.elementId ?? props.id.toString(),
         data: { id: props.id, targetType, cardType: props.type },
     });
 
-    const isBeingDragged = activeCard?.id === props.id;
+    const isBeingDragged = activeCard?.id === props.id && activeCard.cardType === props.type;
     const canDrop = isBeingDragged && isOverValidTarget;
 
     return (

@@ -108,9 +108,10 @@ function loadCardDefinitions() {
         },
     };
 
-    const engineCardDefinitions = Object.entries(cardFunctionalities as Record<CardType, EngineCardFunctionality>)
-        .reduce((acc, [type, desc]) => {
-            acc[type as CardType] = { ...cardDefinitions[type as CardType], ...desc } as EngineCardDefinition;
+    const engineCardDefinitions = Object.entries(cardDefinitions)
+        .reduce((acc, [type, def]) => {
+            const functionality = (cardFunctionalities as Record<CardType, EngineCardFunctionality>)[type as CardType];
+            acc[type as CardType] = { ...def, ...functionality } as EngineCardDefinition;
             return acc;
         }, {} as Record<CardType, EngineCardDefinition>);
     return engineCardDefinitions;

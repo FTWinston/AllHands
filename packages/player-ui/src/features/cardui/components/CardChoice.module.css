@@ -1,16 +1,36 @@
-.choice {
-    display: flex;
-    gap: 1em;
-    justify-content: center;
-    align-items: center;
+.choiceRoot {
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
-    overflow: hidden;
-    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2em;
+    transition: opacity 0.33s ease-in-out;
+}
+
+.choiceRootActive {
+    .card:not(:focus), .cancelButton {
+        opacity: 0.01;
+    }
+
+    .cancelButton {
+        pointer-events: none;
+    }
+}
+
+.cards {
+    position: relative;
+    display: flex;
+    gap: 1em;
+    justify-content: center;
+    align-items: center;
     pointer-events: none;
+    width: 100vw;
+    height: 18em;
 
     --midIndex: calc((var(--numCards) - 1) / 2);
 }
@@ -27,4 +47,9 @@
     --dy: 0;
     --r: 0deg;
     --scale: 0.75;
+}
+
+.card:focus {
+    --scale: 1;
+    z-index: 1;
 }

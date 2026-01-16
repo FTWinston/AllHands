@@ -3,7 +3,7 @@ import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
-import { getCardDefinition } from 'engine/cards/getEngineCardDefinition';
+import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { FC, PropsWithChildren, useCallback, useState } from 'react';
 import { CardChoice } from './CardChoice';
 import { CardDropTarget } from './CardDropTarget';
