@@ -13,6 +13,11 @@
     pointer-events: none;
 
     --midIndex: calc((var(--numCards) - 1) / 2);
+    transition: bottom 0.33s ease-in-out;
+}
+
+.handShiftedDown {
+    bottom: -15em;
 }
 
 .card {

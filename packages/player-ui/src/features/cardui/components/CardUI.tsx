@@ -60,7 +60,8 @@ export const CardUI: FC<Props> = ({ playCard, cardHand, children }) => {
                     onCancel={() => setChoice(null)}
                 />
             )}
-            <CardHand cards={cardHand} />
+
+            <CardHand cards={cardHand} shiftDown={!!choice} />
         </DragCardProvider>
     );
 };
