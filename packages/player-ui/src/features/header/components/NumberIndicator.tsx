@@ -5,13 +5,13 @@ import { FC, JSX } from 'react';
 import styles from './NumberIndicator.module.css';
 
 type Props = {
-    value: number;
-    maxValue: number;
-    generation?: Cooldown | null;
     name: string;
     description: JSX.Element;
+    value: number;
     valueIcon: FC<{ className: string }>;
-    maxIcon: FC<{ className: string }>;
+    maxValue?: number;
+    maxIcon?: FC<{ className: string }>;
+    generation?: Cooldown | null;
 };
 
 // Adjust progress for elliptical display (aspect ratio 3.3:1)
@@ -76,22 +76,26 @@ export const NumberIndicator: FC<Props> = (props) => {
                 </div>
             </div>
 
-            <div className={styles.separator} />
+            {MaxIcon && props.maxValue !== undefined && (
+                <>
+                    <div className={styles.separator} />
 
-            <div className={styles.indicator}>
-                <MaxIcon className={styles.icon} />
+                    <div className={styles.indicator}>
+                        <MaxIcon className={styles.icon} />
 
-                <div className={styles.maxValue}>
-                    {props.maxValue}
-                </div>
-            </div>
+                        <div className={styles.maxValue}>
+                            {props.maxValue}
+                        </div>
+                    </div>
 
-            <RadialProgress
-                className={styles.progress}
-                progress={props.generation}
-                visualAdjustment={adjustProgressForIndicatorShape}
-                title={`${props.name} generation`}
-            />
+                    <RadialProgress
+                        className={styles.progress}
+                        progress={props.generation}
+                        visualAdjustment={adjustProgressForIndicatorShape}
+                        title={`${props.name} generation`}
+                    />
+                </>
+            )}
         </InfoPopup>
     );
 };

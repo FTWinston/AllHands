@@ -659,8 +659,8 @@ export class ShipAiController {
                 const controller = this.getSystemController(step.system);
                 const systemState = this.getSystemState(step.system);
 
-                // Check if we have enough energy
-                if (systemState.energy >= this.getStepCost(step)) {
+                // Check if we have enough power
+                if (systemState.powerLevel >= this.getStepCost(step)) {
                     const success = controller.executeAction(
                         this.ship,
                         systemState,
@@ -682,7 +682,7 @@ export class ShipAiController {
     }
 
     /**
-     * Get the energy cost of a step.
+     * Get the power cost of a step.
      */
     private getStepCost(_step: PlanStep): number {
         // TODO: Look up actual cost from card definition

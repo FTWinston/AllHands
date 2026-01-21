@@ -15,7 +15,7 @@ const meta: Meta<typeof Component> = {
         onPause: fn(),
     },
     render: (args) => {
-        const { energy, cards, expendCard, powerGeneration, cardGeneration, priority, setPriority } = useFakePowerAndCards({
+        const { cards, expendCard, cardGeneration } = useFakePowerAndCards({
             ...args,
             cards: args.cards || [],
             createCard: (id: number) => {
@@ -44,12 +44,8 @@ const meta: Meta<typeof Component> = {
         return (
             <Component
                 {...args}
-                priority={priority}
-                setPriority={setPriority}
-                powerGeneration={powerGeneration}
                 cardGeneration={cardGeneration}
                 maxHandSize={args.maxHandSize}
-                energy={energy}
                 cards={cards}
                 playCard={(cardId, _cardType, targetType, targetId) => {
                     console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);
@@ -151,8 +147,7 @@ export const UI: Story = {
                 vulnerabilities: ['shields', 'weapons', 'engine'],
             },
         ],
-        energy: 2,
-        maxPower: 5,
+        power: 5,
         maxHandSize: 5,
     },
 };

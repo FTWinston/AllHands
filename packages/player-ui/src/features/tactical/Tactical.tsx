@@ -1,6 +1,6 @@
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, ShipInfo, SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useRoomState } from 'common-ui/features/useRoomState/utils/useRoomState';
 import { useCallback, useState } from 'react';
 import { SlotPropsNoTarget, TacticalDisplay } from './components/TacticalDisplay';
@@ -32,12 +32,6 @@ export const Tactical = (props: Props) => {
         });
     }, [props.room]);
 
-    const setPriority = useCallback((priority: SystemPowerPriority) => {
-        props.room.send('setPriority', {
-            priority,
-        });
-    }, [props.room]);
-
     if (!localShip?.tacticalState) {
         return <div>unable to load</div>;
     }
@@ -52,14 +46,10 @@ export const Tactical = (props: Props) => {
             onPause={pause}
             slotDeactivated={() => {}}
             slotFired={() => {}}
-            energy={tacticalState.energy}
-            maxPower={tacticalState.powerLevel}
+            power={tacticalState.powerLevel}
             maxHandSize={tacticalState.health}
             playCard={playCard}
-            priority={tacticalState.priority}
-            setPriority={setPriority}
             cardGeneration={tacticalState.cardGeneration[0]}
-            powerGeneration={tacticalState.powerGeneration[0]}
         />
     );
 };

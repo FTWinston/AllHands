@@ -1,6 +1,6 @@
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, ShipInfo, SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { useRoomState } from 'common-ui/features/useRoomState/utils/useRoomState';
 import { useCallback } from 'react';
@@ -31,12 +31,6 @@ export const Helm = (props: Props) => {
         });
     }, [props.room]);
 
-    const setPriority = useCallback((priority: SystemPowerPriority) => {
-        props.room.send('setPriority', {
-            priority,
-        });
-    }, [props.room]);
-
     if (!localShip?.helmState) {
         return <div>unable to load</div>;
     }
@@ -50,14 +44,10 @@ export const Helm = (props: Props) => {
             timeProvider={props.timeProvider}
             center={localShip.motion}
             objects={objects}
-            energy={helmState.energy}
-            maxPower={helmState.powerLevel}
+            power={helmState.powerLevel}
             maxHandSize={helmState.health}
             playCard={playCard}
-            priority={helmState.priority}
-            setPriority={setPriority}
             cardGeneration={helmState.cardGeneration[0]}
-            powerGeneration={helmState.powerGeneration[0]}
         />
     );
 };

@@ -16,19 +16,11 @@ export interface GameObjectInfo {
     motion: ReadonlyKeyframes<Position>;
 }
 
-export type SystemPowerPriority = typeof handPriority | typeof powerPriority;
-
-export const handPriority = 1;
-export const powerPriority = 2;
-
 export interface SystemInfo {
     hand: MinimalReadonlyArray<CardInstance>;
-    energy: number;
     powerLevel: number;
     health: number;
-    priority: SystemPowerPriority;
     cardGeneration: MinimalReadonlyArray<Cooldown>;
-    powerGeneration: MinimalReadonlyArray<Cooldown>;
 }
 
 export interface ShipInfo extends GameObjectInfo {
@@ -40,7 +32,6 @@ export interface ShipInfo extends GameObjectInfo {
 
 export interface SystemSetupInfo {
     cards: CardType[];
-    energy: number;
     initialPowerLevel: number;
     maxPowerLevel: number;
     initialHandSize: number;

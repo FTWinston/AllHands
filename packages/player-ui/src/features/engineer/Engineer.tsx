@@ -1,6 +1,6 @@
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, ShipInfo, SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useRoomState } from 'common-ui/features/useRoomState/utils/useRoomState';
 import { useCallback, useState } from 'react';
 import { EngineerDisplay } from './components/EngineerDisplay';
@@ -31,12 +31,6 @@ export const Engineer = (props: Props) => {
         });
     }, [props.room]);
 
-    const setPriority = useCallback((priority: SystemPowerPriority) => {
-        props.room.send('setPriority', {
-            priority,
-        });
-    }, [props.room]);
-
     if (!localShip?.engineerState) {
         return <div>unable to load</div>;
     }
@@ -48,14 +42,10 @@ export const Engineer = (props: Props) => {
             cards={engineerState.hand}
             systems={systems}
             onPause={pause}
-            energy={engineerState.energy}
-            maxPower={engineerState.powerLevel}
+            power={engineerState.powerLevel}
             maxHandSize={engineerState.health}
             playCard={playCard}
-            priority={engineerState.priority}
-            setPriority={setPriority}
             cardGeneration={engineerState.cardGeneration[0]}
-            powerGeneration={engineerState.powerGeneration[0]}
         />
     );
 };

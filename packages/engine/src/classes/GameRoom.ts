@@ -13,7 +13,6 @@ import { CrewState } from '../state/CrewState';
 import { GameState } from '../state/GameState';
 import { PlayerShip } from '../state/PlayerShip';
 import { IdPool } from './IdPool';
-import type { SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import type { ScenarioConfig } from 'common-data/types/ScenarioConfig';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
 
@@ -180,22 +179,6 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
             }
 
             console.log(`${client.sessionId} played card ${cardId} type ${cardType} (${card.type}) on ${clientRole} targeting ${targetType}:${targetId}`);
-        });
-
-        this.onMessage('setPriority', (client, message: { priority: SystemPowerPriority }) => {
-            if (this.state.gameStatus !== 'active') {
-                return;
-            }
-
-            const [ship, clientRole] = this.getShipForClient(client);
-            if (!ship) {
-                console.error('No ship found for client');
-                return;
-            }
-
-            const systemState = this.getSystemState(ship, clientRole);
-
-            systemState.priority = message.priority;
         });
 
         this.patchRate = 1000 / config.patchRate;

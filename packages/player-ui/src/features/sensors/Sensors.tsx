@@ -1,6 +1,6 @@
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, ShipInfo, SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useRoomState } from 'common-ui/features/useRoomState/utils/useRoomState';
 import { useCallback } from 'react';
 import { SensorsDisplay } from './components/SensorsDisplay';
@@ -29,12 +29,6 @@ export const Sensors = (props: Props) => {
         });
     }, [props.room]);
 
-    const setPriority = useCallback((priority: SystemPowerPriority) => {
-        props.room.send('setPriority', {
-            priority,
-        });
-    }, [props.room]);
-
     if (!localShip?.sensorState) {
         return <div>unable to load</div>;
     }
@@ -45,14 +39,10 @@ export const Sensors = (props: Props) => {
         <SensorsDisplay
             cards={sensorState.hand}
             onPause={pause}
-            energy={sensorState.energy}
-            maxPower={sensorState.powerLevel}
+            power={sensorState.powerLevel}
             maxHandSize={sensorState.health}
             playCard={playCard}
-            priority={sensorState.priority}
-            setPriority={setPriority}
             cardGeneration={sensorState.cardGeneration[0]}
-            powerGeneration={sensorState.powerGeneration[0]}
         />
     );
 };

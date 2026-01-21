@@ -1,7 +1,7 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { handPriority, powerPriority, SystemInfo, SystemPowerPriority, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { parseVectors } from 'common-data/features/space/utils/vectors';
 import { IRandom } from 'common-data/types/IRandom';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
@@ -28,31 +28,26 @@ export class SystemState extends Schema implements SystemInfo {
 
         this.discardPile = [];
 
-        this.energy = setup.energy;
         this.powerLevel = setup.initialPowerLevel;
         this.maxPowerLevel = setup.maxPowerLevel;
         this.health = setup.health;
         this.maxHealth = setup.maxHealth;
-        this.priority = powerPriority;
     }
 
     @type([CardState]) hand: ArraySchema<CardState>;
     drawPile: CardState[];
     discardPile: CardState[];
 
-    @type('number') energy: number;
     @type('number') powerLevel: number;
     maxPowerLevel: number;
     @type('number') health: number;
     maxHealth: number;
-    @type('number') priority: SystemPowerPriority;
 
     // I'd have liked these to be nullable CooldownState objects,
     // but they're not synchronizing to the client if reassigned.
     // So instead, they're arrays that either have zero or one CooldownState in them.
     // This works, as long as you don't overwrite the item in the array.
     // Instead, clear the array then push a new item if needed.
-    @type([CooldownState]) powerGeneration = new ArraySchema<CooldownState>();
     @type([CooldownState]) cardGeneration = new ArraySchema<CooldownState>();
 
     /**
@@ -91,7 +86,7 @@ export class SystemState extends Schema implements SystemInfo {
 
     /**
      * Play a card from the hand by moving it to the discard pile.
-     * Removes the card's cost worth of energy, and performs its play action.
+     * Ensures that all requirements are met before playing.
      * Returns the card if found and played, null otherwise.
      */
     playCard(cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string): CardState | null {
@@ -119,8 +114,8 @@ export class SystemState extends Schema implements SystemInfo {
             return null;
         }
 
-        if (this.energy < cardDefinition.cost) {
-            console.warn('insufficient energy to play card');
+        if (this.powerLevel < cardDefinition.cost) {
+            console.warn('insufficient power to play card');
             return null;
         }
 
@@ -169,7 +164,6 @@ export class SystemState extends Schema implements SystemInfo {
             return null;
         }
 
-        this.energy -= cardDefinition.cost;
         this.hand.splice(cardIndex, 1);
         this.discardPile.push(card);
 
@@ -177,69 +171,24 @@ export class SystemState extends Schema implements SystemInfo {
     }
 
     update(currentTime: number) {
-        const toGenerate = this.determineGeneration();
+        // TODO: card generation is currently a fixed duration, but it should be variable.
+        // It should also be able to change part-way through!
 
-        // TODO: card and power generation are currently fixed durations, but they should be variable.
-        // They should also be able to change part-way through!
+        // Generate cards until hand is full (hand size limited by health).
+        if (this.hand.length < this.health) {
+            if (this.cardGeneration.length === 0) {
+                this.cardGeneration.push(new CooldownState(currentTime, currentTime + 5000));
+            } else if (this.cardGeneration[0].endTime <= currentTime) {
+                this.draw();
 
-        if (toGenerate === handPriority) {
-            // If priority is hand, generate cards until hand is full.
-            if (this.powerGeneration.length > 0) {
-                // Stop power generation if it was happening.
-                this.powerGeneration.clear();
-            }
-
-            if (this.hand.length < this.health) {
-                if (this.cardGeneration.length === 0) {
-                    this.cardGeneration.push(new CooldownState(currentTime, currentTime + 5000));
-                } else if (this.cardGeneration[0].endTime <= currentTime) {
-                    this.draw();
-
-                    this.cardGeneration.clear();
-                    if (this.hand.length < this.health) {
-                        this.cardGeneration[0] = new CooldownState(currentTime, currentTime + 5000);
-                    }
-                }
-            }
-        } else if (toGenerate === powerPriority) {
-            if (this.cardGeneration.length > 0) {
-                // Stop card generation if it was happening.
                 this.cardGeneration.clear();
-            }
-
-            if (this.energy < this.powerLevel) {
-                if (this.powerGeneration.length === 0) {
-                    this.powerGeneration.push(new CooldownState(currentTime, currentTime + 5000));
-                } else if (this.powerGeneration[0].endTime <= currentTime) {
-                    this.energy += 1;
-
-                    this.powerGeneration.clear();
-                    if (this.energy < this.powerLevel) {
-                        this.powerGeneration.push(new CooldownState(currentTime, currentTime + 5000));
-                    }
+                if (this.hand.length < this.health) {
+                    this.cardGeneration.push(new CooldownState(currentTime, currentTime + 5000));
                 }
             }
+        } else if (this.cardGeneration.length > 0) {
+            // Stop card generation if hand is full.
+            this.cardGeneration.clear();
         }
-    }
-
-    /**
-     * Generate the priority target, unless it's full, in which case do the other.
-     * Return null if both are full.
-     */
-    private determineGeneration() {
-        if (this.priority === handPriority) {
-            if (this.hand.length < this.health) {
-                return handPriority;
-            } else if (this.energy < this.powerLevel) {
-                return powerPriority;
-            }
-        } else if (this.priority === powerPriority) {
-            if (this.energy < this.powerLevel) {
-                return powerPriority;
-            } else if (this.hand.length < this.health) {
-                return handPriority;
-            }
-        }
-        return null;
     }
 }

@@ -1,11 +1,10 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
-import { handPriority, powerPriority, SystemPowerPriority } from 'common-data/features/space/types/GameObjectInfo';
 import { Cooldown } from 'common-data/types/Cooldown';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fn } from 'storybook/test';
-import { default as ExampleIcon1 } from '../../header/assets/energy.svg?react';
+import { default as ExampleIcon1 } from '../../header/assets/card-hand.svg?react';
 import { default as ExampleIcon3 } from '../../header/assets/health.svg?react';
 import { default as ExampleIcon2 } from '../../header/assets/power.svg?react';
 import { EngineerDisplay as Component } from './EngineerDisplay';
@@ -22,7 +21,7 @@ const meta: Meta<typeof Component> = {
         onPause: fn(),
     },
     render: (args) => {
-        const { energy, cards, expendCard, powerGeneration, cardGeneration, priority, setPriority } = useFakePowerAndCards({
+        const { cards, expendCard, cardGeneration } = useFakePowerAndCards({
             ...args,
             cards: args.cards || [],
             createCard: (id: number) => ({
@@ -34,12 +33,8 @@ const meta: Meta<typeof Component> = {
         return (
             <Component
                 {...args}
-                priority={priority}
-                setPriority={setPriority}
-                powerGeneration={powerGeneration}
                 cardGeneration={cardGeneration}
                 maxHandSize={args.maxHandSize}
-                energy={energy}
                 cards={cards}
                 playCard={(cardId, targetType, targetId) => {
                     console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);
@@ -53,50 +48,35 @@ const meta: Meta<typeof Component> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-type UseFakePowerAndGenerationArgs = {
-    energy: number;
-    maxPower: number;
+type UseFakeCardGenerationArgs = {
+    power: number;
     handSize: number;
     maxHandSize: number;
-    priority: SystemPowerPriority;
     generateCard?: () => void;
 };
 
-export const useFakePowerAndGeneration = (args: UseFakePowerAndGenerationArgs) => {
-    const [priority, setPriority] = useState<SystemPowerPriority>(args.priority);
-    const [energy, setEnergy] = useState(args.energy);
+export const useFakeCardGeneration = (args: UseFakeCardGenerationArgs) => {
     const [handSize, setHandSize] = useState(args.handSize);
     const justChanged = useRef(false);
     const generateCard = args.generateCard;
 
-    const { maxPower, maxHandSize } = args;
+    const { maxHandSize, power } = args;
 
-    const [powerGeneration, setPowerGeneration] = useState<Cooldown | undefined>(undefined);
     const [cardGeneration, setCardGeneration] = useState<Cooldown | undefined>(undefined);
 
-    const itemToGenerate = priority === handPriority
-        ? (handSize < maxHandSize ? handPriority : energy < maxPower ? powerPriority : null)
-        : (energy < maxPower ? powerPriority : handSize < maxHandSize ? handPriority : null);
+    const shouldGenerateCard = handSize < maxHandSize;
 
     useEffect(() => {
         justChanged.current = true;
 
         const adjustGeneration = () => {
-            if (itemToGenerate === handPriority) {
+            if (shouldGenerateCard) {
                 setCardGeneration({ startTime: Date.now(), endTime: Date.now() + 5000 });
-                setPowerGeneration(undefined);
                 if (!justChanged.current) {
                     setHandSize(handSize => Math.min(handSize + 1, maxHandSize));
                     generateCard?.();
                 }
-            } else if (itemToGenerate === powerPriority) {
-                setPowerGeneration({ startTime: Date.now(), endTime: Date.now() + 5000 });
-                setCardGeneration(undefined);
-                if (!justChanged.current) {
-                    setEnergy(power => Math.min(power + 1, maxPower));
-                }
             } else {
-                setPowerGeneration(undefined);
                 setCardGeneration(undefined);
             }
 
@@ -108,11 +88,10 @@ export const useFakePowerAndGeneration = (args: UseFakePowerAndGenerationArgs) =
         const interval = setInterval(adjustGeneration, 5000);
 
         return () => clearInterval(interval);
-    }, [maxPower, maxHandSize, itemToGenerate, generateCard]);
+    }, [maxHandSize, shouldGenerateCard, generateCard]);
 
-    const drainPowerAndCard = (powerCost: number) => {
-        if (energy >= powerCost) {
-            setEnergy(energy - powerCost);
+    const checkPowerAndRemoveCard = (powerCost: number) => {
+        if (power >= powerCost) {
             setHandSize(handSize => Math.max(0, handSize - 1));
             return true;
         }
@@ -120,10 +99,10 @@ export const useFakePowerAndGeneration = (args: UseFakePowerAndGenerationArgs) =
         return false;
     };
 
-    return { energy, drainPowerAndCard, handSize, powerGeneration, cardGeneration, priority, setPriority };
+    return { checkPowerAndRemoveCard, handSize, cardGeneration };
 };
 
-type UseFakePowerAndCardsArgs = Omit<UseFakePowerAndGenerationArgs, 'handSize'> & {
+type UseFakePowerAndCardsArgs = Omit<UseFakeCardGenerationArgs, 'handSize'> & {
     cards: MinimalReadonlyArray<CardInstance>;
     createCard: (id: number) => CardInstance;
 };
@@ -142,26 +121,26 @@ export const useFakePowerAndCards = (args: UseFakePowerAndCardsArgs) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const fakePowerAndGenerationArgs = {
+    const fakeCardGenerationArgs = {
         ...args,
         generateCard,
     };
 
-    const { drainPowerAndCard, ...powerAndGenerationResults } = useFakePowerAndGeneration({ ...fakePowerAndGenerationArgs, handSize: cards.length });
+    const { checkPowerAndRemoveCard, ...cardGenerationResults } = useFakeCardGeneration({ ...fakeCardGenerationArgs, handSize: cards.length });
 
     const expendCard = useCallback((cardId: number) => {
         setCards((cards) => {
             const playedCard = cards.find(c => c.id === cardId);
             const cost = playedCard ? getCardDefinition(playedCard.type).cost : 0;
-            if (playedCard && cost && drainPowerAndCard(cost)) {
+            if (playedCard && cost && checkPowerAndRemoveCard(cost)) {
                 return cards.filter(card => card !== playedCard);
             }
             return cards;
         });
-    }, [drainPowerAndCard]);
+    }, [checkPowerAndRemoveCard]);
 
     return {
-        ...powerAndGenerationResults,
+        ...cardGenerationResults,
         cards,
         expendCard,
     };
@@ -409,8 +388,7 @@ export const UI: Story = {
                 ],
             },
         ],
-        energy: 3,
-        maxPower: 5,
+        power: 5,
         maxHandSize: 5,
     },
 };

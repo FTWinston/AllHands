@@ -95,7 +95,7 @@ export abstract class BaseSystemAiController {
                 capabilities.push({
                     system: this.role,
                     action: evaluation.action,
-                    readyAt: system.energy >= definition.cost ? null : this.estimateEnergyReadyTime(system, definition.cost, currentTime),
+                    readyAt: system.powerLevel >= definition.cost ? null : currentTime,
                     energyCost: definition.cost,
                     cardId: card.id,
                     cardType,
@@ -119,18 +119,8 @@ export abstract class BaseSystemAiController {
     ): SystemConcern[] {
         const concerns: SystemConcern[] = [];
 
-        // Check energy level
-        const energyRatio = system.energy / Math.max(system.powerLevel, 1);
-        if (energyRatio < 0.3) {
-            concerns.push({
-                type: 'low-energy' as ConcernType,
-                severity: (1 - energyRatio) * 100,
-                reasoning: `Energy at ${Math.round(energyRatio * 100)}%`,
-            });
-        }
-
         // Check health
-        const healthRatio = system.health / Math.max(system.powerLevel, 1);
+        const healthRatio = system.health / Math.max(system.maxHealth, 1);
         if (healthRatio < 0.5) {
             concerns.push({
                 type: 'low-health' as ConcernType,
@@ -171,18 +161,18 @@ export abstract class BaseSystemAiController {
     } | null;
 
     /**
-     * Estimate when we'll have enough energy to play a card.
+     * Estimate when we'll be ready to play a card requiring the given power.
+     * Since power doesn't regenerate, this is essentially immediate if we have enough power.
      */
-    protected estimateEnergyReadyTime(
+    protected estimatePowerReadyTime(
         system: SystemState,
-        requiredEnergy: number,
+        requiredPower: number,
         currentTime: number
     ): number {
-        const energyNeeded = requiredEnergy - system.energy;
-        if (energyNeeded <= 0) return currentTime;
-
-        // Assume ~5 seconds per energy point (from SystemState.update)
-        const timePerEnergy = 5000;
-        return currentTime + (energyNeeded * timePerEnergy);
+        // If we don't have enough power, we can't play the card
+        if (system.powerLevel < requiredPower) {
+            return Infinity;
+        }
+        return currentTime;
     }
 }

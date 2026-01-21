@@ -42,8 +42,8 @@ button.menuButton {
     }
 }
 
-.statusIcons {
+.indicators {
     display: flex;
-    gap: 0.75em;
+    gap: 1em;
     align-items: center;
 }
