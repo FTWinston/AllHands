@@ -21,7 +21,7 @@ export const SensorsDisplay = (props: Props) => {
 
     return (
         <Screen>
-            <CardUI playCard={playCard} cardHand={cards}>
+            <CardUI playCard={playCard} cardHand={cards} power={headerProps.power}>
                 <CrewHeader
                     crew="sensors"
                     handSize={cards.length}

@@ -11,6 +11,7 @@ import { CardHand } from './CardHand';
 import { DragCardProvider } from './DragCardProvider';
 
 type Props = PropsWithChildren<{
+    power: number;
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cardHand: MinimalReadonlyArray<CardInstance>;
 }>;
@@ -24,21 +25,25 @@ type ChoiceInfo = {
  * The full UI for displaying and interacting with a hand of cards.
  * Any CardDropTarget components these cards should interact with should be nested within this component.
  */
-export const CardUI: FC<Props> = ({ playCard, cardHand, children }) => {
+export const CardUI: FC<Props> = ({ playCard, cardHand, power, children }) => {
     const [choice, setChoice] = useState<ChoiceInfo | null>(null);
 
     const dropCard = useCallback((cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => {
         if (targetType === 'choice') {
             const choiceCardDefinition = getCardDefinition(cardType) as ChoiceCardDefinition;
-            setChoice({
-                choiceCardId: cardId,
-                options: choiceCardDefinition.cards,
-            });
+
+            // Only show the choice if the player has enough power to do so.
+            if (power >= choiceCardDefinition.cost) {
+                setChoice({
+                    choiceCardId: cardId,
+                    options: choiceCardDefinition.cards,
+                });
+            }
         } else {
             setChoice(null);
             playCard(cardId, cardType, targetType, targetId);
         }
-    }, [playCard]);
+    }, [playCard, power]);
 
     return (
         <DragCardProvider onCardDropped={dropCard}>
@@ -57,11 +62,16 @@ export const CardUI: FC<Props> = ({ playCard, cardHand, children }) => {
                 <CardChoice
                     cardId={choice.choiceCardId}
                     cardTypes={choice.options}
+                    power={power}
                     onCancel={() => setChoice(null)}
                 />
             )}
 
-            <CardHand cards={cardHand} shiftDown={!!choice} />
+            <CardHand
+                cards={cardHand}
+                power={power}
+                shiftDown={!!choice}
+            />
         </DragCardProvider>
     );
 };

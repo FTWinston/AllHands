@@ -9,10 +9,11 @@ import { DraggableCard } from './DraggableCard';
 type Props = {
     cardId: number;
     cardTypes: CardType[];
+    power: number;
     onCancel: () => void;
 };
 
-export const CardChoice: FC<Props> = ({ cardId, cardTypes, onCancel }) => {
+export const CardChoice: FC<Props> = ({ cardId, cardTypes, power, onCancel }) => {
     const activeCard = useActiveCard();
 
     return (
@@ -31,6 +32,7 @@ export const CardChoice: FC<Props> = ({ cardId, cardTypes, onCancel }) => {
                         id={cardId}
                         elementId={`${cardId}-choice${index}`}
                         type={cardType}
+                        power={power}
                         index={index}
                         className={styles.card}
                     />

@@ -44,7 +44,7 @@ export const TacticalDisplay = (props: Props) => {
 
     return (
         <Screen>
-            <CardUI playCard={playCard} cardHand={cards}>
+            <CardUI playCard={playCard} cardHand={cards} power={headerProps.power}>
                 <CrewHeader
                     crew="tactical"
                     handSize={cards.length}

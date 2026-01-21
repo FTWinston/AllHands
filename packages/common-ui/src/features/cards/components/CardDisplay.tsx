@@ -19,6 +19,7 @@ type Props = {
     nameFontSize?: number;
     descriptionLineHeight?: number;
     cost: number;
+    sufficientPower?: boolean;
 };
 
 export const CardDisplay: FC<Props> = (props) => {
@@ -27,6 +28,7 @@ export const CardDisplay: FC<Props> = (props) => {
             styles.card,
             crewStyles[props.crew],
             props.disabled ? styles.disabled : undefined,
+            props.sufficientPower === false ? styles.insufficientPower : undefined,
             props.className)}
         >
             <div className={classNames(styles.image, props.slotted ? styles.noCutouts : styles.cutouts)} role="presentation">{props.image}</div>

@@ -12,6 +12,9 @@ const meta: Meta<typeof CardHand> = {
     parameters: {
         layout: 'fullscreen',
     },
+    args: {
+        power: 2,
+    },
     render: (args) => {
         const [cards, setCards] = useState(args.cards);
         const [nextId, setNextId] = useState(10);

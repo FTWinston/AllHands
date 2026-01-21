@@ -14,6 +14,7 @@ type Props = {
     id: number;
     elementId?: string;
     type: CardType;
+    power: number;
     index: number;
     targetType?: CardTargetType;
     slotted?: boolean;
@@ -53,7 +54,7 @@ export const DraggableCard: FC<Props> = (props) => {
             {...listeners}
             {...attributes}
         >
-            <CardDisplay {...definition} slotted={props.slotted} />
+            <CardDisplay {...definition} slotted={props.slotted} sufficientPower={props.power >= definition.cost} />
         </div>
     );
 };
