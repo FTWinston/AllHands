@@ -30,3 +30,9 @@
     right: 1em;
     padding: 1em;
 }
+
+.activeManeuver {
+    position: absolute;
+    bottom: 25em;
+    right: 1em;
+}

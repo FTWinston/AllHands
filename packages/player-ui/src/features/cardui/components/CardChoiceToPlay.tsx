@@ -2,7 +2,7 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { Button } from 'common-ui/components/Button';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
-import styles from './CardChoice.module.css';
+import styles from './CardChoiceToPlay.module.css';
 import { useActiveCard } from './DragCardProvider';
 import { DraggableCard } from './DraggableCard';
 
@@ -13,7 +13,7 @@ type Props = {
     onCancel: () => void;
 };
 
-export const CardChoice: FC<Props> = ({ cardId, cardTypes, power, onCancel }) => {
+export const CardChoiceToPlay: FC<Props> = ({ cardId, cardTypes, power, onCancel }) => {
     const activeCard = useActiveCard();
 
     return (

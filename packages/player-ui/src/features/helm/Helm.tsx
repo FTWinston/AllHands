@@ -46,6 +46,7 @@ export const Helm = (props: Props) => {
             objects={objects}
             power={helmState.powerLevel}
             maxHandSize={helmState.health}
+            activeManeuver={helmState.activeManeuver[0]}
             playCard={playCard}
             cardGeneration={helmState.cardGeneration[0]}
         />

@@ -2,6 +2,7 @@ import { entity, type, view } from '@colyseus/schema';
 import { helmClientRole, sensorClientRole, tacticalClientRole, engineerClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { GameState } from './GameState';
+import { HelmState } from './HelmState';
 import { MobileObject } from './MobileObject';
 import { MotionKeyframe } from './MotionKeyframe';
 import { SystemState } from './SystemState';
@@ -19,7 +20,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         );
 
         const getCardId = () => this.getCardId();
-        this.helmState = new SystemState(setup.helm, gameState, this, getCardId);
+        this.helmState = new HelmState(setup.helm, gameState, this, getCardId);
         this.sensorState = new SystemState(setup.sensors, gameState, this, getCardId);
         this.tacticalState = new SystemState(setup.tactical, gameState, this, getCardId);
         this.engineerState = new SystemState(setup.engineer, gameState, this, getCardId);
@@ -31,7 +32,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         return this.nextCardId++;
     }
 
-    @view(helmClientRole) @type(SystemState) helmState: SystemState;
+    @view(helmClientRole) @type(HelmState) helmState: HelmState;
     @view(sensorClientRole) @type(SystemState) sensorState: SystemState;
     @view(tacticalClientRole) @type(SystemState) tacticalState: SystemState;
     @view(engineerClientRole) @type(SystemState) engineerState: SystemState;

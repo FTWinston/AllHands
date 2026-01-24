@@ -62,6 +62,7 @@ function getCardWrapper(props: Props, isRecharging: boolean) {
                     index={0}
                     className={classNames(styles.card)}
                     {...props.card}
+                    power={0}
                     targetType="enemy"
                     slotted={true}
                 />

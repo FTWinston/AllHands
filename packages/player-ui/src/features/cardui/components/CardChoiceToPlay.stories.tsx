@@ -1,12 +1,12 @@
 import { fn } from 'storybook/test';
-import { CardChoice } from './CardChoice';
+import { CardChoiceToPlay } from './CardChoiceToPlay';
 import { CardDropTarget } from './CardDropTarget';
 import { DragCardProvider } from './DragCardProvider';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-const meta: Meta<typeof CardChoice> = {
-    title: 'player-ui/Card Choice',
-    component: CardChoice,
+const meta: Meta<typeof CardChoiceToPlay> = {
+    title: 'player-ui/Card Choice to Play',
+    component: CardChoiceToPlay,
     parameters: {
         layout: 'fullscreen',
     },
@@ -19,7 +19,7 @@ const meta: Meta<typeof CardChoice> = {
         return (
             <DragCardProvider onCardDropped={handleCardDropped}>
                 <div style={{ height: '100dvh', display: 'flex' }}>
-                    <CardChoice {...args} />
+                    <CardChoiceToPlay {...args} />
 
                     <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', maxWidth: 'calc(100vw - 20em)', flexWrap: 'wrap', gap: '3em' }}>
                         <CardDropTarget

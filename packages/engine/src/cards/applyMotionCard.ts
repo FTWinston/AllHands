@@ -1,6 +1,7 @@
 import { CardMotionSegment, CardMotionSegmentFacing } from 'common-data/features/cards/types/CardDefinition';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { clampAngle, determineAngle, distance, getAnglesBetween, getVectorsBetween, perpendicular, unit } from 'common-data/features/space/utils/vectors';
+import { CardCooldownState } from '../state/CardCooldownState';
 import { GameState } from '../state/GameState';
 import { MotionKeyframe } from '../state/MotionKeyframe';
 import { Ship } from '../state/Ship';
@@ -31,6 +32,7 @@ function calculateFacingAngle(
 export function applyMotionCard(
     gameState: GameState,
     ship: Ship,
+    cardPower: number,
     motionData: CardMotionSegment[],
     locations: Vector2D[]
 ): boolean {
@@ -166,6 +168,14 @@ export function applyMotionCard(
     }
 
     ship.setMotion(...keyframes);
+
+    // Record this maneuver on the ship's helm, so it can be cancelled if the helm doesn't maintain sufficient power.
+    ship.helmState.activeManeuver.clear();
+    ship.helmState.activeManeuver.push(new CardCooldownState(
+        gameState.clock.currentTime,
+        prevKeyframe.time,
+        cardPower
+    ));
 
     return true;
 }

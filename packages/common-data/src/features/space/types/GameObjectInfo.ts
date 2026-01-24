@@ -1,6 +1,6 @@
 import { CardInstance } from 'src/features/cards/types/CardInstance';
 import { CardType } from 'src/features/cards/utils/cardDefinitions';
-import { Cooldown } from 'src/types/Cooldown';
+import { CardCooldown, Cooldown } from 'src/types/Cooldown';
 import { MinimalReadonlyArray } from 'src/types/MinimalArray';
 import { ReadonlyKeyframes } from './Keyframes';
 import { ObjectAppearance } from './ObjectAppearance';
@@ -23,8 +23,12 @@ export interface SystemInfo {
     cardGeneration: MinimalReadonlyArray<Cooldown>;
 }
 
+export interface HelmSystemInfo extends SystemInfo {
+    activeManeuver: MinimalReadonlyArray<CardCooldown>;
+}
+
 export interface ShipInfo extends GameObjectInfo {
-    helmState: SystemInfo;
+    helmState: HelmSystemInfo;
     sensorState: SystemInfo;
     tacticalState: SystemInfo;
     engineerState: SystemInfo;

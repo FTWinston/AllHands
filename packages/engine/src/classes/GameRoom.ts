@@ -178,7 +178,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
                 return;
             }
 
-            console.log(`${client.sessionId} played card ${cardId} type ${cardType} (${card.type}) on ${clientRole} targeting ${targetType}:${targetId}`);
+            console.log(`${client.sessionId} played card ${cardId} type ${cardType} (${cardType}) on ${clientRole} targeting ${targetType}:${targetId}`);
         });
 
         this.patchRate = 1000 / config.patchRate;

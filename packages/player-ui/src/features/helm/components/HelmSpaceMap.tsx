@@ -3,11 +3,14 @@ import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { interpolateVector } from 'common-data/features/space/utils/interpolate';
+import { CardCooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';
+import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useRef, useState } from 'react';
 import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
+import { default as PowerIcon } from '../../header/assets/power.svg?react';
 import { useFreezeVector } from '../hooks/useFreezeVector';
 import { DropCells } from './DropCells';
 import styles from './HelmSpaceMap.module.css';
@@ -16,6 +19,7 @@ type Props = {
     timeProvider: ITimeProvider;
     center: ReadonlyKeyframes<Vector2D>;
     objects: Record<string, GameObjectInfo>;
+    activeManeuver?: CardCooldown | null;
 };
 
 // Base cell radius in pixels for both SpaceMap and SpaceCells
@@ -80,6 +84,16 @@ export const HelmSpaceMap = (props: Props) => {
             >
                 -
             </Button>
+
+            {props.activeManeuver && (
+                <Button className={styles.activeManeuver} startIcon={<PowerIcon />} palette="danger">
+                    {props.activeManeuver.power}
+                    <RadialProgress
+                        progress={props.activeManeuver}
+                        title="Maneuver progress"
+                    />
+                </Button>
+            )}
         </div>
     );
 };

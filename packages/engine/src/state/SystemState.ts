@@ -4,6 +4,7 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { parseVectors } from 'common-data/features/space/utils/vectors';
 import { IRandom } from 'common-data/types/IRandom';
+import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { CardState } from './CardState';
 import { CooldownState } from './CooldownState';
@@ -11,7 +12,7 @@ import { GameState } from './GameState';
 import { Ship } from './Ship';
 
 export class SystemState extends Schema implements SystemInfo {
-    constructor(setup: SystemSetupInfo, private readonly gameState: GameState, private readonly ship: Ship, getCardId: () => number) {
+    constructor(setup: SystemSetupInfo, protected readonly gameState: GameState, protected readonly ship: Ship, getCardId: () => number) {
         super();
 
         // The first initialHandSize cards go straight into the hand.
@@ -43,9 +44,9 @@ export class SystemState extends Schema implements SystemInfo {
     @type('number') health: number;
     maxHealth: number;
 
-    // I'd have liked these to be nullable CooldownState objects,
-    // but they're not synchronizing to the client if reassigned.
-    // So instead, they're arrays that either have zero or one CooldownState in them.
+    // I'd have liked this to be a nullable CooldownState object,
+    // but it's not synchronizing to the client if reassigned.
+    // So instead, it's an array that has either zero or one CooldownState in it.
     // This works, as long as you don't overwrite the item in the array.
     // Instead, clear the array then push a new item if needed.
     @type([CooldownState]) cardGeneration = new ArraySchema<CooldownState>();
@@ -89,7 +90,7 @@ export class SystemState extends Schema implements SystemInfo {
      * Ensures that all requirements are met before playing.
      * Returns the card if found and played, null otherwise.
      */
-    playCard(cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string): CardState | null {
+    playCard(cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string): EngineCardDefinition | null {
         const cardIndex = this.hand.findIndex(card => card.id === cardId);
         if (cardIndex === -1) {
             console.warn('card not found');
@@ -154,7 +155,7 @@ export class SystemState extends Schema implements SystemInfo {
             if (vectors.length === 0) {
                 console.log('invalid location target', targetId);
                 return null;
-            } else if (!cardDefinition.play(this.gameState, this.ship, cardDefinition.motionData, vectors)) {
+            } else if (!cardDefinition.play(this.gameState, this.ship, cardDefinition.cost, cardDefinition.motionData, vectors)) {
                 console.log('card refused to play');
                 return null;
             }
@@ -167,7 +168,7 @@ export class SystemState extends Schema implements SystemInfo {
         this.hand.splice(cardIndex, 1);
         this.discardPile.push(card);
 
-        return card;
+        return cardDefinition;
     }
 
     update(currentTime: number) {

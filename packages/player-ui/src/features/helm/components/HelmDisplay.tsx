@@ -5,6 +5,7 @@ import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo'
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { CardCooldown } from 'common-data/types/Cooldown';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
@@ -19,11 +20,12 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     cards: MinimalReadonlyArray<CardInstance>;
     center: ReadonlyKeyframes<Vector2D>;
     objects: Record<string, GameObjectInfo>;
+    activeManeuver?: CardCooldown | null;
     timeProvider: ITimeProvider;
 };
 
 export const HelmDisplay = (props: Props) => {
-    const { cards, playCard, center, objects, timeProvider, ...headerProps } = props;
+    const { cards, playCard, center, objects, timeProvider, activeManeuver, ...headerProps } = props;
 
     useRootClassName(crewStyles.helm);
 
@@ -40,6 +42,7 @@ export const HelmDisplay = (props: Props) => {
                     timeProvider={timeProvider}
                     center={center}
                     objects={objects}
+                    activeManeuver={activeManeuver}
                 />
             </CardUI>
         </Screen>

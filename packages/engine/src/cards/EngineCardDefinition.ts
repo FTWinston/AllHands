@@ -26,7 +26,7 @@ export type SystemTargetCardFunctionality = {
 };
 
 export type LocationTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship, motionData: CardMotionSegment[], locations: Vector2D[]) => boolean;
+    play: (gameState: GameState, ship: Ship, cardPower: number, motionData: CardMotionSegment[], locations: Vector2D[]) => boolean;
 };
 
 export type EngineCardFunctionality = NoTargetCardFunctionality

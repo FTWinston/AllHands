@@ -5,7 +5,7 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { FC, PropsWithChildren, useCallback, useState } from 'react';
-import { CardChoice } from './CardChoice';
+import { CardChoiceToPlay } from './CardChoiceToPlay';
 import { CardDropTarget } from './CardDropTarget';
 import { CardHand } from './CardHand';
 import { DragCardProvider } from './DragCardProvider';
@@ -59,7 +59,7 @@ export const CardUI: FC<Props> = ({ playCard, cardHand, power, children }) => {
             {children}
 
             {choice && (
-                <CardChoice
+                <CardChoiceToPlay
                     cardId={choice.choiceCardId}
                     cardTypes={choice.options}
                     power={power}
