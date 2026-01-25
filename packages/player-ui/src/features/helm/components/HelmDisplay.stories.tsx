@@ -35,6 +35,9 @@ const meta: Meta<typeof Component> = {
             { time: Date.now() + 15000, x: 0, y: 5 },
         ]));
 
+        const [activeManeuver, setActiveManeuver] = useState(args.activeManeuver);
+        const [activeManeuverTimeout, setActiveManeuverTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+
         useLoopingKeyframes<Vector2D>(setCenter, args.timeProvider, 20000);
 
         return (
@@ -44,9 +47,25 @@ const meta: Meta<typeof Component> = {
                 maxHandSize={args.maxHandSize}
                 cards={cards}
                 center={center}
+                activeManeuver={activeManeuver}
                 playCard={(cardId, targetType, targetId) => {
                     console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);
                     expendCard(cardId);
+
+                    if (activeManeuverTimeout) {
+                        clearTimeout(activeManeuverTimeout);
+                    }
+
+                    setActiveManeuver({
+                        startTime: Date.now(),
+                        endTime: Date.now() + 15000,
+                        power: 2,
+                    });
+
+                    setActiveManeuverTimeout(setTimeout(() => {
+                        setActiveManeuver(null);
+                        setActiveManeuverTimeout(null);
+                    }, 15000));
                 }}
             />
         );

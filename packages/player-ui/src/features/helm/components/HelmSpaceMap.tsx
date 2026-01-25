@@ -86,7 +86,11 @@ export const HelmSpaceMap = (props: Props) => {
             </Button>
 
             {props.activeManeuver && (
-                <Button className={styles.activeManeuver} startIcon={<PowerIcon />} palette="danger">
+                <Button
+                    className={styles.activeManeuver}
+                    startIcon={<PowerIcon />}
+                    palette="danger"
+                >
                     {props.activeManeuver.power}
                     <RadialProgress
                         progress={props.activeManeuver}
