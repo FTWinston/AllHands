@@ -53,8 +53,12 @@ export function useColyseusState<T extends Schema = Schema, U = T>(
         // Create context for this snapshot pass.
         const ctx: SnapshotContext = {
             refs: decoder.root?.refs,
+            objectToRefId: subscription.objectToRefId,
             previousResultsByRefId: subscription.previousResultsByRefId,
             currentResultsByRefId: new Map(),
+            dirtyRefIds: subscription.dirtyRefIds,
+            parentRefIdMap: subscription.parentRefIdMap,
+            currentParentRefId: -1, // No parent for root
         };
 
         const result = createSnapshot(selectedState, ctx);
@@ -64,12 +68,29 @@ export function useColyseusState<T extends Schema = Schema, U = T>(
             subscription.previousResultsByRefId.set(refId, value);
         }
 
+        // Save the objectToRefId map for reuse.
+        subscription.objectToRefId = ctx.objectToRefId;
+
+        // Clear dirty refs after snapshot is complete.
+        subscription.dirtyRefIds.clear();
+
+        // Periodically prune stale cache entries (every 100 snapshots).
+        if (++subscription.cleanupCounter >= 100 && ctx.refs) {
+            subscription.cleanupCounter = 0;
+            for (const refId of subscription.previousResultsByRefId.keys()) {
+                if (!ctx.refs.has(refId)) {
+                    subscription.previousResultsByRefId.delete(refId);
+                    subscription.parentRefIdMap.delete(refId);
+                }
+            }
+        }
+
         return result;
     };
 
     const subscribe = (callback: () => void) => {
         if (!roomState || !decoder) {
-            return () => {};
+            return () => { };
         }
 
         const subscription = getOrCreateSubscription(roomState, decoder);
