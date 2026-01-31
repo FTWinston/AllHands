@@ -212,7 +212,7 @@ Imports are automatically organized into groups (enforced by linting):
 6. Index imports
 7. Type imports
 
-Imports within groups are alphabetized (case-insensitive).
+Within each group, imports are alphabetized (case-insensitive).
 
 #### React Guidelines
 - **Hooks:** Follow React hooks rules
@@ -259,7 +259,7 @@ Imports within groups are alphabetized (case-insensitive).
 - **Electron:** Desktop app wrapper
 - **React 19:** UI framework (latest version)
 - **Vite:** Build tool and dev server
-- **Base UI Components:** Accessible React components
+- **Base UI Components:** Accessible React components (`@base-ui-components/react`)
 - **dnd-kit:** Drag and drop for card interactions
 
 ### Performance Considerations
