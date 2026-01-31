@@ -10,6 +10,7 @@ import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useRef, useState } from 'react';
 import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
+import { useVisibilityAnimation } from 'src/hooks/useVisibilityAnimation';
 import { useFreezeVector } from '../hooks/useFreezeVector';
 import { DropCells } from './DropCells';
 import styles from './HelmSpaceMap.module.css';
@@ -29,6 +30,9 @@ export const HelmSpaceMap = (props: Props) => {
     const activeCard = useActiveCard();
 
     const [zoomLevel, setZoomLevel] = useState(1);
+
+    // Animation state for activeManeuver button
+    const maneuverAnimation = useVisibilityAnimation(!!props.activeManeuver);
 
     const draggingLocationCard = activeCard?.targetType === 'location';
 
@@ -85,14 +89,14 @@ export const HelmSpaceMap = (props: Props) => {
                 -
             </Button>
 
-            {props.activeManeuver && (
+            {maneuverAnimation.visible && (
                 <Button
-                    className={styles.activeManeuver}
+                    className={`${styles.activeManeuver} ${maneuverAnimation.isEntering ? styles.activeManeuverEntering : ''} ${maneuverAnimation.isExiting ? styles.activeManeuverExiting : ''}`}
                     palette="danger"
                     onClick={props.cancelManeuver}
                 >
                     <RadialProgress
-                        progress={props.activeManeuver}
+                        progress={props.activeManeuver!}
                         title="Maneuver progress"
                         className={styles.activeManeuverProgress}
                     />
