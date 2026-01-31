@@ -1,5 +1,15 @@
 # All Hands - Project Guidance
 
+## For AI Coding Agents
+
+This guidance file is designed to help AI coding agents understand and work effectively with this codebase. When making changes:
+
+1. **Always run the build** - Execute `npm run build` before submitting changes. The CI pipeline requires a successful build.
+2. **Follow the workspace structure** - Changes to shared packages (`common-data`, `common-ui`) require rebuilding dependent packages.
+3. **Test multiplayer scenarios** - Use `npm run dev` to test with 4 simulated player windows.
+4. **Respect the architecture** - Maintain separation between packages (engine has no UI, common-data has no framework dependencies).
+5. **Check types carefully** - TypeScript strict mode is enabled. Ensure all packages build without type errors.
+
 ## Project Overview
 
 **All Hands** is a cooperative, real-time multiplayer card game designed for local party play. It's a bridge simulator that's also a deck builder, and also a roguelike. The game runs on a central "host" computer (the viewscreen), while players join the game using their smartphones as controllers.
@@ -287,11 +297,28 @@ Within each group, imports are alphabetized (case-insensitive).
 
 ## Contributing Guidelines
 
+### Continuous Integration
+
+The project uses GitHub Actions for continuous integration. All pull requests must pass the build workflow before being merged.
+
+**Build Workflow** (`.github/workflows/build.yml`):
+- Runs on: Push to `main` branch and all pull requests
+- Steps:
+  1. Checkout code
+  2. Setup Node.js 20
+  3. Install dependencies with `npm ci`
+  4. Build all packages with `npm run build`
+- **Required to pass:** All PRs must have a passing build before merge
+
 ### Before Submitting Changes
-1. Run `npm run lint` to ensure code style compliance
-2. Run `npm run test` to verify all tests pass
-3. Run `npm run build` to ensure all packages build successfully
+
+**Required checks:**
+1. Run `npm run build` to ensure all packages build successfully - **This must pass**
+2. Run `npm run lint` to ensure code style compliance
+3. Run `npm run test` to verify all tests pass
 4. Test the changes in development mode (`npm run dev`)
+
+**Important:** The CI build workflow will automatically run on your PR. Ensure `npm run build` succeeds locally before pushing to avoid CI failures.
 
 ### Code Review Considerations
 - Keep changes focused and minimal
