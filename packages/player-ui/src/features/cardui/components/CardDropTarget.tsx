@@ -19,7 +19,7 @@ type Props<C extends ElementType = 'div'> = PropsWithChildren<{
 export function CardDropTarget<C extends ElementType = 'div'>(props: Props<C>) {
     const activeCard = useActiveCard();
 
-    const { id, className, targetType, acceptAnyCardType, render, disabled, children, ...otherProps } = props;
+    const { id, className, targetType, acceptAnyCardType, render, disabled, children, couldDropClassName, droppingClassName, ...otherProps } = props;
 
     const matchesActiveCardTargetType = disabled !== true && activeCard && (acceptAnyCardType || targetType === activeCard.targetType);
 
@@ -41,9 +41,9 @@ export function CardDropTarget<C extends ElementType = 'div'>(props: Props<C>) {
         styles.dropTarget,
         targetType === 'no-target' || targetType === 'choice' ? styles.noSpecificTarget : null,
         willDropHere ? styles.dropping : null,
-        willDropHere ? props.droppingClassName : null,
+        willDropHere ? droppingClassName : null,
         couldDropHere ? styles.couldDrop : null,
-        couldDropHere ? props.couldDropClassName : null,
+        couldDropHere ? couldDropClassName : null,
         className);
 
     return (

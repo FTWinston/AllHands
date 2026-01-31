@@ -27,18 +27,24 @@ export class HelmState extends SystemState implements HelmSystemInfo {
             if (currentTime >= activeManeuver.endTime) {
                 this.activeManeuver.clear();
             } else if (this.powerLevel < activeManeuver.power) {
-                // End the current maneuver early by slowing to a stop, reaching where we would be in 0.25s over 0.5s instead.
-                const endPosition = this.ship.getPosition(currentTime + 0.25);
-
-                this.ship.setMotion(new MotionKeyframe(
-                    endPosition.x,
-                    endPosition.y,
-                    endPosition.angle,
-                    currentTime + 0.5
-                ));
-
-                this.activeManeuver.clear();
+                this.cancelActiveManeuver(currentTime);
             }
+        }
+    }
+
+    cancelActiveManeuver(currentTime: number) {
+        if (this.activeManeuver.length) {
+            // End the current maneuver early by slowing to a stop, reaching where we would be in 0.25s over 0.5s instead.
+            const endPosition = this.ship.getPosition(currentTime + 0.25);
+
+            this.ship.setMotion(new MotionKeyframe(
+                endPosition.x,
+                endPosition.y,
+                endPosition.angle,
+                currentTime + 0.5
+            ));
+
+            this.activeManeuver.clear();
         }
     }
 }

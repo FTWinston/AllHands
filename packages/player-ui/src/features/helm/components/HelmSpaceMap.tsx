@@ -10,7 +10,6 @@ import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useRef, useState } from 'react';
 import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
-import { default as PowerIcon } from '../../header/assets/power.svg?react';
 import { useFreezeVector } from '../hooks/useFreezeVector';
 import { DropCells } from './DropCells';
 import styles from './HelmSpaceMap.module.css';
@@ -20,6 +19,7 @@ type Props = {
     center: ReadonlyKeyframes<Vector2D>;
     objects: Record<string, GameObjectInfo>;
     activeManeuver?: CardCooldown | null;
+    cancelManeuver: () => void;
 };
 
 // Base cell radius in pixels for both SpaceMap and SpaceCells
@@ -88,14 +88,15 @@ export const HelmSpaceMap = (props: Props) => {
             {props.activeManeuver && (
                 <Button
                     className={styles.activeManeuver}
-                    startIcon={<PowerIcon />}
                     palette="danger"
+                    onClick={props.cancelManeuver}
                 >
-                    {props.activeManeuver.power}
                     <RadialProgress
                         progress={props.activeManeuver}
                         title="Maneuver progress"
+                        className={styles.activeManeuverProgress}
                     />
+                    <span className={styles.activeManeuverIcon}>■</span>
                 </Button>
             )}
         </div>

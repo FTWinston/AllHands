@@ -48,6 +48,7 @@ const meta: Meta<typeof Component> = {
                 cards={cards}
                 center={center}
                 activeManeuver={activeManeuver}
+                cancelManeuver={() => setActiveManeuver(null)}
                 playCard={(cardId, targetType, targetId) => {
                     console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);
                     expendCard(cardId);

@@ -21,11 +21,12 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     center: ReadonlyKeyframes<Vector2D>;
     objects: Record<string, GameObjectInfo>;
     activeManeuver?: CardCooldown | null;
+    cancelManeuver: () => void;
     timeProvider: ITimeProvider;
 };
 
 export const HelmDisplay = (props: Props) => {
-    const { cards, playCard, center, objects, timeProvider, activeManeuver, ...headerProps } = props;
+    const { cards, playCard, center, objects, timeProvider, activeManeuver, cancelManeuver, ...headerProps } = props;
 
     useRootClassName(crewStyles.helm);
 
@@ -43,6 +44,7 @@ export const HelmDisplay = (props: Props) => {
                     center={center}
                     objects={objects}
                     activeManeuver={activeManeuver}
+                    cancelManeuver={cancelManeuver}
                 />
             </CardUI>
         </Screen>

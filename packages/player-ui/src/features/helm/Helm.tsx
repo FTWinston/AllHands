@@ -31,6 +31,10 @@ export const Helm = (props: Props) => {
         });
     }, [props.room]);
 
+    const cancelManeuver = useCallback(() => {
+        props.room.send('cancelManeuver');
+    }, [props.room]);
+
     if (!localShip?.helmState) {
         return <div>unable to load</div>;
     }
@@ -46,9 +50,10 @@ export const Helm = (props: Props) => {
             objects={objects}
             power={helmState.powerLevel}
             maxHandSize={helmState.health}
-            activeManeuver={helmState.activeManeuver[0]}
             playCard={playCard}
             cardGeneration={helmState.cardGeneration[0]}
+            cancelManeuver={cancelManeuver}
+            activeManeuver={helmState.activeManeuver[0]}
         />
     );
 };

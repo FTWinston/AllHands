@@ -11,7 +11,9 @@ import { customAlphabet } from 'nanoid/non-secure';
 import { AiShip } from '../state/AiShip';
 import { CrewState } from '../state/CrewState';
 import { GameState } from '../state/GameState';
+import { HelmState } from '../state/HelmState';
 import { PlayerShip } from '../state/PlayerShip';
+import { SystemState } from '../state/SystemState';
 import { IdPool } from './IdPool';
 import type { ScenarioConfig } from 'common-data/types/ScenarioConfig';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
@@ -181,6 +183,29 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
             console.log(`${client.sessionId} played card ${cardId} type ${cardType} (${cardType}) on ${clientRole} targeting ${targetType}:${targetId}`);
         });
 
+        this.onMessage('cancelManeuver', (client) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (clientRole !== helmClientRole) {
+                console.error('Only helm can cancel maneuvers');
+                return;
+            }
+
+            const systemState = this.getSystemState(ship, clientRole);
+
+            systemState.cancelActiveManeuver(this.clock.currentTime);
+
+            console.log(`${client.sessionId} canceled maneuver for ship ${ship.id}`);
+        });
+
         this.patchRate = 1000 / config.patchRate;
 
         // Convert tick rate (per second) to milliseconds, and have the room update the state that often.
@@ -217,7 +242,10 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
     /**
      * Get the system state for a given system on a ship.
      */
-    private getSystemState(ship: PlayerShip, system: CrewRole) {
+    private getSystemState(ship: PlayerShip, system: typeof helmClientRole): HelmState;
+    private getSystemState(ship: PlayerShip, system: Exclude<CrewRole, typeof helmClientRole>): SystemState;
+    private getSystemState(ship: PlayerShip, system: CrewRole): SystemState;
+    private getSystemState(ship: PlayerShip, system: CrewRole): HelmState | SystemState {
         switch (system) {
             case helmClientRole:
                 return ship.helmState;
