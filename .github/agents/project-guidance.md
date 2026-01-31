@@ -6,9 +6,8 @@ This guidance file is designed to help AI coding agents understand and work effe
 
 1. **Always run the build** - Execute `npm run build` before submitting changes. The CI pipeline requires a successful build.
 2. **Follow the workspace structure** - Changes to shared packages (`common-data`, `common-ui`) require rebuilding dependent packages.
-3. **Test multiplayer scenarios** - Use `npm run dev` to test with 4 simulated player windows.
-4. **Respect the architecture** - Maintain separation between packages (engine has no UI, common-data has no framework dependencies).
-5. **Check types carefully** - TypeScript strict mode is enabled. Ensure all packages build without type errors.
+3. **Respect the architecture** - Maintain separation between packages (engine has no UI, common-data has no framework dependencies).
+4. **Check types carefully** - TypeScript strict mode is enabled. Ensure all packages build without type errors.
 
 ## Project Overview
 
