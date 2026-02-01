@@ -1,23 +1,28 @@
+import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
-import { Vector2D } from 'common-data/features/space/types/Vector2D';
-import { interpolateVector } from 'common-data/features/space/utils/interpolate';
+import { Position } from 'common-data/features/space/types/Position';
+import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
+import { parseVector } from 'common-data/features/space/utils/vectors';
 import { CardCooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
-import { useRef, useState } from 'react';
-import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
+import { useCallback, useRef, useState } from 'react';
+import { useActiveCard, useOverTargetId } from 'src/features/cardui/components/DragCardProvider';
 import { useVisibilityAnimation } from 'src/hooks/useVisibilityAnimation';
 import { useFreezeVector } from '../hooks/useFreezeVector';
+import { calculateMotionPath } from '../utils/calculateMotionPath';
+import { drawMotionPath } from '../utils/drawMotionPath';
 import { DropCells } from './DropCells';
 import styles from './HelmSpaceMap.module.css';
 
 type Props = {
     timeProvider: ITimeProvider;
-    center: ReadonlyKeyframes<Vector2D>;
+    center: ReadonlyKeyframes<Position>;
     objects: Record<string, GameObjectInfo>;
     activeManeuver?: CardCooldown | null;
     cancelManeuver: () => void;
@@ -28,6 +33,7 @@ const BASE_CELL_RADIUS = 32;
 
 export const HelmSpaceMap = (props: Props) => {
     const activeCard = useActiveCard();
+    const overTargetId = useOverTargetId();
 
     const [zoomLevel, setZoomLevel] = useState(1);
 
@@ -45,11 +51,42 @@ export const HelmSpaceMap = (props: Props) => {
 
     const currentTime = props.timeProvider.getServerTime();
 
-    const shipPosition = interpolateVector(props.center, currentTime);
+    const shipPosition = interpolatePosition(props.center, currentTime);
 
     // Freeze the center position while dropping cards, to make that easier.
     // Lerp to catch back up again when that's done.
     const centerVector = useFreezeVector(!!draggingLocationCard, shipPosition);
+
+    // Calculate the motion path preview when hovering over a valid target
+    const motionPath = draggingLocationCard && overTargetId && activeCard
+        ? (() => {
+            const targetLocation = parseVector(overTargetId);
+            if (!targetLocation) {
+                return null;
+            }
+
+            const cardDef = cardDefinitions[activeCard.cardType];
+            if (cardDef.targetType !== 'location') {
+                return null;
+            }
+
+            return calculateMotionPath(
+                shipPosition,
+                cardDef as LocationTargetCardDefinition,
+                targetLocation
+            );
+        })()
+        : null;
+
+    // Draw the motion path as extra foreground content on the SpaceMap
+    const drawExtraForeground = useCallback(
+        (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
+            if (motionPath) {
+                drawMotionPath(ctx, motionPath, pixelSize);
+            }
+        },
+        [motionPath]
+    );
 
     return (
         <div className={styles.spaceMapContainer}>
@@ -61,6 +98,7 @@ export const HelmSpaceMap = (props: Props) => {
                 cellRadius={cellRadius}
                 gridColor="green"
                 ref={canvas}
+                drawExtraForeground={motionPath ? drawExtraForeground : undefined}
             />
 
             {draggingLocationCard && (

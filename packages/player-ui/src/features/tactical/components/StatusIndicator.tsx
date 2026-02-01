@@ -1,6 +1,6 @@
-import { classNames } from 'common-ui/utils/classNames';
-import { ColorPalette } from 'common-ui/types/ColorPalette';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
+import { ColorPalette } from 'common-ui/types/ColorPalette';
+import { classNames } from 'common-ui/utils/classNames';
 import React from 'react';
 import styles from './StatusIndicator.module.css';
 
