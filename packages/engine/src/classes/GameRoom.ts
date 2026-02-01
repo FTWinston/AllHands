@@ -199,9 +199,9 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
                 return;
             }
 
-            const systemState = this.getSystemState(ship, clientRole);
+            const helmState = this.getSystemState(ship, clientRole);
 
-            systemState.cancelActiveManeuver(this.clock.currentTime);
+            helmState.cancelActiveManeuver();
 
             console.log(`${client.sessionId} canceled maneuver for ship ${ship.id}`);
         });
