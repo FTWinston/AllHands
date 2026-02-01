@@ -33,11 +33,6 @@ export type SystemTargetCardDefinition = CommonCardDefinition & {
     targetType: 'system';
 };
 
-export type LocationTargetCardDefinition = CommonCardDefinition & {
-    targetType: 'location';
-    motionData: CardMotionSegment[];
-};
-
 export enum CardMotionSegmentFacing {
     /** Keep the current angle, don't change facing */
     Current,
@@ -49,7 +44,8 @@ export enum CardMotionSegmentFacing {
     FinalVector,
 }
 
-export type CardMotionSegment = {
+export type LocationTargetCardDefinition = CommonCardDefinition & {
+    targetType: 'location';
     /**
      * The direction to face at the start of the movement.
      * If specified (and different from current), the ship rotates to this angle BEFORE moving.

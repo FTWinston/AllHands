@@ -1,4 +1,4 @@
-import { CardMotionSegment, ChoiceCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { ChoiceCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';
@@ -26,7 +26,7 @@ export type SystemTargetCardFunctionality = {
 };
 
 export type LocationTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship, cardPower: number, motionData: CardMotionSegment[], locations: Vector2D[]) => boolean;
+    play: (gameState: GameState, ship: Ship, cardPower: number, cardDefinition: LocationTargetCardDefinition, location: Vector2D) => boolean;
 };
 
 export type EngineCardFunctionality = NoTargetCardFunctionality

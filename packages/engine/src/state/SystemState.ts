@@ -2,7 +2,7 @@ import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { parseVectors } from 'common-data/features/space/utils/vectors';
+import { parseVector } from 'common-data/features/space/utils/vectors';
 import { IRandom } from 'common-data/types/IRandom';
 import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
@@ -151,11 +151,11 @@ export class SystemState extends Schema implements SystemInfo {
                 return null;
             }
         } else if (cardDefinition.targetType === 'location') {
-            const vectors = parseVectors(targetId);
-            if (vectors.length === 0) {
+            const targetVector = parseVector(targetId);
+            if (targetVector === null) {
                 console.log('invalid location target', targetId);
                 return null;
-            } else if (!cardDefinition.play(this.gameState, this.ship, cardDefinition.cost, cardDefinition.motionData, vectors)) {
+            } else if (!cardDefinition.play(this.gameState, this.ship, cardDefinition.cost, cardDefinition, targetVector)) {
                 console.log('card refused to play');
                 return null;
             }
