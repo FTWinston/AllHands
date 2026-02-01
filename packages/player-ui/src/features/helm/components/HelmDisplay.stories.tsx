@@ -102,7 +102,7 @@ export const UI: Story = {
             },
             {
                 id: 3,
-                type: 'slowAndSteady',
+                type: 'zigZag',
             },
         ],
         objects: {},
