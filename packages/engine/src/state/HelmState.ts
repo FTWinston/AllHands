@@ -18,6 +18,8 @@ export class HelmState extends SystemState implements HelmSystemInfo {
     // Instead, clear the array then push a new item if needed.
     @type([CardCooldownState]) activeManeuver = new ArraySchema<CardCooldownState>();
 
+    private cancellingManeuver = false;
+
     update(currentTime: number) {
         super.update(currentTime);
 
@@ -26,25 +28,27 @@ export class HelmState extends SystemState implements HelmSystemInfo {
 
             if (currentTime >= activeManeuver.endTime) {
                 this.activeManeuver.clear();
-            } else if (this.powerLevel < activeManeuver.power) {
-                this.cancelActiveManeuver(currentTime);
+                this.cancellingManeuver = false;
+            } else if (this.cancellingManeuver || this.powerLevel < activeManeuver.power) {
+                // End the current maneuver early by slowing to a stop, reaching where we would be in 0.25s over 0.75s instead.
+                const endPosition = this.ship.getPosition(currentTime + 0.25);
+
+                this.ship.setMotion(new MotionKeyframe(
+                    currentTime + 0.75,
+                    endPosition.x,
+                    endPosition.y,
+                    endPosition.angle
+                ));
+
+                this.activeManeuver.clear();
+                this.cancellingManeuver = false;
             }
+        } else if (this.cancellingManeuver) {
+            this.cancellingManeuver = false;
         }
     }
 
-    cancelActiveManeuver(currentTime: number) {
-        if (this.activeManeuver.length) {
-            // End the current maneuver early by slowing to a stop, reaching where we would be in 0.25s over 0.5s instead.
-            const endPosition = this.ship.getPosition(currentTime + 0.25);
-
-            this.ship.setMotion(new MotionKeyframe(
-                endPosition.x,
-                endPosition.y,
-                endPosition.angle,
-                currentTime + 0.5
-            ));
-
-            this.activeManeuver.clear();
-        }
+    cancelActiveManeuver() {
+        this.cancellingManeuver = true;
     }
 }
