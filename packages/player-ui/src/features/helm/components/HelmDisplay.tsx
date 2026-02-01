@@ -4,7 +4,7 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
-import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { Position } from 'common-data/features/space/types/Position';
 import { CardCooldown } from 'common-data/types/Cooldown';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
@@ -18,7 +18,7 @@ import { HelmSpaceMap } from './HelmSpaceMap';
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cards: MinimalReadonlyArray<CardInstance>;
-    center: ReadonlyKeyframes<Vector2D>;
+    center: ReadonlyKeyframes<Position>;
     objects: Record<string, GameObjectInfo>;
     activeManeuver?: CardCooldown | null;
     cancelManeuver: () => void;

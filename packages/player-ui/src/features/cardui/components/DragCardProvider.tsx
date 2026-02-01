@@ -12,12 +12,14 @@ export type ActiveCardInfo = {
 type DragContextValue = {
     activeCard: ActiveCardInfo | null;
     isOverValidTarget: boolean;
+    overTargetId: string | null;
 };
 
-export const ActiveCardContext = createContext<DragContextValue>({ activeCard: null, isOverValidTarget: false });
+export const ActiveCardContext = createContext<DragContextValue>({ activeCard: null, isOverValidTarget: false, overTargetId: null });
 
 export const useActiveCard = () => useContext(ActiveCardContext).activeCard;
 export const useIsOverValidTarget = () => useContext(ActiveCardContext).isOverValidTarget;
+export const useOverTargetId = () => useContext(ActiveCardContext).overTargetId;
 
 const snapTopCenterToCursor: Modifier = ({ transform, draggingNodeRect, activatorEvent }) => {
     if (draggingNodeRect && activatorEvent) {
@@ -51,6 +53,7 @@ type Props = PropsWithChildren<{
 export const DragCardProvider = ({ children, onCardDropped }: Props) => {
     const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
     const [isOverValidTarget, setIsOverValidTarget] = useState(false);
+    const [overTargetId, setOverTargetId] = useState<string | null>(null);
 
     const handleDragStart = (event: DragStartEvent) => {
         const data = event.active.data.current as ActiveCardInfo | undefined;
@@ -68,7 +71,9 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
 
     const handleDragOver = (event: { over: { id: string | number; disabled?: boolean } | null }) => {
         // Check if we're over a valid (not disabled) drop target
-        setIsOverValidTarget(!!event.over && !event.over.disabled);
+        const isValid = !!event.over && !event.over.disabled;
+        setIsOverValidTarget(isValid);
+        setOverTargetId(isValid ? String(event.over!.id) : null);
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -93,6 +98,7 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
         }
 
         setIsOverValidTarget(false);
+        setOverTargetId(null);
         setActiveCard(null);
     };
 
@@ -101,6 +107,7 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
         clearFocus();
 
         setIsOverValidTarget(false);
+        setOverTargetId(null);
         setActiveCard(null);
     };
 
@@ -122,7 +129,7 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
             onDragCancel={handleDragCancel}
             modifiers={[snapTopCenterToCursor]}
         >
-            <ActiveCardContext.Provider value={{ activeCard, isOverValidTarget }}>
+            <ActiveCardContext.Provider value={{ activeCard, isOverValidTarget, overTargetId }}>
                 {children}
                 <DragOverlay />
             </ActiveCardContext.Provider>
