@@ -1,5 +1,4 @@
 import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
-import { calculateMotionPath } from 'common-data/features/cards/utils/calculateMotionPath';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
@@ -11,12 +10,13 @@ import { CardCooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
-import { drawMotionPath } from 'common-ui/features/spacemap/utils/drawMotionPath';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useCallback, useRef, useState } from 'react';
 import { useActiveCard, useOverTargetId } from 'src/features/cardui/components/DragCardProvider';
 import { useVisibilityAnimation } from 'src/hooks/useVisibilityAnimation';
 import { useFreezeVector } from '../hooks/useFreezeVector';
+import { calculateMotionPath } from '../utils/calculateMotionPath';
+import { drawMotionPath } from '../utils/drawMotionPath';
 import { DropCells } from './DropCells';
 import styles from './HelmSpaceMap.module.css';
 

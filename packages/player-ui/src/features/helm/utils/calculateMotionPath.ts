@@ -1,6 +1,6 @@
-import { Vector2D } from '../../space/types/Vector2D';
-import { clampAngle, determineAngle, distance, getAnglesBetween, getVectorsBetween, perpendicular, unit } from '../../space/utils/vectors';
-import { CardMotionSegmentFacing, LocationTargetCardDefinition } from '../types/CardDefinition';
+import { CardMotionSegmentFacing, LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { clampAngle, determineAngle, distance, getAnglesBetween, getVectorsBetween, perpendicular, unit } from 'common-data/features/space/utils/vectors';
 
 /**
  * A position with angle, representing a point along the motion path.

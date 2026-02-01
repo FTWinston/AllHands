@@ -1,4 +1,4 @@
-import { MotionPathKeyframe } from 'common-data/features/cards/utils/calculateMotionPath';
+import { MotionPathKeyframe } from './calculateMotionPath';
 
 const PATH_COLOR = 'rgba(100, 200, 255, 0.8)';
 const ARROWHEAD_COLOR = 'rgba(100, 200, 255, 0.9)';
