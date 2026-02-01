@@ -150,9 +150,10 @@ export function interpolateVector(keyframes: ReadonlyKeyframes<Vector2D>, curren
     const p3: Vector2D = frame3 ?? frame2;
 
     // Calculate t values using 2D Euclidean distance (exponent 0.5 = centripetal)
-    const t01 = Math.pow(distance2D(p0, p1), 0.5);
-    const t12 = Math.pow(distance2D(p1, p2), 0.5);
-    const t23 = Math.pow(distance2D(p2, p3), 0.5);
+    // Use minimum value to avoid division by zero for coincident points
+    const t01 = Math.max(Math.pow(distance2D(p0, p1), 0.5), 0.00000001);
+    const t12 = Math.max(Math.pow(distance2D(p1, p2), 0.5), 0.00000001);
+    const t23 = Math.max(Math.pow(distance2D(p2, p3), 0.5), 0.00000001);
 
     const fraction = getCompletedFraction(frame1, frame2, currentTime);
 
@@ -189,9 +190,10 @@ export function interpolatePosition(keyframes: ReadonlyKeyframes<Position>, curr
     const p3: Vector2D = frame3 ?? frame2;
 
     // Calculate t values using 2D Euclidean distance (exponent 0.5 = centripetal)
-    const t01 = Math.pow(distance2D(p0, p1), 0.5);
-    const t12 = Math.pow(distance2D(p1, p2), 0.5);
-    const t23 = Math.pow(distance2D(p2, p3), 0.5);
+    // Use minimum value to avoid division by zero for coincident points
+    const t01 = Math.max(Math.pow(distance2D(p0, p1), 0.5), 0.00000001);
+    const t12 = Math.max(Math.pow(distance2D(p1, p2), 0.5), 0.00000001);
+    const t23 = Math.max(Math.pow(distance2D(p2, p3), 0.5), 0.00000001);
 
     const fraction = getCompletedFraction(frame1, frame2, currentTime);
 
