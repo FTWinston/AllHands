@@ -1,3 +1,5 @@
+import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { distance } from 'common-data/features/space/utils/vectors';
 import { MotionPathKeyframe } from './calculateMotionPath';
 
 const PATH_COLOR = 'rgba(100, 200, 255, 0.8)';
@@ -5,17 +7,6 @@ const ARROWHEAD_COLOR = 'rgba(100, 200, 255, 0.9)';
 
 // Number of intermediate points to draw between each pair of keyframes for smooth curves
 const CURVE_SEGMENTS = 10;
-
-type Point2D = { x: number; y: number };
-
-/**
- * Calculate 2D Euclidean distance between two points.
- */
-function distance2D(p1: Point2D, p2: Point2D): number {
-    const dx = p2.x - p1.x;
-    const dy = p2.y - p1.y;
-    return Math.sqrt(dx * dx + dy * dy);
-}
 
 /**
  * Interpolate a single coordinate using Catmull-Rom spline with precomputed t values.
@@ -52,7 +43,7 @@ function getInterpolatedPoint(
     keyframes: readonly MotionPathKeyframe[],
     segmentIndex: number,
     fraction: number
-): Point2D {
+): Vector2D {
     const k1 = keyframes[segmentIndex];
     const k2 = keyframes[segmentIndex + 1];
 
@@ -62,9 +53,9 @@ function getInterpolatedPoint(
 
     // Calculate t values using 2D Euclidean distance (exponent 0.5 = centripetal)
     // Use minimum value to avoid division by zero for coincident points
-    const t01 = Math.max(Math.pow(distance2D(k0, k1), 0.5), 0.00000001);
-    const t12 = Math.max(Math.pow(distance2D(k1, k2), 0.5), 0.00000001);
-    const t23 = Math.max(Math.pow(distance2D(k2, k3), 0.5), 0.00000001);
+    const t01 = Math.max(Math.pow(distance(k0, k1), 0.5), 0.00000001);
+    const t12 = Math.max(Math.pow(distance(k1, k2), 0.5), 0.00000001);
+    const t23 = Math.max(Math.pow(distance(k2, k3), 0.5), 0.00000001);
 
     return {
         x: catmullRomInterpolateCoord(k0.x, k1.x, k2.x, k3.x, t01, t12, t23, fraction),

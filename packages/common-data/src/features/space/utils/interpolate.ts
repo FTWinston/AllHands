@@ -1,6 +1,7 @@
 import { Keyframe, Keyframes, ReadonlyKeyframes } from '../types/Keyframes';
 import { Position } from '../types/Position';
 import { Vector2D } from '../types/Vector2D';
+import { distance } from './vectors';
 
 /** Get the index of the first keyframe whose time is greater than currentTime. */
 export function getFirstFutureIndex<T>(keyframes: ReadonlyKeyframes<T>, currentTime: number): number {
@@ -41,18 +42,11 @@ export function wantsMoreKeyframes(keyframes: ReadonlyKeyframes<unknown>, curren
     return keyframes[keyframes.length - 2].time <= currentTime;
 }
 
-/** Get a non-zero 2D Euclidean distance between two points. */
-function distance2D(p1: Vector2D, p2: Vector2D): number {
-    const dx = p2.x - p1.x;
-    const dy = p2.y - p1.y;
-    return Math.max(Math.sqrt(dx * dx + dy * dy), 0.00000001);
-}
-
 /**
  * Interpolate a single coordinate using Catmull-Rom spline with precomputed t values.
  * The t values should be based on 2D Euclidean distances for consistent curvature.
  */
-function resolveCurveValueWithT(
+function resolveCurveValue(
     val0: number,
     val1: number,
     val2: number,
@@ -107,7 +101,7 @@ function resolveCurveValueForAngle(
         }
     }
 
-    return resolveCurveValueWithT(angle0 ?? angle1, angle1, angle2, angle3 ?? angle2, t01, t12, t23, fraction);
+    return resolveCurveValue(angle0 ?? angle1, angle1, angle2, angle3 ?? angle2, t01, t12, t23, fraction);
 }
 
 function resolveNumberValue(a: number, b: number, c: number, d: number, fraction: number) {
@@ -151,15 +145,15 @@ export function interpolateVector(keyframes: ReadonlyKeyframes<Vector2D>, curren
 
     // Calculate t values using 2D Euclidean distance (exponent 0.5 = centripetal)
     // Use minimum value to avoid division by zero for coincident points
-    const t01 = Math.max(Math.pow(distance2D(p0, p1), 0.5), 0.00000001);
-    const t12 = Math.max(Math.pow(distance2D(p1, p2), 0.5), 0.00000001);
-    const t23 = Math.max(Math.pow(distance2D(p2, p3), 0.5), 0.00000001);
+    const t01 = Math.max(Math.pow(distance(p0, p1), 0.5), 0.00000001);
+    const t12 = Math.max(Math.pow(distance(p1, p2), 0.5), 0.00000001);
+    const t23 = Math.max(Math.pow(distance(p2, p3), 0.5), 0.00000001);
 
     const fraction = getCompletedFraction(frame1, frame2, currentTime);
 
     return {
-        x: resolveCurveValueWithT(p0.x, p1.x, p2.x, p3.x, t01, t12, t23, fraction),
-        y: resolveCurveValueWithT(p0.y, p1.y, p2.y, p3.y, t01, t12, t23, fraction),
+        x: resolveCurveValue(p0.x, p1.x, p2.x, p3.x, t01, t12, t23, fraction),
+        y: resolveCurveValue(p0.y, p1.y, p2.y, p3.y, t01, t12, t23, fraction),
     };
 }
 
@@ -191,15 +185,15 @@ export function interpolatePosition(keyframes: ReadonlyKeyframes<Position>, curr
 
     // Calculate t values using 2D Euclidean distance (exponent 0.5 = centripetal)
     // Use minimum value to avoid division by zero for coincident points
-    const t01 = Math.max(Math.pow(distance2D(p0, p1), 0.5), 0.00000001);
-    const t12 = Math.max(Math.pow(distance2D(p1, p2), 0.5), 0.00000001);
-    const t23 = Math.max(Math.pow(distance2D(p2, p3), 0.5), 0.00000001);
+    const t01 = Math.max(Math.pow(distance(p0, p1), 0.5), 0.00000001);
+    const t12 = Math.max(Math.pow(distance(p1, p2), 0.5), 0.00000001);
+    const t23 = Math.max(Math.pow(distance(p2, p3), 0.5), 0.00000001);
 
     const fraction = getCompletedFraction(frame1, frame2, currentTime);
 
     return {
-        x: resolveCurveValueWithT(p0.x, p1.x, p2.x, p3.x, t01, t12, t23, fraction),
-        y: resolveCurveValueWithT(p0.y, p1.y, p2.y, p3.y, t01, t12, t23, fraction),
+        x: resolveCurveValue(p0.x, p1.x, p2.x, p3.x, t01, t12, t23, fraction),
+        y: resolveCurveValue(p0.y, p1.y, p2.y, p3.y, t01, t12, t23, fraction),
         angle: resolveCurveValueForAngle(frame0?.angle, frame1.angle, frame2.angle, frame3?.angle, t01, t12, t23, fraction),
     };
 }
