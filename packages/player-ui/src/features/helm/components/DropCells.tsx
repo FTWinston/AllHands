@@ -1,8 +1,11 @@
+import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
-import { serializeVector } from 'common-data/features/space/utils/vectors';
+import { distance, serializeVector } from 'common-data/features/space/utils/vectors';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
+import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
 import styles from './DropCells.module.css';
 
 type CellInfo = {
@@ -12,6 +15,7 @@ type CellInfo = {
 
 type Props = {
     center: Vector2D;
+    shipPosition: Vector2D;
     cellRadius: number;
     className?: string;
 };
@@ -66,7 +70,14 @@ function worldToHex(worldX: number, worldY: number): { col: number; row: number 
 export const DropCells: FC<Props> = (props) => {
     const ref = useRef<HTMLDivElement>(null);
 
-    const { center, cellRadius } = props;
+    const { center, shipPosition, cellRadius } = props;
+
+    const activeCard = useActiveCard();
+
+    // Get distance constraints from the active card's definition
+    const cardDef = activeCard ? cardDefinitions[activeCard.cardType] : null;
+    const minDistance = cardDef?.targetType === 'location' ? (cardDef as LocationTargetCardDefinition).minDistance : undefined;
+    const maxDistance = cardDef?.targetType === 'location' ? (cardDef as LocationTargetCardDefinition).maxDistance : undefined;
 
     const [containerInfo, setContainerInfo] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
 
@@ -128,6 +139,12 @@ export const DropCells: FC<Props> = (props) => {
         const worldPos = hexToWorld(cell.col, cell.row);
         const cellId = serializeVector(worldPos);
 
+        // Check if cell is within valid distance range (in world units, not pixels)
+        const cellDistance = distance(worldPos, shipPosition);
+        const isTooClose = minDistance !== undefined && cellDistance < minDistance;
+        const isTooFar = maxDistance !== undefined && cellDistance > maxDistance;
+        const isDisabled = isTooClose || isTooFar;
+
         // Convert to screen position relative to view center
         // The view center (in world coords) is at the screen center
         const screenX = (worldPos.x - center.x) * cellRadius;
@@ -149,6 +166,7 @@ export const DropCells: FC<Props> = (props) => {
                 }}
                 couldDropClassName={styles.couldDrop}
                 droppingClassName={styles.dropping}
+                disabled={isDisabled}
             />
         );
     };

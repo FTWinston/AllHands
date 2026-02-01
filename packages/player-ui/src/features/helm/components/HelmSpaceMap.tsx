@@ -45,11 +45,11 @@ export const HelmSpaceMap = (props: Props) => {
 
     const currentTime = props.timeProvider.getServerTime();
 
-    let centerVector = interpolateVector(props.center, currentTime);
+    const shipPosition = interpolateVector(props.center, currentTime);
 
     // Freeze the center position while dropping cards, to make that easier.
     // Lerp to catch back up again when that's done.
-    centerVector = useFreezeVector(!!draggingLocationCard, centerVector);
+    const centerVector = useFreezeVector(!!draggingLocationCard, shipPosition);
 
     return (
         <div className={styles.spaceMapContainer}>
@@ -67,6 +67,7 @@ export const HelmSpaceMap = (props: Props) => {
                 <DropCells
                     className={styles.dropCellsOverlay}
                     center={centerVector}
+                    shipPosition={shipPosition}
                     cellRadius={cellRadius}
                 />
             )}
