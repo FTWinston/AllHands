@@ -1,29 +1,11 @@
-import { CardMotionSegmentFacing, LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { calculateFacingAngle } from 'common-data/features/cards/utils/calculateFacingAngle';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
-import { clampAngle, determineAngle, distance, getAnglesBetween, getVectorsBetween, perpendicular, unit } from 'common-data/features/space/utils/vectors';
+import { clampAngle, distance, getAnglesBetween, getVectorsBetween, perpendicular, unit } from 'common-data/features/space/utils/vectors';
 import { CardCooldownState } from '../state/CardCooldownState';
 import { GameState } from '../state/GameState';
 import { MotionKeyframe } from '../state/MotionKeyframe';
 import { Ship } from '../state/Ship';
-
-/**
- * Calculate an angle based on a CardMotionSegmentFacing value.
- */
-function calculateFacingAngle(
-    facing: CardMotionSegmentFacing | undefined,
-    currentAngle: number,
-    prevKeyframe: Vector2D,
-    location: Vector2D
-): number {
-    if (facing === CardMotionSegmentFacing.NextVector || facing === CardMotionSegmentFacing.FinalVector) {
-        return determineAngle(prevKeyframe, location);
-    } else if (facing === CardMotionSegmentFacing.PreviousVector) {
-        return determineAngle(location, prevKeyframe);
-    } else {
-        // CardMotionSegmentFacing.Current or undefined - keep current angle
-        return currentAngle;
-    }
-}
 
 export function applyMotionCard(
     gameState: GameState,
