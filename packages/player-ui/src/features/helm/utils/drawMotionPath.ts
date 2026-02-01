@@ -1,3 +1,5 @@
+import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { distance } from 'common-data/features/space/utils/vectors';
 import { MotionPathKeyframe } from './calculateMotionPath';
 
 const PATH_COLOR = 'rgba(100, 200, 255, 0.8)';
@@ -7,31 +9,19 @@ const ARROWHEAD_COLOR = 'rgba(100, 200, 255, 0.9)';
 const CURVE_SEGMENTS = 10;
 
 /**
- * Interpolate a value using Catmull-Rom spline (centripetal).
- * This matches the interpolation used in the game engine.
+ * Interpolate a single coordinate using Catmull-Rom spline with precomputed t values.
+ * The t values are based on 2D Euclidean distances for consistent curvature.
  */
-function catmullRomInterpolate(
-    val0: number | undefined,
+function catmullRomInterpolateCoord(
+    val0: number,
     val1: number,
     val2: number,
-    val3: number | undefined,
+    val3: number,
+    t01: number,
+    t12: number,
+    t23: number,
     fraction: number
 ): number {
-    if (val0 === undefined) {
-        val0 = val1;
-    }
-    if (val3 === undefined) {
-        val3 = val2;
-    }
-
-    // Get distances between points (non-zero to avoid division by zero)
-    const dist = (a: number, b: number) => Math.max(Math.abs(b - a), 0.00000001);
-
-    // Exponent of 0.5 makes this a centripetal Catmull-Rom spline
-    const t01 = Math.pow(dist(val0, val1), 0.5);
-    const t12 = Math.pow(dist(val1, val2), 0.5);
-    const t23 = Math.pow(dist(val2, val3), 0.5);
-
     const m1 = val2 - val1 + t12 * ((val1 - val0) / t01 - (val2 - val0) / (t01 + t12));
     const m2 = val2 - val1 + t12 * ((val3 - val2) / t23 - (val3 - val1) / (t12 + t23));
 
@@ -46,21 +36,30 @@ function catmullRomInterpolate(
 }
 
 /**
- * Get an interpolated point along the path between keyframes.
+ * Get an interpolated point along the path between keyframes using centripetal Catmull-Rom.
+ * Uses 2D Euclidean distance for parameterization to ensure consistent curvature at all angles.
  */
 function getInterpolatedPoint(
     keyframes: readonly MotionPathKeyframe[],
     segmentIndex: number,
     fraction: number
-): { x: number; y: number } {
-    const k0 = keyframes[segmentIndex - 1];
+): Vector2D {
     const k1 = keyframes[segmentIndex];
     const k2 = keyframes[segmentIndex + 1];
-    const k3 = keyframes[segmentIndex + 2];
+
+    // Handle edge cases: duplicate first/last points if at boundaries
+    const k0 = keyframes[segmentIndex - 1] ?? k1;
+    const k3 = keyframes[segmentIndex + 2] ?? k2;
+
+    // Calculate t values using 2D Euclidean distance (exponent 0.5 = centripetal)
+    // Use minimum value to avoid division by zero for coincident points
+    const t01 = Math.max(Math.pow(distance(k0, k1), 0.5), 0.00000001);
+    const t12 = Math.max(Math.pow(distance(k1, k2), 0.5), 0.00000001);
+    const t23 = Math.max(Math.pow(distance(k2, k3), 0.5), 0.00000001);
 
     return {
-        x: catmullRomInterpolate(k0?.x, k1.x, k2.x, k3?.x, fraction),
-        y: catmullRomInterpolate(k0?.y, k1.y, k2.y, k3?.y, fraction),
+        x: catmullRomInterpolateCoord(k0.x, k1.x, k2.x, k3.x, t01, t12, t23, fraction),
+        y: catmullRomInterpolateCoord(k0.y, k1.y, k2.y, k3.y, t01, t12, t23, fraction),
     };
 }
 
