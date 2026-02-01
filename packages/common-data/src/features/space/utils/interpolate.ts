@@ -41,26 +41,27 @@ export function wantsMoreKeyframes(keyframes: ReadonlyKeyframes<unknown>, curren
     return keyframes[keyframes.length - 2].time <= currentTime;
 }
 
-/** Get a non-zero distance between two keypoints. Don't let the distance between two values ever actually be zero, or we get divide by zero errors. */
-function distance(from: number, to: number) {
-    let distance = Math.abs(to - from);
-    return Math.max(distance, 0.00000001);
+/** Get a non-zero 2D Euclidean distance between two points. */
+function distance2D(p1: Vector2D, p2: Vector2D): number {
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    return Math.max(Math.sqrt(dx * dx + dy * dy), 0.00000001);
 }
 
-function resolveCurveValue(val0: number | undefined, val1: number, val2: number, val3: number | undefined, fraction: number): number {
-    if (val0 === undefined) {
-        val0 = val1;
-    }
-
-    if (val3 === undefined) {
-        val3 = val2;
-    }
-
-    // Exponent of 0.5 makes this a centripetal Catmull-Rom spline.
-    const t01 = Math.pow(distance(val0, val1), 0.5);
-    const t12 = Math.pow(distance(val1, val2), 0.5);
-    const t23 = Math.pow(distance(val2, val3), 0.5);
-
+/**
+ * Interpolate a single coordinate using Catmull-Rom spline with precomputed t values.
+ * The t values should be based on 2D Euclidean distances for consistent curvature.
+ */
+function resolveCurveValueWithT(
+    val0: number,
+    val1: number,
+    val2: number,
+    val3: number,
+    t01: number,
+    t12: number,
+    t23: number,
+    fraction: number
+): number {
     const m1 = val2 - val1 + t12 * ((val1 - val0) / t01 - (val2 - val0) / (t01 + t12));
     const m2 = val2 - val1 + t12 * ((val3 - val2) / t23 - (val3 - val1) / (t12 + t23));
 
@@ -71,7 +72,16 @@ function resolveCurveValue(val0: number | undefined, val1: number, val2: number,
     return resolveNumberValue(a, b, c, val1, fraction);
 }
 
-function resolveCurveValueForAngle(angle0: number | undefined, angle1: number, angle2: number, angle3: number | undefined, fraction: number) {
+function resolveCurveValueForAngle(
+    angle0: number | undefined,
+    angle1: number,
+    angle2: number,
+    angle3: number | undefined,
+    t01: number,
+    t12: number,
+    t23: number,
+    fraction: number
+) {
     if (angle3 !== undefined) {
         while (angle3 - angle2 > Math.PI) {
             angle3 -= Math.PI * 2;
@@ -97,7 +107,7 @@ function resolveCurveValueForAngle(angle0: number | undefined, angle1: number, a
         }
     }
 
-    return resolveCurveValue(angle0, angle1, angle2, angle3, fraction);
+    return resolveCurveValueWithT(angle0 ?? angle1, angle1, angle2, angle3 ?? angle2, t01, t12, t23, fraction);
 }
 
 function resolveNumberValue(a: number, b: number, c: number, d: number, fraction: number) {
@@ -113,58 +123,81 @@ function getCompletedFraction(startFrame: Keyframe<unknown>, endFrame: Keyframe<
     return Math.max(0, Math.min(1, fraction));
 }
 
-type KeyCurveResolution<T> = ReadonlyArray<[keyof T, typeof resolveCurveValue]>;
-
-function interpolateObjectKeys<T extends object>(keyframes: ReadonlyKeyframes<T>, currentTime: number, fieldResolution: KeyCurveResolution<T>): T {
+export function interpolateVector(keyframes: ReadonlyKeyframes<Vector2D>, currentTime: number): Vector2D {
     const index2 = getFirstFutureIndex(keyframes, currentTime);
 
     if (index2 === -1) {
         // If the whole curve is in the past, hold on the last position.
-        return keyframes[keyframes.length - 1] as T;
+        const last = keyframes[keyframes.length - 1];
+        return { x: last.x, y: last.y };
     }
 
     const frame2 = keyframes[index2];
 
     if (index2 === 0) {
         // If the whole curve is in the future, hold on the first position.
-        return frame2 as T;
+        return { x: frame2.x, y: frame2.y };
     }
 
     const frame0 = keyframes[index2 - 2];
     const frame1 = keyframes[index2 - 1];
     const frame3 = keyframes[index2 + 1];
 
-    const val0 = (frame0 ?? {}) as Record<keyof T, number>;
-    const val1 = frame1 as Record<keyof T, number>;
-    const val2 = frame2 as Record<keyof T, number>;
-    const val3 = (frame3 ?? {}) as Record<keyof T, number>;
+    // Handle edge cases: duplicate first/last points if at boundaries
+    const p0: Vector2D = frame0 ?? frame1;
+    const p1: Vector2D = frame1;
+    const p2: Vector2D = frame2;
+    const p3: Vector2D = frame3 ?? frame2;
+
+    // Calculate t values using 2D Euclidean distance (exponent 0.5 = centripetal)
+    const t01 = Math.pow(distance2D(p0, p1), 0.5);
+    const t12 = Math.pow(distance2D(p1, p2), 0.5);
+    const t23 = Math.pow(distance2D(p2, p3), 0.5);
 
     const fraction = getCompletedFraction(frame1, frame2, currentTime);
-    const result = {} as Record<keyof T, number>;
 
-    for (const [keyName, resolveValue] of fieldResolution) {
-        const key = keyName as keyof T;
-        result[key] = resolveValue(val0[key], val1[key], val2[key], val3[key], fraction);
-    }
-
-    return result as T;
+    return {
+        x: resolveCurveValueWithT(p0.x, p1.x, p2.x, p3.x, t01, t12, t23, fraction),
+        y: resolveCurveValueWithT(p0.y, p1.y, p2.y, p3.y, t01, t12, t23, fraction),
+    };
 }
-
-const vectorKeys = Object.entries({
-    x: resolveCurveValue,
-    y: resolveCurveValue,
-}) as KeyCurveResolution<Vector2D>;
-
-export function interpolateVector(keyframes: ReadonlyKeyframes<Vector2D>, currentTime: number): Vector2D {
-    return interpolateObjectKeys<Vector2D>(keyframes, currentTime, vectorKeys);
-}
-
-const positionKeys = Object.entries({
-    x: resolveCurveValue,
-    y: resolveCurveValue,
-    angle: resolveCurveValueForAngle,
-}) as KeyCurveResolution<Position>;
 
 export function interpolatePosition(keyframes: ReadonlyKeyframes<Position>, currentTime: number): Position {
-    return interpolateObjectKeys<Position>(keyframes, currentTime, positionKeys);
+    const index2 = getFirstFutureIndex(keyframes, currentTime);
+
+    if (index2 === -1) {
+        // If the whole curve is in the past, hold on the last position.
+        const last = keyframes[keyframes.length - 1];
+        return { x: last.x, y: last.y, angle: last.angle };
+    }
+
+    const frame2 = keyframes[index2];
+
+    if (index2 === 0) {
+        // If the whole curve is in the future, hold on the first position.
+        return { x: frame2.x, y: frame2.y, angle: frame2.angle };
+    }
+
+    const frame0 = keyframes[index2 - 2];
+    const frame1 = keyframes[index2 - 1];
+    const frame3 = keyframes[index2 + 1];
+
+    // Handle edge cases: duplicate first/last points if at boundaries
+    const p0: Vector2D = frame0 ?? frame1;
+    const p1: Vector2D = frame1;
+    const p2: Vector2D = frame2;
+    const p3: Vector2D = frame3 ?? frame2;
+
+    // Calculate t values using 2D Euclidean distance (exponent 0.5 = centripetal)
+    const t01 = Math.pow(distance2D(p0, p1), 0.5);
+    const t12 = Math.pow(distance2D(p1, p2), 0.5);
+    const t23 = Math.pow(distance2D(p2, p3), 0.5);
+
+    const fraction = getCompletedFraction(frame1, frame2, currentTime);
+
+    return {
+        x: resolveCurveValueWithT(p0.x, p1.x, p2.x, p3.x, t01, t12, t23, fraction),
+        y: resolveCurveValueWithT(p0.y, p1.y, p2.y, p3.y, t01, t12, t23, fraction),
+        angle: resolveCurveValueForAngle(frame0?.angle, frame1.angle, frame2.angle, frame3?.angle, t01, t12, t23, fraction),
+    };
 }
