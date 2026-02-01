@@ -1,9 +1,11 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
+import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
+import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { fn } from 'storybook/test';
 import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
 import { HelmDisplay as Component } from './HelmDisplay';
@@ -40,6 +42,16 @@ const meta: Meta<typeof Component> = {
 
         useLoopingKeyframes<Position>(setCenter, args.timeProvider, 20000);
 
+        // Create a player ship object that follows the center position
+        const objects: Record<string, GameObjectInfo> = useMemo(() => ({
+            playerShip: {
+                id: 'playerShip',
+                appearance: 'chevron',
+                relationship: RelationshipType.Self,
+                motion: center,
+            },
+        }), [center]);
+
         return (
             <Component
                 {...args}
@@ -47,6 +59,7 @@ const meta: Meta<typeof Component> = {
                 maxHandSize={args.maxHandSize}
                 cards={cards}
                 center={center}
+                objects={objects}
                 activeManeuver={activeManeuver}
                 cancelManeuver={() => setActiveManeuver(null)}
                 playCard={(cardId, targetType, targetId) => {
