@@ -121,18 +121,41 @@ export const DropCells: FC<Props> = (props) => {
     const halfRows = Math.floor(numRows / 2);
 
     // Generate cells centered around the center hex
+    // The hex grid offsets each column by col/2 rows vertically, so we need extra
+    // rows to cover the diagonal corners (top-right and bottom-left)
     const cells = useMemo(() => {
         const result: CellInfo[] = [];
+        // Extra row buffer to account for hex grid diagonal offset
+        const extraRowBuffer = Math.ceil(halfCols / 2);
+
+        // View bounds for visibility filtering (in pixels from center)
+        const viewHalfWidth = containerInfo.width / 2;
+        const viewHalfHeight = containerInfo.height / 2;
+        const cellHalfWidth = cellWidthPx / 2;
+        const cellHalfHeight = cellHeightPx / 2;
+
         for (let dc = -halfCols; dc <= halfCols; dc++) {
-            for (let dr = -halfRows; dr <= halfRows; dr++) {
-                result.push({
-                    col: centerHex.col + dc,
-                    row: centerHex.row + dr,
-                });
+            for (let dr = -halfRows - extraRowBuffer; dr <= halfRows + extraRowBuffer; dr++) {
+                const col = centerHex.col + dc;
+                const row = centerHex.row + dr;
+
+                // Get world position and calculate screen position
+                const worldPos = hexToWorld(col, row);
+                const screenX = (worldPos.x - center.x) * cellRadius;
+                const screenY = (worldPos.y - center.y) * cellRadius;
+
+                // Only include cells that are at least partially visible on screen
+                const isPartiallyVisible
+                    = Math.abs(screenX) < viewHalfWidth + cellHalfWidth
+                        && Math.abs(screenY) < viewHalfHeight + cellHalfHeight;
+
+                if (isPartiallyVisible) {
+                    result.push({ col, row });
+                }
             }
         }
         return result;
-    }, [centerHex.col, centerHex.row, halfCols, halfRows]);
+    }, [centerHex.col, centerHex.row, halfCols, halfRows, center.x, center.y, cellRadius, cellWidthPx, cellHeightPx, containerInfo.width, containerInfo.height]);
 
     const renderCell = (cell: CellInfo) => {
         // Get world position of this hex center
