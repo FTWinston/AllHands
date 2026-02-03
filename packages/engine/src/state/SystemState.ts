@@ -173,26 +173,26 @@ export class SystemState extends Schema implements SystemInfo {
 
     /**
      * Handle where a played card goes based on its traits.
-     * - Expendable: Card is destroyed (not added anywhere)
-     * - Primary: Card returns to hand (if no other Primary card in hand)
-     * - Default (no traits or Primary blocked): Card goes to discard pile
+     * - expendable: Card is destroyed (not added anywhere)
+     * - primary: Card returns to hand (if no other primary card in hand)
+     * - Default (no traits or primary blocked): Card goes to discard pile
      *
-     * Expendable takes precedence over Primary.
+     * expendable takes precedence over primary.
      */
     private handlePlayedCardTraits(card: CardState, cardDefinition: EngineCardDefinition): void {
         const traits = cardDefinition.traits ?? [];
 
-        // Expendable takes precedence - card is destroyed
-        if (traits.includes('Expendable')) {
+        // expendable takes precedence - card is destroyed
+        if (traits.includes('expendable')) {
             // Card is simply not added to any pile - it's destroyed
             return;
         }
 
-        // Primary trait - card returns to hand if no other Primary card is already there
-        if (traits.includes('Primary')) {
+        // primary trait - card returns to hand if no other primary card is already there
+        if (traits.includes('primary')) {
             const hasOtherPrimaryInHand = this.hand.some((handCard) => {
                 const handCardDef = getCardDefinition(handCard.type);
-                return handCardDef.traits?.includes('Primary') ?? false;
+                return handCardDef.traits?.includes('primary') ?? false;
             });
 
             if (!hasOtherPrimaryInHand) {
