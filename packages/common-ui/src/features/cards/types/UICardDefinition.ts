@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 
 export interface CardDescription {
     name: string;
-    description: ReactNode;
+    description: string;
     image: ReactNode;
     nameFontSize?: number;
     descriptionLineHeight?: number;

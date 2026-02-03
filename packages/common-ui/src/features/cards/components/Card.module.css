@@ -84,3 +84,11 @@
 .insufficientPower .cost {
   color: var(--danger-light);
 }
+
+.traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em;
+  font-size: 0.75em;
+  margin-bottom: 0.25em;
+}

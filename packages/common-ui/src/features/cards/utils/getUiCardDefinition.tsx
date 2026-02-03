@@ -1,6 +1,5 @@
 import { CardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { default as ExampleIcon } from '../../../icons/exampleIcon.svg?react';
-import { Trait } from '../components/Trait';
 import { CardDescription, UICardDefinition } from '../types/UICardDefinition';
 
 function loadCardDefinitions() {
@@ -58,11 +57,7 @@ function loadCardDefinitions() {
         },
         slowAndSteady: {
             name: 'Slow & Steady',
-            description: <>
-                <Trait type="Primary" />
-                {' '}
-                — Turn towards a target then move towards it at a steady pace.
-            </>,
+            description: 'Turn towards a target then move towards it at a steady pace.',
             image: <ExampleIcon />,
         },
         fullReverse: {
