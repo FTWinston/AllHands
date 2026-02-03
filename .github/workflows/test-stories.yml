@@ -1,13 +1,10 @@
-name: Build
+name: Test Stories
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:  # Manual trigger only
 
 jobs:
-  build:
+  test-stories:
     runs-on: ubuntu-latest
     
     permissions:
@@ -25,8 +22,8 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Build all packages
-      run: npm run build
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium
     
-    - name: Run unit tests
-      run: npm run test:unit
+    - name: Run story tests
+      run: npm run test:stories
