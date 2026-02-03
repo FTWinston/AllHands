@@ -165,10 +165,43 @@ export class SystemState extends Schema implements SystemInfo {
             return null;
         }
 
-        this.hand.splice(cardIndex, 1);
-        this.discardPile.push(card);
+        this.handlePlayedCard(card, cardIndex, cardDefinition);
 
         return cardDefinition;
+    }
+
+    /**
+     * Handle where a played card goes based on its traits.
+     * - expendable: Card is destroyed (not added anywhere)
+     * - primary: Card returns to hand (if no other primary card in hand), otherwise goes to discard pile
+     *
+     * expendable takes precedence over primary.
+     */
+    private handlePlayedCard(card: CardState, cardIndex: number, cardDefinition: EngineCardDefinition): void {
+        const traits = cardDefinition.traits ?? [];
+
+        let removeFromHand = true;
+        let addToDiscard = true;
+
+        if (traits.includes('primary') && !this.hand.some((handCard) => {
+            const handCardDef = getCardDefinition(handCard.type);
+            return handCardDef.traits?.includes('primary') ?? false;
+        })) {
+            // Card stays in hand if no other primary card is already there.
+            removeFromHand = false;
+            addToDiscard = false;
+        } else if (traits.includes('expendable')) {
+            // Expendable cards are not added to discard pile, they are destroyed.
+            addToDiscard = false;
+        }
+
+        if (removeFromHand) {
+            this.hand.splice(cardIndex, 1);
+        }
+
+        if (addToDiscard) {
+            this.discardPile.push(card);
+        }
     }
 
     update(currentTime: number) {

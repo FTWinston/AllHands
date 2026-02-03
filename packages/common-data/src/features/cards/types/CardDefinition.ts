@@ -1,11 +1,13 @@
 import { CrewRoleName } from '../../ships/types/CrewRole';
 import { CardType } from '../utils/cardDefinitions';
 import { CardTargetType } from './CardTargetType';
+import { CardTrait } from './CardTrait';
 
 interface CommonCardDefinition {
     targetType: CardTargetType;
     crew: CrewRoleName;
     cost: number;
+    traits?: CardTrait[];
 }
 
 export type NoTargetCardDefinition = CommonCardDefinition & {

@@ -1,0 +1,8 @@
+.trait {
+  font-weight: bold;
+  color: var(--primary-lightest);
+  border: 1px solid color-mix(in srgb, var(--primary-lightest) 50%, transparent);
+  border-radius: 0.5em;
+  corner-shape: squircle;
+  padding: 0.1em 0.4em;
+}

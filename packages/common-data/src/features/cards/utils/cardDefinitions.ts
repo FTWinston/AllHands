@@ -63,6 +63,7 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'location',
         crew: 'helm',
         cost: 1,
+        traits: ['primary'],
         // Rotate to face target first, then move straight towards it
         startFacing: CardMotionSegmentFacing.FinalVector,
         endFacing: CardMotionSegmentFacing.FinalVector,
