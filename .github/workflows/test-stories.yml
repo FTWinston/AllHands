@@ -1,0 +1,29 @@
+name: Test Stories
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  test-stories:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium
+    
+    - name: Run story tests
+      run: npm run test:stories
