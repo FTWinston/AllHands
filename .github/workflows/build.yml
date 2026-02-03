@@ -45,7 +45,7 @@ jobs:
         cache: 'npm'
     
     - name: Install dependencies
-      run: npm ci
+      run: npm ci  # Required: GitHub Actions jobs run on separate VMs, npm cache only caches downloads
     
     - name: Run unit tests
       run: npm run test:unit
