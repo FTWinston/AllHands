@@ -5,7 +5,7 @@ import { globSync } from 'glob';
 import * as TJS from 'typescript-json-schema';
 import { describe, expect, it, beforeAll } from 'vitest';
 
-const scenariosDir = path.join(__dirname, 'scenarios');
+const scenariosDir = path.join(__dirname, '../scenarios');
 const commonDataDir = path.resolve(__dirname, '../../common-data');
 
 function getScenarioFiles(): string[] {
