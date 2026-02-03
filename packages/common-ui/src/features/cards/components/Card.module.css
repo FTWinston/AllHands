@@ -88,7 +88,7 @@
 .traits {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.125em;
+  gap: 0.25em;
   font-size: 0.75em;
-  margin-bottom: 0.125em;
+  margin-top: -0.25em;
 }
