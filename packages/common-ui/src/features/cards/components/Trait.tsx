@@ -7,8 +7,8 @@ type Props = {
 };
 
 /**
- * A component that displays a card trait in descriptions.
- * This should be used within card descriptions to indicate special behaviors.
+ * A component that displays a card trait.
+ * Used in the traits list above the card description.
  */
 export const Trait: FC<Props> = ({ type }) => {
     return <span className={styles.trait}>{type}</span>;
