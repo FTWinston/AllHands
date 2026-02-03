@@ -1,0 +1,33 @@
+name: Update baseline-browser-mapping
+
+on:
+  schedule:
+    - cron: '0 0 1 * *'  # Runs at midnight on the 1st of each month
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  update-dependency:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Update baseline-browser-mapping
+      run: npm i baseline-browser-mapping@latest -D
+
+    - name: Commit and push if changed
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add package.json package-lock.json
+        if ! git diff --staged --quiet; then
+          git commit -m "chore: update baseline-browser-mapping"
+          git push
+        fi
