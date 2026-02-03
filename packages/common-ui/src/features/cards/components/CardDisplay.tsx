@@ -14,7 +14,7 @@ type Props = {
     name: string;
     crew: CrewRoleName;
     targetType: CardTargetType;
-    description: string;
+    description: ReactNode;
     image: ReactNode;
     nameFontSize?: number;
     descriptionLineHeight?: number;
