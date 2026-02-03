@@ -18,7 +18,9 @@
     "package": "npm run package --workspace=packages/game-app",
     "lint": "eslint . --fix",
     "storybook": "storybook dev -p 6006",
-    "test": "vitest"
+    "test": "vitest",
+    "test:unit": "vitest --project unit",
+    "test:stories": "vitest --project storybook"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^4.1.1",
