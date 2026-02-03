@@ -174,8 +174,6 @@ export class SystemState extends Schema implements SystemInfo {
      * Handle where a played card goes based on its traits.
      * - expendable: Card is destroyed (not added anywhere)
      * - primary: Card returns to hand (if no other primary card in hand), otherwise goes to discard pile
-     *
-     * expendable takes precedence over primary.
      */
     private handlePlayedCard(card: CardState, cardIndex: number, cardDefinition: EngineCardDefinition): void {
         const traits = cardDefinition.traits ?? [];
@@ -191,7 +189,7 @@ export class SystemState extends Schema implements SystemInfo {
             removeFromHand = false;
             addToDiscard = false;
         } else if (traits.includes('expendable')) {
-            // Expendable cards are not added to discard pile, they are destroyed.
+            // Don't add expendable cards to the discard pile; they are destroyed.
             addToDiscard = false;
         }
 
