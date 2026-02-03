@@ -165,8 +165,7 @@ export class SystemState extends Schema implements SystemInfo {
             return null;
         }
 
-        this.hand.splice(cardIndex, 1);
-        this.handlePlayedCardTraits(card, cardDefinition);
+        this.handlePlayedCard(card, cardIndex, cardDefinition);
 
         return cardDefinition;
     }
@@ -174,35 +173,35 @@ export class SystemState extends Schema implements SystemInfo {
     /**
      * Handle where a played card goes based on its traits.
      * - expendable: Card is destroyed (not added anywhere)
-     * - primary: Card returns to hand (if no other primary card in hand)
-     * - Default (no traits or primary blocked): Card goes to discard pile
+     * - primary: Card returns to hand (if no other primary card in hand), otherwise goes to discard pile
      *
      * expendable takes precedence over primary.
      */
-    private handlePlayedCardTraits(card: CardState, cardDefinition: EngineCardDefinition): void {
+    private handlePlayedCard(card: CardState, cardIndex: number, cardDefinition: EngineCardDefinition): void {
         const traits = cardDefinition.traits ?? [];
 
-        // expendable takes precedence - card is destroyed
-        if (traits.includes('expendable')) {
-            // Card is simply not added to any pile - it's destroyed
-            return;
+        let removeFromHand = true;
+        let addToDiscard = true;
+
+        if (traits.includes('primary') && !this.hand.some((handCard) => {
+            const handCardDef = getCardDefinition(handCard.type);
+            return handCardDef.traits?.includes('primary') ?? false;
+        })) {
+            // Card stays in hand if no other primary card is already there.
+            removeFromHand = false;
+            addToDiscard = false;
+        } else if (traits.includes('expendable')) {
+            // Expendable cards are not added to discard pile, they are destroyed.
+            addToDiscard = false;
         }
 
-        // primary trait - card returns to hand if no other primary card is already there
-        if (traits.includes('primary')) {
-            const hasOtherPrimaryInHand = this.hand.some((handCard) => {
-                const handCardDef = getCardDefinition(handCard.type);
-                return handCardDef.traits?.includes('primary') ?? false;
-            });
-
-            if (!hasOtherPrimaryInHand) {
-                this.hand.push(card);
-                return;
-            }
+        if (removeFromHand) {
+            this.hand.splice(cardIndex, 1);
         }
 
-        // Default behavior - card goes to discard pile
-        this.discardPile.push(card);
+        if (addToDiscard) {
+            this.discardPile.push(card);
+        }
     }
 
     update(currentTime: number) {
