@@ -1,6 +1,7 @@
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { useRoomState } from 'common-ui/features/useRoomState/utils/useRoomState';
 import { useCallback, useState } from 'react';
 import { EngineerDisplay } from './components/EngineerDisplay';
@@ -16,7 +17,7 @@ type Props = {
 export const Engineer = (props: Props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
     const localShip = objects[props.shipId] as ShipInfo;
-    const [systems] = useState<SystemInfo[]>([]);
+    const systems: MinimalReadonlyArray<SystemInfo> = localShip.engineerState.systems;
 
     const pause = useCallback(() => {
         props.room.send('pause');

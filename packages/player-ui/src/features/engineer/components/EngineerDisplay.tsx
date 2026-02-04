@@ -14,7 +14,7 @@ import { SystemList } from './SystemList';
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cards: MinimalReadonlyArray<CardInstance>;
-    systems: SystemInfo[];
+    systems: MinimalReadonlyArray<SystemInfo>;
 };
 
 export const EngineerDisplay = (props: Props) => {

@@ -1,5 +1,6 @@
 import { CardInstance } from 'src/features/cards/types/CardInstance';
 import { CardType } from 'src/features/cards/utils/cardDefinitions';
+import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { CardCooldown, Cooldown } from 'src/types/Cooldown';
 import { MinimalReadonlyArray } from 'src/types/MinimalArray';
 import { ReadonlyKeyframes } from './Keyframes';
@@ -27,11 +28,30 @@ export interface HelmSystemInfo extends SystemInfo {
     activeManeuver: MinimalReadonlyArray<CardCooldown>;
 }
 
+export type SystemEffectType = string; // TODO: make this enum-like
+
+export interface SystemEffectInfo {
+    type: SystemEffectType;
+    positive: boolean;
+    duration?: Cooldown;
+}
+
+export interface EngineerIndividualSystemInfo {
+    system: ShipSystem;
+    power: number;
+    health: number;
+    effects: MinimalReadonlyArray<SystemEffectInfo>;
+}
+
+export interface EngineerSystemInfo extends SystemInfo {
+    systems: MinimalReadonlyArray<EngineerIndividualSystemInfo>;
+}
+
 export interface ShipInfo extends GameObjectInfo {
     helmState: HelmSystemInfo;
     sensorState: SystemInfo;
     tacticalState: SystemInfo;
-    engineerState: SystemInfo;
+    engineerState: EngineerSystemInfo;
 }
 
 export interface SystemSetupInfo {

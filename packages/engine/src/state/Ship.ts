@@ -1,6 +1,7 @@
 import { entity, type, view } from '@colyseus/schema';
 import { helmClientRole, sensorClientRole, tacticalClientRole, engineerClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { EngineerState } from './EngineerState';
 import { GameState } from './GameState';
 import { HelmState } from './HelmState';
 import { MobileObject } from './MobileObject';
@@ -23,7 +24,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this.helmState = new HelmState(setup.helm, gameState, this, getCardId);
         this.sensorState = new SystemState(setup.sensors, gameState, this, getCardId);
         this.tacticalState = new SystemState(setup.tactical, gameState, this, getCardId);
-        this.engineerState = new SystemState(setup.engineer, gameState, this, getCardId);
+        this.engineerState = new EngineerState(setup.engineer, gameState, this, getCardId);
     }
 
     private nextCardId = 1;
@@ -35,9 +36,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     @view(helmClientRole) @type(HelmState) helmState: HelmState;
     @view(sensorClientRole) @type(SystemState) sensorState: SystemState;
     @view(tacticalClientRole) @type(SystemState) tacticalState: SystemState;
-    @view(engineerClientRole) @type(SystemState) engineerState: SystemState;
-
-    // TODO: map of system effects, including their health. @view(engineerClientRole)
+    @view(engineerClientRole) @type(EngineerState) engineerState: EngineerState;
 
     // TODO: array of slotted weapons. @view(tacticalClientRole)
 

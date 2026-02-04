@@ -1,9 +1,10 @@
+import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { System, SystemInfo } from './System';
 import styles from './SystemList.module.css';
 
 type Props = {
-    systems: SystemInfo[];
+    systems: MinimalReadonlyArray<SystemInfo>;
 };
 
 export const SystemList = (props: Props) => {
