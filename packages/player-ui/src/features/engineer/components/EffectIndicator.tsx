@@ -2,25 +2,22 @@ import { Cooldown } from 'common-data/types/Cooldown';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { classNames } from 'common-ui/utils/classNames';
-import { FC, JSX } from 'react';
+import { ComponentType, JSX } from 'react';
 import styles from './EffectIndicator.module.css';
 
-export type SystemEffect = {
-    id: string;
-    icon: FC<{ className: string }>;
-    positive: boolean;
-    hidden?: boolean;
+type Props = {
     name: string;
     description: JSX.Element;
-    duration?: Cooldown;
-};
-
-type Props = SystemEffect & {
+    positive: boolean;
+    image: ComponentType<{ className?: string }>;
     className?: string;
+    hidden?: boolean;
+    progress?: Cooldown;
 };
 
 export const EffectIndicator = (props: Props) => {
-    const Icon = props.icon;
+    const Image = props.image;
+
     return (
         <InfoPopup
             className={classNames(styles.effect, props.hidden ? styles.hidden : undefined, props.className)}
@@ -28,11 +25,11 @@ export const EffectIndicator = (props: Props) => {
             description={props.description}
             palette={props.positive ? 'good' : 'danger'}
         >
-            <Icon className={styles.icon} />
+            <Image className={styles.icon} />
 
             <RadialProgress
                 className={styles.progress}
-                progress={props.duration}
+                progress={props.progress}
                 title={`${props.name} progress`}
             />
         </InfoPopup>

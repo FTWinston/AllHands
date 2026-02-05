@@ -1,17 +1,17 @@
 import { Schema, type } from '@colyseus/schema';
-import { SystemEffectInfo, SystemEffectType } from 'common-data/features/space/types/GameObjectInfo';
+import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { SystemEffectInstance } from '../effects/EngineSystemEffectDefinition';
 import { CooldownState } from './CooldownState';
 
-export class SystemEffect extends Schema implements SystemEffectInfo {
-    constructor(type: SystemEffectType, positive: boolean, duration?: CooldownState) {
+export class SystemEffect extends Schema implements SystemEffectInstance {
+    constructor(type: SystemEffectType, duration?: CooldownState) {
         super();
 
         this.type = type;
-        this.positive = positive;
         this.duration = duration;
     }
 
-    @type('string') type: string;
-    @type('boolean') positive: boolean;
+    @type('string') type: SystemEffectType;
+
     @type(CooldownState) duration?: CooldownState;
 }

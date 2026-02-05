@@ -15,27 +15,27 @@ type Story = StoryObj<typeof meta>;
 export const Permanent: Story = {
     args: {
         positive: true,
-        icon: ExampleIcon,
+        image: ExampleIcon,
         name: 'Permanent effect',
         description: <>An effect that has no duration, so it lasts indefinitely.</>,
-        duration: { startTime: Date.now(), endTime: Date.now() + 30000 } as Cooldown,
+        progress: { startTime: Date.now(), endTime: Date.now() + 30000 } as Cooldown,
     },
 };
 
 export const FixedFraction: Story = {
     args: {
         positive: false,
-        icon: ExampleIcon,
+        image: ExampleIcon,
         name: 'Fractional effect',
         description: <>An effect that starts half way through a very long duration, so it essentially doesn't animate.</>,
-        duration: { startTime: Date.now() - 5000000, endTime: Date.now() + 5000000 } as Cooldown,
+        progress: { startTime: Date.now() - 5000000, endTime: Date.now() + 5000000 } as Cooldown,
     },
 };
 
 export const Cyclic: Story = {
     args: {
         positive: false,
-        icon: ExampleIcon,
+        image: ExampleIcon,
         name: 'Cyclic effect',
         description: <>An effect that lasts a short duration, toggles off, then on again.</>,
     },
@@ -59,7 +59,7 @@ export const Cyclic: Story = {
         return (
             <Component
                 {...args}
-                duration={duration}
+                progress={duration}
                 hidden={hidden}
             />
         );
