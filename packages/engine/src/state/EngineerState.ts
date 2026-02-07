@@ -1,13 +1,13 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
-import { CrewSystemSetupInfo, EngineerIndividualSystemInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { CrewSystemSetupInfo, EngineerSystemTileInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CrewSystemState } from './CrewSystemState';
 import { GameState } from './GameState';
 import { Ship } from './Ship';
 import { SystemEffect } from './SystemEffect';
 import { SystemState } from './SystemState';
 
-export class EngineerIndividualSystem extends Schema implements EngineerIndividualSystemInfo {
+export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo {
     constructor(readonly systemState: SystemState, system: ShipSystem) {
         super();
         this.system = system;
@@ -44,13 +44,13 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
     }
 
     public initSystems() {
-        this.systems.push(new EngineerIndividualSystem(this.ship.hullState, 'hull'));
-        this.systems.push(new EngineerIndividualSystem(this.ship.shieldState, 'shields'));
-        this.systems.push(new EngineerIndividualSystem(this.ship.helmState, 'helm'));
-        this.systems.push(new EngineerIndividualSystem(this.ship.sensorState, 'sensors'));
-        this.systems.push(new EngineerIndividualSystem(this.ship.tacticalState, 'tactical'));
-        this.systems.push(new EngineerIndividualSystem(this.ship.engineerState, 'engineer'));
+        this.systems.push(new EngineerSystemTile(this.ship.hullState, 'hull'));
+        this.systems.push(new EngineerSystemTile(this.ship.shieldState, 'shields'));
+        this.systems.push(new EngineerSystemTile(this.ship.helmState, 'helm'));
+        this.systems.push(new EngineerSystemTile(this.ship.sensorState, 'sensors'));
+        this.systems.push(new EngineerSystemTile(this.ship.tacticalState, 'tactical'));
+        this.systems.push(new EngineerSystemTile(this.ship.engineerState, 'engineer'));
     }
 
-    @type([EngineerIndividualSystem]) systems = new ArraySchema<EngineerIndividualSystem>();
+    @type([EngineerSystemTile]) systems = new ArraySchema<EngineerSystemTile>();
 }

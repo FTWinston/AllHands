@@ -32,7 +32,7 @@ export interface HelmSystemInfo extends CrewSystemInfo {
     activeManeuver: MinimalReadonlyArray<CardCooldown>;
 }
 
-export interface EngineerIndividualSystemInfo {
+export interface EngineerSystemTileInfo {
     system: ShipSystem;
     power: number;
     health: number;
@@ -40,7 +40,7 @@ export interface EngineerIndividualSystemInfo {
 }
 
 export interface EngineerSystemInfo extends CrewSystemInfo {
-    systems: MinimalReadonlyArray<EngineerIndividualSystemInfo>;
+    systems: MinimalReadonlyArray<EngineerSystemTileInfo>;
 }
 
 export interface ShipInfo extends GameObjectInfo {
