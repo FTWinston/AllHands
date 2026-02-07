@@ -1,6 +1,7 @@
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { cardDefinitions, CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
+import { CrewSystemState } from 'src/state/CrewSystemState';
 import { Ship } from '../../state/Ship';
 import { SystemState } from '../../state/SystemState';
 import {
@@ -24,7 +25,7 @@ export abstract class BaseSystemAiController {
 
     generateReport(
         ship: Ship,
-        system: SystemState,
+        system: CrewSystemState,
         currentPlan: ActionPlan | null,
         config: AiConfig,
         currentTime: number
@@ -70,7 +71,7 @@ export abstract class BaseSystemAiController {
      */
     protected generateCapabilities(
         ship: Ship,
-        system: SystemState,
+        system: CrewSystemState,
         currentPlan: ActionPlan | null,
         config: AiConfig,
         currentTime: number
@@ -114,7 +115,7 @@ export abstract class BaseSystemAiController {
      */
     protected generateConcerns(
         _ship: Ship,
-        system: SystemState,
+        system: CrewSystemState,
         _currentTime: number
     ): SystemConcern[] {
         const concerns: SystemConcern[] = [];

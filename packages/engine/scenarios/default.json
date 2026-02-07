@@ -4,6 +4,18 @@
     "gameMode": "survival",
     "player": {
         "position": { "x": 0, "y": 0, "angle": 0 },
+        "hull": {
+            "initialPowerLevel": 3,
+            "maxPowerLevel": 3,
+            "health": 10,
+            "maxHealth": 10
+        },
+        "shields": {
+            "initialPowerLevel": 3,
+            "maxPowerLevel": 3,
+            "health": 5,
+            "maxHealth": 5
+        },
         "helm": {
             "cards": ["slowAndSteady", "zigZag", "strafe", "faceTarget", "exampleNoTarget", "sweep", "sweep", "slowAndSteady", "zigZag", "slowAndSteady"],
             "initialPowerLevel": 3,

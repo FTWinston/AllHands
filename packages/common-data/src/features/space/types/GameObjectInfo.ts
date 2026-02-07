@@ -19,13 +19,16 @@ export interface GameObjectInfo {
 }
 
 export interface SystemInfo {
-    hand: MinimalReadonlyArray<CardInstance>;
     powerLevel: number;
     health: number;
+}
+
+export interface CrewSystemInfo extends SystemInfo {
+    hand: MinimalReadonlyArray<CardInstance>;
     cardGeneration: MinimalReadonlyArray<Cooldown>;
 }
 
-export interface HelmSystemInfo extends SystemInfo {
+export interface HelmSystemInfo extends CrewSystemInfo {
     activeManeuver: MinimalReadonlyArray<CardCooldown>;
 }
 
@@ -36,24 +39,27 @@ export interface EngineerIndividualSystemInfo {
     effects: MinimalReadonlyArray<SystemEffectInstance>;
 }
 
-export interface EngineerSystemInfo extends SystemInfo {
+export interface EngineerSystemInfo extends CrewSystemInfo {
     systems: MinimalReadonlyArray<EngineerIndividualSystemInfo>;
 }
 
 export interface ShipInfo extends GameObjectInfo {
     helmState: HelmSystemInfo;
-    sensorState: SystemInfo;
-    tacticalState: SystemInfo;
+    sensorState: CrewSystemInfo;
+    tacticalState: CrewSystemInfo;
     engineerState: EngineerSystemInfo;
 }
 
 export interface SystemSetupInfo {
-    cards: CardType[];
     initialPowerLevel: number;
     maxPowerLevel: number;
-    initialHandSize: number;
     health: number;
     maxHealth: number;
+}
+
+export interface CrewSystemSetupInfo extends SystemSetupInfo {
+    cards: CardType[];
+    initialHandSize: number;
 }
 
 export interface GameObjectSetupInfo {
@@ -63,10 +69,12 @@ export interface GameObjectSetupInfo {
 
 export interface ShipSetupInfo extends GameObjectSetupInfo {
     position: Position;
-    helm: SystemSetupInfo;
-    sensors: SystemSetupInfo;
-    tactical: SystemSetupInfo;
-    engineer: SystemSetupInfo;
+    hull: SystemSetupInfo;
+    shields: SystemSetupInfo;
+    helm: CrewSystemSetupInfo;
+    sensors: CrewSystemSetupInfo;
+    tactical: CrewSystemSetupInfo;
+    engineer: CrewSystemSetupInfo;
 }
 
 export type PlayerShipSetupInfo = Omit<ShipSetupInfo, 'appearance' | 'relationship'>;
@@ -76,7 +84,7 @@ export type PlayerShipSetupInfo = Omit<ShipSetupInfo, 'appearance' | 'relationsh
  */
 export type AiPersonality = 'aggressive' | 'defensive' | 'balanced' | 'patrol';
 
-export interface AiSystemSetupInfo extends SystemSetupInfo {
+export interface AiSystemSetupInfo extends CrewSystemSetupInfo {
     /**
      * Preference weight for AI decision making.
      * Higher values increase the priority of this system's wants and actions.

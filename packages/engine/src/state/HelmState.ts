@@ -1,13 +1,13 @@
 import { ArraySchema, type } from '@colyseus/schema';
-import { HelmSystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { HelmSystemInfo, CrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CardCooldownState } from './CardCooldownState';
+import { CrewSystemState } from './CrewSystemState';
 import { GameState } from './GameState';
 import { MotionKeyframe } from './MotionKeyframe';
 import { Ship } from './Ship';
-import { SystemState } from './SystemState';
 
-export class HelmState extends SystemState implements HelmSystemInfo {
-    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
+export class HelmState extends CrewSystemState implements HelmSystemInfo {
+    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
         super(setup, gameState, ship, getCardId);
     }
 

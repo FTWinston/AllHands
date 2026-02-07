@@ -1,17 +1,19 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
-import { EngineerIndividualSystemInfo, EngineerSystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { CrewSystemSetupInfo, EngineerIndividualSystemInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { CrewSystemState } from './CrewSystemState';
 import { GameState } from './GameState';
 import { Ship } from './Ship';
 import { SystemEffect } from './SystemEffect';
 import { SystemState } from './SystemState';
 
 export class EngineerIndividualSystem extends Schema implements EngineerIndividualSystemInfo {
-    constructor(system: ShipSystem, power: number, health: number) {
+    constructor(readonly systemState: SystemState, system: ShipSystem) {
         super();
         this.system = system;
-        this.power = power;
-        this.health = health;
+        this.power = systemState.powerLevel;
+        this.health = systemState.health;
+        systemState.linkEngineerSystem(this);
     }
 
     @type('string') system: ShipSystem;
@@ -26,32 +28,28 @@ export class EngineerIndividualSystem extends Schema implements EngineerIndividu
     setPowerLevelFromSystem(systemState: SystemState) {
         (this as { power: number }).power = systemState.powerLevel;
     }
+
+    setSystemHealth(value: number) {
+        this.systemState.setHealth(value);
+    }
+
+    setSystemPowerLevel(value: number) {
+        this.systemState.setPowerLevel(value);
+    }
 }
 
-export class EngineerState extends SystemState implements EngineerSystemInfo {
-    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
+export class EngineerState extends CrewSystemState implements EngineerSystemInfo {
+    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
         super(setup, gameState, ship, getCardId);
     }
 
     public initSystems() {
-        this.systems.push(new EngineerIndividualSystem('hull', 3, 5));
-        this.systems.push(new EngineerIndividualSystem('shields', 3, 5));
-
-        const helmSystem = new EngineerIndividualSystem('helm', this.ship.helmState.powerLevel, this.ship.helmState.health);
-        this.ship.helmState.linkEngineerSystem(helmSystem);
-        this.systems.push(helmSystem);
-
-        const sensorSystem = new EngineerIndividualSystem('sensors', this.ship.sensorState.powerLevel, this.ship.sensorState.health);
-        this.ship.sensorState.linkEngineerSystem(sensorSystem);
-        this.systems.push(sensorSystem);
-
-        const tacticalSystem = new EngineerIndividualSystem('tactical', this.ship.tacticalState.powerLevel, this.ship.tacticalState.health);
-        this.ship.tacticalState.linkEngineerSystem(tacticalSystem);
-        this.systems.push(tacticalSystem);
-
-        const engineerSystem = new EngineerIndividualSystem('engineer', this.ship.engineerState.powerLevel, this.ship.engineerState.health);
-        this.ship.engineerState.linkEngineerSystem(engineerSystem);
-        this.systems.push(engineerSystem);
+        this.systems.push(new EngineerIndividualSystem(this.ship.hullState, 'hull'));
+        this.systems.push(new EngineerIndividualSystem(this.ship.shieldState, 'shields'));
+        this.systems.push(new EngineerIndividualSystem(this.ship.helmState, 'helm'));
+        this.systems.push(new EngineerIndividualSystem(this.ship.sensorState, 'sensors'));
+        this.systems.push(new EngineerIndividualSystem(this.ship.tacticalState, 'tactical'));
+        this.systems.push(new EngineerIndividualSystem(this.ship.engineerState, 'engineer'));
     }
 
     @type([EngineerIndividualSystem]) systems = new ArraySchema<EngineerIndividualSystem>();

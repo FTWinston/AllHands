@@ -1,6 +1,7 @@
 import { entity, type, view } from '@colyseus/schema';
 import { helmClientRole, sensorClientRole, tacticalClientRole, engineerClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { CrewSystemState } from './CrewSystemState';
 import { EngineerState } from './EngineerState';
 import { GameState } from './GameState';
 import { HelmState } from './HelmState';
@@ -21,9 +22,11 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         );
 
         const getCardId = () => this.getCardId();
+        this.hullState = new SystemState(setup.hull, gameState, this);
+        this.shieldState = new SystemState(setup.shields, gameState, this);
         this.helmState = new HelmState(setup.helm, gameState, this, getCardId);
-        this.sensorState = new SystemState(setup.sensors, gameState, this, getCardId);
-        this.tacticalState = new SystemState(setup.tactical, gameState, this, getCardId);
+        this.sensorState = new CrewSystemState(setup.sensors, gameState, this, getCardId);
+        this.tacticalState = new CrewSystemState(setup.tactical, gameState, this, getCardId);
         this.engineerState = new EngineerState(setup.engineer, gameState, this, getCardId);
 
         this.engineerState.initSystems();
@@ -35,9 +38,11 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         return this.nextCardId++;
     }
 
+    hullState: SystemState;
+    shieldState: SystemState;
     @view(helmClientRole) @type(HelmState) helmState: HelmState;
-    @view(sensorClientRole) @type(SystemState) sensorState: SystemState;
-    @view(tacticalClientRole) @type(SystemState) tacticalState: SystemState;
+    @view(sensorClientRole) @type(CrewSystemState) sensorState: CrewSystemState;
+    @view(tacticalClientRole) @type(CrewSystemState) tacticalState: CrewSystemState;
     @view(engineerClientRole) @type(EngineerState) engineerState: EngineerState;
 
     // TODO: array of slotted weapons. @view(tacticalClientRole)

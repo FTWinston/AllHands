@@ -8,12 +8,13 @@ import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRol
 import { Encounter } from 'common-data/features/space/types/Encounter';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { customAlphabet } from 'nanoid/non-secure';
+import { CrewSystemState } from 'src/state/CrewSystemState';
+import { EngineerState } from 'src/state/EngineerState';
 import { AiShip } from '../state/AiShip';
 import { CrewState } from '../state/CrewState';
 import { GameState } from '../state/GameState';
 import { HelmState } from '../state/HelmState';
 import { PlayerShip } from '../state/PlayerShip';
-import { SystemState } from '../state/SystemState';
 import { IdPool } from './IdPool';
 import type { ScenarioConfig } from 'common-data/types/ScenarioConfig';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
@@ -243,9 +244,10 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
      * Get the system state for a given system on a ship.
      */
     private getSystemState(ship: PlayerShip, system: typeof helmClientRole): HelmState;
-    private getSystemState(ship: PlayerShip, system: Exclude<CrewRole, typeof helmClientRole>): SystemState;
-    private getSystemState(ship: PlayerShip, system: CrewRole): SystemState;
-    private getSystemState(ship: PlayerShip, system: CrewRole): HelmState | SystemState {
+    private getSystemState(ship: PlayerShip, system: typeof engineerClientRole): EngineerState;
+    private getSystemState(ship: PlayerShip, system: Exclude<CrewRole, typeof helmClientRole | typeof engineerClientRole>): CrewSystemState;
+    private getSystemState(ship: PlayerShip, system: CrewRole): CrewSystemState;
+    private getSystemState(ship: PlayerShip, system: CrewRole): HelmState | EngineerState | CrewSystemState {
         switch (system) {
             case helmClientRole:
                 return ship.helmState;
