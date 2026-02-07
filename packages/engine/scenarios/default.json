@@ -57,6 +57,18 @@
                     "relationship": 1,
                     "position": { "x": 5, "y": 5, "angle": -3.14159 },
                     "personality": "balanced",
+                    "hull": {
+                        "initialPowerLevel": 3,
+                        "maxPowerLevel": 3,
+                        "health": 10,
+                        "maxHealth": 10
+                    },
+                    "shields": {
+                        "initialPowerLevel": 3,
+                        "maxPowerLevel": 3,
+                        "health": 5,
+                        "maxHealth": 5
+                    },
                     "helm": {
                         "cards": ["slowAndSteady", "exampleNoTarget"],
                         "initialPowerLevel": 2,
