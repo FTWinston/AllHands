@@ -25,6 +25,8 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this.sensorState = new SystemState(setup.sensors, gameState, this, getCardId);
         this.tacticalState = new SystemState(setup.tactical, gameState, this, getCardId);
         this.engineerState = new EngineerState(setup.engineer, gameState, this, getCardId);
+
+        this.engineerState.initSystems();
     }
 
     private nextCardId = 1;
