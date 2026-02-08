@@ -4,6 +4,11 @@ import { SystemEffectDescription, UISystemEffectDefinition } from '../types/UISy
 
 function loadEffectDefinitions() {
     const effectDescriptions: Record<SystemEffectType, SystemEffectDescription> = {
+        auxPower: {
+            name: 'Aux Power',
+            description: <>This system is currently receiving auxiliary power, increasing its power level by 1.</>,
+            image: ExampleIcon,
+        },
         something1: {
             name: 'Something 1',
             description: <>Some effect description goes here.</>,

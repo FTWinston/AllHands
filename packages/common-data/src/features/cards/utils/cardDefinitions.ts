@@ -149,6 +149,11 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'sensors',
         cost: 2,
     },
+    auxPower: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 1,
+    },
 } as const);
 
 export type CardType = keyof typeof cardDefinitions;

@@ -6,6 +6,9 @@ function defineSystemEffects<T extends Record<string, SystemEffectDefinition>>(d
 }
 
 export const systemEffectDefinitions = defineSystemEffects({
+    auxPower: {
+        positive: true,
+    },
     something1: {
         positive: true,
         duration: 3000,

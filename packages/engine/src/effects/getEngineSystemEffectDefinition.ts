@@ -5,67 +5,83 @@ type SystemEffectFunctionalityLookup = Record<SystemEffectType, SystemEffectFunc
 
 function loadSystemEffectDefinitions() {
     const systemEffectFunctionalities: SystemEffectFunctionalityLookup = {
-        something1: {
-            apply: (_gameState, _ship) => {
+        auxPower: {
+            apply: (system) => {
+                // Remove this effect from every other ship system.
+                system.systemState.getShip().engineerState.systems.forEach((s) => {
+                    if (s.system !== system.system) {
+                        s.removeEffect('auxPower', true);
+                    }
+                });
+
+                system.adjustSystemPowerLevel(1);
                 return true;
             },
-            remove: (_gameState, _ship, _early) => {
+            remove: (system, _early) => {
+                system.adjustSystemPowerLevel(-1);
+            },
+        },
+        something1: {
+            apply: (_system) => {
+                return true;
+            },
+            remove: (_system, _early) => {
 
             },
         },
         something2: {
-            apply: (_gameState, _ship) => {
+            apply: (_system) => {
                 return true;
             },
-            remove: (_gameState, _ship, _early) => {
+            remove: (_system, _early) => {
 
             },
         },
         something3: {
-            apply: (_gameState, _ship) => {
+            apply: (_system) => {
                 return true;
             },
-            remove: (_gameState, _ship, _early) => {
+            remove: (_system, _early) => {
 
             },
         },
         something4: {
-            apply: (_gameState, _ship) => {
+            apply: (_system) => {
                 return true;
             },
-            remove: (_gameState, _ship, _early) => {
+            remove: (_system, _early) => {
 
             },
         },
         something5: {
-            apply: (_gameState, _ship) => {
+            apply: (_system) => {
                 return true;
             },
-            remove: (_gameState, _ship, _early) => {
+            remove: (_system, _early) => {
 
             },
         },
         something6: {
-            apply: (_gameState, _ship) => {
+            apply: (_system) => {
                 return true;
             },
-            remove: (_gameState, _ship, _early) => {
+            remove: (_system, _early) => {
 
             },
         },
         something7: {
-            apply: (_gameState, _ship) => {
+            apply: (_system) => {
                 return true;
             },
-            remove: (_gameState, _ship, _early) => {
+            remove: (_system, _early) => {
 
             },
         },
         something8: {
-            apply: (_gameState, _ship) => {
+            apply: (_system) => {
                 return true;
             },
-            remove: (_gameState, _ship, _early) => {
+            remove: (_system, _early) => {
 
             },
         },

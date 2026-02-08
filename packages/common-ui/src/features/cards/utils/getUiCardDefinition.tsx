@@ -102,6 +102,11 @@ function loadCardDefinitions() {
             description: 'A card that has a particular effect, for a particular crew role.',
             image: <ExampleIcon />,
         },
+        auxPower: {
+            name: 'Aux Power',
+            description: 'Increase a system\'s power level by 1, removing this effect from all other systems.',
+            image: <ExampleIcon />,
+        },
     };
 
     const uiCardDefinitions = Object.entries(cardDescriptions)

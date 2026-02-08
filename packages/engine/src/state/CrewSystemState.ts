@@ -1,6 +1,7 @@
 import { ArraySchema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { CrewSystemSetupInfo, SystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { parseVector } from 'common-data/features/space/utils/vectors';
 import { IRandom } from 'common-data/types/IRandom';
@@ -9,8 +10,8 @@ import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { CardState } from './CardState';
 import { CooldownState } from './CooldownState';
 import { GameState } from './GameState';
-import { Ship } from './Ship';
 import { SystemState } from './SystemState';
+import type { Ship } from './Ship';
 
 export class CrewSystemState extends SystemState implements SystemInfo {
     constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
@@ -51,7 +52,7 @@ export class CrewSystemState extends SystemState implements SystemInfo {
             let card = this.drawPile.pop();
             if (!card) {
                 this.drawPile = this.discardPile;
-                this.ship.random.shuffle(this.drawPile);
+                this.getShip().random.shuffle(this.drawPile);
                 this.discardPile = [];
                 card = this.drawPile.pop();
             }
@@ -117,27 +118,30 @@ export class CrewSystemState extends SystemState implements SystemInfo {
         }
 
         if (cardDefinition.targetType === 'no-target') {
-            if (!cardDefinition.play(this.gameState, this.ship)) {
+            if (!cardDefinition.play(this.getGameState(), this.getShip())) {
                 console.log('card refused to play');
                 return null;
             }
         } else if (cardDefinition.targetType === 'weapon-slot') {
-            if (!cardDefinition.play(this.gameState, this.ship, parseInt(targetId))) {
+            if (!cardDefinition.play(this.getGameState(), this.getShip(), parseInt(targetId))) {
                 console.log('card refused to play');
                 return null;
             }
         } else if (cardDefinition.targetType === 'weapon') {
-            if (!cardDefinition.play(this.gameState, this.ship, parseInt(targetId))) {
+            if (!cardDefinition.play(this.getGameState(), this.getShip(), parseInt(targetId))) {
                 console.log('card refused to play');
                 return null;
             }
         } else if (cardDefinition.targetType === 'enemy') {
-            if (!cardDefinition.play(this.gameState, this.ship, targetId)) {
+            if (!cardDefinition.play(this.getGameState(), this.getShip(), targetId)) {
                 console.log('card refused to play');
                 return null;
             }
         } else if (cardDefinition.targetType === 'system') {
-            if (!cardDefinition.play(this.gameState, this.ship, parseInt(targetId))) {
+            const systemId = targetId as ShipSystem;
+            const systemTile = this.getShip().engineerState.systems.find(s => s.system === systemId);
+
+            if (!systemTile || !cardDefinition.play(this.getGameState(), this.getShip(), systemTile)) {
                 console.log('card refused to play');
                 return null;
             }
@@ -146,7 +150,7 @@ export class CrewSystemState extends SystemState implements SystemInfo {
             if (targetVector === null) {
                 console.log('invalid location target', targetId);
                 return null;
-            } else if (!cardDefinition.play(this.gameState, this.ship, cardDefinition.cost, cardDefinition, targetVector)) {
+            } else if (!cardDefinition.play(this.getGameState(), this.getShip(), cardDefinition.cost, cardDefinition, targetVector)) {
                 console.log('card refused to play');
                 return null;
             }

@@ -1,20 +1,30 @@
 import { Schema, type } from '@colyseus/schema';
 import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { CooldownState } from './CooldownState';
+import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { GameState } from './GameState';
-import { Ship } from './Ship';
 import { SystemEffect } from './SystemEffect';
 import type { EngineerSystemTile } from './EngineerState';
+import type { Ship } from './Ship';
 
 export class SystemState extends Schema implements SystemInfo {
-    constructor(setup: SystemSetupInfo, protected readonly gameState: GameState, protected readonly ship: Ship) {
+    constructor(setup: SystemSetupInfo, protected readonly _gameState: GameState, protected readonly _ship: Ship) {
         super();
 
-        this.powerLevel = setup.initialPowerLevel;
+        this.underlyingPowerLevel = this.powerLevel = setup.initialPowerLevel;
         this.maxPowerLevel = setup.maxPowerLevel;
-        this.health = setup.health;
+        this.underlyingHealth = this.health = setup.health;
         this.maxHealth = setup.maxHealth;
+    }
+
+    /** Get the game state this system belongs to. */
+    getGameState(): GameState {
+        return this._gameState;
+    }
+
+    /** Get the ship this system belongs to. */
+    getShip(): Ship {
+        return this._ship;
     }
 
     /**
@@ -27,21 +37,38 @@ export class SystemState extends Schema implements SystemInfo {
         this.linkedEngineerSystem = engineerSystem;
     }
 
+    private underlyingPowerLevel: number;
+    @type('number') readonly powerLevel: number;
+    maxPowerLevel: number;
+
+    private underlyingHealth: number;
+    @type('number') readonly health: number;
+    maxHealth: number;
+
     /**
-     * Set the power level, propagating the change to the linked engineer system.
+     * Adjust the power level, keeping it within bounds and propagating the change to the linked engineer system.
      */
-    setPowerLevel(value: number) {
-        (this as { powerLevel: number }).powerLevel = value;
+    adjustPowerLevel(value: number) {
+        // Keep an "underlying" value so that effects that would adjust below 0 or above max can still be tracked and properly reversed when they effect expire.
+        this.underlyingPowerLevel += value;
+
+        // The "proper" value is always clamped to within the allowed bounds.
+        (this as { powerLevel: number }).powerLevel = Math.max(0, Math.min(this.underlyingPowerLevel, this.maxPowerLevel));
+
         if (this.linkedEngineerSystem) {
             this.linkedEngineerSystem.setPowerLevelFromSystem(this);
         }
     }
 
     /**
-     * Set the health, propagating the change to the linked engineer system.
+     * Adjust the health value, keeping it within bounds and propagating the change to the linked engineer system.
      */
-    setHealth(value: number) {
-        (this as { health: number }).health = value;
+    adjustHealth(value: number) {
+        // Keep an "underlying" value so that effects that would adjust below 0 or above max can still be tracked and properly reversed when they effect expire.
+        this.underlyingHealth += value;
+
+        // The "proper" value is always clamped to within the allowed bounds.
+        (this as { health: number }).health = Math.max(0, Math.min(this.underlyingHealth, this.maxHealth));
 
         if (this.linkedEngineerSystem) {
             this.linkedEngineerSystem.setHealthFromSystem(this);
@@ -51,42 +78,30 @@ export class SystemState extends Schema implements SystemInfo {
     /**
      * Get the effects currently applied to this system.
      */
-    getEffects(): readonly SystemEffect[] {
-        if (!this.linkedEngineerSystem) {
-            return [];
-        }
-        return this.linkedEngineerSystem.effects.toArray();
+    getEffects(): MinimalReadonlyArray<SystemEffect> {
+        return this.linkedEngineerSystem?.effects ?? [];
     }
 
     /**
      * Add an effect to this system.
      */
-    addEffect(effectType: SystemEffectType, duration?: CooldownState): SystemEffect {
-        const effect = new SystemEffect(effectType, duration);
-        if (this.linkedEngineerSystem) {
-            this.linkedEngineerSystem.effects.push(effect);
+    addEffect(effectType: SystemEffectType, duration?: number): SystemEffect {
+        if (!this.linkedEngineerSystem) {
+            throw new Error('Cannot add effect to system that is not linked to an engineer system tile');
         }
-        return effect;
+
+        return this.linkedEngineerSystem.addEffect(effectType, duration);
     }
 
     /**
      * Remove a specific effect from this system.
      * Returns true if the effect was found and removed.
      */
-    removeEffect(effect: SystemEffect): boolean {
+    removeEffect(effect: SystemEffectType, early: boolean): boolean {
         if (!this.linkedEngineerSystem) {
-            return false;
+            throw new Error('Cannot remove effect from system that is not linked to an engineer system tile');
         }
-        const index = this.linkedEngineerSystem.effects.indexOf(effect);
-        if (index === -1) {
-            return false;
-        }
-        this.linkedEngineerSystem.effects.splice(index, 1);
-        return true;
-    }
 
-    @type('number') readonly powerLevel: number;
-    maxPowerLevel: number;
-    @type('number') readonly health: number;
-    maxHealth: number;
+        return this.linkedEngineerSystem.removeEffect(effect, early);
+    }
 }

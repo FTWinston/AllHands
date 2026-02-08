@@ -4,7 +4,7 @@ import { CardCooldownState } from './CardCooldownState';
 import { CrewSystemState } from './CrewSystemState';
 import { GameState } from './GameState';
 import { MotionKeyframe } from './MotionKeyframe';
-import { Ship } from './Ship';
+import type { Ship } from './Ship';
 
 export class HelmState extends CrewSystemState implements HelmSystemInfo {
     constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
@@ -31,9 +31,9 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
                 this.cancellingManeuver = false;
             } else if (this.cancellingManeuver || this.powerLevel < activeManeuver.power) {
                 // End the current maneuver early by slowing to a stop, reaching where we would be in 0.25s over 0.75s instead.
-                const endPosition = this.ship.getPosition(currentTime + 0.25);
+                const endPosition = this.getShip().getPosition(currentTime + 0.25);
 
-                this.ship.setMotion(new MotionKeyframe(
+                this.getShip().setMotion(new MotionKeyframe(
                     currentTime + 0.75,
                     endPosition.x,
                     endPosition.y,
