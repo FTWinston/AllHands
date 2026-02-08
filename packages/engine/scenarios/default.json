@@ -41,7 +41,7 @@
             "maxHealth": 5
         },
         "engineer": {
-            "cards": ["exampleSystemTarget", "exampleSystemTarget", "exampleNoTarget", "exampleSystemTarget", "exampleSystemTarget", "exampleNoTarget"],
+            "cards": ["auxPower", "auxPower", "auxPower", "exampleNoTarget", "exampleSystemTarget", "exampleSystemTarget", "exampleNoTarget"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 3,
             "initialHandSize": 1,

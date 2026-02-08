@@ -2,7 +2,7 @@ import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { CrewSystemSetupInfo, EngineerSystemTileInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { getSystemEffectDefinition } from 'src/effects/getEngineSystemEffectDefinition';
+import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from './CooldownState';
 import { CrewSystemState } from './CrewSystemState';
 import { GameState } from './GameState';
