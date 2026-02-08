@@ -6,13 +6,13 @@
         "position": { "x": 0, "y": 0, "angle": 0 },
         "hull": {
             "initialPowerLevel": 3,
-            "maxPowerLevel": 3,
+            "maxPowerLevel": 5,
             "health": 10,
             "maxHealth": 10
         },
         "shields": {
             "initialPowerLevel": 3,
-            "maxPowerLevel": 3,
+            "maxPowerLevel": 5,
             "health": 5,
             "maxHealth": 5
         },
@@ -27,7 +27,7 @@
         "sensors": {
             "cards": ["exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget"],
             "initialPowerLevel": 3,
-            "maxPowerLevel": 3,
+            "maxPowerLevel": 5,
             "initialHandSize": 1,
             "health": 5,
             "maxHealth": 5
@@ -35,7 +35,7 @@
         "tactical": {
             "cards": ["exampleWeaponSlotTarget", "exampleWeaponTarget", "exampleEnemyTarget", "exampleNoTarget", "exampleWeaponSlotTarget", "exampleWeaponTarget", "exampleEnemyTarget", "exampleNoTarget"],
             "initialPowerLevel": 3,
-            "maxPowerLevel": 3,
+            "maxPowerLevel": 5,
             "initialHandSize": 1,
             "health": 5,
             "maxHealth": 5
@@ -43,7 +43,7 @@
         "engineer": {
             "cards": ["auxPower", "auxPower", "auxPower", "exampleNoTarget", "exampleSystemTarget", "exampleSystemTarget", "exampleNoTarget"],
             "initialPowerLevel": 3,
-            "maxPowerLevel": 3,
+            "maxPowerLevel": 5,
             "initialHandSize": 1,
             "health": 5,
             "maxHealth": 5

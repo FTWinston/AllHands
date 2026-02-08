@@ -107,9 +107,8 @@ function loadCardDefinitions() {
             },
         },
         auxPower: {
-            play: (_gameState, _ship, _system) => {
-                _system.addEffect('auxPower', 30);
-                return true;
+            play: (_gameState, _ship, system) => {
+                return system.addEffect('auxPower', 30);
             },
         },
     };

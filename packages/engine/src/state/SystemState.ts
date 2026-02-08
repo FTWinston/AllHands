@@ -85,12 +85,12 @@ export class SystemState extends Schema implements SystemInfo {
     /**
      * Add an effect to this system.
      */
-    addEffect(effectType: SystemEffectType, duration?: number): SystemEffect {
+    addEffect(effectType: SystemEffectType, duration?: number) {
         if (!this.linkedEngineerSystem) {
             throw new Error('Cannot add effect to system that is not linked to an engineer system tile');
         }
 
-        return this.linkedEngineerSystem.addEffect(effectType, duration);
+        this.linkedEngineerSystem.addEffect(effectType, duration);
     }
 
     /**

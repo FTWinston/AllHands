@@ -44,7 +44,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
      * Add an effect to this system, or update its duration if already present.
      * We don't currently have the concept of an effect that can stack multiple times.
      */
-    addEffect(effectType: SystemEffectType, duration?: number): SystemEffect {
+    addEffect(effectType: SystemEffectType, duration?: number): boolean {
         const startTime = this.systemState.getGameState().clock.currentTime;
         const cooldown = duration ? new CooldownState(startTime, startTime + duration) : undefined;
 
@@ -53,13 +53,15 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
             effect.duration = cooldown;
         } else {
             effect = new SystemEffect(effectType, cooldown);
-            this.effects.push(effect);
 
-            getSystemEffectDefinition(effectType)
-                .apply(this);
+            if (!getSystemEffectDefinition(effectType).apply(this)) {
+                return false;
+            }
+
+            this.effects.push(effect);
         }
 
-        return effect;
+        return true;
     }
 
     /**
