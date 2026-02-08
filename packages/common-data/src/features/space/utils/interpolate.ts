@@ -92,6 +92,12 @@ function resolveCurveValueForAngle(
         angle1 += Math.PI * 2;
     }
 
+    // If the start and end angles of this segment are the same, no rotation is needed.
+    // Skip the spline to avoid overshoot from neighboring keyframes' tangent influence.
+    if (Math.abs(angle1 - angle2) < 0.001) {
+        return angle2;
+    }
+
     if (angle0 !== undefined) {
         while (angle0 - angle1 > Math.PI) {
             angle0 -= Math.PI * 2;
@@ -189,11 +195,18 @@ export function interpolatePosition(keyframes: ReadonlyKeyframes<Position>, curr
     const t12 = Math.max(Math.pow(distance(p1, p2), 0.5), 0.00000001);
     const t23 = Math.max(Math.pow(distance(p2, p3), 0.5), 0.00000001);
 
+    // Use time-based t values for angle interpolation, so that rotation-in-place
+    // keyframes (where position doesn't change) don't produce near-zero t values
+    // that cause the angle spline tangents to explode.
+    const tTime01 = Math.max(Math.abs(frame1.time - (frame0 ?? frame1).time), 0.00000001);
+    const tTime12 = Math.max(frame2.time - frame1.time, 0.00000001);
+    const tTime23 = Math.max((frame3 ?? frame2).time - frame2.time, 0.00000001);
+
     const fraction = getCompletedFraction(frame1, frame2, currentTime);
 
     return {
         x: resolveCurveValue(p0.x, p1.x, p2.x, p3.x, t01, t12, t23, fraction),
         y: resolveCurveValue(p0.y, p1.y, p2.y, p3.y, t01, t12, t23, fraction),
-        angle: resolveCurveValueForAngle(frame0?.angle, frame1.angle, frame2.angle, frame3?.angle, t01, t12, t23, fraction),
+        angle: resolveCurveValueForAngle(frame0?.angle, frame1.angle, frame2.angle, frame3?.angle, tTime01, tTime12, tTime23, fraction),
     };
 }
