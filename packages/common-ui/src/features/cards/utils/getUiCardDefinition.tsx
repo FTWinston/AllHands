@@ -50,11 +50,6 @@ function loadCardDefinitions() {
             description: 'An example card that targets an enemy.',
             image: <ExampleIcon />,
         },
-        exampleSystemTarget: {
-            name: 'Some Card',
-            description: 'A card that has a particular effect, for a particular crew role.',
-            image: <ExampleIcon />,
-        },
         slowAndSteady: {
             name: 'Slow & Steady',
             description: 'Turn towards a target then move towards it at a steady pace.',

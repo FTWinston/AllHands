@@ -54,11 +54,6 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'tactical',
         cost: 3,
     },
-    exampleSystemTarget: {
-        targetType: 'system',
-        crew: 'engineer',
-        cost: 2,
-    },
     slowAndSteady: {
         targetType: 'location',
         crew: 'helm',

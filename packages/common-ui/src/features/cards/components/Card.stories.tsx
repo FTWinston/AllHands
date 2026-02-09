@@ -29,6 +29,6 @@ export const Sensors: Story = {
 
 export const Engineering: Story = {
     args: {
-        type: 'exampleSystemTarget',
+        type: 'auxPower',
     },
 };

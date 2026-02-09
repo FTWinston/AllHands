@@ -23,7 +23,7 @@ const meta: Meta<typeof Component> = {
             cards: args.cards || [],
             createCard: (id: number) => ({
                 id,
-                type: 'exampleSystemTarget',
+                type: 'auxPower',
             }),
         });
 
@@ -148,15 +148,15 @@ export const UI: Story = {
         cards: [
             {
                 id: 1,
-                type: 'exampleSystemTarget',
+                type: 'auxPower',
             },
             {
                 id: 2,
-                type: 'exampleSystemTarget',
+                type: 'auxPower',
             },
             {
                 id: 3,
-                type: 'exampleSystemTarget',
+                type: 'auxPower',
             },
         ],
         systems: [

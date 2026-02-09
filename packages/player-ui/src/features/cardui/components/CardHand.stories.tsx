@@ -127,7 +127,7 @@ export const Five: Story = {
         cards: [
             {
                 id: 1,
-                type: 'exampleSystemTarget',
+                type: 'auxPower',
             },
             {
                 id: 2,
@@ -154,7 +154,7 @@ export const Nine: Story = {
         cards: [
             {
                 id: 1,
-                type: 'exampleSystemTarget',
+                type: 'auxPower',
             },
             {
                 id: 2,

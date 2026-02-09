@@ -75,11 +75,6 @@ function loadCardDefinitions() {
                 console.log('played exampleEnemyTarget'); return true;
             },
         },
-        exampleSystemTarget: {
-            play: (_gameState, _ship, _system) => {
-                console.log('played exampleSystemTarget'); return true;
-            },
-        },
         slowAndSteady: {
             play: applyMotionCard,
         },
