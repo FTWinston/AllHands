@@ -149,6 +149,27 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'engineer',
         cost: 1,
     },
+    swapSystems: {
+        targetType: 'choice',
+        crew: 'engineer',
+        cost: 3,
+        cards: ['swapHorizontal', 'swapUp', 'swapDown'],
+    },
+    swapHorizontal: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 3,
+    },
+    swapUp: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 3,
+    },
+    swapDown: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 3,
+    },
 } as const);
 
 export type CardType = keyof typeof cardDefinitions;

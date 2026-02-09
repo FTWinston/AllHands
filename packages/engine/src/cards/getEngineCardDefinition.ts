@@ -106,6 +106,44 @@ function loadCardDefinitions() {
                 return system.addEffect('auxPower', 30);
             },
         },
+        swapHorizontal: {
+            play: (_gameState, ship, system) => {
+                const systemIndex = ship.engineerState.systems.indexOf(system);
+                const otherSystemIndex = systemIndex % 2 == 0 ? systemIndex + 1 : systemIndex - 1;
+                const otherSystem = ship.engineerState.systems[otherSystemIndex];
+                ship.engineerState.systems[systemIndex] = otherSystem;
+                ship.engineerState.systems[otherSystemIndex] = system;
+                return true;
+            },
+        },
+        swapUp: {
+            play: (_gameState, ship, system) => {
+                const systemIndex = ship.engineerState.systems.indexOf(system);
+                if (systemIndex < 2) {
+                    return false;
+                }
+
+                const otherSystemIndex = systemIndex - 2;
+                const otherSystem = ship.engineerState.systems[otherSystemIndex];
+                ship.engineerState.systems[systemIndex] = otherSystem;
+                ship.engineerState.systems[otherSystemIndex] = system;
+                return true;
+            },
+        },
+        swapDown: {
+            play: (_gameState, ship, system) => {
+                const systemIndex = ship.engineerState.systems.indexOf(system);
+                if (systemIndex >= 4) {
+                    return false;
+                }
+
+                const otherSystemIndex = systemIndex + 2;
+                const otherSystem = ship.engineerState.systems[otherSystemIndex];
+                ship.engineerState.systems[systemIndex] = otherSystem;
+                ship.engineerState.systems[otherSystemIndex] = system;
+                return true;
+            },
+        },
     };
 
     const engineCardDefinitions = Object.entries(cardDefinitions)

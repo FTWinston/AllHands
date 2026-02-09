@@ -102,6 +102,26 @@ function loadCardDefinitions() {
             description: 'Increase a system\'s power level by 1, removing this effect from all other systems.',
             image: <ExampleIcon />,
         },
+        swapSystems: {
+            name: 'Swap Systems',
+            description: 'Swap the position of a system with its neighbor.',
+            image: <ExampleIcon />,
+        },
+        swapHorizontal: {
+            name: 'Swap Horizontal',
+            description: 'Swap a system with the one to its left or right.',
+            image: <ExampleIcon />,
+        },
+        swapUp: {
+            name: 'Swap Up',
+            description: 'Swap a system with the one above it.',
+            image: <ExampleIcon />,
+        },
+        swapDown: {
+            name: 'Swap Down',
+            description: 'Swap a system with the one below it.',
+            image: <ExampleIcon />,
+        },
     };
 
     const uiCardDefinitions = Object.entries(cardDescriptions)
