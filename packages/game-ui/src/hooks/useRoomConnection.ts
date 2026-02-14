@@ -1,4 +1,4 @@
-import { Room, Client, getStateCallbacks } from 'colyseus.js';
+import { Room, Client, getStateCallbacks } from '@colyseus/sdk';
 import { roomIdentifier } from 'common-data/utils/constants';
 import { TimeSynchronizer } from 'common-ui/classes/TimeSynchronizer';
 import { useEffect, useRef, useState } from 'react';
@@ -11,7 +11,7 @@ export function useRoomConnection(
     serverAddress: ServerAddress | undefined | null,
     setConnectionState: (state: ConnectionState) => void
 ) {
-    const [room, setConnectedRoom] = useState<Room<GameState> | null>(null);
+    const [room, setConnectedRoom] = useState<Room<{ state: GameState }> | null>(null);
     const timeSynchronizer = useRef<TimeSynchronizer | null>(null);
     const [crewId, setCrewId] = useState<string | null>(null);
     const [shipId, setShipId] = useState<string | null>(null);
@@ -27,7 +27,7 @@ export function useRoomConnection(
 
         const client = new Client(wsUrl);
 
-        let joinedRoom: Room<GameState> | undefined;
+        let joinedRoom: Room<{ state: GameState }> | undefined;
 
         client
             .joinOrCreate<GameState>(roomIdentifier, { type: 'ship' })

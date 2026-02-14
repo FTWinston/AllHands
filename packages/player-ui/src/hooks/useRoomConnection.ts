@@ -1,4 +1,4 @@
-import { Room, Client, getStateCallbacks } from 'colyseus.js';
+import { Room, Client, getStateCallbacks } from '@colyseus/sdk';
 import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole, type CrewRole } from 'common-data/features/ships/types/CrewRole';
 import { roomIdentifier, soloCrewIdentifier } from 'common-data/utils/constants';
 import { TimeSynchronizer } from 'common-ui/classes/TimeSynchronizer';
@@ -10,7 +10,7 @@ import type { GameStatus } from 'engine/types/GameStatus';
 export function useRoomConnection(
     setConnectionState: (state: ConnectionState) => void
 ) {
-    const [connectedRoom, setConnectedRoom] = useState<Room<GameState> | null>(null);
+    const [connectedRoom, setConnectedRoom] = useState<Room<{ state: GameState }> | null>(null);
     const timeSynchronizer = useRef<TimeSynchronizer | null>(null);
     const [crewId, setCrewId] = useState<string | null>(null);
     const [shipId, setShipId] = useState<string | null>(null);
@@ -28,7 +28,7 @@ export function useRoomConnection(
 
         const client = new Client(wsUrl);
 
-        let joinedRoom: Room<GameState> | undefined;
+        let joinedRoom: Room<{ state: GameState }> | undefined;
 
         console.log('sending join options', { type: 'crew', crewId });
 

@@ -26,7 +26,7 @@ interface JoinOptions {
 
 type ClientData = Required<JoinOptions>;
 
-export class GameRoom extends Room<GameState, unknown, ClientData> {
+export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
     private idGenerator = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 3);
     private allowMultipleCrews = false;
     private encounterQueue: Encounter[] = [];
@@ -216,7 +216,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
     /**
      * Get the ship associated with the given client via their crew.
      */
-    private getShipForClient(client: Client<ClientData>): [null, null] | [PlayerShip, CrewRole] {
+    private getShipForClient(client: Client<{ userData: ClientData }>): [null, null] | [PlayerShip, CrewRole] {
         const crewId = client.userData?.crewId;
         if (!crewId) {
             return [null, null];
@@ -262,7 +262,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         }
     }
 
-    onAuth(_client: Client<ClientData>, options: JoinOptions) {
+    onAuth(_client: Client<{ userData: ClientData }>, options: JoinOptions) {
         // Require a type for every join.
         if (options.type === 'ship') {
             return true;
@@ -275,7 +275,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         return false;
     }
 
-    onJoin(client: Client<ClientData>, options: JoinOptions) {
+    onJoin(client: Client<{ userData: ClientData }>, options: JoinOptions) {
         if (options.type === 'ship') {
             this.onShipJoin(client, options.crewId);
         } else if (options.type === 'crew' && options.crewId) {
@@ -285,7 +285,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         }
     }
 
-    private onShipJoin(client: Client<ClientData>, existingCrewId?: string) {
+    private onShipJoin(client: Client<{ userData: ClientData }>, existingCrewId?: string) {
         console.log(`${client.sessionId} ship joined`);
 
         // Allow reclaiming an existing crew, if present and un-owned.
@@ -330,7 +330,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         client.send('joined', { crewId });
     }
 
-    private onCrewJoin(client: Client<ClientData>, crewId: string) {
+    private onCrewJoin(client: Client<{ userData: ClientData }>, crewId: string) {
         console.log(`${client.sessionId} player joined for crew ${crewId}`);
 
         const crew = this.state.crews.get(crewId);
@@ -355,7 +355,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         client.send('joined', { crewId });
     }
 
-    onLeave(client: Client<ClientData>) {
+    onLeave(client: Client<{ userData: ClientData }>) {
         const crewId = client.userData?.crewId;
         const type = client.userData?.type;
 
@@ -373,7 +373,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         }
     }
 
-    onShipLeave(client: Client<ClientData>, crew: CrewState | undefined) {
+    onShipLeave(client: Client<{ userData: ClientData }>, crew: CrewState | undefined) {
         console.log(client.sessionId, 'ship left!');
 
         // Mark the crew as unowned, so that its client can reclaim it if they rejoin.
@@ -382,7 +382,7 @@ export class GameRoom extends Room<GameState, unknown, ClientData> {
         }
     }
 
-    onCrewLeave(client: Client<ClientData>, crew: CrewState | undefined) {
+    onCrewLeave(client: Client<{ userData: ClientData }>, crew: CrewState | undefined) {
         console.log(client.sessionId, 'crew member left');
 
         // Remove crew member from their crew.

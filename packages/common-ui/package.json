@@ -12,8 +12,9 @@
   },
   "dependencies": {
     "@base-ui-components/react": "^1.0.0-beta.7",
+    "@colyseus/react": "^0.1.4",
+    "@colyseus/sdk": "^0.17.33",
     "@fontsource/jura": "^5.2.6",
-    "colyseus.js": "^0.16.19",
     "engine": "1.0.0",
     "react": "^19.1.1"
   }

@@ -1,4 +1,4 @@
-import { Room } from 'colyseus.js';
+import { Room } from '@colyseus/sdk';
 import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { FC } from 'react';
@@ -11,7 +11,7 @@ import type { GameState } from 'engine/state/GameState';
 type Props = {
     shipId: string;
     role: CrewRole;
-    room: Room<GameState>;
+    room: Room<{ state: GameState }>;
     timeProvider: ITimeProvider;
 };
 

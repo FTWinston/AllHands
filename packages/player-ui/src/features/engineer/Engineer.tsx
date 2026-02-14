@@ -1,14 +1,14 @@
+import { useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { useRoomState } from 'common-ui/features/useRoomState/utils/useRoomState';
 import { useCallback } from 'react';
 import { EngineerDisplay } from './components/EngineerDisplay';
-import type { Room } from 'colyseus.js';
+import type { Room } from '@colyseus/sdk';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = {
-    room: Room<GameState>;
+    room: Room<{ state: GameState }>;
     shipId: string;
 };
 

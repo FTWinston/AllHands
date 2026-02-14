@@ -1,15 +1,15 @@
+import { useRoomState } from '@colyseus/react';
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
-import { useRoomState } from 'common-ui/features/useRoomState/utils/useRoomState';
 import { FC } from 'react';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
-import type { Room } from 'colyseus.js';
+import type { Room } from '@colyseus/sdk';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = {
-    room: Room<GameState>;
+    room: Room<{ state: GameState }>;
     timeProvider: ITimeProvider;
     shipId: string;
     showMenu: () => void;

@@ -1,4 +1,4 @@
-import { getStateCallbacks, Room } from 'colyseus.js';
+import { getStateCallbacks, Room } from '@colyseus/sdk';
 import { CrewRole } from 'common-data/features/ships/types/CrewRole';
 import { useState, useEffect, FC } from 'react';
 import { enterFullscreen, exitFullscreen } from '../../utils/fullscreen';
@@ -6,7 +6,7 @@ import { GameLobbyDisplay } from './GameLobbyDisplay';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = {
-    room: Room<GameState>;
+    room: Room<{ state: GameState }>;
     crewId: string;
     role: CrewRole | null;
     ready: boolean;

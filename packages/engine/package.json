@@ -7,9 +7,9 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@colyseus/core": "^0.16.24",
-    "@colyseus/ws-transport": "^0.16.5",
-    "colyseus": "^0.16.5",
+    "@colyseus/core": "^0.17.36",
+    "@colyseus/ws-transport": "^0.17.9",
+    "colyseus": "^0.17.8",
     "common-data": "1.0.0",
     "express": "^5.1.0",
     "nanoid": "^5.1.5"

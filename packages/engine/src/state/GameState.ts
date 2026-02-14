@@ -1,5 +1,5 @@
 import { Schema, type, MapSchema, view } from '@colyseus/schema';
-import Clock from '@colyseus/timer';
+import { ClockTimer } from '@colyseus/timer';
 import { Random } from 'common-data/classes/Random';
 import { IRandom } from 'common-data/types/IRandom';
 import { IdProvider } from 'src/types/IdProvider';
@@ -13,7 +13,7 @@ export class GameState extends Schema {
     @view() @type({ map: CrewState }) crews = new MapSchema<CrewState>();
     public readonly random: IRandom;
 
-    constructor(private readonly idPool: IdProvider, public readonly clock: Clock) {
+    constructor(private readonly idPool: IdProvider, public readonly clock: ClockTimer) {
         super();
         this.random = new Random(Math.random);
     }

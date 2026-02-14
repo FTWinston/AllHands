@@ -1,4 +1,4 @@
-import { getStateCallbacks, Room } from 'colyseus.js';
+import { getStateCallbacks, Room } from '@colyseus/sdk';
 import { type ServerAddress } from 'common-data/types/ServerAddress';
 import { FC, useEffect, useState } from 'react';
 import { GameLobbyDisplay, type SystemState } from './components/GameLobbyDisplay';
@@ -7,7 +7,7 @@ import type { GameState } from 'engine/state/GameState';
 type Props = {
     serverAddress: ServerAddress;
     allowMultipleCrews: boolean;
-    room: Room<GameState>;
+    room: Room<{ state: GameState }>;
     crewId: string;
     disconnect: () => void;
 };
