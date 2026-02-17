@@ -80,14 +80,14 @@ app.on('window-all-closed', quitApp);
 app.whenReady().then(() => {
     ipcMain.handle('get-client-config', () => clientConfig);
 
-    ipcMain.handle('start-server', (_event, configOverride?: Partial<ServerConfig>) => {
+    ipcMain.handle('start-server', async (_event, configOverride?: Partial<ServerConfig>) => {
         let serverConfig = getServerConfig();
 
         if (configOverride) {
             serverConfig = { ...serverConfig, ...configOverride };
         }
 
-        stopServer = startServer(serverConfig);
+        stopServer = await startServer(serverConfig);
 
         const result: ServerAddress = {
             ip: serverConfig.ipAddress,

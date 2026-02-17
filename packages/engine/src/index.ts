@@ -1,4 +1,3 @@
-import http from 'http';
 import path from 'path';
 import { WebSocketTransport } from '@colyseus/ws-transport';
 import { Server } from 'colyseus';
@@ -8,37 +7,24 @@ import express from 'express';
 import { GameRoom } from './classes/GameRoom';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
 
-function createWebServer(ipAddress: string, httpPort: number): http.Server {
-    const expressApp = express();
-    expressApp.use(express.json());
-
-    const server = http.createServer(expressApp);
-
-    // Serve player UI files
-    const playerUiAppPath = electronApp.isPackaged
+function getPlayerUiAppPath(): string {
+    return electronApp.isPackaged
         ? path.join(process.resourcesPath, 'app', 'player-ui')
         : path.join(__dirname, '..', '..', 'player-ui', 'dist');
-
-    expressApp.use(express.static(playerUiAppPath));
-
-    console.log(`Serving content from ${playerUiAppPath}`);
-
-    server.listen(httpPort, () => {
-        console.log(`Listening on http://${ipAddress}:${httpPort}`);
-    });
-
-    return server;
 }
 
-function createGameServer(
-    webServer: http.Server,
-    config: ServerConfig
-): Server {
+export async function startServer(config: ServerConfig) {
+    const playerUiAppPath = getPlayerUiAppPath();
+    console.log(`Serving content from ${playerUiAppPath}`);
+
     const gameServer = new Server({
         transport: new WebSocketTransport({
-            server: webServer,
             pingInterval: config.pingInterval,
         }),
+        express: (app) => {
+            app.use(express.json());
+            app.use(express.static(playerUiAppPath));
+        },
     });
 
     gameServer.define(roomIdentifier, GameRoom, config);
@@ -50,17 +36,11 @@ function createGameServer(
         gameServer.simulateLatency(config.simulateLatencyMs);
     }
 
-    return gameServer;
-}
-
-export function startServer(config: ServerConfig) {
-    const webServer = createWebServer(config.ipAddress, config.httpPort);
-
-    const gameServer = createGameServer(webServer, config);
+    await gameServer.listen(config.httpPort);
+    console.log(`Listening on http://${config.ipAddress}:${config.httpPort}`);
 
     return async () => {
         console.log('Stopping server...');
         await gameServer.gracefullyShutdown(true);
-        webServer.close();
     };
 }
