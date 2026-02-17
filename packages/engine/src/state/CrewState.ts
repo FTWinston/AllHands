@@ -226,6 +226,9 @@ export class CrewState extends Schema {
         for (const object of state.objects.values()) {
             this.addObjectToViews(object);
         }
+
+        // Notify all clients about the ship assignment.
+        this.sendShipMessage(this.ship!.id);
     }
 
     /** Remove the ship from each client's view, allowing roles to change. */
@@ -262,6 +265,27 @@ export class CrewState extends Schema {
         // Remove all game objects from all client views.
         for (const object of state.objects.values()) {
             this.removeObjectFromViews(object);
+        }
+
+        // Notify all clients about the ship unassignment.
+        this.sendShipMessage(null);
+    }
+
+    /** Send a 'ship' message with the given ship ID to all clients on this crew. */
+    private sendShipMessage(shipId: string | null) {
+        const clientIds = [
+            this.shipClientId,
+            this.helmClientId,
+            this.tacticalClientId,
+            this.sensorsClientId,
+            this.engineerClientId,
+        ];
+
+        for (const clientId of clientIds) {
+            if (clientId) {
+                const client = this.clients.getById(clientId);
+                client?.send('ship', { shipId });
+            }
         }
     }
 }

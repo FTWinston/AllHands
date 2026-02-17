@@ -1,11 +1,14 @@
-import { Room, Client, getStateCallbacks } from '@colyseus/sdk';
+import { useRoomState } from '@colyseus/react';
+import { Room, Client } from '@colyseus/sdk';
 import { roomIdentifier } from 'common-data/utils/constants';
 import { TimeSynchronizer } from 'common-ui/classes/TimeSynchronizer';
 import { useEffect, useRef, useState } from 'react';
 import type { ConnectionState } from 'common-data/types/ConnectionState';
 import type { ServerAddress } from 'common-data/types/ServerAddress';
 import type { GameState } from 'engine/state/GameState';
-import type { GameStatus } from 'engine/types/GameStatus';
+
+// A temporary stub that satisfies useRoomState's property access when room is null.
+const emptyRoom = { state: null, serializer: { decoder: null } } as unknown as Room<{ state: GameState }>;
 
 export function useRoomConnection(
     serverAddress: ServerAddress | undefined | null,
@@ -15,7 +18,8 @@ export function useRoomConnection(
     const timeSynchronizer = useRef<TimeSynchronizer | null>(null);
     const [crewId, setCrewId] = useState<string | null>(null);
     const [shipId, setShipId] = useState<string | null>(null);
-    const [gameStatus, setGameStatus] = useState<GameStatus>('setup');
+
+    const gameStatus = useRoomState(room ?? emptyRoom, state => state.gameStatus) ?? 'setup';
 
     useEffect(() => {
         if (!serverAddress) {
@@ -46,21 +50,9 @@ export function useRoomConnection(
                     setConnectionState('connected');
                 });
 
-                const callbacks = getStateCallbacks(joinedRoom);
-
-                callbacks(joinedRoom.state).crews.onAdd((crew) => {
-                    callbacks(crew).listen('shipId', (newId) => {
-                        setShipId(newId);
-                    });
-
-                    setShipId(crew.crewId);
-                });
-
-                setGameStatus(joinedRoom.state.gameStatus);
-
-                callbacks(joinedRoom.state).listen('gameStatus', (newGameStatus: GameStatus) => {
-                    console.log('gameStatus changed to', newGameStatus);
-                    setGameStatus(newGameStatus);
+                joinedRoom.onMessage<{ shipId: string | null }>('ship', (message) => {
+                    console.log(`ship assigned: ${message.shipId}`);
+                    setShipId(message.shipId);
                 });
 
                 joinedRoom.onLeave((code) => {
