@@ -24,6 +24,8 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
     @type('number') readonly health: number;
     @type([SystemEffect]) effects: ArraySchema<SystemEffect> = new ArraySchema<SystemEffect>();
 
+    @type('boolean') generating = false;
+
     setHealthFromSystem(systemState: SystemState) {
         (this as { health: number }).health = systemState.health;
     }
@@ -99,9 +101,151 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
 
     @type([EngineerSystemTile]) systems = new ArraySchema<EngineerSystemTile>();
 
-    update(deltaTime: number) {
-        super.update(deltaTime);
+    /**
+     * The order in which systems are visited for card generation.
+     * Each value is an index into the systems array.
+     */
+    private static readonly generationSequence = [0, 2, 4, 5, 3, 1];
 
+    private perSystemDuration = 2000;
+
+    /** Current position within the generationSequence. */
+    private generationSequenceIndex = 0;
+
+    /** The time at which the current system's generation started, or undefined if not yet started. */
+    private generationStartTime: number | undefined;
+
+    update(currentTime: number) {
         // TODO: remove expired effects
+
+        // Round-robin card generation across all systems.
+        this.updateCardGeneration(currentTime);
+    }
+
+    private updateCardGeneration(currentTime: number) {
+        const sequence = EngineerState.generationSequence;
+        const systemTile = this.systems[sequence[this.generationSequenceIndex]];
+        if (!systemTile) {
+            return;
+        }
+
+        if (this.generationStartTime === undefined) {
+            // Start generation on this system.
+            systemTile.generating = true;
+            this.generationStartTime = currentTime;
+
+            // Update cardGeneration on each crew system to show the full cycle duration.
+            this.updateCrewSystemCardGeneration(currentTime);
+        } else if (currentTime >= this.generationStartTime + this.perSystemDuration) {
+            // Generation complete: unmark and generate.
+            systemTile.generating = false;
+            systemTile.systemState.generate();
+
+            // Advance to the next system.
+            this.generationSequenceIndex = (this.generationSequenceIndex + 1) % sequence.length;
+            this.generationStartTime = undefined;
+
+            // Immediately start the next system in the same update call.
+            this.updateCardGeneration(currentTime);
+        }
+    }
+
+    /**
+     * Update the cardGeneration cooldown on each crew system to reflect
+     * how long until that system next receives a generated card.
+     */
+    private updateCrewSystemCardGeneration(currentTime: number) {
+        const sequence = EngineerState.generationSequence;
+        const perSystemDuration = this.perSystemDuration;
+        const totalDuration = sequence.length * perSystemDuration;
+
+        for (let offset = 0; offset < sequence.length; offset++) {
+            const seqIndex = (this.generationSequenceIndex + offset) % sequence.length;
+            const tile = this.systems[sequence[seqIndex]];
+            if (!tile) {
+                continue;
+            }
+
+            const crewSystem = tile.systemState;
+            if (crewSystem instanceof CrewSystemState) {
+                crewSystem.cardGeneration.clear();
+
+                // This system will receive its card after (offset + 1) individual
+                // generation durations, and its full cycle is totalDuration long.
+                const cardArrival = currentTime + (offset + 1) * perSystemDuration;
+                const cycleStart = cardArrival - totalDuration;
+                crewSystem.cardGeneration.push(new CooldownState(cycleStart, cardArrival));
+            }
+        }
+    }
+
+    /**
+     * Called after two systems have been swapped in the systems array.
+     * Updates the generating flag and cardGeneration cooldowns on affected tiles
+     * so that the current generation sequence position is respected,
+     * and the progress percentage of each crew system's cooldown is preserved.
+     */
+    onSystemsSwapped(indexA: number, indexB: number) {
+        const sequence = EngineerState.generationSequence;
+        const currentTime = this.getGameState().clock.currentTime;
+
+        // The generating index in the systems array.
+        const generatingSystemsIndex = sequence[this.generationSequenceIndex];
+
+        // Update generating flags: generation follows the array index, not the tile.
+        const tileA = this.systems[indexA];
+        const tileB = this.systems[indexB];
+
+        if (indexA === generatingSystemsIndex || indexB === generatingSystemsIndex) {
+            // One of the swapped tiles is now at the generating index.
+            // Ensure only the tile at the generating index has generating = true.
+            tileA.generating = indexA === generatingSystemsIndex;
+            tileB.generating = indexB === generatingSystemsIndex;
+        }
+
+        // Update cardGeneration cooldowns on affected crew systems,
+        // preserving the current progress percentage.
+        this.preserveGenerationProgress(tileA, currentTime);
+        this.preserveGenerationProgress(tileB, currentTime);
+    }
+
+    /**
+     * Recalculate a crew system's cardGeneration cooldown after its tile
+     * has moved to a new position in the systems array, preserving
+     * the current progress percentage.
+     */
+    private preserveGenerationProgress(tile: EngineerSystemTile, currentTime: number) {
+        const crewSystem = tile.systemState;
+        if (!(crewSystem instanceof CrewSystemState) || crewSystem.cardGeneration.length === 0) {
+            return;
+        }
+
+        const oldProgress = crewSystem.cardGeneration[0];
+        const oldFraction = (currentTime - oldProgress.startTime) / (oldProgress.endTime - oldProgress.startTime);
+
+        // Find how many steps until this tile next generates.
+        const sequence = EngineerState.generationSequence;
+        const systemsIndex = this.systems.indexOf(tile);
+        let stepsUntilGeneration = 0;
+        for (let offset = 0; offset < sequence.length; offset++) {
+            const seqIndex = (this.generationSequenceIndex + offset) % sequence.length;
+            if (sequence[seqIndex] === systemsIndex) {
+                stepsUntilGeneration = offset + 1;
+                break;
+            }
+        }
+
+        // Calculate the new end time based on when generation started
+        // for the current step, plus the number of steps until this system.
+        const generationStartTime = this.generationStartTime ?? currentTime;
+        const newEnd = generationStartTime + stepsUntilGeneration * this.perSystemDuration;
+
+        // Derive the new start time to preserve the progress percentage.
+        const newStart = oldFraction < 1
+            ? (currentTime - oldFraction * newEnd) / (1 - oldFraction)
+            : newEnd - (oldProgress.endTime - oldProgress.startTime); // fallback: keep same duration
+
+        crewSystem.cardGeneration.clear();
+        crewSystem.cardGeneration.push(new CooldownState(newStart, newEnd));
     }
 }

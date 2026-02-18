@@ -104,4 +104,12 @@ export class SystemState extends Schema implements SystemInfo {
 
         return this.linkedEngineerSystem.removeEffect(effect, early);
     }
+
+    /**
+     * Generate (e.g. a card) for this system.
+     * Base SystemState does nothing; subclasses can override.
+     */
+    generate(): void {
+        // Do nothing by default.
+    }
 }

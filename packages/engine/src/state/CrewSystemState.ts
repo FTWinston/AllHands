@@ -197,25 +197,13 @@ export class CrewSystemState extends SystemState implements SystemInfo {
         }
     }
 
-    update(currentTime: number) {
-        // TODO: card generation is currently a fixed duration, but it should be variable.
-        // It should also be able to change part-way through!
-
-        // Generate cards until hand is full (hand size limited by health).
+    /**
+     * Generate a card for this system by drawing from the draw pile,
+     * if there is room in the hand.
+     */
+    override generate(): void {
         if (this.hand.length < this.health) {
-            if (this.cardGeneration.length === 0) {
-                this.cardGeneration.push(new CooldownState(currentTime, currentTime + 5000));
-            } else if (this.cardGeneration[0].endTime <= currentTime) {
-                this.draw();
-
-                this.cardGeneration.clear();
-                if (this.hand.length < this.health) {
-                    this.cardGeneration.push(new CooldownState(currentTime, currentTime + 5000));
-                }
-            }
-        } else if (this.cardGeneration.length > 0) {
-            // Stop card generation if hand is full.
-            this.cardGeneration.clear();
+            this.draw();
         }
     }
 }

@@ -21,8 +21,6 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
     private cancellingManeuver = false;
 
     update(currentTime: number) {
-        super.update(currentTime);
-
         if (this.activeManeuver.length) {
             const activeManeuver = this.activeManeuver[0];
 

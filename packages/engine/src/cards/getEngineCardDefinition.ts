@@ -113,6 +113,7 @@ function loadCardDefinitions() {
                 const otherSystem = ship.engineerState.systems[otherSystemIndex];
                 ship.engineerState.systems[systemIndex] = otherSystem;
                 ship.engineerState.systems[otherSystemIndex] = system;
+                ship.engineerState.onSystemsSwapped(systemIndex, otherSystemIndex);
                 return true;
             },
         },
@@ -127,6 +128,7 @@ function loadCardDefinitions() {
                 const otherSystem = ship.engineerState.systems[otherSystemIndex];
                 ship.engineerState.systems[systemIndex] = otherSystem;
                 ship.engineerState.systems[otherSystemIndex] = system;
+                ship.engineerState.onSystemsSwapped(systemIndex, otherSystemIndex);
                 return true;
             },
         },
@@ -141,6 +143,7 @@ function loadCardDefinitions() {
                 const otherSystem = ship.engineerState.systems[otherSystemIndex];
                 ship.engineerState.systems[systemIndex] = otherSystem;
                 ship.engineerState.systems[otherSystemIndex] = system;
+                ship.engineerState.onSystemsSwapped(systemIndex, otherSystemIndex);
                 return true;
             },
         },

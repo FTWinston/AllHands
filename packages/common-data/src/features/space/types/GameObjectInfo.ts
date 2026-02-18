@@ -37,6 +37,7 @@ export interface EngineerSystemTileInfo {
     power: number;
     health: number;
     effects: MinimalReadonlyArray<SystemEffectInstance>;
+    generating: boolean;
 }
 
 export interface EngineerSystemInfo extends CrewSystemInfo {

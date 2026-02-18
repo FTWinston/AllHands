@@ -51,8 +51,8 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         super.tick(deltaTime, currentTime);
 
         this.helmState.update(currentTime);
-        this.sensorState.update(currentTime);
-        this.tacticalState.update(currentTime);
+        // this.sensorState.update(currentTime);
+        // this.tacticalState.update(currentTime);
         this.engineerState.update(currentTime);
     }
 }

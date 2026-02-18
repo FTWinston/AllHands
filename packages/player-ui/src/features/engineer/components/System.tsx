@@ -2,8 +2,10 @@ import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { SystemIcon } from 'common-ui/icons/systems';
+import { classNames } from 'common-ui/utils/classNames';
 import { default as HealthIcon } from '../../header/assets/health.svg?react';
 import { default as PowerIcon } from '../../header/assets/power.svg?react';
+import { default as CardDrawIconIcon } from '../assets/card-draw.svg?react';
 import { EffectList } from './EffectList';
 import styles from './System.module.css';
 
@@ -11,6 +13,7 @@ export type SystemInfo = {
     system: ShipSystem;
     power: number;
     health: number;
+    generating: boolean;
     effects?: MinimalReadonlyArray<SystemEffectInstance>;
 };
 
@@ -27,6 +30,8 @@ export const System = (props: Props) => {
 
                 {props.system}
             </h2>
+
+            <CardDrawIconIcon className={classNames(styles.generating, props.generating ? styles.currentlyGenerating : undefined)} />
 
             <div className={styles.attributes}>
                 <div className={styles.attribute}>

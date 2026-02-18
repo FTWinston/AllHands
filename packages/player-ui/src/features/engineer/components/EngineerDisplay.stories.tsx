@@ -164,6 +164,7 @@ export const UI: Story = {
                 system: 'hull',
                 health: 10,
                 power: 5,
+                generating: true,
                 effects: [
                     {
                         type: 'something1',
@@ -183,6 +184,7 @@ export const UI: Story = {
                 system: 'shields',
                 health: 5,
                 power: 5,
+                generating: false,
                 effects: [
                     {
                         type: 'something2',
@@ -194,11 +196,13 @@ export const UI: Story = {
                 system: 'helm',
                 health: 5,
                 power: 5,
+                generating: false,
             },
             {
                 system: 'sensors',
                 health: 5,
                 power: 5,
+                generating: false,
                 effects: [
                     {
                         type: 'something2',
@@ -238,6 +242,7 @@ export const UI: Story = {
                 system: 'tactical',
                 health: 5,
                 power: 5,
+                generating: false,
                 effects: [
                     {
                         type: 'something1',
@@ -269,6 +274,7 @@ export const UI: Story = {
                 system: 'engineer',
                 health: 3,
                 power: 5,
+                generating: false,
                 effects: [
                     {
                         type: 'something2',
