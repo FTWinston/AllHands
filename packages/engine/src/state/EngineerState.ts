@@ -116,12 +116,28 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
     private generationStartTime: number | undefined;
 
     update(currentTime: number) {
-        // TODO: remove expired effects
+        this.removeExpiredEffects(currentTime);
 
-        // Round-robin card generation across all systems.
         this.updateCardGeneration(currentTime);
     }
 
+    /**
+     * Remove any effects from system tiles whose duration has reached its end time.
+     */
+    private removeExpiredEffects(currentTime: number) {
+        for (const tile of this.systems) {
+            for (let i = tile.effects.length - 1; i >= 0; i--) {
+                const effect = tile.effects[i];
+                if (effect.duration && currentTime >= effect.duration.endTime) {
+                    tile.removeEffect(effect.type, false);
+                }
+            }
+        }
+    }
+
+    /**
+     * Round-robin card generation across all systems, one at a time.
+     */
     private updateCardGeneration(currentTime: number) {
         const sequence = EngineerState.generationSequence;
         const systemTile = this.systems[sequence[this.generationSequenceIndex]];
