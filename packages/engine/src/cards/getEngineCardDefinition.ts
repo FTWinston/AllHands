@@ -103,7 +103,7 @@ function loadCardDefinitions() {
         },
         auxPower: {
             play: (_gameState, _ship, system) => {
-                return system.addEffect('auxPower', 30);
+                return system.addEffect('auxPower', 30_000);
             },
         },
         swapHorizontal: {
