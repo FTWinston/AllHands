@@ -92,7 +92,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
     public initSystems() {
         const ship = this.getShip();
         this.systems.push(new EngineerSystemTile(ship.hullState, 'hull'));
-        this.systems.push(new EngineerSystemTile(ship.shieldState, 'shields'));
+        this.systems.push(new EngineerSystemTile(ship.reactorState, 'reactor'));
         this.systems.push(new EngineerSystemTile(ship.helmState, 'helm'));
         this.systems.push(new EngineerSystemTile(ship.sensorState, 'sensors'));
         this.systems.push(new EngineerSystemTile(ship.tacticalState, 'tactical'));
@@ -107,17 +107,30 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
      */
     private static readonly generationSequence = [0, 2, 4, 5, 3, 1];
 
-    private perSystemDuration = 2000;
+    /**
+     * Maps the reactor's power level to the per-system generation duration (ms).
+     */
+    private static readonly generationDurationByReactorPower = [10_000, 5_000, 3_500, 2_500, 1_750, 1_000];
+
+    private get perSystemGenerationDuration(): number {
+        let reactorPower = this.getShip().reactorState.powerLevel;
+        // Clamp to valid range just in case.
+        reactorPower = Math.max(0, Math.min(reactorPower, EngineerState.generationDurationByReactorPower.length - 1));
+        return EngineerState.generationDurationByReactorPower[reactorPower];
+    }
 
     /** Current position within the generationSequence. */
     private generationSequenceIndex = 0;
 
-    /** The time at which the current system's generation started, or undefined if not yet started. */
-    private generationStartTime: number | undefined;
+    /** Cooldown tracking progress of the currently generating system, or undefined if not yet started. */
+    private generationProgress: CooldownState | undefined;
+
+    /** Tracked to detect reactor power level changes between updates. */
+    private lastReactorPowerLevel: number | undefined;
 
     update(currentTime: number) {
         this.removeExpiredEffects(currentTime);
-
+        this.checkReactorPowerChanged(currentTime);
         this.updateCardGeneration(currentTime);
     }
 
@@ -136,6 +149,47 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
     }
 
     /**
+     * Detect reactor power level changes and rescale generation cooldowns accordingly.
+     */
+    private checkReactorPowerChanged(currentTime: number) {
+        const reactorPower = this.getShip().reactorState.powerLevel;
+        if (this.lastReactorPowerLevel !== undefined && this.lastReactorPowerLevel !== reactorPower) {
+            this.onReactorPowerChanged(currentTime);
+        }
+        this.lastReactorPowerLevel = reactorPower;
+    }
+
+    /**
+     * Rescale generation progress and crew system cooldowns when the reactor
+     * power level changes, preserving the current progress fraction of each.
+     */
+    private onReactorPowerChanged(currentTime: number) {
+        if (!this.generationProgress) {
+            return;
+        }
+
+        const newPerSystemDuration = this.perSystemGenerationDuration;
+
+        // Rescale the current system's generation progress.
+        this.generationProgress = this.generationProgress.rescaledToDuration(
+            currentTime, newPerSystemDuration
+        );
+
+        // Rescale all crew system cardGeneration cooldowns.
+        const newTotalDuration = EngineerState.generationSequence.length * newPerSystemDuration;
+        for (const tile of this.systems) {
+            const crewSystem = tile.systemState;
+            if (crewSystem instanceof CrewSystemState && crewSystem.cardGeneration.length > 0) {
+                const rescaled = crewSystem.cardGeneration[0].rescaledToDuration(
+                    currentTime, newTotalDuration
+                );
+                crewSystem.cardGeneration.clear();
+                crewSystem.cardGeneration.push(rescaled);
+            }
+        }
+    }
+
+    /**
      * Round-robin card generation across all systems, one at a time.
      */
     private updateCardGeneration(currentTime: number) {
@@ -145,21 +199,21 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
             return;
         }
 
-        if (this.generationStartTime === undefined) {
+        if (!this.generationProgress) {
             // Start generation on this system.
             systemTile.generating = true;
-            this.generationStartTime = currentTime;
+            this.generationProgress = new CooldownState(currentTime, currentTime + this.perSystemGenerationDuration);
 
             // Update cardGeneration on each crew system to show the full cycle duration.
             this.updateCrewSystemCardGeneration(currentTime);
-        } else if (currentTime >= this.generationStartTime + this.perSystemDuration) {
+        } else if (currentTime >= this.generationProgress.endTime) {
             // Generation complete: unmark and generate.
             systemTile.generating = false;
             systemTile.systemState.generate();
 
             // Advance to the next system.
             this.generationSequenceIndex = (this.generationSequenceIndex + 1) % sequence.length;
-            this.generationStartTime = undefined;
+            this.generationProgress = undefined;
 
             // Immediately start the next system in the same update call.
             this.updateCardGeneration(currentTime);
@@ -172,7 +226,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
      */
     private updateCrewSystemCardGeneration(currentTime: number) {
         const sequence = EngineerState.generationSequence;
-        const perSystemDuration = this.perSystemDuration;
+        const perSystemDuration = this.perSystemGenerationDuration;
         const totalDuration = sequence.length * perSystemDuration;
 
         for (let offset = 0; offset < sequence.length; offset++) {
@@ -228,16 +282,13 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
     /**
      * Recalculate a crew system's cardGeneration cooldown after its tile
      * has moved to a new position in the systems array, preserving
-     * the current progress percentage.
+     * the current progress fraction.
      */
     private preserveGenerationProgress(tile: EngineerSystemTile, currentTime: number) {
         const crewSystem = tile.systemState;
         if (!(crewSystem instanceof CrewSystemState) || crewSystem.cardGeneration.length === 0) {
             return;
         }
-
-        const oldProgress = crewSystem.cardGeneration[0];
-        const oldFraction = (currentTime - oldProgress.startTime) / (oldProgress.endTime - oldProgress.startTime);
 
         // Find how many steps until this tile next generates.
         const sequence = EngineerState.generationSequence;
@@ -251,17 +302,15 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
             }
         }
 
-        // Calculate the new end time based on when generation started
-        // for the current step, plus the number of steps until this system.
-        const generationStartTime = this.generationStartTime ?? currentTime;
-        const newEnd = generationStartTime + stepsUntilGeneration * this.perSystemDuration;
+        // The new end time: when the current system finishes generating,
+        // plus the remaining steps until this system gets its turn.
+        const generationEndTime = this.generationProgress?.endTime ?? currentTime;
+        const newEnd = generationEndTime + (stepsUntilGeneration - 1) * this.perSystemGenerationDuration;
 
-        // Derive the new start time to preserve the progress percentage.
-        const newStart = oldFraction < 1
-            ? (currentTime - oldFraction * newEnd) / (1 - oldFraction)
-            : newEnd - (oldProgress.endTime - oldProgress.startTime); // fallback: keep same duration
-
+        const old = crewSystem.cardGeneration[0];
         crewSystem.cardGeneration.clear();
-        crewSystem.cardGeneration.push(new CooldownState(newStart, newEnd));
+        crewSystem.cardGeneration.push(
+            old.rescaledToEnd(currentTime, newEnd)
+        );
     }
 }

@@ -1,10 +1,10 @@
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { FC } from 'react';
 import { EngineeringIcon, HelmIcon, SensorsIcon, TacticalIcon } from '../crew';
-import { default as HullIcon } from './hull.svg?react';
+import { default as ReactorIcon } from './reactor.svg?react';
 import { default as ShieldsIcon } from './shield.svg?react';
 
-export { default as HullIcon } from './hull.svg?react';
+export { default as ReactorIcon } from './reactor.svg?react';
 export { default as ShieldsIcon } from './shield.svg?react';
 
 type IconProps = {
@@ -22,10 +22,10 @@ export const SystemIcon: FC<IconProps> = ({ className, system }) => {
             return <SensorsIcon className={className} />;
         case 'helm':
             return <HelmIcon className={className} />;
-        case 'shields':
-            return <ShieldsIcon className={className} />;
+        case 'reactor':
+            return <ReactorIcon className={className} />;
         case 'hull':
-            return <HullIcon className={className} />;
+            return <ShieldsIcon className={className} />;
         default:
             return null;
     }

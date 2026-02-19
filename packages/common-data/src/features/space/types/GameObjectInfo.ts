@@ -71,7 +71,7 @@ export interface GameObjectSetupInfo {
 export interface ShipSetupInfo extends GameObjectSetupInfo {
     position: Position;
     hull: SystemSetupInfo;
-    shields: SystemSetupInfo;
+    reactor: SystemSetupInfo;
     helm: CrewSystemSetupInfo;
     sensors: CrewSystemSetupInfo;
     tactical: CrewSystemSetupInfo;

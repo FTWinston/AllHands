@@ -10,7 +10,7 @@
             "health": 10,
             "maxHealth": 10
         },
-        "shields": {
+        "reactor": {
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "health": 5,
@@ -63,7 +63,7 @@
                         "health": 10,
                         "maxHealth": 10
                     },
-                    "shields": {
+                    "reactor": {
                         "initialPowerLevel": 3,
                         "maxPowerLevel": 3,
                         "health": 5,

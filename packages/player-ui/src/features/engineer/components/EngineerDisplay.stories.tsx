@@ -181,7 +181,7 @@ export const UI: Story = {
                 ],
             },
             {
-                system: 'shields',
+                system: 'reactor',
                 health: 5,
                 power: 5,
                 generating: false,
