@@ -22,7 +22,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
     @type('string') system: ShipSystem;
     @type('number') readonly power: number;
     @type('number') readonly health: number;
-    @type([SystemEffect]) effects: ArraySchema<SystemEffect> = new ArraySchema<SystemEffect>();
+    @type([SystemEffect]) effects = new ArraySchema<SystemEffect>();
 
     @type('boolean') generating = false;
 
@@ -52,7 +52,11 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
 
         let effect = this.effects.find(e => e.type === effectType);
         if (effect) {
-            effect.duration = cooldown;
+            effect.progress.clear();
+
+            if (cooldown) {
+                effect.progress.push(cooldown);
+            }
         } else {
             effect = new SystemEffect(effectType, cooldown);
 
@@ -141,7 +145,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         for (const tile of this.systems) {
             for (let i = tile.effects.length - 1; i >= 0; i--) {
                 const effect = tile.effects[i];
-                if (effect.duration && currentTime >= effect.duration.endTime) {
+                if (effect.progress.length > 0 && currentTime >= effect.progress[0].endTime) {
                     tile.removeEffect(effect.type, false);
                 }
             }

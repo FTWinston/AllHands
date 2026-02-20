@@ -1,17 +1,19 @@
-import { Schema, type } from '@colyseus/schema';
+import { ArraySchema, Schema, type } from '@colyseus/schema';
+import { SystemEffectInstance } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
-import { SystemEffectInstance } from '../effects/EngineSystemEffectDefinition';
 import { CooldownState } from './CooldownState';
 
 export class SystemEffect extends Schema implements SystemEffectInstance {
-    constructor(type: SystemEffectType, duration?: CooldownState) {
+    constructor(type: SystemEffectType, progress?: CooldownState) {
         super();
 
         this.type = type;
-        this.duration = duration;
+        if (progress) {
+            this.progress.push(progress);
+        }
     }
 
     @type('string') type: SystemEffectType;
 
-    @type(CooldownState) duration?: CooldownState;
+    @type([CooldownState]) progress = new ArraySchema<CooldownState>();
 }

@@ -1,4 +1,5 @@
 import { Cooldown } from 'src/types/Cooldown';
+import { MinimalReadonlyArray } from 'src/types/MinimalArray';
 import { SystemEffectType } from '../utils/systemEffectDefinitions';
 
 export interface SystemEffectDefinition {
@@ -8,5 +9,5 @@ export interface SystemEffectDefinition {
 
 export type SystemEffectInstance = {
     type: SystemEffectType;
-    progress?: Cooldown;
+    progress: MinimalReadonlyArray<Cooldown>;
 };
