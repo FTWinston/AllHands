@@ -24,7 +24,7 @@ export class CrewSystemState extends SystemState implements SystemInfo {
                 .map(cardType => new CardState(getCardId(), cardType))
         );
 
-        // All remianing cards form the draw pile.
+        // All remaining cards form the draw pile.
         this.drawPile = setup.cards
             .slice(setup.initialHandSize)
             .map(cardType => new CardState(getCardId(), cardType));
@@ -36,12 +36,7 @@ export class CrewSystemState extends SystemState implements SystemInfo {
     drawPile: CardState[];
     discardPile: CardState[];
 
-    // I'd have liked this to be a nullable CooldownState object,
-    // but it's not synchronizing to the client if reassigned.
-    // So instead, it's an array that has either zero or one CooldownState in it.
-    // This works, as long as you don't overwrite the item in the array.
-    // Instead, clear the array then push a new item if needed.
-    @type([CooldownState]) cardGeneration = new ArraySchema<CooldownState>();
+    @type(CooldownState) cardGeneration: CooldownState | null = null;
 
     /**
      * Take card(s) from the draw pile and add them to the hand,

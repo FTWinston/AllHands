@@ -48,15 +48,11 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
      */
     addEffect(effectType: SystemEffectType, duration?: number): boolean {
         const startTime = this.systemState.getGameState().clock.currentTime;
-        const cooldown = duration ? new CooldownState(startTime, startTime + duration) : undefined;
+        const cooldown = duration ? new CooldownState(startTime, startTime + duration) : null;
 
         let effect = this.effects.find(e => e.type === effectType);
         if (effect) {
-            effect.progress.clear();
-
-            if (cooldown) {
-                effect.progress.push(cooldown);
-            }
+            effect.progress = cooldown;
         } else {
             effect = new SystemEffect(effectType, cooldown);
 
@@ -145,7 +141,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         for (const tile of this.systems) {
             for (let i = tile.effects.length - 1; i >= 0; i--) {
                 const effect = tile.effects[i];
-                if (effect.progress.length > 0 && currentTime >= effect.progress[0].endTime) {
+                if (effect.progress && currentTime >= effect.progress.endTime) {
                     tile.removeEffect(effect.type, false);
                 }
             }
@@ -175,20 +171,14 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         const newPerSystemDuration = this.perSystemGenerationDuration;
 
         // Rescale the current system's generation progress.
-        this.generationProgress = this.generationProgress.rescaledToDuration(
-            currentTime, newPerSystemDuration
-        );
+        this.generationProgress.rescaleToDuration(currentTime, newPerSystemDuration);
 
         // Rescale all crew system cardGeneration cooldowns.
         const newTotalDuration = EngineerState.generationSequence.length * newPerSystemDuration;
         for (const tile of this.systems) {
             const crewSystem = tile.systemState;
-            if (crewSystem instanceof CrewSystemState && crewSystem.cardGeneration.length > 0) {
-                const rescaled = crewSystem.cardGeneration[0].rescaledToDuration(
-                    currentTime, newTotalDuration
-                );
-                crewSystem.cardGeneration.clear();
-                crewSystem.cardGeneration.push(rescaled);
+            if (crewSystem instanceof CrewSystemState && crewSystem.cardGeneration) {
+                crewSystem.cardGeneration.rescaleToDuration(currentTime, newTotalDuration);
             }
         }
     }
@@ -242,13 +232,13 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
 
             const crewSystem = tile.systemState;
             if (crewSystem instanceof CrewSystemState) {
-                crewSystem.cardGeneration.clear();
+                crewSystem.cardGeneration = null;
 
                 // This system will receive its card after (offset + 1) individual
                 // generation durations, and its full cycle is totalDuration long.
                 const cardArrival = currentTime + (offset + 1) * perSystemDuration;
                 const cycleStart = cardArrival - totalDuration;
-                crewSystem.cardGeneration.push(new CooldownState(cycleStart, cardArrival));
+                crewSystem.cardGeneration = new CooldownState(cycleStart, cardArrival);
             }
         }
     }
@@ -290,7 +280,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
      */
     private preserveGenerationProgress(tile: EngineerSystemTile, currentTime: number) {
         const crewSystem = tile.systemState;
-        if (!(crewSystem instanceof CrewSystemState) || crewSystem.cardGeneration.length === 0) {
+        if (!(crewSystem instanceof CrewSystemState) || !crewSystem.cardGeneration) {
             return;
         }
 
@@ -311,10 +301,6 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         const generationEndTime = this.generationProgress?.endTime ?? currentTime;
         const newEnd = generationEndTime + (stepsUntilGeneration - 1) * this.perSystemGenerationDuration;
 
-        const old = crewSystem.cardGeneration[0];
-        crewSystem.cardGeneration.clear();
-        crewSystem.cardGeneration.push(
-            old.rescaledToEnd(currentTime, newEnd)
-        );
+        crewSystem.cardGeneration.rescaleToEnd(currentTime, newEnd);
     }
 }

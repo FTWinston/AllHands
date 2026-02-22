@@ -51,9 +51,9 @@ export const Helm = (props: Props) => {
             power={helmState.powerLevel}
             maxHandSize={helmState.health}
             playCard={playCard}
-            cardGeneration={helmState.cardGeneration[0]}
+            cardGeneration={helmState.cardGeneration}
             cancelManeuver={cancelManeuver}
-            activeManeuver={helmState.activeManeuver[0]}
+            activeManeuver={helmState.activeManeuver}
         />
     );
 };

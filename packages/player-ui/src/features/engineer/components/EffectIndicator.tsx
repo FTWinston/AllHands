@@ -12,7 +12,7 @@ type Props = {
     image: ComponentType<{ className?: string }>;
     className?: string;
     hidden?: boolean;
-    progress?: Cooldown;
+    progress?: Cooldown | null;
 };
 
 export const EffectIndicator = (props: Props) => {

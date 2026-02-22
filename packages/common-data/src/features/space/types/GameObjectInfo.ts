@@ -25,11 +25,11 @@ export interface SystemInfo {
 
 export interface CrewSystemInfo extends SystemInfo {
     hand: MinimalReadonlyArray<CardInstance>;
-    cardGeneration: MinimalReadonlyArray<Cooldown>;
+    cardGeneration: Cooldown | null;
 }
 
 export interface HelmSystemInfo extends CrewSystemInfo {
-    activeManeuver: MinimalReadonlyArray<CardCooldown>;
+    activeManeuver: CardCooldown | null;
 }
 
 export interface EngineerSystemTileInfo {

@@ -37,7 +37,7 @@ export const EffectList = (props: Props) => {
                             positive={definition.positive}
                             name={definition.name}
                             description={definition.description}
-                            progress={effect.progress[0]}
+                            progress={effect.progress}
                             hidden={removingItemIds.has(effect.type) || !currentItemIds.has(effect.type)}
                         />
                     </li>

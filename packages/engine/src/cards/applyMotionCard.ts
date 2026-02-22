@@ -139,12 +139,11 @@ export function applyMotionCard(
     ship.setMotion(...keyframes);
 
     // Record this maneuver on the ship's helm, so it can be cancelled if the helm doesn't maintain sufficient power.
-    ship.helmState.activeManeuver.clear();
-    ship.helmState.activeManeuver.push(new CardCooldownState(
+    ship.helmState.activeManeuver = new CardCooldownState(
         gameState.clock.currentTime,
         prevKeyframe.time,
         cardPower
-    ));
+    );
 
     return true;
 }

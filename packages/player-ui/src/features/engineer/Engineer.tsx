@@ -44,7 +44,7 @@ export const Engineer = (props: Props) => {
             power={engineerState.powerLevel}
             maxHandSize={engineerState.health}
             playCard={playCard}
-            cardGeneration={engineerState.cardGeneration[0]}
+            cardGeneration={engineerState.cardGeneration}
         />
     );
 };

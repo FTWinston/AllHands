@@ -42,7 +42,7 @@ export const Sensors = (props: Props) => {
             power={sensorState.powerLevel}
             maxHandSize={sensorState.health}
             playCard={playCard}
-            cardGeneration={sensorState.cardGeneration[0]}
+            cardGeneration={sensorState.cardGeneration}
         />
     );
 };

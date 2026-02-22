@@ -49,7 +49,7 @@ export const Tactical = (props: Props) => {
             power={tacticalState.powerLevel}
             maxHandSize={tacticalState.health}
             playCard={playCard}
-            cardGeneration={tacticalState.cardGeneration[0]}
+            cardGeneration={tacticalState.cardGeneration}
         />
     );
 };
