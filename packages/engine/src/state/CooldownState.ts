@@ -1,7 +1,6 @@
-import { Schema, type, inheritVisibility } from '@colyseus/schema';
+import { Schema, type } from '@colyseus/schema';
 import { Cooldown } from 'common-data/types/Cooldown';
 
-@inheritVisibility
 export class CooldownState extends Schema implements Cooldown {
     constructor(startTime: number, endTime: number) {
         super();
