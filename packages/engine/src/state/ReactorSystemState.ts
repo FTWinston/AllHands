@@ -21,7 +21,7 @@ export class ReactorSystemState extends SystemState {
 
         if (newHealth !== oldHealth) {
             // The engineer system needs told when reactor health changes
-            this.getShip().engineerState.onReactorHealthChanged(this.getGameState().clock.currentTime);
+            this.getShip().engineerState.onReactorHealthChanged(newHealth, this.maxHealth);
         }
     }
 

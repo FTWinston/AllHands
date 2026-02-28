@@ -82,6 +82,63 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
 
         return true;
     }
+
+    countReducedPowerEffects(): number {
+        return this.effects.reduce((total, effect) => {
+            switch (effect.type) {
+                case 'reducedPower1':
+                    return total + 1;
+                case 'reducedPower2':
+                    return total + 2;
+                case 'reducedPower3':
+                    return total + 3;
+                case 'reducedPower4':
+                    return total + 4;
+                default:
+                    return total;
+            }
+        }, 0);
+    }
+
+    /**
+     * Increment the reduced power effect on this system by one "level", up to the maximum level of reducedPower4.
+     * Returns true if no more reduced power effects can be added after the increment.
+     */
+    incrementReducedPowerEffect() {
+        if (this.removeEffect('reducedPower3', true)) {
+            this.addEffect('reducedPower4');
+            return true;
+        } else if (this.removeEffect('reducedPower2', true)) {
+            this.addEffect('reducedPower3');
+        } else if (this.removeEffect('reducedPower1', true)) {
+            this.addEffect('reducedPower2');
+        } else {
+            this.addEffect('reducedPower1');
+        }
+
+        return false;
+    }
+
+    /**
+     * Decrement the reduced power effect on this system by one "level", if present.
+     * Returns true if no reduced power effects are still present after the decrement.
+     */
+    decrementReducedPowerEffect() {
+        if (this.removeEffect('reducedPower4', true)) {
+            this.addEffect('reducedPower3');
+            return false;
+        } else if (this.removeEffect('reducedPower3', true)) {
+            this.addEffect('reducedPower2');
+            return false;
+        } else if (this.removeEffect('reducedPower2', true)) {
+            this.addEffect('reducedPower1');
+            return false;
+        } else {
+            this.removeEffect('reducedPower1', true);
+        }
+
+        return true;
+    }
 }
 
 export class EngineerState extends CrewSystemState implements EngineerSystemInfo {
@@ -148,8 +205,40 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
      * If reactor health changes, add/remove reduced power effects to other systems,
      * of a total number equal to how much health has been lost.
      */
-    public onReactorHealthChanged(_currentTime: number) {
-        // TODO: add/remove "reduced power" effect on ship systems based on reactor health.
+    public onReactorHealthChanged(reactorHealth: number, reactorMaxHealth: number) {
+        const targetNumReducedPowerEffects = reactorMaxHealth - reactorHealth;
+
+        const existingNumReducedPowerEffects = this.systems.reduce((total, tile) => {
+            return total + tile.countReducedPowerEffects();
+        }, 0);
+
+        const random = this.getGameState().random;
+
+        if (targetNumReducedPowerEffects > existingNumReducedPowerEffects) {
+            const systems = this.systems.filter(tile => tile.system !== 'reactor');
+
+            // Add new reduced power effects to systems, randomly, until the total number matches the target.
+            do {
+                const system = random.pick(systems);
+                if (system.incrementReducedPowerEffect()) {
+                    // This system can't take any more reduced power effects, so remove it from the pool of systems we can add effects to.
+                    const index = systems.indexOf(system);
+                    systems.splice(index, 1);
+                }
+            } while (targetNumReducedPowerEffects > existingNumReducedPowerEffects && systems.length > 0);
+        } else if (targetNumReducedPowerEffects < existingNumReducedPowerEffects) {
+            const systems = this.systems.filter(tile => tile.countReducedPowerEffects() > 0);
+
+            // Remove reduced power effects from systems, randomly, until the total number matches the target.
+            do {
+                const system = random.pick(systems);
+                if (system.decrementReducedPowerEffect()) {
+                    // This system has no more reduced power effects, so remove it from the pool of systems we can remove effects from.
+                    const index = systems.indexOf(system);
+                    systems.splice(index, 1);
+                }
+            } while (targetNumReducedPowerEffects < existingNumReducedPowerEffects && systems.length > 0);
+        }
     }
 
     /**

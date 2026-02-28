@@ -9,6 +9,26 @@ function loadEffectDefinitions() {
             description: <>This system is currently receiving auxiliary power, increasing its power level by 1.</>,
             image: ExampleIcon,
         },
+        reducedPower1: {
+            name: 'Reduced Power',
+            description: <>Reactor damage is causing this system to be affected by reduced power, decreasing its power level by 1.</>,
+            image: ExampleIcon,
+        },
+        reducedPower2: {
+            name: 'Greatly Reduced Power',
+            description: <>Reactor damage is causing this system to be affected by reduced power, decreasing its power level by 2.</>,
+            image: ExampleIcon,
+        },
+        reducedPower3: {
+            name: 'Severely Reduced Power',
+            description: <>Reactor damage is causing this system to be affected by reduced power, decreasing its power level by 3.</>,
+            image: ExampleIcon,
+        },
+        reducedPower4: {
+            name: 'Critically Reduced Power',
+            description: <>Reactor damage is causing this system to be affected by reduced power, decreasing its power level by 4.</>,
+            image: ExampleIcon,
+        },
         something1: {
             name: 'Something 1',
             description: <>Some effect description goes here.</>,

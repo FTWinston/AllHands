@@ -21,6 +21,58 @@ function loadSystemEffectDefinitions() {
                 system.adjustSystemPowerLevel(-1);
             },
         },
+        reducedPower1: {
+            apply: (system) => {
+                system.adjustSystemPowerLevel(-1);
+                return true;
+            },
+            remove: (system, early) => {
+                system.adjustSystemPowerLevel(1);
+
+                if (early) {
+                    // TODO: if removed early, add this affect to a different system instead.
+                }
+            },
+        },
+        reducedPower2: {
+            apply: (system) => {
+                system.adjustSystemPowerLevel(-2);
+                return true;
+            },
+            remove: (system, early) => {
+                system.adjustSystemPowerLevel(2);
+
+                if (early) {
+                    // TODO: if removed early, add this affect to a different system instead.
+                }
+            },
+        },
+        reducedPower3: {
+            apply: (system) => {
+                system.adjustSystemPowerLevel(-3);
+                return true;
+            },
+            remove: (system, early) => {
+                system.adjustSystemPowerLevel(3);
+
+                if (early) {
+                    // TODO: if removed early, add this affect to a different system instead.
+                }
+            },
+        },
+        reducedPower4: {
+            apply: (system) => {
+                system.adjustSystemPowerLevel(-4);
+                return true;
+            },
+            remove: (system, early) => {
+                system.adjustSystemPowerLevel(4);
+
+                if (early) {
+                    // TODO: if removed early, add this affect to a different system instead.
+                }
+            },
+        },
         something1: {
             apply: (_system) => {
                 return true;

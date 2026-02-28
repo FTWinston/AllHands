@@ -9,6 +9,18 @@ export const systemEffectDefinitions = defineSystemEffects({
     auxPower: {
         positive: true,
     },
+    reducedPower1: {
+        positive: false,
+    },
+    reducedPower2: {
+        positive: false,
+    },
+    reducedPower3: {
+        positive: false,
+    },
+    reducedPower4: {
+        positive: false,
+    },
     something1: {
         positive: true,
         duration: 3000,
