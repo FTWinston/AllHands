@@ -48,9 +48,9 @@ export class SystemState extends Schema implements SystemInfo {
     /**
      * Adjust the power level, keeping it within bounds and propagating the change to the linked engineer system.
      */
-    adjustPowerLevel(value: number) {
+    adjustPowerLevel(adjustment: number) {
         // Keep an "underlying" value so that effects that would adjust below 0 or above max can still be tracked and properly reversed when they effect expire.
-        this.underlyingPowerLevel += value;
+        this.underlyingPowerLevel += adjustment;
 
         // The "proper" value is always clamped to within the allowed bounds.
         (this as { powerLevel: number }).powerLevel = Math.max(0, Math.min(this.underlyingPowerLevel, this.maxPowerLevel));
@@ -63,9 +63,9 @@ export class SystemState extends Schema implements SystemInfo {
     /**
      * Adjust the health value, keeping it within bounds and propagating the change to the linked engineer system.
      */
-    adjustHealth(value: number) {
+    adjustHealth(adjustment: number) {
         // Keep an "underlying" value so that effects that would adjust below 0 or above max can still be tracked and properly reversed when they effect expire.
-        this.underlyingHealth += value;
+        this.underlyingHealth += adjustment;
 
         // The "proper" value is always clamped to within the allowed bounds.
         (this as { health: number }).health = Math.max(0, Math.min(this.underlyingHealth, this.maxHealth));

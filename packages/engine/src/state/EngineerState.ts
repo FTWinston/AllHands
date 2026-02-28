@@ -125,12 +125,8 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
     /** Cooldown tracking progress of the currently generating system, or undefined if not yet started. */
     private generationProgress: CooldownState | undefined;
 
-    /** Tracked to detect reactor power level changes between updates. */
-    private lastReactorPowerLevel: number | undefined;
-
     update(currentTime: number) {
         this.removeExpiredEffects(currentTime);
-        this.checkReactorPowerChanged(currentTime);
         this.updateCardGeneration(currentTime);
     }
 
@@ -149,21 +145,18 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
     }
 
     /**
-     * Detect reactor power level changes and rescale generation cooldowns accordingly.
+     * If reactor health changes, add/remove reduced power effects to other systems,
+     * of a total number equal to how much health has been lost.
      */
-    private checkReactorPowerChanged(currentTime: number) {
-        const reactorPower = this.getShip().reactorState.powerLevel;
-        if (this.lastReactorPowerLevel !== undefined && this.lastReactorPowerLevel !== reactorPower) {
-            this.onReactorPowerChanged(currentTime);
-        }
-        this.lastReactorPowerLevel = reactorPower;
+    public onReactorHealthChanged(_currentTime: number) {
+        // TODO: add/remove "reduced power" effect on ship systems based on reactor health.
     }
 
     /**
      * Rescale generation progress and crew system cooldowns when the reactor
      * power level changes, preserving the current progress fraction of each.
      */
-    private onReactorPowerChanged(currentTime: number) {
+    public onReactorPowerChanged(currentTime: number) {
         if (!this.generationProgress) {
             return;
         }
