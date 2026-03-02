@@ -2,3 +2,4 @@ node_modules
 packages/*/dist
 *.tsbuildinfo
 *storybook.log
+packages/engine/src/generated/

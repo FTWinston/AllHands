@@ -4,7 +4,8 @@
   "private": true,
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "echo export const DEV_TOOLS_ENABLED = false; > src/generated/devtools.ts && tsc",
+    "build:devtools": "echo export const DEV_TOOLS_ENABLED = true; > src/generated/devtools.ts && tsc"
   },
   "dependencies": {
     "@colyseus/core": "^0.17.36",

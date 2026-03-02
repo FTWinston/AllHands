@@ -10,6 +10,7 @@ import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { customAlphabet } from 'nanoid/non-secure';
 import { CrewSystemState } from 'src/state/CrewSystemState';
 import { EngineerState } from 'src/state/EngineerState';
+import { DEV_TOOLS_ENABLED } from '../generated/devtools';
 import { AiShip } from '../state/AiShip';
 import { CrewState } from '../state/CrewState';
 import { GameState } from '../state/GameState';
@@ -211,6 +212,15 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
         // Convert tick rate (per second) to milliseconds, and have the room update the state that often.
         this.setSimulationInterval(deltaTime => this.update(deltaTime), 1000 / config.tickRate);
+
+        if (DEV_TOOLS_ENABLED) {
+            console.log('Dev tools enabled for this game room');
+            this.registerDevHandlers();
+        }
+    }
+
+    private registerDevHandlers() {
+        // Register dev-only message handlers here.
     }
 
     /**

@@ -13,6 +13,7 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
+    "build:devtools": "npm run build -w packages/common-data && npm run build -w packages/common-ui && npm run build:devtools -w packages/engine && npm run build -w packages/player-ui && npm run build:devtools -w packages/game-ui && npm run build -w packages/game-app",
     "dev": "concurrently --kill-others \"npm run start\" \"wait-on tcp:23552 && npx tsx launch-players.ts\"",
     "start": "npm run start --workspace=packages/game-app",
     "package": "npm run package --workspace=packages/game-app",

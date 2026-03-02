@@ -14,6 +14,7 @@ export default defineConfig([
         '**/node_modules/**',
         '**/dist/**',
         'packages/am/src/features/api/types/endpoints.ts', // Do not lint auto-generated endpoint file.
+        'packages/engine/src/generated/', // Generated at build time.
     ]),
     {
         files: ['packages/*/src/**/*.{js,mjs,cjs,ts,jsx,tsx}'],

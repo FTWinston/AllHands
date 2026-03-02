@@ -39,6 +39,16 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
                 <MenuIcon className={styles.menuButtonIcon} />
             </Button>
 
+            {import.meta.env.VITE_DEV_TOOLS && (
+                <Button
+                    className={styles.devButton}
+                    title="Dev"
+                    onClick={() => { /* TODO: wire up dev action */ }}
+                >
+                    Dev
+                </Button>
+            )}
+
             <SpaceMap
                 className={styles.spaceMap}
                 timeProvider={props.timeProvider}
