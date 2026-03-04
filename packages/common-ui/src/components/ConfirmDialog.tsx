@@ -1,8 +1,8 @@
-import { Dialog } from '@base-ui-components/react/dialog';
-
+import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
 import { FC } from 'react';
 import { Button } from './Button';
 import styles from './ConfirmDialog.module.css';
+import { Dialog } from './Dialog';
 
 type Props = {
     title: string;
@@ -13,25 +13,21 @@ type Props = {
 };
 
 export const ConfirmDialog: FC<Props> = props => (
-    <Dialog.Root open={props.isOpen} onOpenChange={props.setOpen}>
-        <Dialog.Portal>
-            <Dialog.Backdrop className={styles.backdrop} />
-            <Dialog.Popup className={styles.popup}>
-                <Dialog.Title className={styles.title}>{props.title}</Dialog.Title>
-                <Dialog.Description className={styles.description}>
-                    {props.prompt}
-                </Dialog.Description>
-                <div className={styles.actions}>
-                    <Dialog.Close render={<Button>Cancel</Button>} />
-                    <Button onClick={() => {
-                        props.setOpen(false);
-                        props.confirm();
-                    }}
-                    >
-                        OK
-                    </Button>
-                </div>
-            </Dialog.Popup>
-        </Dialog.Portal>
-    </Dialog.Root>
+    <Dialog
+        isOpen={props.isOpen}
+        setOpen={props.setOpen}
+        title={props.title}
+        prompt={props.prompt}
+    >
+        <div className={styles.actions}>
+            <BaseDialog.Close render={<Button>Cancel</Button>} />
+            <Button onClick={() => {
+                props.setOpen(false);
+                props.confirm();
+            }}
+            >
+                OK
+            </Button>
+        </div>
+    </Dialog>
 );
