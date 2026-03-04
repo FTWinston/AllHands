@@ -2,7 +2,7 @@ import { SystemEffectInstance } from 'common-data/features/ships/types/SystemEff
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { classNames } from 'common-ui/utils/classNames';
 import { useArrayChanges } from 'src/hooks/useArrayChanges';
-import { getSystemEffectDefinition } from '../utils/getUiSystemEffectDefinition';
+import { getSystemEffectDefinition } from 'common-ui/utils/getUiSystemEffectDefinition.js';
 import { EffectIndicator } from './EffectIndicator';
 import styles from './EffectList.module.css';
 

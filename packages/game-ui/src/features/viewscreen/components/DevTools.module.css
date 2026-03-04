@@ -5,3 +5,11 @@
 .actionHeader {
   margin-top: 1em;
 }
+
+.tabContent {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    justify-content: center;
+    overflow-y: auto;
+}
