@@ -8,21 +8,18 @@ import { Screen } from 'common-ui/components/Screen';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
-import { FC, useRef, useState } from 'react';
-import { DevTools } from './DevTools';
+import { FC, PropsWithChildren, useRef } from 'react';
 import styles from './ViewscreenDisplay.module.css';
 
-type Props = {
+type Props = PropsWithChildren<{
     timeProvider: ITimeProvider;
     center: ReadonlyKeyframes<Vector2D>;
     objects: Record<string, GameObjectInfo>;
     showMenu: () => void;
-};
+}>;
 
 export const ViewscreenDisplay: FC<Props> = (props) => {
     const canvas = useRef<HTMLCanvasElement>(null);
-
-    const [showTools, setShowTools] = useState(false);
 
     useAnimationFrame();
 
@@ -42,20 +39,6 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
                 <MenuIcon className={styles.menuButtonIcon} />
             </Button>
 
-            {import.meta.env.VITE_DEV_TOOLS && (
-                <>
-                    <Button
-                        className={styles.devButton}
-                        title="Dev"
-                        onClick={() => setShowTools(true)}
-                    >
-                        Dev
-                    </Button>
-
-                    {showTools && (<DevTools isOpen={showTools} setOpen={setShowTools} addEffect={() => {}} />)}
-                </>
-            )}
-
             <SpaceMap
                 className={styles.spaceMap}
                 timeProvider={props.timeProvider}
@@ -65,6 +48,8 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
                 gridColor="grey"
                 ref={canvas}
             />
+
+            {props.children}
         </Screen>
     );
 };

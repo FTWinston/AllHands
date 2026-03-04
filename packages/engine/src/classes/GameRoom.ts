@@ -4,7 +4,9 @@ import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole, type CrewRole } from 'common-data/features/ships/types/CrewRole';
+import { engineerClientRole, getRole, helmClientRole, sensorClientRole, tacticalClientRole, type CrewRole, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
+import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
+import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { Encounter } from 'common-data/features/space/types/Encounter';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { customAlphabet } from 'nanoid/non-secure';
@@ -12,10 +14,12 @@ import { CrewSystemState } from 'src/state/CrewSystemState';
 import { EngineerState } from 'src/state/EngineerState';
 import { DEV_TOOLS_ENABLED } from '../generated/devtools';
 import { AiShip } from '../state/AiShip';
+import { CardState } from '../state/CardState';
 import { CrewState } from '../state/CrewState';
 import { GameState } from '../state/GameState';
 import { HelmState } from '../state/HelmState';
 import { PlayerShip } from '../state/PlayerShip';
+import { SystemState } from '../state/SystemState';
 import { IdPool } from './IdPool';
 import type { ScenarioConfig } from 'common-data/types/ScenarioConfig';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
@@ -214,13 +218,89 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         this.setSimulationInterval(deltaTime => this.update(deltaTime), 1000 / config.tickRate);
 
         if (DEV_TOOLS_ENABLED) {
-            console.log('Dev tools enabled for this game room');
             this.registerDevHandlers();
         }
     }
 
     private registerDevHandlers() {
-        // Register dev-only message handlers here.
+        console.log('Dev commands are enabled');
+
+        this.onMessage('adjustHealth', (client, message: { system: ShipSystem; relative: boolean; amount: number }) => {
+            const ship = this.getShipForShipClient(client);
+            if (!ship) {
+                return;
+            }
+
+            const systemState = this.getShipSystemState(ship, message.system);
+            if (message.relative) {
+                systemState.adjustHealth(message.amount);
+            } else {
+                systemState.adjustHealth(message.amount - systemState.health);
+            }
+
+            console.log(`[dev] ${client.sessionId} adjustHealth ${message.system} ${message.relative ? 'by' : 'to'} ${message.amount}`);
+        });
+
+        this.onMessage('addEffect', (client, message: { system: ShipSystem; effect: SystemEffectType }) => {
+            const ship = this.getShipForShipClient(client);
+            if (!ship) {
+                return;
+            }
+
+            const systemState = this.getShipSystemState(ship, message.system);
+            systemState.addEffect(message.effect);
+
+            console.log(`[dev] ${client.sessionId} addEffect ${message.effect} to ${message.system}`);
+        });
+
+        this.onMessage('addCard', (client, message: { system: CrewRoleName; cardId: string }) => {
+            const ship = this.getShipForShipClient(client);
+            if (!ship) {
+                return;
+            }
+
+            const role = getRole(message.system);
+
+            const systemState = this.getSystemState(ship, role);
+            systemState.hand.push(new CardState(ship.getCardId(), message.cardId as CardType));
+
+            console.log(`[dev] ${client.sessionId} addCard ${message.cardId} to ${message.system}`);
+        });
+    }
+
+    /**
+     * Get the ship associated with a "ship" client (not a crew client).
+     * Returns null if the client is not a ship client or has no associated ship.
+     */
+    private getShipForShipClient(client: Client<{ userData: ClientData }>): PlayerShip | null {
+        if (client.userData?.type !== 'ship') {
+            console.error('Dev commands can only be sent by ship clients');
+            return null;
+        }
+
+        const crewId = client.userData.crewId;
+        const crew = this.state.crews.get(crewId);
+        if (!crew?.ship) {
+            console.error(`No ship found for crew ${crewId}`);
+            return null;
+        }
+
+        return crew.ship;
+    }
+
+    /**
+     * Get the SystemState for any ShipSystem on a ship.
+     */
+    private getShipSystemState(ship: PlayerShip, system: ShipSystem): SystemState {
+        switch (system) {
+            case 'hull': return ship.hullState;
+            case 'reactor': return ship.reactorState;
+            case 'helm': return ship.helmState;
+            case 'sensors': return ship.sensorState;
+            case 'tactical': return ship.tacticalState;
+            case 'engineer': return ship.engineerState;
+            default: throw new Error(`Invalid system: ${system}`);
+        }
     }
 
     /**

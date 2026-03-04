@@ -1,6 +1,6 @@
 import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
 import { FC, PropsWithChildren } from 'react';
-import { classNames } from 'src/utils/classNames';
+import { classNames } from '../utils/classNames';
 import styles from './Dialog.module.css';
 
 type Props = PropsWithChildren<{

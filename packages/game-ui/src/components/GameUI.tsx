@@ -1,6 +1,7 @@
 import { ServerAddress } from 'common-data/types/ServerAddress';
 import { Screen } from 'common-ui/components/Screen';
 import { useCallback, useState } from 'react';
+import { DevTools } from 'src/features/devtools/DevTools';
 import { useRoomConnection } from 'src/hooks/useRoomConnection';
 import { GameLobby } from '../features/lobby/GameLobby';
 import { MenuSelector } from '../features/menus/MenuSelector';
@@ -40,13 +41,20 @@ export const GameUI = () => {
     if (connectionState === 'connected' && serverState !== 'paused') {
         if (serverState === 'active') {
             if (room && shipId && timeProvider) {
+                // Add dev tools to the viewscreen only if enabled at build time.
+                const children = import.meta.env.VITE_DEV_TOOLS && (
+                    <DevTools room={room} />
+                );
+
                 return (
                     <Viewscreen
                         room={room}
                         shipId={shipId}
                         showMenu={pause}
                         timeProvider={timeProvider}
-                    />
+                    >
+                        {children}
+                    </Viewscreen>
                 );
             } else {
                 console.warn(

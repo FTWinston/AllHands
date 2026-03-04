@@ -9,7 +9,7 @@ import { Tabs } from 'common-ui/components/Tabs';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { getSystemEffectDefinition } from 'common-ui/utils/getUiSystemEffectDefinition';
 import { FC, useState } from 'react';
-import styles from './DevTools.module.css';
+import styles from './DevToolsDisplay.module.css';
 
 type Props = {
     isOpen: boolean;
@@ -19,7 +19,7 @@ type Props = {
     addCard: (system: CrewRoleName, cardId: string) => void;
 };
 
-export const DevTools: FC<Props> = (props) => {
+export const DevToolsDisplay: FC<Props> = (props) => {
     const [system, setSystem] = useState<ShipSystem>('hull');
 
     return (

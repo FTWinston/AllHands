@@ -3,17 +3,17 @@ import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo'
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GameState } from 'engine/state/GameState';
 
-type Props = {
+type Props = PropsWithChildren<{
     room: Room<{ state: GameState }>;
     timeProvider: ITimeProvider;
     shipId: string;
     showMenu: () => void;
-};
+}>;
 
 const defaultCenter: Keyframes<Vector2D> = [{ time: 0, x: 0, y: 0 }];
 
@@ -27,6 +27,8 @@ export const Viewscreen: FC<Props> = (props) => {
             timeProvider={props.timeProvider}
             objects={objects}
             showMenu={props.showMenu}
-        />
+        >
+            {props.children}
+        </ViewscreenDisplay>
     );
 };

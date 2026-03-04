@@ -1,5 +1,5 @@
 import { fn } from 'storybook/test';
-import { DevTools as Component } from './DevTools';
+import { DevToolsDisplay as Component } from './DevToolsDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {

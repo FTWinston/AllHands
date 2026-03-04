@@ -21,16 +21,12 @@ export type CrewRole
 
 export type CrewRoleName = 'helm' | 'sensors' | 'tactical' | 'engineer';
 
-export const crewRoleNames: CrewRoleName[] = [
-    'helm',
-    'sensors',
-    'tactical',
-    'engineer',
-];
-
-export const crewRoles: CrewRole[] = [
-    helmClientRole,
-    sensorClientRole,
-    tacticalClientRole,
-    engineerClientRole,
-];
+export const getRole: (name: CrewRoleName) => CrewRole = (name: CrewRoleName) => {
+    switch (name) {
+        case 'helm': return helmClientRole;
+        case 'sensors': return sensorClientRole;
+        case 'tactical': return tacticalClientRole;
+        case 'engineer': return engineerClientRole;
+        default: throw new Error(`Invalid crew role name: ${name}`);
+    }
+};
