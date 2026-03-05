@@ -4,8 +4,8 @@
   "private": true,
   "main": "dist/index.js",
   "scripts": {
-    "build": "echo export const DEV_TOOLS_ENABLED = false; > src/generated/devtools.ts && tsc",
-    "build:devtools": "echo export const DEV_TOOLS_ENABLED = true; > src/generated/devtools.ts && tsc"
+    "build": "node -e \"require('fs').mkdirSync('src/generated',{recursive:true});require('fs').writeFileSync('src/generated/devtools.ts','export const DEV_TOOLS_ENABLED = false;\\n');\" && tsc",
+    "build:devtools": "node -e \"require('fs').mkdirSync('src/generated',{recursive:true});require('fs').writeFileSync('src/generated/devtools.ts','export const DEV_TOOLS_ENABLED = true;\\n');\" && tsc"
   },
   "dependencies": {
     "@colyseus/core": "^0.17.36",
