@@ -208,19 +208,22 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
     public onReactorHealthChanged(reactorHealth: number, reactorMaxHealth: number) {
         const targetNumReducedPowerEffects = reactorMaxHealth - reactorHealth;
 
-        const existingNumReducedPowerEffects = this.systems.reduce((total, tile) => {
+        let existingNumReducedPowerEffects = this.systems.reduce((total, tile) => {
             return total + tile.countReducedPowerEffects();
         }, 0);
 
         const random = this.getGameState().random;
 
         if (targetNumReducedPowerEffects > existingNumReducedPowerEffects) {
-            const systems = this.systems.filter(tile => tile.system !== 'reactor');
+            const systems = this.systems.filter(tile => tile.system !== 'reactor' && tile.countReducedPowerEffects() < 4);
 
             // Add new reduced power effects to systems, randomly, until the total number matches the target.
             do {
                 const system = random.pick(systems);
-                if (system.incrementReducedPowerEffect()) {
+                const maxed = system.incrementReducedPowerEffect();
+                existingNumReducedPowerEffects++;
+
+                if (maxed) {
                     // This system can't take any more reduced power effects, so remove it from the pool of systems we can add effects to.
                     const index = systems.indexOf(system);
                     systems.splice(index, 1);
@@ -232,7 +235,10 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
             // Remove reduced power effects from systems, randomly, until the total number matches the target.
             do {
                 const system = random.pick(systems);
-                if (system.decrementReducedPowerEffect()) {
+                const emptied = system.decrementReducedPowerEffect();
+                existingNumReducedPowerEffects--;
+
+                if (emptied) {
                     // This system has no more reduced power effects, so remove it from the pool of systems we can remove effects from.
                     const index = systems.indexOf(system);
                     systems.splice(index, 1);
