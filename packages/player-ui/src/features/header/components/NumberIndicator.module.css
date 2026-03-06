@@ -16,9 +16,14 @@
     gap: 0.25em;
 }
 
-.currentValue, .maxValue {
+.currentValue {
     font-weight: bold;
     color: var(--grey-lightest);
+}
+
+.maxValue {
+    font-weight: bold;
+    color: var(--grey-light);
 }
 
 .icon {

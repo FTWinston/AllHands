@@ -45,7 +45,7 @@ export const CrewHeader: FC<Props> = (props) => {
             <div className={styles.indicators}>
                 <NumberIndicator
                     value={props.power}
-                    valueIcon={PowerIcon}
+                    icon={PowerIcon}
                     name="Power"
                     description={(
                         <>
@@ -60,9 +60,8 @@ export const CrewHeader: FC<Props> = (props) => {
 
                 <NumberIndicator
                     value={props.handSize}
-                    valueIcon={HandIcon}
+                    icon={HandIcon}
                     maxValue={props.maxHandSize}
-                    maxIcon={HealthIcon}
                     name="Hand Size & Health"
                     description={(
                         <>

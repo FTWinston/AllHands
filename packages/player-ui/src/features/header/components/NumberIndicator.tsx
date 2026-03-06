@@ -8,9 +8,8 @@ type Props = {
     name: string;
     description: JSX.Element;
     value: number;
-    valueIcon: FC<{ className: string }>;
+    icon: FC<{ className: string }>;
     maxValue?: number;
-    maxIcon?: FC<{ className: string }>;
     generation?: Cooldown | null;
 };
 
@@ -59,8 +58,7 @@ function adjustProgressForIndicatorShape(fraction: number): number {
 }
 
 export const NumberIndicator: FC<Props> = (props) => {
-    const ValueIcon = props.valueIcon;
-    const MaxIcon = props.maxIcon;
+    const Icon = props.icon;
 
     return (
         <InfoPopup
@@ -69,20 +67,18 @@ export const NumberIndicator: FC<Props> = (props) => {
             description={props.description}
         >
             <div className={styles.indicator}>
-                <ValueIcon className={styles.icon} />
+                <Icon className={styles.icon} />
 
                 <div className={styles.currentValue}>
                     {props.value}
                 </div>
             </div>
 
-            {MaxIcon && props.maxValue !== undefined && (
+            {props.maxValue !== undefined && (
                 <>
                     <div className={styles.separator} />
 
                     <div className={styles.indicator}>
-                        <MaxIcon className={styles.icon} />
-
                         <div className={styles.maxValue}>
                             {props.maxValue}
                         </div>
