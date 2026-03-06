@@ -9,6 +9,7 @@ type Props = {
     description: JSX.Element;
     value: number;
     icon: FC<{ className: string }>;
+    isSecondary?: boolean;
     maxValue?: number;
     generation?: Cooldown | null;
 };
@@ -69,7 +70,7 @@ export const NumberIndicator: FC<Props> = (props) => {
             <div className={styles.indicator}>
                 <Icon className={styles.icon} />
 
-                <div className={styles.currentValue}>
+                <div className={props.isSecondary ? styles.secondaryValue : styles.value}>
                     {props.value}
                 </div>
             </div>
@@ -79,7 +80,7 @@ export const NumberIndicator: FC<Props> = (props) => {
                     <div className={styles.separator} />
 
                     <div className={styles.indicator}>
-                        <div className={styles.maxValue}>
+                        <div className={styles.secondaryValue}>
                             {props.maxValue}
                         </div>
                     </div>

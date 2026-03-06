@@ -41,8 +41,7 @@ export const Sensors = (props: Props) => {
             onPause={pause}
             power={sensorState.powerLevel}
             maxHandSize={sensorState.health}
-            discardPileCards={sensorState.discardPile}
-            drawPileCards={sensorState.drawPile}
+            drawPileSize={sensorState.drawPileSize}
             playCard={playCard}
             cardGeneration={sensorState.cardGeneration}
         />

@@ -25,18 +25,19 @@ export class CrewSystemState extends SystemState implements SystemInfo {
         );
 
         // All remaining cards form the draw pile.
-        this.drawPile = new ArraySchema<CardState>(
-            ...setup.cards
-                .slice(setup.initialHandSize)
-                .map(cardType => new CardState(getCardId(), cardType))
-        );
+        this.drawPile = setup.cards
+            .slice(setup.initialHandSize)
+            .map(cardType => new CardState(getCardId(), cardType));
 
-        this.discardPile = new ArraySchema<CardState>();
+        this.drawPileSize = this.drawPile.length;
+
+        this.discardPile = [];
     }
 
     @type([CardState]) hand: ArraySchema<CardState>;
-    @type([CardState]) drawPile: ArraySchema<CardState>;
-    @type([CardState]) discardPile: ArraySchema<CardState>;
+    @type('uint8') drawPileSize: number;
+    drawPile: CardState[];
+    discardPile: CardState[];
 
     @type(CooldownState) cardGeneration: CooldownState | null = null;
 
@@ -50,7 +51,7 @@ export class CrewSystemState extends SystemState implements SystemInfo {
             if (!card) {
                 this.drawPile = this.discardPile;
                 this.getShip().random.shuffle(this.drawPile);
-                this.discardPile.clear();
+                this.discardPile = [];
                 card = this.drawPile.pop();
             }
 
@@ -58,6 +59,8 @@ export class CrewSystemState extends SystemState implements SystemInfo {
                 this.hand.push(card);
             }
         }
+
+        this.drawPileSize = this.drawPile.length;
     }
 
     /**

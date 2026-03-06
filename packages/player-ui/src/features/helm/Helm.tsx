@@ -50,8 +50,7 @@ export const Helm = (props: Props) => {
             objects={objects}
             power={helmState.powerLevel}
             maxHandSize={helmState.health}
-            discardPileCards={helmState.discardPile}
-            drawPileCards={helmState.drawPile}
+            drawPileSize={helmState.drawPileSize}
             playCard={playCard}
             cardGeneration={helmState.cardGeneration}
             cancelManeuver={cancelManeuver}

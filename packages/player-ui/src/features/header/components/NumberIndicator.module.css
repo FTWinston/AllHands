@@ -16,13 +16,13 @@
     gap: 0.25em;
 }
 
-.currentValue {
+.value {
     font-weight: bold;
     color: var(--grey-lightest);
     width: 0.75em;
 }
 
-.maxValue {
+.secondaryValue {
     font-weight: bold;
     color: var(--grey-light);
     width: 0.75em;
