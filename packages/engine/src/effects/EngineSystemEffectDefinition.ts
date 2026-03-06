@@ -1,5 +1,5 @@
 import { SystemEffectDefinition } from 'common-data/features/ships/types/SystemEffectDefinition';
-import { EngineerSystemTile } from 'src/state/EngineerState';
+import { EngineerSystemTile } from 'src/state/EngineerSystemTile';
 
 export type SystemEffectFunctionality = {
     apply: (system: EngineerSystemTile) => boolean;

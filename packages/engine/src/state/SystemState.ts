@@ -4,7 +4,7 @@ import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/Ga
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { GameState } from './GameState';
 import { SystemEffect } from './SystemEffect';
-import type { EngineerSystemTile } from './EngineerState';
+import type { EngineerSystemTile } from './EngineerSystemTile';
 import type { Ship } from './Ship';
 
 export class SystemState extends Schema implements SystemInfo {

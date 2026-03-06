@@ -1,10 +1,14 @@
 import { Menu } from '@base-ui-components/react/menu';
+import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { Cooldown } from 'common-data/types/Cooldown';
+import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { Button } from 'common-ui/components/Button';
 import { CrewIcon } from 'common-ui/icons/crew';
 import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
 import { FC } from 'react';
+import { default as DiscardIcon } from '../assets/card-discard.svg?react';
+import { default as DrawIcon } from '../assets/card-draw.svg?react';
 import { default as HandIcon } from '../assets/card-hand.svg?react';
 import { default as HealthIcon } from '../assets/health.svg?react';
 import { default as PowerIcon } from '../assets/power.svg?react';
@@ -16,6 +20,8 @@ type Props = {
     crew: CrewRoleName;
     onPause: () => void;
     power: number;
+    drawPileCards: MinimalReadonlyArray<CardInstance>;
+    discardPileCards: MinimalReadonlyArray<CardInstance>;
     handSize: number;
     maxHandSize: number;
     cardGeneration?: Cooldown | null;
@@ -59,6 +65,18 @@ export const CrewHeader: FC<Props> = (props) => {
                 />
 
                 <NumberIndicator
+                    value={props.drawPileCards.length}
+                    icon={DrawIcon}
+                    name="Draw pile"
+                    description={(
+                        <>
+                            Cards in your draw pile show here
+                        </>
+                    )}
+                    generation={props.cardGeneration}
+                />
+
+                <NumberIndicator
                     value={props.handSize}
                     icon={HandIcon}
                     maxValue={props.maxHandSize}
@@ -75,7 +93,17 @@ export const CrewHeader: FC<Props> = (props) => {
                             , which is controlled by the Engineer.
                         </>
                     )}
-                    generation={props.cardGeneration}
+                />
+
+                <NumberIndicator
+                    value={props.discardPileCards.length}
+                    icon={DiscardIcon}
+                    name="Discard pile"
+                    description={(
+                        <>
+                            Cards in your discard pile show here
+                        </>
+                    )}
                 />
             </div>
         </div>

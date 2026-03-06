@@ -1,6 +1,6 @@
 import { ChoiceCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
-import { EngineerSystemTile } from 'src/state/EngineerState';
+import { EngineerSystemTile } from 'src/state/EngineerSystemTile';
 import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';
 

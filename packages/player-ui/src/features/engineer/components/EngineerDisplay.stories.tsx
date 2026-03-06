@@ -30,6 +30,8 @@ const meta: Meta<typeof Component> = {
         return (
             <Component
                 {...args}
+                discardPileCards={[]}
+                drawPileCards={[]}
                 cardGeneration={cardGeneration}
                 maxHandSize={args.maxHandSize}
                 cards={cards}

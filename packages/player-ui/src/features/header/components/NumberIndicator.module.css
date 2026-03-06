@@ -19,11 +19,13 @@
 .currentValue {
     font-weight: bold;
     color: var(--grey-lightest);
+    width: 0.75em;
 }
 
 .maxValue {
     font-weight: bold;
     color: var(--grey-light);
+    width: 0.75em;
 }
 
 .icon {

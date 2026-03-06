@@ -25,6 +25,8 @@ export interface SystemInfo {
 
 export interface CrewSystemInfo extends SystemInfo {
     hand: MinimalReadonlyArray<CardInstance>;
+    drawPile: MinimalReadonlyArray<CardInstance>;
+    discardPile: MinimalReadonlyArray<CardInstance>;
     cardGeneration: Cooldown | null;
 }
 

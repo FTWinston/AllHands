@@ -83,14 +83,16 @@ export const NumberIndicator: FC<Props> = (props) => {
                             {props.maxValue}
                         </div>
                     </div>
-
-                    <RadialProgress
-                        className={styles.progress}
-                        progress={props.generation}
-                        visualAdjustment={adjustProgressForIndicatorShape}
-                        title={`${props.name} generation`}
-                    />
                 </>
+            )}
+
+            {props.generation && (
+                <RadialProgress
+                    className={styles.progress}
+                    progress={props.generation}
+                    visualAdjustment={adjustProgressForIndicatorShape}
+                    title={`${props.name} generation`}
+                />
             )}
         </InfoPopup>
     );
