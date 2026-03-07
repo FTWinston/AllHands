@@ -82,6 +82,13 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
     }
 
     /**
+     * Check if this system has a specific effect.
+     */
+    hasEffect(effectType: SystemEffectType): boolean {
+        return this.effects.some(e => e.type === effectType);
+    }
+
+    /**
      * Get the current level of an effect on this system, or 0 if the effect is not present.
      */
     getEffectLevel(effectType: LeveledSystemEffectType): number {

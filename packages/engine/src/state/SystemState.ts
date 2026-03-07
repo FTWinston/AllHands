@@ -7,8 +7,7 @@ import { SystemEffect } from './SystemEffect';
 import type { EngineerSystemTile } from './EngineerSystemTile';
 import type { Ship } from './Ship';
 
-
-export class SystemState extends Schema implements SystemInfo {
+export abstract class SystemState extends Schema implements SystemInfo {
     constructor(setup: SystemSetupInfo, protected readonly _gameState: GameState, protected readonly _ship: Ship) {
         super();
 
@@ -28,14 +27,22 @@ export class SystemState extends Schema implements SystemInfo {
         return this._ship;
     }
 
+    private _linkedEngineerSystem?: EngineerSystemTile;
+
+    public get linkedEngineerSystem(): EngineerSystemTile {
+        if (this._linkedEngineerSystem) {
+            return this._linkedEngineerSystem;
+        } else {
+            throw new Error('This system is not linked to an engineer system tile');
+        }
+    }
+
     /**
      * Link this system to an EngineerSystemTile so that power, health,
      * and effect changes are automatically propagated.
      */
-    private linkedEngineerSystem?: EngineerSystemTile;
-
     linkEngineerSystem(engineerSystem: EngineerSystemTile) {
-        this.linkedEngineerSystem = engineerSystem;
+        this._linkedEngineerSystem = engineerSystem;
     }
 
     private underlyingPowerLevel: number;
@@ -56,9 +63,7 @@ export class SystemState extends Schema implements SystemInfo {
         // The "proper" value is always clamped to within the allowed bounds.
         (this as { powerLevel: number }).powerLevel = Math.max(0, Math.min(this.underlyingPowerLevel, this.maxPowerLevel));
 
-        if (this.linkedEngineerSystem) {
-            this.linkedEngineerSystem.setPowerLevelFromSystem(this);
-        }
+        this.linkedEngineerSystem.setPowerLevelFromSystem(this);
     }
 
     /**
@@ -71,26 +76,20 @@ export class SystemState extends Schema implements SystemInfo {
         // The "proper" value is always clamped to within the allowed bounds.
         (this as { health: number }).health = Math.max(0, Math.min(this.underlyingHealth, this.maxHealth));
 
-        if (this.linkedEngineerSystem) {
-            this.linkedEngineerSystem.setHealthFromSystem(this);
-        }
+        this.linkedEngineerSystem.setHealthFromSystem(this);
     }
 
     /**
      * Get the effects currently applied to this system.
      */
     getEffects(): MinimalReadonlyArray<SystemEffect> {
-        return this.linkedEngineerSystem?.effects ?? [];
+        return this.linkedEngineerSystem.effects;
     }
 
     /**
      * Add an effect to this system.
      */
     addEffect(effectType: SystemEffectType, duration?: number, level?: number) {
-        if (!this.linkedEngineerSystem) {
-            throw new Error('Cannot add effect to system that is not linked to an engineer system tile');
-        }
-
         this.linkedEngineerSystem.addEffect(effectType, duration, level);
     }
 
@@ -99,18 +98,20 @@ export class SystemState extends Schema implements SystemInfo {
      * Returns true if the effect was found and removed.
      */
     removeEffect(effect: SystemEffectType, early: boolean): boolean {
-        if (!this.linkedEngineerSystem) {
-            throw new Error('Cannot remove effect from system that is not linked to an engineer system tile');
-        }
-
         return this.linkedEngineerSystem.removeEffect(effect, early);
+    }
+
+    public tryGenerate() {
+        if (this.linkedEngineerSystem.hasEffect('disruptGeneration')) {
+            this.linkedEngineerSystem.decrementEffectLevel('disruptGeneration');
+        } else {
+            this.generate();
+        }
     }
 
     /**
      * Generate (e.g. a card) for this system.
      * Base SystemState does nothing; subclasses can override.
      */
-    generate(): void {
-        // Do nothing by default.
-    }
+    protected abstract generate(): void;
 }

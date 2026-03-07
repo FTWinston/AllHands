@@ -1,10 +1,10 @@
 import { ArraySchema, type } from '@colyseus/schema';
+import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { CrewSystemSetupInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CooldownState } from './CooldownState';
 import { CrewSystemState } from './CrewSystemState';
 import { EngineerSystemTile } from './EngineerSystemTile';
 import { GameState } from './GameState';
-import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import type { Ship } from './Ship';
 
 export class EngineerState extends CrewSystemState implements EngineerSystemInfo {
@@ -157,7 +157,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         } else if (currentTime >= this.generationProgress.endTime) {
             // Generation complete: unmark and generate.
             systemTile.generating = false;
-            systemTile.systemState.generate();
+            systemTile.systemState.tryGenerate();
 
             // Advance to the next system.
             this.generationSequenceIndex = (this.generationSequenceIndex + 1) % sequence.length;

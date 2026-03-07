@@ -12,7 +12,23 @@ function loadEffectDefinitions() {
         },
         reducedPower: {
             name: 'Reduced Power',
-            description: <>Reactor damage is causing this system to be affected by reduced power, decreasing its power level by <EffectLevel />.</>,
+            description: <>
+                Reactor damage has decreased the power available to this systemby
+                {' '}
+                <EffectLevel />
+                .
+            </>,
+            image: ExampleIcon,
+        },
+        disruptGeneration: {
+            name: 'Disrupted',
+            description: <>
+                This system is being disrupted, and will not generate for the next
+                {' '}
+                <EffectLevel />
+                {' '}
+                attempts.
+            </>,
             image: ExampleIcon,
         },
         something1: {

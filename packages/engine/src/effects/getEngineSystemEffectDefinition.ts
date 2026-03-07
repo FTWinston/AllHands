@@ -37,6 +37,14 @@ function loadSystemEffectDefinitions() {
                 system.adjustSystemPowerLevel(oldLevel - newLevel);
             },
         },
+        disruptGeneration: {
+            apply: () => {
+                return true;
+            },
+            remove: () => {
+
+            },
+        },
         something1: {
             apply: (_system, _level) => {
                 return true;
