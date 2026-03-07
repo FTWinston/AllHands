@@ -29,7 +29,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
     private _linkedEngineerSystem?: EngineerSystemTile;
 
-    public get linkedEngineerSystem(): EngineerSystemTile {
+    protected get linkedEngineerSystem(): EngineerSystemTile {
         if (this._linkedEngineerSystem) {
             return this._linkedEngineerSystem;
         } else {
