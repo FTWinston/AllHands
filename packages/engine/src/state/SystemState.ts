@@ -7,7 +7,6 @@ import { SystemEffect } from './SystemEffect';
 import type { EngineerSystemTile } from './EngineerSystemTile';
 import type { Ship } from './Ship';
 
-export { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 
 export class SystemState extends Schema implements SystemInfo {
     constructor(setup: SystemSetupInfo, protected readonly _gameState: GameState, protected readonly _ship: Ship) {

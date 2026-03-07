@@ -4,7 +4,7 @@ import { CooldownState } from './CooldownState';
 import { CrewSystemState } from './CrewSystemState';
 import { EngineerSystemTile } from './EngineerSystemTile';
 import { GameState } from './GameState';
-import { MAX_POWER_LEVEL } from './SystemState';
+import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import type { Ship } from './Ship';
 
 export class EngineerState extends CrewSystemState implements EngineerSystemInfo {
