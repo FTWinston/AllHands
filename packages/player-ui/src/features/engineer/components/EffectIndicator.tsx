@@ -3,11 +3,12 @@ import { InfoPopup } from 'common-ui/components/InfoPopup';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { classNames } from 'common-ui/utils/classNames';
 import { ComponentType, JSX } from 'react';
+import { EffectDescriptionProps } from 'common-ui/types/UISystemEffectDefinition';
 import styles from './EffectIndicator.module.css';
 
 type Props = {
     name: string;
-    description: JSX.Element;
+    description: JSX.Element | ComponentType<EffectDescriptionProps>;
     positive: boolean;
     image: ComponentType<{ className?: string }>;
     className?: string;
@@ -20,11 +21,15 @@ type Props = {
 export const EffectIndicator = (props: Props) => {
     const Image = props.image;
 
+    const descriptionElement = typeof props.description === 'function'
+        ? <props.description level={props.level} />
+        : props.description;
+
     return (
         <InfoPopup
             className={classNames(styles.effect, props.hidden ? styles.hidden : undefined, props.className)}
             name={props.name}
-            description={props.description}
+            description={descriptionElement}
             palette={props.positive ? 'good' : 'danger'}
         >
             <Image className={styles.icon} />
