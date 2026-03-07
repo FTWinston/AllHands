@@ -2,11 +2,14 @@ import { Cooldown } from 'src/types/Cooldown';
 import { SystemEffectType } from '../utils/systemEffectDefinitions';
 
 export interface SystemEffectDefinition {
+    enabled: boolean;
     positive: boolean;
     duration?: number;
+    usesLevels?: boolean;
 }
 
 export type SystemEffectInstance = {
     type: SystemEffectType;
     progress: Cooldown | null;
+    level?: number;
 };

@@ -3,7 +3,8 @@ import { EngineerSystemTile } from 'src/state/EngineerSystemTile';
 
 export type SystemEffectFunctionality = {
     apply: (system: EngineerSystemTile) => boolean;
-    remove: (system: EngineerSystemTile, early: boolean) => void;
+    remove: (system: EngineerSystemTile, early: boolean, level?: number) => void;
+    onLevelChanged?: (system: EngineerSystemTile, newLevel: number, oldLevel: number) => void;
 };
 
 export type EngineSystemEffectDefinition = SystemEffectFunctionality & SystemEffectDefinition;

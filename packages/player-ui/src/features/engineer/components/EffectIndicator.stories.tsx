@@ -32,6 +32,17 @@ export const FixedFraction: Story = {
     },
 };
 
+export const WithLevel: Story = {
+    args: {
+        positive: false,
+        image: ExampleIcon,
+        name: 'Leveled effect',
+        description: <>An effect that uses levels.</>,
+        usesLevels: true,
+        level: 3,
+    },
+};
+
 export const Cyclic: Story = {
     args: {
         positive: false,

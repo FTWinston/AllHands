@@ -21,56 +21,20 @@ function loadSystemEffectDefinitions() {
                 system.adjustSystemPowerLevel(-1);
             },
         },
-        reducedPower1: {
+        reducedPower: {
             apply: (system) => {
                 system.adjustSystemPowerLevel(-1);
                 return true;
             },
-            remove: (system, early) => {
-                system.adjustSystemPowerLevel(1);
+            remove: (system, early, level = 1) => {
+                system.adjustSystemPowerLevel(level);
 
                 if (early) {
                     // TODO: if removed early, add this affect to a different system instead.
                 }
             },
-        },
-        reducedPower2: {
-            apply: (system) => {
-                system.adjustSystemPowerLevel(-2);
-                return true;
-            },
-            remove: (system, early) => {
-                system.adjustSystemPowerLevel(2);
-
-                if (early) {
-                    // TODO: if removed early, add this affect to a different system instead.
-                }
-            },
-        },
-        reducedPower3: {
-            apply: (system) => {
-                system.adjustSystemPowerLevel(-3);
-                return true;
-            },
-            remove: (system, early) => {
-                system.adjustSystemPowerLevel(3);
-
-                if (early) {
-                    // TODO: if removed early, add this affect to a different system instead.
-                }
-            },
-        },
-        reducedPower4: {
-            apply: (system) => {
-                system.adjustSystemPowerLevel(-4);
-                return true;
-            },
-            remove: (system, early) => {
-                system.adjustSystemPowerLevel(4);
-
-                if (early) {
-                    // TODO: if removed early, add this affect to a different system instead.
-                }
+            onLevelChanged: (system, newLevel, oldLevel) => {
+                system.adjustSystemPowerLevel(oldLevel - newLevel);
             },
         },
         something1: {

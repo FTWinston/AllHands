@@ -66,3 +66,19 @@ export const EffectList: Story = {
         );
     },
 };
+
+export const WithLeveledEffect: Story = {
+    args: {
+        effects: [
+            {
+                type: 'reducedPower',
+                progress: null,
+                level: 3,
+            },
+            {
+                type: 'something1',
+                progress: { startTime: Date.now(), endTime: Date.now() + 30000 } as Cooldown,
+            },
+        ],
+    },
+};

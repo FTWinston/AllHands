@@ -38,6 +38,8 @@ export const EffectList = (props: Props) => {
                             name={definition.name}
                             description={definition.description}
                             progress={effect.progress}
+                            level={effect.level}
+                            usesLevels={definition.usesLevels}
                             hidden={removingItemIds.has(effect.type) || !currentItemIds.has(effect.type)}
                         />
                     </li>

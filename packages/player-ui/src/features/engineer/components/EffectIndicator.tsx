@@ -13,6 +13,8 @@ type Props = {
     className?: string;
     hidden?: boolean;
     progress?: Cooldown | null;
+    level?: number;
+    usesLevels?: boolean;
 };
 
 export const EffectIndicator = (props: Props) => {
@@ -26,6 +28,10 @@ export const EffectIndicator = (props: Props) => {
             palette={props.positive ? 'good' : 'danger'}
         >
             <Image className={styles.icon} />
+
+            {props.usesLevels && props.level !== undefined && props.level > 0 ? (
+                <span className={styles.level}>{props.level}</span>
+            ) : null}
 
             <RadialProgress
                 className={styles.progress}

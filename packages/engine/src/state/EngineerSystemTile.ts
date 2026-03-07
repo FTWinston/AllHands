@@ -43,7 +43,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
      * Add an effect to this system, or update its duration if already present.
      * We don't currently have the concept of an effect that can stack multiple times.
      */
-    addEffect(effectType: SystemEffectType, duration?: number): boolean {
+    addEffect(effectType: SystemEffectType, duration?: number, level?: number): boolean {
         const startTime = this.systemState.getGameState().clock.currentTime;
         const cooldown = duration ? new CooldownState(startTime, startTime + duration) : null;
 
@@ -51,7 +51,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         if (effect) {
             effect.progress = cooldown;
         } else {
-            effect = new SystemEffect(effectType, cooldown);
+            effect = new SystemEffect(effectType, cooldown, level);
 
             if (!getSystemEffectDefinition(effectType).apply(this)) {
                 return false;
@@ -67,53 +67,44 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
      * Remove a specific effect from this system.
      * Returns true if the effect was found and removed.
      */
-    removeEffect(effect: SystemEffectType, early: boolean): boolean {
-        const index = this.effects.findIndex(e => e.type === effect);
+    removeEffect(effectType: SystemEffectType, early: boolean): boolean {
+        const index = this.effects.findIndex(e => e.type === effectType);
         if (index === -1) {
             return false;
         }
+        const level = this.effects[index].level || undefined;
         this.effects.splice(index, 1);
 
-        getSystemEffectDefinition(effect)
-            .remove(this, early);
+        getSystemEffectDefinition(effectType)
+            .remove(this, early, level);
 
         return true;
     }
 
     countReducedPowerEffects(): number {
-        return this.effects.reduce((total, effect) => {
-            switch (effect.type) {
-                case 'reducedPower1':
-                    return total + 1;
-                case 'reducedPower2':
-                    return total + 2;
-                case 'reducedPower3':
-                    return total + 3;
-                case 'reducedPower4':
-                    return total + 4;
-                default:
-                    return total;
-            }
-        }, 0);
+        const effect = this.effects.find(e => e.type === 'reducedPower');
+        return effect ? effect.level : 0;
     }
 
     /**
-     * Increment the reduced power effect on this system by one "level", up to the maximum level of reducedPower4.
+     * Increment the reduced power effect on this system by one "level", up to the maximum level of 4.
      * Returns true if no more reduced power effects can be added after the increment.
      */
     incrementReducedPowerEffect() {
-        if (this.removeEffect('reducedPower3', true)) {
-            this.addEffect('reducedPower4');
-            return true;
-        } else if (this.removeEffect('reducedPower2', true)) {
-            this.addEffect('reducedPower3');
-        } else if (this.removeEffect('reducedPower1', true)) {
-            this.addEffect('reducedPower2');
+        const effect = this.effects.find(e => e.type === 'reducedPower');
+        if (effect) {
+            const oldLevel = effect.level;
+            if (oldLevel >= 4) {
+                return true;
+            }
+            const newLevel = oldLevel + 1;
+            effect.level = newLevel;
+            getSystemEffectDefinition('reducedPower').onLevelChanged?.(this, newLevel, oldLevel);
+            return newLevel >= 4;
         } else {
-            this.addEffect('reducedPower1');
+            this.addEffect('reducedPower', undefined, 1);
+            return false;
         }
-
-        return false;
     }
 
     /**
@@ -121,19 +112,18 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
      * Returns true if no reduced power effects are still present after the decrement.
      */
     decrementReducedPowerEffect() {
-        if (this.removeEffect('reducedPower4', true)) {
-            this.addEffect('reducedPower3');
-            return false;
-        } else if (this.removeEffect('reducedPower3', true)) {
-            this.addEffect('reducedPower2');
-            return false;
-        } else if (this.removeEffect('reducedPower2', true)) {
-            this.addEffect('reducedPower1');
-            return false;
-        } else {
-            this.removeEffect('reducedPower1', true);
+        const effect = this.effects.find(e => e.type === 'reducedPower');
+        if (!effect) {
+            return true;
         }
-
-        return true;
+        const oldLevel = effect.level;
+        if (oldLevel <= 1) {
+            this.removeEffect('reducedPower', true);
+            return true;
+        }
+        const newLevel = oldLevel - 1;
+        effect.level = newLevel;
+        getSystemEffectDefinition('reducedPower').onLevelChanged?.(this, newLevel, oldLevel);
+        return false;
     }
 }
