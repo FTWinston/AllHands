@@ -1,10 +1,7 @@
 import { systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
-import { EffectDescriptionProps, SystemEffectDescription, UISystemEffectDefinition } from '../types/UISystemEffectDefinition';
-
-const ReducedPowerDescription = ({ level = 1 }: EffectDescriptionProps) => (
-    <>Reactor damage is causing this system to operate {level > 1 ? `${level} levels` : '1 level'} below normal power.</>
-);
+import { EffectLevel } from 'common-ui/components/EffectLevelContext';
+import { SystemEffectDescription, UISystemEffectDefinition } from '../types/UISystemEffectDefinition';
 
 function loadEffectDefinitions() {
     const effectDescriptions: Record<SystemEffectType, SystemEffectDescription> = {
@@ -15,7 +12,7 @@ function loadEffectDefinitions() {
         },
         reducedPower: {
             name: 'Reduced Power',
-            description: ReducedPowerDescription,
+            description: <>Reactor damage is causing this system to be affected by reduced power, decreasing its power level by <EffectLevel />.</>,
             image: ExampleIcon,
         },
         something1: {

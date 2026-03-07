@@ -5,8 +5,6 @@ function defineSystemEffects<T extends Record<string, SystemEffectDefinition>>(d
     return defs;
 }
 
-export const MAX_POWER_LEVEL = 5;
-
 export const systemEffectDefinitions = defineSystemEffects({
     auxPower: {
         positive: true,
@@ -15,7 +13,7 @@ export const systemEffectDefinitions = defineSystemEffects({
     reducedPower: {
         positive: false,
         usesLevels: true,
-        maxLevel: MAX_POWER_LEVEL,
+        maxLevel: 5,
     },
     something1: {
         positive: true,

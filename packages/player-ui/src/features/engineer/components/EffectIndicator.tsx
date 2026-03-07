@@ -1,14 +1,14 @@
 import { Cooldown } from 'common-data/types/Cooldown';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
+import { EffectLevelContext } from 'common-ui/components/EffectLevelContext';
 import { classNames } from 'common-ui/utils/classNames';
 import { ComponentType, JSX } from 'react';
-import { EffectDescriptionProps } from 'common-ui/types/UISystemEffectDefinition';
 import styles from './EffectIndicator.module.css';
 
 type Props = {
     name: string;
-    description: JSX.Element | ComponentType<EffectDescriptionProps>;
+    description: JSX.Element;
     positive: boolean;
     image: ComponentType<{ className?: string }>;
     className?: string;
@@ -21,28 +21,26 @@ type Props = {
 export const EffectIndicator = (props: Props) => {
     const Image = props.image;
 
-    const descriptionElement = typeof props.description === 'function'
-        ? <props.description level={props.level} />
-        : props.description;
-
     return (
-        <InfoPopup
-            className={classNames(styles.effect, props.hidden ? styles.hidden : undefined, props.className)}
-            name={props.name}
-            description={descriptionElement}
-            palette={props.positive ? 'good' : 'danger'}
-        >
-            <Image className={styles.icon} />
+        <EffectLevelContext.Provider value={props.level}>
+            <InfoPopup
+                className={classNames(styles.effect, props.hidden ? styles.hidden : undefined, props.className)}
+                name={props.name}
+                description={props.description}
+                palette={props.positive ? 'good' : 'danger'}
+            >
+                <Image className={styles.icon} />
 
-            {props.usesLevels && props.level !== undefined && props.level > 0 ? (
-                <span className={styles.level}>{props.level}</span>
-            ) : null}
+                {props.usesLevels && props.level !== undefined && props.level > 0 ? (
+                    <span className={styles.level}>{props.level}</span>
+                ) : null}
 
-            <RadialProgress
-                className={styles.progress}
-                progress={props.progress}
-                title={`${props.name} progress`}
-            />
-        </InfoPopup>
+                <RadialProgress
+                    className={styles.progress}
+                    progress={props.progress}
+                    title={`${props.name} progress`}
+                />
+            </InfoPopup>
+        </EffectLevelContext.Provider>
     );
 };

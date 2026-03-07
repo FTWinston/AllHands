@@ -1,10 +1,10 @@
 import { ArraySchema, type } from '@colyseus/schema';
 import { CrewSystemSetupInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { CooldownState } from './CooldownState';
 import { CrewSystemState } from './CrewSystemState';
 import { EngineerSystemTile } from './EngineerSystemTile';
 import { GameState } from './GameState';
+import { MAX_POWER_LEVEL } from './SystemState';
 import type { Ship } from './Ship';
 
 export class EngineerState extends CrewSystemState implements EngineerSystemInfo {
