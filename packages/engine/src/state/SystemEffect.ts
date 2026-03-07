@@ -14,7 +14,7 @@ export class SystemEffect extends Schema implements SystemEffectInstance {
 
     @type('string') type: SystemEffectType;
 
-    @type(CooldownState) progress: CooldownState | null = null;
+    @type(CooldownState) progress: CooldownState | null;
 
-    @type('uint8') level: number = 1;
+    @type('uint8') level: number;
 }
