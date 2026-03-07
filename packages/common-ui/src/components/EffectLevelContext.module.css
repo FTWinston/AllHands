@@ -1,7 +1,7 @@
 .positive {
-    color: var(--good-light);
+    color: var(--good-lightest);
 }
 
 .negative {
-    color: var(--danger-light);
+    color: var(--danger-lightest);
 }
