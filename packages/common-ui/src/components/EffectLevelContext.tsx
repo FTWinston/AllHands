@@ -1,9 +1,19 @@
 import { createContext, FC, useContext } from 'react';
 
-export const EffectLevelContext = createContext<number | undefined>(undefined);
+export type EffectLevelContextValue = {
+    level: number;
+    positive: boolean;
+};
+
+export const EffectLevelContext = createContext<EffectLevelContextValue | undefined>(undefined);
 
 export const EffectLevel: FC = () => {
-    // Default to 1: the minimum level, used when no context provider is present (e.g. in static previews).
-    const level = useContext(EffectLevelContext) ?? 1;
-    return <>{level}</>;
+    const ctx = useContext(EffectLevelContext);
+    const level = ctx?.level ?? 1;
+    const positive = ctx?.positive ?? false;
+    return (
+        <strong style={{ color: positive ? 'var(--good-light)' : 'var(--danger-light)' }}>
+            {level}
+        </strong>
+    );
 };

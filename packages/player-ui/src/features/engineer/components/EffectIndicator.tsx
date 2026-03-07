@@ -22,7 +22,7 @@ export const EffectIndicator = (props: Props) => {
     const Image = props.image;
 
     return (
-        <EffectLevelContext.Provider value={props.level}>
+        <EffectLevelContext.Provider value={{ level: props.level ?? 1, positive: props.positive }}>
             <InfoPopup
                 className={classNames(styles.effect, props.hidden ? styles.hidden : undefined, props.className)}
                 name={props.name}

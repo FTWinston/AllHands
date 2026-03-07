@@ -1,5 +1,7 @@
 import { SystemEffectDefinition } from '../types/SystemEffectDefinition';
 
+export const MAX_POWER_LEVEL = 5;
+
 // Enforce that values are of a system effect type, without widening the key type to "string".
 function defineSystemEffects<T extends Record<string, SystemEffectDefinition>>(defs: T) {
     return defs;
@@ -13,7 +15,7 @@ export const systemEffectDefinitions = defineSystemEffects({
     reducedPower: {
         positive: false,
         usesLevels: true,
-        maxLevel: 5,
+        maxLevel: MAX_POWER_LEVEL,
     },
     something1: {
         positive: true,
