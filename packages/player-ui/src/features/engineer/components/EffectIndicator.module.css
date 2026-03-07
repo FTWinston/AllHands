@@ -31,19 +31,20 @@
 .level {
     position: absolute;
     z-index: 2;
-    bottom: -0.1em;
-    right: -0.1em;
-    font-size: 0.65em;
+    bottom: -0.25em;
+    left: 1.25em;
+    font-size: 1em;
     font-weight: bold;
     line-height: 1;
     background-color: var(--color-dark);
-    color: var(--color-light);
-    border-radius: 50%;
-    width: 1.4em;
-    height: 1.4em;
+    color: var(--grey-lightest);
+    border-radius: 0.5em;
+    min-width: 1.15em;
+    padding: 0 0.25em;
+    height: 1.15em;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 .progress {

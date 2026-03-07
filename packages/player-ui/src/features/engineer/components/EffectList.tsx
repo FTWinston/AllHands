@@ -1,8 +1,8 @@
 import { SystemEffectInstance } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { classNames } from 'common-ui/utils/classNames';
-import { useArrayChanges } from 'src/hooks/useArrayChanges';
 import { getSystemEffectDefinition } from 'common-ui/utils/getUiSystemEffectDefinition.js';
+import { useArrayChanges } from 'src/hooks/useArrayChanges';
 import { EffectIndicator } from './EffectIndicator';
 import styles from './EffectList.module.css';
 
@@ -38,8 +38,7 @@ export const EffectList = (props: Props) => {
                             name={definition.name}
                             description={definition.description}
                             progress={effect.progress}
-                            level={effect.level}
-                            usesLevels={definition.usesLevels}
+                            level={definition.usesLevels ? effect.level : undefined}
                             hidden={removingItemIds.has(effect.type) || !currentItemIds.has(effect.type)}
                         />
                     </li>
