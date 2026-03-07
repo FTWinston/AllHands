@@ -53,7 +53,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         } else {
             effect = new SystemEffect(effectType, cooldown, level);
 
-            if (!getSystemEffectDefinition(effectType).apply(this)) {
+            if (!getSystemEffectDefinition(effectType).apply(this, level)) {
                 return false;
             }
 
@@ -81,49 +81,54 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         return true;
     }
 
-    countReducedPowerEffects(): number {
-        const effect = this.effects.find(e => e.type === 'reducedPower');
+    /**
+     * Get the current level of an effect on this system, or 0 if the effect is not present.
+     */
+    getEffectLevel(effectType: SystemEffectType): number {
+        const effect = this.effects.find(e => e.type === effectType);
         return effect ? effect.level : 0;
     }
 
     /**
-     * Increment the reduced power effect on this system by one "level", up to the maximum level of 4.
-     * Returns true if no more reduced power effects can be added after the increment.
+     * Increment the level of an effect on this system by one, up to an optional maximum level.
+     * Adds the effect at level 1 if it is not already present.
+     * Returns true if no more levels can be added after the increment.
      */
-    incrementReducedPowerEffect() {
-        const effect = this.effects.find(e => e.type === 'reducedPower');
+    incrementEffectLevel(effectType: SystemEffectType, maxLevel?: number, duration?: number): boolean {
+        const effect = this.effects.find(e => e.type === effectType);
         if (effect) {
             const oldLevel = effect.level;
-            if (oldLevel >= 4) {
+            if (maxLevel !== undefined && oldLevel >= maxLevel) {
                 return true;
             }
             const newLevel = oldLevel + 1;
             effect.level = newLevel;
-            getSystemEffectDefinition('reducedPower').onLevelChanged?.(this, newLevel, oldLevel);
-            return newLevel >= 4;
+            getSystemEffectDefinition(effectType).onLevelChanged?.(this, newLevel, oldLevel);
+            return maxLevel !== undefined && newLevel >= maxLevel;
         } else {
-            this.addEffect('reducedPower', undefined, 1);
-            return false;
+            this.addEffect(effectType, duration, 1);
+            return maxLevel !== undefined && maxLevel <= 1;
         }
     }
 
     /**
-     * Decrement the reduced power effect on this system by one "level", if present.
-     * Returns true if no reduced power effects are still present after the decrement.
+     * Decrement the level of an effect on this system by one.
+     * Removes the effect if the level reaches 0.
+     * Returns true if the effect was removed (level reached 0 or was not present).
      */
-    decrementReducedPowerEffect() {
-        const effect = this.effects.find(e => e.type === 'reducedPower');
+    decrementEffectLevel(effectType: SystemEffectType): boolean {
+        const effect = this.effects.find(e => e.type === effectType);
         if (!effect) {
             return true;
         }
         const oldLevel = effect.level;
         if (oldLevel <= 1) {
-            this.removeEffect('reducedPower', true);
+            this.removeEffect(effectType, true);
             return true;
         }
         const newLevel = oldLevel - 1;
         effect.level = newLevel;
-        getSystemEffectDefinition('reducedPower').onLevelChanged?.(this, newLevel, oldLevel);
+        getSystemEffectDefinition(effectType).onLevelChanged?.(this, newLevel, oldLevel);
         return false;
     }
 }

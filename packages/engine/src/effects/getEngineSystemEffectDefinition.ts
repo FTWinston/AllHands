@@ -22,8 +22,8 @@ function loadSystemEffectDefinitions() {
             },
         },
         reducedPower: {
-            apply: (system) => {
-                system.adjustSystemPowerLevel(-1);
+            apply: (system, level = 1) => {
+                system.adjustSystemPowerLevel(-level);
                 return true;
             },
             remove: (system, early, level = 1) => {
