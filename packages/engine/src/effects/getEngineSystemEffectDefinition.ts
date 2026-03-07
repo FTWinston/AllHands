@@ -6,7 +6,7 @@ type SystemEffectFunctionalityLookup = Record<SystemEffectType, SystemEffectFunc
 function loadSystemEffectDefinitions() {
     const systemEffectFunctionalities: SystemEffectFunctionalityLookup = {
         auxPower: {
-            apply: (system) => {
+            apply: (system, _level) => {
                 // Remove this effect from every other ship system.
                 system.systemState.getShip().engineerState.systems.forEach((s) => {
                     if (s.system !== system.system) {
@@ -17,123 +17,87 @@ function loadSystemEffectDefinitions() {
                 system.adjustSystemPowerLevel(1);
                 return true;
             },
-            remove: (system, _early) => {
+            remove: (system, _early, _level) => {
                 system.adjustSystemPowerLevel(-1);
             },
         },
-        reducedPower1: {
-            apply: (system) => {
-                system.adjustSystemPowerLevel(-1);
+        reducedPower: {
+            apply: (system, level) => {
+                system.adjustSystemPowerLevel(-level);
                 return true;
             },
-            remove: (system, early) => {
-                system.adjustSystemPowerLevel(1);
+            remove: (system, early, level) => {
+                system.adjustSystemPowerLevel(level);
 
                 if (early) {
                     // TODO: if removed early, add this affect to a different system instead.
                 }
             },
-        },
-        reducedPower2: {
-            apply: (system) => {
-                system.adjustSystemPowerLevel(-2);
-                return true;
-            },
-            remove: (system, early) => {
-                system.adjustSystemPowerLevel(2);
-
-                if (early) {
-                    // TODO: if removed early, add this affect to a different system instead.
-                }
-            },
-        },
-        reducedPower3: {
-            apply: (system) => {
-                system.adjustSystemPowerLevel(-3);
-                return true;
-            },
-            remove: (system, early) => {
-                system.adjustSystemPowerLevel(3);
-
-                if (early) {
-                    // TODO: if removed early, add this affect to a different system instead.
-                }
-            },
-        },
-        reducedPower4: {
-            apply: (system) => {
-                system.adjustSystemPowerLevel(-4);
-                return true;
-            },
-            remove: (system, early) => {
-                system.adjustSystemPowerLevel(4);
-
-                if (early) {
-                    // TODO: if removed early, add this affect to a different system instead.
-                }
+            onLevelChanged: (system, newLevel, oldLevel) => {
+                system.adjustSystemPowerLevel(oldLevel - newLevel);
             },
         },
         something1: {
-            apply: (_system) => {
+            apply: (_system, _level) => {
                 return true;
             },
-            remove: (_system, _early) => {
+            remove: (_system, _early, _level) => {
 
             },
         },
         something2: {
-            apply: (_system) => {
+            apply: (_system, _level) => {
                 return true;
             },
-            remove: (_system, _early) => {
+            remove: (_system, _early, _level) => {
 
             },
         },
         something3: {
-            apply: (_system) => {
+            apply: (_system, _level) => {
                 return true;
             },
-            remove: (_system, _early) => {
+            remove: (_system, _early, _level) => {
 
             },
         },
         something4: {
-            apply: (_system) => {
+            apply: (_system, _level) => {
                 return true;
             },
-            remove: (_system, _early) => {
+            remove: (_system, _early, _level) => {
 
             },
         },
         something5: {
-            apply: (_system) => {
+            apply: (_system, _level) => {
                 return true;
             },
-            remove: (_system, _early) => {
+            remove: (_system, _early, _level) => {
 
             },
         },
         something6: {
-            apply: (_system) => {
+            apply: (_system, _level) => {
                 return true;
             },
-            remove: (_system, _early) => {
+            remove: (_system, _early, _level) => {
 
             },
         },
         something7: {
-            apply: (_system) => {
+            apply: (_system, _level) => {
                 return true;
             },
-            remove: (_system, _early) => {
+            remove: (_system, _early, _level) => {
 
             },
         },
         something8: {
-            apply: (_system) => {
+            apply: (_system, _level) => {
                 return true;
             },
-            remove: (_system, _early) => {
+            remove: (_system, _early, _level) => {
 
             },
         },

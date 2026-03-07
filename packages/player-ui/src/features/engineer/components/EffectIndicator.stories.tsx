@@ -1,4 +1,5 @@
 import { Cooldown } from 'common-data/types/Cooldown';
+import { EffectLevel } from 'common-ui/components/EffectLevelContext';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { useEffect, useState } from 'react';
 import { EffectIndicator as Component } from './EffectIndicator';
@@ -29,6 +30,21 @@ export const FixedFraction: Story = {
         name: 'Fractional effect',
         description: <>An effect that starts half way through a very long duration, so it essentially doesn't animate.</>,
         progress: { startTime: Date.now() - 5000000, endTime: Date.now() + 5000000 } as Cooldown,
+    },
+};
+
+export const WithLevel: Story = {
+    args: {
+        positive: false,
+        image: ExampleIcon,
+        name: 'Leveled effect',
+        description: <>
+            An effect that uses levels. This one is level
+            {' '}
+            <EffectLevel />
+            .
+        </>,
+        level: 3,
     },
 };
 

@@ -7,6 +7,7 @@ import { SystemEffect } from './SystemEffect';
 import type { EngineerSystemTile } from './EngineerSystemTile';
 import type { Ship } from './Ship';
 
+
 export class SystemState extends Schema implements SystemInfo {
     constructor(setup: SystemSetupInfo, protected readonly _gameState: GameState, protected readonly _ship: Ship) {
         super();
@@ -85,12 +86,12 @@ export class SystemState extends Schema implements SystemInfo {
     /**
      * Add an effect to this system.
      */
-    addEffect(effectType: SystemEffectType, duration?: number) {
+    addEffect(effectType: SystemEffectType, duration?: number, level?: number) {
         if (!this.linkedEngineerSystem) {
             throw new Error('Cannot add effect to system that is not linked to an engineer system tile');
         }
 
-        this.linkedEngineerSystem.addEffect(effectType, duration);
+        this.linkedEngineerSystem.addEffect(effectType, duration, level);
     }
 
     /**

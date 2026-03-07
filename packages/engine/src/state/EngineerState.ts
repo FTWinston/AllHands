@@ -4,6 +4,7 @@ import { CooldownState } from './CooldownState';
 import { CrewSystemState } from './CrewSystemState';
 import { EngineerSystemTile } from './EngineerSystemTile';
 import { GameState } from './GameState';
+import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import type { Ship } from './Ship';
 
 export class EngineerState extends CrewSystemState implements EngineerSystemInfo {
@@ -74,18 +75,18 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         const targetNumReducedPowerEffects = reactorMaxHealth - reactorHealth;
 
         let existingNumReducedPowerEffects = this.systems.reduce((total, tile) => {
-            return total + tile.countReducedPowerEffects();
+            return total + tile.getEffectLevel('reducedPower');
         }, 0);
 
         const random = this.getGameState().random;
 
         if (targetNumReducedPowerEffects > existingNumReducedPowerEffects) {
-            const systems = this.systems.filter(tile => tile.system !== 'reactor' && tile.countReducedPowerEffects() < 4);
+            const systems = this.systems.filter(tile => tile.system !== 'reactor' && tile.getEffectLevel('reducedPower') < MAX_POWER_LEVEL);
 
             // Add new reduced power effects to systems, randomly, until the total number matches the target.
             do {
                 const system = random.pick(systems);
-                const maxed = system.incrementReducedPowerEffect();
+                const maxed = system.incrementEffectLevel('reducedPower');
                 existingNumReducedPowerEffects++;
 
                 if (maxed) {
@@ -95,12 +96,12 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
                 }
             } while (targetNumReducedPowerEffects > existingNumReducedPowerEffects && systems.length > 0);
         } else if (targetNumReducedPowerEffects < existingNumReducedPowerEffects) {
-            const systems = this.systems.filter(tile => tile.countReducedPowerEffects() > 0);
+            const systems = this.systems.filter(tile => tile.getEffectLevel('reducedPower') > 0);
 
             // Remove reduced power effects from systems, randomly, until the total number matches the target.
             do {
                 const system = random.pick(systems);
-                const emptied = system.decrementReducedPowerEffect();
+                const emptied = system.decrementEffectLevel('reducedPower');
                 existingNumReducedPowerEffects--;
 
                 if (emptied) {
