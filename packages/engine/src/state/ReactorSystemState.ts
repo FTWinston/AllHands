@@ -8,8 +8,17 @@ export class ReactorSystemState extends SystemState {
         super(setup, gameState, ship);
     }
 
+    /**
+     * Add an "aux power" card to the engineer's hand, if they don't already have one, and the hand isn't full.
+     */
     override generate(): void {
-        // TODO: reactor-specific generation behavior
+        const engineerState = this.getShip().engineerState;
+
+        if (engineerState.hand.some(card => card.type === 'auxPower')) {
+            return;
+        }
+
+        engineerState.addCard('auxPower');
     }
 
     override adjustHealth(value: number): void {

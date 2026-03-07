@@ -4,7 +4,6 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { CrewSystemSetupInfo, SystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { parseVector } from 'common-data/features/space/utils/vectors';
-import { IRandom } from 'common-data/types/IRandom';
 import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { CardState } from './CardState';
@@ -14,7 +13,7 @@ import { SystemState } from './SystemState';
 import type { Ship } from './Ship';
 
 export class CrewSystemState extends SystemState implements SystemInfo {
-    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
+    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, private getCardId: () => number) {
         super(setup, gameState, ship);
 
         // The first initialHandSize cards go straight into the hand.
@@ -66,7 +65,9 @@ export class CrewSystemState extends SystemState implements SystemInfo {
     /**
      * Randomly take card(s) from the hand and add them to the discard pile.
      */
-    discard(random: IRandom, number = 1) {
+    discard(number = 1) {
+        const random = this.getShip().random;
+
         for (let i = 0; i < number; i++) {
             if (this.hand.length === 0) {
                 return;
@@ -195,6 +196,23 @@ export class CrewSystemState extends SystemState implements SystemInfo {
         if (addToDiscard) {
             this.discardPile.push(card);
         }
+    }
+
+    /**
+     * Add a new card of the given type to the hand, optionally forceably discarding a random card from the hand if it is full.
+     */
+    addCard(cardType: CardType, force: boolean = false) {
+        if (this.hand.length >= this.health) {
+            if (force) {
+                // Discard a random card from the hand to make room.
+                this.discard(1);
+            } else {
+                return;
+            }
+        }
+
+        const newCard = new CardState(this.getCardId(), cardType);
+        this.hand.push(newCard);
     }
 
     /**

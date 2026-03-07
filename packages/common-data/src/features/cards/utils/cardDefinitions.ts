@@ -148,6 +148,7 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'system',
         crew: 'engineer',
         cost: 1,
+        traits: ['expendable'],
     },
     swapSystems: {
         targetType: 'choice',
