@@ -1,4 +1,5 @@
 import { createContext, FC, useContext } from 'react';
+import styles from './EffectLevelContext.module.css';
 
 export type EffectLevelContextValue = {
     level: number;
@@ -12,7 +13,7 @@ export const EffectLevel: FC = () => {
     const level = ctx?.level ?? 1;
     const positive = ctx?.positive ?? false;
     return (
-        <strong style={{ color: positive ? 'var(--good-light)' : 'var(--danger-light)' }}>
+        <strong className={positive ? styles.positive : styles.negative}>
             {level}
         </strong>
     );

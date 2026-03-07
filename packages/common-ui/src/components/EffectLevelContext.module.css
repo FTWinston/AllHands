@@ -1,0 +1,7 @@
+.positive {
+    color: var(--good-light);
+}
+
+.negative {
+    color: var(--danger-light);
+}
