@@ -4,7 +4,8 @@ import { SystemEffectType } from '../utils/systemEffectDefinitions';
 export interface SystemEffectDefinition {
     positive: boolean;
     duration?: number;
-    usesLevels?: boolean;
+    usesLevels: boolean;
+    maxLevel?: number;
 }
 
 export type SystemEffectInstance = {

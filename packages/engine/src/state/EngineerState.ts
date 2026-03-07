@@ -1,5 +1,6 @@
 import { ArraySchema, type } from '@colyseus/schema';
 import { CrewSystemSetupInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { CooldownState } from './CooldownState';
 import { CrewSystemState } from './CrewSystemState';
 import { EngineerSystemTile } from './EngineerSystemTile';
@@ -80,12 +81,12 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         const random = this.getGameState().random;
 
         if (targetNumReducedPowerEffects > existingNumReducedPowerEffects) {
-            const systems = this.systems.filter(tile => tile.system !== 'reactor' && tile.getEffectLevel('reducedPower') < 4);
+            const systems = this.systems.filter(tile => tile.system !== 'reactor' && tile.getEffectLevel('reducedPower') < MAX_POWER_LEVEL);
 
             // Add new reduced power effects to systems, randomly, until the total number matches the target.
             do {
                 const system = random.pick(systems);
-                const maxed = system.incrementEffectLevel('reducedPower', 4);
+                const maxed = system.incrementEffectLevel('reducedPower');
                 existingNumReducedPowerEffects++;
 
                 if (maxed) {

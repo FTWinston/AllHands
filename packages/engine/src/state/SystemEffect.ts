@@ -4,19 +4,17 @@ import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectD
 import { CooldownState } from './CooldownState';
 
 export class SystemEffect extends Schema implements SystemEffectInstance {
-    constructor(type: SystemEffectType, progress: CooldownState | null, level?: number) {
+    constructor(type: SystemEffectType, progress: CooldownState | null, level: number = 1) {
         super();
 
         this.type = type;
         this.progress = progress;
-        if (level !== undefined) {
-            this.level = level;
-        }
+        this.level = level;
     }
 
     @type('string') type: SystemEffectType;
 
     @type(CooldownState) progress: CooldownState | null = null;
 
-    @type('uint8') level: number = 0;
+    @type('uint8') level: number = 1;
 }
