@@ -1,6 +1,6 @@
 import { systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
-import { EffectLevel } from 'common-ui/components/EffectLevelContext';
+import { EffectLevel } from '../components/EffectLevelContext';
 import { SystemEffectDescription, UISystemEffectDefinition } from '../types/UISystemEffectDefinition';
 
 function loadEffectDefinitions() {
