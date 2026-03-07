@@ -27,11 +27,11 @@ export abstract class SystemState extends Schema implements SystemInfo {
         return this._ship;
     }
 
-    private _linkedEngineerSystem?: EngineerSystemTile;
+    private _linkedEngineerSystemTile?: EngineerSystemTile;
 
-    protected get linkedEngineerSystem(): EngineerSystemTile {
-        if (this._linkedEngineerSystem) {
-            return this._linkedEngineerSystem;
+    protected get linkedEngineerSystemTile(): EngineerSystemTile {
+        if (this._linkedEngineerSystemTile) {
+            return this._linkedEngineerSystemTile;
         } else {
             throw new Error('This system is not linked to an engineer system tile');
         }
@@ -42,7 +42,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
      * and effect changes are automatically propagated.
      */
     linkEngineerSystem(engineerSystem: EngineerSystemTile) {
-        this._linkedEngineerSystem = engineerSystem;
+        this._linkedEngineerSystemTile = engineerSystem;
     }
 
     private underlyingPowerLevel: number;
@@ -63,7 +63,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
         // The "proper" value is always clamped to within the allowed bounds.
         (this as { powerLevel: number }).powerLevel = Math.max(0, Math.min(this.underlyingPowerLevel, this.maxPowerLevel));
 
-        this.linkedEngineerSystem.setPowerLevelFromSystem(this);
+        this.linkedEngineerSystemTile.setPowerLevelFromSystem(this);
     }
 
     /**
@@ -76,21 +76,21 @@ export abstract class SystemState extends Schema implements SystemInfo {
         // The "proper" value is always clamped to within the allowed bounds.
         (this as { health: number }).health = Math.max(0, Math.min(this.underlyingHealth, this.maxHealth));
 
-        this.linkedEngineerSystem.setHealthFromSystem(this);
+        this.linkedEngineerSystemTile.setHealthFromSystem(this);
     }
 
     /**
      * Get the effects currently applied to this system.
      */
     getEffects(): MinimalReadonlyArray<SystemEffect> {
-        return this.linkedEngineerSystem.effects;
+        return this.linkedEngineerSystemTile.effects;
     }
 
     /**
      * Add an effect to this system.
      */
     addEffect(effectType: SystemEffectType, duration?: number, level?: number) {
-        this.linkedEngineerSystem.addEffect(effectType, duration, level);
+        this.linkedEngineerSystemTile.addEffect(effectType, duration, level);
     }
 
     /**
@@ -98,12 +98,12 @@ export abstract class SystemState extends Schema implements SystemInfo {
      * Returns true if the effect was found and removed.
      */
     removeEffect(effect: SystemEffectType, early: boolean): boolean {
-        return this.linkedEngineerSystem.removeEffect(effect, early);
+        return this.linkedEngineerSystemTile.removeEffect(effect, early);
     }
 
     public tryGenerate() {
-        if (this.linkedEngineerSystem.hasEffect('disruptGeneration')) {
-            this.linkedEngineerSystem.decrementEffectLevel('disruptGeneration');
+        if (this.linkedEngineerSystemTile.hasEffect('disruptGeneration')) {
+            this.linkedEngineerSystemTile.adjustEffectLevel('disruptGeneration', -1);
         } else {
             this.generate();
         }

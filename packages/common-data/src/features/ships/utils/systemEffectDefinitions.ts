@@ -8,6 +8,11 @@ function defineSystemEffects<T extends Record<string, SystemEffectDefinition>>(d
 }
 
 export const systemEffectDefinitions = defineSystemEffects({
+    shield: {
+        positive: true,
+        usesLevels: true,
+        maxLevel: 100,
+    },
     auxPower: {
         positive: true,
         usesLevels: false,

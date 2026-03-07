@@ -97,48 +97,34 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
     }
 
     /**
-     * Increment the level of a leveled effect on this system by one, up to the effect's declared max level.
-     * Adds the effect at level 1 if it is not already present.
+     * Change the level of a leveled effect on this system by a specified adjustment, up to the effect's declared max level.
+     * Adds the effect at the adjustment's level if positive, and it is not already present.
      * Returns true if no more levels can be added after the increment.
      */
-    incrementEffectLevel(effectType: LeveledSystemEffectType, duration?: number): boolean {
+    adjustEffectLevel(effectType: LeveledSystemEffectType, adjustment: number, newDuration?: number) {
         const def = getSystemEffectDefinition(effectType);
         const maxLevel = def.maxLevel ?? 255;
 
         const effect = this.effects.find(e => e.type === effectType);
         if (effect) {
             const oldLevel = effect.level;
-            if (oldLevel >= maxLevel) {
+            if (adjustment > 0 && oldLevel >= maxLevel) {
                 return true;
             }
-            const newLevel = oldLevel + 1;
-            effect.level = newLevel;
-            def.onLevelChanged?.(this, newLevel, oldLevel);
-            return newLevel >= maxLevel;
-        } else {
-            this.addEffect(effectType, duration, 1);
+            const newLevel = Math.min(oldLevel + adjustment, maxLevel);
+            if (newLevel > 0) {
+                effect.level = newLevel;
+                def.onLevelChanged?.(this, newLevel, oldLevel);
+                return newLevel >= maxLevel;
+            } else {
+                this.removeEffect(effectType, true);
+                return false;
+            }
+        } else if (adjustment > 0) {
+            this.addEffect(effectType, newDuration, 1);
             return maxLevel <= 1;
+        } else {
+            return false;
         }
-    }
-
-    /**
-     * Decrement the level of a leveled effect on this system by one.
-     * Removes the effect if the level reaches 0.
-     * Returns true if the effect was removed (level reached 0 or was not present).
-     */
-    decrementEffectLevel(effectType: LeveledSystemEffectType): boolean {
-        const effect = this.effects.find(e => e.type === effectType);
-        if (!effect) {
-            return true;
-        }
-        const oldLevel = effect.level;
-        if (oldLevel <= 1) {
-            this.removeEffect(effectType, true);
-            return true;
-        }
-        const newLevel = oldLevel - 1;
-        effect.level = newLevel;
-        getSystemEffectDefinition(effectType).onLevelChanged?.(this, newLevel, oldLevel);
-        return false;
     }
 }

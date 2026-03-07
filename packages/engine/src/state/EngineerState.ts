@@ -86,7 +86,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
             // Add new reduced power effects to systems, randomly, until the total number matches the target.
             do {
                 const system = random.pick(systems);
-                const maxed = system.incrementEffectLevel('reducedPower');
+                const maxed = system.adjustEffectLevel('reducedPower', 1);
                 existingNumReducedPowerEffects++;
 
                 if (maxed) {
@@ -101,7 +101,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
             // Remove reduced power effects from systems, randomly, until the total number matches the target.
             do {
                 const system = random.pick(systems);
-                const emptied = system.decrementEffectLevel('reducedPower');
+                const emptied = system.adjustEffectLevel('reducedPower', -1);
                 existingNumReducedPowerEffects--;
 
                 if (emptied) {

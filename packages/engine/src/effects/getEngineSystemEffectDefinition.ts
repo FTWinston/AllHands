@@ -5,6 +5,14 @@ type SystemEffectFunctionalityLookup = Record<SystemEffectType, SystemEffectFunc
 
 function loadSystemEffectDefinitions() {
     const systemEffectFunctionalities: SystemEffectFunctionalityLookup = {
+        shield: {
+            apply: (system) => {
+                return system.system === 'hull';
+            },
+            remove: () => {
+
+            },
+        },
         auxPower: {
             apply: (system, _level) => {
                 // Remove this effect from every other ship system.

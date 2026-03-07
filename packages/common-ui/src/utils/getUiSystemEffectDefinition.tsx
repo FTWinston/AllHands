@@ -5,6 +5,17 @@ import { SystemEffectDescription, UISystemEffectDefinition } from '../types/UISy
 
 function loadEffectDefinitions() {
     const effectDescriptions: Record<SystemEffectType, SystemEffectDescription> = {
+        shield: {
+            name: 'Shields',
+            description: <>
+                Protects the ship from damage. Recharged by hull energy level, each time the hull generates.
+                The higher the shield strength (currently at
+                {' '}
+                <EffectLevel />
+                %), the greater a proportion of damage it absorbs.
+            </>,
+            image: ExampleIcon,
+        },
         auxPower: {
             name: 'Aux Power',
             description: <>This system is currently receiving auxiliary power, increasing its power level by 1.</>,

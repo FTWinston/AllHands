@@ -9,6 +9,6 @@ export class HullSystemState extends SystemState {
     }
 
     override generate(): void {
-        // TODO: hull-specific generation behavior
+        this.linkedEngineerSystemTile.adjustEffectLevel('shield', this.powerLevel);
     }
 }
