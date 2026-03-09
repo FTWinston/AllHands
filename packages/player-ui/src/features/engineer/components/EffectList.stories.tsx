@@ -17,11 +17,11 @@ export const EffectList: Story = {
     args: {
         effects: [
             {
-                type: 'something1',
+                type: 'auxPower',
                 progress: { startTime: Date.now(), endTime: Date.now() + 30000 } as Cooldown,
             },
             {
-                type: 'something2',
+                type: 'feedback',
                 progress: { startTime: Date.now() - 5000000, endTime: Date.now() + 5000000 } as Cooldown,
             },
         ],
@@ -34,8 +34,9 @@ export const EffectList: Story = {
             <div>
                 <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                     <Button onClick={() => {
+                        const effectList = ['auxPower', 'feedback', 'reducedPower', 'disruptGeneration', 'shield'];
                         const newEffect = {
-                            type: `something${nextId}` as SystemEffectType,
+                            type: effectList[nextId % effectList.length] as SystemEffectType,
                             progress: { startTime: Date.now(), endTime: Date.now() + 5000 } as Cooldown,
                         };
                         setEffects([...effects, newEffect]);
@@ -76,7 +77,7 @@ export const WithLeveledEffect: Story = {
                 level: 3,
             },
             {
-                type: 'something1',
+                type: 'auxPower',
                 progress: { startTime: Date.now(), endTime: Date.now() + 30000 } as Cooldown,
             },
         ],

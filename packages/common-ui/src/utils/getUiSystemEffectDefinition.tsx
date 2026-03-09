@@ -53,44 +53,19 @@ function loadEffectDefinitions() {
             </>,
             image: ExampleIcon,
         },
-        something1: {
-            name: 'Something 1',
-            description: <>Some effect description goes here.</>,
+        shieldFocus: {
+            name: 'Shield Focus',
+            description: <>Shields are focused on this system, increasing its protection by 50%.</>,
             image: ExampleIcon,
         },
-        something2: {
-            name: 'Something 2',
-            description: <>Some effect description goes here.</>,
+        shieldReduced: {
+            name: 'Shield Reduced',
+            description: <>Shields are focused on another system, decreasing this system's protection by 10%.</>,
             image: ExampleIcon,
         },
-        something3: {
-            name: 'Something 3',
-            description: <>Some effect description goes here.</>,
-            image: ExampleIcon,
-        },
-        something4: {
-            name: 'Something 4',
-            description: <>Some effect description goes here.</>,
-            image: ExampleIcon,
-        },
-        something5: {
-            name: 'Something 5',
-            description: <>Some effect description goes here.</>,
-            image: ExampleIcon,
-        },
-        something6: {
-            name: 'Something 6',
-            description: <>Some effect description goes here.</>,
-            image: ExampleIcon,
-        },
-        something7: {
-            name: 'Something 7',
-            description: <>Some effect description goes here.</>,
-            image: ExampleIcon,
-        },
-        something8: {
-            name: 'Something 8',
-            description: <>Some effect description goes here.</>,
+        resetting: {
+            name: 'Resetting',
+            description: <>This system is resetting, and is briefly unavailable.</>,
             image: ExampleIcon,
         },
     };

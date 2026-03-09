@@ -31,44 +31,20 @@ export const systemEffectDefinitions = defineSystemEffects({
         positive: false,
         usesLevels: true,
     },
-    something1: {
+    shieldFocus: {
         positive: true,
+        usesLevels: false,
+        duration: 20000,
+    },
+    shieldReduced: {
+        positive: false,
+        usesLevels: false,
+        duration: 20000,
+    },
+    resetting: {
+        positive: true,
+        usesLevels: false,
         duration: 3000,
-        usesLevels: false,
-    },
-    something2: {
-        positive: false,
-        duration: 5000,
-        usesLevels: false,
-    },
-    something3: {
-        positive: false,
-        usesLevels: false,
-    },
-    something4: {
-        positive: false,
-        duration: 10000,
-        usesLevels: false,
-    },
-    something5: {
-        positive: true,
-        duration: 4000,
-        usesLevels: false,
-    },
-    something6: {
-        positive: true,
-        duration: 2000,
-        usesLevels: false,
-    },
-    something7: {
-        positive: true,
-        duration: 4000,
-        usesLevels: false,
-    },
-    something8: {
-        positive: true,
-        duration: 2000,
-        usesLevels: false,
     },
 } as const);
 

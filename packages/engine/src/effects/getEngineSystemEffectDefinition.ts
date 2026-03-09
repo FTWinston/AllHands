@@ -78,68 +78,39 @@ function loadSystemEffectDefinitions() {
                 });
             },
         },
-        something1: {
-            apply: (_system, _level) => {
+        shieldFocus: {
+            apply: (system) => {
+                if (system.system === 'hull') {
+                    return false;
+                }
+
+                // TODO: this
                 return true;
             },
-            remove: (_system, _early, _level) => {
-
+            remove: (system, early) => {
+                // TODO: this
             },
         },
-        something2: {
-            apply: (_system, _level) => {
+        shieldReduced: {
+            apply: (system) => {
+                if (system.system === 'hull') {
+                    return false;
+                }
+
+                // TODO: this
                 return true;
             },
-            remove: (_system, _early, _level) => {
-
+            remove: (system, early) => {
+                // TODO: this
             },
         },
-        something3: {
-            apply: (_system, _level) => {
+        resetting: {
+            apply: (system) => {
+                // TODO: this
                 return true;
             },
-            remove: (_system, _early, _level) => {
-
-            },
-        },
-        something4: {
-            apply: (_system, _level) => {
-                return true;
-            },
-            remove: (_system, _early, _level) => {
-
-            },
-        },
-        something5: {
-            apply: (_system, _level) => {
-                return true;
-            },
-            remove: (_system, _early, _level) => {
-
-            },
-        },
-        something6: {
-            apply: (_system, _level) => {
-                return true;
-            },
-            remove: (_system, _early, _level) => {
-
-            },
-        },
-        something7: {
-            apply: (_system, _level) => {
-                return true;
-            },
-            remove: (_system, _early, _level) => {
-
-            },
-        },
-        something8: {
-            apply: (_system, _level) => {
-                return true;
-            },
-            remove: (_system, _early, _level) => {
-
+            remove: (system, early) => {
+                // TODO: this
             },
         },
     };

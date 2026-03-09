@@ -168,15 +168,15 @@ export const UI: Story = {
                 generating: true,
                 effects: [
                     {
-                        type: 'something1',
+                        type: 'auxPower',
                         progress: { startTime: Date.now(), endTime: Date.now() + 30000 },
                     },
                     {
-                        type: 'something2',
+                        type: 'reducedPower',
                         progress: { startTime: Date.now(), endTime: Date.now() + 20000 },
                     },
                     {
-                        type: 'something3',
+                        type: 'disruptGeneration',
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                 ],
@@ -188,7 +188,7 @@ export const UI: Story = {
                 generating: false,
                 effects: [
                     {
-                        type: 'something2',
+                        type: 'reducedPower',
                         progress: { startTime: Date.now(), endTime: Date.now() + 20000 },
                     },
                 ],
@@ -206,35 +206,35 @@ export const UI: Story = {
                 generating: false,
                 effects: [
                     {
-                        type: 'something2',
+                        type: 'reducedPower',
                         progress: { startTime: Date.now(), endTime: Date.now() + 30000 },
                     },
                     {
-                        type: 'something3',
+                        type: 'disruptGeneration',
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                     {
-                        type: 'something1',
+                        type: 'auxPower',
                         progress: { startTime: Date.now(), endTime: Date.now() + 30000 },
                     },
                     {
-                        type: 'something4',
+                        type: 'feedback',
                         progress: { startTime: Date.now(), endTime: Date.now() + 20000 },
                     },
                     {
-                        type: 'something5',
+                        type: 'shield',
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                     {
-                        type: 'something6',
+                        type: 'shieldFocus',
                         progress: { startTime: Date.now(), endTime: Date.now() + 30000 },
                     },
                     {
-                        type: 'something7',
+                        type: 'shieldReduced',
                         progress: { startTime: Date.now(), endTime: Date.now() + 20000 },
                     },
                     {
-                        type: 'something8',
+                        type: 'resetting',
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                 ],
@@ -246,27 +246,27 @@ export const UI: Story = {
                 generating: false,
                 effects: [
                     {
-                        type: 'something1',
+                        type: 'auxPower',
                         progress: { startTime: Date.now(), endTime: Date.now() + 30000 },
                     },
                     {
-                        type: 'something2',
+                        type: 'reducedPower',
                         progress: { startTime: Date.now(), endTime: Date.now() + 20000 },
                     },
                     {
-                        type: 'something3',
+                        type: 'disruptGeneration',
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                     {
-                        type: 'something4',
+                        type: 'feedback',
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                     {
-                        type: 'something5',
+                        type: 'shield',
                         progress: { startTime: Date.now(), endTime: Date.now() + 20000 },
                     },
                     {
-                        type: 'something6',
+                        type: 'shieldFocus',
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                 ],
@@ -278,23 +278,23 @@ export const UI: Story = {
                 generating: false,
                 effects: [
                     {
-                        type: 'something2',
+                        type: 'reducedPower',
                         progress: { startTime: Date.now(), endTime: Date.now() + 30000 },
                     },
                     {
-                        type: 'something5',
+                        type: 'shield',
                         progress: { startTime: Date.now(), endTime: Date.now() + 20000 },
                     },
                     {
-                        type: 'something3',
+                        type: 'disruptGeneration',
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                     {
-                        type: 'something1',
+                        type: 'auxPower',
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                     {
-                        type: 'something4',
+                        type: 'feedback',
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                 ],
