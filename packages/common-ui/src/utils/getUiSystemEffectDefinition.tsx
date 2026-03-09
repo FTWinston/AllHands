@@ -42,6 +42,17 @@ function loadEffectDefinitions() {
             </>,
             image: ExampleIcon,
         },
+        feedback: {
+            name: 'Feedback',
+            description: <>
+                This system will take
+                {' '}
+                <EffectLevel />
+                {' '}
+                damage every time it generates.
+            </>,
+            image: ExampleIcon,
+        },
         something1: {
             name: 'Something 1',
             description: <>Some effect description goes here.</>,

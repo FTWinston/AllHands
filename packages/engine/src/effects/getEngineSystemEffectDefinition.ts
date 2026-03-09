@@ -59,6 +59,25 @@ function loadSystemEffectDefinitions() {
                 system.systemState.generate.removeListener('disruptGeneration');
             },
         },
+        feedback: {
+            apply: (system, level) => {
+                // Take level of damage every time this system generates.
+                system.systemState.generate.addListener('feedback', false, () => {
+                    system.adjustSystemHealth(-level);
+                });
+                return true;
+            },
+            remove: (system) => {
+                // When removed, allow generation events to fire again.
+                system.systemState.generate.removeListener('feedback');
+            },
+            onLevelChanged: (system, newLevel) => {
+                // addListener replaces the old listener, so we can just call it again with the new level.
+                system.systemState.generate.addListener('feedback', false, () => {
+                    system.adjustSystemHealth(-newLevel);
+                });
+            },
+        },
         something1: {
             apply: (_system, _level) => {
                 return true;

@@ -22,6 +22,11 @@ export const systemEffectDefinitions = defineSystemEffects({
         usesLevels: true,
         maxLevel: MAX_POWER_LEVEL,
     },
+    feedback: {
+        positive: false,
+        usesLevels: true,
+        duration: 20000,
+    },
     disruptGeneration: {
         positive: false,
         usesLevels: true,
