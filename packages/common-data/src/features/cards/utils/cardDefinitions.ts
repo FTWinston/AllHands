@@ -171,6 +171,21 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'engineer',
         cost: 3,
     },
+    purge: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 3,
+    },
+    reset: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 4,
+    },
+    focusShields: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 1,
+    },
 } as const);
 
 export type CardType = keyof typeof cardDefinitions;

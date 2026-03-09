@@ -8,6 +8,7 @@ import {
     WeaponTargetedCardType,
     cardDefinitions,
 } from 'common-data/features/cards/utils/cardDefinitions';
+import { getSystemEffectDefinition } from 'src/effects/getEngineSystemEffectDefinition';
 import { applyMotionCard } from './applyMotionCard';
 import {
     NoTargetCardFunctionality,
@@ -103,7 +104,7 @@ function loadCardDefinitions() {
         },
         auxPower: {
             play: (_gameState, _ship, system) => {
-                return system.addEffect('auxPower', 30_000);
+                return system.addEffect('auxPower');
             },
         },
         swapHorizontal: {
@@ -144,6 +145,40 @@ function loadCardDefinitions() {
                 ship.engineerState.systems[systemIndex] = otherSystem;
                 ship.engineerState.systems[otherSystemIndex] = system;
                 ship.engineerState.onSystemsSwapped(systemIndex, otherSystemIndex);
+                return true;
+            },
+        },
+        purge: {
+            play: (_gameState, _ship, system) => {
+                const negativeEffect = system.effects.find(e => !getSystemEffectDefinition(e.type).positive);
+
+                if (!negativeEffect) {
+                    return false;
+                }
+
+                system.removeEffect(negativeEffect.type, true);
+                return true;
+            },
+        },
+        reset: {
+            play: (_gameState, _ship, system) => {
+                system.addEffect('resetting');
+                return true;
+            },
+        },
+        focusShields: {
+            play: (_gameState, ship, system) => {
+                if (system.system === 'hull') {
+                    return false;
+                }
+
+                system.addEffect('shieldFocus');
+
+                for (const otherSystem of ship.engineerState.systems) {
+                    if (otherSystem !== system && otherSystem.system !== 'hull') {
+                        otherSystem.addEffect('shieldReduced');
+                    }
+                }
                 return true;
             },
         },

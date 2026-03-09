@@ -40,12 +40,14 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
     }
 
     /**
-     * Add an effect to this system, or update its duration if already present.
-     * We don't currently have the concept of an effect that can stack multiple times.
+     * Add an effect to this system, or reset its duration if already present.
      */
-    addEffect(effectType: SystemEffectType, duration?: number, level: number = 1): boolean {
+    addEffect(effectType: SystemEffectType, level: number = 1): boolean {
         const startTime = this.systemState.getGameState().clock.currentTime;
-        const cooldown = duration ? new CooldownState(startTime, startTime + duration) : null;
+
+        const definition = getSystemEffectDefinition(effectType);
+
+        const cooldown = definition.duration ? new CooldownState(startTime, startTime + definition.duration) : null;
 
         let effect = this.effects.find(e => e.type === effectType);
         if (effect) {
@@ -53,7 +55,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         } else {
             effect = new SystemEffect(effectType, cooldown, level);
 
-            if (!getSystemEffectDefinition(effectType).apply(this, level)) {
+            if (!definition.apply(this, level)) {
                 return false;
             }
 
@@ -81,6 +83,15 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         return true;
     }
 
+    removeAllEffects() {
+        for (const effect of this.effects) {
+            getSystemEffectDefinition(effect.type)
+                .remove(this, true, effect.level);
+        }
+
+        this.effects.clear();
+    }
+
     /**
      * Check if this system has a specific effect.
      */
@@ -101,7 +112,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
      * Adds the effect at the adjustment's level if positive, and it is not already present.
      * Returns true if no more levels can be added after the increment.
      */
-    adjustEffectLevel(effectType: LeveledSystemEffectType, adjustment: number, newDuration?: number) {
+    adjustEffectLevel(effectType: LeveledSystemEffectType, adjustment: number) {
         const def = getSystemEffectDefinition(effectType);
         const maxLevel = def.maxLevel ?? 255;
 
@@ -121,7 +132,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
                 return false;
             }
         } else if (adjustment > 0) {
-            this.addEffect(effectType, newDuration, 1);
+            this.addEffect(effectType, 1);
             return maxLevel <= 1;
         } else {
             return false;

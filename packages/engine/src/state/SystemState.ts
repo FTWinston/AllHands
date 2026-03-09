@@ -90,8 +90,8 @@ export abstract class SystemState extends Schema implements SystemInfo {
     /**
      * Add an effect to this system.
      */
-    addEffect(effectType: SystemEffectType, duration?: number, level?: number) {
-        this.linkedEngineerSystemTile.addEffect(effectType, duration, level);
+    addEffect(effectType: SystemEffectType, level?: number) {
+        this.linkedEngineerSystemTile.addEffect(effectType, level);
     }
 
     /**

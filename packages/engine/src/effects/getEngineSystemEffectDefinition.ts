@@ -38,7 +38,10 @@ function loadSystemEffectDefinitions() {
                 system.adjustSystemPowerLevel(level);
 
                 if (early) {
-                    // TODO: if removed early, add this affect to a different system instead.
+                    // If removed early, add this effect to a different system instead.
+                    const ship = system.systemState.getShip();
+                    const anotherSystem = ship.random.pick(ship.engineerState.systems.filter(s => s.system !== system.system));
+                    anotherSystem.addEffect('reducedPower', level);
                 }
             },
             onLevelChanged: (system, newLevel, oldLevel) => {
@@ -85,10 +88,15 @@ function loadSystemEffectDefinitions() {
                 }
 
                 // TODO: this
+                system.removeEffect('shieldReduced', false);
                 return true;
             },
             remove: (system, early) => {
-                // TODO: this
+                if (early) {
+                    for (const s of system.systemState.getShip().engineerState.systems) {
+                        s.removeEffect('shieldReduced', false);
+                    }
+                }
             },
         },
         shieldReduced: {
@@ -98,19 +106,25 @@ function loadSystemEffectDefinitions() {
                 }
 
                 // TODO: this
+                system.removeEffect('shieldFocus', false);
                 return true;
             },
             remove: (system, early) => {
-                // TODO: this
+                if (early) {
+                    for (const s of system.systemState.getShip().engineerState.systems) {
+                        s.removeEffect('shieldFocus', false);
+                    }
+                }
             },
         },
         resetting: {
             apply: (system) => {
-                // TODO: this
+                system.adjustSystemPowerLevel(-100);
                 return true;
             },
-            remove: (system, early) => {
-                // TODO: this
+            remove: (system) => {
+                system.adjustSystemPowerLevel(100);
+                system.removeAllEffects();
             },
         },
     };

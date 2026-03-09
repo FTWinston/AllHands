@@ -122,6 +122,21 @@ function loadCardDefinitions() {
             description: 'Swap a system with the one below it.',
             image: <ExampleIcon />,
         },
+        purge: {
+            name: 'Purge',
+            description: 'Permanently remove a negative effect from a system.',
+            image: <ExampleIcon />,
+        },
+        reset: {
+            name: 'Reset',
+            description: 'Disables all power to a system for 3 seconds, then remove all effects.',
+            image: <ExampleIcon />,
+        },
+        focusShields: {
+            name: 'Focus Shields',
+            description: 'Focus shields on a system, increasing its protection by 50% but decreasing the protection of all other systems (except the hull) by 10%.',
+            image: <ExampleIcon />,
+        },
     };
 
     const uiCardDefinitions = Object.entries(cardDescriptions)

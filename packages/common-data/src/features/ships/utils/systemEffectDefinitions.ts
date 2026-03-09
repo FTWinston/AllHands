@@ -16,6 +16,7 @@ export const systemEffectDefinitions = defineSystemEffects({
     auxPower: {
         positive: true,
         usesLevels: false,
+        duration: 30_000,
     },
     reducedPower: {
         positive: false,
@@ -25,7 +26,7 @@ export const systemEffectDefinitions = defineSystemEffects({
     feedback: {
         positive: false,
         usesLevels: true,
-        duration: 20000,
+        duration: 20_000,
     },
     disruptGeneration: {
         positive: false,
@@ -34,17 +35,17 @@ export const systemEffectDefinitions = defineSystemEffects({
     shieldFocus: {
         positive: true,
         usesLevels: false,
-        duration: 20000,
+        duration: 20_000,
     },
     shieldReduced: {
         positive: false,
         usesLevels: false,
-        duration: 20000,
+        duration: 20_000,
     },
     resetting: {
         positive: true,
         usesLevels: false,
-        duration: 3000,
+        duration: 3_000,
     },
 } as const);
 
