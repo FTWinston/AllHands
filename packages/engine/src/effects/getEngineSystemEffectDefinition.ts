@@ -49,14 +49,14 @@ function loadSystemEffectDefinitions() {
             apply: (system) => {
                 // Stop generation events from firing while this effect is active.
                 // The level of this effect should be reduced by 1 each time a generation event would have fired.
-                system.systemState.onGenerate.addListener('disruptGeneration', true, () => {
+                system.systemState.generate.addListener('disruptGeneration', true, () => {
                     system.adjustEffectLevel('disruptGeneration', -1);
                 });
                 return true;
             },
             remove: (system) => {
                 // When removed, allow generation events to fire again.
-                system.systemState.onGenerate.removeListener('disruptGeneration');
+                system.systemState.generate.removeListener('disruptGeneration');
             },
         },
         something1: {

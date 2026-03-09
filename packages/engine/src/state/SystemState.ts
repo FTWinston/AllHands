@@ -102,19 +102,9 @@ export abstract class SystemState extends Schema implements SystemInfo {
         return this.linkedEngineerSystemTile.removeEffect(effect, early);
     }
 
-    public onGenerate = new BindableEvent<() => void>();
-
-    public generate() {
-        if (this.onGenerate.trigger()) {
-            return;
-        }
-
-        this.performGenerate();
-    }
-
     /**
      * Generate (e.g. a card) for this system.
      * Base SystemState does nothing; subclasses can override.
      */
-    protected abstract performGenerate(): void;
+    public abstract generate: BindableEvent<() => void>;
 }

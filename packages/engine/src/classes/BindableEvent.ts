@@ -8,9 +8,7 @@ interface Listener {
  * Listeners can be set to prevent the default action of the event, which is indicated by the return value of trigger.
  */
 export class BindableEvent<T extends (...args: unknown[]) => unknown> {
-    public BindableEvent() {
-
-    }
+    constructor(private readonly defaultAction?: T) {}
 
     private listeners: Map<string, Listener> = new Map();
 
@@ -34,7 +32,7 @@ export class BindableEvent<T extends (...args: unknown[]) => unknown> {
      * Triggers the event, calling all listeners with the provided arguments.
      * Returns true if any listener had preventDefault set to true, false otherwise.
      */
-    public trigger(...args: Parameters<T>): boolean {
+    public trigger(...args: Parameters<T>) {
         let defaultPrevented = false;
 
         for (const { preventDefault, listener } of this.listeners.values()) {
@@ -45,6 +43,8 @@ export class BindableEvent<T extends (...args: unknown[]) => unknown> {
             listener(...args);
         }
 
-        return defaultPrevented;
+        if (!defaultPrevented && this.defaultAction) {
+            this.defaultAction(...args);
+        }
     }
 }

@@ -5,6 +5,7 @@ import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { CrewSystemSetupInfo, SystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { parseVector } from 'common-data/features/space/utils/vectors';
 import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
+import { BindableEvent } from 'src/classes/BindableEvent';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { CardState } from './CardState';
 import { CooldownState } from './CooldownState';
@@ -219,9 +220,9 @@ export class CrewSystemState extends SystemState implements SystemInfo {
      * Generate a card for this system by drawing from the draw pile,
      * if there is room in the hand.
      */
-    override performGenerate(): void {
+    override generate = new BindableEvent<() => void>(() => {
         if (this.hand.length < this.health) {
             this.draw();
         }
-    }
+    });
 }

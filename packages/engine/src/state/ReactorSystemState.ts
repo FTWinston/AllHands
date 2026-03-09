@@ -1,4 +1,5 @@
 import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { BindableEvent } from 'src/classes/BindableEvent';
 import { GameState } from './GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from './Ship';
@@ -11,7 +12,7 @@ export class ReactorSystemState extends SystemState {
     /**
      * Add an "aux power" card to the engineer's hand, if they don't already have one, and the hand isn't full.
      */
-    override performGenerate(): void {
+    override generate = new BindableEvent<() => void>(() => {
         const engineerState = this.getShip().engineerState;
 
         if (engineerState.hand.some(card => card.type === 'auxPower')) {
@@ -19,7 +20,7 @@ export class ReactorSystemState extends SystemState {
         }
 
         engineerState.addCard('auxPower');
-    }
+    });
 
     override adjustHealth(value: number): void {
         const oldHealth = this.health;
