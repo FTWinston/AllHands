@@ -2,6 +2,7 @@ import { Schema, type } from '@colyseus/schema';
 import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
+import { BindableEvent } from 'src/classes/BindableEvent';
 import { GameState } from './GameState';
 import { SystemEffect } from './SystemEffect';
 import type { EngineerSystemTile } from './EngineerSystemTile';
@@ -101,17 +102,19 @@ export abstract class SystemState extends Schema implements SystemInfo {
         return this.linkedEngineerSystemTile.removeEffect(effect, early);
     }
 
-    public tryGenerate() {
-        if (this.linkedEngineerSystemTile.hasEffect('disruptGeneration')) {
-            this.linkedEngineerSystemTile.adjustEffectLevel('disruptGeneration', -1);
-        } else {
-            this.generate();
+    public onGenerate = new BindableEvent<() => void>();
+
+    public generate() {
+        if (this.onGenerate.trigger()) {
+            return;
         }
+
+        this.performGenerate();
     }
 
     /**
      * Generate (e.g. a card) for this system.
      * Base SystemState does nothing; subclasses can override.
      */
-    protected abstract generate(): void;
+    protected abstract performGenerate(): void;
 }

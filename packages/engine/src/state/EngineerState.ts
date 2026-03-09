@@ -157,7 +157,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         } else if (currentTime >= this.generationProgress.endTime) {
             // Generation complete: unmark and generate.
             systemTile.generating = false;
-            systemTile.systemState.tryGenerate();
+            systemTile.systemState.generate();
 
             // Advance to the next system.
             this.generationSequenceIndex = (this.generationSequenceIndex + 1) % sequence.length;

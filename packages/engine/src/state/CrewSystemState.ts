@@ -219,7 +219,7 @@ export class CrewSystemState extends SystemState implements SystemInfo {
      * Generate a card for this system by drawing from the draw pile,
      * if there is room in the hand.
      */
-    override generate(): void {
+    override performGenerate(): void {
         if (this.hand.length < this.health) {
             this.draw();
         }

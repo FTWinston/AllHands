@@ -8,7 +8,7 @@ export class HullSystemState extends SystemState {
         super(setup, gameState, ship);
     }
 
-    override generate(): void {
+    override performGenerate(): void {
         this.linkedEngineerSystemTile.adjustEffectLevel('shield', this.powerLevel);
     }
 }
