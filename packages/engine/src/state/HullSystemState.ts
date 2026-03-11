@@ -12,4 +12,20 @@ export class HullSystemState extends SystemState {
     override generate = new BindableEvent<() => void>(() => {
         this.linkedEngineerSystemTile.adjustEffectLevel('shield', this.powerLevel);
     });
+
+    /**
+     * Apply incoming damage to the shields first, reducing their levels as necessary,
+     * and return the remaining damage to be done to the ship itself.
+     */
+    damageShields(incomingDamage: number): number {
+        const shieldStrengthFraction = this.linkedEngineerSystemTile.getEffectLevel('shield') / 100;
+        const passThroughFraction = Math.pow(1 - shieldStrengthFraction, 2); // Nonlinear falloff so that higher shield levels are disproportionately more effective.
+
+        const passThroughDamage = Math.round(incomingDamage * passThroughFraction);
+        const absorbedByShields = incomingDamage - passThroughDamage;
+
+        this.linkedEngineerSystemTile.adjustEffectLevel('shield', -absorbedByShields);
+
+        return passThroughDamage;
+    }
 }
