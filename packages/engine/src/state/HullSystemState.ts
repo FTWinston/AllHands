@@ -1,3 +1,4 @@
+import { Damage } from 'common-data/features/space/types/Damage';
 import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { BindableEvent } from 'src/classes/BindableEvent';
 import { GameState } from './GameState';
@@ -17,15 +18,57 @@ export class HullSystemState extends SystemState {
      * Apply incoming damage to the shields first, reducing their levels as necessary,
      * and return the remaining damage to be done to the ship itself.
      */
-    damageShields(incomingDamage: number): number {
-        const shieldStrengthFraction = this.linkedEngineerSystemTile.getEffectLevel('shield') / 100;
-        const passThroughFraction = Math.pow(1 - shieldStrengthFraction, 2); // Nonlinear falloff so that higher shield levels are disproportionately more effective.
+    damageShields(damage: Damage): number {
+        let shieldDrainScale: number;
+        let shieldPenetrationScale: number;
 
-        const passThroughDamage = Math.round(incomingDamage * passThroughFraction);
-        const absorbedByShields = incomingDamage - passThroughDamage;
+        switch (damage.damageType) {
+            case 'coherent':
+                shieldDrainScale = 1;
+                shieldPenetrationScale = 0.5;
+                break;
+            case 'disruptor':
+                shieldDrainScale = 0.5;
+                shieldPenetrationScale = 0.5;
+                break;
+            case 'ion':
+                shieldDrainScale = 3;
+                shieldPenetrationScale = 1;
+                break;
+            case 'plasma':
+                shieldDrainScale = 1;
+                shieldPenetrationScale = 0.5;
+                break;
+            case 'antimatter':
+                shieldDrainScale = 2;
+                shieldPenetrationScale = 0.25;
+                break;
+            case 'tachyon':
+                shieldDrainScale = 0.5;
+                shieldPenetrationScale = 1;
+                break;
+            default:
+                shieldDrainScale = 1;
+                shieldPenetrationScale = 2;
+                break;
+        }
+
+        const shieldStrengthFraction = this.linkedEngineerSystemTile.getEffectLevel('shield') / 100;
+        const passThroughFraction = Math.pow(1 - shieldStrengthFraction, 2) * shieldPenetrationScale; // Nonlinear falloff so that higher shield levels are disproportionately more effective.
+
+        const passThroughDamage = Math.round(damage.amount * passThroughFraction);
+        const absorbedByShields = Math.round((damage.amount - passThroughDamage) * shieldDrainScale);
 
         this.linkedEngineerSystemTile.adjustEffectLevel('shield', -absorbedByShields);
 
         return passThroughDamage;
+    }
+
+    override adjustHealth(adjustment: number) {
+        super.adjustHealth(adjustment);
+
+        if (this.health <= 0) {
+            // TODO: destroy ship
+        }
     }
 }

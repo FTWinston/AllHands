@@ -33,6 +33,10 @@ export class ReactorSystemState extends SystemState {
             // The engineer system needs told when reactor health changes
             this.getShip().engineerState.onReactorHealthChanged(newHealth, this.maxHealth);
         }
+
+        if (newHealth <= 0) {
+            // TODO: destroy ship, reactor breach
+        }
     }
 
     override adjustPowerLevel(value: number): void {

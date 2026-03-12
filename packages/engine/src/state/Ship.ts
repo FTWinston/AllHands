@@ -1,6 +1,7 @@
 import { entity, type, view } from '@colyseus/schema';
 import { helmClientRole, sensorClientRole, tacticalClientRole, engineerClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
+import { Damage } from 'common-data/features/space/types/Damage';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CrewSystemState } from './CrewSystemState';
 import { EngineerState } from './EngineerState';
@@ -78,20 +79,59 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this.engineerState.update(currentTime);
     }
 
-    damage(amount: number, targetSystem: ShipSystem | null = null) {
-        const remainingAmount = this.hullState.damageShields(amount);
+    damage(damage: Damage) {
+        const remainingAmount = this.hullState.damageShields(damage);
 
-        if (targetSystem === null) {
-            targetSystem = this.random.pick(shipSystems);
-        }
+        const targetSystem = damage.targetSystem ?? this.random.pick(shipSystems);
 
         let hullDamage: number;
 
         if (targetSystem === 'hull') {
+            // If targeting the hull, or it's randomly picked, all damage goes there.
             hullDamage = remainingAmount;
         } else {
-            // Split remaining damage between the target system and the hull.
-            const targetSystemDamage = Math.ceil(remainingAmount / 2);
+            // Otherwise, damage type and delivery method both affect how damage splits between
+            // the targeted (or randomly picked) system and the hull.
+            let hullDamageScale: number;
+
+            switch (damage.deliveryMethod) {
+                case 'beam':
+                    hullDamageScale = damage.targetSystem ? 0.2 : 0.4;
+                    break;
+                case 'pulse':
+                    hullDamageScale = damage.targetSystem ? 0.5 : 0.7;
+                    break;
+                case 'blast':
+                    hullDamageScale = damage.targetSystem ? 0.7 : 0.9;
+                    break;
+                default:
+                    hullDamageScale = 0.5;
+                    break;
+            }
+
+            switch (damage.damageType) {
+                case 'disruptor':
+                    hullDamageScale += 0.2;
+                    break;
+                case 'ion':
+                    hullDamageScale -= 0.4;
+                    break;
+                case 'plasma':
+                    hullDamageScale += 0.1;
+                    break;
+                case 'antimatter':
+                    hullDamageScale += 0.2;
+                    break;
+                case 'tachyon':
+                    hullDamageScale -= 0.2;
+                    break;
+            }
+
+            hullDamageScale = Math.min(Math.max(hullDamageScale, 0), 0.95); // Clamp to [0, 0.95]
+
+            const systemDamageScale = 1 - hullDamageScale;
+
+            const targetSystemDamage = Math.ceil(remainingAmount * systemDamageScale);
             hullDamage = remainingAmount - targetSystemDamage;
 
             this.getSystem(targetSystem)
