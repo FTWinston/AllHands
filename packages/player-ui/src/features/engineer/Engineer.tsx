@@ -42,7 +42,7 @@ export const Engineer = (props: Props) => {
             systems={systems}
             onPause={pause}
             power={engineerState.powerLevel}
-            maxHandSize={engineerState.health}
+            maxHandSize={engineerState.maxHandSize}
             drawPileSize={engineerState.drawPileSize}
             playCard={playCard}
             cardGeneration={engineerState.cardGeneration}

@@ -47,7 +47,7 @@ export const Tactical = (props: Props) => {
             slotDeactivated={() => {}}
             slotFired={() => {}}
             power={tacticalState.powerLevel}
-            maxHandSize={tacticalState.health}
+            maxHandSize={tacticalState.maxHandSize}
             drawPileSize={tacticalState.drawPileSize}
             playCard={playCard}
             cardGeneration={tacticalState.cardGeneration}

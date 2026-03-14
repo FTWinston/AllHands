@@ -8,7 +8,7 @@ import {
     WeaponTargetedCardType,
     cardDefinitions,
 } from 'common-data/features/cards/utils/cardDefinitions';
-import { getSystemEffectDefinition } from 'src/effects/getEngineSystemEffectDefinition';
+import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { applyMotionCard } from './applyMotionCard';
 import {
     NoTargetCardFunctionality,

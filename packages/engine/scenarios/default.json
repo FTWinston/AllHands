@@ -7,46 +7,46 @@
         "hull": {
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
-            "health": 10,
-            "maxHealth": 10
+            "health": 100,
+            "maxHealth": 100
         },
         "reactor": {
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
-            "health": 5,
-            "maxHealth": 5
+            "health": 100,
+            "maxHealth": 100
         },
         "helm": {
             "cards": ["slowAndSteady", "zigZag", "strafe", "faceTarget", "exampleNoTarget", "sweep", "sweep", "slowAndSteady", "zigZag", "slowAndSteady"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1,
-            "health": 5,
-            "maxHealth": 5
+            "health": 100,
+            "maxHealth": 100
         },
         "sensors": {
             "cards": ["exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1,
-            "health": 5,
-            "maxHealth": 5
+            "health": 100,
+            "maxHealth": 100
         },
         "tactical": {
             "cards": ["exampleWeaponSlotTarget", "exampleWeaponTarget", "exampleEnemyTarget", "exampleNoTarget", "exampleWeaponSlotTarget", "exampleWeaponTarget", "exampleEnemyTarget", "exampleNoTarget"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1,
-            "health": 5,
-            "maxHealth": 5
+            "health": 100,
+            "maxHealth": 100
         },
         "engineer": {
             "cards": ["swapSystems", "exampleNoTarget"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1,
-            "health": 5,
-            "maxHealth": 5
+            "health": 100,
+            "maxHealth": 100
         }
     },
     "encounters": [
@@ -66,8 +66,8 @@
                     "reactor": {
                         "initialPowerLevel": 3,
                         "maxPowerLevel": 3,
-                        "health": 5,
-                        "maxHealth": 5
+                        "health": 100,
+                        "maxHealth": 100
                     },
                     "helm": {
                         "cards": ["slowAndSteady", "exampleNoTarget"],

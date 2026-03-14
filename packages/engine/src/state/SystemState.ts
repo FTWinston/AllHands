@@ -2,7 +2,7 @@ import { Schema, type } from '@colyseus/schema';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
-import { BindableEvent } from 'src/classes/BindableEvent';
+import { BindableEvent } from '../classes/BindableEvent';
 import { GameState } from './GameState';
 import { SystemEffect } from './SystemEffect';
 import type { EngineerSystemTile } from './EngineerSystemTile';
@@ -47,11 +47,11 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }
 
     private underlyingPowerLevel: number;
-    @type('number') readonly powerLevel: number;
+    @type('uint8') readonly powerLevel: number;
     maxPowerLevel: number;
 
     private underlyingHealth: number;
-    @type('number') readonly health: number;
+    readonly health: number;
     maxHealth: number;
 
     /**

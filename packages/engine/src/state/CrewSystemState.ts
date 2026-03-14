@@ -2,20 +2,22 @@ import { ArraySchema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
-import { CrewSystemSetupInfo, SystemInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { CrewSystemSetupInfo, CrewSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { parseVector } from 'common-data/features/space/utils/vectors';
 import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
-import { BindableEvent } from 'src/classes/BindableEvent';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
+import { BindableEvent } from '../classes/BindableEvent';
 import { CardState } from './CardState';
 import { CooldownState } from './CooldownState';
 import { GameState } from './GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from './Ship';
 
-export class CrewSystemState extends SystemState implements SystemInfo {
+export class CrewSystemState extends SystemState implements CrewSystemInfo {
     constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, private getCardId: () => number) {
         super(setup, gameState, ship);
+
+        this.setMaxHandSize();
 
         // The first initialHandSize cards go straight into the hand.
         this.hand = new ArraySchema<CardState>(
@@ -41,12 +43,29 @@ export class CrewSystemState extends SystemState implements SystemInfo {
 
     @type(CooldownState) cardGeneration: CooldownState | null = null;
 
+    @type('uint8') maxHandSize = 0;
+
+    private setMaxHandSize() {
+        // 5 cards max hand size at max health, scaling linearly down to 1 card at 1 health, and 0 at 0.
+        this.maxHandSize = Math.ceil(5 * this.health / this.maxHealth);
+    }
+
+    override adjustHealth(adjustment: number): void {
+        super.adjustHealth(adjustment);
+
+        this.setMaxHandSize();
+    }
+
     /**
      * Take card(s) from the draw pile and add them to the hand,
      * reshuffling the discard pile into the draw pile if it is exhausted.
      */
     draw(number = 1) {
         for (let i = 0; i < number; i++) {
+            if (this.hand.length >= this.maxHandSize) {
+                break;
+            }
+
             let card = this.drawPile.pop();
             if (!card) {
                 this.drawPile = this.discardPile;
@@ -221,8 +240,6 @@ export class CrewSystemState extends SystemState implements SystemInfo {
      * if there is room in the hand.
      */
     override generate = new BindableEvent<() => void>(() => {
-        if (this.hand.length < this.health) {
-            this.draw();
-        }
+        this.draw();
     });
 }

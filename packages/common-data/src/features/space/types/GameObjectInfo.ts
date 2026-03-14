@@ -20,10 +20,10 @@ export interface GameObjectInfo {
 
 export interface SystemInfo {
     powerLevel: number;
-    health: number;
 }
 
 export interface CrewSystemInfo extends SystemInfo {
+    maxHandSize: number;
     hand: MinimalReadonlyArray<CardInstance>;
     drawPileSize: number;
     cardGeneration: Cooldown | null;

@@ -49,7 +49,7 @@ export const Helm = (props: Props) => {
             center={localShip.motion}
             objects={objects}
             power={helmState.powerLevel}
-            maxHandSize={helmState.health}
+            maxHandSize={helmState.maxHandSize}
             drawPileSize={helmState.drawPileSize}
             playCard={playCard}
             cardGeneration={helmState.cardGeneration}

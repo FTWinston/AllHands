@@ -42,7 +42,7 @@ export const System = (props: Props) => {
                 <div className={styles.attribute}>
                     <HealthIcon className={styles.attributeIcon} />
                     <div className={styles.attributeValue}>{props.health}</div>
-                    <div className={styles.attributeMax}>/ 5</div>
+                    <div className={styles.attributeMax}>%</div>
                 </div>
             </div>
 
