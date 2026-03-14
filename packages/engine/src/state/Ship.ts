@@ -84,16 +84,15 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
         const targetSystem = damage.targetSystem ?? this.random.pick(shipSystems);
 
-        let hullDamage: number;
+        let targetSystemDamage: number;
 
         if (targetSystem === 'hull') {
-            // If targeting the hull, or it's randomly picked, all damage goes there.
-            hullDamage = remainingAmount;
+            // If targeting the hull, or it's what was randomly picked, all damage goes there.
+            targetSystemDamage = remainingAmount;
         } else {
             // Otherwise, damage type and delivery method both affect how damage splits between
             // the targeted (or randomly picked) system and the hull.
             let hullDamageScale: number;
-
             switch (damage.deliveryMethod) {
                 case 'beam':
                     hullDamageScale = damage.targetSystem ? 0.2 : 0.4;
@@ -102,42 +101,27 @@ export abstract class Ship extends MobileObject implements ShipInfo {
                     hullDamageScale = damage.targetSystem ? 0.5 : 0.7;
                     break;
                 case 'blast':
-                    hullDamageScale = damage.targetSystem ? 0.7 : 0.9;
-                    break;
-                default:
-                    hullDamageScale = 0.5;
+                    hullDamageScale = damage.targetSystem ? 0.8 : 0.9;
                     break;
             }
-
-            switch (damage.damageType) {
-                case 'disruptor':
-                    hullDamageScale += 0.2;
-                    break;
-                case 'ion':
-                    hullDamageScale -= 0.4;
-                    break;
-                case 'plasma':
-                    hullDamageScale += 0.1;
-                    break;
-                case 'antimatter':
-                    hullDamageScale += 0.2;
-                    break;
-                case 'tachyon':
-                    hullDamageScale -= 0.2;
-                    break;
-            }
-
-            hullDamageScale = Math.min(Math.max(hullDamageScale, 0), 0.95); // Clamp to [0, 0.95]
 
             const systemDamageScale = 1 - hullDamageScale;
 
-            const targetSystemDamage = Math.ceil(remainingAmount * systemDamageScale);
-            hullDamage = remainingAmount - targetSystemDamage;
+            targetSystemDamage = Math.ceil(remainingAmount * systemDamageScale);
+            const hullDamage = remainingAmount - targetSystemDamage;
 
-            this.getSystem(targetSystem)
-                .adjustHealth(-targetSystemDamage);
+            this.hullState.adjustHealth(-hullDamage);
         }
 
-        this.hullState.adjustHealth(-hullDamage);
+        this.getSystem(targetSystem)
+            .adjustHealth(-targetSystemDamage);
+
+        switch (damage.damageType) {
+            case 'ion':
+                if (targetSystemDamage > 0) {
+                    this.getSystem(targetSystem)
+                        .adjustEffectLevel('disruptGeneration', 1);
+                }
+        }
     }
 }

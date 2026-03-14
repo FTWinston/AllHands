@@ -1,5 +1,5 @@
 import { Schema, type } from '@colyseus/schema';
-import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { BindableEvent } from 'src/classes/BindableEvent';
@@ -100,6 +100,10 @@ export abstract class SystemState extends Schema implements SystemInfo {
      */
     removeEffect(effect: SystemEffectType, early: boolean): boolean {
         return this.linkedEngineerSystemTile.removeEffect(effect, early);
+    }
+
+    adjustEffectLevel(effect: LeveledSystemEffectType, adjustment: number) {
+        return this.linkedEngineerSystemTile.adjustEffectLevel(effect, adjustment);
     }
 
     /**

@@ -1,9 +1,18 @@
-import { Damage } from 'common-data/features/space/types/Damage';
+import { Damage, DamageType } from 'common-data/features/space/types/Damage';
 import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { BindableEvent } from 'src/classes/BindableEvent';
 import { GameState } from './GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from './Ship';
+
+const damageTypeScales: Record<DamageType, { drain: number; pen: number }> = {
+    coherent: { drain: 1.0, pen: 0.0 },
+    disruptor: { drain: 1.4, pen: 0.0 },
+    ion: { drain: 2.5, pen: -0.2 }, // High drain, low pen
+    plasma: { drain: 0.8, pen: 0.1 },
+    antimatter: { drain: 1.0, pen: 0.2 },
+    tachyon: { drain: 0.5, pen: 0.4 }, // High pen, low drain
+};
 
 export class HullSystemState extends SystemState {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship) {
@@ -19,45 +28,16 @@ export class HullSystemState extends SystemState {
      * and return the remaining damage to be done to the ship itself.
      */
     damageShields(damage: Damage): number {
-        let shieldDrainScale: number;
-        let shieldPenetrationScale: number;
-
-        switch (damage.damageType) {
-            case 'coherent':
-                shieldDrainScale = 1;
-                shieldPenetrationScale = 0.5;
-                break;
-            case 'disruptor':
-                shieldDrainScale = 0.5;
-                shieldPenetrationScale = 0.5;
-                break;
-            case 'ion':
-                shieldDrainScale = 3;
-                shieldPenetrationScale = 1;
-                break;
-            case 'plasma':
-                shieldDrainScale = 1;
-                shieldPenetrationScale = 0.5;
-                break;
-            case 'antimatter':
-                shieldDrainScale = 2;
-                shieldPenetrationScale = 0.25;
-                break;
-            case 'tachyon':
-                shieldDrainScale = 0.5;
-                shieldPenetrationScale = 1;
-                break;
-            default:
-                shieldDrainScale = 1;
-                shieldPenetrationScale = 2;
-                break;
-        }
+        const damageType = damageTypeScales[damage.damageType];
 
         const shieldStrengthFraction = this.linkedEngineerSystemTile.getEffectLevel('shield') / 100;
-        const passThroughFraction = Math.pow(1 - shieldStrengthFraction, 2) * shieldPenetrationScale; // Nonlinear falloff so that higher shield levels are disproportionately more effective.
+
+        // Nonlinear falloff so that higher shield levels are disproportionately more effective.
+        let passThroughFraction = Math.pow(1 - shieldStrengthFraction, 2) + damageType.pen;
+        passThroughFraction = Math.max(0, Math.min(1, passThroughFraction)); // Clamp 0-1
 
         const passThroughDamage = Math.round(damage.amount * passThroughFraction);
-        const absorbedByShields = Math.round((damage.amount - passThroughDamage) * shieldDrainScale);
+        const absorbedByShields = Math.round((damage.amount - passThroughDamage) * damageType.drain);
 
         this.linkedEngineerSystemTile.adjustEffectLevel('shield', -absorbedByShields);
 
