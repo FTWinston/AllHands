@@ -23,6 +23,9 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
 
     @type('boolean') generating = false;
 
+    /** Integer percentage adjustment to shield pass-through damage for this system. Adjusted by shieldFocus/shieldReduced effects. */
+    shieldPassThroughModifier: number = 100;
+
     setHealthFromSystem(systemState: SystemState) {
         (this as { health: number }).health = systemState.health;
     }

@@ -35,7 +35,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
         this.engineerState.initSystems();
 
-        this._systems = new Map<ShipSystem, SystemState>([
+        this.systems = new Map<ShipSystem, SystemState>([
             ['hull', this.hullState],
             ['reactor', this.reactorState],
             ['helm', this.helmState],
@@ -58,18 +58,14 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     @view(tacticalClientRole) @type(CrewSystemState) tacticalState: CrewSystemState;
     @view(engineerClientRole) @type(EngineerState) engineerState: EngineerState;
 
-    private _systems: ReadonlyMap<ShipSystem, SystemState>;
+    private systems: ReadonlyMap<ShipSystem, SystemState>;
 
     public getSystem(system: ShipSystem): SystemState {
-        const systemState = this._systems.get(system);
+        const systemState = this.systems.get(system);
         if (!systemState) {
             throw new Error(`Ship does not have system ${system}`);
         }
         return systemState;
-    }
-
-    public systems(): IterableIterator<SystemState> {
-        return this._systems.values();
     }
 
     // TODO: array of slotted weapons. @view(tacticalClientRole)
@@ -84,13 +80,15 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     }
 
     damage(damage: Damage) {
-        const remainingAmount = this.hullState.damageShields(damage);
+        if (!damage.targetSystem) {
+            damage.targetSystem = this.random.pick(shipSystems);
+        }
 
-        const targetSystem = damage.targetSystem ?? this.random.pick(shipSystems);
+        const remainingAmount = this.hullState.damageShields(damage);
 
         let targetSystemDamage: number;
 
-        if (targetSystem === 'hull') {
+        if (damage.targetSystem === 'hull') {
             // If targeting the hull, or it's what was randomly picked, all damage goes there.
             targetSystemDamage = remainingAmount;
         } else {
@@ -117,13 +115,15 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             this.hullState.adjustHealth(-hullDamage);
         }
 
-        this.getSystem(targetSystem)
+        const targetSystem = this.getSystem(damage.targetSystem);
+
+        targetSystem
             .adjustHealth(-targetSystemDamage);
 
         switch (damage.damageType) {
             case 'ion':
                 if (targetSystemDamage > 0) {
-                    this.getSystem(targetSystem)
+                    targetSystem
                         .adjustEffectLevel('disruptGeneration', 1);
                 }
         }

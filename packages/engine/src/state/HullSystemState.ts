@@ -41,7 +41,10 @@ export class HullSystemState extends SystemState {
 
         this.linkedEngineerSystemTile.adjustEffectLevel('shield', -absorbedByShields);
 
-        return passThroughDamage;
+        const targetSystem = this.getShip().getSystem(damage.targetSystem ?? 'hull');
+
+        // Scale pass-through damage by target system's shield pass-through modifier, which is a percentage.
+        return Math.round(passThroughDamage * targetSystem.shieldPassThroughModifier / 100);
     }
 
     override adjustHealth(adjustment: number) {

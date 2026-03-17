@@ -37,7 +37,7 @@ export class ReactorSystemState extends SystemState {
         if (newHealth <= 0) {
             this.addEffect('reactorBreach');
 
-            for (const system of this.getShip().systems()) {
+            for (const system of this.getShip().engineerState.systems) {
                 system.adjustEffectLevel('reducedPower', 99);
             }
         }

@@ -106,6 +106,14 @@ export abstract class SystemState extends Schema implements SystemInfo {
         return this.linkedEngineerSystemTile.adjustEffectLevel(effect, adjustment);
     }
 
+    hasEffect(effectType: SystemEffectType): boolean {
+        return this.linkedEngineerSystemTile.hasEffect(effectType);
+    }
+
+    get shieldPassThroughModifier(): number {
+        return this.linkedEngineerSystemTile.shieldPassThroughModifier;
+    }
+
     /**
      * Generate (e.g. a card) for this system.
      * Base SystemState does nothing; subclasses can override.

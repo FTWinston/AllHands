@@ -87,11 +87,12 @@ function loadSystemEffectDefinitions() {
                     return false;
                 }
 
-                // TODO: this
                 system.removeEffect('shieldReduced', false);
+                system.shieldPassThroughModifier -= 50;
                 return true;
             },
             remove: (system, early) => {
+                system.shieldPassThroughModifier += 50;
                 if (early) {
                     for (const s of system.systemState.getShip().engineerState.systems) {
                         s.removeEffect('shieldReduced', false);
@@ -105,11 +106,12 @@ function loadSystemEffectDefinitions() {
                     return false;
                 }
 
-                // TODO: this
                 system.removeEffect('shieldFocus', false);
+                system.shieldPassThroughModifier += 10;
                 return true;
             },
             remove: (system, early) => {
+                system.shieldPassThroughModifier -= 10;
                 if (early) {
                     for (const s of system.systemState.getShip().engineerState.systems) {
                         s.removeEffect('shieldFocus', false);
