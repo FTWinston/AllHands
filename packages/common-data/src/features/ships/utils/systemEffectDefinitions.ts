@@ -52,6 +52,10 @@ export const systemEffectDefinitions = defineSystemEffects({
         usesLevels: false,
         duration: 3_000,
     },
+    relocating: {
+        positive: true,
+        usesLevels: false,
+    },
 } as const);
 
 export type SystemEffectType = keyof typeof systemEffectDefinitions;

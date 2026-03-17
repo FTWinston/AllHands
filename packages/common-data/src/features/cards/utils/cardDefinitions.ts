@@ -186,6 +186,17 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'engineer',
         cost: 1,
     },
+    relocateSystem: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 5,
+    },
+    relocateHere: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 1,
+        traits: ['expendable'],
+    },
 } as const);
 
 export type CardType = keyof typeof cardDefinitions;

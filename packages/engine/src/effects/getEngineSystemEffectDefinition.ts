@@ -137,6 +137,13 @@ function loadSystemEffectDefinitions() {
                 system.systemState.getShip().destroy();
             },
         },
+        relocating: {
+            apply: () => {
+                return true;
+            },
+            remove: () => {
+            },
+        },
     };
 
     const engineSystemEffectDefinitions = Object.entries(systemEffectDefinitions)

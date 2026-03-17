@@ -73,6 +73,11 @@ function loadEffectDefinitions() {
             description: <>The reactor has breached. The ship will be destroyed.</>,
             image: ExampleIcon,
         },
+        relocating: {
+            name: 'Relocating',
+            description: <>This system is marked for relocation. Play the Relocate Here card to move it to a new position.</>,
+            image: ExampleIcon,
+        },
     };
 
     const uiEffectDefinitions = Object.entries(effectDescriptions)

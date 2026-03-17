@@ -182,6 +182,38 @@ function loadCardDefinitions() {
                 return true;
             },
         },
+        relocateSystem: {
+            play: (_gameState, ship, system) => {
+                const alreadyRelocating = ship.engineerState.systems.some(s => s.effects.some(e => e.type === 'relocating'));
+                if (alreadyRelocating) {
+                    return false;
+                }
+
+                system.addEffect('relocating');
+                ship.engineerState.addCard('relocateHere');
+                return true;
+            },
+        },
+        relocateHere: {
+            play: (_gameState, ship, system) => {
+                if (system.effects.some(e => e.type === 'relocating')) {
+                    return false;
+                }
+
+                const relocatingSystem = ship.engineerState.systems.find(s => s.effects.some(e => e.type === 'relocating'));
+                if (!relocatingSystem) {
+                    return false;
+                }
+
+                const systemIndex = ship.engineerState.systems.indexOf(system);
+                const relocatingIndex = ship.engineerState.systems.indexOf(relocatingSystem);
+                ship.engineerState.systems[systemIndex] = relocatingSystem;
+                ship.engineerState.systems[relocatingIndex] = system;
+                ship.engineerState.onSystemsSwapped(systemIndex, relocatingIndex);
+                relocatingSystem.removeEffect('relocating', true);
+                return true;
+            },
+        },
     };
 
     const engineCardDefinitions = Object.entries(cardDefinitions)

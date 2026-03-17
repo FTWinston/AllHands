@@ -137,6 +137,16 @@ function loadCardDefinitions() {
             description: 'Focus shields on a system, increasing its protection by 50% but decreasing the protection of all other systems (except the hull) by 10%.',
             image: <ExampleIcon />,
         },
+        relocateSystem: {
+            name: 'Relocate System',
+            description: 'Mark a system for relocation. Adds a Relocate Here card to your hand to place it in any position.',
+            image: <ExampleIcon />,
+        },
+        relocateHere: {
+            name: 'Relocate Here',
+            description: 'Swap the marked system with the targeted system.',
+            image: <ExampleIcon />,
+        },
     };
 
     const uiCardDefinitions = Object.entries(cardDescriptions)
