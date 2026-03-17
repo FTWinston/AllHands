@@ -68,6 +68,11 @@ function loadEffectDefinitions() {
             description: <>This system is resetting, and is briefly unavailable.</>,
             image: ExampleIcon,
         },
+        reactorBreach: {
+            name: 'Reactor Breach',
+            description: <>The reactor has breached. The ship will be destroyed.</>,
+            image: ExampleIcon,
+        },
     };
 
     const uiEffectDefinitions = Object.entries(effectDescriptions)

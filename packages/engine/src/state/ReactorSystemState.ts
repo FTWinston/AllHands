@@ -35,7 +35,11 @@ export class ReactorSystemState extends SystemState {
         }
 
         if (newHealth <= 0) {
-            // TODO: destroy ship, reactor breach
+            this.addEffect('reactorBreach');
+
+            for (const system of this.getShip().systems()) {
+                system.adjustEffectLevel('reducedPower', 99);
+            }
         }
     }
 

@@ -20,4 +20,13 @@ export class PlayerShip extends Ship {
     crew: CrewState | null = null;
 
     @view(shipClientRole) @type(ViewState) readonly viewState: ViewState = new ViewState();
+
+    destroy() {
+        super.destroy();
+
+        // TODO: do these actually want called? Are we better off leaving the crew assigned to the ship,
+        // and letting them view the destroyed ship, then ending the game a short while after?
+        this.crew?.unassignFromShip(this.gameState);
+        this.crew?.setShip(null);
+    }
 }

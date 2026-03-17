@@ -35,7 +35,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
         this.engineerState.initSystems();
 
-        this.systems = new Map<ShipSystem, SystemState>([
+        this._systems = new Map<ShipSystem, SystemState>([
             ['hull', this.hullState],
             ['reactor', this.reactorState],
             ['helm', this.helmState],
@@ -58,14 +58,18 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     @view(tacticalClientRole) @type(CrewSystemState) tacticalState: CrewSystemState;
     @view(engineerClientRole) @type(EngineerState) engineerState: EngineerState;
 
-    private systems: ReadonlyMap<ShipSystem, SystemState>;
+    private _systems: ReadonlyMap<ShipSystem, SystemState>;
 
     public getSystem(system: ShipSystem): SystemState {
-        const systemState = this.systems.get(system);
+        const systemState = this._systems.get(system);
         if (!systemState) {
             throw new Error(`Ship does not have system ${system}`);
         }
         return systemState;
+    }
+
+    public systems(): IterableIterator<SystemState> {
+        return this._systems.values();
     }
 
     // TODO: array of slotted weapons. @view(tacticalClientRole)
@@ -123,5 +127,11 @@ export abstract class Ship extends MobileObject implements ShipInfo {
                         .adjustEffectLevel('disruptGeneration', 1);
                 }
         }
+    }
+
+    override destroy() {
+        // TODO: add explosion?
+
+        super.destroy();
     }
 }

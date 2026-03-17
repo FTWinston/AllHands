@@ -127,6 +127,14 @@ function loadSystemEffectDefinitions() {
                 system.removeAllEffects();
             },
         },
+        reactorBreach: {
+            apply: () => {
+                return true;
+            },
+            remove: (system) => {
+                system.systemState.getShip().destroy();
+            },
+        },
     };
 
     const engineSystemEffectDefinitions = Object.entries(systemEffectDefinitions)

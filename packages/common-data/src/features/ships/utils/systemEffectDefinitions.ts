@@ -47,6 +47,11 @@ export const systemEffectDefinitions = defineSystemEffects({
         usesLevels: false,
         duration: 3_000,
     },
+    reactorBreach: {
+        positive: false,
+        usesLevels: false,
+        duration: 3_000,
+    },
 } as const);
 
 export type SystemEffectType = keyof typeof systemEffectDefinitions;

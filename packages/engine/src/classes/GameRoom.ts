@@ -7,22 +7,26 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { engineerClientRole, getRole, helmClientRole, sensorClientRole, tacticalClientRole, type CrewRole, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
-import { Encounter } from 'common-data/features/space/types/Encounter';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { customAlphabet } from 'nanoid/non-secure';
 import { CrewSystemState } from 'src/state/CrewSystemState';
 import { EngineerState } from 'src/state/EngineerState';
 import { DEV_TOOLS_ENABLED } from '../generated/devtools';
-import { AiShip } from '../state/AiShip';
 import { CardState } from '../state/CardState';
 import { CrewState } from '../state/CrewState';
 import { GameState } from '../state/GameState';
 import { HelmState } from '../state/HelmState';
 import { PlayerShip } from '../state/PlayerShip';
 import { SystemState } from '../state/SystemState';
+import { EndlessCombatEncounters } from './EndlessCombatEncounters';
+import { GameRules } from './GameRules';
 import { IdPool } from './IdPool';
-import type { ScenarioConfig } from 'common-data/types/ScenarioConfig';
+import type { RulesType, ScenarioConfig } from 'common-data/types/ScenarioConfig';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
+
+const rulesRegistry: Record<RulesType, new (state: GameState, scenario: ScenarioConfig) => GameRules> = {
+    endlessCombat: EndlessCombatEncounters,
+};
 
 interface JoinOptions {
     type?: 'ship' | 'crew';
@@ -34,7 +38,6 @@ type ClientData = Required<JoinOptions>;
 export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
     private idGenerator = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 3);
     private allowMultipleCrews = false;
-    private encounterQueue: Encounter[] = [];
     private scenario: ScenarioConfig = this.loadScenario('default');
 
     getCrewId() {
@@ -515,25 +518,10 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             crew.setShip(ship);
         }
 
-        this.encounterQueue = [...this.scenario.encounters];
-
-        this.loadNextEncounter();
-    }
-
-    private loadNextEncounter(): boolean {
-        const encounter = this.encounterQueue.shift();
-        if (!encounter) {
-            console.log('No more encounters in the scenario');
-            return false;
-        }
-
-        // Create AI-controlled enemy ships for the first encounter in the queue.
-        for (const enemySetup of encounter.enemies) {
-            const aiShip = new AiShip(this.state, enemySetup);
-            this.state.add(aiShip);
-        }
-
-        return true;
+        const RulesClass = rulesRegistry[this.scenario.rules];
+        const rules = new RulesClass(this.state, this.scenario);
+        this.state.rules = rules;
+        rules.populate();
     }
 
     startOrResume() {

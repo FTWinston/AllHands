@@ -1,7 +1,7 @@
 {
     "name": "Default Scenario",
     "description": "A basic starting scenario with one player ship and one enemy.",
-    "gameMode": "survival",
+    "rules": "endlessCombat",
     "player": {
         "position": { "x": 0, "y": 0, "angle": 0 },
         "hull": {

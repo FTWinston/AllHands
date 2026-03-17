@@ -48,7 +48,7 @@ export class HullSystemState extends SystemState {
         super.adjustHealth(adjustment);
 
         if (this.health <= 0) {
-            // TODO: destroy ship
+            this.getShip().destroy();
         }
     }
 }

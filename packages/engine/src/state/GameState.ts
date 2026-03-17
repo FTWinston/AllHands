@@ -6,12 +6,14 @@ import { IdProvider } from 'src/types/IdProvider';
 import { GameStatus } from '../types/GameStatus';
 import { CrewState } from './CrewState';
 import { GameObject } from './GameObject';
+import type { GameRules } from '../classes/GameRules';
 
 export class GameState extends Schema {
     @type('string') gameStatus: GameStatus = 'setup';
     @view() @type({ map: GameObject }) objects = new MapSchema<GameObject>();
     @view() @type({ map: CrewState }) crews = new MapSchema<CrewState>();
     public readonly random: IRandom;
+    public rules: GameRules | null = null;
 
     constructor(private readonly idPool: IdProvider, public readonly clock: ClockTimer) {
         super();
@@ -44,6 +46,8 @@ export class GameState extends Schema {
         }
 
         this.idPool.releaseId(object.id);
+
+        this.rules?.onObjectRemoved(object);
     }
 
     public tick(deltaTime: number) {
@@ -54,5 +58,7 @@ export class GameState extends Schema {
         for (const object of this.objects.values()) {
             object.tick(deltaTime, currentTime);
         }
+
+        this.rules?.tick(deltaTime);
     }
 }

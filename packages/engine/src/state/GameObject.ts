@@ -36,4 +36,8 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
     }
 
     public tick(_deltaTime: number, _currentTime: number) {}
+
+    destroy() {
+        this.gameState.remove(this);
+    }
 }
