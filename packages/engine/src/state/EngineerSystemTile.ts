@@ -58,6 +58,10 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         } else {
             effect = new SystemEffect(effectType, cooldown, level);
 
+            if (definition.tickInterval) {
+                effect.lastTickTime = startTime;
+            }
+
             if (!definition.apply(this, level)) {
                 return false;
             }

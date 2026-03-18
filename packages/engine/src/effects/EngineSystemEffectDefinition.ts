@@ -5,6 +5,7 @@ export type SystemEffectFunctionality = {
     apply: (system: EngineerSystemTile, level: number) => boolean;
     remove: (system: EngineerSystemTile, early: boolean, level: number) => void;
     onLevelChanged?: (system: EngineerSystemTile, newLevel: number, oldLevel: number) => void;
+    tick?: (system: EngineerSystemTile, level: number) => void;
 };
 
 export type EngineSystemEffectDefinition = SystemEffectFunctionality & SystemEffectDefinition;

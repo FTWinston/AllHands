@@ -17,4 +17,6 @@ export class SystemEffect extends Schema implements SystemEffectInstance {
     @type(CooldownState) progress: CooldownState | null;
 
     @type('uint8') level: number;
+
+    lastTickTime: number = 0;
 }

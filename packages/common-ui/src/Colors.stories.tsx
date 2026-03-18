@@ -36,6 +36,7 @@ const Element: FC<ElementProps> = props => (
                             color: `var(${textColor})`,
                             userSelect: 'all',
                         }}
+                        key={textColor}
                     >
                         {textColor}
                     </div>
@@ -61,37 +62,38 @@ const ElementList: FC<ElementListProps> = props => (
                 <th>Allowed text color(s)</th>
             </tr>
         </thead>
+        <tbody>
+            <Element backgroundColor="--grey-darkest" textColors={['--grey-mid', '--grey-light', '--grey-lightest', '--primary-light', '--primary-lightest']} />
+            <Element backgroundColor="--grey-dark" textColors={['--grey-light', '--grey-lightest', '--primary-lightest']} />
+            <Element backgroundColor="--grey-mid" textColors={['--lightest-contrast-dark']} />
+            <Element backgroundColor="--grey-light" textColors={['--grey-darkest', '--lightest-contrast-dark']} />
+            <Element backgroundColor="--grey-lightest" textColors={['--grey-darkest', '--grey-dark', '--lightest-contrast-dark']} />
 
-        <Element backgroundColor="--grey-darkest" textColors={['--grey-mid', '--grey-light', '--grey-lightest', '--primary-light', '--primary-lightest']} />
-        <Element backgroundColor="--grey-dark" textColors={['--grey-light', '--grey-lightest', '--primary-lightest']} />
-        <Element backgroundColor="--grey-mid" textColors={['--lightest-contrast-dark']} />
-        <Element backgroundColor="--grey-light" textColors={['--grey-darkest', '--lightest-contrast-dark']} />
-        <Element backgroundColor="--grey-lightest" textColors={['--grey-darkest', '--grey-dark', '--lightest-contrast-dark']} />
+            <Element backgroundColor="--primary-darkest-muted" textColors={['--grey-mid', '--grey-light', '--grey-lightest', '--primary-light', '--primary-lightest']} />
+            <Element backgroundColor="--primary-darkest" textColors={['--grey-mid', '--grey-light', '--grey-lightest', '--primary-light', '--primary-lightest']} />
+            <Element backgroundColor="--primary-dark" textColors={['--grey-light', '--grey-lightest', '--primary-lightest']} />
+            <Element backgroundColor="--primary-mid" textColors={['--grey-lightest']} />
+            <Element backgroundColor="--primary-light" textColors={['--lightest-contrast-dark', '--grey-darkest']} />
+            <Element backgroundColor="--primary-lightest" textColors={['--lightest-contrast-dark', '--grey-darkest', '--primary-darkest']} />
 
-        <Element backgroundColor="--primary-darkest-muted" textColors={['--grey-mid', '--grey-light', '--grey-lightest', '--primary-light', '--primary-lightest']} />
-        <Element backgroundColor="--primary-darkest" textColors={['--grey-mid', '--grey-light', '--grey-lightest', '--primary-light', '--primary-lightest']} />
-        <Element backgroundColor="--primary-dark" textColors={['--grey-light', '--grey-lightest', '--primary-lightest']} />
-        <Element backgroundColor="--primary-mid" textColors={['--grey-lightest']} />
-        <Element backgroundColor="--primary-light" textColors={['--lightest-contrast-dark', '--grey-darkest']} />
-        <Element backgroundColor="--primary-lightest" textColors={['--lightest-contrast-dark', '--grey-darkest', '--primary-darkest']} />
+            <Element backgroundColor="--danger-darkest" textColors={['--grey-mid', '--grey-light', '--grey-lightest', '--danger-light', '--danger-lightest']} />
+            <Element backgroundColor="--danger-dark" textColors={['--grey-light', '--grey-lightest', '--danger-lightest']} />
+            <Element backgroundColor="--danger-mid" textColors={['--grey-lightest']} />
+            <Element backgroundColor="--danger-light" textColors={['--danger-darkest', '--lightest-contrast-dark']} />
+            <Element backgroundColor="--danger-lightest" textColors={['--danger-darkest', '--danger-dark', '--lightest-contrast-dark']} />
 
-        <Element backgroundColor="--danger-darkest" textColors={['--grey-mid', '--grey-light', '--grey-lightest', '--danger-light', '--danger-lightest']} />
-        <Element backgroundColor="--danger-dark" textColors={['--grey-light', '--grey-lightest', '--danger-lightest']} />
-        <Element backgroundColor="--danger-mid" textColors={['--grey-lightest']} />
-        <Element backgroundColor="--danger-light" textColors={['--danger-darkest', '--lightest-contrast-dark']} />
-        <Element backgroundColor="--danger-lightest" textColors={['--danger-darkest', '--danger-dark', '--lightest-contrast-dark']} />
+            <Element backgroundColor="--good-darkest" textColors={['--grey-mid', '--grey-light', '--grey-lightest', '--good-light', '--good-lightest']} />
+            <Element backgroundColor="--good-dark" textColors={['--grey-light', '--grey-lightest', '--good-lightest']} />
+            <Element backgroundColor="--good-mid" textColors={['--grey-lightest']} />
+            <Element backgroundColor="--good-light" textColors={['--good-darkest', '--lightest-contrast-dark']} />
+            <Element backgroundColor="--good-lightest" textColors={['--good-darkest', '--good-dark', '--lightest-contrast-dark']} />
 
-        <Element backgroundColor="--good-darkest" textColors={['--grey-mid', '--grey-light', '--grey-lightest', '--good-light', '--good-lightest']} />
-        <Element backgroundColor="--good-dark" textColors={['--grey-light', '--grey-lightest', '--good-lightest']} />
-        <Element backgroundColor="--good-mid" textColors={['--grey-lightest']} />
-        <Element backgroundColor="--good-light" textColors={['--good-darkest', '--lightest-contrast-dark']} />
-        <Element backgroundColor="--good-lightest" textColors={['--good-darkest', '--good-dark', '--lightest-contrast-dark']} />
-
-        <Element backgroundColor="--energy-darkest" textColors={['--grey-mid', '--grey-light', '--grey-lightest', '--energy-light', '--energy-lightest']} />
-        <Element backgroundColor="--energy-dark" textColors={['--grey-light', '--grey-lightest', '--energy-lightest']} />
-        <Element backgroundColor="--energy-mid" textColors={['--grey-lightest']} />
-        <Element backgroundColor="--energy-light" textColors={['--energy-darkest', '--lightest-contrast-dark']} />
-        <Element backgroundColor="--energy-lightest" textColors={['--energy-darkest', '--energy-dark', '--lightest-contrast-dark']} />
+            <Element backgroundColor="--energy-darkest" textColors={['--grey-mid', '--grey-light', '--grey-lightest', '--energy-light', '--energy-lightest']} />
+            <Element backgroundColor="--energy-dark" textColors={['--grey-light', '--grey-lightest', '--energy-lightest']} />
+            <Element backgroundColor="--energy-mid" textColors={['--grey-lightest']} />
+            <Element backgroundColor="--energy-light" textColors={['--energy-darkest', '--lightest-contrast-dark']} />
+            <Element backgroundColor="--energy-lightest" textColors={['--energy-darkest', '--energy-dark', '--lightest-contrast-dark']} />
+        </tbody>
     </table>
 );
 

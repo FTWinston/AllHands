@@ -6,6 +6,7 @@ export interface SystemEffectDefinition {
     duration?: number;
     usesLevels: boolean;
     maxLevel?: number;
+    tickInterval?: number;
 }
 
 export type SystemEffectInstance = {

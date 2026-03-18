@@ -1,7 +1,99 @@
-import { systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { LeveledSystemEffectType, systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { EngineerSystemTile } from 'src/state/EngineerSystemTile';
 import { EngineSystemEffectDefinition, SystemEffectFunctionality } from './EngineSystemEffectDefinition';
 
 type SystemEffectFunctionalityLookup = Record<SystemEffectType, SystemEffectFunctionality>;
+
+/**
+ * Create a "hub" power transfer effect. The hub is on the card's target system.
+ * When removed, it force-removes the paired "spoke" effects from all other systems.
+ * @param spokeType The effect type placed on the other systems.
+ * @param powerDirection +1 if this effect increases power (gain), -1 if it decreases (loss).
+ */
+function createTransferHubEffect(spokeType: SystemEffectType, powerDirection: 1 | -1): SystemEffectFunctionality {
+    return {
+        apply: (system, level) => {
+            system.adjustSystemPowerLevel(powerDirection * level);
+            return true;
+        },
+        remove: (system, early, level) => {
+            system.adjustSystemPowerLevel(-powerDirection * level);
+            for (const s of system.systemState.getShip().engineerState.systems) {
+                if (s !== system) {
+                    s.removeEffect(spokeType, early);
+                }
+            }
+        },
+        onLevelChanged: (system, newLevel, oldLevel) => {
+            system.adjustSystemPowerLevel(powerDirection * (newLevel - oldLevel));
+        },
+    };
+}
+
+/**
+ * Create a "spoke" power transfer effect. Spokes are on the systems affected by a redistribution.
+ * When removed, it reduces the paired "hub" effect's level on whichever system has it.
+ * @param hubType The effect type placed on the card's target system.
+ * @param powerDirection +1 if this effect increases power (gain), -1 if it decreases (loss).
+ */
+function createTransferSpokeEffect(hubType: LeveledSystemEffectType, powerDirection: 1 | -1): SystemEffectFunctionality {
+    return {
+        apply: (system, level) => {
+            system.adjustSystemPowerLevel(powerDirection * level);
+            return true;
+        },
+        remove: (system, _early, level) => {
+            system.adjustSystemPowerLevel(-powerDirection * level);
+            for (const s of system.systemState.getShip().engineerState.systems) {
+                if (s.hasEffect(hubType)) {
+                    s.adjustEffectLevel(hubType, -level);
+                    break;
+                }
+            }
+        },
+        onLevelChanged: (system, newLevel, oldLevel) => {
+            system.adjustSystemPowerLevel(powerDirection * (newLevel - oldLevel));
+        },
+    };
+}
+
+/**
+ * Create a 1:1 paired power transfer effect. Used for Divert Helm/Sensors/Tactical,
+ * where there is exactly one source (loss) and one target (gain).
+ * When removed, the paired effect is fully removed from whichever system has it.
+ * @param pairedType The paired effect type.
+ * @param powerDirection +1 if this effect increases power (gain), -1 if it decreases (loss).
+ */
+function createOneToOneTransferEffect(pairedType: SystemEffectType, powerDirection: 1 | -1): SystemEffectFunctionality {
+    return {
+        apply: (system, level) => {
+            system.adjustSystemPowerLevel(powerDirection * level);
+            return true;
+        },
+        remove: (system, early, level) => {
+            system.adjustSystemPowerLevel(-powerDirection * level);
+            for (const s of system.systemState.getShip().engineerState.systems) {
+                s.removeEffect(pairedType, early);
+            }
+        },
+        onLevelChanged: (system, newLevel, oldLevel) => {
+            system.adjustSystemPowerLevel(powerDirection * (newLevel - oldLevel));
+        },
+    };
+}
+
+/**
+ * Remove the given effect from the given system, without triggering the removal handler.
+ * This is used by effects that consolidate levels on transfer (Shunt card).
+ */
+export function removeEffectWithoutHandler(system: EngineerSystemTile, effectType: SystemEffectType): boolean {
+    const index = system.effects.findIndex(e => e.type === effectType);
+    if (index === -1) {
+        return false;
+    }
+    system.effects.splice(index, 1);
+    return true;
+}
 
 function loadSystemEffectDefinitions() {
     const systemEffectFunctionalities: SystemEffectFunctionalityLookup = {
@@ -139,6 +231,51 @@ function loadSystemEffectDefinitions() {
         },
         relocating: {
             apply: () => {
+                return true;
+            },
+            remove: () => {
+            },
+        },
+        overcharge: {
+            apply: (system) => {
+                system.adjustSystemPowerLevel(3);
+                return true;
+            },
+            remove: (system) => {
+                system.adjustSystemPowerLevel(-3);
+            },
+            tick: (system) => {
+                system.adjustSystemHealth(-1);
+            },
+        },
+
+        // Distribute Power: target loses power (hub), neighbors gain power (spokes).
+        distributePowerLoss: createTransferHubEffect('distributePowerGain', -1),
+        distributePowerGain: createTransferSpokeEffect('distributePowerLoss', 1),
+
+        // Draw Power: target gains power (hub), neighbors lose power (spokes).
+        drawPowerGain: createTransferHubEffect('drawPowerLoss', 1),
+        drawPowerLoss: createTransferSpokeEffect('drawPowerGain', -1),
+
+        // Divert All Power: target gains power (hub), all others lose power (spokes).
+        divertAllPowerGain: createTransferHubEffect('divertAllPowerLoss', 1),
+        divertAllPowerLoss: createTransferSpokeEffect('divertAllPowerGain', -1),
+
+        // Divert Helm/Sensors/Tactical: 1:1 pairs between source and target.
+        divertHelmGain: createOneToOneTransferEffect('divertHelmLoss', 1),
+        divertHelmLoss: createOneToOneTransferEffect('divertHelmGain', -1),
+        divertSensorsGain: createOneToOneTransferEffect('divertSensorsLoss', 1),
+        divertSensorsLoss: createOneToOneTransferEffect('divertSensorsGain', -1),
+        divertTacticalGain: createOneToOneTransferEffect('divertTacticalLoss', 1),
+        divertTacticalLoss: createOneToOneTransferEffect('divertTacticalGain', -1),
+        generationPriority: {
+            apply: (system) => {
+                // Remove this effect from every other ship system.
+                for (const s of system.systemState.getShip().engineerState.systems) {
+                    if (s !== system) {
+                        s.removeEffect('generationPriority', true);
+                    }
+                }
                 return true;
             },
             remove: () => {

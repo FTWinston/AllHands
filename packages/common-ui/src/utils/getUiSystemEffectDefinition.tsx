@@ -78,6 +78,123 @@ function loadEffectDefinitions() {
             description: <>This system is marked for relocation. Play the Relocate Here card to move it to a new position.</>,
             image: ExampleIcon,
         },
+        overcharge: {
+            name: 'Overcharge',
+            description: <>This system is overcharged, gaining 3 power but taking damage every second.</>,
+            image: ExampleIcon,
+        },
+        distributePowerLoss: {
+            name: 'Distributing Power',
+            description: <>
+                This system is distributing power to its neighbors, reducing its power by
+                {' '}
+                <EffectLevel />
+                .
+            </>,
+            image: ExampleIcon,
+        },
+        distributePowerGain: {
+            name: 'Receiving Power',
+            description: <>This system is receiving distributed power, increasing its power by 1.</>,
+            image: ExampleIcon,
+        },
+        drawPowerGain: {
+            name: 'Drawing Power',
+            description: <>
+                This system is drawing power from its neighbors, increasing its power by
+                {' '}
+                <EffectLevel />
+                .
+            </>,
+            image: ExampleIcon,
+        },
+        drawPowerLoss: {
+            name: 'Power Drawn',
+            description: <>This system is having power drawn from it, reducing its power by 1.</>,
+            image: ExampleIcon,
+        },
+        divertAllPowerGain: {
+            name: 'All Power Diverted',
+            description: <>
+                All power has been diverted to this system, increasing its power by
+                {' '}
+                <EffectLevel />
+                .
+            </>,
+            image: ExampleIcon,
+        },
+        divertAllPowerLoss: {
+            name: 'Power Diverted Away',
+            description: <>Power has been diverted away from this system, reducing its power by 1.</>,
+            image: ExampleIcon,
+        },
+        divertHelmGain: {
+            name: 'Helm Power Diverted Here',
+            description: <>
+                Helm power has been diverted to this system, increasing its power by
+                {' '}
+                <EffectLevel />
+                .
+            </>,
+            image: ExampleIcon,
+        },
+        divertHelmLoss: {
+            name: 'Helm Power Diverted',
+            description: <>
+                This system's power has been diverted, reducing its power by
+                {' '}
+                <EffectLevel />
+                .
+            </>,
+            image: ExampleIcon,
+        },
+        divertSensorsGain: {
+            name: 'Sensors Power Diverted Here',
+            description: <>
+                Sensors power has been diverted to this system, increasing its power by
+                {' '}
+                <EffectLevel />
+                .
+            </>,
+            image: ExampleIcon,
+        },
+        divertSensorsLoss: {
+            name: 'Sensors Power Diverted',
+            description: <>
+                This system's power has been diverted, reducing its power by
+                {' '}
+                <EffectLevel />
+                .
+            </>,
+            image: ExampleIcon,
+        },
+        divertTacticalGain: {
+            name: 'Tactical Power Diverted Here',
+            description: <>
+                Tactical power has been diverted to this system, increasing its power by
+                {' '}
+                <EffectLevel />
+                .
+            </>,
+            image: ExampleIcon,
+        },
+        divertTacticalLoss: {
+            name: 'Tactical Power Diverted',
+            description: <>
+                This system's power has been diverted, reducing its power by
+                {' '}
+                <EffectLevel />
+                .
+            </>,
+            image: ExampleIcon,
+        },
+        generationPriority: {
+            name: 'Generation Priority',
+            description: <>
+                This system generates after any other system generates, but skips its own slot in the sequence.
+            </>,
+            image: ExampleIcon,
+        },
     };
 
     const uiEffectDefinitions = Object.entries(effectDescriptions)

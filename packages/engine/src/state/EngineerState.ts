@@ -1,6 +1,7 @@
 import { ArraySchema, type } from '@colyseus/schema';
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { CrewSystemSetupInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from './CooldownState';
 import { CrewSystemState } from './CrewSystemState';
 import { EngineerSystemTile } from './EngineerSystemTile';
@@ -50,6 +51,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
 
     update(currentTime: number) {
         this.removeExpiredEffects(currentTime);
+        this.processEffectTicks(currentTime);
         this.updateCardGeneration(currentTime);
     }
 
@@ -62,6 +64,21 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
                 const effect = tile.effects[i];
                 if (effect.progress && currentTime >= effect.progress.endTime) {
                     tile.removeEffect(effect.type, false);
+                }
+            }
+        }
+    }
+
+    /**
+     * Run tick functions for effects that have a tick interval.
+     */
+    private processEffectTicks(currentTime: number) {
+        for (const tile of this.systems) {
+            for (const effect of tile.effects) {
+                const def = getSystemEffectDefinition(effect.type);
+                if (def.tickInterval && def.tick && currentTime >= effect.lastTickTime + def.tickInterval) {
+                    effect.lastTickTime = currentTime;
+                    def.tick(tile, effect.level);
                 }
             }
         }
@@ -128,17 +145,23 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         this.generationProgress.rescaleToDuration(currentTime, newPerSystemDuration);
 
         // Rescale all crew system cardGeneration cooldowns.
-        const newTotalDuration = EngineerState.generationSequence.length * newPerSystemDuration;
+        const priorityTile = this.systems.find(t => t.hasEffect('generationPriority'));
+        const activeSlots = EngineerState.generationSequence.length - (priorityTile ? 1 : 0);
+        const newTotalDuration = activeSlots * newPerSystemDuration;
+
         for (const tile of this.systems) {
             const crewSystem = tile.systemState;
             if (crewSystem instanceof CrewSystemState && crewSystem.cardGeneration) {
-                crewSystem.cardGeneration.rescaleToDuration(currentTime, newTotalDuration);
+                const duration = tile === priorityTile ? newPerSystemDuration : newTotalDuration;
+                crewSystem.cardGeneration.rescaleToDuration(currentTime, duration);
             }
         }
     }
 
     /**
      * Round-robin card generation across all systems, one at a time.
+     * If a system has the generationPriority effect, its slot in the sequence is
+     * skipped, but it receives a bonus generate call after every other system generates.
      */
     private updateCardGeneration(currentTime: number) {
         const sequence = EngineerState.generationSequence;
@@ -148,6 +171,13 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         }
 
         if (!this.generationProgress) {
+            // Skip this system's slot if it has the generationPriority effect.
+            if (systemTile.hasEffect('generationPriority')) {
+                this.generationSequenceIndex = (this.generationSequenceIndex + 1) % sequence.length;
+                this.updateCardGeneration(currentTime);
+                return;
+            }
+
             // Start generation on this system.
             systemTile.generating = true;
             this.generationProgress = new CooldownState(currentTime, currentTime + this.perSystemGenerationDuration);
@@ -158,6 +188,12 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
             // Generation complete: unmark and generate.
             systemTile.generating = false;
             systemTile.systemState.generate.trigger();
+
+            // If a system has generationPriority, also trigger generation on it.
+            const priorityTile = this.systems.find(t => t.hasEffect('generationPriority'));
+            if (priorityTile && priorityTile !== systemTile) {
+                priorityTile.systemState.generate.trigger();
+            }
 
             // Advance to the next system.
             this.generationSequenceIndex = (this.generationSequenceIndex + 1) % sequence.length;
@@ -171,29 +207,44 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
     /**
      * Update the cardGeneration cooldown on each crew system to reflect
      * how long until that system next receives a generated card.
+     * When a system has generationPriority, its slot is skipped in the
+     * sequence but it generates after every other system, so its cooldown
+     * cycle equals one slot duration.
      */
     private updateCrewSystemCardGeneration(currentTime: number) {
         const sequence = EngineerState.generationSequence;
         const perSystemDuration = this.perSystemGenerationDuration;
-        const totalDuration = sequence.length * perSystemDuration;
+        const priorityTile = this.systems.find(t => t.hasEffect('generationPriority'));
+        const activeSlots = sequence.length - (priorityTile ? 1 : 0);
+        const totalDuration = activeSlots * perSystemDuration;
 
+        // Priority system generates after every slot, so its cycle is one slot long.
+        if (priorityTile) {
+            const crewSystem = priorityTile.systemState;
+            if (crewSystem instanceof CrewSystemState) {
+                crewSystem.cardGeneration = null;
+                crewSystem.cardGeneration = new CooldownState(currentTime, currentTime + perSystemDuration);
+            }
+        }
+
+        // Set cardGeneration for each non-priority system based on its
+        // position in the effective sequence.
+        let slotOffset = 0;
         for (let offset = 0; offset < sequence.length; offset++) {
             const seqIndex = (this.generationSequenceIndex + offset) % sequence.length;
             const tile = this.systems[sequence[seqIndex]];
-            if (!tile) {
+            if (!tile || tile === priorityTile) {
                 continue;
             }
 
             const crewSystem = tile.systemState;
             if (crewSystem instanceof CrewSystemState) {
                 crewSystem.cardGeneration = null;
-
-                // This system will receive its card after (offset + 1) individual
-                // generation durations, and its full cycle is totalDuration long.
-                const cardArrival = currentTime + (offset + 1) * perSystemDuration;
+                const cardArrival = currentTime + (slotOffset + 1) * perSystemDuration;
                 const cycleStart = cardArrival - totalDuration;
                 crewSystem.cardGeneration = new CooldownState(cycleStart, cardArrival);
             }
+            slotOffset++;
         }
     }
 
@@ -238,23 +289,59 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
             return;
         }
 
-        // Find how many steps until this tile next generates.
         const sequence = EngineerState.generationSequence;
+        const priorityTile = this.systems.find(t => t.hasEffect('generationPriority'));
+        const generationEndTime = this.generationProgress?.endTime ?? currentTime;
+
+        if (tile === priorityTile) {
+            // Priority system generates after every slot, so its next card
+            // arrives when the current system finishes generating.
+            crewSystem.cardGeneration.rescaleToEnd(currentTime, generationEndTime);
+            return;
+        }
+
+        // Find how many effective steps until this tile next generates,
+        // skipping the priority system's slot.
         const systemsIndex = this.systems.indexOf(tile);
         let stepsUntilGeneration = 0;
         for (let offset = 0; offset < sequence.length; offset++) {
             const seqIndex = (this.generationSequenceIndex + offset) % sequence.length;
-            if (sequence[seqIndex] === systemsIndex) {
-                stepsUntilGeneration = offset + 1;
+            const seqSystemsIndex = sequence[seqIndex];
+
+            // Skip the priority system's slot.
+            if (this.systems[seqSystemsIndex] === priorityTile) {
+                continue;
+            }
+
+            stepsUntilGeneration++;
+            if (seqSystemsIndex === systemsIndex) {
                 break;
             }
         }
 
         // The new end time: when the current system finishes generating,
         // plus the remaining steps until this system gets its turn.
-        const generationEndTime = this.generationProgress?.endTime ?? currentTime;
         const newEnd = generationEndTime + (stepsUntilGeneration - 1) * this.perSystemGenerationDuration;
 
         crewSystem.cardGeneration.rescaleToEnd(currentTime, newEnd);
+    }
+
+    /**
+     * Get the systems adjacent to the system at the given index.
+     * The grid is 3 rows × 2 columns (indices 0-5):
+     *   0 | 1
+     *   2 | 3
+     *   4 | 5
+     * Adjacent means sharing an edge (horizontal or vertical, not diagonal).
+     */
+    public getAdjacentSystems(systemIndex: number): EngineerSystemTile[] {
+        const indices: number[] = [];
+        // Horizontal neighbor (same row, other column)
+        indices.push(systemIndex % 2 === 0 ? systemIndex + 1 : systemIndex - 1);
+        // Above
+        if (systemIndex >= 2) indices.push(systemIndex - 2);
+        // Below
+        if (systemIndex < 4) indices.push(systemIndex + 2);
+        return indices.map(i => this.systems[i]);
     }
 }

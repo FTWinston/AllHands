@@ -147,6 +147,61 @@ function loadCardDefinitions() {
             description: 'Swap the marked system with the targeted system.',
             image: <ExampleIcon />,
         },
+        sustain: {
+            name: 'Sustain',
+            description: 'Restart the cooldown on every status effect on a system.',
+            image: <ExampleIcon />,
+        },
+        distributePower: {
+            name: 'Distribute Power',
+            description: 'Reduce a system\'s power by 1 per adjacent system, increasing the power of each adjacent system by 1 for 30 seconds.',
+            image: <ExampleIcon />,
+        },
+        drawPower: {
+            name: 'Draw Power',
+            description: 'Increase a system\'s power by 1 per adjacent system, decreasing the power of each adjacent system by 1 for 30 seconds.',
+            image: <ExampleIcon />,
+        },
+        divertAllPower: {
+            name: 'Divert All Power',
+            description: 'All other systems lose 1 power for 20 seconds. Target system gains 5 power.',
+            image: <ExampleIcon />,
+        },
+        divertSystemPower: {
+            name: 'Divert System Power',
+            description: 'Choose which system to divert power from.',
+            image: <ExampleIcon />,
+        },
+        divertHelm: {
+            name: 'Divert Helm',
+            description: 'Reduce helm power by up to 3, increasing target system power by the same amount for 20 seconds.',
+            image: <ExampleIcon />,
+        },
+        divertSensors: {
+            name: 'Divert Sensors',
+            description: 'Reduce sensors power by up to 3, increasing target system power by the same amount for 20 seconds.',
+            image: <ExampleIcon />,
+        },
+        divertTactical: {
+            name: 'Divert Tactical',
+            description: 'Reduce tactical power by up to 3, increasing target system power by the same amount for 20 seconds.',
+            image: <ExampleIcon />,
+        },
+        overcharge: {
+            name: 'Overcharge',
+            description: 'Target system gains 3 power for 15 seconds, but takes damage every second for the duration.',
+            image: <ExampleIcon />,
+        },
+        shunt: {
+            name: 'Shunt',
+            description: 'Swap all status effects between a system and its horizontal neighbor, preserving cooldowns.',
+            image: <ExampleIcon />,
+        },
+        generationPriority: {
+            name: 'Generation Priority',
+            description: 'For 60 seconds, the targeted system generates after any other system generates.',
+            image: <ExampleIcon />,
+        },
     };
 
     const uiCardDefinitions = Object.entries(cardDescriptions)

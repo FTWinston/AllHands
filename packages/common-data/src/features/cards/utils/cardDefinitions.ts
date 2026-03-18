@@ -197,6 +197,62 @@ export const cardDefinitions = defineCardDefinitions({
         cost: 1,
         traits: ['expendable'],
     },
+    sustain: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 2,
+    },
+    distributePower: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 3,
+    },
+    drawPower: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 3,
+    },
+    divertAllPower: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 4,
+    },
+    divertSystemPower: {
+        targetType: 'choice',
+        crew: 'engineer',
+        cost: 3,
+        cards: ['divertHelm', 'divertSensors', 'divertTactical'],
+    },
+    divertHelm: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 3,
+    },
+    divertSensors: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 3,
+    },
+    divertTactical: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 3,
+    },
+    overcharge: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 2,
+    },
+    shunt: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 3,
+    },
+    generationPriority: {
+        targetType: 'system',
+        crew: 'engineer',
+        cost: 2,
+    },
 } as const);
 
 export type CardType = keyof typeof cardDefinitions;

@@ -8,7 +8,10 @@ import {
     WeaponTargetedCardType,
     cardDefinitions,
 } from 'common-data/features/cards/utils/cardDefinitions';
+import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
+import { CooldownState } from '../state/CooldownState';
+import { EngineerSystemTile } from '../state/EngineerSystemTile';
 import { applyMotionCard } from './applyMotionCard';
 import {
     NoTargetCardFunctionality,
@@ -27,6 +30,39 @@ type CardFunctionalityLookup = Record<UntargetedCardType, NoTargetCardFunctional
     & Record<SystemSlotTargetedCardType, SystemTargetCardFunctionality>
     & Record<EnemyTargetedCardType, EnemyTargetCardFunctionality>
     & Record<LocationTargetedCardType, LocationTargetCardFunctionality>;
+
+/**
+ * Apply a set of saved effects onto a system, consolidating leveled effects where they already exist.
+ * Used by the Shunt card to transfer effects between systems while preserving cooldowns.
+ */
+function applySwappedEffects(
+    system: EngineerSystemTile,
+    effects: Array<{ type: SystemEffectType; level: number; progress: CooldownState | null }>
+) {
+    for (const saved of effects) {
+        if (system.hasEffect(saved.type)) {
+            // Consolidate: increase level of existing effect.
+            const def = getSystemEffectDefinition(saved.type);
+            if (def.usesLevels) {
+                system.adjustEffectLevel(saved.type as LeveledSystemEffectType, saved.level);
+            }
+            // Keep the longer-lasting cooldown.
+            const existing = system.effects.find(e => e.type === saved.type);
+            if (existing && saved.progress) {
+                if (!existing.progress || saved.progress.endTime > existing.progress.endTime) {
+                    existing.progress = saved.progress;
+                }
+            }
+        } else {
+            system.addEffect(saved.type, saved.level);
+            // Override cooldown with preserved one.
+            const added = system.effects.find(e => e.type === saved.type);
+            if (added && saved.progress) {
+                added.progress = saved.progress;
+            }
+        }
+    }
+}
 
 function loadCardDefinitions() {
     const cardFunctionalities: CardFunctionalityLookup = {
@@ -212,6 +248,162 @@ function loadCardDefinitions() {
                 ship.engineerState.onSystemsSwapped(systemIndex, relocatingIndex);
                 relocatingSystem.removeEffect('relocating', true);
                 return true;
+            },
+        },
+        sustain: {
+            play: (gameState, _ship, system) => {
+                const currentTime = gameState.clock.currentTime;
+                let restarted = false;
+                for (const effect of system.effects) {
+                    if (effect.progress) {
+                        const def = getSystemEffectDefinition(effect.type);
+                        const duration = def.duration ?? (effect.progress.endTime - effect.progress.startTime);
+                        effect.progress = new CooldownState(currentTime, currentTime + duration);
+                        if (def.tickInterval) {
+                            effect.lastTickTime = currentTime;
+                        }
+                        restarted = true;
+                    }
+                }
+                return restarted;
+            },
+        },
+        distributePower: {
+            play: (_gameState, ship, system) => {
+                const systemIndex = ship.engineerState.systems.indexOf(system);
+                const adjacent = ship.engineerState.getAdjacentSystems(systemIndex);
+
+                // Reduce target system power by 1 per adjacent system.
+                system.addEffect('distributePowerLoss', adjacent.length);
+
+                // Increase each adjacent system's power by 1.
+                for (const adj of adjacent) {
+                    adj.addEffect('distributePowerGain');
+                }
+                return true;
+            },
+        },
+        drawPower: {
+            play: (_gameState, ship, system) => {
+                const systemIndex = ship.engineerState.systems.indexOf(system);
+                const adjacent = ship.engineerState.getAdjacentSystems(systemIndex);
+
+                // Increase target system power by 1 per adjacent system.
+                system.addEffect('drawPowerGain', adjacent.length);
+
+                // Decrease each adjacent system's power by 1.
+                for (const adj of adjacent) {
+                    adj.addEffect('drawPowerLoss');
+                }
+                return true;
+            },
+        },
+        divertAllPower: {
+            play: (_gameState, ship, system) => {
+                // All other systems lose 1 power.
+                for (const otherSystem of ship.engineerState.systems) {
+                    if (otherSystem !== system) {
+                        otherSystem.addEffect('divertAllPowerLoss');
+                    }
+                }
+
+                // Target system gains 5 power.
+                system.addEffect('divertAllPowerGain', 5);
+                return true;
+            },
+        },
+        divertHelm: {
+            play: (_gameState, ship, system) => {
+                if (system.system === 'helm') {
+                    return false;
+                }
+                const helmTile = ship.engineerState.systems.find(s => s.system === 'helm')!;
+                const amount = Math.min(3, helmTile.power);
+                if (amount <= 0) {
+                    return false;
+                }
+                helmTile.addEffect('divertHelmLoss', amount);
+                system.addEffect('divertHelmGain', amount);
+                return true;
+            },
+        },
+        divertSensors: {
+            play: (_gameState, ship, system) => {
+                if (system.system === 'sensors') {
+                    return false;
+                }
+                const sensorsTile = ship.engineerState.systems.find(s => s.system === 'sensors')!;
+                const amount = Math.min(3, sensorsTile.power);
+                if (amount <= 0) {
+                    return false;
+                }
+                sensorsTile.addEffect('divertSensorsLoss', amount);
+                system.addEffect('divertSensorsGain', amount);
+                return true;
+            },
+        },
+        divertTactical: {
+            play: (_gameState, ship, system) => {
+                if (system.system === 'tactical') {
+                    return false;
+                }
+                const tacticalTile = ship.engineerState.systems.find(s => s.system === 'tactical')!;
+                const amount = Math.min(3, tacticalTile.power);
+                if (amount <= 0) {
+                    return false;
+                }
+                tacticalTile.addEffect('divertTacticalLoss', amount);
+                system.addEffect('divertTacticalGain', amount);
+                return true;
+            },
+        },
+        overcharge: {
+            play: (_gameState, _ship, system) => {
+                return system.addEffect('overcharge');
+            },
+        },
+        shunt: {
+            play: (_gameState, ship, system) => {
+                const systemIndex = ship.engineerState.systems.indexOf(system);
+                const neighborIndex = systemIndex ^ 1;
+                const neighbor = ship.engineerState.systems[neighborIndex];
+
+                const UNTRANSFERABLE: ReadonlySet<SystemEffectType> = new Set(['resetting', 'reactorBreach', 'relocating']);
+
+                // Save transferable effects from both systems.
+                type SavedEffect = { type: SystemEffectType; level: number; progress: CooldownState | null };
+                const systemEffects: SavedEffect[] = [];
+                const neighborEffects: SavedEffect[] = [];
+
+                for (const e of system.effects) {
+                    if (!UNTRANSFERABLE.has(e.type)) {
+                        systemEffects.push({ type: e.type, level: e.level, progress: e.progress });
+                    }
+                }
+                for (const e of neighbor.effects) {
+                    if (!UNTRANSFERABLE.has(e.type)) {
+                        neighborEffects.push({ type: e.type, level: e.level, progress: e.progress });
+                    }
+                }
+
+                // Remove transferable effects from both systems (properly undoes power adjustments etc.)
+                for (const e of systemEffects) {
+                    system.removeEffect(e.type, false);
+                }
+                for (const e of neighborEffects) {
+                    neighbor.removeEffect(e.type, false);
+                }
+
+                // Add neighbor's old effects to system (and vice versa), consolidating leveled effects.
+                applySwappedEffects(system, neighborEffects);
+                applySwappedEffects(neighbor, systemEffects);
+
+                return true;
+            },
+        },
+        generationPriority: {
+            play: (_gameState, _ship, system) => {
+                return system.addEffect('generationPriority');
             },
         },
     };
