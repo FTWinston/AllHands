@@ -170,28 +170,22 @@ describe('EngineerState generation priority', () => {
             const sensorsTile = engineer.systems.find(t => t.system === 'sensors')!;
             sensorsTile.addEffect('generationPriority');
 
-            // generationPriority has 40_000ms duration.
-            // Per-system duration at power 3 = 2500ms.
-            // Full priority cycle = 5 slots × 2500 = 12500ms.
-            // Run 3 full cycles = 37500ms. Effect still active.
+            // Read the actual expiry time from the applied effect rather than
+            // relying on the hard-coded duration constant.
+            const effectEndTime = sensorsTile.effects.find(e => e.type === 'generationPriority')!.progress!.endTime;
+
             engineer.update(0);
-            advanceTime(clock, engineer, 37500);
+            advanceTime(clock, engineer, effectEndTime);
+            expect(sensorsTile.hasEffect('generationPriority')).toBe(false);
+
             generated.length = 0;
 
-            // Advance past 40000ms total. Effect expires at t=40000.
-            // At t=40000, the effect is removed by removeExpiredEffects.
-            // Then generation continues normally with the sensors slot re-included.
-            advanceTime(clock, engineer, 5000);
+            // Run through one full 6-slot cycle.
+            advanceTime(clock, engineer, 6 * 2500);
 
-            // After effect expires, sensors should no longer get bonus triggers.
-            // The next systems to generate should NOT include bonus sensors calls.
-            const bonusSensors = generated.filter(
-                (sys, i) => sys === 'sensors' && i > 0 && generated[i - 1] !== 'sensors'
-            );
-            // In normal mode, sensors only appears in its own slot, not after every other system.
-            // Verify that not every generation is followed by a sensors trigger.
-            const nonSensorsSystems = generated.filter(s => s !== 'sensors');
-            expect(nonSensorsSystems.length).toBeGreaterThan(0);
+            // With priority active sensors generated after every other system (5 times/cycle).
+            // After expiry it should appear exactly once — only in its own sequence slot.
+            expect(generated.filter(s => s === 'sensors')).toHaveLength(1);
         });
 
         it('should not trigger bonus generation on the priority system itself', () => {
@@ -232,10 +226,11 @@ describe('EngineerState generation priority', () => {
             engineer.systems[otherIndex] = sensorsTile;
             engineer.onSystemsSwapped(sensorsIndex, otherIndex);
 
-            // Continue: sensors should still get bonus generation since the
-            // effect follows the tile, not the array index.
-            advanceTime(clock, engineer, 2500);
-            expect(generated).toContain('sensors');
+            // Advance through two more slots. Sensors fires first (it is now at
+            // the current generating position after the swap), then tactical fires
+            // and sensors gets a bonus — confirming the effect follows the tile.
+            advanceTime(clock, engineer, 2 * 2500);
+            expect(generated).toEqual(['sensors', 'tactical', 'sensors']);
         });
     });
 });
