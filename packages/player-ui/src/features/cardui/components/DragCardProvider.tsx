@@ -1,12 +1,13 @@
 import { DndContext, DragEndEvent, DragStartEvent, useSensor, PointerSensor, useSensors, DragOverlay, Modifier } from '@dnd-kit/core';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { createContext, useState, useContext, PropsWithChildren } from 'react';
+import { createContext, useState, useContext, PropsWithChildren, ReactNode } from 'react';
 
 export type ActiveCardInfo = {
     id: number;
     targetType: CardTargetType;
     cardType: CardType;
+    isAlternateDrag?: boolean;
 };
 
 type DragContextValue = {
@@ -47,9 +48,11 @@ const clearFocus = () => {
 
 type Props = PropsWithChildren<{
     onCardDropped: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
+    onAlternateDrop?: (targetId: string) => void;
+    alternateDragOverlay?: ReactNode;
 }>;
 
-export const DragCardProvider = ({ children, onCardDropped }: Props) => {
+export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop, alternateDragOverlay }: Props) => {
     const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
     const [overTargetId, setOverTargetId] = useState<string | null>(null);
 
@@ -60,6 +63,7 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
                 id: data.id,
                 targetType: data.targetType,
                 cardType: data.cardType,
+                isAlternateDrag: data.isAlternateDrag,
             });
         }
 
@@ -75,16 +79,20 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
 
     const handleDragEnd = (event: DragEndEvent) => {
         if (event.over?.id && activeCard) {
-            // Recalculate allowed using the latest activeCard and drop target type.
-            const cardId = activeCard.id;
+            if (activeCard.isAlternateDrag) {
+                onAlternateDrop?.(String(event.over.id));
+            } else {
+                // Recalculate allowed using the latest activeCard and drop target type.
+                const cardId = activeCard.id;
 
-            const dropData = event.over.data.current;
-            if (dropData) {
-                const targetType = dropData.targetType;
-                const allowed = dropData.acceptAnyCardType || targetType === activeCard.targetType;
+                const dropData = event.over.data.current;
+                if (dropData) {
+                    const targetType = dropData.targetType;
+                    const allowed = dropData.acceptAnyCardType || targetType === activeCard.targetType;
 
-                if (allowed) {
-                    onCardDropped(cardId, activeCard.cardType, targetType, String(event.over.id));
+                    if (allowed) {
+                        onCardDropped(cardId, activeCard.cardType, targetType, String(event.over.id));
+                    }
                 }
             }
         }
@@ -126,7 +134,9 @@ export const DragCardProvider = ({ children, onCardDropped }: Props) => {
         >
             <ActiveCardContext.Provider value={{ activeCard, overTargetId }}>
                 {children}
-                <DragOverlay />
+                <DragOverlay dropAnimation={null}>
+                    {activeCard?.isAlternateDrag ? alternateDragOverlay : null}
+                </DragOverlay>
             </ActiveCardContext.Provider>
         </DndContext>
     );

@@ -71,6 +71,19 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
         this.state = new GameState(new IdPool(), this.clock);
 
+        this.patchRate = 1000 / config.patchRate;
+
+        // Convert tick rate (per second) to milliseconds, and have the room update the state that often.
+        this.setSimulationInterval(deltaTime => this.update(deltaTime), 1000 / config.tickRate);
+
+        this.registerCommandHandlers();
+
+        if (DEV_TOOLS_ENABLED) {
+            this.registerDevCommandHandlers();
+        }
+    }
+
+    private registerCommandHandlers() {
         this.onMessage('ping', (client, message) => {
             // Echo the client's timestamp back, and add the server's timestamp.
             client.send('pong', {
@@ -192,6 +205,36 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             console.log(`${client.sessionId} played card ${cardId} type ${cardType} (${cardType}) on ${clientRole} targeting ${targetType}:${targetId}`);
         });
 
+        this.onMessage('repair', (client, message: { system: ShipSystem }) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (clientRole !== engineerClientRole) {
+                console.error('Only engineer can repair systems');
+                return;
+            }
+
+            const systemState = this.getSystemState(ship, clientRole);
+
+            if (systemState.repairCapacity <= 0) {
+                console.warn(`No repair capacity left for ship ${ship.id}`);
+                return;
+            }
+
+            const { system } = message;
+
+            systemState.repair(system);
+
+            console.log(`${client.sessionId} repaired system ${system} for ship ${ship.id}`);
+        });
+
         this.onMessage('cancelManeuver', (client) => {
             if (this.state.gameStatus !== 'active') {
                 return;
@@ -214,18 +257,9 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
             console.log(`${client.sessionId} canceled maneuver for ship ${ship.id}`);
         });
-
-        this.patchRate = 1000 / config.patchRate;
-
-        // Convert tick rate (per second) to milliseconds, and have the room update the state that often.
-        this.setSimulationInterval(deltaTime => this.update(deltaTime), 1000 / config.tickRate);
-
-        if (DEV_TOOLS_ENABLED) {
-            this.registerDevHandlers();
-        }
     }
 
-    private registerDevHandlers() {
+    private registerDevCommandHandlers() {
         console.log('Dev commands are enabled');
 
         this.onMessage('adjustHealth', (client, message: { system: ShipSystem; relative: boolean; amount: number }) => {

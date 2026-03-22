@@ -1,0 +1,44 @@
+.indicatorBar {
+    border: solid 0.1em var(--good-mid);
+    background-color: var(--good-darkest);
+    corner-shape: inherit;
+    border-radius: inherit;
+
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.indicatorBar.hasValue {
+    cursor: grab;
+}
+
+.indicatorBar.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+
+.fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--good-mid);
+    opacity: 0.6;
+    transition: height 0.3s ease;
+}
+
+.label {
+    position: relative;
+    z-index: 1;
+    color: var(--good-lightest);
+    writing-mode: vertical-lr;
+    text-orientation: sideways;
+    font-weight: bold;
+    font-size: 1.2em;
+}

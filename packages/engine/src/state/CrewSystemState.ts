@@ -191,7 +191,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
      * - expendable: Card is destroyed (not added anywhere)
      * - primary: Card returns to hand (if no other primary card in hand), otherwise goes to discard pile
      */
-    private handlePlayedCard(card: CardState, cardIndex: number, cardDefinition: EngineCardDefinition): void {
+    protected handlePlayedCard(card: CardState, cardIndex: number, cardDefinition: EngineCardDefinition): void {
         const traits = cardDefinition.traits ?? [];
 
         let removeFromHand = true;

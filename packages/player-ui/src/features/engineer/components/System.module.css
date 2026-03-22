@@ -21,7 +21,7 @@
 
 @media (min-width: 400px) {
     .system {
-        gap: 0.25em;
+        gap: 0.5em;
     }
 }
 
@@ -53,19 +53,13 @@
     color: var(--primary-light);
 }
 
-.attributes {
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    flex-grow: 1;
-    flex-basis: 1em;
-}
-
 .attribute {
     display: flex;
     align-items: baseline;
-    flex-wrap: auto;
+    align-self: center;
+    flex-wrap: nowrap;
     gap: 0.25em;
+    width: 6em;
     color: var(--grey-light);
 }
 
@@ -78,6 +72,7 @@
 .attributeIcon {
     width: 1.5em;
     height: 1.5em;
+    margin-right: 0.5em;
     flex-shrink: 0;
     color: var(--primary-light);
     align-self: center;

@@ -43,6 +43,8 @@ export interface EngineerSystemTileInfo {
 
 export interface EngineerSystemInfo extends CrewSystemInfo {
     systems: MinimalReadonlyArray<EngineerSystemTileInfo>;
+    repairCapacity: number;
+    maxRepairCapacity: number;
 }
 
 export interface ShipInfo extends GameObjectInfo {

@@ -4,7 +4,7 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
-import { FC, PropsWithChildren, useCallback, useState } from 'react';
+import { FC, PropsWithChildren, ReactNode, useCallback, useState } from 'react';
 import { CardChoiceToPlay } from './CardChoiceToPlay';
 import { CardDropTarget } from './CardDropTarget';
 import { CardHand } from './CardHand';
@@ -14,6 +14,8 @@ type Props = PropsWithChildren<{
     power: number;
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cardHand: MinimalReadonlyArray<CardInstance>;
+    onAlternateDrop?: (targetId: string) => void;
+    alternateDragOverlay?: ReactNode;
 }>;
 
 type ChoiceInfo = {
@@ -25,7 +27,7 @@ type ChoiceInfo = {
  * The full UI for displaying and interacting with a hand of cards.
  * Any CardDropTarget components these cards should interact with should be nested within this component.
  */
-export const CardUI: FC<Props> = ({ playCard, cardHand, power, children }) => {
+export const CardUI: FC<Props> = ({ playCard, cardHand, power, children, onAlternateDrop, alternateDragOverlay }) => {
     const [choice, setChoice] = useState<ChoiceInfo | null>(null);
 
     const dropCard = useCallback((cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => {
@@ -46,7 +48,7 @@ export const CardUI: FC<Props> = ({ playCard, cardHand, power, children }) => {
     }, [playCard, power]);
 
     return (
-        <DragCardProvider onCardDropped={dropCard}>
+        <DragCardProvider onCardDropped={dropCard} onAlternateDrop={onAlternateDrop} alternateDragOverlay={alternateDragOverlay}>
             <CardDropTarget
                 id="noTarget"
                 targetType="no-target"

@@ -33,17 +33,15 @@ export const System = (props: Props) => {
 
             <CardDrawIconIcon className={classNames(styles.generating, props.generating ? styles.currentlyGenerating : undefined)} />
 
-            <div className={styles.attributes}>
-                <div className={styles.attribute}>
-                    <PowerIcon className={styles.attributeIcon} />
-                    <div className={styles.attributeValue}>{props.power}</div>
-                    <div className={styles.attributeMax}>/ 5</div>
-                </div>
-                <div className={styles.attribute}>
-                    <HealthIcon className={styles.attributeIcon} />
-                    <div className={styles.attributeValue}>{props.health}</div>
-                    <div className={styles.attributeMax}>%</div>
-                </div>
+            <div className={styles.attribute}>
+                <PowerIcon className={styles.attributeIcon} />
+                <div className={styles.attributeValue}>{props.power}</div>
+                <div className={styles.attributeMax}>/ 5</div>
+            </div>
+            <div className={styles.attribute}>
+                <HealthIcon className={styles.attributeIcon} />
+                <div className={styles.attributeValue}>{props.health}</div>
+                <div className={styles.attributeMax}>%</div>
             </div>
 
             <EffectList className={styles.effects} effects={props.effects} />

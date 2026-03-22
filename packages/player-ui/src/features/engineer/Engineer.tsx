@@ -30,6 +30,10 @@ export const Engineer = (props: Props) => {
         });
     }, [props.room]);
 
+    const repair = useCallback((system: string) => {
+        props.room.send('repair', { system });
+    }, [props.room]);
+
     if (!localShip?.engineerState) {
         return <div>unable to load</div>;
     }
@@ -40,6 +44,9 @@ export const Engineer = (props: Props) => {
         <EngineerDisplay
             cards={engineerState.hand}
             systems={systems}
+            repairCapacity={engineerState.repairCapacity}
+            maxRepairCapacity={engineerState.maxRepairCapacity}
+            repair={repair}
             onPause={pause}
             power={engineerState.powerLevel}
             maxHandSize={engineerState.maxHandSize}

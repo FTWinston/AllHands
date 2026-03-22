@@ -1,9 +1,13 @@
 .list {
     display: grid;
     grid-template-rows: 1fr 1fr 1fr;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 3em;
     gap: 1em;
     padding: 1em 0.5em 0.5em 0.5em;
+    grid-template-areas:
+    "sys1 sys2 repair"
+    "sys3 sys4 repair"
+    "sys5 sys6 repair";
 
     height: calc(100dvh - 17rem);
     --system-height: calc((100dvh - 20rem) / 3);
@@ -19,4 +23,12 @@
 
 .itemWrapper > * {
     flex-grow: 1;
+}
+
+.repairWrapper {
+    grid-area: repair;
+    display: flex;
+    flex-direction: column;
+    border-radius: 3em;
+    corner-shape: squircle;
 }

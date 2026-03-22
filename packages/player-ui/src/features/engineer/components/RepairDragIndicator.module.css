@@ -1,0 +1,8 @@
+.ball {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background-color: var(--good-mid);
+    box-shadow: 0 0 0.5rem var(--good-mid), 0 0 1.5rem var(--good-darkest);
+    border: 0.15rem solid var(--good-lightest);
+}

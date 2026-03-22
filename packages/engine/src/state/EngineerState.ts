@@ -1,6 +1,11 @@
 import { ArraySchema, type } from '@colyseus/schema';
+import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { CrewSystemSetupInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
+import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from './CooldownState';
 import { CrewSystemState } from './CrewSystemState';
@@ -24,6 +29,13 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
     }
 
     @type([EngineerSystemTile]) systems = new ArraySchema<EngineerSystemTile>();
+
+    @type('uint8') maxRepairCapacity = 50;
+
+    /**
+     * How much to repair when repairing a system. Consumed when repairing, and recharged by playing cards onto the "repair" (fake) system target.
+     */
+    @type('uint8') repairCapacity: number = this.maxRepairCapacity;
 
     /**
      * The order in which systems are visited for card generation.
@@ -343,5 +355,52 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         // Below
         if (systemIndex < 4) indices.push(systemIndex + 2);
         return indices.map(i => this.systems[i]);
+    }
+
+    /**
+     * Play a card from the hand by moving it to the discard pile.
+     * Ensures that all requirements are met before playing.
+     * Returns the card if found and played, null otherwise.
+     */
+    override playCard(cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string): EngineCardDefinition | null {
+        const cardIndex = this.hand.findIndex(card => card.id === cardId);
+        if (cardIndex === -1) {
+            console.warn('card not found');
+            return null;
+        }
+
+        if (targetType === 'system' && targetId === 'repair') {
+            const card = this.hand[cardIndex];
+
+            let cardDefinition = getCardDefinition(card.type);
+
+            if ((cardDefinition.traits ?? []).includes('expendable')) {
+                // Expendable cards can't be used for repairs.
+                return null;
+            }
+
+            this.repairCapacity = Math.min(this.repairCapacity + 10, this.maxRepairCapacity);
+
+            this.handlePlayedCard(card, cardIndex, cardDefinition);
+
+            return cardDefinition;
+        } else {
+            return super.playCard(cardId, cardType, targetType, targetId);
+        }
+    }
+
+    /* Repair the specified system, consuming repair capacity. */
+    repair(system: ShipSystem) {
+        const systemState = this.getShip().getSystem(system);
+        if (!systemState) {
+            console.warn(`System ${system} not found on ship ${this.getShip().id}`);
+            return;
+        }
+
+        const repairAmount = Math.min(systemState.maxHealth - systemState.health, this.repairCapacity);
+        if (repairAmount > 0) {
+            systemState.adjustHealth(repairAmount);
+            this.repairCapacity -= repairAmount;
+        }
     }
 }

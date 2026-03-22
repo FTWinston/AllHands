@@ -11,7 +11,7 @@
     --ideal-total-width: calc((var(--count) * var(--item-width)) + ((var(--count) - 1) * (var(--max-spacing) - var(--item-width))));
     
     /* If ideal width fits, use max spacing. Otherwise, compress to fit container */
-    --available-for-items: 11.5em;
+    --available-for-items: 9.5em;
     --calculated-spacing: calc(var(--available-for-items) / max(var(--count) - 1, 1));
     --spacing: min(var(--calculated-spacing), var(--max-spacing));
     
