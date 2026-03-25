@@ -90,6 +90,15 @@ export const HelmSpaceMap = (props: Props) => {
 
     return (
         <div className={styles.spaceMapContainer}>
+            {draggingLocationCard && (
+                <DropCells
+                    className={styles.dropCellsOverlay}
+                    center={centerVector}
+                    shipPosition={shipPosition}
+                    cellRadius={cellRadius}
+                />
+            )}
+
             <SpaceMap
                 className={styles.spaceMap}
                 timeProvider={props.timeProvider}
@@ -100,15 +109,6 @@ export const HelmSpaceMap = (props: Props) => {
                 ref={canvas}
                 drawExtraForeground={motionPath ? drawExtraForeground : undefined}
             />
-
-            {draggingLocationCard && (
-                <DropCells
-                    className={styles.dropCellsOverlay}
-                    center={centerVector}
-                    shipPosition={shipPosition}
-                    cellRadius={cellRadius}
-                />
-            )}
 
             <Button
                 className={styles.zoomIn}

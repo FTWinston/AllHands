@@ -3,10 +3,12 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    background-color: black;
 }
 
 .spaceMap {
     flex-grow: 1;
+    pointer-events: none;
 }
 
 .dropCellsOverlay {

@@ -3,9 +3,7 @@ import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { CSSProperties, forwardRef } from 'react';
 import { Canvas } from '../../../components/Canvas';
-import { classNames } from '../../../utils/classNames';
 import { drawFunction, drawMap } from '../utils/drawMap';
-import styles from './SpaceMap.module.css';
 
 type Props = {
     className?: string;
@@ -40,7 +38,7 @@ export const SpaceMap = forwardRef<HTMLCanvasElement, Props>((props, ref) => {
     return (
         <Canvas
             ref={ref}
-            className={classNames(styles.container, className)}
+            className={className}
             style={style}
             draw={draw}
         />
