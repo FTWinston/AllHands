@@ -19,7 +19,7 @@
 }
 
 .indicatorBar.dragging {
-    opacity: 0.5;
+    background-color: var(--good-dark);
     cursor: grabbing;
 }
 

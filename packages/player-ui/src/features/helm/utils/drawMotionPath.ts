@@ -2,8 +2,8 @@ import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { distance } from 'common-data/features/space/utils/vectors';
 import { MotionPathKeyframe } from './calculateMotionPath';
 
-const PATH_COLOR = 'rgba(100, 200, 255, 0.8)';
-const ARROWHEAD_COLOR = 'rgba(100, 200, 255, 0.9)';
+const PATH_COLOR = 'oklch(80% 0.22 200 / 0.75)';
+const ARROWHEAD_COLOR = 'oklch(80% 0.22 200)';
 
 // Number of intermediate points to draw between each pair of keyframes for smooth curves
 const CURVE_SEGMENTS = 10;
@@ -81,8 +81,8 @@ export function drawMotionPath(
         return;
     }
 
-    const lineWidth = pixelSize * 2;
-    const arrowSize = 0.35; // Size of arrowhead in world units
+    const lineWidth = pixelSize * 5;
+    const arrowSize = 0.7; // Size of arrowhead in world units
 
     // Draw the path line with smooth curves
     ctx.strokeStyle = PATH_COLOR;

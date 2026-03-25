@@ -1,12 +1,11 @@
 import { useDraggable } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
-import { useActiveCard, useIsOverValidTarget } from './DragCardProvider';
+import { useActiveCard, useDragDisplayMode, useIsOverValidTarget } from './DragCardProvider';
 import styles from './DraggableCard.module.css';
 
 type Props = {
@@ -33,8 +32,10 @@ export const DraggableCard: FC<Props> = (props) => {
         data: { id: props.id, targetType, cardType: props.type },
     });
 
+    const dragDisplayMode = useDragDisplayMode();
     const isBeingDragged = activeCard?.id === props.id && activeCard.cardType === props.type;
     const canDrop = isBeingDragged && isOverValidTarget;
+    const followCursor = isBeingDragged && dragDisplayMode === 'card';
 
     return (
         <div
@@ -42,6 +43,7 @@ export const DraggableCard: FC<Props> = (props) => {
             className={classNames(
                 styles.card,
                 isBeingDragged ? styles.dragging : null,
+                followCursor ? styles.followCursor : null,
                 styles[`card--${targetType}`],
                 canDrop ? styles.canDrop : null,
                 props.className
@@ -49,7 +51,10 @@ export const DraggableCard: FC<Props> = (props) => {
             style={{
                 // @ts-expect-error CSS custom property
                 '--index': props.index,
-                'transform': CSS.Translate.toString(transform),
+                ...(followCursor && transform ? {
+                    transform: `translate(${transform.x}px, ${transform.y}px)`,
+                    transition: 'none',
+                } : {}),
             }}
             {...listeners}
             {...attributes}

@@ -1,0 +1,63 @@
+.arrow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.line {
+    fill: none;
+    stroke-width: 16;
+    stroke-linecap: round;
+}
+
+.alternate {
+    .line {
+        stroke: var(--good-light);
+        filter: drop-shadow(0 0 6px var(--good-mid));
+    }
+
+    .head {
+        fill: var(--good-light);
+        filter: drop-shadow(0 0 8px var(--good-mid));
+    }
+}
+
+.card {
+    .line {
+        stroke: var(--energy-light);
+        filter: drop-shadow(0 0 6px var(--energy-mid));
+    }
+
+    .head {
+        fill: var(--energy-light);
+        filter: drop-shadow(0 0 8px var(--energy-mid));
+    }
+}
+
+.none {
+    .line {
+        stroke: var(--grey-mid);
+        filter: drop-shadow(0 0 6px var(--grey-dark));
+    }
+
+    .head {
+        fill: var(--grey-mid);
+        filter: drop-shadow(0 0 8px var(--grey-dark));
+    }
+}
+
+.invalid {
+    .line {
+        stroke: var(--danger-light);
+        filter: drop-shadow(0 0 6px var(--danger-mid));
+    }
+
+    .head {
+        fill: var(--danger-light);
+        filter: drop-shadow(0 0 8px var(--danger-mid));
+    }
+}

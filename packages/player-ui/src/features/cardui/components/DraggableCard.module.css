@@ -8,22 +8,23 @@
 }
 
 .dragging {
-    opacity: 0.5 !important;
-    transition: opacity 0.33s ease-in-out;
+    --dy: -15em !important;
+    --scale: 0.5 !important;
+    opacity: 0 !important;
+    transition: transform 0s, opacity 0.2s ease-in-out !important;
     z-index: 50;
-    font-size: 1rem;
-    position: absolute;
+}
+
+.followCursor {
+    --dy: 0em !important;
+    --scale: 1 !important;
+    --r: 0deg !important;
+    opacity: 1 !important;
+    z-index: 100;
 }
 
 .dragging.card--location {
-    /*
-    I'd be lying if I said I knew why this helped, but this means that
-    the cell underneath the pointer is the one that's dropped onto.
-    
-    Without this, there's an offset.
-    */
-    width: 1px;
-    height: 1px;
+    opacity: 0 !important;
 }
 
 .canDrop {

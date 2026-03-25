@@ -8,7 +8,6 @@ import { ComponentProps } from 'react';
 import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
-import { RepairDragIndicator } from './RepairDragIndicator';
 import { SystemInfo } from './System';
 import { SystemList } from './SystemList';
 
@@ -28,7 +27,7 @@ export const EngineerDisplay = (props: Props) => {
 
     return (
         <Screen>
-            <CardUI playCard={playCard} cardHand={cards} power={headerProps.power} onAlternateDrop={repair} alternateDragOverlay={<RepairDragIndicator />}>
+            <CardUI playCard={playCard} cardHand={cards} power={headerProps.power} onAlternateDrop={repair}>
                 <CrewHeader
                     crew="engineer"
                     handSize={cards.length}

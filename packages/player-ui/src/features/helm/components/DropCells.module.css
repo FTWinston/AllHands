@@ -13,6 +13,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    
+    &:not(.dropping) {
+        background-color: transparent;
+        
+        &::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            /* Flat top hexagon RING: effectively a border that is 5% of the width of the cell. */
+            clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0, 75% 0, 73.75% 2.5%, 26.25% 2.5%, 2.5% 50%, 26.25% 97.5%, 73.75% 97.5%, 97.5% 50%, 73.75% 2.5%);
+            background-color: var(--primary-mid);
+        }
+    }
 }
 
 .dropping {
@@ -31,18 +47,12 @@
     }
 }
 
-.couldDrop {
-    background-color: transparent;
-    
-    &::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0;
-        /* Flat top hexagon RING: effectively a border that is 5% of the width of the cell. */
-        clip-path: polygon(75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%, 25% 0, 75% 0, 73.75% 2.5%, 26.25% 2.5%, 2.5% 50%, 26.25% 97.5%, 73.75% 97.5%, 97.5% 50%, 73.75% 2.5%);
-        background-color: var(--primary-mid);
-    }
+.cell:not(.couldDrop, .dropping) {
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--danger-dark),
+        var(--danger-dark) 4px,
+        transparent 4px,
+        transparent 12px
+    );
 }
