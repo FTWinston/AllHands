@@ -28,7 +28,11 @@ export const RepairIndicator = (props: Props) => {
             {...attributes}
         >
             <div className={styles.fill} style={{ height: `${fillPercent}%` }} />
-            <span className={styles.label}>{props.value}</span>
+            <span className={styles.label}>
+                Repair capacity:
+                {' '}
+                {props.value}
+            </span>
         </div>
     );
 };

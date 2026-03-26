@@ -2,6 +2,7 @@ import { DndContext, DragEndEvent, DragMoveEvent, DragOverEvent, DragStartEvent,
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { createContext, useState, useContext, PropsWithChildren, useRef, useCallback } from 'react';
+import { CardDropEffect, DroppedCardEffect } from './CardDropEffect';
 import { DragArrow } from './DragArrow';
 
 export type ActiveCardInfo = {
@@ -95,6 +96,7 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
     const [isOverDisabledTarget, setIsOverDisabledTarget] = useState(false);
     const [overTargetCenter, setOverTargetCenter] = useState<{ x: number; y: number } | null>(null);
     const [dragPosition, setDragPosition] = useState<DragPosition | null>(null);
+    const [droppedCardEffect, setDroppedCardEffect] = useState<DroppedCardEffect | null>(null);
 
     // Store the initial pointer position so we can compute current pointer = initialPointer + delta
     const initialPointerRef = useRef({ x: 0, y: 0 });
@@ -154,6 +156,8 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
+        let wasSuccessfulDrop = false;
+
         if (event.over?.id && activeCard) {
             if (activeCard.isAlternateDrag) {
                 onAlternateDrop?.(String(event.over.id));
@@ -168,9 +172,19 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
 
                     if (allowed) {
                         onCardDropped(cardId, activeCard.cardType, targetType, String(event.over.id));
+                        wasSuccessfulDrop = true;
                     }
                 }
             }
+        }
+
+        if (wasSuccessfulDrop && activeCard && dragPosition) {
+            setDroppedCardEffect({
+                id: activeCard.id,
+                cardType: activeCard.cardType,
+                x: dragPosition.currentX,
+                y: dragPosition.currentY,
+            });
         }
 
         // Blur the currently focused element (which is the dragged element)
@@ -224,6 +238,13 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
                         endX={overTargetCenter?.x ?? dragPosition.currentX}
                         endY={overTargetCenter?.y ?? dragPosition.currentY}
                         targetState={overTargetId ? (activeCard.isAlternateDrag ? 'alternate' : 'card') : isOverDisabledTarget ? 'invalid' : 'none'}
+                    />
+                )}
+                {droppedCardEffect && (
+                    <CardDropEffect
+                        key={droppedCardEffect.id}
+                        effect={droppedCardEffect}
+                        onComplete={() => setDroppedCardEffect(null)}
                     />
                 )}
             </ActiveCardContext.Provider>

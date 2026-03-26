@@ -1,0 +1,28 @@
+@keyframes cardDropEffect {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.75);
+    }
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.85);
+    }
+    40% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.25);
+    }
+}
+
+.effectContainer {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.effectCard {
+    animation: cardDropEffect 1.5s ease-out forwards;
+}
