@@ -11,6 +11,7 @@ import { Button } from 'common-ui/components/Button';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
+import { classNames } from 'common-ui/utils/classNames';
 import { useCallback, useRef, useState } from 'react';
 import { useActiveCard, useOverTargetId } from 'src/features/cardui/components/DragCardProvider';
 import { useVisibilityAnimation } from 'src/hooks/useVisibilityAnimation';
@@ -111,7 +112,7 @@ export const HelmSpaceMap = (props: Props) => {
             />
 
             <Button
-                className={styles.zoomIn}
+                className={classNames(styles.zoomIn, draggingLocationCard ? styles.zoomDisabled : null)}
                 onClick={() => setZoomLevel(level => Math.min(4, level * 1.25))}
                 disabled={draggingLocationCard || zoomLevel >= 4}
                 focusableWhenDisabled
@@ -120,7 +121,7 @@ export const HelmSpaceMap = (props: Props) => {
             </Button>
 
             <Button
-                className={styles.zoomOut}
+                className={classNames(styles.zoomOut, draggingLocationCard ? styles.zoomDisabled : null)}
                 onClick={() => setZoomLevel(level => Math.max(0.5, level / 1.25))}
                 disabled={draggingLocationCard || zoomLevel <= 0.5}
                 focusableWhenDisabled

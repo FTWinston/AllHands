@@ -35,6 +35,12 @@
     bottom: 29em;
 }
 
+.zoomDisabled {
+  box-shadow: none !important;
+  color: transparent !important;
+  pointer-events: none;
+}
+
 .activeManeuver {
     position: absolute;
     bottom: 25em;
