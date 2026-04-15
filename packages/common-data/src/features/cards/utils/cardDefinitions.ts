@@ -4,6 +4,12 @@ import { CardTargetType } from '../types/CardTargetType';
 // Enforce that values are of a card definition type, without widening the key type to "string".
 // The self-referential constraint ensures choice cards can only reference keys from this same object.
 function defineCardDefinitions<T extends Record<string, CardDefinition<Extract<keyof T, string>>>>(defs: T) {
+    for (const key in defs) {
+        const def = defs[key];
+        const params = new Map<string, number>(def.parameters);
+        params.set('cost', def.cost);
+        (def as Record<string, unknown>).parameters = params;
+    }
     return defs;
 }
 
@@ -149,6 +155,7 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'engineer',
         cost: 1,
         traits: ['expendable'],
+        parameters: new Map([['powerGain', 1]]),
     },
     swapSystems: {
         targetType: 'choice',
@@ -180,11 +187,13 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'system',
         crew: 'engineer',
         cost: 4,
+        parameters: new Map([['duration', 3]]),
     },
     focusShields: {
         targetType: 'system',
         crew: 'engineer',
         cost: 1,
+        parameters: new Map([['shieldBoost', 50], ['shieldReduction', 10]]),
     },
     relocateSystem: {
         targetType: 'system',
@@ -206,16 +215,19 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'system',
         crew: 'engineer',
         cost: 3,
+        parameters: new Map([['powerChange', 1], ['duration', 30]]),
     },
     drawPower: {
         targetType: 'system',
         crew: 'engineer',
         cost: 3,
+        parameters: new Map([['powerChange', 1], ['duration', 30]]),
     },
     divertAllPower: {
         targetType: 'system',
         crew: 'engineer',
         cost: 4,
+        parameters: new Map([['lossPerSystem', 1], ['duration', 20], ['targetGain', 5]]),
     },
     divertSystemPower: {
         targetType: 'choice',
@@ -227,21 +239,25 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'system',
         crew: 'engineer',
         cost: 3,
+        parameters: new Map([['maxAmount', 3], ['duration', 20]]),
     },
     divertSensors: {
         targetType: 'system',
         crew: 'engineer',
         cost: 3,
+        parameters: new Map([['maxAmount', 3], ['duration', 20]]),
     },
     divertTactical: {
         targetType: 'system',
         crew: 'engineer',
         cost: 3,
+        parameters: new Map([['maxAmount', 3], ['duration', 20]]),
     },
     overcharge: {
         targetType: 'system',
         crew: 'engineer',
         cost: 2,
+        parameters: new Map([['powerGain', 3], ['duration', 15]]),
     },
     shunt: {
         targetType: 'system',
@@ -252,6 +268,7 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'system',
         crew: 'engineer',
         cost: 2,
+        parameters: new Map([['duration', 60]]),
     },
 } as const);
 

@@ -1,4 +1,4 @@
-import { Schema, type } from '@colyseus/schema';
+import { MapSchema, Schema, type } from '@colyseus/schema';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 
@@ -11,4 +11,5 @@ export class CardState extends Schema implements CardInstance {
 
     @type('number') id: number;
     @type('string') type: CardType;
+    @type({ map: 'number' }) modifiers = new MapSchema<number>();
 }

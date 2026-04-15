@@ -269,56 +269,62 @@ function loadCardDefinitions() {
             },
         },
         distributePower: {
-            play: (_gameState, ship, system) => {
+            play: (_gameState, ship, system, parameters) => {
                 const systemIndex = ship.engineerState.systems.indexOf(system);
                 const adjacent = ship.engineerState.getAdjacentSystems(systemIndex);
+                const powerChange = parameters.get('powerChange') ?? 1;
 
-                // Reduce target system power by 1 per adjacent system.
-                system.addEffect('distributePowerLoss', adjacent.length);
+                // Reduce target system power by powerChange per adjacent system.
+                system.addEffect('distributePowerLoss', powerChange * adjacent.length);
 
-                // Increase each adjacent system's power by 1.
+                // Increase each adjacent system's power by powerChange.
                 for (const adj of adjacent) {
-                    adj.addEffect('distributePowerGain');
+                    adj.addEffect('distributePowerGain', powerChange);
                 }
                 return true;
             },
         },
         drawPower: {
-            play: (_gameState, ship, system) => {
+            play: (_gameState, ship, system, parameters) => {
                 const systemIndex = ship.engineerState.systems.indexOf(system);
                 const adjacent = ship.engineerState.getAdjacentSystems(systemIndex);
+                const powerChange = parameters.get('powerChange') ?? 1;
 
-                // Increase target system power by 1 per adjacent system.
-                system.addEffect('drawPowerGain', adjacent.length);
+                // Increase target system power by powerChange per adjacent system.
+                system.addEffect('drawPowerGain', powerChange * adjacent.length);
 
-                // Decrease each adjacent system's power by 1.
+                // Decrease each adjacent system's power by powerChange.
                 for (const adj of adjacent) {
-                    adj.addEffect('drawPowerLoss');
+                    adj.addEffect('drawPowerLoss', powerChange);
                 }
                 return true;
             },
         },
         divertAllPower: {
-            play: (_gameState, ship, system) => {
-                // All other systems lose 1 power.
+            play: (_gameState, ship, system, parameters) => {
+                const lossPerSystem = parameters.get('lossPerSystem') ?? 1;
+                const targetGain = parameters.get('targetGain') ?? 5;
+
+                // All other systems lose power.
                 for (const otherSystem of ship.engineerState.systems) {
                     if (otherSystem !== system) {
-                        otherSystem.addEffect('divertAllPowerLoss');
+                        otherSystem.addEffect('divertAllPowerLoss', lossPerSystem);
                     }
                 }
 
-                // Target system gains 5 power.
-                system.addEffect('divertAllPowerGain', 5);
+                // Target system gains power.
+                system.addEffect('divertAllPowerGain', targetGain);
                 return true;
             },
         },
         divertHelm: {
-            play: (_gameState, ship, system) => {
+            play: (_gameState, ship, system, parameters) => {
                 if (system.system === 'helm') {
                     return false;
                 }
                 const helmTile = ship.engineerState.systems.find(s => s.system === 'helm')!;
-                const amount = Math.min(3, helmTile.power);
+                const maxAmount = parameters.get('maxAmount') ?? 3;
+                const amount = Math.min(maxAmount, helmTile.power);
                 if (amount <= 0) {
                     return false;
                 }
@@ -328,12 +334,13 @@ function loadCardDefinitions() {
             },
         },
         divertSensors: {
-            play: (_gameState, ship, system) => {
+            play: (_gameState, ship, system, parameters) => {
                 if (system.system === 'sensors') {
                     return false;
                 }
                 const sensorsTile = ship.engineerState.systems.find(s => s.system === 'sensors')!;
-                const amount = Math.min(3, sensorsTile.power);
+                const maxAmount = parameters.get('maxAmount') ?? 3;
+                const amount = Math.min(maxAmount, sensorsTile.power);
                 if (amount <= 0) {
                     return false;
                 }
@@ -343,12 +350,13 @@ function loadCardDefinitions() {
             },
         },
         divertTactical: {
-            play: (_gameState, ship, system) => {
+            play: (_gameState, ship, system, parameters) => {
                 if (system.system === 'tactical') {
                     return false;
                 }
                 const tacticalTile = ship.engineerState.systems.find(s => s.system === 'tactical')!;
-                const amount = Math.min(3, tacticalTile.power);
+                const maxAmount = parameters.get('maxAmount') ?? 3;
+                const amount = Math.min(maxAmount, tacticalTile.power);
                 if (amount <= 0) {
                     return false;
                 }

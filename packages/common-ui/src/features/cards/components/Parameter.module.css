@@ -1,0 +1,12 @@
+.parameter {
+    font-weight: bold;
+}
+
+.increased {
+    color: var(--good-mid);
+}
+
+.decreased {
+    color: var(--danger-mid);
+}
+

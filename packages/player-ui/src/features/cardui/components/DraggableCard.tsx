@@ -1,6 +1,8 @@
 import { useDraggable } from '@dnd-kit/core';
+import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { resolveParameters } from 'common-data/features/cards/utils/resolveParameters';
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { classNames } from 'common-ui/utils/classNames';
@@ -17,6 +19,7 @@ type Props = {
     index: number;
     targetType?: CardTargetType;
     slotted?: boolean;
+    modifiers?: CardParameters;
 };
 
 export const DraggableCard: FC<Props> = (props) => {
@@ -24,6 +27,7 @@ export const DraggableCard: FC<Props> = (props) => {
     const isOverValidTarget = useIsOverValidTarget();
 
     const definition = getCardDefinition(props.type);
+    const resolvedCost = resolveParameters(definition.parameters, props.modifiers).get('cost') ?? definition.cost;
 
     const targetType = props.targetType ?? definition.targetType;
 
@@ -59,7 +63,7 @@ export const DraggableCard: FC<Props> = (props) => {
             {...listeners}
             {...attributes}
         >
-            <CardDisplay {...definition} slotted={props.slotted} sufficientPower={props.power >= definition.cost} />
+            <CardDisplay {...definition} slotted={props.slotted} sufficientPower={props.power >= resolvedCost} modifiers={props.modifiers} />
         </div>
     );
 };

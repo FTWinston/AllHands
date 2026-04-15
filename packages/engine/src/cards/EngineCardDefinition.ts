@@ -1,33 +1,34 @@
 import { ChoiceCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { EngineerSystemTile } from 'src/state/EngineerSystemTile';
 import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';
 
 export type NoTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship) => boolean;
+    play: (gameState: GameState, ship: Ship, parameters: CardParameters) => boolean;
 };
 
 export type ChoiceTargetCardFunctionality = object;
 
 export type WeaponSlotTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship, slot: number) => boolean;
+    play: (gameState: GameState, ship: Ship, slot: number, parameters: CardParameters) => boolean;
 };
 
 export type WeaponTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship, weapon: number) => boolean;
+    play: (gameState: GameState, ship: Ship, weapon: number, parameters: CardParameters) => boolean;
 };
 
 export type EnemyTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship, targetId: string) => boolean;
+    play: (gameState: GameState, ship: Ship, targetId: string, parameters: CardParameters) => boolean;
 };
 
 export type SystemTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship, system: EngineerSystemTile) => boolean;
+    play: (gameState: GameState, ship: Ship, system: EngineerSystemTile, parameters: CardParameters) => boolean;
 };
 
 export type LocationTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship, cardPower: number, cardDefinition: LocationTargetCardDefinition, location: Vector2D) => boolean;
+    play: (gameState: GameState, ship: Ship, cardPower: number, cardDefinition: LocationTargetCardDefinition, location: Vector2D, parameters: CardParameters) => boolean;
 };
 
 export type EngineCardFunctionality = NoTargetCardFunctionality

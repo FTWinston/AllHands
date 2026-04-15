@@ -99,10 +99,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
                 case 'beam':
                     hullDamageScale = damage.targetSystem ? 0.2 : 0.4;
                     break;
-                case 'pulse':
-                    hullDamageScale = damage.targetSystem ? 0.5 : 0.7;
-                    break;
-                case 'blast':
+                case 'projectile':
                     hullDamageScale = damage.targetSystem ? 0.8 : 0.9;
                     break;
             }

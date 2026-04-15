@@ -1,3 +1,4 @@
+import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { FC } from 'react';
 import { getCardDefinition } from '../utils/getUiCardDefinition';
@@ -8,6 +9,7 @@ type Props = {
     className?: string;
     slotted?: boolean;
     disabled?: boolean;
+    modifiers?: CardParameters;
 };
 
 export const Card: FC<Props> = (props) => {
@@ -19,6 +21,7 @@ export const Card: FC<Props> = (props) => {
             className={props.className}
             slotted={props.slotted}
             disabled={props.disabled}
+            modifiers={props.modifiers}
         />
     );
 };

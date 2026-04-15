@@ -1,6 +1,6 @@
-import type { ScenarioConfig } from 'common-data/types/ScenarioConfig';
 import type { GameObject } from '../state/GameObject';
 import type { GameState } from '../state/GameState';
+import type { ScenarioConfig } from 'common-data/types/ScenarioConfig';
 
 export abstract class GameRules {
     constructor(
