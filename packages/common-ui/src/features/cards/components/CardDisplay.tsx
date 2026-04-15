@@ -1,6 +1,5 @@
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
-import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { FC, ReactNode } from 'react';
 import crewStyles from '../../../CrewColors.module.css';
@@ -9,7 +8,6 @@ import { CardTargetIcon } from '../assets/cardTargetTypes';
 import styles from './Card.module.css';
 import { CardBase } from './CardBase';
 import { CardParametersContext, Parameter } from './Parameter';
-import { Trait } from './Trait';
 
 type Props = {
     className?: string;
@@ -24,7 +22,6 @@ type Props = {
     descriptionLineHeight?: number;
     cost: number;
     sufficientPower?: boolean;
-    traits?: CardTrait[];
     parameters?: CardParameters;
     modifiers?: CardParameters;
 };
@@ -50,12 +47,6 @@ export const CardDisplay: FC<Props> = (props) => {
                 {props.slotted ? null : <div className={styles.cost}><Parameter name="cost" /></div>}
 
                 {props.slotted ? null : <CardTargetIcon targetType={props.targetType} className={styles.targetType} />}
-
-                {props.traits && props.traits.length > 0 && (
-                    <div className={styles.traits}>
-                        {props.traits.map(trait => <Trait key={trait} type={trait} />)}
-                    </div>
-                )}
 
                 <p
                     className={styles.description}

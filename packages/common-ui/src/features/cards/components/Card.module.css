@@ -50,8 +50,6 @@
 
 .description {
   font-size: 0.825em;
-  display: flex;
-  flex-direction: column;
 }
 
 .cost {
@@ -83,12 +81,4 @@
 
 .insufficientPower .cost {
   color: var(--danger-light);
-}
-
-.traits {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25em;
-  font-size: 0.75em;
-  margin-top: -0.25em;
 }

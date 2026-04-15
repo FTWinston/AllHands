@@ -1,6 +1,7 @@
 import { CardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { default as ExampleIcon } from '../../../icons/exampleIcon.svg?react';
 import { Parameter } from '../components/Parameter';
+import { Trait } from '../components/Trait';
 import { CardDescription, UICardDefinition } from '../types/UICardDefinition';
 
 function loadCardDefinitions() {
@@ -53,7 +54,7 @@ function loadCardDefinitions() {
         },
         slowAndSteady: {
             name: 'Slow & Steady',
-            description: 'Turn towards a target then move towards it at a steady pace.',
+            description: <><Trait type="primary" /> Turn towards a target then move towards it at a steady pace.</>,
             image: <ExampleIcon />,
         },
         fullReverse: {
@@ -100,7 +101,7 @@ function loadCardDefinitions() {
         },
         auxPower: {
             name: 'Aux Power',
-            description: <>Increase a system's power level by <Parameter name="powerGain" />, removing this effect from all other systems.</>,
+            description: <><Trait type="expendable" /> Increase a system's power level by <Parameter name="powerGain" />, removing this effect from all other systems.</>,
             image: <ExampleIcon />,
         },
         swapSystems: {
@@ -145,7 +146,7 @@ function loadCardDefinitions() {
         },
         relocateHere: {
             name: 'Relocate Here',
-            description: 'Swap the marked system with the targeted system.',
+            description: <><Trait type="expendable" /> Swap the marked system with the targeted system.</>,
             image: <ExampleIcon />,
         },
         sustain: {
