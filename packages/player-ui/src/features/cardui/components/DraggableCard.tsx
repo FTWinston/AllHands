@@ -6,7 +6,7 @@ import { resolveParameters } from 'common-data/features/cards/utils/resolveParam
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { classNames } from 'common-ui/utils/classNames';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { useActiveCard, useDragDisplayMode, useIsOverValidTarget } from './DragCardProvider';
 import styles from './DraggableCard.module.css';
 
@@ -41,6 +41,8 @@ export const DraggableCard: FC<Props> = (props) => {
     const canDrop = isBeingDragged && isOverValidTarget;
     const followCursor = isBeingDragged && dragDisplayMode === 'card';
 
+    const [isFocused, setIsFocused] = useState(false);
+
     return (
         <div
             ref={setNodeRef}
@@ -60,10 +62,12 @@ export const DraggableCard: FC<Props> = (props) => {
                     transition: 'none',
                 } : {}),
             }}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             {...listeners}
             {...attributes}
         >
-            <CardDisplay {...definition} slotted={props.slotted} sufficientPower={props.power >= resolvedCost} modifiers={props.modifiers} />
+            <CardDisplay {...definition} slotted={props.slotted} sufficientPower={props.power >= resolvedCost} modifiers={props.modifiers} showTraits={isFocused && !isBeingDragged} />
         </div>
     );
 };

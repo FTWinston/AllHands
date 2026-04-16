@@ -9,7 +9,7 @@ type Props = {
 /**
  * Converts a camelCase trait identifier to a user-friendly display string.
  */
-function getTraitDisplayName(trait: CardTrait): string {
+export function getTraitDisplayName(trait: CardTrait): string {
     return trait.charAt(0).toUpperCase() + trait.slice(1);
 }
 

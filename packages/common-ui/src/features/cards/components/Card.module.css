@@ -82,3 +82,40 @@
 .insufficientPower .cost {
   color: var(--danger-light);
 }
+
+.traits {
+  position: absolute;
+  left: calc(100% + 0.5em);
+  top: 0;
+  width: 10em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  opacity: 0;
+  animation: traitFadeIn 375ms ease-in forwards;
+}
+
+@keyframes traitFadeIn {
+  0%, 80% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.trait {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  background-color: var(--primary-darkest-muted);
+  border: solid var(--grey-mid) 0.1em;
+  border-radius: 1em;
+  corner-shape: squircle;
+  padding: 0.4em 0.5em;
+}
+
+.traitTitle {
+  color: var(--grey-lightest);
+}
+
+.traitDescription {
+  font-size: 0.75em;
+  color: var(--grey-light);
+}

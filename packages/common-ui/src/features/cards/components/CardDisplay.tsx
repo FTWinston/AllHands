@@ -1,5 +1,6 @@
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { FC, ReactNode } from 'react';
 import crewStyles from '../../../CrewColors.module.css';
@@ -8,6 +9,7 @@ import { CardTargetIcon } from '../assets/cardTargetTypes';
 import styles from './Card.module.css';
 import { CardBase } from './CardBase';
 import { CardParametersContext, Parameter } from './Parameter';
+import { TraitDescription } from './TraitDescription';
 
 type Props = {
     className?: string;
@@ -24,6 +26,8 @@ type Props = {
     sufficientPower?: boolean;
     parameters?: CardParameters;
     modifiers?: CardParameters;
+    traits?: CardTrait[];
+    showTraits?: boolean;
 };
 
 export const CardDisplay: FC<Props> = (props) => {
@@ -54,6 +58,14 @@ export const CardDisplay: FC<Props> = (props) => {
                 >
                     {props.description}
                 </p>
+
+                {props.showTraits && props.traits && props.traits.length > 0 && (
+                    <div className={styles.traits}>
+                        {props.traits.map(trait => (
+                            <TraitDescription key={trait} trait={trait} />
+                        ))}
+                    </div>
+                )}
             </CardBase>
         </CardParametersContext.Provider>
     );
