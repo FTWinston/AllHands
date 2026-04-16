@@ -2,7 +2,7 @@ import { CardParameters } from 'common-data/features/cards/types/CardParameters'
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useCallback, useState } from 'react';
 import crewStyles from '../../../CrewColors.module.css';
 import { classNames } from '../../../utils/classNames';
 import { CardTargetIcon } from '../assets/cardTargetTypes';
@@ -31,6 +31,14 @@ type Props = {
 };
 
 export const CardDisplay: FC<Props> = (props) => {
+    const [traitsOnLeft, setTraitsOnLeft] = useState(false);
+    const traitsRef = useCallback((node: HTMLDivElement | null) => {
+        if (node) {
+            const rect = node.parentElement!.getBoundingClientRect();
+            setTraitsOnLeft(rect.right + node.offsetWidth + 8 > window.innerWidth);
+        }
+    }, []);
+
     return (
         <CardParametersContext.Provider value={props}>
             <CardBase className={classNames(
@@ -60,7 +68,7 @@ export const CardDisplay: FC<Props> = (props) => {
                 </p>
 
                 {props.showTraits && props.traits && props.traits.length > 0 && (
-                    <div className={styles.traits}>
+                    <div ref={traitsRef} className={classNames(styles.traits, traitsOnLeft ? styles.traitsLeft : undefined)}>
                         {props.traits.map(trait => (
                             <TraitDescription key={trait} trait={trait} />
                         ))}

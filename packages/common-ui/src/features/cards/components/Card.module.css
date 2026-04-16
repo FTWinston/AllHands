@@ -95,6 +95,11 @@
   animation: traitFadeIn 375ms ease-in forwards;
 }
 
+.traitsLeft {
+  left: auto;
+  right: calc(100% + 0.5em);
+}
+
 @keyframes traitFadeIn {
   0%, 80% { opacity: 0; }
   100% { opacity: 1; }
