@@ -35,7 +35,7 @@
 }
 
 .card:focus {
-    --dx: clamp(calc(-50vw + 6.5em), var(--inHandDx), calc(50vw - 6em));
+    --dx: 0em;
     --dy: -12em;
     --r: 0deg;
     --scale: 1;
