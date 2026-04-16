@@ -6,9 +6,7 @@ import { CardTargetType } from '../types/CardTargetType';
 function defineCardDefinitions<T extends Record<string, CardDefinition<Extract<keyof T, string>>>>(defs: T) {
     for (const key in defs) {
         const def = defs[key];
-        const params = new Map<string, number>(def.parameters);
-        params.set('cost', def.cost);
-        (def as Record<string, unknown>).parameters = params;
+        (def.parameters as Map<string, number>).set('cost', def.cost);
     }
     return defs;
 }
