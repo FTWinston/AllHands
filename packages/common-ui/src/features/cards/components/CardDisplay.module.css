@@ -104,23 +104,3 @@
   0%, 80% { opacity: 0; }
   100% { opacity: 1; }
 }
-
-.trait {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2em;
-  background-color: var(--primary-darkest-muted);
-  border: solid var(--grey-mid) 0.1em;
-  border-radius: 1em;
-  corner-shape: squircle;
-  padding: 0.4em 0.5em;
-}
-
-.traitTitle {
-  color: var(--grey-lightest);
-}
-
-.traitDescription {
-  font-size: 0.75em;
-  color: var(--grey-light);
-}

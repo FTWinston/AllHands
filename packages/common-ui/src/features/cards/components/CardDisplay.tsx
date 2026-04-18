@@ -6,8 +6,8 @@ import { FC, ReactNode, useCallback, useState } from 'react';
 import crewStyles from '../../../CrewColors.module.css';
 import { classNames } from '../../../utils/classNames';
 import { CardTargetIcon } from '../assets/cardTargetTypes';
-import styles from './Card.module.css';
 import { CardBase } from './CardBase';
+import styles from './CardDisplay.module.css';
 import { CardParametersContext, Parameter } from './Parameter';
 import { TraitDescription } from './TraitDescription';
 

@@ -1,8 +1,8 @@
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { FC } from 'react';
 import { getTraitDescription } from '../utils/getTraitDescription';
-import styles from './Card.module.css';
 import { getTraitDisplayName } from './Trait';
+import styles from './TraitDescription.module.css';
 
 type Props = {
     trait: CardTrait;
