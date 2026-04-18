@@ -1,4 +1,5 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
+import { useRef, useState } from 'react';
 import { Button } from 'common-ui/components/Button';
 import { Card } from 'common-ui/features/cards/components/Card';
 import { CardBase } from 'common-ui/features/cards/components/CardBase';
@@ -22,7 +23,7 @@ type Props = SlotProps & {
     onDeactivate: () => void;
 };
 
-function getCardWrapper(props: Props, isRecharging: boolean) {
+function getCardWrapper(props: Props, isRecharging: boolean, isFocused: boolean, cardRef: React.RefObject<HTMLDivElement | null>) {
     if (!props.card) {
         return (
             <CardDropTarget
@@ -39,12 +40,13 @@ function getCardWrapper(props: Props, isRecharging: boolean) {
 
     if (isRecharging) {
         return (
-            <div className={styles.cardWrapper}>
+            <div ref={cardRef} className={classNames(styles.cardWrapper, isFocused ? styles.cardExpanded : null)}>
                 <Card
                     className={styles.card}
                     {...props.card}
                     slotted={true}
                     disabled={true}
+                    showTraits={isFocused}
                 />
             </div>
         );
@@ -57,7 +59,7 @@ function getCardWrapper(props: Props, isRecharging: boolean) {
                     <div className={styles.noCardLabel}>Drop here</div>
                 </CardBase>
             </div>
-            <div className={styles.cardWrapper}>
+            <div ref={cardRef} className={classNames(styles.cardWrapper, isFocused ? styles.cardExpanded : null)}>
                 <DraggableCard
                     index={0}
                     className={classNames(styles.card)}
@@ -73,8 +75,24 @@ function getCardWrapper(props: Props, isRecharging: boolean) {
 
 export const WeaponSlot = (props: Props) => {
     const isRecharging = !!props.costToReactivate;
+    const [isFocused, setIsFocused] = useState(false);
+    const cardRef = useRef<HTMLDivElement>(null);
 
-    const cardWrapper = getCardWrapper(props, isRecharging);
+    const handleFocus = () => {
+        const card = cardRef.current;
+        if (card) {
+            const slot = card.closest(`.${styles.weaponSlot}`);
+            if (slot) {
+                const slotRect = slot.getBoundingClientRect();
+                const cardRect = card.getBoundingClientRect();
+                card.style.setProperty('--translate-x', `${slotRect.left - cardRect.left}px`);
+                card.style.setProperty('--translate-y', `${slotRect.top - cardRect.top}px`);
+            }
+        }
+        setIsFocused(true);
+    };
+
+    const cardWrapper = getCardWrapper(props, isRecharging, isFocused, cardRef);
 
     const content = (
         <>
@@ -103,9 +121,11 @@ export const WeaponSlot = (props: Props) => {
             render="li"
             className={classNames(styles.weaponSlot, styles.hasCard, isRecharging ? styles.recharging : null)}
             targetType="weapon"
-            acceptAnyCardType={isRecharging}
             id={props.name}
             disabled={!props.card}
+            tabIndex={0}
+            onFocus={handleFocus}
+            onBlur={() => setIsFocused(false)}
         >
             {content}
         </CardDropTarget>

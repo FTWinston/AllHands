@@ -34,6 +34,13 @@
     position: relative;
     corner-shape: squircle;
     border-radius: 1.5em;
+    transition: transform 0.33s ease-in-out;
+    transform-origin: top left;
+}
+
+.cardExpanded {
+    transform: translate(var(--translate-x, 0px), var(--translate-y, 0px)) scale(1.5);
+    z-index: 10;
 }
 
 .cardSpace {

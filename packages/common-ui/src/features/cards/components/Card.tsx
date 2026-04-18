@@ -10,6 +10,7 @@ type Props = {
     slotted?: boolean;
     disabled?: boolean;
     modifiers?: CardParameters;
+    showTraits?: boolean;
 };
 
 export const Card: FC<Props> = (props) => {
@@ -22,6 +23,7 @@ export const Card: FC<Props> = (props) => {
             slotted={props.slotted}
             disabled={props.disabled}
             modifiers={props.modifiers}
+            showTraits={props.showTraits}
         />
     );
 };

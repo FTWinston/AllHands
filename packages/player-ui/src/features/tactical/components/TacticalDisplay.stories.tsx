@@ -149,5 +149,6 @@ export const UI: Story = {
         ],
         power: 5,
         maxHandSize: 5,
+        drawPileSize: 3,
     },
 };
