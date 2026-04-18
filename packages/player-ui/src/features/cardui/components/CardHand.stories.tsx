@@ -13,7 +13,7 @@ const meta: Meta<typeof CardHand> = {
         layout: 'fullscreen',
     },
     args: {
-        power: 2,
+        availablePower: 2,
     },
     render: (args) => {
         const [cards, setCards] = useState(args.cards);

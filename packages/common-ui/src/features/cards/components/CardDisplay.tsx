@@ -15,6 +15,7 @@ type Props = {
     className?: string;
     slotted?: boolean;
     disabled?: boolean;
+    highlighted?: boolean;
     name: string;
     crew: CrewRoleName;
     targetType: CardTargetType;
@@ -46,6 +47,7 @@ export const CardDisplay: FC<Props> = (props) => {
                 crewStyles[props.crew],
                 props.disabled ? styles.disabled : undefined,
                 props.sufficientPower === false ? styles.insufficientPower : undefined,
+                props.highlighted ? styles.highlighted : undefined,
                 props.className)}
             >
                 <div className={classNames(styles.image, props.slotted ? styles.noCutouts : styles.cutouts)} role="presentation">{props.image}</div>

@@ -27,7 +27,7 @@ export const EngineerDisplay = (props: Props) => {
 
     return (
         <Screen>
-            <CardUI playCard={playCard} cardHand={cards} power={headerProps.power} onAlternateDrop={repair}>
+            <CardUI playCard={playCard} cardHand={cards} availablePower={headerProps.power} onAlternateDrop={repair}>
                 <CrewHeader
                     crew="engineer"
                     handSize={cards.length}

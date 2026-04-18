@@ -11,7 +11,7 @@ import { CardHand } from './CardHand';
 import { DragCardProvider } from './DragCardProvider';
 
 type Props = PropsWithChildren<{
-    power: number;
+    availablePower: number;
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cardHand: MinimalReadonlyArray<CardInstance>;
     onAlternateDrop?: (targetId: string) => void;
@@ -26,7 +26,7 @@ type ChoiceInfo = {
  * The full UI for displaying and interacting with a hand of cards.
  * Any CardDropTarget components these cards should interact with should be nested within this component.
  */
-export const CardUI: FC<Props> = ({ playCard, cardHand, power, children, onAlternateDrop }) => {
+export const CardUI: FC<Props> = ({ playCard, cardHand, availablePower, children, onAlternateDrop }) => {
     const [choice, setChoice] = useState<ChoiceInfo | null>(null);
 
     const dropCard = useCallback((cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => {
@@ -34,7 +34,7 @@ export const CardUI: FC<Props> = ({ playCard, cardHand, power, children, onAlter
             const choiceCardDefinition = getCardDefinition(cardType) as ChoiceCardDefinition;
 
             // Only show the choice if the player has enough power to do so.
-            if (power >= choiceCardDefinition.cost) {
+            if (availablePower >= choiceCardDefinition.cost) {
                 setChoice({
                     choiceCardId: cardId,
                     options: choiceCardDefinition.cards,
@@ -44,7 +44,7 @@ export const CardUI: FC<Props> = ({ playCard, cardHand, power, children, onAlter
             setChoice(null);
             playCard(cardId, cardType, targetType, targetId);
         }
-    }, [playCard, power]);
+    }, [playCard, availablePower]);
 
     return (
         <DragCardProvider onCardDropped={dropCard} onAlternateDrop={onAlternateDrop}>
@@ -63,14 +63,14 @@ export const CardUI: FC<Props> = ({ playCard, cardHand, power, children, onAlter
                 <CardChoiceToPlay
                     cardId={choice.choiceCardId}
                     cardTypes={choice.options}
-                    power={power}
+                    availablePower={availablePower}
                     onCancel={() => setChoice(null)}
                 />
             )}
 
             <CardHand
                 cards={cardHand}
-                power={power}
+                availablePower={availablePower}
                 shiftDown={!!choice}
             />
         </DragCardProvider>

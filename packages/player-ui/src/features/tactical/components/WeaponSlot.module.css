@@ -53,6 +53,11 @@
 .noCardLabel {
     font-size: 2em;
     color: var(--grey-mid);
+    transition: color 0.2s ease-in-out;
+}
+
+.noCardLabelFocused {
+    color: var(--grey-light);
 }
 
 .statusIndicator {

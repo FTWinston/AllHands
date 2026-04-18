@@ -1,10 +1,10 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
-import { useRef, useState } from 'react';
 import { Button } from 'common-ui/components/Button';
 import { Card } from 'common-ui/features/cards/components/Card';
 import { CardBase } from 'common-ui/features/cards/components/CardBase';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { classNames } from 'common-ui/utils/classNames';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { DraggableCard } from 'src/features/cardui/components/DraggableCard';
 import { default as DiscardIcon } from '../assets/discard.svg?react';
@@ -23,7 +23,7 @@ type Props = SlotProps & {
     onDeactivate: () => void;
 };
 
-function getCardWrapper(props: Props, isRecharging: boolean, isFocused: boolean, cardRef: React.RefObject<HTMLDivElement | null>) {
+function getCardWrapper(props: Props, isRecharging: boolean, isFocused: boolean, isHovered: boolean, cardRef: RefObject<HTMLDivElement | null>) {
     if (!props.card) {
         return (
             <CardDropTarget
@@ -32,7 +32,7 @@ function getCardWrapper(props: Props, isRecharging: boolean, isFocused: boolean,
                 id={props.name}
             >
                 <CardBase className={classNames(styles.card, styles.cardSpace)}>
-                    <div className={styles.noCardLabel}>Drop here</div>
+                    <div className={classNames(styles.noCardLabel, isHovered ? styles.noCardLabelFocused : null)}>Drop here</div>
                 </CardBase>
             </CardDropTarget>
         );
@@ -46,6 +46,7 @@ function getCardWrapper(props: Props, isRecharging: boolean, isFocused: boolean,
                     {...props.card}
                     slotted={true}
                     disabled={true}
+                    highlighted={isHovered}
                     showTraits={isFocused}
                 />
             </div>
@@ -55,18 +56,22 @@ function getCardWrapper(props: Props, isRecharging: boolean, isFocused: boolean,
     return (
         <>
             <div className={styles.cardWrapper}>
-                <CardBase className={classNames(styles.card, styles.cardSpace)}>
-                    <div className={styles.noCardLabel}>Drop here</div>
-                </CardBase>
+                <Card
+                    className={styles.card}
+                    {...props.card}
+                    slotted={true}
+                    highlighted={true}
+                />
             </div>
             <div ref={cardRef} className={classNames(styles.cardWrapper, isFocused ? styles.cardExpanded : null)}>
                 <DraggableCard
                     index={0}
                     className={classNames(styles.card)}
                     {...props.card}
-                    power={0}
+                    availablePower={0}
                     targetType="enemy"
                     slotted={true}
+                    highlighted={isHovered}
                 />
             </div>
         </>
@@ -76,7 +81,12 @@ function getCardWrapper(props: Props, isRecharging: boolean, isFocused: boolean,
 export const WeaponSlot = (props: Props) => {
     const isRecharging = !!props.costToReactivate;
     const [isFocused, setIsFocused] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setIsFocused(false);
+    }, [props.card]);
 
     const handleFocus = () => {
         const card = cardRef.current;
@@ -92,7 +102,7 @@ export const WeaponSlot = (props: Props) => {
         setIsFocused(true);
     };
 
-    const cardWrapper = getCardWrapper(props, isRecharging, isFocused, cardRef);
+    const cardWrapper = getCardWrapper(props, isRecharging, isFocused, isHovered, cardRef);
 
     const content = (
         <>
@@ -126,6 +136,8 @@ export const WeaponSlot = (props: Props) => {
             tabIndex={0}
             onFocus={handleFocus}
             onBlur={() => setIsFocused(false)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
             {content}
         </CardDropTarget>

@@ -15,10 +15,11 @@ type Props = {
     id: number;
     elementId?: string;
     type: CardType;
-    power: number;
+    availablePower: number;
     index: number;
     targetType?: CardTargetType;
     slotted?: boolean;
+    highlighted?: boolean;
     modifiers?: CardParameters;
 };
 
@@ -67,7 +68,7 @@ export const DraggableCard: FC<Props> = (props) => {
             {...listeners}
             {...attributes}
         >
-            <CardDisplay {...definition} slotted={props.slotted} sufficientPower={props.power >= resolvedCost} modifiers={props.modifiers} showTraits={isFocused && !isBeingDragged} />
+            <CardDisplay {...definition} slotted={props.slotted} highlighted={props.highlighted} sufficientPower={props.slotted ? undefined : props.availablePower >= resolvedCost} modifiers={props.modifiers} showTraits={isFocused && !isBeingDragged} />
         </div>
     );
 };

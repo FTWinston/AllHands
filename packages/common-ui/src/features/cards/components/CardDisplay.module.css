@@ -41,7 +41,7 @@
   line-height: 1em;
 }
 
-.card:not(.disabled, .insufficientPower):hover {
+.card:not(.disabled, .insufficientPower):is(:hover, .highlighted) {
   border-color: var(--grey-lightest);
   .name {
     color: var(--grey-lightest);

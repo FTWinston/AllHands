@@ -8,13 +8,13 @@ import { DraggableCard } from './DraggableCard';
 
 type Props = {
     cards: MinimalReadonlyArray<CardInstance>;
-    power: number;
+    availablePower: number;
     shiftDown?: boolean;
 };
 
 const getCardId = (card: CardInstance) => card.id;
 
-export const CardHand: FC<Props> = ({ cards, power, shiftDown }) => {
+export const CardHand: FC<Props> = ({ cards, availablePower, shiftDown }) => {
     const { knownItems: knownCards, currentItemIds: inHandCardIds, removingItemIds: removingCardIds } = useArrayChanges(cards, getCardId);
 
     return (
@@ -30,7 +30,7 @@ export const CardHand: FC<Props> = ({ cards, power, shiftDown }) => {
                     key={card.id}
                     id={card.id}
                     type={card.type}
-                    power={power}
+                    availablePower={availablePower}
                     index={index}
                     className={classNames(
                         styles.card,

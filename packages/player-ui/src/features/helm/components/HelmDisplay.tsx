@@ -32,7 +32,7 @@ export const HelmDisplay = (props: Props) => {
 
     return (
         <Screen>
-            <CardUI playCard={playCard} cardHand={cards} power={headerProps.power}>
+            <CardUI playCard={playCard} cardHand={cards} availablePower={headerProps.power}>
                 <CrewHeader
                     crew="helm"
                     handSize={cards.length}

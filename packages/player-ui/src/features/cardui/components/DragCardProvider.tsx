@@ -156,8 +156,6 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
-        let wasSuccessfulDrop = false;
-
         if (event.over?.id && activeCard) {
             if (activeCard.isAlternateDrag) {
                 onAlternateDrop?.(String(event.over.id));
@@ -172,19 +170,18 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
 
                     if (allowed) {
                         onCardDropped(cardId, activeCard.cardType, targetType, String(event.over.id));
-                        wasSuccessfulDrop = true;
+
+                        if (activeCard && dragPosition && targetType !== 'weapon-slot') {
+                            setDroppedCardEffect({
+                                id: activeCard.id,
+                                cardType: activeCard.cardType,
+                                x: dragPosition.currentX,
+                                y: dragPosition.currentY,
+                            });
+                        }
                     }
                 }
             }
-        }
-
-        if (wasSuccessfulDrop && activeCard && dragPosition) {
-            setDroppedCardEffect({
-                id: activeCard.id,
-                cardType: activeCard.cardType,
-                x: dragPosition.currentX,
-                y: dragPosition.currentY,
-            });
         }
 
         // Blur the currently focused element (which is the dragged element)

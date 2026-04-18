@@ -9,11 +9,11 @@ import { DraggableCard } from './DraggableCard';
 type Props = {
     cardId: number;
     cardTypes: CardType[];
-    power: number;
+    availablePower: number;
     onCancel: () => void;
 };
 
-export const CardChoiceToPlay: FC<Props> = ({ cardId, cardTypes, power, onCancel }) => {
+export const CardChoiceToPlay: FC<Props> = ({ cardId, cardTypes, availablePower, onCancel }) => {
     const activeCard = useActiveCard();
 
     return (
@@ -32,7 +32,7 @@ export const CardChoiceToPlay: FC<Props> = ({ cardId, cardTypes, power, onCancel
                         id={cardId}
                         elementId={`${cardId}-choice${index}`}
                         type={cardType}
-                        power={power}
+                        availablePower={availablePower}
                         index={index}
                         className={styles.card}
                     />
