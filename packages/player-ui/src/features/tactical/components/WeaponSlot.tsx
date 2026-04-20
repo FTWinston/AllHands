@@ -11,11 +11,16 @@ import { default as DiscardIcon } from '../assets/discard.svg?react';
 import { StatusIndicator } from './StatusIndicator';
 import styles from './WeaponSlot.module.css';
 
+type WeaponProps = {
+    card: CardInstance;
+    chargeRemaining: number;
+    noFireReason?: string | null;
+    prime?: string | null;
+};
+
 export type SlotProps = {
     name: string;
-    costToReactivate?: number;
-    card: CardInstance | null;
-    noFireReason?: string | null;
+    weapon: WeaponProps | null;
 };
 
 type Props = SlotProps & {
@@ -24,7 +29,7 @@ type Props = SlotProps & {
 };
 
 function getCardWrapper(props: Props, isRecharging: boolean, isFocused: boolean, isHovered: boolean, cardRef: RefObject<HTMLDivElement | null>) {
-    if (!props.card) {
+    if (!props.weapon) {
         return (
             <CardDropTarget
                 className={styles.cardWrapper}
@@ -43,7 +48,7 @@ function getCardWrapper(props: Props, isRecharging: boolean, isFocused: boolean,
             <div ref={cardRef} className={classNames(styles.cardWrapper, isFocused ? styles.cardExpanded : null)}>
                 <Card
                     className={styles.card}
-                    {...props.card}
+                    {...props.weapon.card}
                     slotted={true}
                     disabled={true}
                     highlighted={isHovered}
@@ -58,7 +63,7 @@ function getCardWrapper(props: Props, isRecharging: boolean, isFocused: boolean,
             <div className={styles.cardWrapper}>
                 <Card
                     className={styles.card}
-                    {...props.card}
+                    {...props.weapon.card}
                     slotted={true}
                     highlighted={true}
                 />
@@ -67,7 +72,7 @@ function getCardWrapper(props: Props, isRecharging: boolean, isFocused: boolean,
                 <DraggableCard
                     index={0}
                     className={classNames(styles.card)}
-                    {...props.card}
+                    {...props.weapon.card}
                     availablePower={0}
                     targetType="enemy"
                     slotted={true}
@@ -79,14 +84,14 @@ function getCardWrapper(props: Props, isRecharging: boolean, isFocused: boolean,
 }
 
 export const WeaponSlot = (props: Props) => {
-    const isRecharging = !!props.costToReactivate;
+    const isRecharging = !!props.weapon?.chargeRemaining;
     const [isFocused, setIsFocused] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setIsFocused(false);
-    }, [props.card]);
+    }, [props.weapon?.card]);
 
     const handleFocus = () => {
         const card = cardRef.current;
@@ -110,16 +115,16 @@ export const WeaponSlot = (props: Props) => {
             {cardWrapper}
             <StatusIndicator
                 className={styles.statusIndicator}
-                chargeRemaining={props.costToReactivate}
-                totalCharge={props.card ? getCardDefinition(props.card.type).cost : null}
-                cannotFireReason={props.noFireReason}
+                chargeRemaining={props.weapon?.chargeRemaining}
+                totalCharge={props.weapon?.card ? getCardDefinition(props.weapon.card.type).cost : null}
+                cannotFireReason={props.weapon?.noFireReason}
             />
             <Button
                 onClick={props.onDeactivate}
                 className={styles.discardButton}
                 palette="danger"
                 title="Remove card"
-                disabled={!props.card}
+                disabled={!props.weapon}
             >
                 <DiscardIcon />
             </Button>
@@ -132,7 +137,7 @@ export const WeaponSlot = (props: Props) => {
             className={classNames(styles.weaponSlot, styles.hasCard, isRecharging ? styles.recharging : null)}
             targetType="weapon"
             id={props.name}
-            disabled={!props.card}
+            disabled={!props.weapon}
             tabIndex={0}
             onFocus={handleFocus}
             onBlur={() => setIsFocused(false)}

@@ -61,7 +61,7 @@ const meta: Meta<typeof Component> = {
                         if (cardCost) {
                             setSlots(prevSlots => prevSlots.map(slot => slot.name === targetId ? {
                                 ...slot,
-                                costToReactivate: slot.costToReactivate ? Math.max(0, slot.costToReactivate - cardCost) : slot.costToReactivate,
+                                costToReactivate: slot.weapon?.chargeRemaining ? Math.max(0, slot.weapon.chargeRemaining - cardCost) : slot.weapon?.chargeRemaining,
                             } : slot));
                         }
                     }
@@ -69,7 +69,7 @@ const meta: Meta<typeof Component> = {
                 slots={slots}
                 slotFired={(slotIndex) => {
                     console.log(`fired slot ${slotIndex}`);
-                    setSlots(prevSlots => prevSlots.map((slot, index) => index === slotIndex && slot.card ? { ...slot, costToReactivate: getCardDefinition(slot.card.type).cost } : slot));
+                    setSlots(prevSlots => prevSlots.map((slot, index) => index === slotIndex && slot.weapon ? { ...slot, costToReactivate: getCardDefinition(slot.weapon.card.type).cost } : slot));
                 }}
                 slotDeactivated={(slotIndex) => {
                     console.log(`deactivated slot ${slotIndex}`);
@@ -106,14 +106,16 @@ export const UI: Story = {
         slots: [
             {
                 name: 'Weapon slot 1',
-                card: null,
+                weapon: null,
             },
             {
                 name: 'Weapon slot 2',
-                costToReactivate: 2,
-                card: {
-                    id: 5,
-                    type: 'exampleWeaponSlotTarget',
+                weapon: {
+                    chargeRemaining: 2,
+                    card: {
+                        id: 5,
+                        type: 'exampleWeaponSlotTarget',
+                    },
                 },
             },
         ],

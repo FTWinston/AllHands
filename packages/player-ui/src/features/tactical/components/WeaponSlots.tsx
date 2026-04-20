@@ -1,13 +1,5 @@
-import { CardInstance } from 'common-data/features/cards/types/CardInstance';
-import { WeaponSlot } from './WeaponSlot';
+import { SlotProps, WeaponSlot } from './WeaponSlot';
 import styles from './WeaponSlots.module.css';
-
-export type SlotProps = {
-    name: string;
-    costToReactivate?: number;
-    card: CardInstance | null;
-    noFireReason?: string | null;
-};
 
 type Props = {
     slots: SlotProps[];

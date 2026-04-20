@@ -28,28 +28,59 @@ type Story = StoryObj<typeof meta>;
 export const Empty: Story = {
     args: {
         name: 'Weapon slot 1',
-        card: null,
+        weapon: null,
     },
 };
 
 export const WithCard: Story = {
     args: {
         name: 'Weapon slot 2',
-        costToReactivate: 0,
-        card: {
-            id: 5,
-            type: 'exampleWeaponSlotTarget',
+        weapon: {
+            chargeRemaining: 2,
+            card: {
+                id: 5,
+                type: 'exampleWeaponSlotTarget',
+            },
         },
     },
 };
 
-export const Tapped: Story = {
+export const Primed: Story = {
     args: {
         name: 'Weapon slot 2',
-        costToReactivate: 2,
-        card: {
-            id: 5,
-            type: 'exampleWeaponSlotTarget',
+        weapon: {
+            chargeRemaining: 1,
+            card: {
+                id: 5,
+                type: 'exampleWeaponSlotTarget',
+            },
+        },
+    },
+};
+
+export const Charged: Story = {
+    args: {
+        name: 'Weapon slot 2',
+        weapon: {
+            chargeRemaining: 0,
+            card: {
+                id: 5,
+                type: 'exampleWeaponSlotTarget',
+            },
+        },
+    },
+};
+
+export const CantFire: Story = {
+    args: {
+        name: 'Weapon slot 2',
+        weapon: {
+            chargeRemaining: 0,
+            noFireReason: 'range',
+            card: {
+                id: 5,
+                type: 'exampleWeaponSlotTarget',
+            },
         },
     },
 };

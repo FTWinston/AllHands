@@ -10,16 +10,15 @@ import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
 import { ListTargetInfo, TargetList } from './TargetList';
-import { SlotProps, WeaponSlots } from './WeaponSlots';
-
-export type SlotPropsNoTarget = Omit<SlotProps, 'currentTargetState'>;
+import { SlotProps } from './WeaponSlot';
+import { WeaponSlots } from './WeaponSlots';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     slotFired: (slotIndex: number) => void;
     slotDeactivated: (slotIndex: number) => void;
     cards: MinimalReadonlyArray<CardInstance>;
-    slots: SlotPropsNoTarget[];
+    slots: SlotProps[];
     targets: ListTargetInfo[];
 };
 
