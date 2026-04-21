@@ -54,6 +54,10 @@ export const Primed: Story = {
                 id: 5,
                 type: 'exampleWeaponSlotTarget',
             },
+            discharge: {
+                startTime: Date.now(),
+                endTime: Date.now() + 10000,
+            },
         },
     },
 };
@@ -66,6 +70,10 @@ export const Charged: Story = {
             card: {
                 id: 5,
                 type: 'exampleWeaponSlotTarget',
+            },
+            discharge: {
+                startTime: Date.now(),
+                endTime: Date.now() + 10000,
             },
         },
     },
@@ -80,6 +88,10 @@ export const CantFire: Story = {
             card: {
                 id: 5,
                 type: 'exampleWeaponSlotTarget',
+            },
+            discharge: {
+                startTime: Date.now(),
+                endTime: Date.now() + 10000,
             },
         },
     },

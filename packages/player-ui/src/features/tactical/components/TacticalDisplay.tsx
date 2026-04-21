@@ -16,7 +16,6 @@ import { WeaponSlots } from './WeaponSlots';
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     slotFired: (slotIndex: number) => void;
-    slotDeactivated: (slotIndex: number) => void;
     cards: MinimalReadonlyArray<CardInstance>;
     slots: SlotProps[];
     targets: ListTargetInfo[];
@@ -61,7 +60,6 @@ export const TacticalDisplay = (props: Props) => {
                 <WeaponSlots
                     slots={slotsWithTargetState}
                     onFired={props.slotFired}
-                    onDeactivate={props.slotDeactivated}
                 />
             </CardUI>
         </Screen>

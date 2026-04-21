@@ -71,10 +71,6 @@ const meta: Meta<typeof Component> = {
                     console.log(`fired slot ${slotIndex}`);
                     setSlots(prevSlots => prevSlots.map((slot, index) => index === slotIndex && slot.weapon ? { ...slot, costToReactivate: getCardDefinition(slot.weapon.card.type).cost } : slot));
                 }}
-                slotDeactivated={(slotIndex) => {
-                    console.log(`deactivated slot ${slotIndex}`);
-                    setSlots(prevSlots => prevSlots.map((slot, index) => index === slotIndex ? { ...slot, card: null, costToReactivate: undefined } : slot));
-                }}
             />
         );
     },
@@ -115,6 +111,10 @@ export const UI: Story = {
                     card: {
                         id: 5,
                         type: 'exampleWeaponSlotTarget',
+                    },
+                    discharge: {
+                        startTime: Date.now(),
+                        endTime: Date.now() + 10000,
                     },
                 },
             },

@@ -4,7 +4,6 @@ import styles from './WeaponSlots.module.css';
 type Props = {
     slots: SlotProps[];
     onFired: (slotIndex: number) => void;
-    onDeactivate: (slotIndex: number) => void;
 };
 
 export const WeaponSlots = (props: Props) => {
@@ -15,7 +14,6 @@ export const WeaponSlots = (props: Props) => {
                     {...slot}
                     key={index}
                     onFired={() => props.onFired(index)}
-                    onDeactivate={() => props.onDeactivate(index)}
                 />
             ))}
         </ol>
