@@ -112,7 +112,7 @@ export const Three: Story = {
             },
             {
                 id: 2,
-                type: 'exampleWeaponSlotTarget',
+                type: 'phaserStrip',
             },
             {
                 id: 3,
@@ -135,7 +135,7 @@ export const Five: Story = {
             },
             {
                 id: 3,
-                type: 'exampleWeaponSlotTarget',
+                type: 'phaserStrip',
             },
             {
                 id: 4,
@@ -162,7 +162,7 @@ export const Nine: Story = {
             },
             {
                 id: 3,
-                type: 'exampleWeaponSlotTarget',
+                type: 'phaserStrip',
             },
             {
                 id: 4,
@@ -182,7 +182,7 @@ export const Nine: Story = {
             },
             {
                 id: 8,
-                type: 'exampleWeaponSlotTarget',
+                type: 'phaserStrip',
             },
             {
                 id: 9,

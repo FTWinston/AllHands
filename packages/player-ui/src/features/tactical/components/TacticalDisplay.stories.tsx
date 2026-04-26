@@ -1,3 +1,4 @@
+import { WeaponTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
@@ -23,7 +24,7 @@ const meta: Meta<typeof Component> = {
                     case 0:
                         return {
                             id,
-                            type: 'exampleWeaponSlotTarget',
+                            type: 'phaserStrip',
                         };
                     case 1:
                         return {
@@ -53,7 +54,12 @@ const meta: Meta<typeof Component> = {
 
                     if (targetType === 'weapon-slot') {
                         const card = cards.find(c => c.id === cardId) || null;
-                        setSlots(prevSlots => prevSlots.map(slot => slot.name === targetId ? { ...slot, card } : slot));
+                        if (card) {
+                            setSlots(prevSlots => prevSlots.map(slot => slot.name === targetId ? { ...slot, weapon: {
+                                card,
+                                charge: 0,
+                            } } : slot));
+                        }
                     } else if (targetType === 'weapon') {
                         const card = cards.find(c => c.id === cardId);
                         const cardCost = card ? getCardDefinition(card.type).cost : 0;
@@ -61,7 +67,12 @@ const meta: Meta<typeof Component> = {
                         if (cardCost) {
                             setSlots(prevSlots => prevSlots.map(slot => slot.name === targetId ? {
                                 ...slot,
-                                costToReactivate: slot.weapon?.chargeRemaining ? Math.max(0, slot.weapon.chargeRemaining - cardCost) : slot.weapon?.chargeRemaining,
+                                weapon: slot.weapon
+                                    ? {
+                                        ...slot.weapon,
+                                        charge: slot.weapon.charge + cardCost,
+                                        prime: slot.weapon.prime ?? (card?.type as WeaponTargetedCardType),
+                                    } : null,
                             } : slot));
                         }
                     }
@@ -84,7 +95,7 @@ export const UI: Story = {
         cards: [
             {
                 id: 1,
-                type: 'exampleWeaponSlotTarget',
+                type: 'phaserStrip',
             },
             {
                 id: 2,
@@ -101,16 +112,16 @@ export const UI: Story = {
         ],
         slots: [
             {
-                name: 'Weapon slot 1',
+                name: 'Weapon 1',
                 weapon: null,
             },
             {
-                name: 'Weapon slot 2',
+                name: 'Weapon 2',
                 weapon: {
-                    chargeRemaining: 2,
+                    charge: 0,
                     card: {
                         id: 5,
-                        type: 'exampleWeaponSlotTarget',
+                        type: 'phaserStrip',
                     },
                     discharge: {
                         startTime: Date.now(),

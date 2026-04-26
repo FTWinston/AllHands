@@ -31,32 +31,31 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'weapon-slot',
         crew: 'tactical',
         cost: 2,
+        chargeCost: 5,
     },
     phaserStrip: {
         targetType: 'weapon-slot',
         crew: 'tactical',
         cost: 4,
+        chargeCost: 3,
     },
     photonTorpedo: {
         targetType: 'weapon-slot',
         crew: 'tactical',
         cost: 3,
+        chargeCost: 4,
     },
     photonicCannon: {
         targetType: 'weapon-slot',
         crew: 'tactical',
         cost: 5,
+        chargeCost: 6,
     },
 
     exampleWeaponTarget: {
         targetType: 'weapon',
         crew: 'tactical',
         cost: 1,
-    },
-    exampleWeaponSlotTarget: {
-        targetType: 'weapon-slot',
-        crew: 'tactical',
-        cost: 2,
     },
     exampleEnemyTarget: {
         targetType: 'enemy',

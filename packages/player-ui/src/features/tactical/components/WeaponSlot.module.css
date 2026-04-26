@@ -1,18 +1,17 @@
 .weaponSlot {
-    background-color: var(--primary-darkest);
-    padding: 0.125em 0.5em 0.5em 0.5em;
+    background-color: var(--color-dark);
+    padding: 0.125em;
     border-radius: 0.75em;
-    border-shape: squircle;
-    border: solid 0.1em var(--primary-dark);
+    corner-shape: squircle;
+    border: solid 0.1em var(--color-dark);
     display: grid;
-    grid-template-columns: auto 2em;
-    grid-template-rows: auto auto auto;
+    grid-template-columns: auto auto;
+    grid-template-rows: 1.5em auto;
     grid-template-areas:
-        "name name"
-        "card status"
-        "card discardButton";
+        "card name"
+        "card content";
     justify-content: space-evenly;
-    gap: 0.5em;
+    gap: 0.25em;
 
     .discardButton {
         padding: 0.5em 0;
@@ -22,10 +21,23 @@
 }
 
 .slotName {
-    font-size: 0.95em;
     text-align: center;
     grid-area: name;
-    color: var(--grey-light);
+    color: var(--color-lightest);
+    text-transform: uppercase;
+}
+
+.content {
+    grid-area: content;
+    background-color: var(--color-darkest);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5em;
+    padding: 0.25em 0.5em 0.125em 0.5em;
+    border-radius: 0.5em;
+    corner-shape: squircle;
+    width: 25vw;
 }
 
 .cardWrapper {
@@ -47,13 +59,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: solid var(--primary-mid) 0.1em;
+    border: solid var(--color-mid) 0.1em;
 }
 
 .noCardLabel {
     font-size: 2em;
     color: var(--grey-mid);
     transition: color 0.2s ease-in-out;
+    text-align: center;
 }
 
 .noCardLabelFocused {
@@ -62,7 +75,36 @@
 
 .statusIndicator {
     grid-area: status;
-    height: 7.5em;
+    letter-spacing: 0.2em;
+    font-weight: bold;
+    text-transform: uppercase;
+    overflow: hidden;
+    padding: 0.33em;
+    margin: 0 -0.25em;
+    color: var(--color-darkest);
+    background-color: var(--color-light);
+}
+
+.primeTitle {
+    text-align: center;
+    color: var(--primary-lightest);
+    margin-bottom: -0.875em;
+    font-size: 0.875em;
+    text-transform: uppercase;
+}
+
+.primeEffect {
+    font-size: 1em;
+    line-height: 1.15em;
+    text-align: center;
+    color: var(--primary-lightest);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-height: 2.5em;
+}
+
+.progress {
+    height: 1.5em;
 }
 
 .dischargeProgress {

@@ -27,19 +27,19 @@ type Story = StoryObj<typeof meta>;
 
 export const Empty: Story = {
     args: {
-        name: 'Weapon slot 1',
+        name: 'Weapon 1',
         weapon: null,
     },
 };
 
 export const WithCard: Story = {
     args: {
-        name: 'Weapon slot 2',
+        name: 'Weapon 2',
         weapon: {
-            chargeRemaining: 2,
+            charge: 0,
             card: {
                 id: 5,
-                type: 'exampleWeaponSlotTarget',
+                type: 'phaserStrip',
             },
         },
     },
@@ -47,13 +47,14 @@ export const WithCard: Story = {
 
 export const Primed: Story = {
     args: {
-        name: 'Weapon slot 2',
+        name: 'Weapon 2',
         weapon: {
-            chargeRemaining: 1,
+            charge: 1,
             card: {
                 id: 5,
-                type: 'exampleWeaponSlotTarget',
+                type: 'phaserStrip',
             },
+            prime: 'exampleWeaponTarget',
             discharge: {
                 startTime: Date.now(),
                 endTime: Date.now() + 10000,
@@ -64,13 +65,14 @@ export const Primed: Story = {
 
 export const Charged: Story = {
     args: {
-        name: 'Weapon slot 2',
+        name: 'Weapon 2',
         weapon: {
-            chargeRemaining: 0,
+            charge: 4,
             card: {
                 id: 5,
-                type: 'exampleWeaponSlotTarget',
+                type: 'phaserStrip',
             },
+            prime: 'exampleWeaponTarget',
             discharge: {
                 startTime: Date.now(),
                 endTime: Date.now() + 10000,
@@ -81,14 +83,15 @@ export const Charged: Story = {
 
 export const CantFire: Story = {
     args: {
-        name: 'Weapon slot 2',
+        name: 'Weapon 2',
         weapon: {
-            chargeRemaining: 0,
+            charge: 4,
             noFireReason: 'range',
             card: {
                 id: 5,
-                type: 'exampleWeaponSlotTarget',
+                type: 'phaserStrip',
             },
+            prime: 'exampleWeaponTarget',
             discharge: {
                 startTime: Date.now(),
                 endTime: Date.now() + 10000,

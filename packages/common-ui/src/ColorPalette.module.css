@@ -29,3 +29,11 @@
     --color-light: var(--energy-light);
     --color-lightest: var(--energy-lightest);
 }
+
+.gray {
+    --color-darkest: var(--gray-darkest);
+    --color-dark: var(--gray-dark);
+    --color-mid: var(--gray-mid);
+    --color-light: var(--gray-light);
+    --color-lightest: var(--gray-lightest);
+}

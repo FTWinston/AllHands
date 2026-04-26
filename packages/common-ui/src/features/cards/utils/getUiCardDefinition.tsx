@@ -42,11 +42,6 @@ function loadCardDefinitions() {
             description: 'A card that has a particular effect, for a particular crew role.',
             image: <ExampleIcon />,
         },
-        exampleWeaponSlotTarget: {
-            name: 'Example Weapon Slot Target',
-            description: 'An example card that targets a specific weapon slot.',
-            image: <ExampleIcon />,
-        },
         exampleEnemyTarget: {
             name: 'Example Enemy Target',
             description: 'An example card that targets an enemy.',
@@ -54,7 +49,11 @@ function loadCardDefinitions() {
         },
         slowAndSteady: {
             name: 'Slow & Steady',
-            description: <><Trait type="primary" /> Turn towards a target then move towards it at a steady pace.</>,
+            description: <>
+                <Trait type="primary" />
+                {' '}
+                Turn towards a target then move towards it at a steady pace.
+            </>,
             image: <ExampleIcon />,
         },
         fullReverse: {
@@ -101,7 +100,14 @@ function loadCardDefinitions() {
         },
         auxPower: {
             name: 'Aux Power',
-            description: <><Trait type="expendable" /> Increase a system's power level by <Parameter name="powerGain" />, removing this effect from all other systems.</>,
+            description: <>
+                <Trait type="expendable" />
+                {' '}
+                Increase a system's power level by
+                {' '}
+                <Parameter name="powerGain" />
+                , removing this effect from all other systems.
+            </>,
             image: <ExampleIcon />,
         },
         swapSystems: {
@@ -131,12 +137,23 @@ function loadCardDefinitions() {
         },
         reset: {
             name: 'Reset',
-            description: <>Disables all power to a system for <Parameter name="duration" /> seconds, then remove all effects.</>,
+            description: <>
+                Disables all power to a system for
+                <Parameter name="duration" />
+                {' '}
+                seconds, then remove all effects.
+            </>,
             image: <ExampleIcon />,
         },
         focusShields: {
             name: 'Focus Shields',
-            description: <>Focus shields on a system, increasing its protection by <Parameter name="shieldBoost" />% but decreasing the protection of all other systems (except the hull) by <Parameter name="shieldReduction" />%.</>,
+            description: <>
+                Focus shields on a system, increasing its protection by
+                <Parameter name="shieldBoost" />
+                % but decreasing the protection of all other systems (except the hull) by
+                <Parameter name="shieldReduction" />
+                %.
+            </>,
             image: <ExampleIcon />,
         },
         relocateSystem: {
@@ -146,7 +163,11 @@ function loadCardDefinitions() {
         },
         relocateHere: {
             name: 'Relocate Here',
-            description: <><Trait type="expendable" /> Swap the marked system with the targeted system.</>,
+            description: <>
+                <Trait type="expendable" />
+                {' '}
+                Swap the marked system with the targeted system.
+            </>,
             image: <ExampleIcon />,
         },
         sustain: {
@@ -156,17 +177,50 @@ function loadCardDefinitions() {
         },
         distributePower: {
             name: 'Distribute Power',
-            description: <>Reduce a system's power by <Parameter name="powerChange" /> per adjacent system, increasing the power of each adjacent system by <Parameter name="powerChange" /> for <Parameter name="duration" /> seconds.</>,
+            description: <>
+                Reduce a system's power by
+                <Parameter name="powerChange" />
+                {' '}
+                per adjacent system, increasing the power of each adjacent system by
+                <Parameter name="powerChange" />
+                {' '}
+                for
+                <Parameter name="duration" />
+                {' '}
+                seconds.
+            </>,
             image: <ExampleIcon />,
         },
         drawPower: {
             name: 'Draw Power',
-            description: <>Increase a system's power by <Parameter name="powerChange" /> per adjacent system, decreasing the power of each adjacent system by <Parameter name="powerChange" /> for <Parameter name="duration" /> seconds.</>,
+            description: <>
+                Increase a system's power by
+                <Parameter name="powerChange" />
+                {' '}
+                per adjacent system, decreasing the power of each adjacent system by
+                <Parameter name="powerChange" />
+                {' '}
+                for
+                <Parameter name="duration" />
+                {' '}
+                seconds.
+            </>,
             image: <ExampleIcon />,
         },
         divertAllPower: {
             name: 'Divert All Power',
-            description: <>All other systems lose <Parameter name="lossPerSystem" /> power for <Parameter name="duration" /> seconds. Target system gains <Parameter name="targetGain" /> power.</>,
+            description: <>
+                All other systems lose
+                <Parameter name="lossPerSystem" />
+                {' '}
+                power for
+                <Parameter name="duration" />
+                {' '}
+                seconds. Target system gains
+                <Parameter name="targetGain" />
+                {' '}
+                power.
+            </>,
             image: <ExampleIcon />,
         },
         divertSystemPower: {
@@ -176,22 +230,51 @@ function loadCardDefinitions() {
         },
         divertHelm: {
             name: 'Divert Helm',
-            description: <>Reduce helm power by up to <Parameter name="maxAmount" />, increasing target system power by the same amount for <Parameter name="duration" /> seconds.</>,
+            description: <>
+                Reduce helm power by up to
+                <Parameter name="maxAmount" />
+                , increasing target system power by the same amount for
+                <Parameter name="duration" />
+                {' '}
+                seconds.
+            </>,
             image: <ExampleIcon />,
         },
         divertSensors: {
             name: 'Divert Sensors',
-            description: <>Reduce sensors power by up to <Parameter name="maxAmount" />, increasing target system power by the same amount for <Parameter name="duration" /> seconds.</>,
+            description: <>
+                Reduce sensors power by up to
+                <Parameter name="maxAmount" />
+                , increasing target system power by the same amount for
+                <Parameter name="duration" />
+                {' '}
+                seconds.
+            </>,
             image: <ExampleIcon />,
         },
         divertTactical: {
             name: 'Divert Tactical',
-            description: <>Reduce tactical power by up to <Parameter name="maxAmount" />, increasing target system power by the same amount for <Parameter name="duration" /> seconds.</>,
+            description: <>
+                Reduce tactical power by up to
+                <Parameter name="maxAmount" />
+                , increasing target system power by the same amount for
+                <Parameter name="duration" />
+                {' '}
+                seconds.
+            </>,
             image: <ExampleIcon />,
         },
         overcharge: {
             name: 'Overcharge',
-            description: <>Target system gains <Parameter name="powerGain" /> power for <Parameter name="duration" /> seconds, but takes damage every second for the duration.</>,
+            description: <>
+                Target system gains
+                <Parameter name="powerGain" />
+                {' '}
+                power for
+                <Parameter name="duration" />
+                {' '}
+                seconds, but takes damage every second for the duration.
+            </>,
             image: <ExampleIcon />,
         },
         shunt: {
@@ -201,7 +284,12 @@ function loadCardDefinitions() {
         },
         generationPriority: {
             name: 'Generation Priority',
-            description: <>For <Parameter name="duration" /> seconds, the targeted system generates after any other system generates.</>,
+            description: <>
+                For
+                <Parameter name="duration" />
+                {' '}
+                seconds, the targeted system generates after any other system generates.
+            </>,
             image: <ExampleIcon />,
         },
     };

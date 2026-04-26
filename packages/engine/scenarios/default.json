@@ -33,7 +33,7 @@
             "maxHealth": 100
         },
         "tactical": {
-            "cards": ["exampleWeaponSlotTarget", "exampleWeaponTarget", "exampleEnemyTarget", "exampleNoTarget", "exampleWeaponSlotTarget", "exampleWeaponTarget", "exampleEnemyTarget", "exampleNoTarget"],
+            "cards": ["phaserStrip", "", "exampleEnemyTarget", "exampleNoTarget", "phaserCannon", "exampleWeaponTarget", "exampleEnemyTarget", "exampleNoTarget"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1,
@@ -86,7 +86,7 @@
                         "maxHealth": 3
                     },
                     "tactical": {
-                        "cards": ["exampleWeaponSlotTarget", "exampleEnemyTarget", "exampleNoTarget"],
+                        "cards": ["phaserStrip", "exampleEnemyTarget", "exampleNoTarget"],
                         "initialPowerLevel": 2,
                         "maxPowerLevel": 2,
                         "initialHandSize": 1,

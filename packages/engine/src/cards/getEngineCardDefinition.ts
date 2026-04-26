@@ -102,11 +102,6 @@ function loadCardDefinitions() {
                 console.log('played exampleWeaponTarget'); return true;
             },
         },
-        exampleWeaponSlotTarget: {
-            play: (_gameState, _ship, _slot) => {
-                console.log('played exampleWeaponSlotTarget'); return true;
-            },
-        },
         exampleEnemyTarget: {
             play: (_gameState, _ship, _targetId) => {
                 console.log('played exampleEnemyTarget'); return true;

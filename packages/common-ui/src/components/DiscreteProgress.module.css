@@ -1,0 +1,21 @@
+.progress {
+	display: flex;
+	align-items: stretch;
+    justify-content: space-between;
+    min-height: 1em;
+}
+
+.block {
+    flex: 1;
+	border-radius: 0.25em;
+    corner-shape: squircle;
+	background: var(--energy-dark);
+
+    &:not(:last-child) {
+        margin-right: 0.5em;
+    }
+}
+
+.blockActive {
+	background: var(--energy-light);
+}
