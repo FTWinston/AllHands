@@ -4,6 +4,7 @@ import styles from './DiscreteProgress.module.css';
 
 export type Props = {
     className?: string;
+    vertical?: boolean;
     value: number;
     maxValue: number;
     title: string;
@@ -15,7 +16,7 @@ export const DiscreteProgress: FC<Props> = (props) => {
 
     return (
         <div
-            className={classNames(styles.progress, props.className)}
+            className={classNames(styles.progress, props.vertical ? styles.vertical : undefined, props.className)}
             role="progressbar"
             aria-valuemin={0}
             aria-valuemax={props.maxValue}

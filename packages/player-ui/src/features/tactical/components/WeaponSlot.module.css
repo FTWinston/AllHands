@@ -1,15 +1,15 @@
 .weaponSlot {
-    background-color: var(--color-dark);
-    padding: 0.125em;
+    background-color: var(--color-darkest);
+    padding: 0.125em 0.25em 0.125em 0.125em;
     border-radius: 0.75em;
     corner-shape: squircle;
-    border: solid 0.1em var(--color-dark);
+    border: solid 0.1em var(--color-mid);
     display: grid;
-    grid-template-columns: auto auto;
-    grid-template-rows: 1.5em auto;
+    grid-template-columns: auto 2.5em;
+    grid-template-rows: 1fr 1fr;
     grid-template-areas:
-        "card name"
-        "card content";
+        "card status"
+        "card progress";
     justify-content: space-evenly;
     gap: 0.25em;
 
@@ -18,26 +18,6 @@
     }
 
     transition: transform 0.333s ease;
-}
-
-.slotName {
-    text-align: center;
-    grid-area: name;
-    color: var(--color-lightest);
-    text-transform: uppercase;
-}
-
-.content {
-    grid-area: content;
-    background-color: var(--color-darkest);
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5em;
-    padding: 0.25em 0.5em 0.125em 0.5em;
-    border-radius: 0.5em;
-    corner-shape: squircle;
-    width: 25vw;
 }
 
 .cardWrapper {
@@ -75,36 +55,20 @@
 
 .statusIndicator {
     grid-area: status;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.1em;
     font-weight: bold;
     text-transform: uppercase;
     overflow: hidden;
     padding: 0.33em;
-    margin: 0 -0.25em;
     color: var(--color-darkest);
     background-color: var(--color-light);
-}
-
-.primeTitle {
-    text-align: center;
-    color: var(--primary-lightest);
-    margin-bottom: -0.875em;
-    font-size: 0.875em;
-    text-transform: uppercase;
-}
-
-.primeEffect {
-    font-size: 1em;
-    line-height: 1.15em;
-    text-align: center;
-    color: var(--primary-lightest);
-    text-overflow: ellipsis;
-    overflow: hidden;
-    max-height: 2.5em;
+    writing-mode: sideways-lr;
 }
 
 .progress {
-    height: 1.5em;
+    grid-area: progress;
+    justify-self: stretch;
+    margin-bottom: 0.125em;
 }
 
 .dischargeProgress {

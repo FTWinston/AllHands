@@ -3,6 +3,19 @@
 	align-items: stretch;
     justify-content: space-between;
     min-height: 1em;
+
+    &:not(.vertical) > :not(:last-child) {
+        margin-right: 0.333em;
+    }
+}
+
+.vertical {
+    flex-direction: column-reverse;
+    min-width: 1em;
+    
+    > :not(:last-child) {
+        margin-top: 0.333em;
+    }
 }
 
 .block {
@@ -10,10 +23,6 @@
 	border-radius: 0.25em;
     corner-shape: squircle;
 	background: var(--energy-dark);
-
-    &:not(:last-child) {
-        margin-right: 0.5em;
-    }
 }
 
 .blockActive {

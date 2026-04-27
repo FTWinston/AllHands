@@ -36,6 +36,7 @@ export const WithCard: Story = {
     args: {
         name: 'Weapon 2',
         weapon: {
+            primed: false,
             charge: 0,
             card: {
                 id: 5,
@@ -49,12 +50,12 @@ export const Primed: Story = {
     args: {
         name: 'Weapon 2',
         weapon: {
+            primed: true,
             charge: 1,
             card: {
                 id: 5,
                 type: 'phaserStrip',
             },
-            prime: 'exampleWeaponTarget',
             discharge: {
                 startTime: Date.now(),
                 endTime: Date.now() + 10000,
@@ -67,12 +68,12 @@ export const Charged: Story = {
     args: {
         name: 'Weapon 2',
         weapon: {
+            primed: true,
             charge: 4,
             card: {
                 id: 5,
                 type: 'phaserStrip',
             },
-            prime: 'exampleWeaponTarget',
             discharge: {
                 startTime: Date.now(),
                 endTime: Date.now() + 10000,
@@ -85,13 +86,13 @@ export const CantFire: Story = {
     args: {
         name: 'Weapon 2',
         weapon: {
+            primed: true,
             charge: 4,
             noFireReason: 'range',
             card: {
                 id: 5,
                 type: 'phaserStrip',
             },
-            prime: 'exampleWeaponTarget',
             discharge: {
                 startTime: Date.now(),
                 endTime: Date.now() + 10000,

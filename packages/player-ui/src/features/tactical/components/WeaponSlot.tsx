@@ -1,5 +1,4 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
-import { WeaponTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { Cooldown } from 'common-data/types/Cooldown';
 import colorPalletes from 'common-ui/ColorPalette.module.css';
 import { DiscreteProgress } from 'common-ui/components/DiscreteProgress';
@@ -19,7 +18,7 @@ type WeaponProps = {
     charge: number;
     discharge?: Cooldown | null;
     noFireReason?: string | null;
-    prime?: WeaponTargetedCardType | null;
+    primed: boolean;
 };
 
 export type SlotProps = {
@@ -119,7 +118,7 @@ export const WeaponSlot = (props: Props) => {
     let description;
 
     if (maxCharge) {
-        if (!props.weapon?.charge) {
+        if (!props.weapon?.primed) {
             statusText = 'prime';
             mainPallete = 'primary';
             statusPallete = 'energy';
@@ -128,6 +127,7 @@ export const WeaponSlot = (props: Props) => {
         } else if (props.weapon.charge < maxCharge) {
             statusText = 'charge';
             mainPallete = 'primary';
+            statusPallete = 'energy';
             statusHeading = 'Charging weapon';
             description = <>Drag non-weapon cards onto this slot to charge it.</>;
         } else if (props.weapon.noFireReason) {
@@ -162,28 +162,24 @@ export const WeaponSlot = (props: Props) => {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <div className={styles.slotName}>{props.name}</div>
             {getCardWrapper(props, isFullyCharged, isFocused, isHovered, cardRef)}
-            <div className={styles.content}>
-                <InfoPopup
-                    className={classNames(styles.statusIndicator, colorPalletes[statusPallete ?? ''])}
-                    name={statusHeading}
-                    description={description}
-                    palette={mainPallete}
-                >
-                    {statusText}
-                </InfoPopup>
 
-                <DiscreteProgress
-                    className={styles.progress}
-                    title="Charge progress"
-                    value={props.weapon?.charge ?? 0}
-                    maxValue={props.weapon?.card ? getCardDefinition(props.weapon.card.type).cost : 0}
-                />
+            <InfoPopup
+                className={classNames(styles.statusIndicator, colorPalletes[statusPallete ?? ''])}
+                name={statusHeading}
+                description={description}
+                palette={mainPallete}
+            >
+                {statusText}
+            </InfoPopup>
 
-                {props.weapon?.prime && <div className={styles.primeTitle}>Prime</div>}
-                {props.weapon?.prime && <div className={styles.primeEffect}>{getCardDefinition(props.weapon.prime).name}</div>}
-            </div>
+            <DiscreteProgress
+                className={styles.progress}
+                title="Charge progress"
+                value={props.weapon?.charge ?? 0}
+                maxValue={props.weapon?.card ? getCardDefinition(props.weapon.card.type).cost : 0}
+                vertical={true}
+            />
         </CardDropTarget>
     );
 };
