@@ -127,7 +127,6 @@ export const WeaponSlot = (props: Props) => {
         } else if (props.weapon.charge < maxCharge) {
             statusText = 'charge';
             mainPallete = 'primary';
-            statusPallete = 'energy';
             statusHeading = 'Charging weapon';
             description = <>Drag non-weapon cards onto this slot to charge it.</>;
         } else if (props.weapon.noFireReason) {

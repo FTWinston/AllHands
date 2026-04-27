@@ -1,4 +1,3 @@
-import { WeaponTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
