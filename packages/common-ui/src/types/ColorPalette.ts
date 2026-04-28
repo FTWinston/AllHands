@@ -1,1 +1,1 @@
-export type ColorPalette = 'primary' | 'danger' | 'good' | 'energy' | 'gray';
+export type ColorPalette = 'primary' | 'danger' | 'good' | 'energy' | 'grey';

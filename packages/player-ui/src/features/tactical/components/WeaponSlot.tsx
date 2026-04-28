@@ -8,7 +8,7 @@ import { CardBase } from 'common-ui/features/cards/components/CardBase';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { ColorPalette } from 'common-ui/types/ColorPalette';
 import { classNames } from 'common-ui/utils/classNames';
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useRef, useState } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { DraggableCard } from 'src/features/cardui/components/DraggableCard';
 import styles from './WeaponSlot.module.css';
@@ -30,7 +30,7 @@ type Props = SlotProps & {
     onFired: () => void;
 };
 
-function getCardWrapper(props: Props, fullyCharged: boolean, isFocused: boolean, isHovered: boolean, cardRef: RefObject<HTMLDivElement | null>) {
+function getCardWrapper(props: Props, fullyCharged: boolean, isHovered: boolean, cardRef: RefObject<HTMLDivElement | null>) {
     if (!props.weapon) {
         return (
             <CardDropTarget
@@ -47,14 +47,13 @@ function getCardWrapper(props: Props, fullyCharged: boolean, isFocused: boolean,
 
     if (!fullyCharged) {
         return (
-            <div ref={cardRef} className={classNames(styles.cardWrapper, isFocused ? styles.cardExpanded : null)}>
+            <div ref={cardRef} className={styles.cardWrapper}>
                 <Card
                     className={styles.card}
                     {...props.weapon.card}
                     slotted={true}
                     disabled={true}
                     highlighted={isHovered}
-                    showTraits={isFocused}
                 />
             </div>
         );
@@ -70,10 +69,10 @@ function getCardWrapper(props: Props, fullyCharged: boolean, isFocused: boolean,
                     highlighted={true}
                 />
             </div>
-            <div ref={cardRef} className={classNames(styles.cardWrapper, isFocused ? styles.cardExpanded : null)}>
+            <div ref={cardRef} className={styles.cardWrapper}>
                 <DraggableCard
                     index={0}
-                    className={classNames(styles.card)}
+                    className={classNames(styles.card, styles.cardExpanded)}
                     {...props.weapon.card}
                     availablePower={0}
                     targetType="enemy"
@@ -86,33 +85,15 @@ function getCardWrapper(props: Props, fullyCharged: boolean, isFocused: boolean,
 }
 
 export const WeaponSlot = (props: Props) => {
-    const [isFocused, setIsFocused] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        setIsFocused(false);
-    }, [props.weapon?.card]);
-
-    const handleFocus = () => {
-        const card = cardRef.current;
-        if (card) {
-            const slot = card.closest(`.${styles.weaponSlot}`);
-            if (slot) {
-                const slotRect = slot.getBoundingClientRect();
-                const cardRect = card.getBoundingClientRect();
-                card.style.setProperty('--translate-x', `${slotRect.left - cardRect.left}px`);
-                card.style.setProperty('--translate-y', `${slotRect.top - cardRect.top}px`);
-            }
-        }
-        setIsFocused(true);
-    };
 
     const maxCharge = props.weapon?.card ? getCardDefinition(props.weapon.card.type).cost : 0;
     const isFullyCharged = props.weapon ? props.weapon.charge >= maxCharge : false;
 
     let statusText: string;
     let mainPallete: ColorPalette | undefined;
+    let statusDisabled = false;
     let statusPallete: ColorPalette | undefined;
     let statusHeading;
     let description;
@@ -143,7 +124,7 @@ export const WeaponSlot = (props: Props) => {
     } else {
         statusText = 'empty';
         mainPallete = 'primary';
-        statusPallete = 'gray';
+        statusDisabled = true;
         statusHeading = 'Empty weapon slot';
         description = <>Drag a weapon card into this slot to equip it.</>;
     }
@@ -155,30 +136,30 @@ export const WeaponSlot = (props: Props) => {
             targetType="weapon"
             id={props.name}
             disabled={!props.weapon}
-            tabIndex={0}
-            onFocus={handleFocus}
-            onBlur={() => setIsFocused(false)}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            {getCardWrapper(props, isFullyCharged, isFocused, isHovered, cardRef)}
+            {getCardWrapper(props, isFullyCharged, isHovered, cardRef)}
 
-            <InfoPopup
-                className={classNames(styles.statusIndicator, colorPalletes[statusPallete ?? ''])}
-                name={statusHeading}
-                description={description}
-                palette={mainPallete}
-            >
-                {statusText}
-            </InfoPopup>
+            <div className={styles.content}>
 
-            <DiscreteProgress
-                className={styles.progress}
-                title="Charge progress"
-                value={props.weapon?.charge ?? 0}
-                maxValue={props.weapon?.card ? getCardDefinition(props.weapon.card.type).cost : 0}
-                vertical={true}
-            />
+                <InfoPopup
+                    className={classNames(styles.statusIndicator, statusDisabled ? styles.statusDisabled : null, colorPalletes[statusPallete ?? ''])}
+                    name={statusHeading}
+                    description={description}
+                    palette={mainPallete}
+                >
+                    {statusText}
+                </InfoPopup>
+
+                <DiscreteProgress
+                    className={styles.progress}
+                    title="Charge progress"
+                    value={props.weapon?.charge ?? 0}
+                    maxValue={props.weapon?.card ? getCardDefinition(props.weapon.card.type).cost : 0}
+                    vertical={true}
+                />
+            </div>
         </CardDropTarget>
     );
 };

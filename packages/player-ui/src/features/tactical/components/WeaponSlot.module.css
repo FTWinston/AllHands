@@ -1,21 +1,15 @@
 .weaponSlot {
-    background-color: var(--color-darkest);
-    padding: 0.125em 0.25em 0.125em 0.125em;
+    background-color: var(--color-mid);
+    padding: 0.125em;
     border-radius: 0.75em;
     corner-shape: squircle;
     border: solid 0.1em var(--color-mid);
     display: grid;
     grid-template-columns: auto 2.5em;
-    grid-template-rows: 1fr 1fr;
     grid-template-areas:
-        "card status"
-        "card progress";
+        "card content";
     justify-content: space-evenly;
     gap: 0.25em;
-
-    .discardButton {
-        padding: 0.5em 0;
-    }
 
     transition: transform 0.333s ease;
 }
@@ -26,11 +20,14 @@
     position: relative;
     corner-shape: squircle;
     border-radius: 1.5em;
+}
+
+.card {
     transition: transform 0.33s ease-in-out;
     transform-origin: top left;
 }
 
-.cardExpanded {
+.cardExpanded:focus {
     transform: translate(var(--translate-x, 0px), var(--translate-y, 0px)) scale(1.5);
     z-index: 10;
 }
@@ -53,8 +50,20 @@
     color: var(--grey-light);
 }
 
+.content {
+    grid-area: content;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    padding: 0.125em;
+    background-color: var(--color-darkest);
+    corner-shape: squircle;
+    border-radius: 1em;
+}
+
 .statusIndicator {
-    grid-area: status;
+    flex-basis: 0;
+    flex-grow: 1;
     letter-spacing: 0.1em;
     font-weight: bold;
     text-transform: uppercase;
@@ -63,12 +72,20 @@
     color: var(--color-darkest);
     background-color: var(--color-light);
     writing-mode: sideways-lr;
+    transition: background-color 0.333s ease, color 0.333s ease;
+}
+
+.statusDisabled {
+    color: var(--color-light);
+    background-color: var(--color-darkest);
+    border-color: var(--color-darkest);
 }
 
 .progress {
-    grid-area: progress;
+    flex-basis: 0;
+    flex-grow: 1;
     justify-self: stretch;
-    margin-bottom: 0.125em;
+    padding: 0 0.125em 0.125em 0.125em;
 }
 
 .dischargeProgress {
