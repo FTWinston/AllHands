@@ -27,7 +27,7 @@ export class CardState extends Schema implements CardInstance {
 
         const current = this.modifiers.get(parameter) || 0;
         const adjusted = current + adjustment;
-        
+
         if (adjusted === 0) {
             this.modifiers.delete(parameter);
         } else {

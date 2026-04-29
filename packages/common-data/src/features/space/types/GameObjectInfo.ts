@@ -77,6 +77,10 @@ export interface CrewSystemSetupInfo extends SystemSetupInfo {
     initialHandSize: number;
 }
 
+export interface TacticalSystemSetupInfo extends CrewSystemSetupInfo {
+    numSlots: number;
+}
+
 export interface GameObjectSetupInfo {
     appearance: ObjectAppearance;
     relationship: RelationshipType;
@@ -88,7 +92,7 @@ export interface ShipSetupInfo extends GameObjectSetupInfo {
     reactor: SystemSetupInfo;
     helm: CrewSystemSetupInfo;
     sensors: CrewSystemSetupInfo;
-    tactical: CrewSystemSetupInfo;
+    tactical: TacticalSystemSetupInfo;
     engineer: CrewSystemSetupInfo;
 }
 
@@ -108,10 +112,12 @@ export interface AiSystemSetupInfo extends CrewSystemSetupInfo {
     preferenceMultiplier?: number;
 }
 
+export type AiTacticalSetupInfo = AiSystemSetupInfo & TacticalSystemSetupInfo;
+
 export interface AiShipSetupInfo extends ShipSetupInfo {
     helm: AiSystemSetupInfo;
     sensors: AiSystemSetupInfo;
-    tactical: AiSystemSetupInfo;
+    tactical: AiTacticalSetupInfo;
     engineer: AiSystemSetupInfo;
 
     /**

@@ -33,6 +33,7 @@
             "maxHealth": 100
         },
         "tactical": {
+            "numSlots": 2,
             "cards": ["phaserStrip", "exampleEnemyTarget", "exampleNoTarget", "phaserCannon", "exampleWeaponTarget", "exampleEnemyTarget", "exampleNoTarget"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
