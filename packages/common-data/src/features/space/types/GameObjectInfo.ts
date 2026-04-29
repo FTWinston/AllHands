@@ -33,6 +33,17 @@ export interface HelmSystemInfo extends CrewSystemInfo {
     activeManeuver: CardCooldown | null;
 }
 
+export interface WeaponSlotInfo {
+    card: CardInstance | null;
+    charge: number;
+    noFireReason: string | null;
+    primed: boolean;
+}
+
+export interface TacticalSystemInfo extends CrewSystemInfo {
+    slots: MinimalReadonlyArray<WeaponSlotInfo>;
+}
+
 export interface EngineerSystemTileInfo {
     system: ShipSystem;
     power: number;

@@ -13,17 +13,13 @@ import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { DraggableCard } from 'src/features/cardui/components/DraggableCard';
 import styles from './WeaponSlot.module.css';
 
-type WeaponProps = {
-    card: CardInstance;
+export type SlotProps = {
+    name: string;
+    card?: CardInstance | null;
     charge: number;
     discharge?: Cooldown | null;
     noFireReason?: string | null;
     primed: boolean;
-};
-
-export type SlotProps = {
-    name: string;
-    weapon: WeaponProps | null;
 };
 
 type Props = SlotProps & {
@@ -31,7 +27,7 @@ type Props = SlotProps & {
 };
 
 function getCardWrapper(props: Props, fullyCharged: boolean, isHovered: boolean, cardRef: RefObject<HTMLDivElement | null>) {
-    if (!props.weapon) {
+    if (!props.card) {
         return (
             <CardDropTarget
                 className={styles.cardWrapper}
@@ -45,26 +41,12 @@ function getCardWrapper(props: Props, fullyCharged: boolean, isHovered: boolean,
         );
     }
 
-    if (!fullyCharged) {
-        return (
-            <div ref={cardRef} className={styles.cardWrapper}>
-                <Card
-                    className={styles.card}
-                    {...props.weapon.card}
-                    slotted={true}
-                    disabled={true}
-                    highlighted={isHovered}
-                />
-            </div>
-        );
-    }
-
     return (
         <>
             <div className={styles.cardWrapper}>
                 <Card
                     className={styles.card}
-                    {...props.weapon.card}
+                    {...props.card}
                     slotted={true}
                     highlighted={true}
                 />
@@ -72,8 +54,8 @@ function getCardWrapper(props: Props, fullyCharged: boolean, isHovered: boolean,
             <div ref={cardRef} className={styles.cardWrapper}>
                 <DraggableCard
                     index={0}
-                    className={classNames(styles.card, styles.cardExpanded)}
-                    {...props.weapon.card}
+                    className={classNames(styles.card, styles.actualCard, fullyCharged ? styles.chargedCard : null)}
+                    {...props.card}
                     availablePower={0}
                     targetType="enemy"
                     slotted={true}
@@ -88,8 +70,8 @@ export const WeaponSlot = (props: Props) => {
     const [isHovered, setIsHovered] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
 
-    const maxCharge = props.weapon?.card ? getCardDefinition(props.weapon.card.type).cost : 0;
-    const isFullyCharged = props.weapon ? props.weapon.charge >= maxCharge : false;
+    const maxCharge = props.card ? getCardDefinition(props.card.type).cost : 0;
+    const isFullyCharged = props.card ? props.charge >= maxCharge : false;
 
     let statusText: string;
     let mainPallete: ColorPalette | undefined;
@@ -99,19 +81,19 @@ export const WeaponSlot = (props: Props) => {
     let description;
 
     if (maxCharge) {
-        if (!props.weapon?.primed) {
+        if (!props.primed) {
             statusText = 'prime';
             mainPallete = 'primary';
             statusPallete = 'energy';
             statusHeading = 'Unprimed weapon';
             description = <>Drag a non-weapon card onto this slot to prime it with that card's prime effect.</>;
-        } else if (props.weapon.charge < maxCharge) {
+        } else if (props.charge < maxCharge) {
             statusText = 'charge';
             mainPallete = 'primary';
             statusHeading = 'Charging weapon';
             description = <>Drag non-weapon cards onto this slot to charge it.</>;
-        } else if (props.weapon.noFireReason) {
-            statusText = props.weapon.noFireReason;
+        } else if (props.noFireReason) {
+            statusText = props.noFireReason;
             mainPallete = 'danger';
             statusHeading = 'Blocked weapon';
             description = <>Weapon is ready, but unable to fire at this enemy.</>;
@@ -135,31 +117,28 @@ export const WeaponSlot = (props: Props) => {
             className={classNames(styles.weaponSlot, colorPalletes[mainPallete], isFullyCharged ? null : styles.recharging)}
             targetType="weapon"
             id={props.name}
-            disabled={!props.weapon}
+            disabled={!props.card}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
             {getCardWrapper(props, isFullyCharged, isHovered, cardRef)}
 
-            <div className={styles.content}>
+            <InfoPopup
+                className={classNames(styles.statusIndicator, statusDisabled ? styles.statusDisabled : null, colorPalletes[statusPallete ?? ''])}
+                name={statusHeading}
+                description={description}
+                palette={mainPallete}
+            >
+                {statusText}
+            </InfoPopup>
 
-                <InfoPopup
-                    className={classNames(styles.statusIndicator, statusDisabled ? styles.statusDisabled : null, colorPalletes[statusPallete ?? ''])}
-                    name={statusHeading}
-                    description={description}
-                    palette={mainPallete}
-                >
-                    {statusText}
-                </InfoPopup>
-
-                <DiscreteProgress
-                    className={styles.progress}
-                    title="Charge progress"
-                    value={props.weapon?.charge ?? 0}
-                    maxValue={props.weapon?.card ? getCardDefinition(props.weapon.card.type).cost : 0}
-                    vertical={true}
-                />
-            </div>
+            <DiscreteProgress
+                className={styles.progress}
+                title="Charge progress"
+                value={props.charge ?? 0}
+                maxValue={props.card ? getCardDefinition(props.card.type).cost : 0}
+                vertical={true}
+            />
         </CardDropTarget>
     );
 };

@@ -12,6 +12,7 @@ import { MobileObject } from './MobileObject';
 import { MotionKeyframe } from './MotionKeyframe';
 import { ReactorSystemState } from './ReactorSystemState';
 import { SystemState } from './SystemState';
+import { TacticalState } from './TacticalState';
 
 @entity
 export abstract class Ship extends MobileObject implements ShipInfo {
@@ -30,7 +31,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this.reactorState = new ReactorSystemState(setup.reactor, gameState, this);
         this.helmState = new HelmState(setup.helm, gameState, this, getCardId);
         this.sensorState = new CrewSystemState(setup.sensors, gameState, this, getCardId);
-        this.tacticalState = new CrewSystemState(setup.tactical, gameState, this, getCardId);
+        this.tacticalState = new TacticalState(setup.tactical, gameState, this, getCardId);
         this.engineerState = new EngineerState(setup.engineer, gameState, this, getCardId);
 
         this.engineerState.initSystems();
@@ -55,7 +56,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     reactorState: ReactorSystemState;
     @view(helmClientRole) @type(HelmState) helmState: HelmState;
     @view(sensorClientRole) @type(CrewSystemState) sensorState: CrewSystemState;
-    @view(tacticalClientRole) @type(CrewSystemState) tacticalState: CrewSystemState;
+    @view(tacticalClientRole) @type(TacticalState) tacticalState: TacticalState;
     @view(engineerClientRole) @type(EngineerState) engineerState: EngineerState;
 
     private systems: ReadonlyMap<ShipSystem, SystemState>;

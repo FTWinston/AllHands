@@ -67,12 +67,8 @@ const meta: Meta<typeof Component> = {
                         if (cardCost) {
                             setSlots(prevSlots => prevSlots.map(slot => slot.name === targetId ? {
                                 ...slot,
-                                weapon: slot.weapon
-                                    ? {
-                                        ...slot.weapon,
-                                        charge: slot.weapon.charge + cardCost,
-                                        primed: slot.weapon.primed,
-                                    } : null,
+                                charge: slot.charge + cardCost,
+                                primed: slot.primed,
                             } : slot));
                         }
                     }
@@ -80,7 +76,7 @@ const meta: Meta<typeof Component> = {
                 slots={slots}
                 slotFired={(slotIndex) => {
                     console.log(`fired slot ${slotIndex}`);
-                    setSlots(prevSlots => prevSlots.map((slot, index) => index === slotIndex && slot.weapon ? { ...slot, costToReactivate: getCardDefinition(slot.weapon.card.type).cost } : slot));
+                    setSlots(prevSlots => prevSlots.map((slot, index) => index === slotIndex && slot.card ? { ...slot, costToReactivate: getCardDefinition(slot.card.type).cost } : slot));
                 }}
             />
         );
@@ -113,21 +109,21 @@ export const UI: Story = {
         slots: [
             {
                 name: 'Weapon 1',
-                weapon: null,
+                card: null,
+                charge: 0,
+                primed: false,
             },
             {
                 name: 'Weapon 2',
-                weapon: {
-                    primed: false,
-                    charge: 0,
-                    card: {
-                        id: 5,
-                        type: 'phaserStrip',
-                    },
-                    discharge: {
-                        startTime: Date.now(),
-                        endTime: Date.now() + 10000,
-                    },
+                primed: false,
+                charge: 0,
+                card: {
+                    id: 5,
+                    type: 'phaserStrip',
+                },
+                discharge: {
+                    startTime: Date.now(),
+                    endTime: Date.now() + 10000,
                 },
             },
         ],

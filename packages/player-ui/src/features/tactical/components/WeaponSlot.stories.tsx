@@ -28,20 +28,18 @@ type Story = StoryObj<typeof meta>;
 export const Empty: Story = {
     args: {
         name: 'Weapon 1',
-        weapon: null,
+        card: null,
     },
 };
 
 export const WithCard: Story = {
     args: {
         name: 'Weapon 2',
-        weapon: {
-            primed: false,
-            charge: 0,
-            card: {
-                id: 5,
-                type: 'phaserStrip',
-            },
+        primed: false,
+        charge: 0,
+        card: {
+            id: 5,
+            type: 'phaserStrip',
         },
     },
 };
@@ -49,17 +47,15 @@ export const WithCard: Story = {
 export const Primed: Story = {
     args: {
         name: 'Weapon 2',
-        weapon: {
-            primed: true,
-            charge: 1,
-            card: {
-                id: 5,
-                type: 'phaserStrip',
-            },
-            discharge: {
-                startTime: Date.now(),
-                endTime: Date.now() + 10000,
-            },
+        primed: true,
+        charge: 1,
+        card: {
+            id: 5,
+            type: 'phaserStrip',
+        },
+        discharge: {
+            startTime: Date.now(),
+            endTime: Date.now() + 10000,
         },
     },
 };
@@ -67,17 +63,15 @@ export const Primed: Story = {
 export const Charged: Story = {
     args: {
         name: 'Weapon 2',
-        weapon: {
-            primed: true,
-            charge: 4,
-            card: {
-                id: 5,
-                type: 'phaserStrip',
-            },
-            discharge: {
-                startTime: Date.now(),
-                endTime: Date.now() + 10000,
-            },
+        primed: true,
+        charge: 4,
+        card: {
+            id: 5,
+            type: 'phaserStrip',
+        },
+        discharge: {
+            startTime: Date.now(),
+            endTime: Date.now() + 10000,
         },
     },
 };
@@ -85,18 +79,16 @@ export const Charged: Story = {
 export const CantFire: Story = {
     args: {
         name: 'Weapon 2',
-        weapon: {
-            primed: true,
-            charge: 4,
-            noFireReason: 'range',
-            card: {
-                id: 5,
-                type: 'phaserStrip',
-            },
-            discharge: {
-                startTime: Date.now(),
-                endTime: Date.now() + 10000,
-            },
+        primed: true,
+        charge: 4,
+        noFireReason: 'range',
+        card: {
+            id: 5,
+            type: 'phaserStrip',
+        },
+        discharge: {
+            startTime: Date.now(),
+            endTime: Date.now() + 10000,
         },
     },
 };

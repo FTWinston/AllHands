@@ -5,9 +5,11 @@
     corner-shape: squircle;
     border: solid 0.1em var(--color-mid);
     display: grid;
-    grid-template-columns: auto 2.5em;
+    grid-template-columns: auto 1.5em;
+    grid-template-rows: auto 2.5em;
     grid-template-areas:
-        "card content";
+        "card progress"
+        "status progress";
     justify-content: space-evenly;
     gap: 0.25em;
 
@@ -27,8 +29,13 @@
     transform-origin: top left;
 }
 
-.cardExpanded:focus {
-    transform: translate(var(--translate-x, 0px), var(--translate-y, 0px)) scale(1.5);
+/* TOOD: cards should have a built in way of highlighting themselves */
+.chargedCard > * {
+    border-color: var(--color-light);
+}
+
+.actualCard:focus {
+    transform: scale(1.5);
     z-index: 10;
 }
 
@@ -37,6 +44,7 @@
     align-items: center;
     justify-content: center;
     border: solid var(--color-mid) 0.1em;
+    background-color: var(--primary-darkest);
 }
 
 .noCardLabel {
@@ -50,18 +58,8 @@
     color: var(--grey-light);
 }
 
-.content {
-    grid-area: content;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25em;
-    padding: 0.125em;
-    background-color: var(--color-darkest);
-    corner-shape: squircle;
-    border-radius: 1em;
-}
-
 .statusIndicator {
+    grid-area: status;
     flex-basis: 0;
     flex-grow: 1;
     letter-spacing: 0.1em;
@@ -71,7 +69,6 @@
     padding: 0.33em;
     color: var(--color-darkest);
     background-color: var(--color-light);
-    writing-mode: sideways-lr;
     transition: background-color 0.333s ease, color 0.333s ease;
 }
 
@@ -82,10 +79,28 @@
 }
 
 .progress {
+    grid-area: progress;
     flex-basis: 0;
     flex-grow: 1;
     justify-self: stretch;
-    padding: 0 0.125em 0.125em 0.125em;
+    padding: 0.125em;
+    background-color: var(--color-darkest);
+    corner-shape: squircle;
+    border-radius: 1em;
+
+    > :first-child {
+        corner-bottom-left-shape: squircle;
+        corner-bottom-right-shape: squircle;
+        border-bottom-left-radius: 1em;
+        border-bottom-right-radius: 1em;
+    }
+
+    > :last-child {
+        corner-top-left-shape: squircle;
+        corner-top-right-shape: squircle;
+        border-top-left-radius: 1em;
+        border-top-right-radius: 1em;
+    }
 }
 
 .dischargeProgress {
