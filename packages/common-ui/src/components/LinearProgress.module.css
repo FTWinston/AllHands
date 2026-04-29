@@ -1,0 +1,47 @@
+.progress {
+    flex-grow: 1;
+}
+
+.up,
+.down {
+    width: 0.5em;
+    min-height: 1em;
+}
+
+.up {
+    background: linear-gradient(
+        to top,
+        currentColor calc(var(--fraction) * 100%),
+        transparent 0
+    );
+}
+
+.down {
+    background: linear-gradient(
+        to bottom,
+        currentColor calc(var(--fraction) * 100%),
+        transparent 0
+    );
+}
+
+.left,
+.right {
+    height: 0.5em;
+    min-width: 1em;
+}
+
+.left {
+    background: linear-gradient(
+        to left,
+        currentColor calc(var(--fraction) * 100%),
+        transparent 0
+    );
+}
+
+.right {
+    background: linear-gradient(
+        to right,
+        currentColor calc(var(--fraction) * 100%),
+        transparent 0
+    );
+}

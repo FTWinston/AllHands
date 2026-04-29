@@ -48,12 +48,12 @@ export const Primed: Story = {
     args: {
         name: 'Weapon 2',
         primed: true,
-        charge: 1,
+        charge: 2,
         card: {
             id: 5,
             type: 'phaserStrip',
         },
-        discharge: {
+        decay: {
             startTime: Date.now(),
             endTime: Date.now() + 10000,
         },
@@ -69,7 +69,7 @@ export const Charged: Story = {
             id: 5,
             type: 'phaserStrip',
         },
-        discharge: {
+        decay: {
             startTime: Date.now(),
             endTime: Date.now() + 10000,
         },
@@ -86,7 +86,7 @@ export const CantFire: Story = {
             id: 5,
             type: 'phaserStrip',
         },
-        discharge: {
+        decay: {
             startTime: Date.now(),
             endTime: Date.now() + 10000,
         },

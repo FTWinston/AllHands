@@ -2,30 +2,27 @@ import { Cooldown } from 'common-data/types/Cooldown';
 import { FC } from 'react';
 import { useCooldownFraction } from '../hooks/useCooldownFraction';
 import { classNames } from '../utils/classNames';
-import styles from './RadialProgress.module.css';
+import styles from './LinearProgress.module.css';
 
 export type Props = {
     className?: string;
     progress?: Cooldown | null;
-    visualAdjustment?: (fraction: number) => number;
+    direction: 'up' | 'down' | 'left' | 'right';
     title: string;
-    backgroundColor?: string;
 };
 
-export const RadialProgress: FC<Props> = (props) => {
+export const LinearProgress: FC<Props> = (props) => {
     const generationProgress = useCooldownFraction(props.progress);
-
-    const adjustedProgress = props.visualAdjustment?.(generationProgress) ?? generationProgress;
 
     return (
         <div
-            className={classNames(styles.progress, props.className)}
+            className={classNames(styles.progress, styles[props.direction], props.className)}
             role="progressbar"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={Math.round(generationProgress * 100)}
             // @ts-expect-error CSS custom property
-            style={{ '--fraction': adjustedProgress, '--background-color': props.backgroundColor }}
+            style={{ '--fraction': generationProgress }}
             title={props.title}
         />
     );

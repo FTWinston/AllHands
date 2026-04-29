@@ -102,16 +102,3 @@
         border-top-right-radius: 1em;
     }
 }
-
-.dischargeProgress {
-    grid-area: discardButton;
-    position: relative;
-    border-radius: 1em;
-    display: grid;
-    place-items: center;
-}
-
-.dischargeLabel {
-    position: relative;
-    z-index: 1;
-}

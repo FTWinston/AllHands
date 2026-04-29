@@ -17,7 +17,7 @@ export type SlotProps = {
     name: string;
     card?: CardInstance | null;
     charge: number;
-    discharge?: Cooldown | null;
+    decay?: Cooldown | null;
     noFireReason?: string | null;
     primed: boolean;
 };
@@ -138,6 +138,7 @@ export const WeaponSlot = (props: Props) => {
                 value={props.charge ?? 0}
                 maxValue={props.card ? getCardDefinition(props.card.type).cost : 0}
                 vertical={true}
+                decay={props.decay}
             />
         </CardDropTarget>
     );

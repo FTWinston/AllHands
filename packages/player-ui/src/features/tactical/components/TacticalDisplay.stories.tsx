@@ -121,7 +121,7 @@ export const UI: Story = {
                     id: 5,
                     type: 'phaserStrip',
                 },
-                discharge: {
+                decay: {
                     startTime: Date.now(),
                     endTime: Date.now() + 10000,
                 },
