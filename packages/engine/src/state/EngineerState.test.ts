@@ -21,7 +21,7 @@ const defaultSetup: PlayerShipSetupInfo = {
     reactor: { initialPowerLevel: 3, maxPowerLevel: 5, health: 100, maxHealth: 100 },
     helm: { ...minimalCrewSetup },
     sensors: { ...minimalCrewSetup },
-    tactical: { ...minimalCrewSetup },
+    tactical: { ...minimalCrewSetup, numSlots: 2 },
     engineer: { ...minimalCrewSetup },
 };
 
