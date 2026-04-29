@@ -29,7 +29,7 @@
     transform-origin: top left;
 }
 
-/* TOOD: cards should have a built in way of highlighting themselves */
+/* TODO: cards should have a built in way of highlighting themselves */
 .chargedCard > * {
     border-color: var(--color-light);
 }
@@ -52,10 +52,10 @@
     color: var(--grey-mid);
     transition: color 0.2s ease-in-out;
     text-align: center;
-}
 
-.noCardLabelFocused {
-    color: var(--grey-light);
+    &:hover, &:focus {
+        color: var(--grey-light);
+    }
 }
 
 .statusIndicator {
