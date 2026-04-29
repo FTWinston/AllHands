@@ -27,7 +27,6 @@
 	border-radius: 0.25em;
     corner-shape: squircle;
 	background: var(--energy-dark);
-    position: relative;
     display: flex;
     align-items: flex-end;
     overflow: hidden;
