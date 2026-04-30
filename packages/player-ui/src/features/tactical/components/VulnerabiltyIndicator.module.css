@@ -29,14 +29,3 @@
     height: var(--item-width);
     border-width: 0.2em;
 }
-
-.otherIsSelected {
-    opacity: 0.6;
-}
-
-.buttons {
-    margin-top: 1em;
-    display: flex;
-    justify-content: center;
-    gap: 1em;
-}

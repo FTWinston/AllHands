@@ -67,8 +67,6 @@
     text-transform: uppercase;
     overflow: hidden;
     padding: 0.33em;
-    color: var(--color-darkest);
-    background-color: var(--color-light);
     transition: background-color 0.333s ease, color 0.333s ease;
 }
 

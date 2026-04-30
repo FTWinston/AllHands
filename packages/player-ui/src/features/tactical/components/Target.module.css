@@ -48,10 +48,6 @@
      max-height: 100%;
 }
 
-.imageWithSelectedVulnerability {
-    color: var(--color-mid);
-}
-
 .vulnerabilities {
     grid-area: vulnerabilities;
     display: flex;

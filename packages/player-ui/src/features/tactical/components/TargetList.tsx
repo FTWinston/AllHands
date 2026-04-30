@@ -1,4 +1,3 @@
-import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
 import { Target, TargetInfo } from './Target';
 import styles from './TargetList.module.css';
@@ -9,14 +8,11 @@ export type ListTargetInfo = TargetInfo & {
 
 type Props = {
     targets: ListTargetInfo[];
-    visibleTarget: ListTargetInfo | null;
     onVisibleTargetChange: (target: ListTargetInfo) => void;
-    selectedVulnerability: Vulnerability | null;
-    onSelectVulnerability: (vulnerability: Vulnerability | null) => void;
 };
 
 export const TargetList = (props: Props) => {
-    const { targets, visibleTarget, onVisibleTargetChange } = props;
+    const { targets, onVisibleTargetChange } = props;
 
     // Handler for HorizontalScroll's onScrollFractionChange
     const handleScrollFractionChange = (fraction: number) => {
@@ -45,8 +41,6 @@ export const TargetList = (props: Props) => {
                         id={target.id}
                         appearance={target.appearance}
                         vulnerabilities={target.vulnerabilities}
-                        selectedVulnerability={target === visibleTarget ? props.selectedVulnerability : null}
-                        selectVulnerability={target === visibleTarget ? props.onSelectVulnerability : undefined}
                         targetNumber={index + 1}
                         totalTargets={targets.length}
                     />

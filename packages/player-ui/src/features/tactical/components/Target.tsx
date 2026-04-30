@@ -16,8 +16,6 @@ export type TargetInfo = {
 type Props = TargetInfo & {
     targetNumber: number;
     totalTargets: number;
-    selectedVulnerability: Vulnerability | null;
-    selectVulnerability?: (vulnerability: Vulnerability | null) => void;
 };
 
 export const Target = (props: Props) => {
@@ -28,10 +26,9 @@ export const Target = (props: Props) => {
             className={classNames(
                 styles.target,
                 colorPalettes.primary,
-                props.selectedVulnerability ? styles.vulnerabilitySelected : null,
                 props.vulnerabilities && props.vulnerabilities.length > 0 ? styles.hasVulnerabilities : null
             )}
-            disabled={!!props.selectedVulnerability}
+            disabled={false}
         >
             <h2 className={styles.name}>{props.id}</h2>
 
@@ -47,14 +44,12 @@ export const Target = (props: Props) => {
 
             <ShipIcon
                 appearance={props.appearance}
-                className={classNames(styles.image, props.selectedVulnerability ? styles.imageWithSelectedVulnerability : undefined)}
+                className={styles.image}
             />
 
             <VulnerabilityList
                 className={styles.vulnerabilities}
                 vulnerabilities={props.vulnerabilities ?? []}
-                selectedVulnerability={props.selectedVulnerability}
-                selectVulnerability={props.selectVulnerability}
                 targetId={props.id}
             />
         </CardDropTarget>

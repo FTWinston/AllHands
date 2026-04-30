@@ -1,11 +1,10 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
-import { ComponentProps, useEffect, useMemo, useState } from 'react';
+import { ComponentProps, useMemo, useState } from 'react';
 import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
@@ -27,10 +26,6 @@ export const TacticalDisplay = (props: Props) => {
     useRootClassName(crewStyles.tactical);
 
     const [currentTarget, setCurrentTarget] = useState<ListTargetInfo | null>(null);
-    const [currentVulnerability, setCurrentVulnerability] = useState<Vulnerability | null>(null);
-
-    // Clear the targeted vulnerability whenever the target changes
-    useEffect(() => setCurrentVulnerability(null), [currentTarget]);
 
     const slotsWithTargetState = useMemo<SlotProps[]>(
         () => slots.map((slot, index) => ({
@@ -51,10 +46,7 @@ export const TacticalDisplay = (props: Props) => {
 
                 <TargetList
                     targets={targets}
-                    visibleTarget={currentTarget}
                     onVisibleTargetChange={setCurrentTarget}
-                    selectedVulnerability={currentVulnerability}
-                    onSelectVulnerability={setCurrentVulnerability}
                 />
 
                 <WeaponSlots
