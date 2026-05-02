@@ -34,6 +34,7 @@ export interface HelmSystemInfo extends CrewSystemInfo {
 }
 
 export interface WeaponSlotInfo {
+    id: string;
     card: CardInstance | null;
     charge: number;
     noFireReason: string | null;
@@ -61,7 +62,7 @@ export interface EngineerSystemInfo extends CrewSystemInfo {
 export interface ShipInfo extends GameObjectInfo {
     helmState: HelmSystemInfo;
     sensorState: CrewSystemInfo;
-    tacticalState: CrewSystemInfo;
+    tacticalState: TacticalSystemInfo;
     engineerState: EngineerSystemInfo;
 }
 

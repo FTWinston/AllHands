@@ -23,14 +23,14 @@ type Story = StoryObj<typeof meta>;
 
 export const Empty: Story = {
     args: {
-        name: 'Weapon 1',
+        id: 'slot1',
         card: null,
     },
 };
 
 export const WithCard: Story = {
     args: {
-        name: 'Weapon 2',
+        id: 'slot2',
         primed: false,
         charge: 0,
         card: {
@@ -42,7 +42,7 @@ export const WithCard: Story = {
 
 export const Primed: Story = {
     args: {
-        name: 'Weapon 2',
+        id: 'slot2',
         primed: true,
         charge: 2,
         card: {
@@ -58,7 +58,7 @@ export const Primed: Story = {
 
 export const Charged: Story = {
     args: {
-        name: 'Weapon 2',
+        id: 'slot2',
         primed: true,
         charge: 4,
         card: {
@@ -74,7 +74,7 @@ export const Charged: Story = {
 
 export const CantFire: Story = {
     args: {
-        name: 'Weapon 2',
+        id: 'slot2',
         primed: true,
         charge: 4,
         noFireReason: 'range',

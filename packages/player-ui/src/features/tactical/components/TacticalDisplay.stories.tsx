@@ -54,7 +54,7 @@ const meta: Meta<typeof Component> = {
                     if (targetType === 'weapon-slot') {
                         const card = cards.find(c => c.id === cardId) || null;
                         if (card) {
-                            setSlots(prevSlots => prevSlots.map(slot => slot.name === targetId ? { ...slot, weapon: {
+                            setSlots(prevSlots => prevSlots.map(slot => slot.id === targetId ? { ...slot, weapon: {
                                 primed: false,
                                 card,
                                 charge: 0,
@@ -65,7 +65,7 @@ const meta: Meta<typeof Component> = {
                         const cardCost = card ? getCardDefinition(card.type).cost : 0;
 
                         if (cardCost) {
-                            setSlots(prevSlots => prevSlots.map(slot => slot.name === targetId ? {
+                            setSlots(prevSlots => prevSlots.map(slot => slot.id === targetId ? {
                                 ...slot,
                                 charge: slot.charge + cardCost,
                                 primed: slot.primed,
@@ -104,13 +104,13 @@ export const UI: Story = {
         ],
         slots: [
             {
-                name: 'Weapon 1',
+                id: 'slot1',
                 card: null,
                 charge: 0,
                 primed: false,
             },
             {
-                name: 'Weapon 2',
+                id: 'slot2',
                 primed: false,
                 charge: 0,
                 card: {

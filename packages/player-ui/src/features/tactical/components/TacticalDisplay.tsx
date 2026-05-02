@@ -15,8 +15,8 @@ import { WeaponSlots } from './WeaponSlots';
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cards: MinimalReadonlyArray<CardInstance>;
-    slots: SlotProps[];
-    targets: ListTargetInfo[];
+    slots: MinimalReadonlyArray<SlotProps>;
+    targets: MinimalReadonlyArray<ListTargetInfo>;
 };
 
 export const TacticalDisplay = (props: Props) => {

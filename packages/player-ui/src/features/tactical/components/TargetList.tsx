@@ -1,3 +1,4 @@
+import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
 import { Target, TargetInfo } from './Target';
 import styles from './TargetList.module.css';
@@ -7,7 +8,7 @@ export type ListTargetInfo = TargetInfo & {
 };
 
 type Props = {
-    targets: ListTargetInfo[];
+    targets: MinimalReadonlyArray<ListTargetInfo>;
     onVisibleTargetChange: (target: ListTargetInfo) => void;
 };
 

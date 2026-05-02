@@ -5,7 +5,6 @@ import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameO
 import { useCallback, useState } from 'react';
 import { TacticalDisplay } from './components/TacticalDisplay';
 import { ListTargetInfo } from './components/TargetList';
-import { SlotProps } from './components/WeaponSlot';
 import type { Room } from '@colyseus/sdk';
 import type { GameState } from 'engine/state/GameState';
 
@@ -17,7 +16,6 @@ type Props = {
 export const Tactical = (props: Props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
     const localShip = objects[props.shipId] as ShipInfo;
-    const [slots] = useState<SlotProps[]>([]);
     const [targets] = useState<ListTargetInfo[]>([]);
 
     const pause = useCallback(() => {
@@ -42,7 +40,7 @@ export const Tactical = (props: Props) => {
     return (
         <TacticalDisplay
             cards={tacticalState.hand}
-            slots={slots}
+            slots={tacticalState.slots}
             targets={targets}
             onPause={pause}
             power={tacticalState.powerLevel}

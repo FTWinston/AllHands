@@ -13,7 +13,7 @@ import { DraggableCard } from 'src/features/cardui/components/DraggableCard';
 import styles from './WeaponSlot.module.css';
 
 export type SlotProps = {
-    name: string;
+    id: string;
     card?: CardInstance | null;
     charge: number;
     decay?: Cooldown | null;
@@ -27,7 +27,7 @@ function getCardWrapper(props: SlotProps, fullyCharged: boolean) {
             <CardDropTarget
                 className={styles.cardWrapper}
                 targetType="weapon-slot"
-                id={props.name}
+                id={props.id}
             >
                 <CardBase className={classNames(styles.card, styles.cardSpace)}>
                     <div className={styles.noCardLabel}>Drop weapon card here</div>
@@ -107,7 +107,7 @@ export const WeaponSlot = (props: SlotProps) => {
             render="li"
             className={classNames(styles.weaponSlot, colorPalletes[mainPallete], isFullyCharged ? null : styles.recharging)}
             targetType="weapon"
-            id={props.name}
+            id={props.id}
             disabled={!props.card}
         >
             {getCardWrapper(props, isFullyCharged)}
