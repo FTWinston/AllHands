@@ -2,8 +2,10 @@ import { ChoiceCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefi
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { EngineerSystemTile } from 'src/state/EngineerSystemTile';
+import { GameObject } from 'src/state/GameObject';
 import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';
+import { WeaponSlotState } from 'src/state/WeaponSlotState';
 
 export type NoTargetCardFunctionality = {
     play: (gameState: GameState, ship: Ship, parameters: CardParameters) => boolean;
@@ -12,15 +14,17 @@ export type NoTargetCardFunctionality = {
 export type ChoiceTargetCardFunctionality = object;
 
 export type WeaponSlotTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship, slot: number, parameters: CardParameters) => boolean;
+    load: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
+    fire: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters) => boolean;
 };
 
 export type WeaponTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship, weapon: number, parameters: CardParameters) => boolean;
+    prime: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
+    charge: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
 };
 
 export type EnemyTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship, targetId: string, parameters: CardParameters) => boolean;
+    play: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters) => boolean;
 };
 
 export type SystemTargetCardFunctionality = {

@@ -20,16 +20,21 @@ type Props = TargetInfo & {
 
 export const Target = (props: Props) => {
     return (
-        <CardDropTarget
-            targetType="enemy"
-            id={props.id}
+        <div
             className={classNames(
                 styles.target,
                 colorPalettes.primary,
-                props.vulnerabilities && props.vulnerabilities.length > 0 ? styles.hasVulnerabilities : null
+                props.vulnerabilities && props.vulnerabilities.length > 0 ? styles.hasVulnerabilities : styles.noVulnerabilities
             )}
-            disabled={false}
         >
+            <CardDropTarget
+                targetType="enemy"
+                id={props.id}
+                className={styles.dropTargetOverlay}
+                droppingClassName={styles.dropping}
+                couldDropClassName={styles.couldDrop}
+            />
+
             <h2 className={styles.name}>{props.id}</h2>
 
             <div className={styles.count}>
@@ -52,6 +57,6 @@ export const Target = (props: Props) => {
                 vulnerabilities={props.vulnerabilities ?? []}
                 targetId={props.id}
             />
-        </CardDropTarget>
+        </div>
     );
 };

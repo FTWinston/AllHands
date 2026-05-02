@@ -74,10 +74,6 @@ const meta: Meta<typeof Component> = {
                     }
                 }}
                 slots={slots}
-                slotFired={(slotIndex) => {
-                    console.log(`fired slot ${slotIndex}`);
-                    setSlots(prevSlots => prevSlots.map((slot, index) => index === slotIndex && slot.card ? { ...slot, costToReactivate: getCardDefinition(slot.card.type).cost } : slot));
-                }}
             />
         );
     },

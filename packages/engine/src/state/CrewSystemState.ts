@@ -1,15 +1,17 @@
 import { ArraySchema, type } from '@colyseus/schema';
+import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { resolveParameters } from 'common-data/features/cards/utils/resolveParameters';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { CrewSystemSetupInfo, CrewSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { parseVector } from 'common-data/features/space/utils/vectors';
-import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
+import { EngineCardDefinition, EngineEnemyTargetCardDefinition, EngineLocationTargetCardDefinition, EngineNoTargetCardDefinition, EngineSystemTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { BindableEvent } from '../classes/BindableEvent';
 import { CardState } from './CardState';
 import { CooldownState } from './CooldownState';
+import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from './Ship';
@@ -142,52 +144,134 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             return null;
         }
 
-        if (cardDefinition.targetType === 'no-target') {
-            if (!cardDefinition.play(this.getGameState(), this.getShip(), parameters)) {
-                console.log('card refused to play');
-                return null;
-            }
-        } else if (cardDefinition.targetType === 'weapon-slot') {
-            if (!cardDefinition.play(this.getGameState(), this.getShip(), parseInt(targetId), parameters)) {
-                console.log('card refused to play');
-                return null;
-            }
-        } else if (cardDefinition.targetType === 'weapon') {
-            if (!cardDefinition.play(this.getGameState(), this.getShip(), parseInt(targetId), parameters)) {
-                console.log('card refused to play');
-                return null;
-            }
-        } else if (cardDefinition.targetType === 'enemy') {
-            if (!cardDefinition.play(this.getGameState(), this.getShip(), targetId, parameters)) {
-                console.log('card refused to play');
-                return null;
-            }
-        } else if (cardDefinition.targetType === 'system') {
-            const systemId = targetId as ShipSystem;
-            const systemTile = this.getShip().engineerState.systems.find(s => s.system === systemId);
+        let played: boolean;
 
-            if (!systemTile || !cardDefinition.play(this.getGameState(), this.getShip(), systemTile, parameters)) {
-                console.log('card refused to play');
-                return null;
-            }
+        if (cardDefinition.targetType === 'no-target') {
+            played = this.playNoTargetCard(cardDefinition, parameters);
+        } else if (cardDefinition.targetType === 'weapon-slot') {
+            played = this.playWeaponSlotCard(cardDefinition, targetId, parameters);
+        } else if (cardDefinition.targetType === 'weapon') {
+            played = this.playWeaponCard(cardDefinition, targetId, parameters);
+        } else if (cardDefinition.targetType === 'enemy') {
+            played = this.playEnemyCard(cardDefinition, targetId, parameters);
+        } else if (cardDefinition.targetType === 'system') {
+            played = this.playSystemCard(cardDefinition, targetId, parameters);
         } else if (cardDefinition.targetType === 'location') {
-            const targetVector = parseVector(targetId);
-            if (targetVector === null) {
-                console.log('invalid location target', targetId);
-                return null;
-            } else if (!cardDefinition.play(this.getGameState(), this.getShip(), resolvedCost, cardDefinition, targetVector, parameters)) {
-                console.log('card refused to play');
-                return null;
-            }
+            played = this.playLocationCard(cardDefinition, targetId, resolvedCost, parameters);
         } else {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            console.error(`unhandled card target type: ${(cardDefinition as any).targetType}`);
+            console.error(`unhandled card target type: ${cardDefinition.targetType}`);
+            return null;
+        }
+
+        if (!played) {
             return null;
         }
 
         this.handlePlayedCard(card, cardIndex, cardDefinition);
 
         return cardDefinition;
+    }
+
+    private playNoTargetCard(cardDefinition: EngineNoTargetCardDefinition, parameters: CardParameters): boolean {
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), parameters)) {
+            console.log('card refused to play');
+            return false;
+        }
+        return true;
+    }
+
+    private playWeaponSlotCard(cardDefinition: EngineWeaponSlotCardDefinition, targetId: string, parameters: CardParameters): boolean {
+        const slot = this.getShip().tacticalState.resolveWeaponSlot(targetId);
+        if (!slot) {
+            console.warn('weapon slot not found: ' + targetId);
+            return false;
+        }
+
+        if (slot.card) {
+            console.log('weapon slot already occupied');
+            return false;
+        }
+
+        if (!cardDefinition.load(this.getGameState(), this.getShip(), slot, parameters)) {
+            console.log('card refused to load');
+            return false;
+        }
+
+        return true;
+    }
+
+    private playWeaponCard(cardDefinition: EngineWeaponTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+        const slot = this.getShip().tacticalState.resolveWeaponSlot(targetId);
+        if (!slot) {
+            console.warn('weapon slot not found: ' + targetId);
+            return false;
+        }
+
+        if (!slot.card) {
+            console.log('weapon slot is empty');
+            return false;
+        }
+
+        // If slot has been primed, use the card's charge function.
+        // Otherwise, use the card's prime function, and mark the slot as primed.
+        if (slot.primed) {
+            if (!cardDefinition.charge(this.getGameState(), this.getShip(), slot, parameters)) {
+                console.log('card refused to charge');
+                return false;
+            }
+        } else {
+            if (!cardDefinition.prime(this.getGameState(), this.getShip(), slot, parameters)) {
+                console.log('card refused to prime');
+                return false;
+            }
+
+            slot.primed = true;
+        }
+
+        return true;
+    }
+
+    private playEnemyCard(cardDefinition: EngineEnemyTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+        const target = this.resolveTarget(targetId);
+
+        if (!target) {
+            console.warn('target not found: ' + targetId);
+            return false;
+        }
+
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, parameters)) {
+            console.log('card refused to play');
+            return false;
+        }
+
+        return true;
+    }
+
+    private playSystemCard(cardDefinition: EngineSystemTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+        const systemId = targetId as ShipSystem;
+        const systemTile = this.getShip().engineerState.systems.find(s => s.system === systemId);
+
+        if (!systemTile || !cardDefinition.play(this.getGameState(), this.getShip(), systemTile, parameters)) {
+            console.log('card refused to play');
+            return false;
+        }
+
+        return true;
+    }
+
+    private playLocationCard(cardDefinition: EngineLocationTargetCardDefinition, targetId: string, resolvedCost: number, parameters: CardParameters): boolean {
+        const targetVector = parseVector(targetId);
+        if (targetVector === null) {
+            console.log('invalid location target', targetId);
+            return false;
+        }
+
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), resolvedCost, cardDefinition, targetVector, parameters)) {
+            console.log('card refused to play');
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -213,13 +297,18 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             addToDiscard = false;
         }
 
-        if (removeFromHand) {
+        if (removeFromHand && cardIndex !== -1) {
             this.hand.splice(cardIndex, 1);
         }
 
         if (addToDiscard) {
             this.discardPile.push(card);
         }
+    }
+
+    resolveTarget(_targetId: string): GameObject | null {
+        // TODO: need to resolve target here
+        return null;
     }
 
     /**

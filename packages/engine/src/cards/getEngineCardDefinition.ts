@@ -22,6 +22,12 @@ import {
     LocationTargetCardFunctionality,
     EngineCardDefinition,
     EngineCardFunctionality,
+    EngineWeaponSlotCardDefinition,
+    EngineWeaponTargetCardDefinition,
+    EngineLocationTargetCardDefinition,
+    EngineSystemTargetCardDefinition,
+    EngineEnemyTargetCardDefinition,
+    EngineNoTargetCardDefinition,
 } from './EngineCardDefinition';
 
 type CardFunctionalityLookup = Record<UntargetedCardType, NoTargetCardFunctionality>
@@ -77,33 +83,48 @@ function loadCardDefinitions() {
             },
         },
         phaserCannon: {
-            play: (_gameState, _ship, _slot) => {
+            load: (_gameState, _ship, _slot) => {
                 console.log('played phaserCannon'); return true;
+            },
+            fire: (_gameState, _ship, _target, _parameters) => {
+                console.log('fired phaserCannon'); return true;
             },
         },
         phaserStrip: {
-            play: (_gameState, _ship, _slot) => {
+            load: (_gameState, _ship, _slot) => {
                 console.log('played phaserStrip'); return true;
+            },
+            fire: (_gameState, _ship, _target, _parameters) => {
+                console.log('fired phaserStrip'); return true;
             },
         },
         photonTorpedo: {
-            play: (_gameState, _ship, _slot) => {
+            load: (_gameState, _ship, _slot) => {
                 console.log('played photonTorpedo'); return true;
+            },
+            fire: (_gameState, _ship, _target, _parameters) => {
+                console.log('fired photonTorpedo'); return true;
             },
         },
         photonicCannon: {
-            play: (_gameState, _ship, _slot) => {
+            load: (_gameState, _ship, _slot) => {
                 console.log('played photonicCannon'); return true;
+            },
+            fire: (_gameState, _ship, _target, _parameters) => {
+                console.log('fired photonicCannon'); return true;
             },
         },
 
         exampleWeaponTarget: {
-            play: (_gameState, _ship, _weapon) => {
-                console.log('played exampleWeaponTarget'); return true;
+            prime: (_gameState, _ship, _slot) => {
+                console.log('primed exampleWeaponTarget'); return true;
+            },
+            charge: (_gameState, _ship, _slot) => {
+                console.log('charged exampleWeaponTarget'); return true;
             },
         },
         exampleEnemyTarget: {
-            play: (_gameState, _ship, _targetId) => {
+            play: (_gameState, _ship, _target) => {
                 console.log('played exampleEnemyTarget'); return true;
             },
         },
@@ -422,7 +443,14 @@ function loadCardDefinitions() {
 
 const engineCardDefinitions = loadCardDefinitions();
 
-export const getCardDefinition = (type: CardType): EngineCardDefinition => {
+export function getCardDefinition(type: WeaponSlotTargetedCardType): EngineWeaponSlotCardDefinition;
+export function getCardDefinition(type: WeaponTargetedCardType): EngineWeaponTargetCardDefinition;
+export function getCardDefinition(type: LocationTargetedCardType): EngineLocationTargetCardDefinition;
+export function getCardDefinition(type: SystemSlotTargetedCardType): EngineSystemTargetCardDefinition;
+export function getCardDefinition(type: EnemyTargetedCardType): EngineEnemyTargetCardDefinition;
+export function getCardDefinition(type: UntargetedCardType): EngineNoTargetCardDefinition;
+export function getCardDefinition(type: CardType): EngineCardDefinition;
+export function getCardDefinition(type: CardType): EngineCardDefinition {
     const cardDef = engineCardDefinitions[type];
 
     if (!cardDef) {

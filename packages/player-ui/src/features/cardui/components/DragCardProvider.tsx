@@ -1,4 +1,4 @@
-import { DndContext, DragEndEvent, DragMoveEvent, DragOverEvent, DragStartEvent, useSensor, PointerSensor, useSensors, pointerWithin, CollisionDetection } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragMoveEvent, DragOverEvent, DragStartEvent, useSensor, PointerSensor, useSensors, pointerWithin, CollisionDetection, getClientRect } from '@dnd-kit/core';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { createContext, useState, useContext, PropsWithChildren, useRef, useCallback } from 'react';
@@ -220,6 +220,7 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
         <DndContext
             sensors={sensors}
             collisionDetection={clippedPointerWithin}
+            measuring={{ droppable: { measure: getClientRect } }}
             onDragStart={handleDragStart}
             onDragMove={handleDragMove}
             onDragOver={handleDragOver}

@@ -21,11 +21,7 @@ export type SlotProps = {
     primed: boolean;
 };
 
-type Props = SlotProps & {
-    onFired: () => void;
-};
-
-function getCardWrapper(props: Props, fullyCharged: boolean) {
+function getCardWrapper(props: SlotProps, fullyCharged: boolean) {
     if (!props.card) {
         return (
             <CardDropTarget
@@ -64,7 +60,7 @@ function getCardWrapper(props: Props, fullyCharged: boolean) {
     );
 }
 
-export const WeaponSlot = (props: Props) => {
+export const WeaponSlot = (props: SlotProps) => {
     const maxCharge = props.card ? getCardDefinition(props.card.type).cost : 0;
     const isFullyCharged = props.card ? props.charge >= maxCharge : false;
 

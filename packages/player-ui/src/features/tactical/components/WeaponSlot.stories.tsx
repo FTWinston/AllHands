@@ -1,5 +1,4 @@
 import crewStyles from 'common-ui/CrewColors.module.css';
-import { fn } from 'storybook/test';
 import { WeaponSlot as Component } from './WeaponSlot';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -8,9 +7,6 @@ const meta: Meta<typeof Component> = {
     component: Component,
     parameters: {
         layout: 'fullscreen',
-    },
-    args: {
-        onFired: fn(),
     },
     render: args => (
         <div

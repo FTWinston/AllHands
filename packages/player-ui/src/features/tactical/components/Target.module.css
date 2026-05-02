@@ -52,3 +52,24 @@
     grid-area: vulnerabilities;
     display: flex;
 }
+
+.dropTargetOverlay {
+    position: absolute;
+    inset: 0;
+    bottom: calc(4em + 0.5em);
+    border-radius: inherit;
+    /* Outline is shown on the outer .target via :has() below */
+    outline: none !important;
+}
+
+.noVulnerabilities .dropTargetOverlay {
+    bottom: 0;
+}
+
+.target:has(.dropping) {
+    outline: solid var(--grey-lightest) 0.25em;
+}
+
+.target:has(.couldDrop) {
+    outline: solid var(--primary-mid) 0.25em;
+}

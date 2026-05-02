@@ -10,9 +10,32 @@ export class CardState extends Schema implements CardInstance {
         this.type = type;
     }
 
-    @type('number') id: number;
-    @type('string') type: CardType;
-    @type({ map: 'number' }) modifiers = new MapSchema<number>();
+    @type('number') readonly id: number;
+    @type('string') readonly type: CardType;
+    @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
+
+    getParameters(): Map<string, number> {
+        const definition = getCardDefinition(this.type);
+
+        const result = new Map<string, number>(definition.parameters);
+
+        for (const [parameter, adjustment] of this.modifiers) {
+            const definitionValue = result.get(parameter) || 0;
+            result.set(parameter, definitionValue + adjustment);
+        }
+
+        return result;
+    }
+
+    getParameter(parameter: string): number {
+        const definition = getCardDefinition(this.type);
+
+        const value = definition.parameters?.get(parameter) ?? 0;
+
+        const modifier = this.modifiers.get(parameter) || 0;
+
+        return value + modifier;
+    }
 
     hasParameter(parameter: string): boolean {
         const definition = getCardDefinition(this.type);
