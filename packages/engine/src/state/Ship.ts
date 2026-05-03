@@ -3,6 +3,7 @@ import { helmClientRole, sensorClientRole, tacticalClientRole, engineerClientRol
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { Damage } from 'common-data/features/space/types/Damage';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { distanceSq } from 'common-data/features/space/utils/vectors';
 import { CrewSystemState } from './CrewSystemState';
 import { EngineerState } from './EngineerState';
 import { GameState } from './GameState';
@@ -69,13 +70,56 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         return systemState;
     }
 
+    private readonly detectionRange = 100;
+    private readonly detectionRangeSq = this.detectionRange ** 2;
+    private readonly detectionInterval = 200;
+    private detectionTimer = 0;
+
     public tick(deltaTime: number, currentTime: number) {
         super.tick(deltaTime, currentTime);
+
+        this.detectionTimer += deltaTime;
+        if (this.detectionTimer >= this.detectionInterval) {
+            this.detectionTimer = 0;
+            this.updateKnownObjects(currentTime);
+        }
 
         this.helmState.update(currentTime);
         // this.sensorState.update(currentTime);
         this.tacticalState.update(currentTime);
         this.engineerState.update(currentTime);
+    }
+
+    updateKnownObjects(currentTime: number) {
+        const ownPosition = this.getPosition(currentTime);
+
+        for (const [objectId, object] of this.gameState.objects.entries()) {
+            const objectPosition = object.getPosition(currentTime);
+            const inRange = distanceSq(ownPosition, objectPosition) <= this.detectionRangeSq;
+
+            if (inRange && !this.knownObjects.has(objectId)) {
+                this.addKnownObject(objectId);
+            } else if (!inRange && this.knownObjects.has(objectId)) {
+                this.removeKnownObject(objectId);
+            }
+        }
+    }
+
+    readonly knownObjects: ReadonlySet<string> = new Set<string>();
+
+    addKnownObject(objectId: string) {
+        (this.knownObjects as Set<string>).add(objectId);
+
+        // TODO: add to objects visible on helm and viewscreen.
+        // TODO: add to tactical target list.
+        // TODO: add to sensors target list.
+    }
+
+    removeKnownObject(objectId: string) {
+        (this.knownObjects as Set<string>).delete(objectId);
+        // TODO: remove from objects visible on helm and viewscreen.
+        // TODO: remove from tactical target list.
+        // TODO: remove from sensors target list.
     }
 
     damage(damage: Damage) {
