@@ -306,9 +306,12 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         }
     }
 
-    resolveTarget(_targetId: string): GameObject | null {
-        // TODO: need to resolve target here
-        return null;
+    resolveTarget(targetId: string): GameObject | null {
+        if (!this.getShip().knownObjects.has(targetId)) {
+            return null;
+        }
+
+        return this.getGameState().objects.get(targetId) || null;
     }
 
     /**

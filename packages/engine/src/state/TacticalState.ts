@@ -40,9 +40,23 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     }
 
     playWeapon(slot: WeaponSlotState, cardType: WeaponSlotTargetedCardType, targetId: string): EngineCardDefinition | null {
-        const cardDef = getCardDefinition(cardType);
+        const splitPos = targetId.indexOf(':');
+        let targetObjectId: string;
+        let _targetVulnerability: string | null;
 
-        const target = this.resolveTarget(targetId);
+        if (splitPos !== -1) {
+            targetObjectId = targetId.substring(0, splitPos);
+            _targetVulnerability = targetId.substring(splitPos + 1);
+        } else {
+            targetObjectId = targetId;
+            _targetVulnerability = null;
+        }
+
+        const target = this.resolveTarget(targetObjectId);
+
+        // TODO use targetVulnerability!
+
+        const cardDef = getCardDefinition(cardType);
 
         if (target) {
             cardDef.fire(this.getGameState(), this.getShip(), target, slot.getParameters());
