@@ -3,6 +3,7 @@
     "description": "A basic starting scenario with one player ship and one enemy.",
     "rules": "endlessCombat",
     "player": {
+        "name": "Yourself",
         "position": { "x": 0, "y": 0, "angle": 0 },
         "hull": {
             "initialPowerLevel": 3,
@@ -54,6 +55,7 @@
         {
             "enemies": [
                 {
+                    "name": "An Enemy",
                     "appearance": "chevron",
                     "relationship": 1,
                     "position": { "x": 5, "y": 5, "angle": -3.14159 },
