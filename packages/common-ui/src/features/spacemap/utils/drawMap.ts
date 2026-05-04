@@ -61,6 +61,8 @@ export function drawMap(
 ) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     const worldBounds = getViewWorldBounds(viewBounds, cellRadius, center);
 

@@ -1,15 +1,12 @@
+import { TacticalTargetInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
-import { Target, TargetInfo } from './Target';
+import { Target } from './Target';
 import styles from './TargetList.module.css';
 
-export type ListTargetInfo = TargetInfo & {
-    slotNoFireReasons: Array<string | null>; // TODO: type this
-};
-
 type Props = {
-    targets: MinimalReadonlyArray<ListTargetInfo>;
-    onVisibleTargetChange: (target: ListTargetInfo) => void;
+    targets: MinimalReadonlyArray<TacticalTargetInfo>;
+    onVisibleTargetChange: (target: TacticalTargetInfo) => void;
 };
 
 export const TargetList = (props: Props) => {
@@ -40,6 +37,7 @@ export const TargetList = (props: Props) => {
                 <li className={styles.itemWrapper} key={target.id}>
                     <Target
                         id={target.id}
+                        name={target.name}
                         appearance={target.appearance}
                         vulnerabilities={target.vulnerabilities}
                         targetNumber={index + 1}

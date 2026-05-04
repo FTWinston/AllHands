@@ -2,6 +2,7 @@ import { CardInstance } from 'src/features/cards/types/CardInstance';
 import { CardType } from 'src/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'src/features/ships/types/SystemEffectDefinition';
+import { Vulnerability } from 'src/features/ships/types/Vulnerability';
 import { CardCooldown, Cooldown } from 'src/types/Cooldown';
 import { MinimalReadonlyArray } from 'src/types/MinimalArray';
 import { ReadonlyKeyframes } from './Keyframes';
@@ -13,6 +14,7 @@ export type ObjectId = string;
 
 export interface GameObjectInfo {
     id: ObjectId;
+    name: string;
     appearance: ObjectAppearance;
     relationship: RelationshipType;
     motion: ReadonlyKeyframes<Position>;
@@ -42,6 +44,7 @@ export interface WeaponSlotInfo {
 }
 
 export interface TacticalSystemInfo extends CrewSystemInfo {
+    targets: MinimalReadonlyArray<TacticalTargetInfo>;
     slots: MinimalReadonlyArray<WeaponSlotInfo>;
 }
 
@@ -82,7 +85,16 @@ export interface TacticalSystemSetupInfo extends CrewSystemSetupInfo {
     numSlots: number;
 }
 
+export type TacticalTargetInfo = {
+    id: string;
+    name: string;
+    appearance: ObjectAppearance;
+    vulnerabilities?: Vulnerability[];
+    slotNoFireReasons: (string | null)[];
+};
+
 export interface GameObjectSetupInfo {
+    name: string;
     appearance: ObjectAppearance;
     relationship: RelationshipType;
 }

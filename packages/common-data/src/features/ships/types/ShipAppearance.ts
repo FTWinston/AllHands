@@ -1,1 +1,0 @@
-export type ShipAppearance = 'afterburn' | 'apollo' | 'satellite' | 'hypersonic' | 'interceptor' | 'jetpack' | 'pathfinder' | 'rocket' | 'scout' | 'spaceship' | 'spiderbot' | 'starfighter' | 'strafe';

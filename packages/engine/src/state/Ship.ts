@@ -6,6 +6,7 @@ import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameOb
 import { distanceSq } from 'common-data/features/space/utils/vectors';
 import { CrewSystemState } from './CrewSystemState';
 import { EngineerState } from './EngineerState';
+import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { HelmState } from './HelmState';
 import { HullSystemState } from './HullSystemState';
@@ -98,7 +99,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             const inRange = distanceSq(ownPosition, objectPosition) <= this.detectionRangeSq;
 
             if (inRange && !this.knownObjects.has(objectId)) {
-                this.addKnownObject(objectId);
+                this.addKnownObject(objectId, object);
             } else if (!inRange && this.knownObjects.has(objectId)) {
                 this.removeKnownObject(objectId);
             }
@@ -107,18 +108,18 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
     readonly knownObjects: ReadonlySet<string> = new Set<string>();
 
-    addKnownObject(objectId: string) {
+    addKnownObject(objectId: string, object: GameObject) {
         (this.knownObjects as Set<string>).add(objectId);
 
         // TODO: add to objects visible on helm and viewscreen.
-        // TODO: add to tactical target list.
+        this.tacticalState.addTarget(objectId, object);
         // TODO: add to sensors target list.
     }
 
     removeKnownObject(objectId: string) {
         (this.knownObjects as Set<string>).delete(objectId);
         // TODO: remove from objects visible on helm and viewscreen.
-        // TODO: remove from tactical target list.
+        this.tacticalState.removeTarget(objectId);
         // TODO: remove from sensors target list.
     }
 

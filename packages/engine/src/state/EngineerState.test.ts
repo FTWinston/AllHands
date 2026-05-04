@@ -16,6 +16,7 @@ const minimalCrewSetup: CrewSystemSetupInfo = {
 };
 
 const defaultSetup: PlayerShipSetupInfo = {
+    name: 'Player',
     position: { x: 0, y: 0, angle: 0 },
     hull: { initialPowerLevel: 3, maxPowerLevel: 5, health: 100, maxHealth: 100 },
     reactor: { initialPowerLevel: 3, maxPowerLevel: 5, health: 100, maxHealth: 100 },

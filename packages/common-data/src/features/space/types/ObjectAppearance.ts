@@ -1,4 +1,16 @@
 export type ObjectAppearance
     = 'chevron'
         | 'circle'
-;
+        | 'afterburn'
+        | 'apollo'
+        | 'satellite'
+        | 'hypersonic'
+        | 'interceptor'
+        | 'jetpack'
+        | 'pathfinder'
+        | 'rocket'
+        | 'scout'
+        | 'spaceship'
+        | 'spiderbot'
+        | 'starfighter'
+        | 'strafe';

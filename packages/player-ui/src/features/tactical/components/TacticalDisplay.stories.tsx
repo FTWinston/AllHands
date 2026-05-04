@@ -126,28 +126,33 @@ export const UI: Story = {
         targets: [
             {
                 id: 'Enemy Ship 1',
+                name: 'Enemy Ship 1',
                 appearance: 'scout',
                 slotNoFireReasons: ['range', 'bearing'],
             },
             {
                 id: 'Enemy Ship 2',
+                name: 'Enemy Ship 2',
                 appearance: 'starfighter',
                 slotNoFireReasons: [null, 'range'],
             },
             {
                 id: 'Enemy Ship 3',
+                name: 'Enemy Ship 3',
                 appearance: 'satellite',
                 slotNoFireReasons: [null, null],
                 vulnerabilities: ['engine'],
             },
             {
                 id: 'Enemy Ship 4',
+                name: 'Enemy Ship 4',
                 appearance: 'interceptor',
                 slotNoFireReasons: [null, null],
                 vulnerabilities: ['shields', 'weapons'],
             },
             {
                 id: 'Enemy Ship 5',
+                name: 'Enemy Ship 5',
                 appearance: 'spaceship',
                 slotNoFireReasons: [null, null],
                 vulnerabilities: ['shields', 'weapons', 'engine'],

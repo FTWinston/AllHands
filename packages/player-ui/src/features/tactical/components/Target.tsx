@@ -1,19 +1,12 @@
-import { ShipAppearance } from 'common-data/features/ships/types/ShipAppearance';
-import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
+import { TacticalTargetInfo } from 'common-data/features/space/types/GameObjectInfo';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
-import { ShipIcon } from 'common-ui/icons/ships';
+import { ObjectIcon } from 'common-ui/objects';
 import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import styles from './Target.module.css';
 import { VulnerabilityList } from './VulnerabilityList';
 
-export type TargetInfo = {
-    id: string;
-    appearance: ShipAppearance;
-    vulnerabilities?: Vulnerability[];
-};
-
-type Props = TargetInfo & {
+type Props = Omit<TacticalTargetInfo, 'slotNoFireReasons'> & {
     targetNumber: number;
     totalTargets: number;
 };
@@ -35,7 +28,7 @@ export const Target = (props: Props) => {
                 couldDropClassName={styles.couldDrop}
             />
 
-            <h2 className={styles.name}>{props.id}</h2>
+            <h2 className={styles.name}>{props.name}</h2>
 
             <div className={styles.count}>
                 #
@@ -47,7 +40,7 @@ export const Target = (props: Props) => {
                 {props.totalTargets}
             </div>
 
-            <ShipIcon
+            <ObjectIcon
                 appearance={props.appearance}
                 className={styles.image}
             />

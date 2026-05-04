@@ -15,11 +15,14 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
     ) {
         super();
         this.id = gameState.getNewId();
+        this.name = setup.name;
         this.relationship = setup.relationship;
         this.appearance = setup.appearance;
     }
 
     @type('string') public readonly id: string;
+
+    @type('string') public readonly name: string;
 
     @type('string') public readonly appearance: ObjectAppearance;
 

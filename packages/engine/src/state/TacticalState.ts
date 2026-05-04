@@ -3,9 +3,11 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { CardType, WeaponSlotTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { TacticalSystemInfo, TacticalSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
-import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
+import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { CrewSystemState } from './CrewSystemState';
+import { GameObject } from './GameObject';
 import { GameState } from './GameState';
+import { TacticalTargetState } from './TacticalTargetState';
 import { WeaponSlotState } from './WeaponSlotState';
 import type { Ship } from './Ship';
 
@@ -18,6 +20,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
     }
 
+    @type([TacticalTargetState]) targets = new ArraySchema<TacticalTargetState>();
     @type([WeaponSlotState]) slots = new ArraySchema<WeaponSlotState>();
 
     update(_currentTime: number) {
@@ -78,6 +81,24 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             slot.noFireReason = null;
         } else {
             slot.adjustParameter('uses', -1);
+        }
+    }
+
+    addTarget(id: string, object: GameObject) {
+        /*
+        if (false) {
+            // TODO: determine if this is a valid target.
+            return;
+        }
+        */
+
+        this.targets.push(new TacticalTargetState(id, 'Some object', object.appearance));
+    }
+
+    removeTarget(id: string) {
+        const index = this.targets.findIndex(target => target.id === id);
+        if (index !== -1) {
+            this.targets.splice(index, 1);
         }
     }
 }

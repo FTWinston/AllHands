@@ -95,7 +95,7 @@ export const WeaponSlot = (props: SlotProps) => {
             description = <>Drag the weapon card to the enemy to attack them.</>;
         }
     } else {
-        statusText = 'empty';
+        statusText = 'equip';
         mainPallete = 'primary';
         statusDisabled = true;
         statusHeading = 'Empty weapon slot';

@@ -5,7 +5,7 @@ import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { CrewSystemSetupInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
-import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
+import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from './CooldownState';
 import { CrewSystemState } from './CrewSystemState';

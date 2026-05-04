@@ -1,7 +1,7 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
+import { getCardDefinition } from '../cards/getEngineCardDefinition';
 
 export class CardState extends Schema implements CardInstance {
     constructor(id: number, type: CardType) {

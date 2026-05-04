@@ -26,6 +26,7 @@ export const Static: Story = {
         objects: {
             1: {
                 id: '1',
+                name: 'Player',
                 appearance: 'chevron',
                 relationship: RelationshipType.Self,
                 motion: [
@@ -77,6 +78,7 @@ export const Moving: Story = {
         const objects: Record<string, GameObjectInfo> = useMemo(() => ({
             1: {
                 id: '1',
+                name: 'Player',
                 appearance: 'chevron',
                 relationship: RelationshipType.Self,
                 motion: itemPos,

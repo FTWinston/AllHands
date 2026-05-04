@@ -46,6 +46,7 @@ const meta: Meta<typeof Component> = {
         const objects: Record<string, GameObjectInfo> = useMemo(() => ({
             playerShip: {
                 id: 'playerShip',
+                name: 'Player',
                 appearance: 'chevron',
                 relationship: RelationshipType.Self,
                 motion: center,
