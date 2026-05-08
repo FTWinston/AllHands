@@ -77,7 +77,6 @@ export const CantFire: Story = {
         id: 'slot2',
         primed: true,
         charge: 4,
-        noFireReason: 'range',
         card: {
             id: 5,
             type: 'phaserStrip',
@@ -85,6 +84,11 @@ export const CantFire: Story = {
         decay: {
             startTime: Date.now(),
             endTime: Date.now() + 10000,
+        },
+        firingSolution: {
+            range: 2000,
+            relativeBearing: 0,
+            targetAspect: 0,
         },
     },
 };

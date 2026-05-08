@@ -1,9 +1,10 @@
 import { ClientArray } from '@colyseus/core';
 import { Schema, type, view, MapSchema } from '@colyseus/schema';
-import { CrewRole, ownHelmClientRole, ownSensorClientRole as sensorsClientRole, ownTacticalClientRole, ownEngineerClientRole, ownShipClientRole, otherShipClientRole, otherHelmClientRole } from 'common-data/features/ships/types/CrewRole';
+import { CrewRole, ownHelmClientRole, ownSensorClientRole as sensorsClientRole, ownTacticalClientRole, ownEngineerClientRole, ownShipClientRole, otherShipClientRole, otherHelmClientRole, otherTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { PlayerShip } from './PlayerShip';
+import { Ship } from './Ship';
 
 export class CrewState extends Schema {
     constructor(clients: ClientArray, shipClientId: string, crewId: string) {
@@ -137,7 +138,10 @@ export class CrewState extends Schema {
         return true;
     }
 
-    /** Add a game object to the viewscreen & helm clients' views. */
+    /**
+     * Add a game object to the viewscreen, helm and tactical clients' views.
+     * (Only add to tactical if it's a ship, since that's currently the only thing that can be targeted.)
+     */
     addObjectToViews(object: GameObject): void {
         if (!this.clients || object === this.ship) {
             return;
@@ -151,6 +155,11 @@ export class CrewState extends Schema {
         const helmClient = this.clients.getById(this.helmClientId);
         if (helmClient?.view && !helmClient.view.has(object)) {
             helmClient.view.add(object, otherHelmClientRole);
+        }
+
+        const tacticalClient = this.clients.getById(this.tacticalClientId);
+        if (tacticalClient?.view && !tacticalClient.view.has(object) && object instanceof Ship) {
+            tacticalClient.view.add(object, otherTacticalClientRole);
         }
     }
 

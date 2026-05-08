@@ -1,3 +1,4 @@
+import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
@@ -125,39 +126,62 @@ export const UI: Story = {
         ],
         targets: [
             {
-                id: 'Enemy Ship 1',
+                id: 'target1',
                 name: 'Enemy Ship 1',
                 appearance: 'scout',
-                slotNoFireReasons: ['range', 'bearing'],
+                relationship: RelationshipType.Hostile,
+                motion: [
+                    { time: 0, x: 100, y: 100, angle: 0 },
+                    { time: 1000, x: 200, y: 100, angle: 0 },
+                ],
             },
             {
-                id: 'Enemy Ship 2',
+                id: 'target2',
                 name: 'Enemy Ship 2',
                 appearance: 'starfighter',
-                slotNoFireReasons: [null, 'range'],
+                relationship: RelationshipType.Hostile,
+                motion: [
+                    { time: 0, x: -100, y: 100, angle: 0 },
+                    { time: 1000, x: 100, y: -100, angle: 0 },
+                ],
             },
             {
-                id: 'Enemy Ship 3',
+                id: 'target3',
                 name: 'Enemy Ship 3',
                 appearance: 'satellite',
-                slotNoFireReasons: [null, null],
-                vulnerabilities: ['engine'],
+                relationship: RelationshipType.Hostile,
+                motion: [
+                    { time: 0, x: 100, y: 100, angle: 0 },
+                    { time: 1000, x: 200, y: 100, angle: 0 },
+                ],
             },
             {
-                id: 'Enemy Ship 4',
+                id: 'target4',
                 name: 'Enemy Ship 4',
                 appearance: 'interceptor',
-                slotNoFireReasons: [null, null],
-                vulnerabilities: ['shields', 'weapons'],
+                relationship: RelationshipType.Hostile,
+                motion: [
+                    { time: 0, x: -100, y: 100, angle: 0 },
+                    { time: 1000, x: 100, y: -100, angle: 0 },
+                ],
             },
             {
-                id: 'Enemy Ship 5',
+                id: 'target5',
                 name: 'Enemy Ship 5',
                 appearance: 'spaceship',
-                slotNoFireReasons: [null, null],
-                vulnerabilities: ['shields', 'weapons', 'engine'],
+                relationship: RelationshipType.Hostile,
+                motion: [
+                    { time: 0, x: -100, y: 100, angle: 0 },
+                    { time: 1000, x: 100, y: -100, angle: 0 },
+                ],
             },
         ],
+        vulnerabilitiesByTarget: new Map([
+            ['target2', []],
+            ['target3', ['engine']],
+            ['target4', ['shields', 'weapons']],
+            ['target5', ['shields', 'weapons', 'engine']],
+        ]),
         power: 5,
         maxHandSize: 5,
         drawPileSize: 3,

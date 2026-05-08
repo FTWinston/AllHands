@@ -119,13 +119,8 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         return this._knownObjects;
     }
 
-    protected addKnownObject(objectId: string, object: GameObject) {
+    protected addKnownObject(objectId: string, _object: GameObject) {
         this._knownObjects.add(objectId);
-
-        if (object !== this) {
-            this.tacticalState.addTarget(objectId, object);
-            // TODO: add to sensors target list.
-        }
     }
 
     protected removeKnownObject(objectId: string, _object: GameObject) {
@@ -135,7 +130,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     private removeKnownObjectId(objectId: string) {
         this._knownObjects.delete(objectId);
 
-        this.tacticalState.removeTarget(objectId);
+        this.tacticalState.vulnerabilitiesByTarget.delete(objectId);
         // TODO: remove from sensors target list.
     }
 

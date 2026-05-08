@@ -1,4 +1,5 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
+import { FiringSolution } from 'common-data/features/space/types/FiringSolution';
 import { Cooldown } from 'common-data/types/Cooldown';
 import colorPalletes from 'common-ui/ColorPalette.module.css';
 import { DiscreteProgress } from 'common-ui/components/DiscreteProgress';
@@ -17,11 +18,14 @@ export type SlotProps = {
     card?: CardInstance | null;
     charge: number;
     decay?: Cooldown | null;
-    noFireReason?: string | null;
     primed: boolean;
 };
 
-function getCardWrapper(props: SlotProps, fullyCharged: boolean) {
+type Props = SlotProps & {
+    firingSolution: FiringSolution | null;
+};
+
+function getCardWrapper(props: Props, fullyCharged: boolean) {
     if (!props.card) {
         return (
             <CardDropTarget
@@ -60,7 +64,14 @@ function getCardWrapper(props: SlotProps, fullyCharged: boolean) {
     );
 }
 
-export const WeaponSlot = (props: SlotProps) => {
+// TODO: these should be determined from the card.
+const minRange = 0;
+const maxRange = 1000;
+const maxAngleOffset = Math.PI / 2;
+const minTargetAspect = -Math.PI;
+const maxTargetAspect = Math.PI;
+
+export const WeaponSlot = (props: Props) => {
     const maxCharge = props.card ? getCardDefinition(props.card.type).cost : 0;
     const isFullyCharged = props.card ? props.charge >= maxCharge : false;
 
@@ -83,11 +94,31 @@ export const WeaponSlot = (props: SlotProps) => {
             mainPallete = 'primary';
             statusHeading = 'Charging weapon';
             description = <>Drag non-weapon cards onto this slot to charge it.</>;
-        } else if (props.noFireReason) {
-            statusText = props.noFireReason;
+        } else if (props.firingSolution === null) {
+            statusText = 'no target';
+            mainPallete = 'primary';
+            statusHeading = 'No target';
+            description = <>Weapon is ready, but no target is currently selected.</>;
+        } else if (props.firingSolution.range > maxRange) {
+            statusText = 'range';
             mainPallete = 'danger';
-            statusHeading = 'Blocked weapon';
-            description = <>Weapon is ready, but unable to fire at this enemy.</>;
+            statusHeading = 'Out of range';
+            description = <>Weapon is ready, but you are too far away from the target.</>;
+        } else if (props.firingSolution.range < minRange) {
+            statusText = 'range';
+            mainPallete = 'danger';
+            statusHeading = 'Out of range';
+            description = <>Weapon is ready, but you are too close to the target.</>;
+        } else if (Math.abs(props.firingSolution.relativeBearing) > maxAngleOffset) {
+            statusText = 'bearing';
+            mainPallete = 'danger';
+            statusHeading = 'Not facing target';
+            description = <>Weapon is ready, but you are not facing the target.</>;
+        } else if (props.firingSolution.targetAspect < minTargetAspect || props.firingSolution.targetAspect > maxTargetAspect) {
+            statusText = 'obscured';
+            mainPallete = 'danger';
+            statusHeading = 'Vulnerability is obscured';
+            description = <>Weapon is ready, but target vulnerability is not visible.</>;
         } else {
             statusText = 'ready';
             mainPallete = 'good';

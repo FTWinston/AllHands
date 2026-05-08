@@ -2,6 +2,7 @@ import { useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { useCallback } from 'react';
 import { TacticalDisplay } from './components/TacticalDisplay';
 import type { Room } from '@colyseus/sdk';
@@ -10,11 +11,13 @@ import type { GameState } from 'engine/state/GameState';
 type Props = {
     room: Room<{ state: GameState }>;
     shipId: string;
+    timeProvider: ITimeProvider;
 };
 
 export const Tactical = (props: Props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
     const localShip = objects[props.shipId] as ShipInfo;
+    const targets = Object.values(objects).filter(obj => obj !== localShip);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -39,7 +42,10 @@ export const Tactical = (props: Props) => {
         <TacticalDisplay
             cards={tacticalState.hand}
             slots={tacticalState.slots}
-            targets={tacticalState.targets}
+            timeProvider={props.timeProvider}
+            shipMotion={localShip.motion}
+            targets={targets}
+            vulnerabilitiesByTarget={tacticalState.vulnerabilitiesByTarget}
             onPause={pause}
             power={tacticalState.powerLevel}
             maxHandSize={tacticalState.maxHandSize}

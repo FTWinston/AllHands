@@ -1,4 +1,5 @@
-import { TacticalTargetInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
+import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { ObjectIcon } from 'common-ui/objects';
 import { classNames } from 'common-ui/utils/classNames';
@@ -6,9 +7,10 @@ import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import styles from './Target.module.css';
 import { VulnerabilityList } from './VulnerabilityList';
 
-type Props = Omit<TacticalTargetInfo, 'slotNoFireReasons'> & {
+type Props = GameObjectInfo & {
     targetNumber: number;
     totalTargets: number;
+    vulnerabilities?: Vulnerability[] | null;
 };
 
 export const Target = (props: Props) => {

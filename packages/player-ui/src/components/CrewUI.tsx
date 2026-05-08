@@ -32,6 +32,7 @@ export const CrewUI: FC<Props> = (props) => {
                 <Tactical
                     room={room}
                     shipId={props.shipId}
+                    timeProvider={timeProvider}
                 />
             );
         case ownSensorClientRole:

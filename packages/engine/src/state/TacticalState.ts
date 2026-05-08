@@ -1,14 +1,13 @@
-import { ArraySchema, type } from '@colyseus/schema';
+import { ArraySchema, MapSchema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType, WeaponSlotTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
 import { TacticalSystemInfo, TacticalSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { CrewSystemState } from './CrewSystemState';
-import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { Ship } from './Ship';
-import { TacticalTargetState } from './TacticalTargetState';
 import { WeaponSlotState } from './WeaponSlotState';
 
 export class TacticalState extends CrewSystemState implements TacticalSystemInfo {
@@ -20,7 +19,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
     }
 
-    @type([TacticalTargetState]) targets = new ArraySchema<TacticalTargetState>();
+    @type({ map: ['string'] }) readonly vulnerabilitiesByTarget = new MapSchema<Vulnerability[]>();
     @type([WeaponSlotState]) slots = new ArraySchema<WeaponSlotState>();
 
     update(_currentTime: number) {
@@ -95,23 +94,6 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             slot.noFireReason = null;
         } else {
             slot.adjustParameter('uses', -1);
-        }
-    }
-
-    addTarget(id: string, object: GameObject) {
-        // Only ships should show as targets on the tactical system.
-        // (We've already filtered out THIS ship.)
-        if (!(object instanceof Ship)) {
-            return;
-        }
-
-        this.targets.push(new TacticalTargetState(id, object.name, object.appearance));
-    }
-
-    removeTarget(id: string) {
-        const index = this.targets.findIndex(target => target.id === id);
-        if (index !== -1) {
-            this.targets.splice(index, 1);
         }
     }
 }
