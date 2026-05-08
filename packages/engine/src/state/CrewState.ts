@@ -1,6 +1,6 @@
 import { ClientArray } from '@colyseus/core';
 import { Schema, type, view, MapSchema } from '@colyseus/schema';
-import { CrewRole, helmClientRole, sensorClientRole as sensorsClientRole, tacticalClientRole, engineerClientRole, shipClientRole } from 'common-data/features/ships/types/CrewRole';
+import { CrewRole, ownHelmClientRole, ownSensorClientRole as sensorsClientRole, ownTacticalClientRole, ownEngineerClientRole, ownShipClientRole, otherShipClientRole, otherHelmClientRole } from 'common-data/features/ships/types/CrewRole';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { PlayerShip } from './PlayerShip';
@@ -63,12 +63,12 @@ export class CrewState extends Schema {
      * Return true if already in the requested role.
      */
     tryAssignRole(clientId: string, role: CrewRole): boolean {
-        if (role === helmClientRole) {
+        if (role === ownHelmClientRole) {
             if (this.helmClientId) {
                 return this.helmClientId === clientId;
             }
             this.helmClientId = clientId;
-        } else if (role === tacticalClientRole) {
+        } else if (role === ownTacticalClientRole) {
             if (this.tacticalClientId) {
                 return this.tacticalClientId === clientId;
             }
@@ -78,7 +78,7 @@ export class CrewState extends Schema {
                 return this.sensorsClientId === clientId;
             }
             this.sensorsClientId = clientId;
-        } else if (role === engineerClientRole) {
+        } else if (role === ownEngineerClientRole) {
             if (this.engineerClientId) {
                 return this.engineerClientId === clientId;
             }
@@ -88,16 +88,16 @@ export class CrewState extends Schema {
         }
 
         // Unassign from any existing roles.
-        if (clientId === this.helmClientId && role !== helmClientRole) {
+        if (clientId === this.helmClientId && role !== ownHelmClientRole) {
             this.helmClientId = '';
         }
-        if (clientId === this.tacticalClientId && role !== tacticalClientRole) {
+        if (clientId === this.tacticalClientId && role !== ownTacticalClientRole) {
             this.tacticalClientId = '';
         }
         if (clientId === this.sensorsClientId && role !== sensorsClientRole) {
             this.sensorsClientId = '';
         }
-        if (clientId === this.engineerClientId && role !== engineerClientRole) {
+        if (clientId === this.engineerClientId && role !== ownEngineerClientRole) {
             this.engineerClientId = '';
         }
 
@@ -137,25 +137,20 @@ export class CrewState extends Schema {
         return true;
     }
 
-    /** Add a game object to the viewscreen, helm, and tactical clients' views. */
+    /** Add a game object to the viewscreen & helm clients' views. */
     addObjectToViews(object: GameObject): void {
-        if (!this.clients) {
+        if (!this.clients || object === this.ship) {
             return;
         }
 
         const shipClient = this.clients.getById(this.shipClientId);
         if (shipClient?.view && !shipClient.view.has(object)) {
-            shipClient.view.add(object);
+            shipClient.view.add(object, otherShipClientRole);
         }
 
         const helmClient = this.clients.getById(this.helmClientId);
         if (helmClient?.view && !helmClient.view.has(object)) {
-            helmClient.view.add(object);
-        }
-
-        const tacticalClient = this.clients.getById(this.tacticalClientId);
-        if (tacticalClient?.view && !tacticalClient.view.has(object)) {
-            tacticalClient.view.add(object);
+            helmClient.view.add(object, otherHelmClientRole);
         }
     }
 
@@ -199,17 +194,17 @@ export class CrewState extends Schema {
 
         const shipClient = this.clients.getById(this.shipClientId);
         if (shipClient?.view) {
-            shipClient.view.add(this.ship, shipClientRole);
+            shipClient.view.add(this.ship, ownShipClientRole);
         }
 
         const helmClient = this.clients.getById(this.helmClientId);
         if (helmClient?.view) {
-            helmClient.view.add(this.ship, helmClientRole);
+            helmClient.view.add(this.ship, ownHelmClientRole);
         }
 
         const tacticalClient = this.clients.getById(this.tacticalClientId);
         if (tacticalClient?.view) {
-            tacticalClient.view.add(this.ship, tacticalClientRole);
+            tacticalClient.view.add(this.ship, ownTacticalClientRole);
         }
 
         const sensorsClient = this.clients.getById(this.sensorsClientId);
@@ -219,7 +214,7 @@ export class CrewState extends Schema {
 
         const engineerClient = this.clients.getById(this.engineerClientId);
         if (engineerClient?.view) {
-            engineerClient.view.add(this.ship, engineerClientRole);
+            engineerClient.view.add(this.ship, ownEngineerClientRole);
         }
 
         // Add all game objects to the viewscreen, helm and tactical clients' views.
@@ -239,17 +234,17 @@ export class CrewState extends Schema {
 
         const shipClient = this.clients.getById(this.shipClientId);
         if (shipClient?.view) {
-            shipClient.view.remove(this.ship, shipClientRole);
+            shipClient.view.remove(this.ship, ownShipClientRole);
         }
 
         const helmClient = this.clients.getById(this.helmClientId);
         if (helmClient?.view) {
-            helmClient.view.remove(this.ship, helmClientRole);
+            helmClient.view.remove(this.ship, ownHelmClientRole);
         }
 
         const tacticalClient = this.clients.getById(this.tacticalClientId);
         if (tacticalClient?.view) {
-            tacticalClient.view.remove(this.ship, tacticalClientRole);
+            tacticalClient.view.remove(this.ship, ownTacticalClientRole);
         }
 
         const sensorsClient = this.clients.getById(this.sensorsClientId);
@@ -259,7 +254,7 @@ export class CrewState extends Schema {
 
         const engineerClient = this.clients.getById(this.engineerClientId);
         if (engineerClient?.view) {
-            engineerClient.view.remove(this.ship, engineerClientRole);
+            engineerClient.view.remove(this.ship, ownEngineerClientRole);
         }
 
         // Remove all game objects from all client views.

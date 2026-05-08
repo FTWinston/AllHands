@@ -1,5 +1,5 @@
 import { entity, type, view } from '@colyseus/schema';
-import { helmClientRole, sensorClientRole, tacticalClientRole, engineerClientRole } from 'common-data/features/ships/types/CrewRole';
+import { ownHelmClientRole, ownSensorClientRole, ownTacticalClientRole, ownEngineerClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { Damage } from 'common-data/features/space/types/Damage';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
@@ -56,10 +56,10 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
     hullState: HullSystemState;
     reactorState: ReactorSystemState;
-    @view(helmClientRole) @type(HelmState) helmState: HelmState;
-    @view(sensorClientRole) @type(CrewSystemState) sensorState: CrewSystemState;
-    @view(tacticalClientRole) @type(TacticalState) tacticalState: TacticalState;
-    @view(engineerClientRole) @type(EngineerState) engineerState: EngineerState;
+    @view(ownHelmClientRole) @type(HelmState) helmState: HelmState;
+    @view(ownSensorClientRole) @type(CrewSystemState) sensorState: CrewSystemState;
+    @view(ownTacticalClientRole) @type(TacticalState) tacticalState: TacticalState;
+    @view(ownEngineerClientRole) @type(EngineerState) engineerState: EngineerState;
 
     private systems: ReadonlyMap<ShipSystem, SystemState>;
 
@@ -94,31 +94,47 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     updateKnownObjects(currentTime: number) {
         const ownPosition = this.getPosition(currentTime);
 
+        for (const objectId of this._knownObjects) {
+            if (!this.gameState.objects.has(objectId)) {
+                // Object was removed from the game, so remove from known objects.
+                this.removeKnownObjectId(objectId);
+            }
+        }
+
         for (const [objectId, object] of this.gameState.objects.entries()) {
             const objectPosition = object.getPosition(currentTime);
             const inRange = distanceSq(ownPosition, objectPosition) <= this.detectionRangeSq;
 
-            if (inRange && !this.knownObjects.has(objectId)) {
+            if (inRange && !this._knownObjects.has(objectId)) {
                 this.addKnownObject(objectId, object);
-            } else if (!inRange && this.knownObjects.has(objectId)) {
-                this.removeKnownObject(objectId);
+            } else if (!inRange && this._knownObjects.has(objectId)) {
+                this.removeKnownObject(objectId, object);
             }
         }
     }
 
-    readonly knownObjects: ReadonlySet<string> = new Set<string>();
+    private readonly _knownObjects = new Set<string>();
 
-    addKnownObject(objectId: string, object: GameObject) {
-        (this.knownObjects as Set<string>).add(objectId);
-
-        // TODO: add to objects visible on helm and viewscreen.
-        this.tacticalState.addTarget(objectId, object);
-        // TODO: add to sensors target list.
+    get knownObjects(): ReadonlySet<string> {
+        return this._knownObjects;
     }
 
-    removeKnownObject(objectId: string) {
-        (this.knownObjects as Set<string>).delete(objectId);
-        // TODO: remove from objects visible on helm and viewscreen.
+    protected addKnownObject(objectId: string, object: GameObject) {
+        this._knownObjects.add(objectId);
+
+        if (object !== this) {
+            this.tacticalState.addTarget(objectId, object);
+            // TODO: add to sensors target list.
+        }
+    }
+
+    protected removeKnownObject(objectId: string, _object: GameObject) {
+        this.removeKnownObjectId(objectId);
+    }
+
+    private removeKnownObjectId(objectId: string) {
+        this._knownObjects.delete(objectId);
+
         this.tacticalState.removeTarget(objectId);
         // TODO: remove from sensors target list.
     }

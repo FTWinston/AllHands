@@ -4,7 +4,7 @@ import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { engineerClientRole, getRole, helmClientRole, sensorClientRole, tacticalClientRole, type CrewRole, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
+import { ownEngineerClientRole, getRole, ownHelmClientRole, ownSensorClientRole, ownTacticalClientRole, type CrewRole, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
@@ -216,7 +216,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 return;
             }
 
-            if (clientRole !== engineerClientRole) {
+            if (clientRole !== ownEngineerClientRole) {
                 console.error('Only engineer can repair systems');
                 return;
             }
@@ -246,7 +246,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 return;
             }
 
-            if (clientRole !== helmClientRole) {
+            if (clientRole !== ownHelmClientRole) {
                 console.error('Only helm can cancel maneuvers');
                 return;
             }
@@ -355,13 +355,13 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         }
 
         if (client.sessionId == crew.helmClientId) {
-            return [crew.ship, helmClientRole];
+            return [crew.ship, ownHelmClientRole];
         } else if (client.sessionId == crew.tacticalClientId) {
-            return [crew.ship, tacticalClientRole];
+            return [crew.ship, ownTacticalClientRole];
         } else if (client.sessionId == crew.sensorsClientId) {
-            return [crew.ship, sensorClientRole];
+            return [crew.ship, ownSensorClientRole];
         } else if (client.sessionId == crew.engineerClientId) {
-            return [crew.ship, engineerClientRole];
+            return [crew.ship, ownEngineerClientRole];
         } else {
             return [null, null];
         }
@@ -370,19 +370,19 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
     /**
      * Get the system state for a given system on a ship.
      */
-    private getSystemState(ship: PlayerShip, system: typeof helmClientRole): HelmState;
-    private getSystemState(ship: PlayerShip, system: typeof engineerClientRole): EngineerState;
-    private getSystemState(ship: PlayerShip, system: Exclude<CrewRole, typeof helmClientRole | typeof engineerClientRole>): CrewSystemState;
+    private getSystemState(ship: PlayerShip, system: typeof ownHelmClientRole): HelmState;
+    private getSystemState(ship: PlayerShip, system: typeof ownEngineerClientRole): EngineerState;
+    private getSystemState(ship: PlayerShip, system: Exclude<CrewRole, typeof ownHelmClientRole | typeof ownEngineerClientRole>): CrewSystemState;
     private getSystemState(ship: PlayerShip, system: CrewRole): CrewSystemState;
     private getSystemState(ship: PlayerShip, system: CrewRole): HelmState | EngineerState | CrewSystemState {
         switch (system) {
-            case helmClientRole:
+            case ownHelmClientRole:
                 return ship.helmState;
-            case tacticalClientRole:
+            case ownTacticalClientRole:
                 return ship.tacticalState;
-            case sensorClientRole:
+            case ownSensorClientRole:
                 return ship.sensorState;
-            case engineerClientRole:
+            case ownEngineerClientRole:
                 return ship.engineerState;
             default:
                 throw new Error(`Invalid system role: ${system}`);

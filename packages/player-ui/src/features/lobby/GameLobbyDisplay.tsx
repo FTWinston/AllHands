@@ -1,4 +1,4 @@
-import { CrewRole, engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { CrewRole, ownEngineerClientRole, ownHelmClientRole, ownSensorClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { Screen } from 'common-ui/components/Screen';
 import { ToggleButton } from 'common-ui/components/ToggleButton';
@@ -49,9 +49,9 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                         name="Helm"
                         icon={<HelmIcon />}
                         occupied={helmOccupied}
-                        selected={role === helmClientRole}
+                        selected={role === ownHelmClientRole}
                         onSelectionChange={(selected) => {
-                            onRoleChange(selected ? helmClientRole : '');
+                            onRoleChange(selected ? ownHelmClientRole : '');
                         }}
                     />
                 </li>
@@ -60,9 +60,9 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                         name="Tactical"
                         icon={<TacticalIcon />}
                         occupied={tacticalOccupied}
-                        selected={role === tacticalClientRole}
+                        selected={role === ownTacticalClientRole}
                         onSelectionChange={(selected) => {
-                            onRoleChange(selected ? tacticalClientRole : '');
+                            onRoleChange(selected ? ownTacticalClientRole : '');
                         }}
                     />
                 </li>
@@ -71,9 +71,9 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                         name="Sensors"
                         icon={<SensorsIcon />}
                         occupied={sensorsOccupied}
-                        selected={role === sensorClientRole}
+                        selected={role === ownSensorClientRole}
                         onSelectionChange={(selected) => {
-                            onRoleChange(selected ? sensorClientRole : '');
+                            onRoleChange(selected ? ownSensorClientRole : '');
                         }}
                     />
                 </li>
@@ -82,9 +82,9 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                         name="Engineer"
                         icon={<EngineeringIcon />}
                         occupied={engineerOccupied}
-                        selected={role === engineerClientRole}
+                        selected={role === ownEngineerClientRole}
                         onSelectionChange={(selected) => {
-                            onRoleChange(selected ? engineerClientRole : '');
+                            onRoleChange(selected ? ownEngineerClientRole : '');
                         }}
                     />
                 </li>

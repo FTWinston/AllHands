@@ -1,8 +1,9 @@
 import { entity, type, view } from '@colyseus/schema';
-import { shipClientRole } from 'common-data/features/ships/types/CrewRole';
+import { ownShipClientRole } from 'common-data/features/ships/types/CrewRole';
 import { PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { CrewState } from './CrewState';
+import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { Ship } from './Ship';
 import { ViewState } from './ViewState';
@@ -19,7 +20,19 @@ export class PlayerShip extends Ship {
 
     crew: CrewState | null = null;
 
-    @view(shipClientRole) @type(ViewState) readonly viewState: ViewState = new ViewState();
+    @view(ownShipClientRole) @type(ViewState) readonly viewState: ViewState = new ViewState();
+
+    protected addKnownObject(objectId: string, object: GameObject) {
+        super.addKnownObject(objectId, object);
+
+        this.crew?.addObjectToViews(object);
+    }
+
+    protected removeKnownObject(objectId: string, object: GameObject) {
+        super.removeKnownObject(objectId, object);
+
+        this.crew?.removeObjectFromViews(object);
+    }
 
     destroy() {
         super.destroy();

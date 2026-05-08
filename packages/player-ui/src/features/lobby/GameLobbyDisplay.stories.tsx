@@ -1,4 +1,4 @@
-import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { ownEngineerClientRole, ownHelmClientRole, ownSensorClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { fn } from 'storybook/test';
 
@@ -41,7 +41,7 @@ export const SoloCrewNoRole: Story = {
 export const SoloCrewPartiallyOccupied: Story = {
     args: {
         crewId: soloCrewIdentifier,
-        role: helmClientRole,
+        role: ownHelmClientRole,
         ready: false,
         helmOccupied: true,
         tacticalOccupied: true,
@@ -53,7 +53,7 @@ export const SoloCrewPartiallyOccupied: Story = {
 export const SoloCrewReady: Story = {
     args: {
         crewId: soloCrewIdentifier,
-        role: tacticalClientRole,
+        role: ownTacticalClientRole,
         ready: true,
         helmOccupied: true,
         tacticalOccupied: true,
@@ -77,7 +77,7 @@ export const MultipleCrewEmpty: Story = {
 export const MultipleCrewPartiallyOccupied: Story = {
     args: {
         crewId: 'ABC',
-        role: sensorClientRole,
+        role: ownSensorClientRole,
         ready: false,
         helmOccupied: true,
         tacticalOccupied: false,
@@ -89,7 +89,7 @@ export const MultipleCrewPartiallyOccupied: Story = {
 export const MultipleCrewReady: Story = {
     args: {
         crewId: 'ABC',
-        role: engineerClientRole,
+        role: ownEngineerClientRole,
         ready: true,
         helmOccupied: true,
         tacticalOccupied: true,

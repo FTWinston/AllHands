@@ -7,9 +7,9 @@ import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { CrewSystemState } from './CrewSystemState';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
+import { Ship } from './Ship';
 import { TacticalTargetState } from './TacticalTargetState';
 import { WeaponSlotState } from './WeaponSlotState';
-import type { Ship } from './Ship';
 
 export class TacticalState extends CrewSystemState implements TacticalSystemInfo {
     constructor(setup: TacticalSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
@@ -42,14 +42,14 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     playWeapon(slot: WeaponSlotState, cardType: WeaponSlotTargetedCardType, targetId: string): EngineCardDefinition | null {
         const splitPos = targetId.indexOf(':');
         let targetObjectId: string;
-        let _targetVulnerability: string | null;
+        // let _targetVulnerability: string | null;
 
         if (splitPos !== -1) {
             targetObjectId = targetId.substring(0, splitPos);
-            _targetVulnerability = targetId.substring(splitPos + 1);
+            // _targetVulnerability = targetId.substring(splitPos + 1);
         } else {
             targetObjectId = targetId;
-            _targetVulnerability = null;
+            // _targetVulnerability = null;
         }
 
         const target = this.resolveTarget(targetObjectId);
@@ -99,14 +99,13 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     }
 
     addTarget(id: string, object: GameObject) {
-        /*
-        if (false) {
-            // TODO: determine if this is a valid target.
+        // Only ships should show as targets on the tactical system.
+        // (We've already filtered out THIS ship.)
+        if (!(object instanceof Ship)) {
             return;
         }
-        */
 
-        this.targets.push(new TacticalTargetState(id, 'Some object', object.appearance));
+        this.targets.push(new TacticalTargetState(id, object.name, object.appearance));
     }
 
     removeTarget(id: string) {

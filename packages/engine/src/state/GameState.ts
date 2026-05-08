@@ -26,13 +26,6 @@ export class GameState extends Schema {
 
     public add(object: GameObject) {
         this.objects.set(object.id, object);
-
-        if (this.gameStatus === 'active') {
-            // Add object to the viewscreen, helm and tactical clients' views on every crew.
-            for (const crew of this.crews.values()) {
-                crew.addObjectToViews(object);
-            }
-        }
     }
 
     public remove(object: GameObject) {
@@ -51,8 +44,6 @@ export class GameState extends Schema {
     }
 
     public tick(deltaTime: number) {
-        // TODO: update visibility of each object, for each crew.
-
         const currentTime = this.clock.currentTime;
 
         for (const object of this.objects.values()) {

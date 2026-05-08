@@ -1,6 +1,6 @@
 import { useRoomState } from '@colyseus/react';
 import { Room, Client, getStateCallbacks } from '@colyseus/sdk';
-import { engineerClientRole, helmClientRole, sensorClientRole, tacticalClientRole, type CrewRole } from 'common-data/features/ships/types/CrewRole';
+import { ownEngineerClientRole, ownHelmClientRole, ownSensorClientRole, ownTacticalClientRole, type CrewRole } from 'common-data/features/ships/types/CrewRole';
 import { roomIdentifier, soloCrewIdentifier } from 'common-data/utils/constants';
 import { TimeSynchronizer } from 'common-ui/classes/TimeSynchronizer';
 import { useEffect, useRef, useState } from 'react';
@@ -71,13 +71,13 @@ export function useRoomConnection(
                         }
 
                         if (crew.helmClientId === joinedRoom.sessionId) {
-                            setRole(helmClientRole);
+                            setRole(ownHelmClientRole);
                         } else if (crew.tacticalClientId === joinedRoom.sessionId) {
-                            setRole(tacticalClientRole);
+                            setRole(ownTacticalClientRole);
                         } else if (crew.sensorsClientId === joinedRoom.sessionId) {
-                            setRole(sensorClientRole);
+                            setRole(ownSensorClientRole);
                         } else if (crew.engineerClientId === joinedRoom.sessionId) {
-                            setRole(engineerClientRole);
+                            setRole(ownEngineerClientRole);
                         } else {
                             setRole(null);
                         }

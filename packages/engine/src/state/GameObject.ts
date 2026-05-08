@@ -1,4 +1,5 @@
-import { ArraySchema, Schema, type } from '@colyseus/schema';
+import { ArraySchema, Schema, type, view } from '@colyseus/schema';
+import { otherHelmClientRole, otherShipClientRole, otherTacticalClientRole, ownHelmClientRole, ownShipClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { GameObjectInfo, GameObjectSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
 import { Position } from 'common-data/features/space/types/Position';
@@ -22,12 +23,16 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
 
     @type('string') public readonly id: string;
 
+    @view(ownHelmClientRole, ownShipClientRole, otherHelmClientRole, otherShipClientRole, otherTacticalClientRole)
     @type('string') public readonly name: string;
 
+    @view(ownHelmClientRole, ownShipClientRole, otherHelmClientRole, otherShipClientRole, otherTacticalClientRole)
     @type('string') public readonly appearance: ObjectAppearance;
 
+    @view(ownHelmClientRole, ownShipClientRole, otherHelmClientRole, otherShipClientRole, otherTacticalClientRole)
     @type('number') relationship: RelationshipType;
 
+    @view(ownHelmClientRole, ownShipClientRole, otherHelmClientRole, otherShipClientRole, ownTacticalClientRole, otherTacticalClientRole)
     @type([MotionKeyframe]) motion = new ArraySchema<MotionKeyframe>();
 
     getPosition(currentTime: number): Position {
