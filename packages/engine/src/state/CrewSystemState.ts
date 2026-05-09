@@ -132,7 +132,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         }
 
         const parameters = resolveParameters(cardDefinition.parameters, card.modifiers);
-        const resolvedCost = parameters.get('cost') ?? cardDefinition.cost;
+        const resolvedCost = parameters['cost'];
 
         if (this.powerLevel < resolvedCost) {
             console.warn('insufficient power to play card');

@@ -96,8 +96,8 @@ export abstract class BaseSystemAiController {
                 capabilities.push({
                     system: this.role,
                     action: evaluation.action,
-                    readyAt: system.powerLevel >= definition.cost ? null : currentTime,
-                    energyCost: definition.cost,
+                    readyAt: system.powerLevel >= definition.parameters.cost ? null : currentTime,
+                    energyCost: definition.parameters.cost,
                     cardId: card.id,
                     cardType,
                     target: evaluation.target,

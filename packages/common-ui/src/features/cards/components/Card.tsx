@@ -1,4 +1,4 @@
-import { CardParameters } from 'common-data/features/cards/types/CardParameters';
+import { MinimalReadonlyMap } from 'common-data/types/MinimalArray';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { FC } from 'react';
 import { getCardDefinition } from '../utils/getUiCardDefinition';
@@ -10,7 +10,7 @@ type Props = {
     slotted?: boolean;
     disabled?: boolean;
     highlighted?: boolean;
-    modifiers?: CardParameters;
+    modifiers?: MinimalReadonlyMap<string, number>;
     showTraits?: boolean;
 };
 

@@ -1,8 +1,8 @@
 import { CardType } from '../utils/cardDefinitions';
-import { CardParameters } from './CardParameters';
+import { MinimalReadonlyMap } from 'src/types/MinimalArray';
 
 export type CardInstance = {
     id: number;
     type: CardType;
-    modifiers?: CardParameters;
+    modifiers?: MinimalReadonlyMap<string, number>;
 };

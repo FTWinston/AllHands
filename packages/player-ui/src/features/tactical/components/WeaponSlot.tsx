@@ -1,4 +1,5 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
+import { resolveParameter } from 'common-data/features/cards/utils/resolveParameters';
 import { FiringSolution } from 'common-data/features/space/types/FiringSolution';
 import { Cooldown } from 'common-data/types/Cooldown';
 import colorPalletes from 'common-ui/ColorPalette.module.css';
@@ -65,15 +66,16 @@ function getCardWrapper(props: Props, fullyCharged: boolean) {
 }
 
 // TODO: these should be determined from the card.
-const minRange = 0;
-const maxRange = 1000;
 const maxAngleOffset = Math.PI / 2;
 const minTargetAspect = -Math.PI;
 const maxTargetAspect = Math.PI;
 
 export const WeaponSlot = (props: Props) => {
-    const maxCharge = props.card ? getCardDefinition(props.card.type).cost : 0;
-    const isFullyCharged = props.card ? props.charge >= maxCharge : false;
+    const { card, charge, firingSolution, primed } = props;
+
+    const cardDefinition = card ? getCardDefinition(card.type) : null;
+    const maxCharge = cardDefinition?.parameters.cost ?? 0;
+    const isFullyCharged = card ? charge >= maxCharge : false;
 
     let statusText: string;
     let mainPallete: ColorPalette | undefined;
@@ -82,39 +84,39 @@ export const WeaponSlot = (props: Props) => {
     let statusHeading;
     let description;
 
-    if (maxCharge) {
-        if (!props.primed) {
+    if (maxCharge && card && cardDefinition) {
+        if (!primed) {
             statusText = 'prime';
             mainPallete = 'primary';
             statusPallete = 'energy';
             statusHeading = 'Unprimed weapon';
             description = <>Drag a non-weapon card onto this slot to prime it with that card's prime effect.</>;
-        } else if (props.charge < maxCharge) {
+        } else if (charge < maxCharge) {
             statusText = 'charge';
             mainPallete = 'primary';
             statusHeading = 'Charging weapon';
             description = <>Drag non-weapon cards onto this slot to charge it.</>;
-        } else if (props.firingSolution === null) {
+        } else if (!firingSolution) {
             statusText = 'no target';
             mainPallete = 'primary';
             statusHeading = 'No target';
             description = <>Weapon is ready, but no target is currently selected.</>;
-        } else if (props.firingSolution.range > maxRange) {
+        } else if (firingSolution.range > resolveParameter('maxRange', cardDefinition.parameters, card.modifiers)) {
             statusText = 'range';
             mainPallete = 'danger';
             statusHeading = 'Out of range';
             description = <>Weapon is ready, but you are too far away from the target.</>;
-        } else if (props.firingSolution.range < minRange) {
+        } else if (firingSolution.range < resolveParameter('minRange', cardDefinition.parameters, card.modifiers)) {
             statusText = 'range';
             mainPallete = 'danger';
             statusHeading = 'Out of range';
             description = <>Weapon is ready, but you are too close to the target.</>;
-        } else if (Math.abs(props.firingSolution.relativeBearing) > maxAngleOffset) {
+        } else if (Math.abs(firingSolution.relativeBearing) > maxAngleOffset) {
             statusText = 'bearing';
             mainPallete = 'danger';
             statusHeading = 'Not facing target';
             description = <>Weapon is ready, but you are not facing the target.</>;
-        } else if (props.firingSolution.targetAspect < minTargetAspect || props.firingSolution.targetAspect > maxTargetAspect) {
+        } else if (firingSolution.targetAspect < minTargetAspect || firingSolution.targetAspect > maxTargetAspect) {
             statusText = 'obscured';
             mainPallete = 'danger';
             statusHeading = 'Vulnerability is obscured';
@@ -156,7 +158,7 @@ export const WeaponSlot = (props: Props) => {
                 className={styles.progress}
                 title="Charge progress"
                 value={props.charge ?? 0}
-                maxValue={props.card ? getCardDefinition(props.card.type).cost : 0}
+                maxValue={props.card ? getCardDefinition(props.card.type).parameters.cost : 0}
                 vertical={true}
                 decay={props.decay}
             />

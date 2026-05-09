@@ -1,6 +1,8 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
+import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { resolveParameter, resolveParameters } from 'common-data/features/cards/utils/resolveParameters';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
 
 export class CardState extends Schema implements CardInstance {
@@ -14,33 +16,22 @@ export class CardState extends Schema implements CardInstance {
     @type('string') readonly type: CardType;
     @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
 
-    getParameters(): Map<string, number> {
+    getParameters(): CardParameters {
         const definition = getCardDefinition(this.type);
 
-        const result = new Map<string, number>(definition.parameters);
-
-        for (const [parameter, adjustment] of this.modifiers) {
-            const definitionValue = result.get(parameter) || 0;
-            result.set(parameter, definitionValue + adjustment);
-        }
-
-        return result;
+        return resolveParameters(definition.parameters, this.modifiers);
     }
 
     getParameter(parameter: string): number {
         const definition = getCardDefinition(this.type);
 
-        const value = definition.parameters?.get(parameter) ?? 0;
-
-        const modifier = this.modifiers.get(parameter) || 0;
-
-        return value + modifier;
+        return resolveParameter(parameter, definition.parameters, this.modifiers);
     }
 
     hasParameter(parameter: string): boolean {
         const definition = getCardDefinition(this.type);
 
-        return definition.parameters?.has(parameter) ?? false;
+        return parameter in definition.parameters;
     }
 
     modifyParameter(parameter: string, adjustment: number) {

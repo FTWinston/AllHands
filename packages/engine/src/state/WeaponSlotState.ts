@@ -1,4 +1,5 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
+import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CardState } from './CardState';
 
@@ -16,19 +17,18 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     @type('string') noFireReason: string | null = null;
     @type('boolean') primed = false;
 
-    getParameters(): Map<string, number> {
+    getParameters(): CardParameters {
         if (!this.card) {
-            return new Map<string, number>();
+            return { cost: 0 };
         }
 
-        const parameters = this.card.getParameters();
+        const parameters: Record<string, number> = { ...this.card.getParameters() };
 
         for (const [parameter, adjustment] of this.modifiers) {
-            const cardValue = parameters.get(parameter) || 0;
-            parameters.set(parameter, cardValue + adjustment);
+            parameters[parameter] = (parameters[parameter] || 0) + adjustment;
         }
 
-        return parameters;
+        return parameters as CardParameters;
     }
 
     getParameter(parameter: string): number {

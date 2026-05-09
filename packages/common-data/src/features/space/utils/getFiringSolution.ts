@@ -2,7 +2,7 @@ import { FiringSolution } from '../types/FiringSolution';
 import { ReadonlyKeyframes } from '../types/Keyframes';
 import { Position } from '../types/Position';
 import { interpolatePosition } from './interpolate';
-import { distance } from './vectors';
+import { clampAngle, determineAngle, distance } from './vectors';
 
 export function getFiringSolution(
     shooterMotion: ReadonlyKeyframes<Position>,
@@ -12,10 +12,12 @@ export function getFiringSolution(
     const shooterPosition = interpolatePosition(shooterMotion, currentTime);
     const targetPosition = interpolatePosition(targetMotion, currentTime);
 
-    // TODO: Implement angle and bearing calculation based on shooterMotion and targetMotion
+    const shooterToTargetAngle = determineAngle(shooterPosition, targetPosition);
+    const targetToShooterAngle = determineAngle(targetPosition, shooterPosition);
+
     return {
         range: distance(shooterPosition, targetPosition),
-        relativeBearing: 0,
-        targetAspect: 0,
+        relativeBearing: clampAngle(shooterToTargetAngle - shooterPosition.angle),
+        targetAspect: clampAngle(targetToShooterAngle - targetPosition.angle - Math.PI), // Subtract an extra pi, cos 0 means target's stern is facing the shooter, not its bow.
     };
 }

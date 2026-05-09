@@ -288,9 +288,7 @@ function loadCardDefinitions() {
             play: (_gameState, ship, system, parameters) => {
                 const systemIndex = ship.engineerState.systems.indexOf(system);
                 const adjacent = ship.engineerState.getAdjacentSystems(systemIndex);
-                const powerChange = parameters.get('powerChange') ?? 1;
-
-                // Reduce target system power by powerChange per adjacent system.
+                const powerChange = parameters['powerChange'] ?? 1;
                 system.addEffect('distributePowerLoss', powerChange * adjacent.length);
 
                 // Increase each adjacent system's power by powerChange.
@@ -304,9 +302,7 @@ function loadCardDefinitions() {
             play: (_gameState, ship, system, parameters) => {
                 const systemIndex = ship.engineerState.systems.indexOf(system);
                 const adjacent = ship.engineerState.getAdjacentSystems(systemIndex);
-                const powerChange = parameters.get('powerChange') ?? 1;
-
-                // Increase target system power by powerChange per adjacent system.
+                const powerChange = parameters['powerChange'] ?? 1;
                 system.addEffect('drawPowerGain', powerChange * adjacent.length);
 
                 // Decrease each adjacent system's power by powerChange.
@@ -318,8 +314,8 @@ function loadCardDefinitions() {
         },
         divertAllPower: {
             play: (_gameState, ship, system, parameters) => {
-                const lossPerSystem = parameters.get('lossPerSystem') ?? 1;
-                const targetGain = parameters.get('targetGain') ?? 5;
+                const lossPerSystem = parameters['lossPerSystem'] ?? 1;
+                const targetGain = parameters['targetGain'] ?? 5;
 
                 // All other systems lose power.
                 for (const otherSystem of ship.engineerState.systems) {
@@ -339,7 +335,7 @@ function loadCardDefinitions() {
                     return false;
                 }
                 const helmTile = ship.engineerState.systems.find(s => s.system === 'helm')!;
-                const maxAmount = parameters.get('maxAmount') ?? 3;
+                const maxAmount = parameters['maxAmount'] ?? 3;
                 const amount = Math.min(maxAmount, helmTile.power);
                 if (amount <= 0) {
                     return false;
@@ -355,7 +351,7 @@ function loadCardDefinitions() {
                     return false;
                 }
                 const sensorsTile = ship.engineerState.systems.find(s => s.system === 'sensors')!;
-                const maxAmount = parameters.get('maxAmount') ?? 3;
+                const maxAmount = parameters['maxAmount'] ?? 3;
                 const amount = Math.min(maxAmount, sensorsTile.power);
                 if (amount <= 0) {
                     return false;
@@ -371,7 +367,7 @@ function loadCardDefinitions() {
                     return false;
                 }
                 const tacticalTile = ship.engineerState.systems.find(s => s.system === 'tactical')!;
-                const maxAmount = parameters.get('maxAmount') ?? 3;
+                const maxAmount = parameters['maxAmount'] ?? 3;
                 const amount = Math.min(maxAmount, tacticalTile.power);
                 if (amount <= 0) {
                     return false;

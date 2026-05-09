@@ -129,7 +129,7 @@ export const useFakePowerAndCards = (args: UseFakePowerAndCardsArgs) => {
     const expendCard = useCallback((cardId: number) => {
         setCards((cards) => {
             const playedCard = cards.find(c => c.id === cardId);
-            const cost = playedCard ? getCardDefinition(playedCard.type).cost : 0;
+            const cost = playedCard ? getCardDefinition(playedCard.type).parameters.cost : 0;
             if (playedCard && cost && checkPowerAndRemoveCard(cost)) {
                 return cards.filter(card => card !== playedCard);
             }

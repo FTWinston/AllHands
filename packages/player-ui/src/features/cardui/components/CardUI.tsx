@@ -34,7 +34,7 @@ export const CardUI: FC<Props> = ({ playCard, cardHand, availablePower, children
             const choiceCardDefinition = getCardDefinition(cardType) as ChoiceCardDefinition;
 
             // Only show the choice if the player has enough power to do so.
-            if (availablePower >= choiceCardDefinition.cost) {
+            if (availablePower >= choiceCardDefinition.parameters.cost) {
                 setChoice({
                     choiceCardId: cardId,
                     options: choiceCardDefinition.cards,

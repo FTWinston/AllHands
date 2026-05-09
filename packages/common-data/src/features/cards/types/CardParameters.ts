@@ -1,3 +1,1 @@
-import { MinimalReadonlyMap } from 'src/types/MinimalArray';
-
-export type CardParameters = MinimalReadonlyMap<string, number>;
+export type CardParameters = Readonly<{ cost: number } & Record<string, number>>;

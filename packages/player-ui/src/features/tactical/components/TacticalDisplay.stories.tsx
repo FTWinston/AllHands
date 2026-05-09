@@ -63,7 +63,7 @@ const meta: Meta<typeof Component> = {
                         }
                     } else if (targetType === 'weapon') {
                         const card = cards.find(c => c.id === cardId);
-                        const cardCost = card ? getCardDefinition(card.type).cost : 0;
+                        const cardCost = card ? getCardDefinition(card.type).parameters.cost : 0;
 
                         if (cardCost) {
                             setSlots(prevSlots => prevSlots.map(slot => slot.id === targetId ? {

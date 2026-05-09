@@ -7,8 +7,7 @@ import { CardTrait } from './CardTrait';
 interface CommonCardDefinition {
     targetType: CardTargetType;
     crew: CrewRoleName;
-    cost: number;
-    parameters?: CardParameters;
+    parameters: CardParameters;
     traits?: CardTrait[];
 }
 
@@ -23,7 +22,13 @@ export type ChoiceCardDefinition<TCardKey extends string = CardType> = CommonCar
 
 export type WeaponSlotTargetCardDefinition = CommonCardDefinition & {
     targetType: 'weapon-slot';
-    chargeCost: number;
+    parameters: CardParameters & {
+        chargeCost: number;
+        range: number;
+        firingArc: number;
+        damage: number;
+        uses: number;
+    };
 };
 
 export type WeaponTargetCardDefinition = CommonCardDefinition & {

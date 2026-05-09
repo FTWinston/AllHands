@@ -1,4 +1,5 @@
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
+import { MinimalReadonlyMap } from 'common-data/types/MinimalArray';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
@@ -23,10 +24,9 @@ type Props = {
     image: ReactNode;
     nameFontSize?: number;
     descriptionLineHeight?: number;
-    cost: number;
     sufficientPower?: boolean;
-    parameters?: CardParameters;
-    modifiers?: CardParameters;
+    parameters: CardParameters;
+    modifiers?: MinimalReadonlyMap<string, number>;
     traits?: CardTrait[];
     showTraits?: boolean;
 };
