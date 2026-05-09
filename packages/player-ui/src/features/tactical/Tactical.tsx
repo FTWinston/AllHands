@@ -1,9 +1,9 @@
 import { useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, ObjectId, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { TacticalDisplay } from './components/TacticalDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GameState } from 'engine/state/GameState';
@@ -14,10 +14,25 @@ type Props = {
     timeProvider: ITimeProvider;
 };
 
+function useStableOrderedTargets(objects: Record<string, GameObjectInfo>, localShip: ShipInfo): GameObjectInfo[] {
+    const insertionOrder = useRef<ObjectId[]>([]);
+    const allTargets = Object.values(objects).filter(obj => obj !== localShip);
+
+    for (const obj of allTargets) {
+        if (!insertionOrder.current.includes(obj.id)) {
+            insertionOrder.current.push(obj.id);
+        }
+    }
+
+    return allTargets.sort(
+        (a, b) => insertionOrder.current.indexOf(a.id) - insertionOrder.current.indexOf(b.id)
+    );
+}
+
 export const Tactical = (props: Props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
     const localShip = objects[props.shipId] as ShipInfo;
-    const targets = Object.values(objects).filter(obj => obj !== localShip);
+    const targets = useStableOrderedTargets(objects, localShip);
 
     const pause = useCallback(() => {
         props.room.send('pause');
