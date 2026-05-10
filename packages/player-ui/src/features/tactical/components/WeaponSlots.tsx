@@ -1,10 +1,11 @@
 import { FiringSolution } from 'common-data/features/space/types/FiringSolution';
+import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
-import { SlotProps, WeaponSlot } from './WeaponSlot';
+import { WeaponSlot } from './WeaponSlot';
 import styles from './WeaponSlots.module.css';
 
 type Props = {
-    slots: MinimalReadonlyArray<SlotProps>;
+    slots: MinimalReadonlyArray<WeaponSlotInfo>;
     firingSolution: FiringSolution | null;
 };
 

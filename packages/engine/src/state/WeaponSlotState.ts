@@ -2,6 +2,7 @@ import { MapSchema, Schema, type } from '@colyseus/schema';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CardState } from './CardState';
+import { CooldownState } from './CooldownState';
 
 export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     constructor(id: string) {
@@ -15,19 +16,14 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
     @type('number') charge = 0;
     @type('boolean') primed = false;
+    @type(CooldownState) decay: CooldownState | null = null;
 
     getParameters(): CardParameters {
         if (!this.card) {
             return { cost: 0 };
         }
 
-        const parameters: Record<string, number> = this.card.getParameters();
-
-        for (const [parameter, adjustment] of this.modifiers) {
-            parameters[parameter] = (parameters[parameter] || 0) + adjustment;
-        }
-
-        return parameters as CardParameters;
+        return this.card.getParameters(this.modifiers);
     }
 
     getParameter(parameter: string): number {

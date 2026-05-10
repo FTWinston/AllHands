@@ -1,9 +1,9 @@
-import { CardInstance } from 'common-data/features/cards/types/CardInstance';
-import { resolveParameter } from 'common-data/features/cards/utils/resolveParameters';
+import { CardParameters } from 'common-data/features/cards/types/CardParameters';
+import { resolveParameters } from 'common-data/features/cards/utils/resolveParameters';
 import { FiringSolution } from 'common-data/features/space/types/FiringSolution';
 import { FiringState } from 'common-data/features/space/types/FiringState';
+import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
-import { Cooldown } from 'common-data/types/Cooldown';
 import colorPalletes from 'common-ui/ColorPalette.module.css';
 import { DiscreteProgress } from 'common-ui/components/DiscreteProgress';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
@@ -16,15 +16,7 @@ import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { DraggableCard } from 'src/features/cardui/components/DraggableCard';
 import styles from './WeaponSlot.module.css';
 
-export type SlotProps = {
-    id: string;
-    card?: CardInstance | null;
-    charge: number;
-    decay?: Cooldown | null;
-    primed: boolean;
-};
-
-type Props = SlotProps & {
+type Props = WeaponSlotInfo & {
     firingSolution: FiringSolution | null;
 };
 
@@ -68,14 +60,14 @@ function getCardWrapper(props: Props, fullyCharged: boolean) {
 }
 
 export const WeaponSlot = (props: Props) => {
-    const { card, charge, firingSolution, primed } = props;
+    const { id, card, modifiers, charge, decay, firingSolution, primed } = props;
 
     const cardDefinition = card ? getCardDefinition(card.type) : null;
 
-    // TODO: ensure getFiringState here accounts for SLOT modifiers, as well as card modifiers.
-    // (Hopefully they'll have been combined on the backend... right?)
+    const slotParameters = cardDefinition && card ? resolveParameters(cardDefinition.parameters, card.modifiers, modifiers) : {} as CardParameters;
+
     const firingState = card && cardDefinition
-        ? getFiringState(firingSolution, primed, charge, cardDefinition.parameters, card.modifiers)
+        ? getFiringState(firingSolution, primed, charge, slotParameters)
         : FiringState.NoWeapon;
 
     const isFullyCharged = firingState !== FiringState.NoWeapon
@@ -153,8 +145,8 @@ export const WeaponSlot = (props: Props) => {
             render="li"
             className={classNames(styles.weaponSlot, colorPalletes[mainPallete], isFullyCharged ? null : styles.recharging)}
             targetType="weapon"
-            id={props.id}
-            disabled={!props.card}
+            id={id}
+            disabled={!card}
         >
             {getCardWrapper(props, isFullyCharged)}
 
@@ -170,11 +162,10 @@ export const WeaponSlot = (props: Props) => {
             <DiscreteProgress
                 className={styles.progress}
                 title="Charge progress"
-                value={props.charge ?? 0}
-                /* TODO: this should also account for SLOT modifiers, as well as card modifiers. If they're not already included! */
-                maxValue={card && cardDefinition ? resolveParameter('chargeCost', cardDefinition.parameters, card.modifiers) : 0}
+                value={charge ?? 0}
+                maxValue={slotParameters['chargeCost'] ?? 0}
                 vertical={true}
-                decay={props.decay}
+                decay={decay}
             />
         </CardDropTarget>
     );

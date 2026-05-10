@@ -2,7 +2,7 @@ import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
-import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
 import { MinimalReadonlyArray, MinimalReadonlyMap } from 'common-data/types/MinimalArray';
@@ -13,13 +13,12 @@ import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
 import { TargetList } from './TargetList';
-import { SlotProps } from './WeaponSlot';
 import { WeaponSlots } from './WeaponSlots';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cards: MinimalReadonlyArray<CardInstance>;
-    slots: MinimalReadonlyArray<SlotProps>;
+    slots: MinimalReadonlyArray<WeaponSlotInfo>;
     timeProvider: ITimeProvider;
     shipMotion: GameObjectInfo['motion'];
     targets: MinimalReadonlyArray<GameObjectInfo>;

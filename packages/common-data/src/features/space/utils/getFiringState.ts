@@ -1,6 +1,4 @@
 import { CardParameters } from '../../../features/cards/types/CardParameters';
-import { resolveParameter } from '../../../features/cards/utils/resolveParameters';
-import { MinimalReadonlyMap } from '../../../types/MinimalArray';
 import { FiringSolution } from '../types/FiringSolution';
 import { FiringState } from '../types/FiringState';
 
@@ -8,14 +6,13 @@ export function getFiringState(
     firingSolution: FiringSolution | null,
     primed: boolean,
     charge: number,
-    parameters: CardParameters,
-    modifiers?: MinimalReadonlyMap<string, number>
+    parameters: CardParameters
 ): FiringState {
     if (!primed) {
         return FiringState.NotPrimed;
     }
 
-    const chargeCost = resolveParameter('chargeCost', parameters, modifiers);
+    const chargeCost = parameters['chargeCost'] ?? 0;
     if (charge < chargeCost) {
         return FiringState.NotCharged;
     }
@@ -24,17 +21,17 @@ export function getFiringState(
         return FiringState.NoTarget;
     }
 
-    const maxRange = resolveParameter('maxRange', parameters, modifiers);
+    const maxRange = parameters['maxRange'] ?? 0;
     if (firingSolution.range > maxRange) {
         return FiringState.RangeTooFar;
     }
 
-    const minRange = resolveParameter('minRange', parameters, modifiers);
+    const minRange = parameters['minRange'] ?? 0;
     if (firingSolution.range < minRange) {
         return FiringState.RangeTooClose;
     }
 
-    const firingArc = resolveParameter('firingArc', parameters, modifiers);
+    const firingArc = parameters['firingArc'] ?? 0;
     if (Math.abs(firingSolution.relativeBearing) > firingArc) {
         return FiringState.RelativeBearingTooWide;
     }

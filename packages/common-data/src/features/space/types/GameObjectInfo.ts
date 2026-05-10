@@ -38,6 +38,8 @@ export interface HelmSystemInfo extends CrewSystemInfo {
 export interface WeaponSlotInfo {
     id: string;
     card: CardInstance | null;
+    modifiers?: MinimalReadonlyMap<string, number>;
+    decay?: Cooldown | null;
     charge: number;
     primed: boolean;
 }

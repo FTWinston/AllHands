@@ -1,15 +1,30 @@
-import { CardParameters } from '../types/CardParameters';
 import { MinimalReadonlyMap } from 'src/types/MinimalArray';
+import { CardParameters } from '../types/CardParameters';
 
-export function resolveParameters(parameters: CardParameters, modifiers?: MinimalReadonlyMap<string, number>): CardParameters {
+function applyModifiers(parameters: CardParameters, modifiers: MinimalReadonlyMap<string, number>) {
+    for (const [key, value] of modifiers) {
+        (parameters as Record<string, number>)[key] = (parameters[key] ?? 0) + value;
+    }
+}
+
+export function resolveParameters(
+    parameters: CardParameters,
+    modifiers?: MinimalReadonlyMap<string, number> | null,
+    additionalModifiers?: MinimalReadonlyMap<string, number> | null
+): CardParameters {
     if (modifiers && modifiers.size > 0) {
-        const result: Record<string, number> = { ...parameters };
+        parameters = { ...parameters };
 
-        for (const [key, value] of modifiers) {
-            result[key] = (result[key] ?? 0) + value;
+        applyModifiers(parameters, modifiers);
+    }
+
+    if (additionalModifiers && additionalModifiers.size > 0) {
+        // Only create a copy of the parameters if we haven't already just done so.
+        if (!modifiers || modifiers.size === 0) {
+            parameters = { ...parameters };
         }
 
-        return result as CardParameters;
+        applyModifiers(parameters, additionalModifiers);
     }
 
     return parameters;

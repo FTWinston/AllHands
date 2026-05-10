@@ -3,6 +3,7 @@ import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { resolveParameter, resolveParameters } from 'common-data/features/cards/utils/resolveParameters';
+import { MinimalReadonlyMap } from 'common-data/types/MinimalArray';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
 
 export class CardState extends Schema implements CardInstance {
@@ -16,10 +17,10 @@ export class CardState extends Schema implements CardInstance {
     @type('string') readonly type: CardType;
     @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
 
-    getParameters(): CardParameters {
+    getParameters(additionalModifiers?: MinimalReadonlyMap<string, number> | null): CardParameters {
         const definition = getCardDefinition(this.type);
 
-        return resolveParameters(definition.parameters, this.modifiers);
+        return resolveParameters(definition.parameters, this.modifiers, additionalModifiers);
     }
 
     getParameter(parameter: string): number {
