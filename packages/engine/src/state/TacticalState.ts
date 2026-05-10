@@ -8,6 +8,7 @@ import { getFiringSolution } from 'common-data/features/space/utils/getFiringSol
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
 import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
+import { CooldownState } from './CooldownState';
 import { CrewSystemState } from './CrewSystemState';
 import { GameState } from './GameState';
 import { Ship } from './Ship';
@@ -25,7 +26,10 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     @type({ map: ['string'] }) readonly vulnerabilitiesByTarget = new MapSchema<Vulnerability[]>();
     @type([WeaponSlotState]) slots = new ArraySchema<WeaponSlotState>();
 
-    update(_currentTime: number) {
+    update(currentTime: number) {
+        for (const slot of this.slots) {
+            slot.update(currentTime);
+        }
     }
 
     override playCard(cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string): EngineCardDefinition | null {
@@ -76,7 +80,10 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
         cardDef.fire(this.getGameState(), this.getShip(), target, slotParameters);
 
-        this.handlePlayedWeapon(slot, cardDef);
+        if (slot.card && slot.afterFiring()) {
+            // Put card back into discard pile.
+            this.handlePlayedCard(slot.card, -1, cardDef);
+        }
 
         return cardDef;
     }
@@ -88,24 +95,5 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             }
         }
         return null;
-    }
-
-    private handlePlayedWeapon(slot: WeaponSlotState, cardDef: EngineCardDefinition) {
-        if (!slot.card) {
-            return;
-        }
-
-        slot.charge = 0;
-        slot.primed = false;
-
-        if (slot.getParameter('uses') <= 1) {
-            // Put card back into discard pile.
-            this.handlePlayedCard(slot.card, -1, cardDef);
-
-            slot.card = null;
-            slot.modifiers.clear();
-        } else {
-            slot.adjustParameter('uses', -1);
-        }
     }
 }

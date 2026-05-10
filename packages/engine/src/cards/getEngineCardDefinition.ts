@@ -119,8 +119,9 @@ function loadCardDefinitions() {
             prime: (_gameState, _ship, _slot) => {
                 console.log('primed exampleWeaponTarget'); return true;
             },
-            charge: (_gameState, _ship, _slot) => {
-                console.log('charged exampleWeaponTarget'); return true;
+            charge: (gameState, _ship, slot, parameters) => {
+                slot.addCharge(parameters.cost, gameState.clock.currentTime);
+                return true;
             },
         },
         exampleEnemyTarget: {
