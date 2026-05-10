@@ -24,7 +24,7 @@ export type WeaponSlotTargetCardDefinition = CommonCardDefinition & {
     targetType: 'weapon-slot';
     parameters: CardParameters & {
         chargeCost: number;
-        range: number;
+        maxRange: number;
         firingArc: number;
         damage: number;
         uses: number;

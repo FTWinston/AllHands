@@ -14,7 +14,6 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     @type(CardState) card: CardState | null = null;
     @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
     @type('number') charge = 0;
-    @type('string') noFireReason: string | null = null;
     @type('boolean') primed = false;
 
     getParameters(): CardParameters {
@@ -22,7 +21,7 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
             return { cost: 0 };
         }
 
-        const parameters: Record<string, number> = { ...this.card.getParameters() };
+        const parameters: Record<string, number> = this.card.getParameters();
 
         for (const [parameter, adjustment] of this.modifiers) {
             parameters[parameter] = (parameters[parameter] || 0) + adjustment;

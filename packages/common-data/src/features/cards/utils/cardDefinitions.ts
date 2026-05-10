@@ -24,7 +24,7 @@ export const cardDefinitions = defineCardDefinitions({
         parameters: {
             cost: 2,
             chargeCost: 5,
-            range: 10,
+            maxRange: 10,
             firingArc: 1,
             damage: 20,
             uses: 3,
@@ -36,7 +36,7 @@ export const cardDefinitions = defineCardDefinitions({
         parameters: {
             cost: 4,
             chargeCost: 3,
-            range: 6,
+            maxRange: 6,
             firingArc: 3,
             damage: 10,
             uses: 5,
@@ -48,7 +48,7 @@ export const cardDefinitions = defineCardDefinitions({
         parameters: {
             cost: 3,
             chargeCost: 4,
-            range: 20,
+            maxRange: 20,
             firingArc: 0.5,
             damage: 40,
             uses: 1,
@@ -60,7 +60,7 @@ export const cardDefinitions = defineCardDefinitions({
         parameters: {
             cost: 5,
             chargeCost: 6,
-            range: 15,
+            maxRange: 15,
             firingArc: 0.5,
             damage: 60,
             uses: 2,

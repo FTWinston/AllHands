@@ -39,7 +39,6 @@ export interface WeaponSlotInfo {
     id: string;
     card: CardInstance | null;
     charge: number;
-    noFireReason: string | null;
     primed: boolean;
 }
 

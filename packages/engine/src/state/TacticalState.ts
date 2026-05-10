@@ -2,7 +2,10 @@ import { ArraySchema, MapSchema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType, WeaponSlotTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
+import { FiringState } from 'common-data/features/space/types/FiringState';
 import { TacticalSystemInfo, TacticalSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
+import { getFiringState } from 'common-data/features/space/utils/getFiringState';
 import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { CrewSystemState } from './CrewSystemState';
@@ -53,15 +56,25 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
         const target = this.resolveTarget(targetObjectId);
 
+        if (!target) {
+            console.warn(`target not found: ${targetId}`);
+            return null;
+        }
+
         // TODO use targetVulnerability!
 
         const cardDef = getCardDefinition(cardType);
+        const currentTime = this.getGameState().clock.currentTime;
+        const slotParameters = slot.getParameters();
+        const firingSolution = getFiringSolution(this.getShip().motion, target.motion, currentTime);
+        const firingState = getFiringState(firingSolution, slot.primed, slot.charge, slotParameters);
 
-        if (target) {
-            cardDef.fire(this.getGameState(), this.getShip(), target, slot.getParameters());
-        } else {
-            console.warn(`target not found: ${targetId}`);
+        if (firingState !== FiringState.CanFire) {
+            console.warn(`cannot fire: firingState=${firingState}`);
+            return null;
         }
+
+        cardDef.fire(this.getGameState(), this.getShip(), target, slotParameters);
 
         this.handlePlayedWeapon(slot, cardDef);
 
@@ -91,7 +104,6 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
             slot.card = null;
             slot.modifiers.clear();
-            slot.noFireReason = null;
         } else {
             slot.adjustParameter('uses', -1);
         }

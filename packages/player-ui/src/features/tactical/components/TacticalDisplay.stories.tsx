@@ -85,6 +85,7 @@ type Story = StoryObj<typeof meta>;
 
 export const UI: Story = {
     args: {
+        timeProvider: { getServerTime: () => Date.now() },
         cards: [
             {
                 id: 1,
@@ -185,5 +186,9 @@ export const UI: Story = {
         power: 5,
         maxHandSize: 5,
         drawPileSize: 3,
+        shipMotion: [
+            { time: 0, x: 0, y: 0, angle: 0 },
+            { time: 1000, x: 0, y: 0, angle: 0 },
+        ],
     },
 };
