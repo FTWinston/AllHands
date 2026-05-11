@@ -58,11 +58,15 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         const chargeRequired = this.getParameter('chargeRequired');
         this.charge = Math.min(chargeRequired, this.charge + amount);
 
-        // Start or restart the decay process from now. If not already running, the first decay will take 10 seconds.
+        // If already decaying, set the duration to 1 second faster than it was before, but not dropping below 1 second.
+        // If not already decaying, set duration to 10 seconds.
         if (this.decay === null) {
             this.decayDuration = 10000;
+        } else if (this.decayDuration > 1999) {
+            this.decayDuration -= 1000;
         }
 
+        // Start or restart the decay process from now.
         this.decay = new CooldownState(currentTime, currentTime + this.decayDuration);
     }
 
@@ -89,15 +93,11 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
             return;
         }
 
+        // If there's charge left, reduce it by 1 and restart the decay. If not, stop the decay.
         if (this.charge <= 1) {
             this.decay = null;
             this.charge = 0;
         } else {
-            // Every subsequent decay gets faster, until it's decaying every second.
-            if (this.decayDuration > 1999) {
-                this.decayDuration -= 1000;
-            }
-
             this.decay = new CooldownState(this.decay.endTime, this.decay.endTime + this.decayDuration);
             this.charge -= 1;
         }

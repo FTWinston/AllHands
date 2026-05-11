@@ -8,7 +8,6 @@ import { getFiringSolution } from 'common-data/features/space/utils/getFiringSol
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
 import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
-import { CooldownState } from './CooldownState';
 import { CrewSystemState } from './CrewSystemState';
 import { GameState } from './GameState';
 import { Ship } from './Ship';
