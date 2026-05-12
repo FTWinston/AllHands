@@ -145,11 +145,13 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         }
 
         let played: boolean;
+        let slotted: boolean = false;
 
         if (cardDefinition.targetType === 'no-target') {
             played = this.playNoTargetCard(cardDefinition, parameters);
         } else if (cardDefinition.targetType === 'weapon-slot') {
-            played = this.playWeaponSlotCard(cardDefinition, targetId, parameters);
+            played = this.playWeaponSlotCard(cardDefinition, card, targetId, parameters);
+            slotted = true;
         } else if (cardDefinition.targetType === 'weapon') {
             played = this.playWeaponCard(cardDefinition, targetId, parameters);
         } else if (cardDefinition.targetType === 'enemy') {
@@ -167,7 +169,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             return null;
         }
 
-        this.handlePlayedCard(card, cardIndex, cardDefinition);
+        this.handlePlayedCard(card, cardIndex, cardDefinition, slotted);
 
         return cardDefinition;
     }
@@ -180,7 +182,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         return true;
     }
 
-    private playWeaponSlotCard(cardDefinition: EngineWeaponSlotCardDefinition, targetId: string, parameters: CardParameters): boolean {
+    private playWeaponSlotCard(cardDefinition: EngineWeaponSlotCardDefinition, card: CardState, targetId: string, parameters: CardParameters): boolean {
         const slot = this.getShip().tacticalState.resolveWeaponSlot(targetId);
         if (!slot) {
             console.warn('weapon slot not found: ' + targetId);
@@ -196,6 +198,8 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             console.log('card refused to load');
             return false;
         }
+
+        slot.card = card;
 
         return true;
     }
@@ -279,13 +283,16 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
      * - expendable: Card is destroyed (not added anywhere)
      * - primary: Card returns to hand (if no other primary card in hand), otherwise goes to discard pile
      */
-    protected handlePlayedCard(card: CardState, cardIndex: number, cardDefinition: EngineCardDefinition): void {
+    protected handlePlayedCard(card: CardState, cardIndex: number, cardDefinition: EngineCardDefinition, playedIntoSlot: boolean): void {
         const traits = cardDefinition.traits ?? [];
 
         let removeFromHand = true;
         let addToDiscard = true;
 
-        if (traits.includes('primary') && !this.hand.some((handCard) => {
+        if (playedIntoSlot) {
+            // If playing into a slot, it leaves the hand
+            addToDiscard = false;
+        } else if (traits.includes('primary') && !this.hand.some((handCard) => {
             const handCardDef = getCardDefinition(handCard.type);
             return handCardDef.traits?.includes('primary') ?? false;
         })) {
@@ -297,8 +304,13 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             addToDiscard = false;
         }
 
-        if (removeFromHand && cardIndex !== -1) {
-            this.hand.splice(cardIndex, 1);
+        if (removeFromHand) {
+            if (cardIndex !== -1) {
+                this.hand.splice(cardIndex, 1);
+            }
+        } else if (cardIndex === -1) {
+            // Don't remove it from the hand ... but it's not already there. Probably it's in a slot. Add it back into the hand!
+            this.hand.push(card);
         }
 
         if (addToDiscard) {

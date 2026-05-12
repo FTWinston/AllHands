@@ -81,7 +81,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
         if (slot.card && slot.afterFiring()) {
             // Put card back into discard pile.
-            this.handlePlayedCard(slot.card, -1, cardDef);
+            this.handlePlayedCard(slot.card, -1, cardDef, false);
         }
 
         return cardDef;
