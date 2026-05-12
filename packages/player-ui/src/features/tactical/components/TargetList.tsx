@@ -1,13 +1,12 @@
-import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
-import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { MinimalReadonlyArray, MinimalReadonlyMap } from 'common-data/types/MinimalArray';
+import { GameObjectInfo, TargetVulnerabilities } from 'common-data/features/space/types/GameObjectInfo';
+import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
 import { Target } from './Target';
 import styles from './TargetList.module.css';
 
 type Props = {
     targets: MinimalReadonlyArray<GameObjectInfo>;
-    vulnerabilitiesByTarget: MinimalReadonlyMap<string, Vulnerability[]>;
+    vulnerabilitiesByTarget: Record<string, TargetVulnerabilities>;
     onVisibleTargetChange: (target: GameObjectInfo) => void;
 };
 
@@ -43,7 +42,7 @@ export const TargetList = (props: Props) => {
                         appearance={target.appearance}
                         relationship={target.relationship}
                         motion={target.motion}
-                        vulnerabilities={props.vulnerabilitiesByTarget.get(target.id)}
+                        vulnerabilities={props.vulnerabilitiesByTarget[target.id]?.vulnerabilities}
                         targetNumber={index + 1}
                         totalTargets={targets.length}
                     />

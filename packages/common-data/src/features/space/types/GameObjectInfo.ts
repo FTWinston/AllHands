@@ -44,9 +44,17 @@ export interface WeaponSlotInfo {
     primed: boolean;
 }
 
+export interface TargetVulnerabilities {
+    vulnerabilities: MinimalReadonlyArray<Vulnerability>;
+}
+
 export interface TacticalSystemInfo extends CrewSystemInfo {
-    vulnerabilitiesByTarget: MinimalReadonlyMap<string, Vulnerability[]>;
+    vulnerabilitiesByTarget: MinimalReadonlyMap<string, TargetVulnerabilities>;
     slots: MinimalReadonlyArray<WeaponSlotInfo>;
+}
+
+export interface TacticalSystemClientInfo extends Omit<TacticalSystemInfo, 'vulnerabilitiesByTarget'> {
+    vulnerabilitiesByTarget: Record<string, TargetVulnerabilities>;
 }
 
 export interface EngineerSystemTileInfo {

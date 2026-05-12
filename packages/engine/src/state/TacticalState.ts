@@ -1,7 +1,6 @@
 import { ArraySchema, MapSchema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType, WeaponSlotTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
 import { FiringState } from 'common-data/features/space/types/FiringState';
 import { TacticalSystemInfo, TacticalSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
@@ -11,6 +10,7 @@ import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { CrewSystemState } from './CrewSystemState';
 import { GameState } from './GameState';
 import { Ship } from './Ship';
+import { TargetVulnerabilitiesState } from './TargetVulnerabilitiesState';
 import { WeaponSlotState } from './WeaponSlotState';
 
 export class TacticalState extends CrewSystemState implements TacticalSystemInfo {
@@ -22,7 +22,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
     }
 
-    @type({ map: ['string'] }) readonly vulnerabilitiesByTarget = new MapSchema<Vulnerability[]>();
+    @type({ map: TargetVulnerabilitiesState }) vulnerabilitiesByTarget = new MapSchema<TargetVulnerabilitiesState>();
     @type([WeaponSlotState]) slots = new ArraySchema<WeaponSlotState>();
 
     update(currentTime: number) {

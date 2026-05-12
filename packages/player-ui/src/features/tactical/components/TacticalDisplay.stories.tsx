@@ -177,12 +177,12 @@ export const UI: Story = {
                 ],
             },
         ],
-        vulnerabilitiesByTarget: new Map([
-            ['target2', []],
-            ['target3', ['engine']],
-            ['target4', ['shields', 'weapons']],
-            ['target5', ['shields', 'weapons', 'engine']],
-        ]),
+        vulnerabilitiesByTarget: {
+            target2: { vulnerabilities: [] },
+            target3: { vulnerabilities: ['engine'] },
+            target4: { vulnerabilities: ['shields', 'weapons'] },
+            target5: { vulnerabilities: ['shields', 'weapons', 'engine'] },
+        },
         power: 5,
         maxHandSize: 5,
         drawPileSize: 3,

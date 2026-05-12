@@ -1,7 +1,7 @@
 import { useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, ObjectId, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, ObjectId, ShipInfo, TacticalSystemClientInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { useCallback, useRef } from 'react';
 import { TacticalDisplay } from './components/TacticalDisplay';
@@ -51,7 +51,7 @@ export const Tactical = (props: Props) => {
         return <div>unable to load</div>;
     }
 
-    const tacticalState = localShip.tacticalState;
+    const tacticalState = localShip.tacticalState as unknown as TacticalSystemClientInfo;
 
     return (
         <TacticalDisplay
