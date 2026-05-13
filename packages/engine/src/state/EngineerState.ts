@@ -46,7 +46,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
     /**
      * Maps the reactor's power level to the per-system generation duration (ms).
      */
-    private static readonly generationDurationByReactorPower = [10_000, 5_000, 3_500, 2_500, 1_750, 1_000];
+    private static readonly generationDurationByReactorPower = [8_000, 4_000, 2_000, 1_000, 500, 250];
 
     private get perSystemGenerationDuration(): number {
         let reactorPower = this.getShip().reactorState.powerLevel;

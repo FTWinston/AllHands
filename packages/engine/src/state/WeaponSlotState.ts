@@ -17,7 +17,7 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     @type('number') charge = 0;
     @type('boolean') primed = false;
     @type(CooldownState) decay: CooldownState | null = null;
-    decayDuration = 10000;
+    decayDuration = 0;
 
     getParameters(): CardParameters {
         if (!this.card) {
@@ -59,11 +59,11 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         this.charge = Math.min(chargeCost, this.charge + amount);
 
         // If already decaying, set the duration to 1 second faster than it was before, but not dropping below 1 second.
-        // If not already decaying, set duration to 10 seconds.
+        // If not already decaying, set duration to 15 seconds.
         if (this.decay === null) {
-            this.decayDuration = 10000;
-        } else if (this.decayDuration > 1999) {
-            this.decayDuration -= 1000;
+            this.decayDuration = 15000;
+        } else {
+            this.decayDuration = Math.max(1000, this.decayDuration - 1000);
         }
 
         // Start or restart the decay process from now.
