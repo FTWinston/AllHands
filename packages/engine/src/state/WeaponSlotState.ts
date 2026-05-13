@@ -45,9 +45,9 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
             return false;
         }
 
-        const chargeRequired = this.getParameter('chargeRequired');
+        const chargeCost = this.getParameter('chargeCost');
 
-        return this.charge >= chargeRequired;
+        return this.charge >= chargeCost;
     }
 
     addCharge(amount: number, currentTime: number) {
@@ -55,8 +55,8 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
             return;
         }
 
-        const chargeRequired = this.getParameter('chargeRequired');
-        this.charge = Math.min(chargeRequired, this.charge + amount);
+        const chargeCost = this.getParameter('chargeCost');
+        this.charge = Math.min(chargeCost, this.charge + amount);
 
         // If already decaying, set the duration to 1 second faster than it was before, but not dropping below 1 second.
         // If not already decaying, set duration to 10 seconds.
