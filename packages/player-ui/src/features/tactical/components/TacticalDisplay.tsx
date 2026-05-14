@@ -49,6 +49,7 @@ export const TacticalDisplay = (props: Props) => {
                     targets={targets}
                     vulnerabilitiesByTarget={vulnerabilitiesByTarget}
                     onVisibleTargetChange={setCurrentTarget}
+                    targetAspect={firingSolution?.targetAspect}
                 />
 
                 <WeaponSlots slots={slots} firingSolution={firingSolution} />

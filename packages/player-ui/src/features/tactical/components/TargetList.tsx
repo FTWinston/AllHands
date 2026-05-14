@@ -8,10 +8,11 @@ type Props = {
     targets: MinimalReadonlyArray<GameObjectInfo>;
     vulnerabilitiesByTarget: Record<string, TargetVulnerabilities>;
     onVisibleTargetChange: (target: GameObjectInfo) => void;
+    targetAspect?: number;
 };
 
 export const TargetList = (props: Props) => {
-    const { targets, onVisibleTargetChange } = props;
+    const { targets, targetAspect, vulnerabilitiesByTarget, onVisibleTargetChange } = props;
 
     // Handler for HorizontalScroll's onScrollFractionChange
     const handleScrollFractionChange = (fraction: number) => {
@@ -42,8 +43,9 @@ export const TargetList = (props: Props) => {
                         appearance={target.appearance}
                         relationship={target.relationship}
                         motion={target.motion}
-                        vulnerabilities={props.vulnerabilitiesByTarget[target.id]?.vulnerabilities}
+                        vulnerabilities={vulnerabilitiesByTarget[target.id]?.vulnerabilities}
                         targetNumber={index + 1}
+                        targetAspect={targetAspect}
                         totalTargets={targets.length}
                     />
                 </li>

@@ -26,6 +26,6 @@ export const Target: Story = {
         appearance: 'starfighter',
         targetNumber: 1,
         totalTargets: 3,
-        vulnerabilities: ['shields', 'engine'],
+        vulnerabilities: [{ type: 'shields', aspect: 0 }, { type: 'engine', aspect: Math.PI }],
     },
 };

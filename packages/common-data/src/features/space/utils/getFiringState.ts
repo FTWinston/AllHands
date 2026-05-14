@@ -1,12 +1,15 @@
 import { CardParameters } from '../../../features/cards/types/CardParameters';
 import { FiringSolution } from '../types/FiringSolution';
 import { FiringState } from '../types/FiringState';
+import { VulnerabilityInfo } from '../types/GameObjectInfo';
+import { isFacingVulnerability } from './isFacingVulnerability';
 
 export function getFiringState(
     firingSolution: FiringSolution | null,
     primed: boolean,
     charge: number,
-    parameters: CardParameters
+    parameters: CardParameters,
+    vulnerability?: VulnerabilityInfo
 ): FiringState {
     if (!primed) {
         return FiringState.NotPrimed;
@@ -34,6 +37,10 @@ export function getFiringState(
     const firingArc = parameters['firingArc'] ?? 0;
     if (Math.abs(firingSolution.relativeBearing) > firingArc) {
         return FiringState.RelativeBearingTooWide;
+    }
+
+    if (vulnerability && !isFacingVulnerability(firingSolution.targetAspect, vulnerability)) {
+        return FiringState.TargetAspectObscured;
     }
 
     return FiringState.CanFire;

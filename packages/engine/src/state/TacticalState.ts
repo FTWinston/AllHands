@@ -2,7 +2,7 @@ import { ArraySchema, MapSchema, type } from '@colyseus/schema';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType, WeaponSlotTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { FiringState } from 'common-data/features/space/types/FiringState';
-import { TacticalSystemInfo, TacticalSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { TacticalSystemInfo, TacticalSystemSetupInfo, VulnerabilityInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
 import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
@@ -47,14 +47,14 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     playWeapon(slot: WeaponSlotState, cardType: WeaponSlotTargetedCardType, targetId: string): EngineCardDefinition | null {
         const splitPos = targetId.indexOf(':');
         let targetObjectId: string;
-        // let _targetVulnerability: string | null;
+        let vulnerabilityId: string | null;
 
         if (splitPos !== -1) {
             targetObjectId = targetId.substring(0, splitPos);
-            // _targetVulnerability = targetId.substring(splitPos + 1);
+            vulnerabilityId = targetId.substring(splitPos + 1);
         } else {
             targetObjectId = targetId;
-            // _targetVulnerability = null;
+            vulnerabilityId = null;
         }
 
         const target = this.resolveTarget(targetObjectId);
@@ -64,13 +64,25 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             return null;
         }
 
-        // TODO use targetVulnerability!
+        let vulnerability: VulnerabilityInfo | undefined;
+        if (vulnerabilityId !== null) {
+            const targetVulnerabilities = this.vulnerabilitiesByTarget.get(targetId);
+            if (!targetVulnerabilities) {
+                console.warn(`vulnerabilities not found for target: ${targetId}`);
+                return null;
+            }
+            vulnerability = targetVulnerabilities.vulnerabilities.find(vuln => vuln.type === vulnerabilityId);
+            if (!vulnerability) {
+                console.warn(`vulnerability not found for target: ${targetId}, vulnerabilityId: ${vulnerabilityId}`);
+                return null;
+            }
+        }
 
         const cardDef = getCardDefinition(cardType);
         const currentTime = this.getGameState().clock.currentTime;
         const slotParameters = slot.getParameters();
         const firingSolution = getFiringSolution(this.getShip().motion, target.motion, currentTime);
-        const firingState = getFiringState(firingSolution, slot.primed, slot.charge, slotParameters);
+        const firingState = getFiringState(firingSolution, slot.primed, slot.charge, slotParameters, vulnerability);
 
         if (firingState !== FiringState.CanFire) {
             console.warn(`cannot fire: firingState=${firingState}`);

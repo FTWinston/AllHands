@@ -1,5 +1,4 @@
-import { Vulnerability } from 'common-data/features/ships/types/Vulnerability';
-import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, VulnerabilityInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { ObjectIcon } from 'common-ui/objects';
@@ -11,7 +10,8 @@ import { VulnerabilityList } from './VulnerabilityList';
 type Props = GameObjectInfo & {
     targetNumber: number;
     totalTargets: number;
-    vulnerabilities?: MinimalReadonlyArray<Vulnerability> | null;
+    vulnerabilities?: MinimalReadonlyArray<VulnerabilityInfo> | null;
+    targetAspect?: number;
 };
 
 export const Target = (props: Props) => {
@@ -52,6 +52,7 @@ export const Target = (props: Props) => {
                 className={styles.vulnerabilities}
                 vulnerabilities={props.vulnerabilities ?? []}
                 targetId={props.id}
+                targetAspect={props.targetAspect}
             />
         </div>
     );

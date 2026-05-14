@@ -2,7 +2,7 @@ import { CardInstance } from 'src/features/cards/types/CardInstance';
 import { CardType } from 'src/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'src/features/ships/types/SystemEffectDefinition';
-import { Vulnerability } from 'src/features/ships/types/Vulnerability';
+import { VulnerabilityType } from 'src/features/ships/types/VulnerabilityType';
 import { CardCooldown, Cooldown } from 'src/types/Cooldown';
 import { MinimalReadonlyArray, MinimalReadonlyMap } from 'src/types/MinimalArray';
 import { ReadonlyKeyframes } from './Keyframes';
@@ -44,8 +44,13 @@ export interface WeaponSlotInfo {
     primed: boolean;
 }
 
+export interface VulnerabilityInfo {
+    type: VulnerabilityType;
+    aspect?: number;
+}
+
 export interface TargetVulnerabilities {
-    vulnerabilities: MinimalReadonlyArray<Vulnerability>;
+    vulnerabilities: MinimalReadonlyArray<VulnerabilityInfo>;
 }
 
 export interface TacticalSystemInfo extends CrewSystemInfo {

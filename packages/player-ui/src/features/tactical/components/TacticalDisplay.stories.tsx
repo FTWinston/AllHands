@@ -179,9 +179,9 @@ export const UI: Story = {
         ],
         vulnerabilitiesByTarget: {
             target2: { vulnerabilities: [] },
-            target3: { vulnerabilities: ['engine'] },
-            target4: { vulnerabilities: ['shields', 'weapons'] },
-            target5: { vulnerabilities: ['shields', 'weapons', 'engine'] },
+            target3: { vulnerabilities: [{ type: 'engine', aspect: Math.PI }] },
+            target4: { vulnerabilities: [{ type: 'shields', aspect: 0 }, { type: 'weapons', aspect: Math.PI }] },
+            target5: { vulnerabilities: [{ type: 'shields', aspect: 0 }, { type: 'weapons', aspect: -Math.PI / 2 }, { type: 'engine', aspect: Math.PI }] },
         },
         power: 5,
         maxHandSize: 5,

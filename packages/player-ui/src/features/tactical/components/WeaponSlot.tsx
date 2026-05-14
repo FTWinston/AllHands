@@ -129,8 +129,8 @@ export const WeaponSlot = (props: Props) => {
         case FiringState.TargetAspectObscured:
             statusText = 'obscured';
             mainPallete = 'danger';
-            statusHeading = 'Vulnerability is obscured';
-            description = <>Weapon is ready, but target vulnerability is not visible.</>;
+            statusHeading = 'Target is obscured';
+            description = <>Weapon is ready, but target is not facing you.</>;
             break;
         case FiringState.CanFire:
             statusText = 'ready';
