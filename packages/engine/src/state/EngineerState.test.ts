@@ -2,7 +2,7 @@ import { ClockTimer } from '@colyseus/timer';
 import { CrewSystemSetupInfo, PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { IdProvider } from '../types/IdProvider';
-import { EngineerState } from './EngineerState';
+import { EngineerState, generationDurationByReactorPower } from './EngineerState';
 import { GameState } from './GameState';
 import { PlayerShip } from './PlayerShip';
 
@@ -72,7 +72,9 @@ function advanceTime(clock: ClockTimer, engineer: EngineerState, ms: number, ste
 // systems indices: 0=hull, 1=reactor, 2=helm, 3=sensors, 4=tactical, 5=engineer
 //
 // So sequence of systems by name: hull, helm, tactical, engineer, sensors, reactor.
-// At reactor power 3 → per-system duration = 2500ms.
+
+/** Per-system generation duration at the reactor power level used in tests. */
+const slotDuration = generationDurationByReactorPower[defaultSetup.reactor.initialPowerLevel];
 
 describe('EngineerState generation priority', () => {
     let ship: PlayerShip;
@@ -90,30 +92,27 @@ describe('EngineerState generation priority', () => {
         it('should generate for each system in sequence order', () => {
             const generated = spyOnGeneration(ship);
 
-            // Reactor power 3 → per-system duration = 2500ms.
             // First call at t=0 starts hull generation (no trigger yet).
             engineer.update(0);
             expect(generated).toEqual([]);
 
-            // At t=1000, hull completes and helm starts.
-            advanceTime(clock, engineer, 1000);
+            advanceTime(clock, engineer, slotDuration);
             expect(generated).toEqual(['hull']);
 
-            // At t=2000, helm completes and tactical starts.
-            advanceTime(clock, engineer, 1000);
+            advanceTime(clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'helm']);
 
             // Complete the rest of the cycle.
-            advanceTime(clock, engineer, 1000);
+            advanceTime(clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'helm', 'tactical']);
 
-            advanceTime(clock, engineer, 1000);
+            advanceTime(clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'helm', 'tactical', 'engineer']);
 
-            advanceTime(clock, engineer, 1000);
+            advanceTime(clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'helm', 'tactical', 'engineer', 'sensors']);
 
-            advanceTime(clock, engineer, 1000);
+            advanceTime(clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'helm', 'tactical', 'engineer', 'sensors', 'reactor']);
         });
     });
@@ -130,12 +129,12 @@ describe('EngineerState generation priority', () => {
             engineer.update(0);
             expect(generated).toEqual([]);
 
-            // t=1000: hull completes → sensors also generates.
-            advanceTime(clock, engineer, 1000);
+            // hull completes → sensors also generates.
+            advanceTime(clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'sensors']);
 
-            // t=2000: helm completes → sensors also generates.
-            advanceTime(clock, engineer, 1000);
+            // helm completes → sensors also generates.
+            advanceTime(clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'sensors', 'helm', 'sensors']);
         });
 
@@ -150,8 +149,8 @@ describe('EngineerState generation priority', () => {
 
             engineer.update(0);
 
-            // Run through the full cycle: 5 active slots × 1000ms = 5000ms total.
-            advanceTime(clock, engineer, 5000);
+            // Run through the full cycle: 5 active slots (sensors slot skipped).
+            advanceTime(clock, engineer, 5 * slotDuration);
 
             // Expected: each active slot triggers its system + sensors.
             // hull+sensors, helm+sensors, tactical+sensors, engineer+sensors, reactor+sensors
@@ -182,7 +181,7 @@ describe('EngineerState generation priority', () => {
             generated.length = 0;
 
             // Run through one full 6-slot cycle.
-            advanceTime(clock, engineer, 6000);
+            advanceTime(clock, engineer, 6 * slotDuration);
 
             // With priority active sensors generated after every other system (5 times/cycle).
             // After expiry it should appear exactly once — only in its own sequence slot.
@@ -199,7 +198,7 @@ describe('EngineerState generation priority', () => {
             // Hull's own slot (index 0) is first in sequence, so it gets skipped.
             // Helm starts generating instead.
             engineer.update(0);
-            advanceTime(clock, engineer, 1000);
+            advanceTime(clock, engineer, slotDuration);
 
             // Helm generates, then hull gets bonus. Hull should NOT double-generate.
             expect(generated).toEqual(['helm', 'hull']);
@@ -214,7 +213,7 @@ describe('EngineerState generation priority', () => {
 
             // Start generation.
             engineer.update(0);
-            advanceTime(clock, engineer, 1000);
+            advanceTime(clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'sensors']);
 
             generated.length = 0;
@@ -230,7 +229,7 @@ describe('EngineerState generation priority', () => {
             // Advance through two more slots. Sensors fires first (it is now at
             // the current generating position after the swap), then tactical fires
             // and sensors gets a bonus — confirming the effect follows the tile.
-            advanceTime(clock, engineer, 2000);
+            advanceTime(clock, engineer, 2 * slotDuration);
             expect(generated).toEqual(['sensors', 'tactical', 'sensors']);
         });
     });

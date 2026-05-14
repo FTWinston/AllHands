@@ -13,6 +13,11 @@ import { EngineerSystemTile } from './EngineerSystemTile';
 import { GameState } from './GameState';
 import type { Ship } from './Ship';
 
+/**
+ * Maps the reactor's power level to the per-system generation duration (ms).
+ */
+export const generationDurationByReactorPower = [8_000, 4_000, 2_000, 1_000, 500, 250] as const;
+
 export class EngineerState extends CrewSystemState implements EngineerSystemInfo {
     constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
         super(setup, gameState, ship, getCardId);
@@ -43,16 +48,11 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
      */
     private static readonly generationSequence = [0, 2, 4, 5, 3, 1];
 
-    /**
-     * Maps the reactor's power level to the per-system generation duration (ms).
-     */
-    private static readonly generationDurationByReactorPower = [8_000, 4_000, 2_000, 1_000, 500, 250];
-
     private get perSystemGenerationDuration(): number {
         let reactorPower = this.getShip().reactorState.powerLevel;
         // Clamp to valid range just in case.
-        reactorPower = Math.max(0, Math.min(reactorPower, EngineerState.generationDurationByReactorPower.length - 1));
-        return EngineerState.generationDurationByReactorPower[reactorPower];
+        reactorPower = Math.max(0, Math.min(reactorPower, generationDurationByReactorPower.length - 1));
+        return generationDurationByReactorPower[reactorPower];
     }
 
     /** Current position within the generationSequence. */
