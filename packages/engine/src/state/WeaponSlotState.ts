@@ -59,9 +59,9 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         this.charge = Math.min(chargeCost, this.charge + amount);
 
         // If already decaying, set the duration to 1 second faster than it was before, but not dropping below 1 second.
-        // If not already decaying, set duration to 15 seconds.
+        // If not already decaying, set duration to 30 seconds.
         if (this.decay === null) {
-            this.decayDuration = 15000;
+            this.decayDuration = 30000;
         } else {
             this.decayDuration = Math.max(1000, this.decayDuration - 1000);
         }
