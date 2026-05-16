@@ -23,16 +23,16 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
 
     @type('string') public readonly id: string;
 
-    @view(ownHelmClientRole, ownShipClientRole, otherHelmClientRole, otherShipClientRole, otherTacticalClientRole)
+    @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | otherTacticalClientRole)
     @type('string') public readonly name: string;
 
-    @view(ownHelmClientRole, ownShipClientRole, otherHelmClientRole, otherShipClientRole, otherTacticalClientRole)
+    @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | otherTacticalClientRole)
     @type('string') public readonly appearance: ObjectAppearance;
 
-    @view(ownHelmClientRole, ownShipClientRole, otherHelmClientRole, otherShipClientRole, otherTacticalClientRole)
+    @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | otherTacticalClientRole)
     @type('number') relationship: RelationshipType;
 
-    @view(ownHelmClientRole, ownShipClientRole, otherHelmClientRole, otherShipClientRole, ownTacticalClientRole, otherTacticalClientRole)
+    @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | ownTacticalClientRole | otherTacticalClientRole)
     @type([MotionKeyframe]) motion = new ArraySchema<MotionKeyframe>();
 
     getPosition(currentTime: number): Position {
