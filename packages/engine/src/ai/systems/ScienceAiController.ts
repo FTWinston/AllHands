@@ -7,16 +7,16 @@ import { ActionPlan, AiConfig, PlanStepAction, SystemWant } from '../types';
 import { BaseSystemAiController } from './BaseSystemAiController';
 
 /**
- * AI controller for the Sensors system.
+ * AI controller for the Science system.
  * Responsible for scanning, detection, and information gathering.
  *
- * The Sensors system's primary concerns are:
+ * The Science system's primary concerns are:
  * - Keeping track of enemy positions and status
  * - Providing targeting data to other systems
  * - Early warning of threats
  */
-export class SensorsAiController extends BaseSystemAiController {
-    readonly role: CrewRoleName = 'sensors';
+export class ScienceAiController extends BaseSystemAiController {
+    readonly role: CrewRoleName = 'science';
 
     protected generateWants(
         _ship: Ship,
@@ -27,7 +27,7 @@ export class SensorsAiController extends BaseSystemAiController {
     ): SystemWant[] {
         const wants: SystemWant[] = [];
 
-        // Sensors generally want time to scan and gather information
+        // Science generally want time to scan and gather information
         if (config.personality === 'patrol' || config.personality === 'defensive') {
             wants.push({
                 system: this.role,

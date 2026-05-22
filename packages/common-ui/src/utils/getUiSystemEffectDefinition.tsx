@@ -148,18 +148,18 @@ function loadEffectDefinitions() {
             </>,
             image: ExampleIcon,
         },
-        divertSensorsGain: {
-            name: 'Sensors Power Diverted Here',
+        divertScienceGain: {
+            name: 'Science Power Diverted Here',
             description: <>
-                Sensors power has been diverted to this system, increasing its power by
+                Science power has been diverted to this system, increasing its power by
                 {' '}
                 <EffectLevel />
                 .
             </>,
             image: ExampleIcon,
         },
-        divertSensorsLoss: {
-            name: 'Sensors Power Diverted',
+        divertScienceLoss: {
+            name: 'Science Power Diverted',
             description: <>
                 This system's power has been diverted, reducing its power by
                 {' '}

@@ -6,7 +6,7 @@ export const shipSystems: ShipSystem[] = [
     'hull',
     'reactor',
     'helm',
-    'sensors',
+    'science',
     'tactical',
     'engineer',
 ];

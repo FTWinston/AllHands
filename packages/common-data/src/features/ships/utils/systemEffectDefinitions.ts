@@ -110,13 +110,13 @@ export const systemEffectDefinitions = defineSystemEffects({
         maxLevel: 3,
         duration: 20_000,
     },
-    divertSensorsGain: {
+    divertScienceGain: {
         positive: true,
         usesLevels: true,
         maxLevel: 3,
         duration: 20_000,
     },
-    divertSensorsLoss: {
+    divertScienceLoss: {
         positive: false,
         usesLevels: true,
         maxLevel: 3,

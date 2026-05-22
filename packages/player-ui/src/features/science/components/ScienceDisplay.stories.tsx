@@ -1,10 +1,10 @@
 import { fn } from 'storybook/test';
 import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
-import { SensorsDisplay as Component } from './SensorsDisplay';
+import { ScienceDisplay as Component } from './ScienceDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {
-    title: 'player-ui/Sensors/UI',
+    title: 'player-ui/Science/UI',
     component: Component,
     parameters: {
         layout: 'fullscreen',

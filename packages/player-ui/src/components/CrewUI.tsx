@@ -1,10 +1,10 @@
 import { Room } from '@colyseus/sdk';
-import { CrewRole, ownEngineerClientRole, ownHelmClientRole, ownSensorClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { CrewRole, ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { FC } from 'react';
 import { Engineer } from '../features/engineer/Engineer';
 import { Helm } from '../features/helm/Helm';
-import { Sensors } from '../features/sensors/Sensors';
+import { Science } from '../features/science/Science';
 import { Tactical } from '../features/tactical/Tactical';
 import type { GameState } from 'engine/state/GameState';
 
@@ -35,9 +35,9 @@ export const CrewUI: FC<Props> = (props) => {
                     timeProvider={timeProvider}
                 />
             );
-        case ownSensorClientRole:
+        case ownScienceClientRole:
             return (
-                <Sensors
+                <Science
                     room={room}
                     shipId={props.shipId}
                 />

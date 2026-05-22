@@ -38,7 +38,7 @@ export const DevToolsDisplay: FC<Props> = (props) => {
                     { id: 'hull', label: 'Hull' },
                     { id: 'reactor', label: 'Reactor' },
                     { id: 'helm', label: 'Helm' },
-                    { id: 'sensors', label: 'Sensors' },
+                    { id: 'science', label: 'Science' },
                     { id: 'tactical', label: 'Tactical' },
                     { id: 'engineer', label: 'Engineer' },
                 ]}

@@ -14,16 +14,16 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     cards: MinimalReadonlyArray<CardInstance>;
 };
 
-export const SensorsDisplay = (props: Props) => {
+export const ScienceDisplay = (props: Props) => {
     const { cards, playCard, ...headerProps } = props;
 
-    useRootClassName(crewStyles.sensors);
+    useRootClassName(crewStyles.science);
 
     return (
         <Screen>
             <CardUI playCard={playCard} cardHand={cards} availablePower={headerProps.power}>
                 <CrewHeader
-                    crew="sensors"
+                    crew="science"
                     handSize={cards.length}
                     {...headerProps}
                 />

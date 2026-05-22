@@ -200,7 +200,7 @@ export const UI: Story = {
                 generating: false,
             },
             {
-                system: 'sensors',
+                system: 'science',
                 health: 100,
                 power: 5,
                 generating: false,

@@ -3,7 +3,7 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useCallback } from 'react';
-import { SensorsDisplay } from './components/SensorsDisplay';
+import { ScienceDisplay } from './components/ScienceDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GameState } from 'engine/state/GameState';
 
@@ -12,7 +12,7 @@ type Props = {
     shipId: string;
 };
 
-export const Sensors = (props: Props) => {
+export const Science = (props: Props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
     const localShip = objects[props.shipId] as ShipInfo;
 
@@ -29,21 +29,21 @@ export const Sensors = (props: Props) => {
         });
     }, [props.room]);
 
-    if (!localShip?.sensorState) {
+    if (!localShip?.scienceState) {
         return <div>unable to load</div>;
     }
 
-    const sensorState = localShip.sensorState;
+    const scienceState = localShip.scienceState;
 
     return (
-        <SensorsDisplay
-            cards={sensorState.hand}
+        <ScienceDisplay
+            cards={scienceState.hand}
             onPause={pause}
-            power={sensorState.powerLevel}
-            maxHandSize={sensorState.maxHandSize}
-            drawPileSize={sensorState.drawPileSize}
+            power={scienceState.powerLevel}
+            maxHandSize={scienceState.maxHandSize}
+            drawPileSize={scienceState.drawPileSize}
             playCard={playCard}
-            cardGeneration={sensorState.cardGeneration}
+            cardGeneration={scienceState.cardGeneration}
         />
     );
 };

@@ -186,7 +186,7 @@ export interface AiActionTarget {
  */
 export interface SystemPreferences {
     helm: number;
-    sensors: number;
+    science: number;
     tactical: number;
     engineer: number;
 }
@@ -214,7 +214,7 @@ export interface AiConfig {
 export function extractSystemPreferences(setup: AiShipSetupInfo): SystemPreferences {
     return {
         helm: setup.helm.preferenceMultiplier ?? 1.0,
-        sensors: setup.sensors.preferenceMultiplier ?? 1.0,
+        science: setup.science.preferenceMultiplier ?? 1.0,
         tactical: setup.tactical.preferenceMultiplier ?? 1.0,
         engineer: setup.engineer.preferenceMultiplier ?? 1.0,
     };
@@ -225,7 +225,7 @@ export function extractSystemPreferences(setup: AiShipSetupInfo): SystemPreferen
  */
 export const defaultSystemPreferences: SystemPreferences = {
     helm: 1.0,
-    sensors: 1.0,
+    science: 1.0,
     tactical: 1.0,
     engineer: 1.0,
 };

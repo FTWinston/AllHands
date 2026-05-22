@@ -2,12 +2,12 @@ import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { FC } from 'react';
 import { default as EngineeringIcon } from './engineering.svg?react';
 import { default as HelmIcon } from './helm.svg?react';
-import { default as SensorsIcon } from './sensors.svg?react';
+import { default as ScienceIcon } from './science.svg?react';
 import { default as TacticalIcon } from './tactical.svg?react';
 
 export { default as HelmIcon } from './helm.svg?react';
 export { default as TacticalIcon } from './tactical.svg?react';
-export { default as SensorsIcon } from './sensors.svg?react';
+export { default as ScienceIcon } from './science.svg?react';
 export { default as EngineeringIcon } from './engineering.svg?react';
 
 type IconProps = {
@@ -21,8 +21,8 @@ export const CrewIcon: FC<IconProps> = ({ className, crew }) => {
             return <HelmIcon className={className} />;
         case 'tactical':
             return <TacticalIcon className={className} />;
-        case 'sensors':
-            return <SensorsIcon className={className} />;
+        case 'science':
+            return <ScienceIcon className={className} />;
         case 'engineer':
             return <EngineeringIcon className={className} />;
         default:

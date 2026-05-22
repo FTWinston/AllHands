@@ -1,4 +1,4 @@
-import { ownEngineerClientRole, ownHelmClientRole, ownSensorClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { fn } from 'storybook/test';
 
@@ -33,7 +33,7 @@ export const SoloCrewNoRole: Story = {
         ready: false,
         helmOccupied: false,
         tacticalOccupied: false,
-        sensorsOccupied: false,
+        scienceOccupied: false,
         engineerOccupied: false,
     },
 };
@@ -45,7 +45,7 @@ export const SoloCrewPartiallyOccupied: Story = {
         ready: false,
         helmOccupied: true,
         tacticalOccupied: true,
-        sensorsOccupied: false,
+        scienceOccupied: false,
         engineerOccupied: false,
     },
 };
@@ -57,7 +57,7 @@ export const SoloCrewReady: Story = {
         ready: true,
         helmOccupied: true,
         tacticalOccupied: true,
-        sensorsOccupied: true,
+        scienceOccupied: true,
         engineerOccupied: true,
     },
 };
@@ -69,7 +69,7 @@ export const MultipleCrewEmpty: Story = {
         ready: false,
         helmOccupied: false,
         tacticalOccupied: false,
-        sensorsOccupied: false,
+        scienceOccupied: false,
         engineerOccupied: false,
     },
 };
@@ -77,11 +77,11 @@ export const MultipleCrewEmpty: Story = {
 export const MultipleCrewPartiallyOccupied: Story = {
     args: {
         crewId: 'ABC',
-        role: ownSensorClientRole,
+        role: ownScienceClientRole,
         ready: false,
         helmOccupied: true,
         tacticalOccupied: false,
-        sensorsOccupied: true,
+        scienceOccupied: true,
         engineerOccupied: false,
     },
 };
@@ -93,7 +93,7 @@ export const MultipleCrewReady: Story = {
         ready: true,
         helmOccupied: true,
         tacticalOccupied: true,
-        sensorsOccupied: true,
+        scienceOccupied: true,
         engineerOccupied: true,
     },
 };

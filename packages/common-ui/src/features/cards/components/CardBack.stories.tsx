@@ -22,9 +22,9 @@ export const Tactical: Story = {
     },
 };
 
-export const Sensors: Story = {
+export const Science: Story = {
     args: {
-        crew: 'sensors',
+        crew: 'science',
     },
 };
 

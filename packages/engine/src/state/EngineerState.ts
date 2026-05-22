@@ -28,7 +28,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         this.systems.push(new EngineerSystemTile(ship.hullState, 'hull'));
         this.systems.push(new EngineerSystemTile(ship.reactorState, 'reactor'));
         this.systems.push(new EngineerSystemTile(ship.helmState, 'helm'));
-        this.systems.push(new EngineerSystemTile(ship.sensorState, 'sensors'));
+        this.systems.push(new EngineerSystemTile(ship.scienceState, 'science'));
         this.systems.push(new EngineerSystemTile(ship.tacticalState, 'tactical'));
         this.systems.push(new EngineerSystemTile(ship.engineerState, 'engineer'));
     }

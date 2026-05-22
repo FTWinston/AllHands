@@ -4,7 +4,7 @@ import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { ownEngineerClientRole, getRole, ownHelmClientRole, ownSensorClientRole, ownTacticalClientRole, type CrewRole, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
+import { ownEngineerClientRole, getRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, type CrewRole, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
@@ -333,7 +333,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             case 'hull': return ship.hullState;
             case 'reactor': return ship.reactorState;
             case 'helm': return ship.helmState;
-            case 'sensors': return ship.sensorState;
+            case 'science': return ship.scienceState;
             case 'tactical': return ship.tacticalState;
             case 'engineer': return ship.engineerState;
             default: throw new Error(`Invalid system: ${system}`);
@@ -358,8 +358,8 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             return [crew.ship, ownHelmClientRole];
         } else if (client.sessionId == crew.tacticalClientId) {
             return [crew.ship, ownTacticalClientRole];
-        } else if (client.sessionId == crew.sensorsClientId) {
-            return [crew.ship, ownSensorClientRole];
+        } else if (client.sessionId == crew.scienceClientId) {
+            return [crew.ship, ownScienceClientRole];
         } else if (client.sessionId == crew.engineerClientId) {
             return [crew.ship, ownEngineerClientRole];
         } else {
@@ -380,8 +380,8 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 return ship.helmState;
             case ownTacticalClientRole:
                 return ship.tacticalState;
-            case ownSensorClientRole:
-                return ship.sensorState;
+            case ownScienceClientRole:
+                return ship.scienceState;
             case ownEngineerClientRole:
                 return ship.engineerState;
             default:

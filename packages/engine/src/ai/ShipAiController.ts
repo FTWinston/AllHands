@@ -5,7 +5,7 @@ import { SystemState } from '../state/SystemState';
 import {
     EngineerAiController,
     HelmAiController,
-    SensorsAiController,
+    ScienceAiController,
     TacticalAiController,
 } from './systems';
 import {
@@ -34,7 +34,7 @@ import {
  */
 export class ShipAiController {
     private readonly helmAi: HelmAiController;
-    private readonly sensorsAi: SensorsAiController;
+    private readonly scienceAi: ScienceAiController;
     private readonly tacticalAi: TacticalAiController;
     private readonly engineerAi: EngineerAiController;
 
@@ -68,7 +68,7 @@ export class ShipAiController {
 
         // Initialize system controllers
         this.helmAi = new HelmAiController();
-        this.sensorsAi = new SensorsAiController();
+        this.scienceAi = new ScienceAiController();
         this.tacticalAi = new TacticalAiController();
         this.engineerAi = new EngineerAiController();
     }
@@ -122,7 +122,7 @@ export class ShipAiController {
     private gatherSystemReports(currentTime: number): SystemReport[] {
         return [
             this.helmAi.generateReport(this.ship, this.ship.helmState, this.currentPlan, this.config, currentTime),
-            this.sensorsAi.generateReport(this.ship, this.ship.sensorState, this.currentPlan, this.config, currentTime),
+            this.scienceAi.generateReport(this.ship, this.ship.scienceState, this.currentPlan, this.config, currentTime),
             this.tacticalAi.generateReport(this.ship, this.ship.tacticalState, this.currentPlan, this.config, currentTime),
             this.engineerAi.generateReport(this.ship, this.ship.engineerState, this.currentPlan, this.config, currentTime),
         ];
@@ -285,13 +285,13 @@ export class ShipAiController {
             }
         }
 
-        // Step 3: Scan target (if sensors has capability)
+        // Step 3: Scan target (if science has capability)
         const scanCapability = capabilities.find(c =>
-            c.system === 'sensors' && c.action === 'scan-target'
+            c.system === 'science' && c.action === 'scan-target'
         );
         if (scanCapability) {
             steps.push({
-                system: 'sensors',
+                system: 'science',
                 action: 'scan-target',
                 status: 'pending',
                 readyAt: scanCapability.readyAt,
@@ -379,8 +379,8 @@ export class ShipAiController {
         switch (system) {
             case 'helm':
                 return this.config.systemPreferences.helm;
-            case 'sensors':
-                return this.config.systemPreferences.sensors;
+            case 'science':
+                return this.config.systemPreferences.science;
             case 'tactical':
                 return this.config.systemPreferences.tactical;
             case 'engineer':
@@ -489,11 +489,11 @@ export class ShipAiController {
 
         // Step 2: Scan area
         const scanCapability = capabilities.find(c =>
-            c.system === 'sensors' && c.action === 'scan-area'
+            c.system === 'science' && c.action === 'scan-area'
         );
         if (scanCapability) {
             steps.push({
-                system: 'sensors',
+                system: 'science',
                 action: 'scan-area',
                 status: 'pending',
                 readyAt: scanCapability.readyAt,
@@ -573,11 +573,11 @@ export class ShipAiController {
 
         // Continuous scanning
         const scanCapability = capabilities.find(c =>
-            c.system === 'sensors' && c.action === 'scan-area'
+            c.system === 'science' && c.action === 'scan-area'
         );
         if (scanCapability) {
             steps.push({
-                system: 'sensors',
+                system: 'science',
                 action: 'scan-area',
                 status: 'pending',
                 readyAt: scanCapability.readyAt,
@@ -692,12 +692,12 @@ export class ShipAiController {
     /**
      * Get the system controller for a given role.
      */
-    private getSystemController(role: CrewRoleName): HelmAiController | SensorsAiController | TacticalAiController | EngineerAiController {
+    private getSystemController(role: CrewRoleName): HelmAiController | ScienceAiController | TacticalAiController | EngineerAiController {
         switch (role) {
             case 'helm':
                 return this.helmAi;
-            case 'sensors':
-                return this.sensorsAi;
+            case 'science':
+                return this.scienceAi;
             case 'tactical':
                 return this.tacticalAi;
             case 'engineer':
@@ -712,8 +712,8 @@ export class ShipAiController {
         switch (role) {
             case 'helm':
                 return this.ship.helmState;
-            case 'sensors':
-                return this.ship.sensorState;
+            case 'science':
+                return this.ship.scienceState;
             case 'tactical':
                 return this.ship.tacticalState;
             case 'engineer':

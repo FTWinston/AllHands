@@ -133,7 +133,7 @@ export class EngineerAiController extends BaseSystemAiController {
     private calculateOverallHealth(ship: Ship): number {
         const systems = [
             ship.helmState,
-            ship.sensorState,
+            ship.scienceState,
             ship.tacticalState,
             ship.engineerState,
         ];
@@ -152,7 +152,7 @@ export class EngineerAiController extends BaseSystemAiController {
     private findSystemToRepair(ship: Ship): number | null {
         const systems = [
             { index: 0, state: ship.helmState },
-            { index: 1, state: ship.sensorState },
+            { index: 1, state: ship.scienceState },
             { index: 2, state: ship.tacticalState },
             { index: 3, state: ship.engineerState },
         ];

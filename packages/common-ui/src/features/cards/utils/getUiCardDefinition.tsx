@@ -240,10 +240,10 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        divertSensors: {
-            name: 'Divert Sensors',
+        divertScience: {
+            name: 'Divert Science',
             description: <>
-                Reduce sensors power by up to
+                Reduce science power by up to
                 <Parameter name="maxAmount" />
                 , increasing target system power by the same amount for
                 <Parameter name="duration" />

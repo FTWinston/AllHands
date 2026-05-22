@@ -1,5 +1,5 @@
 import { entity, type, view } from '@colyseus/schema';
-import { ownHelmClientRole, ownSensorClientRole, ownTacticalClientRole, ownEngineerClientRole } from 'common-data/features/ships/types/CrewRole';
+import { ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { Damage } from 'common-data/features/space/types/Damage';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
@@ -32,7 +32,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this.hullState = new HullSystemState(setup.hull, gameState, this);
         this.reactorState = new ReactorSystemState(setup.reactor, gameState, this);
         this.helmState = new HelmState(setup.helm, gameState, this, getCardId);
-        this.sensorState = new CrewSystemState(setup.sensors, gameState, this, getCardId);
+        this.scienceState = new CrewSystemState(setup.science, gameState, this, getCardId);
         this.tacticalState = new TacticalState(setup.tactical, gameState, this, getCardId);
         this.engineerState = new EngineerState(setup.engineer, gameState, this, getCardId);
 
@@ -42,7 +42,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             ['hull', this.hullState],
             ['reactor', this.reactorState],
             ['helm', this.helmState],
-            ['sensors', this.sensorState],
+            ['science', this.scienceState],
             ['tactical', this.tacticalState],
             ['engineer', this.engineerState],
         ]);
@@ -57,7 +57,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     hullState: HullSystemState;
     reactorState: ReactorSystemState;
     @view(ownHelmClientRole) @type(HelmState) helmState: HelmState;
-    @view(ownSensorClientRole) @type(CrewSystemState) sensorState: CrewSystemState;
+    @view(ownScienceClientRole) @type(CrewSystemState) scienceState: CrewSystemState;
     @view(ownTacticalClientRole) @type(TacticalState) tacticalState: TacticalState;
     @view(ownEngineerClientRole) @type(EngineerState) engineerState: EngineerState;
 
@@ -86,7 +86,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         }
 
         this.helmState.update(currentTime);
-        // this.sensorState.update(currentTime);
+        // this.scienceState.update(currentTime);
         this.tacticalState.update(currentTime);
         this.engineerState.update(currentTime);
     }
@@ -131,7 +131,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this._knownObjects.delete(objectId);
 
         this.tacticalState.vulnerabilitiesByTarget.delete(objectId);
-        // TODO: remove from sensors target list.
+        // TODO: remove from science target list.
     }
 
     damage(damage: Damage) {

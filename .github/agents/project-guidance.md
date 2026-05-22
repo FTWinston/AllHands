@@ -94,7 +94,7 @@ The project is organized as an npm workspace with the following packages:
 - **Cooperative multiplayer:** 1 crew of 4 players cooperate together
 - **Role-based:** Each player takes on a different crew role (stations on the ship)
   - **Helm:** Navigation and ship movement
-  - **Sensors:** Detection and scanning
+  - **Science:** Scanning, creating vulnerabilities and deflector area effects
   - **Tactical:** Weapons and combat
   - **Engineer:** Ship systems and repairs
 - **Card-based:** Players play cards specific to their station to control the ship

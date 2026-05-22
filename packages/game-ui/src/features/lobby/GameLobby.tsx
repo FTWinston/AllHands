@@ -17,7 +17,7 @@ export const GameLobby: FC<Props> = (props) => {
 
     const [helmState, setHelmState] = useState<SystemState>('unoccupied');
     const [tacticalState, setTacticalState] = useState<SystemState>('unoccupied');
-    const [sensorsState, setSensorsState] = useState<SystemState>('unoccupied');
+    const [scienceState, setscienceState] = useState<SystemState>('unoccupied');
     const [engineerState, setEngineerState] = useState<SystemState>('unoccupied');
     const [isFull, setIsFull] = useState(false);
     const [numUnassigned, setNumUnassigned] = useState(0);
@@ -35,7 +35,7 @@ export const GameLobby: FC<Props> = (props) => {
 
         setHelmState(crew.helmClientId === '' ? 'unoccupied' : crew.crewReady.get(crew.helmClientId) ? 'ready' : 'occupied');
         setTacticalState(crew.tacticalClientId === '' ? 'unoccupied' : crew.crewReady.get(crew.tacticalClientId) ? 'ready' : 'occupied');
-        setSensorsState(crew.sensorsClientId === '' ? 'unoccupied' : crew.crewReady.get(crew.sensorsClientId) ? 'ready' : 'occupied');
+        setscienceState(crew.scienceClientId === '' ? 'unoccupied' : crew.crewReady.get(crew.scienceClientId) ? 'ready' : 'occupied');
         setEngineerState(crew.engineerClientId === '' ? 'unoccupied' : crew.crewReady.get(crew.engineerClientId) ? 'ready' : 'occupied');
 
         const callbacks = getStateCallbacks(room);
@@ -48,7 +48,7 @@ export const GameLobby: FC<Props> = (props) => {
             if (crew.tacticalClientId) {
                 numUnassigned -= 1;
             }
-            if (crew.sensorsClientId) {
+            if (crew.scienceClientId) {
                 numUnassigned -= 1;
             }
             if (crew.engineerClientId) {
@@ -69,8 +69,8 @@ export const GameLobby: FC<Props> = (props) => {
             if (clientID === crew.tacticalClientId) {
                 setTacticalState(ready ? 'ready' : 'occupied');
             }
-            if (clientID === crew.sensorsClientId) {
-                setSensorsState(ready ? 'ready' : 'occupied');
+            if (clientID === crew.scienceClientId) {
+                setscienceState(ready ? 'ready' : 'occupied');
             }
             if (clientID === crew.engineerClientId) {
                 setEngineerState(ready ? 'ready' : 'occupied');
@@ -89,8 +89,8 @@ export const GameLobby: FC<Props> = (props) => {
             setTacticalState(newClientId === '' ? 'unoccupied' : crew.crewReady.get(newClientId) ? 'ready' : 'occupied');
             updateCounts();
         });
-        callbacks(crew).listen('sensorsClientId', (newClientId) => {
-            setSensorsState(newClientId === '' ? 'unoccupied' : crew.crewReady.get(newClientId) ? 'ready' : 'occupied');
+        callbacks(crew).listen('scienceClientId', (newClientId) => {
+            setscienceState(newClientId === '' ? 'unoccupied' : crew.crewReady.get(newClientId) ? 'ready' : 'occupied');
             updateCounts();
         });
         callbacks(crew).listen('engineerClientId', (newClientId) => {
@@ -115,7 +115,7 @@ export const GameLobby: FC<Props> = (props) => {
             disconnect={disconnect}
             helmState={helmState}
             tacticalState={tacticalState}
-            sensorsState={sensorsState}
+            scienceState={scienceState}
             engineerState={engineerState}
             numUnassigned={numUnassigned}
             isFull={isFull}

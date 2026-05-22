@@ -346,19 +346,19 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        divertSensors: {
+        divertScience: {
             play: (_gameState, ship, system, parameters) => {
-                if (system.system === 'sensors') {
+                if (system.system === 'science') {
                     return false;
                 }
-                const sensorsTile = ship.engineerState.systems.find(s => s.system === 'sensors')!;
+                const scienceTile = ship.engineerState.systems.find(s => s.system === 'science')!;
                 const maxAmount = parameters['maxAmount'] ?? 3;
-                const amount = Math.min(maxAmount, sensorsTile.power);
+                const amount = Math.min(maxAmount, scienceTile.power);
                 if (amount <= 0) {
                     return false;
                 }
-                sensorsTile.addEffect('divertSensorsLoss', amount);
-                system.addEffect('divertSensorsGain', amount);
+                scienceTile.addEffect('divertScienceLoss', amount);
+                system.addEffect('divertScienceGain', amount);
                 return true;
             },
         },

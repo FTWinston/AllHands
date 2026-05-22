@@ -126,9 +126,9 @@ export const Tactical: Story = {
     },
 };
 
-export const Sensors: Story = {
+export const Science: Story = {
     args: {
-        className: crewStyles.sensors,
+        className: crewStyles.science,
     },
 };
 

@@ -16,7 +16,7 @@
     --primary-lightest: oklch(0.9 0.147 90);
 }
 
-.sensors {
+.science {
     --primary-darkest-muted: oklch(0.322 0.01 260);
     --primary-darkest: oklch(0.322 0.05 260);
     --primary-dark: oklch(0.4 0.13 260);
@@ -34,6 +34,6 @@
     --primary-lightest: oklch(0.9 0.147 292);
 }
 
-.engineer, .helm, .sensors, .tactical {
+.engineer, .helm, .science, .tactical {
     --primary-darkest-muted: color-mix(in srgb, var(--primary-darkest) 50%, var(--grey-darkest));
 }

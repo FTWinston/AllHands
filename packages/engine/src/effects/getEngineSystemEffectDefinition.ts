@@ -58,7 +58,7 @@ function createTransferSpokeEffect(hubType: LeveledSystemEffectType, powerDirect
 }
 
 /**
- * Create a 1:1 paired power transfer effect. Used for Divert Helm/Sensors/Tactical,
+ * Create a 1:1 paired power transfer effect. Used for Divert Helm/Science/Tactical,
  * where there is exactly one source (loss) and one target (gain).
  * When removed, the paired effect is fully removed from whichever system has it.
  * @param pairedType The paired effect type.
@@ -261,11 +261,11 @@ function loadSystemEffectDefinitions() {
         divertAllPowerGain: createTransferHubEffect('divertAllPowerLoss', 1),
         divertAllPowerLoss: createTransferSpokeEffect('divertAllPowerGain', -1),
 
-        // Divert Helm/Sensors/Tactical: 1:1 pairs between source and target.
+        // Divert Helm/Science/Tactical: 1:1 pairs between source and target.
         divertHelmGain: createOneToOneTransferEffect('divertHelmLoss', 1),
         divertHelmLoss: createOneToOneTransferEffect('divertHelmGain', -1),
-        divertSensorsGain: createOneToOneTransferEffect('divertSensorsLoss', 1),
-        divertSensorsLoss: createOneToOneTransferEffect('divertSensorsGain', -1),
+        divertScienceGain: createOneToOneTransferEffect('divertScienceLoss', 1),
+        divertScienceLoss: createOneToOneTransferEffect('divertScienceGain', -1),
         divertTacticalGain: createOneToOneTransferEffect('divertTacticalLoss', 1),
         divertTacticalLoss: createOneToOneTransferEffect('divertTacticalGain', -1),
         generationPriority: {

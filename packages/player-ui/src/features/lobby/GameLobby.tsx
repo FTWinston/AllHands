@@ -17,7 +17,7 @@ export const GameLobby: FC<Props> = (props) => {
 
     const [helmOccupied, setHelmOccupied] = useState(false);
     const [tacticalOccupied, setTacticalOccupied] = useState(false);
-    const [sensorsOccupied, setSensorsOccupied] = useState(false);
+    const [scienceOccupied, setScienceOccupied] = useState(false);
     const [engineerOccupied, setEngineerOccupied] = useState(false);
 
     useEffect(() => {
@@ -33,20 +33,20 @@ export const GameLobby: FC<Props> = (props) => {
 
         setHelmOccupied(crew.helmClientId !== '');
         setTacticalOccupied(crew.tacticalClientId !== '');
-        setSensorsOccupied(crew.sensorsClientId !== '');
+        setScienceOccupied(crew.scienceClientId !== '');
         setEngineerOccupied(crew.engineerClientId !== '');
 
         const callbacks = getStateCallbacks(room);
 
         const unbindHelmCallback = callbacks(crew).listen('helmClientId', clientId => setHelmOccupied(clientId !== ''));
         const unbindTacticalCallback = callbacks(crew).listen('tacticalClientId', clientId => setTacticalOccupied(clientId !== ''));
-        const unbindSensorsCallback = callbacks(crew).listen('sensorsClientId', clientId => setSensorsOccupied(clientId !== ''));
+        const unbindScienceCallback = callbacks(crew).listen('scienceClientId', clientId => setScienceOccupied(clientId !== ''));
         const unbindEngineerCallback = callbacks(crew).listen('engineerClientId', clientId => setEngineerOccupied(clientId !== ''));
 
         return () => {
             unbindHelmCallback();
             unbindTacticalCallback();
-            unbindSensorsCallback();
+            unbindScienceCallback();
             unbindEngineerCallback();
         };
     }, [room, crewId]);
@@ -58,7 +58,7 @@ export const GameLobby: FC<Props> = (props) => {
             ready={ready}
             helmOccupied={helmOccupied}
             tacticalOccupied={tacticalOccupied}
-            sensorsOccupied={sensorsOccupied}
+            scienceOccupied={scienceOccupied}
             engineerOccupied={engineerOccupied}
             onRoleChange={(newRole) => {
                 room.send('role', newRole);

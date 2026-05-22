@@ -25,7 +25,7 @@
             "health": 100,
             "maxHealth": 100
         },
-        "sensors": {
+        "science": {
             "cards": ["exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
@@ -80,7 +80,7 @@
                         "health": 3,
                         "maxHealth": 3
                     },
-                    "sensors": {
+                    "science": {
                         "cards": ["exampleNoTarget", "exampleNoTarget"],
                         "initialPowerLevel": 2,
                         "maxPowerLevel": 2,

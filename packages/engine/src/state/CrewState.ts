@@ -1,6 +1,6 @@
 import { ClientArray } from '@colyseus/core';
 import { Schema, type, view, MapSchema } from '@colyseus/schema';
-import { CrewRole, ownHelmClientRole, ownSensorClientRole as sensorsClientRole, ownTacticalClientRole, ownEngineerClientRole, ownShipClientRole, otherShipClientRole, otherHelmClientRole, otherTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { CrewRole, ownHelmClientRole, ownScienceClientRole as scienceClientRole, ownTacticalClientRole, ownEngineerClientRole, ownShipClientRole, otherShipClientRole, otherHelmClientRole, otherTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { PlayerShip } from './PlayerShip';
@@ -35,7 +35,7 @@ export class CrewState extends Schema {
 
     @view() @type('string') helmClientId: string = '';
     @view() @type('string') tacticalClientId: string = '';
-    @view() @type('string') sensorsClientId: string = '';
+    @view() @type('string') scienceClientId: string = '';
     @view() @type('string') engineerClientId: string = '';
 
     @view() @type({ map: 'boolean' }) crewReady = new MapSchema<boolean>(); // Map of crew member client IDs to ready status
@@ -74,11 +74,11 @@ export class CrewState extends Schema {
                 return this.tacticalClientId === clientId;
             }
             this.tacticalClientId = clientId;
-        } else if (role === sensorsClientRole) {
-            if (this.sensorsClientId) {
-                return this.sensorsClientId === clientId;
+        } else if (role === scienceClientRole) {
+            if (this.scienceClientId) {
+                return this.scienceClientId === clientId;
             }
-            this.sensorsClientId = clientId;
+            this.scienceClientId = clientId;
         } else if (role === ownEngineerClientRole) {
             if (this.engineerClientId) {
                 return this.engineerClientId === clientId;
@@ -95,8 +95,8 @@ export class CrewState extends Schema {
         if (clientId === this.tacticalClientId && role !== ownTacticalClientRole) {
             this.tacticalClientId = '';
         }
-        if (clientId === this.sensorsClientId && role !== sensorsClientRole) {
-            this.sensorsClientId = '';
+        if (clientId === this.scienceClientId && role !== scienceClientRole) {
+            this.scienceClientId = '';
         }
         if (clientId === this.engineerClientId && role !== ownEngineerClientRole) {
             this.engineerClientId = '';
@@ -112,8 +112,8 @@ export class CrewState extends Schema {
         if (crewClientId === this.tacticalClientId) {
             this.tacticalClientId = '';
         }
-        if (crewClientId === this.sensorsClientId) {
-            this.sensorsClientId = '';
+        if (crewClientId === this.scienceClientId) {
+            this.scienceClientId = '';
         }
         if (crewClientId === this.engineerClientId) {
             this.engineerClientId = '';
@@ -121,7 +121,7 @@ export class CrewState extends Schema {
     }
 
     isReady(): boolean {
-        if (!this.helmClientId || !this.tacticalClientId || !this.sensorsClientId || !this.engineerClientId) {
+        if (!this.helmClientId || !this.tacticalClientId || !this.scienceClientId || !this.engineerClientId) {
             return false;
         }
 
@@ -184,9 +184,9 @@ export class CrewState extends Schema {
             tacticalClient.view.remove(object);
         }
 
-        const sensorsClient = this.clients.getById(this.sensorsClientId);
-        if (sensorsClient?.view) {
-            sensorsClient.view.remove(object);
+        const scienceClient = this.clients.getById(this.scienceClientId);
+        if (scienceClient?.view) {
+            scienceClient.view.remove(object);
         }
 
         const engineerClient = this.clients.getById(this.engineerClientId);
@@ -216,9 +216,9 @@ export class CrewState extends Schema {
             tacticalClient.view.add(this.ship, ownTacticalClientRole);
         }
 
-        const sensorsClient = this.clients.getById(this.sensorsClientId);
-        if (sensorsClient?.view) {
-            sensorsClient.view.add(this.ship, sensorsClientRole);
+        const scienceClient = this.clients.getById(this.scienceClientId);
+        if (scienceClient?.view) {
+            scienceClient.view.add(this.ship, scienceClientRole);
         }
 
         const engineerClient = this.clients.getById(this.engineerClientId);
@@ -256,9 +256,9 @@ export class CrewState extends Schema {
             tacticalClient.view.remove(this.ship, ownTacticalClientRole);
         }
 
-        const sensorsClient = this.clients.getById(this.sensorsClientId);
-        if (sensorsClient?.view) {
-            sensorsClient.view.remove(this.ship, sensorsClientRole);
+        const scienceClient = this.clients.getById(this.scienceClientId);
+        if (scienceClient?.view) {
+            scienceClient.view.remove(this.ship, scienceClientRole);
         }
 
         const engineerClient = this.clients.getById(this.engineerClientId);
@@ -281,7 +281,7 @@ export class CrewState extends Schema {
             this.shipClientId,
             this.helmClientId,
             this.tacticalClientId,
-            this.sensorsClientId,
+            this.scienceClientId,
             this.engineerClientId,
         ];
 

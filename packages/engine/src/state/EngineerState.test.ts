@@ -21,7 +21,7 @@ const defaultSetup: PlayerShipSetupInfo = {
     hull: { initialPowerLevel: 3, maxPowerLevel: 5, health: 100, maxHealth: 100 },
     reactor: { initialPowerLevel: 3, maxPowerLevel: 5, health: 100, maxHealth: 100 },
     helm: { ...minimalCrewSetup },
-    sensors: { ...minimalCrewSetup },
+    science: { ...minimalCrewSetup },
     tactical: { ...minimalCrewSetup, numSlots: 2 },
     engineer: { ...minimalCrewSetup },
 };
@@ -69,9 +69,9 @@ function advanceTime(clock: ClockTimer, engineer: EngineerState, ms: number, ste
 }
 
 // generationSequence = [0, 2, 4, 5, 3, 1]
-// systems indices: 0=hull, 1=reactor, 2=helm, 3=sensors, 4=tactical, 5=engineer
+// systems indices: 0=hull, 1=reactor, 2=helm, 3=science, 4=tactical, 5=engineer
 //
-// So sequence of systems by name: hull, helm, tactical, engineer, sensors, reactor.
+// So sequence of systems by name: hull, helm, tactical, engineer, science, reactor.
 
 /** Per-system generation duration at the reactor power level used in tests. */
 const slotDuration = generationDurationByReactorPower[defaultSetup.reactor.initialPowerLevel];
@@ -110,10 +110,10 @@ describe('EngineerState generation priority', () => {
             expect(generated).toEqual(['hull', 'helm', 'tactical', 'engineer']);
 
             advanceTime(clock, engineer, slotDuration);
-            expect(generated).toEqual(['hull', 'helm', 'tactical', 'engineer', 'sensors']);
+            expect(generated).toEqual(['hull', 'helm', 'tactical', 'engineer', 'science']);
 
             advanceTime(clock, engineer, slotDuration);
-            expect(generated).toEqual(['hull', 'helm', 'tactical', 'engineer', 'sensors', 'reactor']);
+            expect(generated).toEqual(['hull', 'helm', 'tactical', 'engineer', 'science', 'reactor']);
         });
     });
 
@@ -121,71 +121,71 @@ describe('EngineerState generation priority', () => {
         it('should trigger priority system after every other system generates', () => {
             const generated = spyOnGeneration(ship);
 
-            // Apply generationPriority to the sensors tile (systems index 3).
-            const sensorsTile = engineer.systems.find(t => t.system === 'sensors')!;
-            sensorsTile.addEffect('generationPriority');
+            // Apply generationPriority to the science tile (systems index 3).
+            const scienceTile = engineer.systems.find(t => t.system === 'science')!;
+            scienceTile.addEffect('generationPriority');
 
             // Start at t=0. Hull starts generating.
             engineer.update(0);
             expect(generated).toEqual([]);
 
-            // hull completes → sensors also generates.
+            // hull completes → science also generates.
             advanceTime(clock, engineer, slotDuration);
-            expect(generated).toEqual(['hull', 'sensors']);
+            expect(generated).toEqual(['hull', 'science']);
 
-            // helm completes → sensors also generates.
+            // helm completes → science also generates.
             advanceTime(clock, engineer, slotDuration);
-            expect(generated).toEqual(['hull', 'sensors', 'helm', 'sensors']);
+            expect(generated).toEqual(['hull', 'science', 'helm', 'science']);
         });
 
         it('should skip the priority system original slot in the sequence', () => {
             const generated = spyOnGeneration(ship);
 
-            // Apply generationPriority to the sensors tile.
-            // Normal sequence: hull, helm, tactical, engineer, sensors, reactor
-            // With priority on sensors: hull, helm, tactical, engineer, [sensors skipped], reactor
-            const sensorsTile = engineer.systems.find(t => t.system === 'sensors')!;
-            sensorsTile.addEffect('generationPriority');
+            // Apply generationPriority to the science tile.
+            // Normal sequence: hull, helm, tactical, engineer, science, reactor
+            // With priority on science: hull, helm, tactical, engineer, [science skipped], reactor
+            const scienceTile = engineer.systems.find(t => t.system === 'science')!;
+            scienceTile.addEffect('generationPriority');
 
             engineer.update(0);
 
-            // Run through the full cycle: 5 active slots (sensors slot skipped).
+            // Run through the full cycle: 5 active slots (science slot skipped).
             advanceTime(clock, engineer, 5 * slotDuration);
 
-            // Expected: each active slot triggers its system + sensors.
-            // hull+sensors, helm+sensors, tactical+sensors, engineer+sensors, reactor+sensors
-            // Sensors slot is skipped, so sensors doesn't generate from its own slot.
+            // Expected: each active slot triggers its system + science.
+            // hull+science, helm+science, tactical+science, engineer+science, reactor+science
+            // science slot is skipped, so science doesn't generate from its own slot.
             expect(generated).toEqual([
-                'hull', 'sensors',
-                'helm', 'sensors',
-                'tactical', 'sensors',
-                'engineer', 'sensors',
-                'reactor', 'sensors',
+                'hull', 'science',
+                'helm', 'science',
+                'tactical', 'science',
+                'engineer', 'science',
+                'reactor', 'science',
             ]);
         });
 
         it('should resume normal generation after effect expires', () => {
             const generated = spyOnGeneration(ship);
 
-            const sensorsTile = engineer.systems.find(t => t.system === 'sensors')!;
-            sensorsTile.addEffect('generationPriority');
+            const scienceTile = engineer.systems.find(t => t.system === 'science')!;
+            scienceTile.addEffect('generationPriority');
 
             // Read the actual expiry time from the applied effect rather than
             // relying on the hard-coded duration constant.
-            const effectEndTime = sensorsTile.effects.find(e => e.type === 'generationPriority')!.progress!.endTime;
+            const effectEndTime = scienceTile.effects.find(e => e.type === 'generationPriority')!.progress!.endTime;
 
             engineer.update(0);
             advanceTime(clock, engineer, effectEndTime);
-            expect(sensorsTile.hasEffect('generationPriority')).toBe(false);
+            expect(scienceTile.hasEffect('generationPriority')).toBe(false);
 
             generated.length = 0;
 
             // Run through one full 6-slot cycle.
             advanceTime(clock, engineer, 6 * slotDuration);
 
-            // With priority active sensors generated after every other system (5 times/cycle).
+            // With priority active science generated after every other system (5 times/cycle).
             // After expiry it should appear exactly once — only in its own sequence slot.
-            expect(generated.filter(s => s === 'sensors')).toHaveLength(1);
+            expect(generated.filter(s => s === 'science')).toHaveLength(1);
         });
 
         it('should not trigger bonus generation on the priority system itself', () => {
@@ -207,30 +207,30 @@ describe('EngineerState generation priority', () => {
         it('should persist through system tile swaps', () => {
             const generated = spyOnGeneration(ship);
 
-            // Apply generationPriority to sensors.
-            const sensorsTile = engineer.systems.find(t => t.system === 'sensors')!;
-            sensorsTile.addEffect('generationPriority');
+            // Apply generationPriority to science.
+            const scienceTile = engineer.systems.find(t => t.system === 'science')!;
+            scienceTile.addEffect('generationPriority');
 
             // Start generation.
             engineer.update(0);
             advanceTime(clock, engineer, slotDuration);
-            expect(generated).toEqual(['hull', 'sensors']);
+            expect(generated).toEqual(['hull', 'science']);
 
             generated.length = 0;
 
-            // Swap sensors tile to a different position.
-            const sensorsIndex = engineer.systems.indexOf(sensorsTile);
-            const otherIndex = sensorsIndex % 2 === 0 ? sensorsIndex + 1 : sensorsIndex - 1;
+            // Swap science tile to a different position.
+            const scienceIndex = engineer.systems.indexOf(scienceTile);
+            const otherIndex = scienceIndex % 2 === 0 ? scienceIndex + 1 : scienceIndex - 1;
             const otherTile = engineer.systems[otherIndex];
-            engineer.systems[sensorsIndex] = otherTile;
-            engineer.systems[otherIndex] = sensorsTile;
-            engineer.onSystemsSwapped(sensorsIndex, otherIndex);
+            engineer.systems[scienceIndex] = otherTile;
+            engineer.systems[otherIndex] = scienceTile;
+            engineer.onSystemsSwapped(scienceIndex, otherIndex);
 
-            // Advance through two more slots. Sensors fires first (it is now at
+            // Advance through two more slots. science fires first (it is now at
             // the current generating position after the swap), then tactical fires
-            // and sensors gets a bonus — confirming the effect follows the tile.
+            // and science gets a bonus — confirming the effect follows the tile.
             advanceTime(clock, engineer, 2 * slotDuration);
-            expect(generated).toEqual(['sensors', 'tactical', 'sensors']);
+            expect(generated).toEqual(['science', 'tactical', 'science']);
         });
     });
 });

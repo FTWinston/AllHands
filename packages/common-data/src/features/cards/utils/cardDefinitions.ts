@@ -164,7 +164,7 @@ export const cardDefinitions = defineCardDefinitions({
     },
     exampleNoTarget: {
         targetType: 'no-target',
-        crew: 'sensors',
+        crew: 'science',
         parameters: { cost: 2 },
     },
     auxPower: {
@@ -243,7 +243,7 @@ export const cardDefinitions = defineCardDefinitions({
     divertSystemPower: {
         targetType: 'choice',
         crew: 'engineer',
-        cards: ['divertHelm', 'divertSensors', 'divertTactical'],
+        cards: ['divertHelm', 'divertScience', 'divertTactical'],
         parameters: { cost: 3 },
     },
     divertHelm: {
@@ -251,7 +251,7 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'engineer',
         parameters: { cost: 3, maxAmount: 3, duration: 20 },
     },
-    divertSensors: {
+    divertScience: {
         targetType: 'system',
         crew: 'engineer',
         parameters: { cost: 3, maxAmount: 3, duration: 20 },

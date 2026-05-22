@@ -1,8 +1,8 @@
-import { CrewRole, ownEngineerClientRole, ownHelmClientRole, ownSensorClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { CrewRole, ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { Screen } from 'common-ui/components/Screen';
 import { ToggleButton } from 'common-ui/components/ToggleButton';
-import { HelmIcon, TacticalIcon, SensorsIcon, EngineeringIcon } from 'common-ui/icons/crew';
+import { HelmIcon, TacticalIcon, ScienceIcon, EngineeringIcon } from 'common-ui/icons/crew';
 
 import { FC } from 'react';
 import styles from './GameLobbyDisplay.module.css';
@@ -14,7 +14,7 @@ export type Props = {
     ready: boolean;
     helmOccupied: boolean;
     tacticalOccupied: boolean;
-    sensorsOccupied: boolean;
+    scienceOccupied: boolean;
     engineerOccupied: boolean;
     onRoleChange: (role: CrewRole | '') => void;
     onReadyChange: (ready: boolean) => void;
@@ -27,7 +27,7 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
         ready,
         helmOccupied,
         tacticalOccupied,
-        sensorsOccupied,
+        scienceOccupied,
         engineerOccupied,
         onRoleChange,
         onReadyChange,
@@ -68,12 +68,12 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                 </li>
                 <li className={styles.roleItem}>
                     <LobbyRole
-                        name="Sensors"
-                        icon={<SensorsIcon />}
-                        occupied={sensorsOccupied}
-                        selected={role === ownSensorClientRole}
+                        name="Science"
+                        icon={<ScienceIcon />}
+                        occupied={scienceOccupied}
+                        selected={role === ownScienceClientRole}
                         onSelectionChange={(selected) => {
-                            onRoleChange(selected ? ownSensorClientRole : '');
+                            onRoleChange(selected ? ownScienceClientRole : '');
                         }}
                     />
                 </li>

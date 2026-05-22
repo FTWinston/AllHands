@@ -1,7 +1,7 @@
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { Button } from 'common-ui/components/Button';
 import { Screen } from 'common-ui/components/Screen';
-import { EngineeringIcon, HelmIcon, SensorsIcon, TacticalIcon } from 'common-ui/icons/crew';
+import { EngineeringIcon, HelmIcon, ScienceIcon, TacticalIcon } from 'common-ui/icons/crew';
 import { FC } from 'react';
 import QRCode from 'react-qr-code';
 import styles from './GameLobbyDisplay.module.css';
@@ -17,14 +17,14 @@ export type Props = {
     disconnect: () => void;
     helmState: SystemState;
     tacticalState: SystemState;
-    sensorsState: SystemState;
+    scienceState: SystemState;
     engineerState: SystemState;
     numUnassigned: number;
     isFull: boolean;
 };
 
 export const GameLobbyDisplay: FC<Props> = (props) => {
-    const { serverAddress, crewId, allowMultipleCrews, helmState, tacticalState, sensorsState, engineerState, numUnassigned } = props;
+    const { serverAddress, crewId, allowMultipleCrews, helmState, tacticalState, scienceState, engineerState, numUnassigned } = props;
 
     let serverUrl = `http://${serverAddress.ip}:${serverAddress.port}/`;
     if (crewId !== soloCrewIdentifier) {
@@ -75,9 +75,9 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                             state={tacticalState}
                         />
                         <LobbyRole
-                            name="Sensors"
-                            icon={<SensorsIcon />}
-                            state={sensorsState}
+                            name="Science"
+                            icon={<ScienceIcon />}
+                            state={scienceState}
                         />
                         <LobbyRole
                             name="Engineer"

@@ -78,7 +78,7 @@ export interface EngineerSystemInfo extends CrewSystemInfo {
 
 export interface ShipInfo extends GameObjectInfo {
     helmState: HelmSystemInfo;
-    sensorState: CrewSystemInfo;
+    scienceState: CrewSystemInfo;
     tacticalState: TacticalSystemInfo;
     engineerState: EngineerSystemInfo;
 }
@@ -110,7 +110,7 @@ export interface ShipSetupInfo extends GameObjectSetupInfo {
     hull: SystemSetupInfo;
     reactor: SystemSetupInfo;
     helm: CrewSystemSetupInfo;
-    sensors: CrewSystemSetupInfo;
+    science: CrewSystemSetupInfo;
     tactical: TacticalSystemSetupInfo;
     engineer: CrewSystemSetupInfo;
 }
@@ -135,7 +135,7 @@ export type AiTacticalSetupInfo = AiSystemSetupInfo & TacticalSystemSetupInfo;
 
 export interface AiShipSetupInfo extends ShipSetupInfo {
     helm: AiSystemSetupInfo;
-    sensors: AiSystemSetupInfo;
+    science: AiSystemSetupInfo;
     tactical: AiTacticalSetupInfo;
     engineer: AiSystemSetupInfo;
 
