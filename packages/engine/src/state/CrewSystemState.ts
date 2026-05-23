@@ -138,8 +138,11 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         }
 
         if (targetType !== cardDefinition.targetType) {
-            console.error('playing card on incorrect target type');
-            return null;
+            // Deflector cards can also be played directly against an enemy using their play function.
+            if (!(cardDefinition.targetType === 'deflector' && targetType === 'enemy')) {
+                console.error('playing card on incorrect target type');
+                return null;
+            }
         }
 
         let played: boolean;
@@ -155,8 +158,12 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         } else if (cardDefinition.targetType === 'enemy') {
             played = this.playEnemyCard(cardDefinition, targetId, parameters);
         } else if (cardDefinition.targetType === 'deflector') {
-            played = this.playDeflectorSlotCard(cardDefinition, card, targetId, parameters);
-            slotted = true;
+            if (targetType === 'enemy') {
+                played = this.playEnemyCard(cardDefinition, targetId, parameters);
+            } else {
+                played = this.playCardIntoDeflectorSlot(cardDefinition, card, targetId, parameters);
+                slotted = true;
+            }
         } else if (cardDefinition.targetType === 'system') {
             played = this.playSystemCard(cardDefinition, targetId, parameters);
         } else if (cardDefinition.targetType === 'location') {
@@ -188,7 +195,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         return false;
     }
 
-    protected playDeflectorSlotCard(_cardDefinition: EngineDeflectorTargetCardDefinition, _card: CardState, _targetId: string, _parameters: CardParameters): boolean {
+    protected playCardIntoDeflectorSlot(_cardDefinition: EngineDeflectorTargetCardDefinition, _card: CardState, _targetId: string, _parameters: CardParameters): boolean {
         console.warn('non-science system trying to play deflector slot card');
         return false;
     }
@@ -198,7 +205,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         return false;
     }
 
-    private playEnemyCard(cardDefinition: EngineEnemyTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+    protected playEnemyCard(cardDefinition: EngineEnemyTargetCardDefinition | EngineDeflectorTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
         const target = this.resolveTarget(targetId);
 
         if (!target) {

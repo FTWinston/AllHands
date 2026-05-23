@@ -29,6 +29,7 @@ export type EnemyTargetCardFunctionality = {
 
 export type DeflectorTargetCardFunctionality = {
     load: (gameState: GameState, ship: Ship, slotId: string, parameters: CardParameters) => boolean;
+    play: (gameState: GameState, ship: Ship, target: GameObject | null, parameters: CardParameters) => boolean;
 };
 
 export type SystemTargetCardFunctionality = {

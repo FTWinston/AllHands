@@ -27,7 +27,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     @type(CardState) deflectorCard: CardState | null = null;
 
     override playCard(cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string): EngineCardDefinition | null {
-        // If the deflector card is being played against an enemy, handle it specially — it may not be in the hand.
+        // If the deflector card is being played against an enemy, handle it separately, as it's not in the hand.
         if (targetType === 'enemy' && cardId === this.deflectorCardId && this.deflectorCard !== null) {
             return this.playDeflectorCard(targetId);
         }
@@ -35,7 +35,53 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         return super.playCard(cardId, cardType, targetType, targetId);
     }
 
-    override playDeflectorSlotCard(cardDefinition: EngineDeflectorTargetCardDefinition, card: CardState, targetId: string, parameters: CardParameters): boolean {
+    private playDeflectorCard(targetId: string): EngineCardDefinition | null {
+        if (!this.deflectorCard) {
+            return null;
+        }
+
+        const cardDefinition = getCardDefinition(this.deflectorCard.type) as EngineEnemyTargetCardDefinition;
+        const parameters = resolveParameters(cardDefinition.parameters, this.deflectorCard.modifiers);
+        const resolvedCost = parameters['cost'];
+
+        if (this.powerLevel < resolvedCost) {
+            console.warn('insufficient power to play deflector card');
+            return null;
+        }
+
+        const target = this.resolveTarget(targetId);
+        if (!target) {
+            console.warn('target not found: ' + targetId);
+            return null;
+        }
+
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, parameters)) {
+            console.log('deflector card refused to play');
+            return null;
+        }
+
+        // The main deflector card has been played, and should be expended.
+        this.handlePlayedCard(this.deflectorCard, -1, cardDefinition, false);
+        this.deflectorCard = null;
+
+        // Cards in deflector slots should be discarded when the deflector is activated.
+        if (this.modifierSlotCard) {
+            this.handlePlayedCard(this.modifierSlotCard, -1, cardDefinition, false);
+            this.modifierSlotCard = null;
+        }
+        if (this.substanceSlotCard) {
+            this.handlePlayedCard(this.substanceSlotCard, -1, cardDefinition, false);
+            this.substanceSlotCard = null;
+        }
+        if (this.deliverySlotCard) {
+            this.handlePlayedCard(this.deliverySlotCard, -1, cardDefinition, false);
+            this.deliverySlotCard = null;
+        }
+
+        return cardDefinition;
+    }
+
+    override playCardIntoDeflectorSlot(cardDefinition: EngineDeflectorTargetCardDefinition, card: CardState, targetId: string, parameters: CardParameters): boolean {
         if (cardDefinition.parameters[targetId] === null) {
             console.log(`card cannot be played into the ${targetId} slot`);
             return false;
@@ -73,34 +119,6 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this[slot] = card;
         this.updateDeflectorCard();
         return true;
-    }
-
-    private playDeflectorCard(targetId: string): EngineCardDefinition | null {
-        if (!this.deflectorCard) {
-            return null;
-        }
-
-        const cardDefinition = getCardDefinition(this.deflectorCard.type) as EngineEnemyTargetCardDefinition;
-        const parameters = resolveParameters(cardDefinition.parameters, this.deflectorCard.modifiers);
-        const resolvedCost = parameters['cost'];
-
-        if (this.powerLevel < resolvedCost) {
-            console.warn('insufficient power to play deflector card');
-            return null;
-        }
-
-        const target = this.resolveTarget(targetId);
-        if (!target) {
-            console.warn('target not found: ' + targetId);
-            return null;
-        }
-
-        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, parameters)) {
-            console.log('deflector card refused to play');
-            return null;
-        }
-
-        return cardDefinition;
     }
 
     private updateDeflectorCard(): void {
