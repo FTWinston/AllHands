@@ -39,6 +39,21 @@ export type EnemyTargetCardDefinition = CommonCardDefinition & {
     targetType: 'enemy';
 };
 
+export type DeflectorEffectModifier = 'phased' | 'coherent' | 'inverted' | 'modulated';
+
+export type DeflectorEffectSubstance = 'antiproton' | 'tetryon' | 'chroniton' | 'graviton' | 'polaron';
+
+export type DeflectorEffectDelivery = 'beam' | 'pulse' | 'burst' | 'wave';
+
+export type DeflectorTargetCardDefinition = CommonCardDefinition & {
+    targetType: 'deflector';
+    parameters: CardParameters & {
+        modifier: DeflectorEffectModifier | null;
+        substance: DeflectorEffectSubstance | null;
+        delivery: DeflectorEffectDelivery | null;
+    };
+};
+
 export type SystemTargetCardDefinition = CommonCardDefinition & {
     targetType: 'system';
 };
@@ -90,5 +105,6 @@ export type CardDefinition<TCardKey extends string = CardType> = NoTargetCardDef
     | WeaponSlotTargetCardDefinition
     | WeaponTargetCardDefinition
     | EnemyTargetCardDefinition
+    | DeflectorTargetCardDefinition
     | SystemTargetCardDefinition
     | LocationTargetCardDefinition;

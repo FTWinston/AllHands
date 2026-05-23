@@ -1,5 +1,6 @@
 import {
     CardType,
+    DeflectorTargetedCardType,
     EnemyTargetedCardType,
     LocationTargetedCardType,
     SystemSlotTargetedCardType,
@@ -18,6 +19,7 @@ import {
     WeaponSlotTargetCardFunctionality,
     WeaponTargetCardFunctionality,
     EnemyTargetCardFunctionality,
+    DeflectorTargetCardFunctionality,
     SystemTargetCardFunctionality,
     LocationTargetCardFunctionality,
     EngineCardDefinition,
@@ -27,6 +29,7 @@ import {
     EngineLocationTargetCardDefinition,
     EngineSystemTargetCardDefinition,
     EngineEnemyTargetCardDefinition,
+    EngineDeflectorTargetCardDefinition,
     EngineNoTargetCardDefinition,
 } from './EngineCardDefinition';
 
@@ -35,6 +38,7 @@ type CardFunctionalityLookup = Record<UntargetedCardType, NoTargetCardFunctional
     & Record<WeaponTargetedCardType, WeaponTargetCardFunctionality>
     & Record<SystemSlotTargetedCardType, SystemTargetCardFunctionality>
     & Record<EnemyTargetedCardType, EnemyTargetCardFunctionality>
+    & Record<DeflectorTargetedCardType, DeflectorTargetCardFunctionality>
     & Record<LocationTargetedCardType, LocationTargetCardFunctionality>;
 
 /**
@@ -445,6 +449,7 @@ export function getCardDefinition(type: WeaponTargetedCardType): EngineWeaponTar
 export function getCardDefinition(type: LocationTargetedCardType): EngineLocationTargetCardDefinition;
 export function getCardDefinition(type: SystemSlotTargetedCardType): EngineSystemTargetCardDefinition;
 export function getCardDefinition(type: EnemyTargetedCardType): EngineEnemyTargetCardDefinition;
+export function getCardDefinition(type: DeflectorTargetedCardType): EngineDeflectorTargetCardDefinition;
 export function getCardDefinition(type: UntargetedCardType): EngineNoTargetCardDefinition;
 export function getCardDefinition(type: CardType): EngineCardDefinition;
 export function getCardDefinition(type: CardType): EngineCardDefinition {

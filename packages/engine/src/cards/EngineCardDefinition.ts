@@ -1,4 +1,4 @@
-import { ChoiceCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { ChoiceCardDefinition, DeflectorTargetCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { EngineerSystemTile } from 'src/state/EngineerSystemTile';
@@ -27,6 +27,10 @@ export type EnemyTargetCardFunctionality = {
     play: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters) => boolean;
 };
 
+export type DeflectorTargetCardFunctionality = {
+    load: (gameState: GameState, ship: Ship, slotId: string, parameters: CardParameters) => boolean;
+};
+
 export type SystemTargetCardFunctionality = {
     play: (gameState: GameState, ship: Ship, system: EngineerSystemTile, parameters: CardParameters) => boolean;
 };
@@ -41,6 +45,7 @@ export type EngineCardFunctionality = NoTargetCardFunctionality
     | WeaponTargetCardFunctionality
     | SystemTargetCardFunctionality
     | EnemyTargetCardFunctionality
+    | DeflectorTargetCardFunctionality
     | LocationTargetCardFunctionality;
 
 export type EngineNoTargetCardDefinition = NoTargetCardFunctionality & NoTargetCardDefinition;
@@ -53,6 +58,8 @@ export type EngineWeaponTargetCardDefinition = WeaponTargetCardFunctionality & W
 
 export type EngineEnemyTargetCardDefinition = EnemyTargetCardFunctionality & EnemyTargetCardDefinition;
 
+export type EngineDeflectorTargetCardDefinition = DeflectorTargetCardFunctionality & DeflectorTargetCardDefinition;
+
 export type EngineSystemTargetCardDefinition = SystemTargetCardFunctionality & SystemTargetCardDefinition;
 
 export type EngineLocationTargetCardDefinition = LocationTargetCardFunctionality & LocationTargetCardDefinition;
@@ -62,6 +69,7 @@ export type EngineCardDefinition = EngineNoTargetCardDefinition
     | EngineWeaponSlotCardDefinition
     | EngineWeaponTargetCardDefinition
     | EngineEnemyTargetCardDefinition
+    | EngineDeflectorTargetCardDefinition
     | EngineSystemTargetCardDefinition
     | EngineLocationTargetCardDefinition;
 

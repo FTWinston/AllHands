@@ -4,7 +4,7 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { resolveParameters } from 'common-data/features/cards/utils/resolveParameters';
 import { CrewSystemSetupInfo, CrewSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { EngineCardDefinition, EngineEnemyTargetCardDefinition, EngineLocationTargetCardDefinition, EngineNoTargetCardDefinition, EngineSystemTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
+import { EngineCardDefinition, EngineDeflectorTargetCardDefinition, EngineEnemyTargetCardDefinition, EngineLocationTargetCardDefinition, EngineNoTargetCardDefinition, EngineSystemTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { BindableEvent } from '../classes/BindableEvent';
 import { CardState } from './CardState';
@@ -154,6 +154,9 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             played = this.playWeaponCard(cardDefinition, targetId, parameters);
         } else if (cardDefinition.targetType === 'enemy') {
             played = this.playEnemyCard(cardDefinition, targetId, parameters);
+        } else if (cardDefinition.targetType === 'deflector') {
+            played = this.playDeflectorSlotCard(cardDefinition, card, targetId, parameters);
+            slotted = true;
         } else if (cardDefinition.targetType === 'system') {
             played = this.playSystemCard(cardDefinition, targetId, parameters);
         } else if (cardDefinition.targetType === 'location') {
@@ -182,6 +185,11 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
     protected playWeaponSlotCard(_cardDefinition: EngineWeaponSlotCardDefinition, _card: CardState, _targetId: string, _parameters: CardParameters): boolean {
         console.warn('non-tactical system trying to play weapon slot card');
+        return false;
+    }
+
+    protected playDeflectorSlotCard(_cardDefinition: EngineDeflectorTargetCardDefinition, _card: CardState, _targetId: string, _parameters: CardParameters): boolean {
+        console.warn('non-science system trying to play deflector slot card');
         return false;
     }
 

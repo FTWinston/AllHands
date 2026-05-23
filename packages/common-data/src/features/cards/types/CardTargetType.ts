@@ -1,1 +1,1 @@
-export type CardTargetType = 'no-target' | 'weapon-slot' | 'weapon' | 'system' | 'enemy' | 'location' | 'choice';
+export type CardTargetType = 'no-target' | 'weapon-slot' | 'weapon' | 'system' | 'enemy' | 'location' | 'choice' | 'deflector';

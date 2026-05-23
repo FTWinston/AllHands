@@ -294,6 +294,8 @@ export type SystemSlotTargetedCardType = KeysWithTargetType<typeof cardDefinitio
 
 export type EnemyTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'enemy'>;
 
+export type DeflectorTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'deflector'>;
+
 export type LocationTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'location'>;
 
 export type ChoiceCardType = KeysWithTargetType<typeof cardDefinitions, 'choice'>;
