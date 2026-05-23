@@ -62,6 +62,12 @@ export interface TacticalSystemClientInfo extends Omit<TacticalSystemInfo, 'vuln
     vulnerabilitiesByTarget: Record<string, TargetVulnerabilities>;
 }
 
+export interface ScienceSystemInfo extends CrewSystemInfo {
+    deflectorCard1: CardInstance | null;
+    deflectorCard2: CardInstance | null;
+    deflectorCard3: CardInstance | null;
+}
+
 export interface EngineerSystemTileInfo {
     system: ShipSystem;
     power: number;

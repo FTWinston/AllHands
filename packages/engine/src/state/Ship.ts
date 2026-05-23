@@ -4,7 +4,6 @@ import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSy
 import { Damage } from 'common-data/features/space/types/Damage';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { distanceSq } from 'common-data/features/space/utils/vectors';
-import { CrewSystemState } from './CrewSystemState';
 import { EngineerState } from './EngineerState';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
@@ -13,6 +12,7 @@ import { HullSystemState } from './HullSystemState';
 import { MobileObject } from './MobileObject';
 import { MotionKeyframe } from './MotionKeyframe';
 import { ReactorSystemState } from './ReactorSystemState';
+import { ScienceState } from './ScienceState';
 import { SystemState } from './SystemState';
 import { TacticalState } from './TacticalState';
 
@@ -32,7 +32,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this.hullState = new HullSystemState(setup.hull, gameState, this);
         this.reactorState = new ReactorSystemState(setup.reactor, gameState, this);
         this.helmState = new HelmState(setup.helm, gameState, this, getCardId);
-        this.scienceState = new CrewSystemState(setup.science, gameState, this, getCardId);
+        this.scienceState = new ScienceState(setup.science, gameState, this, getCardId);
         this.tacticalState = new TacticalState(setup.tactical, gameState, this, getCardId);
         this.engineerState = new EngineerState(setup.engineer, gameState, this, getCardId);
 
@@ -57,7 +57,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     hullState: HullSystemState;
     reactorState: ReactorSystemState;
     @view(ownHelmClientRole) @type(HelmState) helmState: HelmState;
-    @view(ownScienceClientRole) @type(CrewSystemState) scienceState: CrewSystemState;
+    @view(ownScienceClientRole) @type(ScienceState) scienceState: ScienceState;
     @view(ownTacticalClientRole) @type(TacticalState) tacticalState: TacticalState;
     @view(ownEngineerClientRole) @type(EngineerState) engineerState: EngineerState;
 
