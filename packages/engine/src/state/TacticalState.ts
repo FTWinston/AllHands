@@ -1,12 +1,14 @@
 import { ArraySchema, MapSchema, type } from '@colyseus/schema';
+import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType, WeaponSlotTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { FiringState } from 'common-data/features/space/types/FiringState';
 import { TacticalSystemInfo, TacticalSystemSetupInfo, VulnerabilityInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
-import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
+import { EngineCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
+import { CardState } from './CardState';
 import { CrewSystemState } from './CrewSystemState';
 import { GameState } from './GameState';
 import { Ship } from './Ship';
@@ -42,6 +44,60 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
 
         return super.playCard(cardId, cardType, targetType, targetId);
+    }
+
+    override playWeaponSlotCard(cardDefinition: EngineWeaponSlotCardDefinition, card: CardState, targetId: string, parameters: CardParameters): boolean {
+        const slot = this.resolveWeaponSlot(targetId);
+
+        if (!slot) {
+            console.warn('weapon slot not found: ' + targetId);
+            return false;
+        }
+
+        if (slot.card) {
+            console.log('weapon slot already occupied');
+            return false;
+        }
+
+        if (!cardDefinition.load(this.getGameState(), this.getShip(), slot, parameters)) {
+            console.log('card refused to load');
+            return false;
+        }
+
+        slot.card = card;
+
+        return true;
+    }
+
+    protected playWeaponCard(cardDefinition: EngineWeaponTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+        const slot = this.resolveWeaponSlot(targetId);
+        if (!slot) {
+            console.warn('weapon slot not found: ' + targetId);
+            return false;
+        }
+
+        if (!slot.card) {
+            console.log('weapon slot is empty');
+            return false;
+        }
+
+        // If slot has been primed, use the card's charge function.
+        // Otherwise, use the card's prime function, and mark the slot as primed.
+        if (slot.primed) {
+            if (!cardDefinition.charge(this.getGameState(), this.getShip(), slot, parameters)) {
+                console.log('card refused to charge');
+                return false;
+            }
+        } else {
+            if (!cardDefinition.prime(this.getGameState(), this.getShip(), slot, parameters)) {
+                console.log('card refused to prime');
+                return false;
+            }
+
+            slot.primed = true;
+        }
+
+        return true;
     }
 
     playWeapon(slot: WeaponSlotState, cardType: WeaponSlotTargetedCardType, targetId: string): EngineCardDefinition | null {
@@ -99,7 +155,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         return cardDef;
     }
 
-    resolveWeaponSlot(slotId: string): WeaponSlotState | null {
+    private resolveWeaponSlot(slotId: string): WeaponSlotState | null {
         for (const slot of this.slots) {
             if (slot.id === slotId) {
                 return slot;

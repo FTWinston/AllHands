@@ -10,7 +10,9 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         super(setup, gameState, ship, getCardId);
     }
 
-    @type(CardState) deflectorCard1: CardState | null = null;
-    @type(CardState) deflectorCard2: CardState | null = null;
-    @type(CardState) deflectorCard3: CardState | null = null;
+    @type(CardState) modifierSlotCard: CardState | null = null;
+    @type(CardState) substanceSlotCard: CardState | null = null;
+    @type(CardState) deliverySlotCard: CardState | null = null;
+
+    @type(CardState) deflectorCard: CardState | null = null;
 }

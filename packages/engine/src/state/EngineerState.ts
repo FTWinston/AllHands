@@ -1,10 +1,11 @@
 import { ArraySchema, type } from '@colyseus/schema';
+import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { CrewSystemSetupInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
+import { EngineCardDefinition, EngineSystemTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from './CooldownState';
@@ -387,6 +388,18 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         } else {
             return super.playCard(cardId, cardType, targetType, targetId);
         }
+    }
+
+    override playSystemCard(cardDefinition: EngineSystemTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+        const systemId = targetId as ShipSystem;
+        const systemTile = this.systems.find(s => s.system === systemId);
+
+        if (!systemTile || !cardDefinition.play(this.getGameState(), this.getShip(), systemTile, parameters)) {
+            console.log('card refused to play');
+            return false;
+        }
+
+        return true;
     }
 
     /* Repair the specified system, consuming repair capacity. */

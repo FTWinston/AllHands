@@ -63,9 +63,10 @@ export interface TacticalSystemClientInfo extends Omit<TacticalSystemInfo, 'vuln
 }
 
 export interface ScienceSystemInfo extends CrewSystemInfo {
-    deflectorCard1: CardInstance | null;
-    deflectorCard2: CardInstance | null;
-    deflectorCard3: CardInstance | null;
+    modifierSlotCard: CardInstance | null;
+    substanceSlotCard: CardInstance | null;
+    deliverySlotCard: CardInstance | null;
+    deflectorCard: CardInstance | null;
 }
 
 export interface EngineerSystemTileInfo {
@@ -84,7 +85,7 @@ export interface EngineerSystemInfo extends CrewSystemInfo {
 
 export interface ShipInfo extends GameObjectInfo {
     helmState: HelmSystemInfo;
-    scienceState: CrewSystemInfo;
+    scienceState: ScienceSystemInfo;
     tacticalState: TacticalSystemInfo;
     engineerState: EngineerSystemInfo;
 }

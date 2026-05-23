@@ -1,5 +1,8 @@
 import { type } from '@colyseus/schema';
+import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { HelmSystemInfo, CrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { parseVector } from 'common-data/features/space/utils/vectors';
+import { EngineLocationTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { CardCooldownState } from './CardCooldownState';
 import { CrewSystemState } from './CrewSystemState';
 import { GameState } from './GameState';
@@ -37,6 +40,21 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
         } else if (this.cancellingManeuver) {
             this.cancellingManeuver = false;
         }
+    }
+
+    override playLocationCard(cardDefinition: EngineLocationTargetCardDefinition, targetId: string, resolvedCost: number, parameters: CardParameters): boolean {
+        const targetVector = parseVector(targetId);
+        if (targetVector === null) {
+            console.log('invalid location target', targetId);
+            return false;
+        }
+
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), resolvedCost, cardDefinition, targetVector, parameters)) {
+            console.log('card refused to play');
+            return false;
+        }
+
+        return true;
     }
 
     cancelActiveManeuver() {
