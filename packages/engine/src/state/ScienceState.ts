@@ -81,7 +81,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         return cardDefinition;
     }
 
-    override playCardIntoDeflectorSlot(cardDefinition: EngineDeflectorTargetCardDefinition, card: CardState, targetId: string, parameters: CardParameters): boolean {
+    override playCardIntoDeflectorSlot(card: CardState, cardDefinition: EngineDeflectorTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
         if (cardDefinition.parameters[targetId] === null) {
             console.log(`card cannot be played into the ${targetId} slot`);
             return false;
@@ -143,11 +143,25 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         substance: DeflectorEffectSubstance | null,
         delivery: DeflectorEffectDelivery | null
     ): EnemyTargetedCardType | null {
-        // TODO: determine the deflector card type based on the above
-        if (modifier || substance || delivery) {
-            return 'exampleEnemyTarget';
+        if (!modifier && !substance && !delivery) {
+            return null;
         }
 
-        return null;
+        if (!modifier) {
+            modifier = 'Modulated';
+        }
+
+        if (!substance) {
+            substance = 'Antiproton';
+        }
+
+        if (!delivery) {
+            delivery = 'Wave';
+        }
+
+        // TODO: implement all the card types so this can be used
+        // return `deflector${modifier}${substance}${delivery}`;
+
+        return 'exampleEnemyTarget';
     }
 }

@@ -161,7 +161,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             if (targetType === 'enemy') {
                 played = this.playEnemyCard(cardDefinition, targetId, parameters);
             } else {
-                played = this.playCardIntoDeflectorSlot(cardDefinition, card, targetId, parameters);
+                played = this.playCardIntoDeflectorSlot(card, cardDefinition, targetId, parameters);
                 slotted = true;
             }
         } else if (cardDefinition.targetType === 'system') {
@@ -195,7 +195,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         return false;
     }
 
-    protected playCardIntoDeflectorSlot(_cardDefinition: EngineDeflectorTargetCardDefinition, _card: CardState, _targetId: string, _parameters: CardParameters): boolean {
+    protected playCardIntoDeflectorSlot(_card: CardState, _cardDefinition: EngineDeflectorTargetCardDefinition, _targetId: string, _parameters: CardParameters): boolean {
         console.warn('non-science system trying to play deflector slot card');
         return false;
     }

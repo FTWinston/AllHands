@@ -39,11 +39,11 @@ export type EnemyTargetCardDefinition = CommonCardDefinition & {
     targetType: 'enemy';
 };
 
-export type DeflectorEffectModifier = 'phased' | 'coherent' | 'inverted' | 'modulated';
+export type DeflectorEffectModifier = 'Phased' | 'Coherent' | 'Inverted' | 'Modulated';
 
-export type DeflectorEffectSubstance = 'antiproton' | 'tetryon' | 'chroniton' | 'graviton' | 'polaron';
+export type DeflectorEffectSubstance = 'Antiproton' | 'Tetryon' | 'Chroniton' | 'Graviton' | 'Polaron';
 
-export type DeflectorEffectDelivery = 'beam' | 'pulse' | 'burst' | 'wave';
+export type DeflectorEffectDelivery = 'Beam' | 'Pulse' | 'Burst' | 'Wave';
 
 export type DeflectorTargetCardDefinition = CommonCardDefinition & {
     targetType: 'deflector';
