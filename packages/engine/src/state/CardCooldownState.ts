@@ -10,7 +10,7 @@ export class CardCooldownState extends CooldownState implements CardCooldown {
         this.power = power;
     }
 
-    @type(CardState) card: CardState;
+    card: CardState;
 
     @type('number') power: number;
 }
