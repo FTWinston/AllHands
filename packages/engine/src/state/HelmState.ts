@@ -3,6 +3,7 @@ import { CardParameters } from 'common-data/features/cards/types/CardParameters'
 import { HelmSystemInfo, CrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { parseVector } from 'common-data/features/space/utils/vectors';
 import { EngineLocationTargetCardDefinition } from 'src/cards/EngineCardDefinition';
+import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { CardCooldownState } from './CardCooldownState';
 import { CardState } from './CardState';
 import { CrewSystemState } from './CrewSystemState';
@@ -22,8 +23,7 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
     update(currentTime: number) {
         if (this.activeManeuver) {
             if (currentTime >= this.activeManeuver.endTime) {
-                this.activeManeuver = null;
-                this.cancellingManeuver = false;
+                this.discardActiveManeuver();
             } else if (this.cancellingManeuver || this.powerLevel < this.activeManeuver.power) {
                 // End the current maneuver early by slowing to a stop, reaching where we would be in 0.25s over 0.75s instead.
                 const endPosition = this.getShip().getPosition(currentTime + 0.25);
@@ -35,8 +35,7 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
                     endPosition.angle
                 ));
 
-                this.activeManeuver = null;
-                this.cancellingManeuver = false;
+                this.discardActiveManeuver();
             }
         } else if (this.cancellingManeuver) {
             this.cancellingManeuver = false;
@@ -60,5 +59,16 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
 
     cancelActiveManeuver() {
         this.cancellingManeuver = true;
+    }
+
+    private discardActiveManeuver() {
+        if (this.activeManeuver) {
+            const definition = getCardDefinition(this.activeManeuver.card.type);
+            this.handlePlayedCard(this.activeManeuver.card, -1, definition, false);
+
+            this.activeManeuver = null;
+        }
+
+        this.cancellingManeuver = false;
     }
 }

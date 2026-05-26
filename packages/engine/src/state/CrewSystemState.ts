@@ -168,6 +168,9 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             played = this.playSystemCard(cardDefinition, targetId, parameters);
         } else if (cardDefinition.targetType === 'location') {
             played = this.playLocationCard(card, cardDefinition, targetId, parameters);
+            if (played) {
+                slotted = true;
+            }
         } else {
             console.error(`unhandled card target type: ${cardDefinition.targetType}`);
             return null;
