@@ -4,6 +4,7 @@ import { HelmSystemInfo, CrewSystemSetupInfo } from 'common-data/features/space/
 import { parseVector } from 'common-data/features/space/utils/vectors';
 import { EngineLocationTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { CardCooldownState } from './CardCooldownState';
+import { CardState } from './CardState';
 import { CrewSystemState } from './CrewSystemState';
 import { GameState } from './GameState';
 import { MotionKeyframe } from './MotionKeyframe';
@@ -42,14 +43,14 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
         }
     }
 
-    override playLocationCard(cardDefinition: EngineLocationTargetCardDefinition, targetId: string, resolvedCost: number, parameters: CardParameters): boolean {
+    override playLocationCard(cardInstance: CardState, cardDefinition: EngineLocationTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
         const targetVector = parseVector(targetId);
         if (targetVector === null) {
             console.log('invalid location target', targetId);
             return false;
         }
 
-        if (!cardDefinition.play(this.getGameState(), this.getShip(), resolvedCost, cardDefinition, targetVector, parameters)) {
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), cardInstance, cardDefinition, targetVector, parameters)) {
             console.log('card refused to play');
             return false;
         }

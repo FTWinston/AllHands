@@ -1,6 +1,7 @@
 import { ChoiceCardDefinition, DeflectorTargetCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { CardState } from 'src/state/CardState';
 import { EngineerSystemTile } from 'src/state/EngineerSystemTile';
 import { GameObject } from 'src/state/GameObject';
 import { GameState } from 'src/state/GameState';
@@ -37,7 +38,7 @@ export type SystemTargetCardFunctionality = {
 };
 
 export type LocationTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship, cardPower: number, cardDefinition: LocationTargetCardDefinition, location: Vector2D, parameters: CardParameters) => boolean;
+    play: (gameState: GameState, ship: Ship, cardInstance: CardState, cardDefinition: LocationTargetCardDefinition, location: Vector2D, parameters: CardParameters) => boolean;
 };
 
 export type EngineCardFunctionality = NoTargetCardFunctionality

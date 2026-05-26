@@ -1,7 +1,9 @@
 import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { calculateFacingAngle } from 'common-data/features/cards/utils/calculateFacingAngle';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { clampAngle, distance, getAnglesBetween, getVectorsBetween, perpendicular, unit } from 'common-data/features/space/utils/vectors';
+import { CardState } from 'src/state/CardState';
 import { CardCooldownState } from '../state/CardCooldownState';
 import { GameState } from '../state/GameState';
 import { MotionKeyframe } from '../state/MotionKeyframe';
@@ -10,9 +12,10 @@ import { Ship } from '../state/Ship';
 export function applyMotionCard(
     gameState: GameState,
     ship: Ship,
-    cardPower: number,
+    cardInstance: CardState,
     cardDefinition: LocationTargetCardDefinition,
-    location: Vector2D
+    location: Vector2D,
+    parameters: CardParameters
 ): boolean {
     const currentPosition = ship.getPosition(gameState.clock.currentTime);
 
@@ -140,9 +143,10 @@ export function applyMotionCard(
 
     // Record this maneuver on the ship's helm, so it can be cancelled if the helm doesn't maintain sufficient power.
     ship.helmState.activeManeuver = new CardCooldownState(
+        cardInstance,
         gameState.clock.currentTime,
         prevKeyframe.time,
-        cardPower
+        parameters['cost']
     );
 
     return true;

@@ -167,7 +167,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         } else if (cardDefinition.targetType === 'system') {
             played = this.playSystemCard(cardDefinition, targetId, parameters);
         } else if (cardDefinition.targetType === 'location') {
-            played = this.playLocationCard(cardDefinition, targetId, resolvedCost, parameters);
+            played = this.playLocationCard(card, cardDefinition, targetId, parameters);
         } else {
             console.error(`unhandled card target type: ${cardDefinition.targetType}`);
             return null;
@@ -226,7 +226,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         return false;
     }
 
-    protected playLocationCard(_cardDefinition: EngineLocationTargetCardDefinition, _targetId: string, _resolvedCost: number, _parameters: CardParameters): boolean {
+    protected playLocationCard(_cardInstance: CardState, _cardDefinition: EngineLocationTargetCardDefinition, _targetId: string, _parameters: CardParameters): boolean {
         console.warn('non-helm system trying to play location card');
         return false;
     }
