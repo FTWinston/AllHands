@@ -2,10 +2,11 @@ import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { EngineerSystemTileInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
-import { CooldownState } from './CooldownState';
+import { BindableEvent } from '../../../classes/BindableEvent';
+import { getSystemEffectDefinition } from '../../../effects/getEngineSystemEffectDefinition';
+import { CooldownState } from '../../CooldownState';
 import { SystemEffect } from './SystemEffect';
-import { SystemState } from './SystemState';
+import { SystemState } from '../SystemState';
 
 export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo {
     constructor(readonly systemState: SystemState, system: ShipSystem) {
@@ -23,15 +24,20 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
 
     @type('boolean') generating = false;
 
+    /** Emitted when health or power changes. */
+    readonly scienceScanDataChanged = new BindableEvent<() => void>();
+
     /** Integer percentage adjustment to shield pass-through damage for this system. Adjusted by shieldFocus/shieldReduced effects. */
     shieldPassThroughModifier: number = 100;
 
     setHealthFromSystem(systemState: SystemState) {
         (this as { health: number }).health = systemState.health;
+        this.scienceScanDataChanged.trigger();
     }
 
     setPowerLevelFromSystem(systemState: SystemState) {
         (this as { power: number }).power = systemState.powerLevel;
+        this.scienceScanDataChanged.trigger();
     }
 
     adjustSystemHealth(value: number) {

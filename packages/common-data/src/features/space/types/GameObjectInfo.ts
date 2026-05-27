@@ -62,11 +62,48 @@ export interface TacticalSystemClientInfo extends Omit<TacticalSystemInfo, 'vuln
     vulnerabilitiesByTarget: Record<string, TargetVulnerabilities>;
 }
 
+export interface ScannedManeuverInfo {
+    startTime: number;
+    endTime: number;
+    power: number;
+}
+
+export interface ScannedEngineerTileInfo {
+    /** The ship system this tile represents. */
+    system: string;
+    power: number;
+    health: number;
+}
+
+export interface ScannedBaseInfo {
+    targetId: string;
+}
+
+export interface ScannedHelmInfo extends ScannedBaseInfo {
+    activeManeuver: CardInstance | null;
+}
+
+export interface ScannedTacticalInfo extends ScannedBaseInfo {
+    weaponSlots: MinimalReadonlyArray<WeaponSlotInfo>;
+}
+
+export interface ScannedScienceInfo extends ScannedBaseInfo {
+    deflectorCard: CardInstance | null;
+}
+
+export interface ScannedEngineerInfo extends ScannedBaseInfo {
+    engineerTiles: MinimalReadonlyArray<ScannedEngineerTileInfo>;
+}
+
 export interface ScienceSystemInfo extends CrewSystemInfo {
     modifierSlotCard: CardInstance | null;
     substanceSlotCard: CardInstance | null;
     deliverySlotCard: CardInstance | null;
     deflectorCard: CardInstance | null;
+    scannedHelm: ScannedHelmInfo | null;
+    scannedTactical: ScannedTacticalInfo | null;
+    scannedScience: ScannedScienceInfo | null;
+    scannedEngineer: ScannedEngineerInfo | null;
 }
 
 export interface EngineerSystemTileInfo {

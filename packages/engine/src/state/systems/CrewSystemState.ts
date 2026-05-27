@@ -5,14 +5,14 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { resolveParameters } from 'common-data/features/cards/utils/resolveParameters';
 import { CrewSystemSetupInfo, CrewSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineDeflectorTargetCardDefinition, EngineEnemyTargetCardDefinition, EngineLocationTargetCardDefinition, EngineNoTargetCardDefinition, EngineSystemTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
-import { getCardDefinition } from '../cards/getEngineCardDefinition';
-import { BindableEvent } from '../classes/BindableEvent';
-import { CardState } from './CardState';
-import { CooldownState } from './CooldownState';
-import { GameObject } from './GameObject';
-import { GameState } from './GameState';
+import { getCardDefinition } from '../../cards/getEngineCardDefinition';
+import { BindableEvent } from '../../classes/BindableEvent';
+import { CardState } from '../CardState';
+import { CooldownState } from '../CooldownState';
+import { GameObject } from '../GameObject';
+import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
-import type { Ship } from './Ship';
+import type { Ship } from '../Ship';
 
 export class CrewSystemState extends SystemState implements CrewSystemInfo {
     constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, private getCardId: () => number) {
@@ -36,6 +36,9 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
         this.discardPile = [];
     }
+
+    /** Emitted whenever state that is relevant to a science scan changes. */
+    readonly scienceScanDataChanged = new BindableEvent<() => void>();
 
     @type([CardState]) hand: ArraySchema<CardState>;
     @type('uint8') drawPileSize: number;
@@ -252,7 +255,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             const handCardDef = getCardDefinition(handCard.type);
             return handCardDef.traits?.includes('primary') ?? false;
         })) {
-            // Card stays in hand if no other primary card is already there.
+            // Primary cards stay in the hand if no other primary card is already there.
             removeFromHand = false;
             addToDiscard = false;
         } else if (traits.includes('expendable')) {

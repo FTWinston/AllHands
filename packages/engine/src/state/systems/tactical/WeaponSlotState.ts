@@ -1,8 +1,8 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { CardState } from './CardState';
-import { CooldownState } from './CooldownState';
+import { CardState } from '../../CardState';
+import { CooldownState } from '../../CooldownState';
 
 export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     constructor(id: string) {

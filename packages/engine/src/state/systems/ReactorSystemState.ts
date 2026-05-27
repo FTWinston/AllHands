@@ -1,8 +1,8 @@
 import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { BindableEvent } from '../classes/BindableEvent';
-import { GameState } from './GameState';
+import { BindableEvent } from '../../classes/BindableEvent';
+import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
-import type { Ship } from './Ship';
+import type { Ship } from '../Ship';
 
 export class ReactorSystemState extends SystemState {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship) {

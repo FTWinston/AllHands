@@ -1,10 +1,10 @@
 import { ClockTimer } from '@colyseus/timer';
 import { CrewSystemSetupInfo, PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { IdProvider } from '../types/IdProvider';
-import { EngineerState, generationDurationByReactorPower } from './EngineerState';
-import { GameState } from './GameState';
-import { PlayerShip } from './PlayerShip';
+import { IdProvider } from '../../../types/IdProvider';
+import { EngineerState, generationDurationByReactorPower } from '../EngineerState';
+import { GameState } from '../../GameState';
+import { PlayerShip } from '../../PlayerShip';
 
 const minimalCrewSetup: CrewSystemSetupInfo = {
     cards: ['exampleNoTarget', 'exampleNoTarget'],

@@ -1,5 +1,5 @@
 import { LeveledSystemEffectType, systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
-import { EngineerSystemTile } from 'src/state/EngineerSystemTile';
+import { EngineerSystemTile } from 'src/state/systems/engineer/EngineerSystemTile';
 import { EngineSystemEffectDefinition, SystemEffectFunctionality } from './EngineSystemEffectDefinition';
 
 type SystemEffectFunctionalityLookup = Record<SystemEffectType, SystemEffectFunctionality>;

@@ -2,11 +2,11 @@ import { Schema, type } from '@colyseus/schema';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
-import { BindableEvent } from '../classes/BindableEvent';
-import { GameState } from './GameState';
-import { SystemEffect } from './SystemEffect';
-import type { EngineerSystemTile } from './EngineerSystemTile';
-import type { Ship } from './Ship';
+import { BindableEvent } from '../../classes/BindableEvent';
+import { GameState } from '../GameState';
+import { SystemEffect } from './engineer/SystemEffect';
+import type { Ship } from '../Ship';
+import type { EngineerSystemTile } from './engineer/EngineerSystemTile';
 
 export abstract class SystemState extends Schema implements SystemInfo {
     constructor(setup: SystemSetupInfo, protected readonly _gameState: GameState, protected readonly _ship: Ship) {

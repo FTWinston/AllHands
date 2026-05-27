@@ -12,7 +12,7 @@ import {
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from '../state/CooldownState';
-import { EngineerSystemTile } from '../state/EngineerSystemTile';
+import { EngineerSystemTile } from '../state/systems/engineer/EngineerSystemTile';
 import { applyMotionCard } from './applyMotionCard';
 import {
     NoTargetCardFunctionality,

@@ -7,11 +7,11 @@ import { TacticalSystemInfo, TacticalSystemSetupInfo, VulnerabilityInfo } from '
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
 import { EngineCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
-import { getCardDefinition } from '../cards/getEngineCardDefinition';
-import { CardState } from './CardState';
-import { CrewSystemState } from './CrewSystemState';
-import { GameState } from './GameState';
-import { Ship } from './Ship';
+import { getCardDefinition } from '../../../cards/getEngineCardDefinition';
+import { CardState } from '../../CardState';
+import { GameState } from '../../GameState';
+import { Ship } from '../../Ship';
+import { CrewSystemState } from '../CrewSystemState';
 import { TargetVulnerabilitiesState } from './TargetVulnerabilitiesState';
 import { WeaponSlotState } from './WeaponSlotState';
 
@@ -65,6 +65,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
 
         slot.card = card;
+        this.scienceScanDataChanged.trigger();
 
         return true;
     }
@@ -97,6 +98,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             slot.primed = true;
         }
 
+        this.scienceScanDataChanged.trigger();
         return true;
     }
 
@@ -152,6 +154,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             this.handlePlayedCard(slot.card, -1, cardDef, false);
         }
 
+        this.scienceScanDataChanged.trigger();
         return cardDef;
     }
 

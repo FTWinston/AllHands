@@ -6,13 +6,13 @@ import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { CrewSystemSetupInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineSystemTargetCardDefinition } from 'src/cards/EngineCardDefinition';
-import { getCardDefinition } from '../cards/getEngineCardDefinition';
-import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
-import { CooldownState } from './CooldownState';
-import { CrewSystemState } from './CrewSystemState';
+import { getCardDefinition } from '../../../cards/getEngineCardDefinition';
+import { getSystemEffectDefinition } from '../../../effects/getEngineSystemEffectDefinition';
+import { CooldownState } from '../../CooldownState';
+import { GameState } from '../../GameState';
+import { CrewSystemState } from '../CrewSystemState';
 import { EngineerSystemTile } from './EngineerSystemTile';
-import { GameState } from './GameState';
-import type { Ship } from './Ship';
+import type { Ship } from '../../Ship';
 
 /**
  * Maps the reactor's power level to the per-system generation duration (ms).

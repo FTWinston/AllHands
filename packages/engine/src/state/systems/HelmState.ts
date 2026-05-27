@@ -4,12 +4,12 @@ import { HelmSystemInfo, CrewSystemSetupInfo } from 'common-data/features/space/
 import { parseVector } from 'common-data/features/space/utils/vectors';
 import { EngineLocationTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
-import { CardCooldownState } from './CardCooldownState';
-import { CardState } from './CardState';
+import { CardCooldownState } from '../CardCooldownState';
+import { CardState } from '../CardState';
+import { GameState } from '../GameState';
+import { MotionKeyframe } from '../MotionKeyframe';
 import { CrewSystemState } from './CrewSystemState';
-import { GameState } from './GameState';
-import { MotionKeyframe } from './MotionKeyframe';
-import type { Ship } from './Ship';
+import type { Ship } from '../Ship';
 
 export class HelmState extends CrewSystemState implements HelmSystemInfo {
     constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
@@ -57,6 +57,11 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
         return true;
     }
 
+    setActiveManeuver(maneuver: CardCooldownState) {
+        this.activeManeuver = maneuver;
+        this.scienceScanDataChanged.trigger();
+    }
+
     cancelActiveManeuver() {
         this.cancellingManeuver = true;
     }
@@ -67,6 +72,7 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
             this.handlePlayedCard(this.activeManeuver.card, -1, definition, false);
 
             this.activeManeuver = null;
+            this.scienceScanDataChanged.trigger();
         }
 
         this.cancellingManeuver = false;

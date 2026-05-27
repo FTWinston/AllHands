@@ -4,17 +4,17 @@ import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSy
 import { Damage } from 'common-data/features/space/types/Damage';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { distanceSq } from 'common-data/features/space/utils/vectors';
-import { EngineerState } from './EngineerState';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
-import { HelmState } from './HelmState';
-import { HullSystemState } from './HullSystemState';
 import { MobileObject } from './MobileObject';
 import { MotionKeyframe } from './MotionKeyframe';
-import { ReactorSystemState } from './ReactorSystemState';
-import { ScienceState } from './ScienceState';
-import { SystemState } from './SystemState';
-import { TacticalState } from './TacticalState';
+import { EngineerState } from './systems/engineer/EngineerState';
+import { HelmState } from './systems/HelmState';
+import { HullSystemState } from './systems/HullSystemState';
+import { ReactorSystemState } from './systems/ReactorSystemState';
+import { ScienceState } from './systems/science/ScienceState';
+import { SystemState } from './systems/SystemState';
+import { TacticalState } from './systems/tactical/TacticalState';
 
 @entity
 export abstract class Ship extends MobileObject implements ShipInfo {

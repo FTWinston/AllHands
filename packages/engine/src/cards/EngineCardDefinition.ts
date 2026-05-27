@@ -2,11 +2,11 @@ import { ChoiceCardDefinition, DeflectorTargetCardDefinition, EnemyTargetCardDef
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { CardState } from 'src/state/CardState';
-import { EngineerSystemTile } from 'src/state/EngineerSystemTile';
+import { EngineerSystemTile } from 'src/state/systems/engineer/EngineerSystemTile';
 import { GameObject } from 'src/state/GameObject';
 import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';
-import { WeaponSlotState } from 'src/state/WeaponSlotState';
+import { WeaponSlotState } from 'src/state/systems/tactical/WeaponSlotState';
 
 export type NoTargetCardFunctionality = {
     play: (gameState: GameState, ship: Ship, parameters: CardParameters) => boolean;

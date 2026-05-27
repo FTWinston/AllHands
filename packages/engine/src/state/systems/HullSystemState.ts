@@ -1,9 +1,9 @@
 import { Damage, DamageType } from 'common-data/features/space/types/Damage';
 import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { BindableEvent } from '../classes/BindableEvent';
-import { GameState } from './GameState';
+import { BindableEvent } from '../../classes/BindableEvent';
+import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
-import type { Ship } from './Ship';
+import type { Ship } from '../Ship';
 
 const damageTypeScales: Record<DamageType, { drain: number; pen: number }> = {
     coherent: { drain: 1.0, pen: 0.0 },
