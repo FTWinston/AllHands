@@ -2,7 +2,7 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { cardDefinitions, CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { Ship } from '../../state/Ship';
-import { SystemState } from '../../state/SystemState';
+import { SystemState } from '../../state/systems/SystemState';
 import { ActionPlan, AiConfig, PlanStepAction, SystemWant } from '../types';
 import { BaseSystemAiController } from './BaseSystemAiController';
 

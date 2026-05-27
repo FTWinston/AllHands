@@ -1,9 +1,9 @@
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { cardDefinitions, CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
-import { CrewSystemState } from 'src/state/CrewSystemState';
 import { Ship } from '../../state/Ship';
-import { SystemState } from '../../state/SystemState';
+import { CrewSystemState } from '../../state/systems/CrewSystemState';
+import { SystemState } from '../../state/systems/SystemState';
 import {
     ActionPlan,
     AiConfig,

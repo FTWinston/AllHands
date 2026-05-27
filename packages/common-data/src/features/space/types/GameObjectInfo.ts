@@ -44,6 +44,13 @@ export interface WeaponSlotInfo {
     primed: boolean;
 }
 
+export interface ScannedWeaponSlotInfo {
+    id: string;
+    card: CardInstance | null;
+    modifiers?: MinimalReadonlyMap<string, number>;
+    charge: number;
+}
+
 export interface VulnerabilityInfo {
     type: VulnerabilityType;
     aspect?: number;
@@ -84,7 +91,7 @@ export interface ScannedHelmInfo extends ScannedBaseInfo {
 }
 
 export interface ScannedTacticalInfo extends ScannedBaseInfo {
-    weaponSlots: MinimalReadonlyArray<WeaponSlotInfo>;
+    weaponSlots: MinimalReadonlyArray<ScannedWeaponSlotInfo>;
 }
 
 export interface ScannedScienceInfo extends ScannedBaseInfo {

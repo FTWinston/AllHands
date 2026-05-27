@@ -1,8 +1,8 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { WeaponSlotState } from '../tactical/WeaponSlotState';
+import { ScannedWeaponSlotState } from './ScannedWeaponSlotState';
 
 export class ScannedTacticalState extends Schema implements ScannedTacticalInfo {
     @type('string') targetId: string = '';
-    @type([WeaponSlotState]) weaponSlots = new ArraySchema<WeaponSlotState>();
+    @type([ScannedWeaponSlotState]) weaponSlots = new ArraySchema<ScannedWeaponSlotState>();
 }

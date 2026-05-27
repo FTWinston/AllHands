@@ -1,7 +1,7 @@
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { AiShip } from '../state/AiShip';
-import { SystemState } from '../state/SystemState';
+import { SystemState } from '../state/systems/SystemState';
 import {
     EngineerAiController,
     HelmAiController,

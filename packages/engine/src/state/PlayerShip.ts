@@ -6,7 +6,7 @@ import { CrewState } from './CrewState';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { Ship } from './Ship';
-import { ViewState } from './ViewState';
+import { ViewState } from './systems/ViewState';
 
 @entity
 export class PlayerShip extends Ship {

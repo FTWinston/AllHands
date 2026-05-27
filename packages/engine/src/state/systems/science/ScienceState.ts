@@ -17,6 +17,7 @@ import { ScannedEngineerTileState } from './ScannedEngineerTileState';
 import { ScannedHelmState } from './ScannedHelmState';
 import { ScannedScienceState } from './ScannedScienceState';
 import { ScannedTacticalState } from './ScannedTacticalState';
+import { ScannedWeaponSlotState } from './ScannedWeaponSlotState';
 
 export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
@@ -151,31 +152,62 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.scannedEngineer = state;
     }
 
+    private cloneCard(source: CardState | null | undefined): CardState | null {
+        if (!source) {
+            return null;
+        }
+        const card = new CardState(source.id, source.type);
+        for (const [key, value] of source.modifiers) {
+            card.modifiers.set(key, value);
+        }
+        return card;
+    }
+
     private copyHelmData(state: ScannedHelmState, source: Ship['helmState']): void {
-        state.activeManeuver = source.activeManeuver?.card ?? null;
+        state.activeManeuver = this.cloneCard(source.activeManeuver?.card);
     }
 
     private copyTacticalData(state: ScannedTacticalState, source: Ship['tacticalState']): void {
-        state.weaponSlots = source.slots;
+        // Make the slots be the same length.
+        while (state.weaponSlots.length < source.slots.length) {
+            const src = source.slots[state.weaponSlots.length];
+            state.weaponSlots.push(new ScannedWeaponSlotState(src.id));
+        }
+        while (state.weaponSlots.length > source.slots.length) {
+            state.weaponSlots.pop();
+        }
+
+        for (let i = 0; i < source.slots.length; i++) {
+            const src = source.slots[i];
+            const dest = state.weaponSlots[i];
+            dest.charge = src.charge;
+            dest.card = this.cloneCard(src.card);
+            dest.modifiers.clear();
+            for (const [key, value] of src.modifiers) {
+                dest.modifiers.set(key, value);
+            }
+        }
     }
 
     private copyScienceData(state: ScannedScienceState, source: Ship['scienceState']): void {
-        state.deflectorCard = source.deflectorCard;
+        state.deflectorCard = this.cloneCard(source.deflectorCard);
     }
 
     private copyEngineerData(state: ScannedEngineerState, source: Ship['engineerState']): void {
+        // Make the tiles be the same length.
         while (state.engineerTiles.length < source.systems.length) {
             state.engineerTiles.push(new ScannedEngineerTileState());
         }
         while (state.engineerTiles.length > source.systems.length) {
             state.engineerTiles.pop();
         }
+
         for (let i = 0; i < source.systems.length; i++) {
             const src = source.systems[i];
-            const dst = state.engineerTiles[i];
-            dst.system = src.system;
-            dst.power = src.power;
-            dst.health = src.health;
+            const dest = state.engineerTiles[i];
+            dest.system = src.system;
+            dest.power = src.power;
+            dest.health = src.health;
         }
     }
 
@@ -309,7 +341,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         }
 
         if (!substance) {
-            substance = 'Antiproton';
+            substance = 'Graviton';
         }
 
         if (!delivery) {
