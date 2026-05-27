@@ -1,0 +1,58 @@
+.target {
+    aspect-ratio: 1 / 1;
+    --targetSize: min(calc(100vw - var(--scroll-padding) * 2), calc(40dvh - 4em));
+    --targetSidePadding: 1em;
+    height: var(--targetSize);
+    background-color: var(--primary-darkest-muted);
+    border: solid var(--color-mid) 0.1em;
+    border-radius: 3em;
+    corner-shape: squircle;
+    padding: 0.5em var(--targetSidePadding);
+
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 3.5em;
+    grid-template-rows: 1.5em 1fr;
+
+    grid-template-areas:
+        "name count"
+        "image image";
+}
+
+.name {
+    font-size: 1.25em;
+    grid-area: name;
+    color: var(--grey-light);
+}
+
+.count {
+    grid-area: count;
+    justify-self: end;
+}
+
+.image {
+    grid-area: image;
+    object-fit: contain;
+    color: var(--color-lightest);
+    justify-self: center;
+     max-height: calc(100%);
+     transition: max-height 250ms ease-in-out;
+     will-change: max-height;
+}
+
+.dropTargetOverlay {
+    position: absolute;
+    inset: 0;
+    bottom: 0;
+    border-radius: inherit;
+    /* Outline is shown on the outer .target via :has() below */
+    outline: none !important;
+}
+
+.target:has(.dropping) {
+    outline: solid var(--grey-lightest) 0.25em;
+}
+
+.target:has(.couldDrop) {
+    outline: solid var(--primary-mid) 0.25em;
+}

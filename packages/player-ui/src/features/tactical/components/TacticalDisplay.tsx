@@ -11,7 +11,7 @@ import { ComponentProps, useState } from 'react';
 import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
-import { TargetList } from './TargetList';
+import { TacticalTargetList } from './TacticalTargetList';
 import { WeaponSlots } from './WeaponSlots';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
@@ -45,7 +45,7 @@ export const TacticalDisplay = (props: Props) => {
                     {...headerProps}
                 />
 
-                <TargetList
+                <TacticalTargetList
                     targets={targets}
                     vulnerabilitiesByTarget={vulnerabilitiesByTarget}
                     onVisibleTargetChange={setCurrentTarget}

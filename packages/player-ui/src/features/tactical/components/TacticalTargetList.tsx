@@ -1,8 +1,8 @@
 import { GameObjectInfo, TargetVulnerabilities } from 'common-data/features/space/types/GameObjectInfo';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
-import { Target } from './Target';
-import styles from './TargetList.module.css';
+import { TacticalTarget } from './TacticalTarget';
+import styles from './TacticalTargetList.module.css';
 
 type Props = {
     targets: MinimalReadonlyArray<GameObjectInfo>;
@@ -11,7 +11,7 @@ type Props = {
     targetAspect?: number;
 };
 
-export const TargetList = (props: Props) => {
+export const TacticalTargetList = (props: Props) => {
     const { targets, targetAspect, vulnerabilitiesByTarget, onVisibleTargetChange } = props;
 
     // Handler for HorizontalScroll's onScrollFractionChange
@@ -37,7 +37,7 @@ export const TargetList = (props: Props) => {
         >
             {targets.map((target, index) => (
                 <li className={styles.itemWrapper} key={target.id}>
-                    <Target
+                    <TacticalTarget
                         id={target.id}
                         name={target.name}
                         appearance={target.appearance}

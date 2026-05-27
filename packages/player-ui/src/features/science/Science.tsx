@@ -3,6 +3,7 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useCallback } from 'react';
+import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
 import { ScienceDisplay } from './components/ScienceDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GameState } from 'engine/state/GameState';
@@ -15,6 +16,7 @@ type Props = {
 export const Science = (props: Props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
     const localShip = objects[props.shipId] as ShipInfo;
+    const targets = useStableOrderedTargets(objects, localShip);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -38,6 +40,11 @@ export const Science = (props: Props) => {
     return (
         <ScienceDisplay
             cards={scienceState.hand}
+            targets={targets}
+            modifierSlot={scienceState.modifierSlotCard?.type ?? null}
+            substanceSlot={scienceState.substanceSlotCard?.type ?? null}
+            deliverySlot={scienceState.deliverySlotCard?.type ?? null}
+            deflectorCard={scienceState.deflectorCard}
             onPause={pause}
             power={scienceState.powerLevel}
             maxHandSize={scienceState.maxHandSize}

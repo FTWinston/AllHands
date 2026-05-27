@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import crewStyles from 'common-ui/CrewColors.module.css';
-import { Target as Component } from './Target';
+import { TacticalTarget as Component } from './TacticalTarget';
 
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Tactical/Target',
@@ -20,7 +20,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Target: Story = {
+export const TacticalTarget: Story = {
     args: {
         id: 'Enemy-01',
         appearance: 'starfighter',

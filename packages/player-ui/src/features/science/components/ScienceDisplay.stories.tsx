@@ -11,6 +11,11 @@ const meta: Meta<typeof Component> = {
     },
     args: {
         onPause: fn(),
+        targets: [],
+        modifierSlot: null,
+        substanceSlot: null,
+        deliverySlot: null,
+        deflectorCard: null,
     },
     render: (args) => {
         const { cards, expendCard, cardGeneration } = useFakePowerAndCards({
