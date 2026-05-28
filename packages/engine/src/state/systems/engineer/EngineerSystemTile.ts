@@ -5,8 +5,8 @@ import { EngineerSystemTileInfo } from 'common-data/features/space/types/GameObj
 import { BindableEvent } from '../../../classes/BindableEvent';
 import { getSystemEffectDefinition } from '../../../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from '../../CooldownState';
-import { SystemEffect } from './SystemEffect';
 import { SystemState } from '../SystemState';
+import { SystemEffect } from './SystemEffect';
 
 export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo {
     constructor(readonly systemState: SystemState, system: ShipSystem) {

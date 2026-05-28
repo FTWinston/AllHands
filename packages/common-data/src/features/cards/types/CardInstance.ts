@@ -1,5 +1,5 @@
-import { CardType } from '../utils/cardDefinitions';
 import { MinimalReadonlyMap } from 'src/types/MinimalArray';
+import { CardType } from '../utils/cardDefinitions';
 
 export type CardInstance = {
     id: number;

@@ -1,3 +1,4 @@
+import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { Cooldown } from 'common-data/types/Cooldown';
 import { EffectLevelContext } from 'common-ui/components/EffectLevelContext';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
@@ -9,7 +10,7 @@ import styles from './EffectIndicator.module.css';
 type Props = {
     name: string;
     description: JSX.Element;
-    positive: boolean;
+    polarity: SystemEffectPolarity;
     image: ComponentType<{ className?: string }>;
     className?: string;
     hidden?: boolean;
@@ -17,18 +18,25 @@ type Props = {
     level?: number;
 };
 
+function getPaletteForPolarity(polarity: SystemEffectPolarity): 'good' | 'grey' | 'danger' {
+    if (polarity === SystemEffectPolarity.Neutral) {
+        return 'grey';
+    }
+    return polarity === SystemEffectPolarity.Positive ? 'good' : 'danger';
+}
+
 export const EffectIndicator = (props: Props) => {
     const Image = props.image;
 
     const title = `${props.name}${props.level ? ` (${props.level})` : ''}`;
 
     return (
-        <EffectLevelContext.Provider value={{ level: props.level ?? 1, positive: props.positive }}>
+        <EffectLevelContext.Provider value={{ level: props.level ?? 1, polarity: props.polarity }}>
             <InfoPopup
                 className={classNames(styles.effect, props.hidden ? styles.hidden : undefined, props.className)}
                 name={title}
                 description={props.description}
-                palette={props.positive ? 'good' : 'danger'}
+                palette={getPaletteForPolarity(props.polarity)}
             >
                 <Image className={styles.icon} />
 

@@ -195,6 +195,13 @@ function loadEffectDefinitions() {
             </>,
             image: ExampleIcon,
         },
+        beingScanned: {
+            name: 'Being Scanned',
+            description: <>
+                This system is being scanned by another vessel.
+            </>,
+            image: ExampleIcon,
+        },
     };
 
     const uiEffectDefinitions = Object.entries(effectDescriptions)
