@@ -1,7 +1,7 @@
+import { CardTrait } from 'common-data/features/cards/types/CardTrait';
+import { CardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { isValidElement, ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
-import { CardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
-import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { Trait } from '../components/Trait';
 import { getCardDefinition } from './getUiCardDefinition';
 
