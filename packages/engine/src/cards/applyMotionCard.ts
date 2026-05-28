@@ -17,10 +17,10 @@ export function applyMotionCard(
     location: Vector2D,
     parameters: CardParameters
 ): boolean {
-    const currentPosition = ship.getPosition(gameState.clock.currentTime);
+    const currentPosition = ship.getPosition(gameState.currentTime);
 
     let prevKeyframe = new MotionKeyframe(
-        gameState.clock.currentTime,
+        gameState.currentTime,
         currentPosition.x,
         currentPosition.y,
         currentPosition.angle
@@ -144,7 +144,7 @@ export function applyMotionCard(
     // Record this maneuver on the ship's helm, so it can be cancelled if the helm doesn't maintain sufficient power.
     ship.helmState.setActiveManeuver(new CardCooldownState(
         cardInstance,
-        gameState.clock.currentTime,
+        gameState.currentTime,
         prevKeyframe.time,
         parameters['cost']
     ));

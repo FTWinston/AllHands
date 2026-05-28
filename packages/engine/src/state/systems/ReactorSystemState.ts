@@ -52,7 +52,7 @@ export class ReactorSystemState extends SystemState {
 
         if (oldPower !== newPower) {
             // The engineer system needs told when reactor power changes
-            this.getShip().engineerState.onReactorPowerChanged(this.getGameState().clock.currentTime);
+            this.getShip().engineerState.onReactorPowerChanged(this.getGameState().currentTime);
         }
     }
 }

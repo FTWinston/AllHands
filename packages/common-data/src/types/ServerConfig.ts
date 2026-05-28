@@ -6,4 +6,5 @@ export type ServerConfig = {
     tickRate: number;
     patchRate: number;
     multiship: boolean;
+    timeScale: number;
 };

@@ -269,7 +269,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
      */
     onSystemsSwapped(indexA: number, indexB: number) {
         const sequence = EngineerState.generationSequence;
-        const currentTime = this.getGameState().clock.currentTime;
+        const currentTime = this.getGameState().currentTime;
 
         // The generating index in the systems array.
         const generatingSystemsIndex = sequence[this.generationSequenceIndex];

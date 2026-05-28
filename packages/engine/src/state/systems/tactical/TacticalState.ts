@@ -137,7 +137,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
 
         const cardDef = getCardDefinition(cardType);
-        const currentTime = this.getGameState().clock.currentTime;
+        const currentTime = this.getGameState().currentTime;
         const slotParameters = slot.getParameters();
         const firingSolution = getFiringSolution(this.getShip().motion, target.motion, currentTime);
         const firingState = getFiringState(firingSolution, slot.primed, slot.charge, slotParameters, vulnerability);

@@ -39,6 +39,7 @@ export function getServerConfig() {
         patchRate: 20,
         simulateLatencyMs: 0,
         multiship: false,
+        timeScale: 1,
     };
 
     const serverConfig: ServerConfig = {

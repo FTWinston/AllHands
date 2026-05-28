@@ -69,7 +69,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
     onCreate(config: ServerConfig) {
         this.allowMultipleCrews = config.multiship;
 
-        this.state = new GameState(new IdPool(), this.clock);
+        this.state = new GameState(new IdPool(), this.clock, config.timeScale);
 
         this.patchRate = 1000 / config.patchRate;
 
@@ -88,7 +88,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             // Echo the client's timestamp back, and add the server's timestamp.
             client.send('pong', {
                 clientSendTime: message.clientSendTime,
-                serverTime: this.clock.currentTime,
+                serverTime: this.state.currentTime,
             });
         });
 
