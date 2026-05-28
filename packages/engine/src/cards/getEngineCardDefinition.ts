@@ -185,7 +185,7 @@ function loadCardDefinitions() {
         },
         ionicSurge: {
             prime: (_gameState, _ship, slot, parameters) => {
-                const currentDamageType = slot.getStringParameter('damageType');
+                const currentDamageType = slot.getDamageType();
                 if (currentDamageType === 'ion') {
                     // Weapon is already ion type, increase damage by 50%
                     const damageMultiplier = parameters.damageMultiplier ?? 50;
@@ -193,7 +193,7 @@ function loadCardDefinitions() {
                     slot.adjustParameter('damage', Math.round(currentDamage * damageMultiplier / 100));
                 } else {
                     // Change damage type to ion
-                    slot.adjustParameter('damageType', 'ion');
+                    slot.damageType = 'ion';
                 }
                 return true;
             },
@@ -205,7 +205,7 @@ function loadCardDefinitions() {
         },
         ionConversion: {
             prime: (_gameState, _ship, slot) => {
-                slot.adjustParameter('damageType', 'ion');
+                slot.damageType = 'ion';
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
@@ -215,7 +215,7 @@ function loadCardDefinitions() {
         },
         plasmaConversion: {
             prime: (_gameState, _ship, slot) => {
-                slot.adjustParameter('damageType', 'plasma');
+                slot.damageType = 'plasma';
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
@@ -225,7 +225,7 @@ function loadCardDefinitions() {
         },
         disruptorConversion: {
             prime: (_gameState, _ship, slot) => {
-                slot.adjustParameter('damageType', 'disruptor');
+                slot.damageType = 'disruptor';
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {

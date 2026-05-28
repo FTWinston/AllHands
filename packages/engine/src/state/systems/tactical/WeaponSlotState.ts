@@ -1,9 +1,11 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
+import { DamageType } from 'common-data/features/space/types/Damage';
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CardState } from '../../CardState';
 import { CooldownState } from '../../CooldownState';
 import { getCardDefinition } from '../../../cards/getEngineCardDefinition';
+import { WeaponSlotTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 
 /** Minimum resolved values for specific weapon parameters. Parameters not listed here default to 0. */
 const parameterMinimumValues: Readonly<Record<string, number>> = {
@@ -20,7 +22,7 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     @type('string') readonly id: string;
     @type(CardState) card: CardState | null = null;
     @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
-    @type({ map: 'string' }) readonly stringModifiers = new MapSchema<string>();
+    @type('string') damageType: DamageType | '' = '';
     @type('number') charge = 0;
     @type('boolean') primed = false;
     @type(CooldownState) decay: CooldownState | null = null;
@@ -53,25 +55,21 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         return Math.max(min, value);
     }
 
-    getStringParameter(parameter: string): string | null {
-        // String modifier overrides base value
-        const override = this.stringModifiers.get(parameter);
-        if (override !== undefined) return override;
+    getDamageType(): DamageType | null {
+        if (this.damageType !== '') return this.damageType;
 
         // Fall back to base card definition
         if (!this.card) return null;
         const definition = getCardDefinition(this.card.type);
-        const baseValue = definition.parameters[parameter];
-        return typeof baseValue === 'string' ? baseValue : null;
+        if (definition.targetType === 'weapon-slot') {
+            return (definition as WeaponSlotTargetCardDefinition).parameters.damageType;
+        }
+        return null;
     }
 
-    adjustParameter(parameter: string, adjustment: number | string) {
-        if (typeof adjustment === 'string') {
-            this.stringModifiers.set(parameter, adjustment);
-        } else {
-            const current = this.modifiers.get(parameter) || 0;
-            this.modifiers.set(parameter, current + adjustment);
-        }
+    adjustParameter(parameter: string, adjustment: number) {
+        const current = this.modifiers.get(parameter) || 0;
+        this.modifiers.set(parameter, current + adjustment);
     }
 
     isCharged(): boolean {
@@ -112,7 +110,7 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
 
         const usesValue = this.modifiers.get('uses');
         this.modifiers.clear();
-        this.stringModifiers.clear();
+        this.damageType = '';
 
         if (usesValue === undefined || usesValue <= 1) {
             this.card = null;

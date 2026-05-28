@@ -39,7 +39,7 @@ export interface WeaponSlotInfo {
     id: string;
     card: CardInstance | null;
     modifiers?: MinimalReadonlyMap<string, number>;
-    stringModifiers?: MinimalReadonlyMap<string, string>;
+    damageType?: string;
     decay?: Cooldown | null;
     charge: number;
     primed: boolean;
