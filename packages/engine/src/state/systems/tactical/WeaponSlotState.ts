@@ -24,7 +24,16 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
             return { cost: 0 };
         }
 
-        return this.card.getParameters(this.modifiers);
+        const resolved = this.card.getParameters(this.modifiers);
+
+        for (const key of Object.keys(resolved)) {
+            const min = key === 'damage' ? 1 : 0;
+            if (resolved[key] < min) {
+                (resolved as Record<string, number>)[key] = min;
+            }
+        }
+
+        return resolved;
     }
 
     getParameter(parameter: string): number {
@@ -32,7 +41,9 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
             return 0;
         }
 
-        return this.card.getParameter(parameter) + (this.modifiers.get(parameter) || 0);
+        const value = this.card.getParameter(parameter) + (this.modifiers.get(parameter) || 0);
+        const min = parameter === 'damage' ? 1 : 0;
+        return Math.max(min, value);
     }
 
     adjustParameter(parameter: string, adjustment: number) {
