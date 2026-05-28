@@ -67,7 +67,7 @@ function loadCardDefinitions() {
                 Add
                 <Parameter name="extraUses" />
                 {' '}
-                extra use to the weapon. Adds charge when played again.
+                extra uses to the weapon. Adds charge when played again.
             </>,
             image: <ExampleIcon />,
         },
@@ -78,7 +78,7 @@ function loadCardDefinitions() {
         },
         ionConversion: {
             name: 'Ion Conversion',
-            description: 'Convert the weapon\'s damage type to ion. Adds charge when played again.',
+            description: "Convert the weapon's damage type to ion. Adds charge when played again.",
             image: <ExampleIcon />,
         },
         plasmaConversion: {

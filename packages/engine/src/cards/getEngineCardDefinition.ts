@@ -10,6 +10,7 @@ import {
     cardDefinitions,
 } from 'common-data/features/cards/utils/cardDefinitions';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { damageTypeIndex } from 'common-data/features/space/types/Damage';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from '../state/CooldownState';
 import { EngineerSystemTile } from '../state/systems/engineer/EngineerSystemTile';
@@ -158,7 +159,7 @@ function loadCardDefinitions() {
         },
         ionConversion: {
             prime: (_gameState, _ship, slot, parameters) => {
-                slot.adjustParameter('damageType', parameters.damageType ?? 3);
+                slot.adjustParameter('damageType', parameters.damageType ?? damageTypeIndex.ion);
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
@@ -168,7 +169,7 @@ function loadCardDefinitions() {
         },
         plasmaConversion: {
             prime: (_gameState, _ship, slot, parameters) => {
-                slot.adjustParameter('damageType', parameters.damageType ?? 4);
+                slot.adjustParameter('damageType', parameters.damageType ?? damageTypeIndex.plasma);
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
@@ -178,7 +179,7 @@ function loadCardDefinitions() {
         },
         disruptorConversion: {
             prime: (_gameState, _ship, slot, parameters) => {
-                slot.adjustParameter('damageType', parameters.damageType ?? 2);
+                slot.adjustParameter('damageType', parameters.damageType ?? damageTypeIndex.disruptor);
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
