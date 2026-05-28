@@ -3,7 +3,9 @@ import { CardParameters } from '../types/CardParameters';
 
 function applyModifiers(parameters: CardParameters, modifiers: MinimalReadonlyMap<string, number>) {
     for (const [key, value] of modifiers) {
-        (parameters as Record<string, number>)[key] = (parameters[key] ?? 0) + value;
+        const current = parameters[key];
+        if (typeof current === 'string') continue;
+        (parameters as Record<string, number>)[key] = (current ?? 0) + value;
     }
 }
 
@@ -32,6 +34,7 @@ export function resolveParameters(
 
 export function resolveParameter(parameter: string, parameters?: CardParameters, modifiers?: MinimalReadonlyMap<string, number>): number {
     const parameterValue = parameters?.[parameter] ?? 0;
+    if (typeof parameterValue === 'string') return 0;
     const modifierValue = modifiers?.get(parameter) ?? 0;
 
     return parameterValue + modifierValue;

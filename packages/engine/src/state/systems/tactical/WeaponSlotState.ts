@@ -3,6 +3,7 @@ import { CardParameters } from 'common-data/features/cards/types/CardParameters'
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CardState } from '../../CardState';
 import { CooldownState } from '../../CooldownState';
+import { getCardDefinition } from '../../../cards/getEngineCardDefinition';
 
 /** Minimum resolved values for specific weapon parameters. Parameters not listed here default to 0. */
 const parameterMinimumValues: Readonly<Record<string, number>> = {
@@ -19,6 +20,7 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     @type('string') readonly id: string;
     @type(CardState) card: CardState | null = null;
     @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
+    @type({ map: 'string' }) readonly stringModifiers = new MapSchema<string>();
     @type('number') charge = 0;
     @type('boolean') primed = false;
     @type(CooldownState) decay: CooldownState | null = null;
@@ -32,10 +34,17 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         const resolved = this.card.getParameters(this.modifiers);
 
         for (const key of Object.keys(resolved)) {
+            const value = resolved[key];
+            if (typeof value === 'string') continue;
             const min = parameterMinimumValues[key] ?? 0;
-            if (resolved[key] < min) {
-                (resolved as Record<string, number>)[key] = min;
+            if (value < min) {
+                (resolved as Record<string, number | string>)[key] = min;
             }
+        }
+
+        // Overlay string modifiers
+        for (const [key, value] of this.stringModifiers) {
+            (resolved as Record<string, number | string>)[key] = value;
         }
 
         return resolved;
@@ -51,9 +60,25 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         return Math.max(min, value);
     }
 
-    adjustParameter(parameter: string, adjustment: number) {
-        const current = this.modifiers.get(parameter) || 0;
-        this.modifiers.set(parameter, current + adjustment);
+    getStringParameter(parameter: string): string | null {
+        // String modifier overrides base value
+        const override = this.stringModifiers.get(parameter);
+        if (override !== undefined) return override;
+
+        // Fall back to base card definition
+        if (!this.card) return null;
+        const definition = getCardDefinition(this.card.type);
+        const baseValue = definition.parameters[parameter];
+        return typeof baseValue === 'string' ? baseValue : null;
+    }
+
+    adjustParameter(parameter: string, adjustment: number | string) {
+        if (typeof adjustment === 'string') {
+            this.stringModifiers.set(parameter, adjustment);
+        } else {
+            const current = this.modifiers.get(parameter) || 0;
+            this.modifiers.set(parameter, current + adjustment);
+        }
     }
 
     isCharged(): boolean {
@@ -94,6 +119,7 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
 
         const usesValue = this.modifiers.get('uses');
         this.modifiers.clear();
+        this.stringModifiers.clear();
 
         if (usesValue === undefined || usesValue <= 1) {
             this.card = null;

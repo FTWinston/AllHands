@@ -10,7 +10,6 @@ import {
     cardDefinitions,
 } from 'common-data/features/cards/utils/cardDefinitions';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
-import { damageTypeIndex } from 'common-data/features/space/types/Damage';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from '../state/CooldownState';
 import { EngineerSystemTile } from '../state/systems/engineer/EngineerSystemTile';
@@ -186,15 +185,15 @@ function loadCardDefinitions() {
         },
         ionicSurge: {
             prime: (_gameState, _ship, slot, parameters) => {
-                const currentDamageType = slot.getParameter('damageType');
-                if (currentDamageType === damageTypeIndex.ion) {
+                const currentDamageType = slot.getStringParameter('damageType');
+                if (currentDamageType === 'ion') {
                     // Weapon is already ion type, increase damage by 50%
                     const damageMultiplier = parameters.damageMultiplier ?? 50;
                     const currentDamage = slot.getParameter('damage');
                     slot.adjustParameter('damage', Math.round(currentDamage * damageMultiplier / 100));
                 } else {
                     // Change damage type to ion
-                    slot.adjustParameter('damageType', damageTypeIndex.ion);
+                    slot.adjustParameter('damageType', 'ion');
                 }
                 return true;
             },
@@ -206,7 +205,7 @@ function loadCardDefinitions() {
         },
         ionConversion: {
             prime: (_gameState, _ship, slot) => {
-                slot.adjustParameter('damageType', damageTypeIndex.ion);
+                slot.adjustParameter('damageType', 'ion');
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
@@ -216,7 +215,7 @@ function loadCardDefinitions() {
         },
         plasmaConversion: {
             prime: (_gameState, _ship, slot) => {
-                slot.adjustParameter('damageType', damageTypeIndex.plasma);
+                slot.adjustParameter('damageType', 'plasma');
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
@@ -226,7 +225,7 @@ function loadCardDefinitions() {
         },
         disruptorConversion: {
             prime: (_gameState, _ship, slot) => {
-                slot.adjustParameter('damageType', damageTypeIndex.disruptor);
+                slot.adjustParameter('damageType', 'disruptor');
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {

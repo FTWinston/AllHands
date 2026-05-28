@@ -1,1 +1,1 @@
-export type CardParameters = Readonly<{ cost: number } & Record<string, number>>;
+export type CardParameters = Readonly<{ cost: number } & Record<string, number | string>>;
