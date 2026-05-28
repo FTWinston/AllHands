@@ -21,7 +21,6 @@ export const PlayerUI = () => {
                             room={room}
                             shipId={shipId}
                             role={role}
-                            timeProvider={timeProvider}
                         />
                     </TimeProviderContext.Provider>
                 );

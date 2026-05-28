@@ -1,6 +1,5 @@
 import { useRoomState } from '@colyseus/react';
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { FC, PropsWithChildren } from 'react';
@@ -10,7 +9,6 @@ import type { GameState } from 'engine/state/GameState';
 
 type Props = PropsWithChildren<{
     room: Room<{ state: GameState }>;
-    timeProvider: ITimeProvider;
     shipId: string;
     showMenu: () => void;
 }>;
@@ -24,7 +22,6 @@ export const Viewscreen: FC<Props> = (props) => {
     return (
         <ViewscreenDisplay
             center={localShip ? localShip.motion : defaultCenter}
-            timeProvider={props.timeProvider}
             objects={objects}
             showMenu={props.showMenu}
         >

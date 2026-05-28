@@ -1,14 +1,19 @@
-import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { getFirstFutureIndex } from 'common-data/features/space/utils/interpolate';
-import { SetStateAction, useEffect } from 'react';
+import { SetStateAction, useContext, useEffect } from 'react';
+import { TimeProviderContext } from '../contexts/TimeProviderContext';
 
 /** Update the given keyframes, moving past values onto the end and increasing their timestamp, so the given frames loop indefinitely. */
 export function useLoopingKeyframes<T>(
     setValue: (value: SetStateAction<Keyframes<T>>) => void,
-    timeProvider: ITimeProvider,
     loopDuration: number,
     checkInterval = 1000) {
+    const timeProvider = useContext(TimeProviderContext);
+
+    if (!timeProvider) {
+        throw new Error('useLoopingKeyframes must be used within a TimeProviderContext.Provider');
+    }
+
     useEffect(() => {
         const interval = setInterval(() => {
             setValue((keyframes) => {

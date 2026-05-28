@@ -53,7 +53,6 @@ export const GameUI = () => {
                             room={room}
                             shipId={shipId}
                             showMenu={pause}
-                            timeProvider={timeProvider}
                         >
                             {children}
                         </Viewscreen>
