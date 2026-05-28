@@ -1,7 +1,10 @@
+import { useContext, useEffect, useState } from 'react';
 import { Cooldown } from 'common-data/types/Cooldown';
-import { useEffect, useState } from 'react';
+import { TimeProviderContext } from '../contexts/TimeProviderContext';
 
 export const useCooldownFraction = (cooldown?: Cooldown | null) => {
+    const timeProvider = useContext(TimeProviderContext);
+
     let startTime: number;
     let endTime: number;
 
@@ -17,7 +20,7 @@ export const useCooldownFraction = (cooldown?: Cooldown | null) => {
 
     useEffect(() => {
         const updateFraction = () => {
-            const now = Date.now();
+            const now = timeProvider?.getServerTime() ?? Date.now();
             if (endTime > now && endTime > startTime && startTime < now) {
                 setFraction((now - startTime) / (endTime - startTime));
             } else {
@@ -29,7 +32,7 @@ export const useCooldownFraction = (cooldown?: Cooldown | null) => {
         const interval = setInterval(updateFraction, 50);
 
         return () => clearInterval(interval);
-    }, [startTime, endTime]);
+    }, [startTime, endTime, timeProvider]);
 
     return fraction;
 };

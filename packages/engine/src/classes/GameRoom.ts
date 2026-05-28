@@ -89,6 +89,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             client.send('pong', {
                 clientSendTime: message.clientSendTime,
                 serverTime: this.state.currentTime,
+                timeScale: this.state.timeScale,
             });
         });
 
