@@ -45,7 +45,7 @@ function loadCardDefinitions() {
                 {' '}
                 and charge cost by
                 <Parameter name="chargeReduction" />
-                . Adds charge when played again.
+                .
             </>,
             image: <ExampleIcon />,
         },
@@ -57,7 +57,7 @@ function loadCardDefinitions() {
                 {' '}
                 but increase charge cost by
                 <Parameter name="chargeIncrease" />
-                . Adds charge when played again.
+                .
             </>,
             image: <ExampleIcon />,
         },
@@ -67,7 +67,7 @@ function loadCardDefinitions() {
                 Add
                 <Parameter name="extraUses" />
                 {' '}
-                extra uses to the weapon. Adds charge when played again.
+                extra uses to the weapon.
             </>,
             image: <ExampleIcon />,
         },
@@ -104,17 +104,17 @@ function loadCardDefinitions() {
         },
         ionConversion: {
             name: 'Ion Conversion',
-            description: "Convert the weapon's damage type to ion. Adds charge when played again.",
+            description: "Convert the weapon's damage type to ion.",
             image: <ExampleIcon />,
         },
         plasmaConversion: {
             name: 'Plasma Conversion',
-            description: 'Convert the weapon\'s damage type to plasma. Adds charge when played again.',
+            description: 'Convert the weapon\'s damage type to plasma.',
             image: <ExampleIcon />,
         },
         disruptorConversion: {
             name: 'Disruptor Conversion',
-            description: 'Convert the weapon\'s damage type to disruptor. Adds charge when played again.',
+            description: 'Convert the weapon\'s damage type to disruptor.',
             image: <ExampleIcon />,
         },
         exampleEnemyTarget: {

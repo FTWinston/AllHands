@@ -205,8 +205,8 @@ function loadCardDefinitions() {
             },
         },
         ionConversion: {
-            prime: (_gameState, _ship, slot) => {
-                slot.adjustParameter('damageType', damageTypeIndex.ion);
+            prime: (_gameState, _ship, slot, parameters) => {
+                slot.adjustParameter('damageType', parameters.damageType ?? damageTypeIndex.ion);
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
@@ -215,8 +215,8 @@ function loadCardDefinitions() {
             },
         },
         plasmaConversion: {
-            prime: (_gameState, _ship, slot) => {
-                slot.adjustParameter('damageType', damageTypeIndex.plasma);
+            prime: (_gameState, _ship, slot, parameters) => {
+                slot.adjustParameter('damageType', parameters.damageType ?? damageTypeIndex.plasma);
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
@@ -225,8 +225,8 @@ function loadCardDefinitions() {
             },
         },
         disruptorConversion: {
-            prime: (_gameState, _ship, slot) => {
-                slot.adjustParameter('damageType', damageTypeIndex.disruptor);
+            prime: (_gameState, _ship, slot, parameters) => {
+                slot.adjustParameter('damageType', parameters.damageType ?? damageTypeIndex.disruptor);
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
