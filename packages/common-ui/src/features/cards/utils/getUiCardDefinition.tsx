@@ -71,6 +71,40 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
+        chargeX: {
+            name: 'Charge X',
+            description: 'Charges the weapon by the current tactical system energy level. Adds the same charge when played again.',
+            image: <ExampleIcon />,
+        },
+        weaponOvercharge: {
+            name: 'Overcharge',
+            description: <>
+                Increase charge capacity by
+                <Parameter name="capacityIncrease" />
+                {' '}
+                and damage by
+                <Parameter name="damageMultiplier" />
+                %. Adds
+                {' '}
+                <Parameter name="charge" />
+                {' '}
+                charge when played again.
+            </>,
+            image: <ExampleIcon />,
+        },
+        ionicSurge: {
+            name: 'Ionic Surge',
+            description: <>
+                If weapon is ion type, increase damage by
+                <Parameter name="damageMultiplier" />
+                %. Otherwise, change damage type to ion. Adds
+                {' '}
+                <Parameter name="charge" />
+                {' '}
+                charge when played again.
+            </>,
+            image: <ExampleIcon />,
+        },
         adaptWeapon: {
             name: 'Adapt Weapon',
             description: 'Choose a damage type to convert the weapon to.',

@@ -83,6 +83,21 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'tactical',
         parameters: { cost: 2, extraUses: 1 },
     },
+    chargeX: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 1 },
+    },
+    weaponOvercharge: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 4, charge: 2, capacityIncrease: 3, damageMultiplier: 50 },
+    },
+    ionicSurge: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 3, charge: 1, damageMultiplier: 50, damageType: damageTypeIndex.ion },
+    },
     adaptWeapon: {
         targetType: 'choice',
         crew: 'tactical',

@@ -157,6 +157,53 @@ function loadCardDefinitions() {
                 return true;
             },
         },
+        chargeX: {
+            prime: (_gameState, ship, slot) => {
+                const chargeAmount = ship.tacticalState.powerLevel;
+                slot.addCharge(chargeAmount, _gameState.clock.currentTime);
+                return true;
+            },
+            charge: (_gameState, ship, slot) => {
+                const chargeAmount = ship.tacticalState.powerLevel;
+                slot.addCharge(chargeAmount, _gameState.clock.currentTime);
+                return true;
+            },
+        },
+        weaponOvercharge: {
+            prime: (_gameState, _ship, slot, parameters) => {
+                const capacityIncrease = parameters.capacityIncrease ?? 3;
+                const damageMultiplier = parameters.damageMultiplier ?? 50;
+                slot.adjustParameter('chargeCost', capacityIncrease);
+                const currentDamage = slot.getParameter('damage');
+                slot.adjustParameter('damage', Math.round(currentDamage * damageMultiplier / 100));
+                return true;
+            },
+            charge: (gameState, _ship, slot, parameters) => {
+                const charge = parameters.charge ?? 2;
+                slot.addCharge(charge, gameState.clock.currentTime);
+                return true;
+            },
+        },
+        ionicSurge: {
+            prime: (_gameState, _ship, slot, parameters) => {
+                const currentDamageType = slot.getParameter('damageType');
+                if (currentDamageType === damageTypeIndex.ion) {
+                    // Weapon is already ion type, increase damage by 50%
+                    const damageMultiplier = parameters.damageMultiplier ?? 50;
+                    const currentDamage = slot.getParameter('damage');
+                    slot.adjustParameter('damage', Math.round(currentDamage * damageMultiplier / 100));
+                } else {
+                    // Change damage type to ion
+                    slot.adjustParameter('damageType', parameters.damageType ?? damageTypeIndex.ion);
+                }
+                return true;
+            },
+            charge: (gameState, _ship, slot, parameters) => {
+                const charge = parameters.charge ?? 1;
+                slot.addCharge(charge, gameState.clock.currentTime);
+                return true;
+            },
+        },
         ionConversion: {
             prime: (_gameState, _ship, slot, parameters) => {
                 slot.adjustParameter('damageType', parameters.damageType ?? damageTypeIndex.ion);
