@@ -12,6 +12,7 @@ type PongMessage = {
  */
 export class TimeSynchronizer implements ITimeProvider {
     private room: Room;
+    private readonly localEpoch: number = Date.now();
 
     /** The current time scale, used to map local wall-clock to server game time. */
     private timeScale: number = 1;
@@ -89,7 +90,11 @@ export class TimeSynchronizer implements ITimeProvider {
     }
 
     public getServerTime(): number {
-        return Date.now() * this.timeScale + this.offset;
+        return this.getScaledWallClock(Date.now()) + this.offset;
+    }
+
+    private getScaledWallClock(clientTime: number) {
+        return this.localEpoch + (clientTime - this.localEpoch) * this.timeScale;
     }
 
     private sendPing() {
@@ -113,7 +118,7 @@ export class TimeSynchronizer implements ITimeProvider {
         // If ServerTime is 1000, and it took 10ms (5ms one way) to get here:
         // The server was at 1000 when my wall clock was approximately (sentTime + 5ms).
         const estimatedWallClockAtServerSample = sentTime + latency;
-        const rawOffset = serverTime - estimatedWallClockAtServerSample * timeScale;
+        const rawOffset = serverTime - this.getScaledWallClock(estimatedWallClockAtServerSample);
 
         // 4. Add to history, removing the oldest record if we have more than 5.
         this.pingHistory.push(rawOffset);

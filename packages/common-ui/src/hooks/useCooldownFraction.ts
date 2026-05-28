@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from 'react';
 import { Cooldown } from 'common-data/types/Cooldown';
+import { useContext, useEffect, useState } from 'react';
 import { TimeProviderContext } from '../contexts/TimeProviderContext';
 
 export const useCooldownFraction = (cooldown?: Cooldown | null) => {
