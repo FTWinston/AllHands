@@ -1,6 +1,5 @@
 import { CardDefinition, CardMotionSegmentFacing } from '../types/CardDefinition';
 import { CardTargetType } from '../types/CardTargetType';
-import { damageTypeIndex } from '../../space/types/Damage';
 
 // Enforce that values are of a card definition type, without widening the key type to "string".
 // The self-referential constraint ensures choice cards can only reference keys from this same object.
@@ -29,6 +28,7 @@ export const cardDefinitions = defineCardDefinitions({
             firingArc: 1,
             damage: 20,
             uses: 3,
+            damageType: 'coherent',
         },
     },
     phaserStrip: {
@@ -41,6 +41,7 @@ export const cardDefinitions = defineCardDefinitions({
             firingArc: 3,
             damage: 10,
             uses: 5,
+            damageType: 'coherent',
         },
     },
     photonTorpedo: {
@@ -53,6 +54,7 @@ export const cardDefinitions = defineCardDefinitions({
             firingArc: 0.5,
             damage: 40,
             uses: 1,
+            damageType: 'antimatter',
         },
     },
     photonicCannon: {
@@ -65,6 +67,7 @@ export const cardDefinitions = defineCardDefinitions({
             firingArc: 0.5,
             damage: 60,
             uses: 2,
+            damageType: 'coherent',
         },
     },
 
@@ -107,17 +110,17 @@ export const cardDefinitions = defineCardDefinitions({
     ionConversion: {
         targetType: 'weapon',
         crew: 'tactical',
-        parameters: { cost: 3, damageType: damageTypeIndex.ion },
+        parameters: { cost: 3 },
     },
     plasmaConversion: {
         targetType: 'weapon',
         crew: 'tactical',
-        parameters: { cost: 3, damageType: damageTypeIndex.plasma },
+        parameters: { cost: 3 },
     },
     disruptorConversion: {
         targetType: 'weapon',
         crew: 'tactical',
-        parameters: { cost: 3, damageType: damageTypeIndex.disruptor },
+        parameters: { cost: 3 },
     },
     exampleEnemyTarget: {
         targetType: 'enemy',

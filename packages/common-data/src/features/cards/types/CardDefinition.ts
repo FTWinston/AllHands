@@ -1,4 +1,5 @@
 import { CrewRoleName } from '../../ships/types/CrewRole';
+import { DamageType } from '../../space/types/Damage';
 import { CardType } from '../utils/cardDefinitions';
 import { CardParameters } from './CardParameters';
 import { CardTargetType } from './CardTargetType';
@@ -28,6 +29,7 @@ export type WeaponSlotTargetCardDefinition = CommonCardDefinition & {
         firingArc: number;
         damage: number;
         uses: number;
+        damageType: DamageType;
     };
 };
 
