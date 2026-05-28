@@ -4,6 +4,11 @@ import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo'
 import { CardState } from '../../CardState';
 import { CooldownState } from '../../CooldownState';
 
+/** Minimum resolved values for specific weapon parameters. Parameters not listed here default to 0. */
+const parameterMinimumValues: Readonly<Record<string, number>> = {
+    damage: 1,
+};
+
 export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     constructor(id: string) {
         super();
@@ -27,7 +32,7 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         const resolved = this.card.getParameters(this.modifiers);
 
         for (const key of Object.keys(resolved)) {
-            const min = key === 'damage' ? 1 : 0;
+            const min = parameterMinimumValues[key] ?? 0;
             if (resolved[key] < min) {
                 (resolved as Record<string, number>)[key] = min;
             }
@@ -42,7 +47,7 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         }
 
         const value = this.card.getParameter(parameter) + (this.modifiers.get(parameter) || 0);
-        const min = parameter === 'damage' ? 1 : 0;
+        const min = parameterMinimumValues[parameter] ?? 0;
         return Math.max(min, value);
     }
 
