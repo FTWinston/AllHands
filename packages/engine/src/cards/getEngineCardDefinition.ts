@@ -194,7 +194,7 @@ function loadCardDefinitions() {
                     slot.adjustParameter('damage', Math.round(currentDamage * damageMultiplier / 100));
                 } else {
                     // Change damage type to ion
-                    slot.adjustParameter('damageType', parameters.damageType ?? damageTypeIndex.ion);
+                    slot.adjustParameter('damageType', damageTypeIndex.ion);
                 }
                 return true;
             },

@@ -73,7 +73,7 @@ function loadCardDefinitions() {
         },
         chargeX: {
             name: 'Charge X',
-            description: 'Charges the weapon by the current tactical system energy level. Adds the same charge when played again.',
+            description: 'Charges the weapon by the current tactical system energy level.',
             image: <ExampleIcon />,
         },
         weaponOvercharge: {
@@ -84,11 +84,7 @@ function loadCardDefinitions() {
                 {' '}
                 and damage by
                 <Parameter name="damageMultiplier" />
-                %. Adds
-                {' '}
-                <Parameter name="charge" />
-                {' '}
-                charge when played again.
+                %.
             </>,
             image: <ExampleIcon />,
         },
@@ -97,11 +93,7 @@ function loadCardDefinitions() {
             description: <>
                 If weapon is ion type, increase damage by
                 <Parameter name="damageMultiplier" />
-                %. Otherwise, change damage type to ion. Adds
-                {' '}
-                <Parameter name="charge" />
-                {' '}
-                charge when played again.
+                %. Otherwise, change damage type to ion.
             </>,
             image: <ExampleIcon />,
         },

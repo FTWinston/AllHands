@@ -96,7 +96,7 @@ export const cardDefinitions = defineCardDefinitions({
     ionicSurge: {
         targetType: 'weapon',
         crew: 'tactical',
-        parameters: { cost: 3, charge: 1, damageMultiplier: 50, damageType: damageTypeIndex.ion },
+        parameters: { cost: 3, charge: 1, damageMultiplier: 50 },
     },
     adaptWeapon: {
         targetType: 'choice',
