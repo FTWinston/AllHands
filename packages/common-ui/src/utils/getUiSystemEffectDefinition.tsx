@@ -195,6 +195,17 @@ function loadEffectDefinitions() {
             </>,
             image: ExampleIcon,
         },
+        beingScanned: {
+            name: 'Being Scanned',
+            description: <>
+                This system is being scanned by
+                {' '}
+                <EffectLevel />
+                {' '}
+                enemy science officer(s).
+            </>,
+            image: ExampleIcon,
+        },
     };
 
     const uiEffectDefinitions = Object.entries(effectDescriptions)

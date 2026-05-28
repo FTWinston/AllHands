@@ -139,6 +139,11 @@ export const systemEffectDefinitions = defineSystemEffects({
         usesLevels: false,
         duration: 60_000,
     },
+    beingScanned: {
+        positive: 'neutral',
+        usesLevels: true,
+        maxLevel: 255,
+    },
 } as const);
 
 export type SystemEffectType = keyof typeof systemEffectDefinitions;

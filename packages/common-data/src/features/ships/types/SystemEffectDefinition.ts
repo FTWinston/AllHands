@@ -2,7 +2,7 @@ import { Cooldown } from 'src/types/Cooldown';
 import { SystemEffectType } from '../utils/systemEffectDefinitions';
 
 export interface SystemEffectDefinition {
-    positive: boolean;
+    positive: boolean | 'neutral';
     duration?: number;
     usesLevels: boolean;
     maxLevel?: number;

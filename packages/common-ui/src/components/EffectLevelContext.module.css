@@ -5,3 +5,7 @@
 .negative {
     color: var(--danger-lightest);
 }
+
+.neutral {
+    color: var(--grey-lightest);
+}

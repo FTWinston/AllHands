@@ -9,7 +9,7 @@ import styles from './EffectIndicator.module.css';
 type Props = {
     name: string;
     description: JSX.Element;
-    positive: boolean;
+    positive: boolean | 'neutral';
     image: ComponentType<{ className?: string }>;
     className?: string;
     hidden?: boolean;
@@ -28,7 +28,7 @@ export const EffectIndicator = (props: Props) => {
                 className={classNames(styles.effect, props.hidden ? styles.hidden : undefined, props.className)}
                 name={title}
                 description={props.description}
-                palette={props.positive ? 'good' : 'danger'}
+                palette={props.positive === 'neutral' ? 'grey' : props.positive ? 'good' : 'danger'}
             >
                 <Image className={styles.icon} />
 

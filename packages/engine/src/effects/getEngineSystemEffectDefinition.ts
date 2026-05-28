@@ -281,6 +281,13 @@ function loadSystemEffectDefinitions() {
             remove: () => {
             },
         },
+        beingScanned: {
+            apply: () => {
+                return true;
+            },
+            remove: () => {
+            },
+        },
     };
 
     const engineSystemEffectDefinitions = Object.entries(systemEffectDefinitions)
