@@ -306,7 +306,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         });
 
         this.onMessage('adjustTimeScale', (client, message: { timeScale: number }) => {
-            const timeScale = Math.max(0, Math.min(10, message.timeScale));
+            const timeScale = Math.max(0, Math.min(2, message.timeScale));
             this.state.timeScale = timeScale;
             console.log(`[dev] ${client.sessionId} adjustTimeScale to ${timeScale}`);
         });

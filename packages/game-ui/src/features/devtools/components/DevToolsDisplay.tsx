@@ -37,8 +37,8 @@ export const DevToolsDisplay: FC<Props> = (props) => {
                 <input
                     type="range"
                     min="0"
-                    max="10"
-                    step="0.25"
+                    max="2"
+                    step="0.05"
                     value={timeScale}
                     onChange={(e) => {
                         const value = parseFloat(e.target.value);
