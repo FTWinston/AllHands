@@ -9,6 +9,7 @@ import {
     WeaponTargetedCardType,
     cardDefinitions,
 } from 'common-data/features/cards/utils/cardDefinitions';
+import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from '../state/CooldownState';
@@ -207,7 +208,9 @@ function loadCardDefinitions() {
         },
         purge: {
             play: (_gameState, _ship, system) => {
-                const negativeEffect = system.effects.find(e => !getSystemEffectDefinition(e.type).positive);
+                const negativeEffect = system.effects.find(
+                    e => getSystemEffectDefinition(e.type).polarity === SystemEffectPolarity.Negative
+                );
 
                 if (!negativeEffect) {
                     return false;

@@ -1,9 +1,10 @@
 import { createContext, FC, useContext } from 'react';
+import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEffectDefinition';
 import styles from './EffectLevelContext.module.css';
 
 export type EffectLevelContextValue = {
     level: number;
-    positive: boolean | 'neutral';
+    polarity: SystemEffectPolarity;
 };
 
 export const EffectLevelContext = createContext<EffectLevelContextValue | undefined>(undefined);
@@ -11,9 +12,13 @@ export const EffectLevelContext = createContext<EffectLevelContextValue | undefi
 export const EffectLevel: FC = () => {
     const ctx = useContext(EffectLevelContext);
     const level = ctx?.level ?? 1;
-    const positive = ctx?.positive ?? false;
+    const polarity = ctx?.polarity ?? SystemEffectPolarity.Negative;
     return (
-        <strong className={positive === 'neutral' ? styles.neutral : positive ? styles.positive : styles.negative}>
+        <strong
+            className={polarity === SystemEffectPolarity.Neutral
+                ? styles.neutral
+                : polarity === SystemEffectPolarity.Positive ? styles.positive : styles.negative}
+        >
             {level}
         </strong>
     );
