@@ -15,7 +15,7 @@ export function getFiringState(
         return FiringState.NotPrimed;
     }
 
-    const chargeCost = (parameters['chargeCost'] ?? 0) as number;
+    const chargeCost = parameters['chargeCost'] ?? 0;
     if (charge < chargeCost) {
         return FiringState.NotCharged;
     }
@@ -24,17 +24,17 @@ export function getFiringState(
         return FiringState.NoTarget;
     }
 
-    const maxRange = (parameters['maxRange'] ?? 0) as number;
+    const maxRange = parameters['maxRange'] ?? 0;
     if (firingSolution.range > maxRange) {
         return FiringState.RangeTooFar;
     }
 
-    const minRange = (parameters['minRange'] ?? 0) as number;
+    const minRange = parameters['minRange'] ?? 0;
     if (firingSolution.range < minRange) {
         return FiringState.RangeTooClose;
     }
 
-    const firingArc = (parameters['firingArc'] ?? 0) as number;
+    const firingArc = parameters['firingArc'] ?? 0;
     if (Math.abs(firingSolution.relativeBearing) > firingArc) {
         return FiringState.RelativeBearingTooWide;
     }
