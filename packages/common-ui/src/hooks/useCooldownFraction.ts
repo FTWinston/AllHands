@@ -1,13 +1,9 @@
 import { Cooldown } from 'common-data/types/Cooldown';
-import { useContext, useEffect, useState } from 'react';
-import { TimeProviderContext } from '../contexts/TimeProviderContext';
+import { useEffect, useState } from 'react';
+import { useTimeProvider } from './useTimeProvider';
 
 export const useCooldownFraction = (cooldown?: Cooldown | null) => {
-    const timeProvider = useContext(TimeProviderContext);
-
-    if (!timeProvider) {
-        throw new Error('useCooldownFraction must be used within a TimeProviderContext.Provider');
-    }
+    const timeProvider = useTimeProvider();
 
     let startTime: number;
     let endTime: number;

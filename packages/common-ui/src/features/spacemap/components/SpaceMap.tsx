@@ -1,7 +1,7 @@
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
-import { CSSProperties, forwardRef, useContext } from 'react';
-import { TimeProviderContext } from '../../../contexts/TimeProviderContext';
+import { CSSProperties, forwardRef } from 'react';
+import { useTimeProvider } from '../../../hooks/useTimeProvider';
 import { Canvas } from '../../../components/Canvas';
 import { drawFunction, drawMap } from '../utils/drawMap';
 
@@ -28,11 +28,7 @@ export const SpaceMap = forwardRef<HTMLCanvasElement, Props>((props, ref) => {
         drawExtraBackground,
     } = props;
 
-    const timeProvider = useContext(TimeProviderContext);
-
-    if (!timeProvider) {
-        throw new Error('SpaceMap must be used within a TimeProviderContext.Provider');
-    }
+    const timeProvider = useTimeProvider();
 
     const draw = (ctx: CanvasRenderingContext2D, bounds: DOMRect) => {
         const currentTime = timeProvider.getServerTime();

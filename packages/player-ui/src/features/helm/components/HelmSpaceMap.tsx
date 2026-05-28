@@ -10,9 +10,9 @@ import { Button } from 'common-ui/components/Button';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
+import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
 import { classNames } from 'common-ui/utils/classNames';
-import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
-import { useCallback, useContext, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useActiveCard, useOverTargetId } from 'src/features/cardui/components/DragCardProvider';
 import { useVisibilityAnimation } from 'src/hooks/useVisibilityAnimation';
 import { useFreezeVector } from '../hooks/useFreezeVector';
@@ -49,11 +49,7 @@ export const HelmSpaceMap = (props: Props) => {
 
     useAnimationFrame();
 
-    const timeProvider = useContext(TimeProviderContext);
-
-    if (!timeProvider) {
-        throw new Error('HelmSpaceMap must be used within a TimeProviderContext.Provider');
-    }
+    const timeProvider = useTimeProvider();
 
     const currentTime = timeProvider.getServerTime();
 

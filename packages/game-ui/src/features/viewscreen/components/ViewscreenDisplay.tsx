@@ -6,9 +6,9 @@ import { Button } from 'common-ui/components/Button';
 import { Screen } from 'common-ui/components/Screen';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
+import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
 import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
-import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
-import { FC, PropsWithChildren, useContext, useRef } from 'react';
+import { FC, PropsWithChildren, useRef } from 'react';
 import styles from './ViewscreenDisplay.module.css';
 
 type Props = PropsWithChildren<{
@@ -22,11 +22,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
 
     useAnimationFrame();
 
-    const timeProvider = useContext(TimeProviderContext);
-
-    if (!timeProvider) {
-        throw new Error('ViewscreenDisplay must be used within a TimeProviderContext.Provider');
-    }
+    const timeProvider = useTimeProvider();
 
     const currentTime = timeProvider.getServerTime();
 

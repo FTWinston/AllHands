@@ -6,8 +6,8 @@ import { getFiringSolution } from 'common-data/features/space/utils/getFiringSol
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
-import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
-import { ComponentProps, useContext, useState } from 'react';
+import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
+import { ComponentProps, useState } from 'react';
 import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
@@ -28,11 +28,7 @@ export const TacticalDisplay = (props: Props) => {
 
     useRootClassName(crewStyles.tactical);
 
-    const timeProvider = useContext(TimeProviderContext);
-
-    if (!timeProvider) {
-        throw new Error('TacticalDisplay must be used within a TimeProviderContext.Provider');
-    }
+    const timeProvider = useTimeProvider();
 
     const [currentTarget, setCurrentTarget] = useState<GameObjectInfo | null>(null);
 
