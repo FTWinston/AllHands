@@ -1,5 +1,6 @@
 import { ServerAddress } from 'common-data/types/ServerAddress';
 import { Screen } from 'common-ui/components/Screen';
+import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
 import { useCallback, useState } from 'react';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { useRoomConnection } from 'src/hooks/useRoomConnection';
@@ -47,14 +48,16 @@ export const GameUI = () => {
                 );
 
                 return (
-                    <Viewscreen
-                        room={room}
-                        shipId={shipId}
-                        showMenu={pause}
-                        timeProvider={timeProvider}
-                    >
-                        {children}
-                    </Viewscreen>
+                    <TimeProviderContext.Provider value={timeProvider}>
+                        <Viewscreen
+                            room={room}
+                            shipId={shipId}
+                            showMenu={pause}
+                            timeProvider={timeProvider}
+                        >
+                            {children}
+                        </Viewscreen>
+                    </TimeProviderContext.Provider>
                 );
             } else {
                 console.warn(

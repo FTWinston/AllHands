@@ -2,6 +2,7 @@ import { cardDefinitions, CardType } from 'common-data/features/cards/utils/card
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { minTimeScale, maxTimeScale } from 'common-data/utils/constants';
 import { Button } from 'common-ui/components/Button';
 import { Dialog } from 'common-ui/components/Dialog';
 import { RadioGroup } from 'common-ui/components/RadioGroup';
@@ -36,8 +37,8 @@ export const DevToolsDisplay: FC<Props> = (props) => {
             <div className={styles.timeScaleControl}>
                 <input
                     type="range"
-                    min="0"
-                    max="2"
+                    min={minTimeScale}
+                    max={maxTimeScale}
                     step="0.05"
                     value={timeScale}
                     onChange={(e) => {
@@ -46,7 +47,7 @@ export const DevToolsDisplay: FC<Props> = (props) => {
                         props.adjustTimeScale(value);
                     }}
                 />
-                <span>{timeScale}×</span>
+                <span>{Math.round(timeScale * 100) / 100}×</span>
             </div>
 
             <h3>System</h3>
