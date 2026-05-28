@@ -1,5 +1,5 @@
-import { createContext, FC, useContext } from 'react';
 import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEffectDefinition';
+import { createContext, FC, useContext } from 'react';
 import styles from './EffectLevelContext.module.css';
 
 export type EffectLevelContextValue = {

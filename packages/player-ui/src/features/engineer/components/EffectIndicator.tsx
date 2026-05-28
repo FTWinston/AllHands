@@ -1,5 +1,5 @@
-import { Cooldown } from 'common-data/types/Cooldown';
 import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEffectDefinition';
+import { Cooldown } from 'common-data/types/Cooldown';
 import { EffectLevelContext } from 'common-ui/components/EffectLevelContext';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
