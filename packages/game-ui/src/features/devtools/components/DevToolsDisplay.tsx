@@ -17,10 +17,12 @@ type Props = {
     adjustHealth: (system: ShipSystem, relative: boolean, amount: number) => void;
     addEffect: (system: ShipSystem, effect: SystemEffectType) => void;
     addCard: (system: CrewRoleName, cardId: string) => void;
+    adjustTimeScale: (timeScale: number) => void;
 };
 
 export const DevToolsDisplay: FC<Props> = (props) => {
     const [system, setSystem] = useState<ShipSystem>('hull');
+    const [timeScale, setTimeScale] = useState(1);
 
     return (
         <Dialog
@@ -30,6 +32,23 @@ export const DevToolsDisplay: FC<Props> = (props) => {
             prompt="These tools let you modify the state of your ship and its systems."
             className={styles.root}
         >
+            <h3>Time Scale</h3>
+            <div className={styles.timeScaleControl}>
+                <input
+                    type="range"
+                    min="0"
+                    max="10"
+                    step="0.25"
+                    value={timeScale}
+                    onChange={(e) => {
+                        const value = parseFloat(e.target.value);
+                        setTimeScale(value);
+                        props.adjustTimeScale(value);
+                    }}
+                />
+                <span>{timeScale}×</span>
+            </div>
+
             <h3>System</h3>
             <RadioGroup
                 value={system}

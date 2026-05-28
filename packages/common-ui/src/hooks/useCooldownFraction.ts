@@ -5,6 +5,10 @@ import { TimeProviderContext } from '../contexts/TimeProviderContext';
 export const useCooldownFraction = (cooldown?: Cooldown | null) => {
     const timeProvider = useContext(TimeProviderContext);
 
+    if (!timeProvider) {
+        throw new Error('useCooldownFraction must be used within a TimeProviderContext.Provider');
+    }
+
     let startTime: number;
     let endTime: number;
 
@@ -20,7 +24,7 @@ export const useCooldownFraction = (cooldown?: Cooldown | null) => {
 
     useEffect(() => {
         const updateFraction = () => {
-            const now = timeProvider?.getServerTime() ?? Date.now();
+            const now = timeProvider.getServerTime();
             if (endTime > now && endTime > startTime && startTime < now) {
                 setFraction((now - startTime) / (endTime - startTime));
             } else {

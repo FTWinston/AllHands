@@ -24,6 +24,10 @@ export const DevTools: FC<Props> = ({ room }) => {
         room?.send('adjustHealth', { system, relative, amount });
     }, [room]);
 
+    const adjustTimeScale = useCallback((timeScale: number) => {
+        room?.send('adjustTimeScale', { timeScale });
+    }, [room]);
+
     const [showTools, setShowTools] = useState(false);
 
     return (
@@ -48,6 +52,7 @@ export const DevTools: FC<Props> = ({ room }) => {
                     addCard={addCard}
                     addEffect={addEffect}
                     adjustHealth={adjustHealth}
+                    adjustTimeScale={adjustTimeScale}
                 />
             )}
         </>

@@ -19,7 +19,7 @@ export class GameState extends Schema {
     public currentTime: number;
 
     /** Multiplier applied to all time-dependent logic. A value of 2 makes everything run twice as fast. */
-    public readonly timeScale: number;
+    public timeScale: number;
 
     constructor(private readonly idPool: IdProvider, public readonly clock: ClockTimer, timeScale: number = 1) {
         super();
