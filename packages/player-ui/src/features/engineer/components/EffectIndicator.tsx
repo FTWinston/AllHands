@@ -18,6 +18,13 @@ type Props = {
     level?: number;
 };
 
+function getPaletteForPolarity(polarity: SystemEffectPolarity): 'good' | 'grey' | 'danger' {
+    if (polarity === SystemEffectPolarity.Neutral) {
+        return 'grey';
+    }
+    return polarity === SystemEffectPolarity.Positive ? 'good' : 'danger';
+}
+
 export const EffectIndicator = (props: Props) => {
     const Image = props.image;
 
@@ -29,11 +36,7 @@ export const EffectIndicator = (props: Props) => {
                 className={classNames(styles.effect, props.hidden ? styles.hidden : undefined, props.className)}
                 name={title}
                 description={props.description}
-                palette={
-                    props.polarity === SystemEffectPolarity.Neutral
-                        ? 'grey'
-                        : props.polarity === SystemEffectPolarity.Positive ? 'good' : 'danger'
-                }
+                palette={getPaletteForPolarity(props.polarity)}
             >
                 <Image className={styles.icon} />
 
