@@ -182,6 +182,8 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     }
 
     override destroy() {
+        // TODO: add explosion?
+
         // Clean up any active science scans so the beingScanned effect is removed from targets.
         this.scienceState.unsubscribeFromHelm();
         this.scienceState.unsubscribeFromTactical();

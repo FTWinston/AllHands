@@ -198,11 +198,7 @@ function loadEffectDefinitions() {
         beingScanned: {
             name: 'Being Scanned',
             description: <>
-                This system is being scanned by
-                {' '}
-                <EffectLevel />
-                {' '}
-                enemy science officer(s).
+                This system is being scanned by another vessel.
             </>,
             image: ExampleIcon,
         },

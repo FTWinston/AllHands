@@ -9,19 +9,21 @@ export type EffectLevelContextValue = {
 
 export const EffectLevelContext = createContext<EffectLevelContextValue | undefined>(undefined);
 
-function getClassNameForPolarity(polarity: SystemEffectPolarity): string {
-    if (polarity === SystemEffectPolarity.Neutral) {
-        return styles.neutral;
+function getClassNameForPolarity(polarity: SystemEffectPolarity | null | undefined): string {
+    if (polarity === SystemEffectPolarity.Positive) {
+        return styles.positive;
     }
-    return polarity === SystemEffectPolarity.Positive ? styles.positive : styles.negative;
+    if (polarity === SystemEffectPolarity.Negative) {
+        return styles.negative;
+    }
+    return styles.neutral;
 }
 
 export const EffectLevel: FC = () => {
     const ctx = useContext(EffectLevelContext);
     const level = ctx?.level ?? 1;
-    const polarity = ctx?.polarity ?? SystemEffectPolarity.Negative;
     return (
-        <strong className={getClassNameForPolarity(polarity)}>
+        <strong className={getClassNameForPolarity(ctx?.polarity)}>
             {level}
         </strong>
     );
