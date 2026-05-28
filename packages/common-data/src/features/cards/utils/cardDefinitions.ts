@@ -67,10 +67,41 @@ export const cardDefinitions = defineCardDefinitions({
         },
     },
 
-    exampleWeaponTarget: {
+    quickCharge: {
         targetType: 'weapon',
         crew: 'tactical',
-        parameters: { cost: 1 },
+        parameters: { cost: 1, damageReduction: 5, chargeReduction: 2 },
+    },
+    heavyCharge: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 2, damageIncrease: 10, chargeIncrease: 2 },
+    },
+    extraAmmo: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 2, extraUses: 1 },
+    },
+    adaptWeapon: {
+        targetType: 'choice',
+        crew: 'tactical',
+        cards: ['ionConversion', 'plasmaConversion', 'disruptorConversion'],
+        parameters: { cost: 3 },
+    },
+    ionConversion: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 3, damageType: 3 },
+    },
+    plasmaConversion: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 3, damageType: 4 },
+    },
+    disruptorConversion: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 3, damageType: 2 },
     },
     exampleEnemyTarget: {
         targetType: 'enemy',

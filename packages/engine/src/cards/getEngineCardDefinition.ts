@@ -119,9 +119,67 @@ function loadCardDefinitions() {
             },
         },
 
-        exampleWeaponTarget: {
-            prime: (_gameState, _ship, _slot) => {
-                console.log('primed exampleWeaponTarget'); return true;
+        quickCharge: {
+            prime: (_gameState, _ship, slot, parameters) => {
+                const damageReduction = parameters.damageReduction ?? 5;
+                const chargeReduction = parameters.chargeReduction ?? 2;
+                slot.adjustParameter('damage', -damageReduction);
+                slot.adjustParameter('chargeCost', -chargeReduction);
+                return true;
+            },
+            charge: (gameState, _ship, slot, parameters) => {
+                slot.addCharge(parameters.cost, gameState.clock.currentTime);
+                return true;
+            },
+        },
+        heavyCharge: {
+            prime: (_gameState, _ship, slot, parameters) => {
+                const damageIncrease = parameters.damageIncrease ?? 10;
+                const chargeIncrease = parameters.chargeIncrease ?? 2;
+                slot.adjustParameter('damage', damageIncrease);
+                slot.adjustParameter('chargeCost', chargeIncrease);
+                return true;
+            },
+            charge: (gameState, _ship, slot, parameters) => {
+                slot.addCharge(parameters.cost, gameState.clock.currentTime);
+                return true;
+            },
+        },
+        extraAmmo: {
+            prime: (_gameState, _ship, slot, parameters) => {
+                const extraUses = parameters.extraUses ?? 1;
+                slot.adjustParameter('uses', extraUses);
+                return true;
+            },
+            charge: (gameState, _ship, slot, parameters) => {
+                slot.addCharge(parameters.cost, gameState.clock.currentTime);
+                return true;
+            },
+        },
+        ionConversion: {
+            prime: (_gameState, _ship, slot, parameters) => {
+                slot.adjustParameter('damageType', parameters.damageType ?? 3);
+                return true;
+            },
+            charge: (gameState, _ship, slot, parameters) => {
+                slot.addCharge(parameters.cost, gameState.clock.currentTime);
+                return true;
+            },
+        },
+        plasmaConversion: {
+            prime: (_gameState, _ship, slot, parameters) => {
+                slot.adjustParameter('damageType', parameters.damageType ?? 4);
+                return true;
+            },
+            charge: (gameState, _ship, slot, parameters) => {
+                slot.addCharge(parameters.cost, gameState.clock.currentTime);
+                return true;
+            },
+        },
+        disruptorConversion: {
+            prime: (_gameState, _ship, slot, parameters) => {
+                slot.adjustParameter('damageType', parameters.damageType ?? 2);
+                return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
                 slot.addCharge(parameters.cost, gameState.clock.currentTime);

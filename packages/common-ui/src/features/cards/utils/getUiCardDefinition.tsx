@@ -37,9 +37,58 @@ function loadCardDefinitions() {
             image: <ExampleIcon />,
         },
 
-        exampleWeaponTarget: {
-            name: 'Some Card with a longer title',
-            description: 'A card that has a particular effect, for a particular crew role.',
+        quickCharge: {
+            name: 'Quick Charge',
+            description: <>
+                Reduce weapon damage by
+                <Parameter name="damageReduction" />
+                {' '}
+                and charge cost by
+                <Parameter name="chargeReduction" />
+                . Adds charge when played again.
+            </>,
+            image: <ExampleIcon />,
+        },
+        heavyCharge: {
+            name: 'Heavy Charge',
+            description: <>
+                Increase weapon damage by
+                <Parameter name="damageIncrease" />
+                {' '}
+                but increase charge cost by
+                <Parameter name="chargeIncrease" />
+                . Adds charge when played again.
+            </>,
+            image: <ExampleIcon />,
+        },
+        extraAmmo: {
+            name: 'Extra Ammo',
+            description: <>
+                Add
+                <Parameter name="extraUses" />
+                {' '}
+                extra use to the weapon. Adds charge when played again.
+            </>,
+            image: <ExampleIcon />,
+        },
+        adaptWeapon: {
+            name: 'Adapt Weapon',
+            description: 'Choose a damage type to convert the weapon to.',
+            image: <ExampleIcon />,
+        },
+        ionConversion: {
+            name: 'Ion Conversion',
+            description: 'Convert the weapon\'s damage type to ion. Adds charge when played again.',
+            image: <ExampleIcon />,
+        },
+        plasmaConversion: {
+            name: 'Plasma Conversion',
+            description: 'Convert the weapon\'s damage type to plasma. Adds charge when played again.',
+            image: <ExampleIcon />,
+        },
+        disruptorConversion: {
+            name: 'Disruptor Conversion',
+            description: 'Convert the weapon\'s damage type to disruptor. Adds charge when played again.',
             image: <ExampleIcon />,
         },
         exampleEnemyTarget: {
