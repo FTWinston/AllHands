@@ -19,11 +19,12 @@ type Props = {
     addEffect: (system: ShipSystem, effect: SystemEffectType) => void;
     addCard: (system: CrewRoleName, cardId: string) => void;
     adjustTimeScale: (timeScale: number) => void;
+    serverTimeScale: number;
 };
 
 export const DevToolsDisplay: FC<Props> = (props) => {
     const [system, setSystem] = useState<ShipSystem>('hull');
-    const [timeScale, setTimeScale] = useState(1);
+    const [timeScale, setTimeScale] = useState(props.serverTimeScale);
 
     return (
         <Dialog

@@ -108,26 +108,41 @@ export class TimeSynchronizer implements ITimeProvider {
         const serverTime = message.serverTime;
         const timeScale = message.timeScale;
 
-        // 1. Calculate Round Trip Time (RTT)
+        // 1. If the time scale changed, re-anchor offsets to maintain time continuity
+        //    and clear the ping history (old offsets were calculated with a different scale).
+        if (timeScale !== this.targetTimeScale) {
+            const wallElapsed = now - this.localEpoch;
+            const scaleDelta = this.targetTimeScale - timeScale;
+
+            // Re-anchor so that predicted server time stays the same:
+            // oldScale * elapsed + oldOffset = newScale * elapsed + newOffset
+            this.targetOffset += scaleDelta * wallElapsed;
+            this.offset += (this.timeScale - timeScale) * wallElapsed;
+            this.timeScale = timeScale;
+            this.targetTimeScale = timeScale;
+
+            this.pingHistory.length = 0;
+        }
+
+        // 2. Calculate Round Trip Time (RTT)
         const rtt = now - sentTime;
 
-        // 2. One-way latency (Symmetric assumption)
+        // 3. One-way latency (Symmetric assumption)
         const latency = rtt / 2;
 
-        // 3. Calculate offset in y = m*x + b, where x is local wall-clock and y is server game time.
+        // 4. Calculate offset in y = m*x + b, where x is local wall-clock and y is server game time.
         // If ServerTime is 1000, and it took 10ms (5ms one way) to get here:
         // The server was at 1000 when my wall clock was approximately (sentTime + 5ms).
         const estimatedWallClockAtServerSample = sentTime + latency;
         const rawOffset = serverTime - this.getScaledWallClock(estimatedWallClockAtServerSample);
 
-        // 4. Add to history, removing the oldest record if we have more than 5.
+        // 5. Add to history, removing the oldest record if we have more than 5.
         this.pingHistory.push(rawOffset);
         if (this.pingHistory.length > 5) {
             this.pingHistory.shift();
         }
 
-        // 5. Calculate Target
-        this.targetTimeScale = timeScale;
+        // 6. Calculate Target
         this.targetOffset = this.calculateAverageOffset();
     }
 

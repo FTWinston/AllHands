@@ -12,6 +12,7 @@ const meta: Meta<typeof Component> = {
         isOpen: true,
         addEffect: fn(),
         adjustTimeScale: fn(),
+        serverTimeScale: 1,
     },
 };
 
