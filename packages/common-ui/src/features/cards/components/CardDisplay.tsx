@@ -1,4 +1,3 @@
-import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
@@ -25,7 +24,7 @@ type Props = {
     nameFontSize?: number;
     descriptionLineHeight?: number;
     sufficientPower?: boolean;
-    parameters: CardParameters;
+    parameters: Record<string, number | string>;
     modifiers?: MinimalReadonlyMap<string, number>;
     traits?: CardTrait[];
     showTraits?: boolean;

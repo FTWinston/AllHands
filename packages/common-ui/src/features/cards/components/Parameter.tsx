@@ -1,11 +1,10 @@
-import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { MinimalReadonlyMap } from 'common-data/types/MinimalArray';
 import { FC, createContext, useContext } from 'react';
 import { classNames } from '../../../utils/classNames';
 import styles from './Parameter.module.css';
 
 export const CardParametersContext = createContext<{
-    parameters?: CardParameters;
+    parameters?: Record<string, number | string>;
     modifiers?: MinimalReadonlyMap<string, number>;
 }>({});
 
