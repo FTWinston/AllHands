@@ -1,4 +1,4 @@
-import { SystemEffectDefinition } from '../types/SystemEffectDefinition';
+import { SystemEffectDefinition, SystemEffectPolarity } from '../types/SystemEffectDefinition';
 
 export const MAX_POWER_LEVEL = 5;
 
@@ -9,135 +9,140 @@ function defineSystemEffects<T extends Record<string, SystemEffectDefinition>>(d
 
 export const systemEffectDefinitions = defineSystemEffects({
     shield: {
-        positive: true,
+        polarity: SystemEffectPolarity.Positive,
         usesLevels: true,
         maxLevel: 100,
     },
     auxPower: {
-        positive: true,
+        polarity: SystemEffectPolarity.Positive,
         usesLevels: false,
         duration: 30_000,
     },
     reducedPower: {
-        positive: false,
+        polarity: SystemEffectPolarity.Negative,
         usesLevels: true,
         maxLevel: MAX_POWER_LEVEL,
     },
     feedback: {
-        positive: false,
+        polarity: SystemEffectPolarity.Negative,
         usesLevels: true,
         duration: 20_000,
     },
     disruptGeneration: {
-        positive: false,
+        polarity: SystemEffectPolarity.Negative,
         usesLevels: true,
     },
     shieldFocus: {
-        positive: true,
+        polarity: SystemEffectPolarity.Positive,
         usesLevels: false,
         duration: 20_000,
     },
     shieldReduced: {
-        positive: false,
+        polarity: SystemEffectPolarity.Negative,
         usesLevels: false,
         duration: 20_000,
     },
     resetting: {
-        positive: true,
+        polarity: SystemEffectPolarity.Positive,
         usesLevels: false,
         duration: 3_000,
     },
     reactorBreach: {
-        positive: false,
+        polarity: SystemEffectPolarity.Negative,
         usesLevels: false,
         duration: 3_000,
     },
     relocating: {
-        positive: true,
+        polarity: SystemEffectPolarity.Positive,
         usesLevels: false,
     },
     overcharge: {
-        positive: true,
+        polarity: SystemEffectPolarity.Positive,
         usesLevels: false,
         duration: 15_000,
         tickInterval: 1_000,
     },
     distributePowerLoss: {
-        positive: false,
+        polarity: SystemEffectPolarity.Negative,
         usesLevels: true,
         maxLevel: 3,
         duration: 30_000,
     },
     distributePowerGain: {
-        positive: true,
+        polarity: SystemEffectPolarity.Positive,
         usesLevels: true,
         maxLevel: 3,
         duration: 30_000,
     },
     drawPowerGain: {
-        positive: true,
+        polarity: SystemEffectPolarity.Positive,
         usesLevels: true,
         maxLevel: 3,
         duration: 30_000,
     },
     drawPowerLoss: {
-        positive: false,
+        polarity: SystemEffectPolarity.Negative,
         usesLevels: true,
         maxLevel: 3,
         duration: 30_000,
     },
     divertAllPowerGain: {
-        positive: true,
+        polarity: SystemEffectPolarity.Positive,
         usesLevels: true,
         maxLevel: MAX_POWER_LEVEL,
         duration: 20_000,
     },
     divertAllPowerLoss: {
-        positive: false,
+        polarity: SystemEffectPolarity.Negative,
         usesLevels: true,
         maxLevel: 1,
         duration: 20_000,
     },
     divertHelmGain: {
-        positive: true,
+        polarity: SystemEffectPolarity.Positive,
         usesLevels: true,
         maxLevel: 3,
         duration: 20_000,
     },
     divertHelmLoss: {
-        positive: false,
+        polarity: SystemEffectPolarity.Negative,
         usesLevels: true,
         maxLevel: 3,
         duration: 20_000,
     },
     divertScienceGain: {
-        positive: true,
+        polarity: SystemEffectPolarity.Positive,
         usesLevels: true,
         maxLevel: 3,
         duration: 20_000,
     },
     divertScienceLoss: {
-        positive: false,
+        polarity: SystemEffectPolarity.Negative,
         usesLevels: true,
         maxLevel: 3,
         duration: 20_000,
     },
     divertTacticalGain: {
-        positive: true,
+        polarity: SystemEffectPolarity.Positive,
         usesLevels: true,
         maxLevel: 3,
         duration: 20_000,
     },
     divertTacticalLoss: {
-        positive: false,
+        polarity: SystemEffectPolarity.Negative,
         usesLevels: true,
         maxLevel: 3,
         duration: 20_000,
     },
     generationPriority: {
-        positive: true,
+        polarity: SystemEffectPolarity.Positive,
         usesLevels: false,
         duration: 60_000,
+    },
+    beingScanned: {
+        polarity: SystemEffectPolarity.Neutral,
+        usesLevels: true,
+        maxLevel: 255,
     },
 } as const);
 
