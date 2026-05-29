@@ -32,10 +32,10 @@ export const DevTools: FC<Props> = ({ room }) => {
     const [serverTimeScale, setServerTimeScale] = useState(1);
 
     useEffect(() => {
-        const handler = (message: { timeScale: number }) => {
+        const unsubscribe = room.onMessage<{ timeScale: number }>('pong', (message) => {
             setServerTimeScale(message.timeScale);
-        };
-        room.onMessage<{ timeScale: number }>('pong', handler);
+        });
+        return unsubscribe;
     }, [room]);
 
     return (
