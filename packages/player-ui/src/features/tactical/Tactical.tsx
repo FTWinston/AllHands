@@ -33,7 +33,7 @@ export const Tactical = (props: Props) => {
         });
     }, [props.room]);
 
-    if (!localShip?.tacticalState) {
+    if (!localShip?.tacticalState?.hand) {
         return <div>unable to load</div>;
     }
 

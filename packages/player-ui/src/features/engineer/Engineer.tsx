@@ -15,7 +15,6 @@ type Props = {
 export const Engineer = (props: Props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
     const localShip = objects[props.shipId] as ShipInfo;
-    const systems = localShip.engineerState.systems;
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -34,11 +33,12 @@ export const Engineer = (props: Props) => {
         props.room.send('repair', { system });
     }, [props.room]);
 
-    if (!localShip?.engineerState) {
+    if (!localShip?.engineerState?.hand) {
         return <div>unable to load</div>;
     }
 
     const engineerState = localShip.engineerState;
+    const systems = engineerState.systems;
 
     return (
         <EngineerDisplay

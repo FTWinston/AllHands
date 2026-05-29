@@ -35,7 +35,7 @@ export const Helm = (props: Props) => {
         props.room.send('cancelManeuver');
     }, [props.room]);
 
-    if (!localShip?.helmState) {
+    if (!localShip?.helmState?.hand) {
         return <div>unable to load</div>;
     }
 
