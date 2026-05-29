@@ -2,6 +2,7 @@ import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo'
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
+import { TimeProviderContext } from '../../../contexts/TimeProviderContext';
 import { useMemo, useRef, useState } from 'react';
 import { useAnimationFrame } from '../../../hooks/useAnimationFrame';
 import { useLoopingKeyframes } from '../../../hooks/useLoopingKeyframes';
@@ -9,9 +10,18 @@ import { getClosestCellCenter } from '../utils/drawHexGrid';
 import { SpaceMap as Component } from './SpaceMap';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+const timeProvider = { getServerTime: () => Date.now() };
+
 const meta = {
     title: 'common-ui/features/spacemap/Space Map',
     component: Component,
+    decorators: [
+        (Story) => (
+            <TimeProviderContext.Provider value={timeProvider}>
+                <Story />
+            </TimeProviderContext.Provider>
+        ),
+    ],
 } satisfies Meta<typeof Component>;
 
 export default meta;
@@ -20,7 +30,6 @@ type Story = StoryObj<typeof meta>;
 export const Static: Story = {
     args: {
         center: { x: 0, y: 0 },
-        timeProvider: { getServerTime: () => Date.now() },
         cellRadius: 32,
         gridColor: 'green',
         objects: {
@@ -73,7 +82,7 @@ export const Moving: Story = {
 
         useAnimationFrame();
 
-        useLoopingKeyframes<Position>(setItemPos, args.timeProvider, 20000);
+        useLoopingKeyframes<Position>(setItemPos, 20000);
 
         const objects: Record<string, GameObjectInfo> = useMemo(() => ({
             1: {

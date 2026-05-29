@@ -1,6 +1,5 @@
 import { Room } from '@colyseus/sdk';
 import { CrewRole, ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
-import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { FC } from 'react';
 import { Engineer } from '../features/engineer/Engineer';
 import { Helm } from '../features/helm/Helm';
@@ -12,11 +11,10 @@ type Props = {
     shipId: string;
     role: CrewRole;
     room: Room<{ state: GameState }>;
-    timeProvider: ITimeProvider;
 };
 
 export const CrewUI: FC<Props> = (props) => {
-    const { role, room, timeProvider } = props;
+    const { role, room } = props;
 
     switch (role) {
         case ownHelmClientRole:
@@ -24,7 +22,6 @@ export const CrewUI: FC<Props> = (props) => {
                 <Helm
                     room={room}
                     shipId={props.shipId}
-                    timeProvider={timeProvider}
                 />
             );
         case ownTacticalClientRole:
@@ -32,7 +29,6 @@ export const CrewUI: FC<Props> = (props) => {
                 <Tactical
                     room={room}
                     shipId={props.shipId}
-                    timeProvider={timeProvider}
                 />
             );
         case ownScienceClientRole:

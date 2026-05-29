@@ -44,7 +44,7 @@ export class EndlessCombatEncounters extends GameRules {
     }
 
     private scheduleRespawn(): void {
-        this.state.clock.setTimeout(() => {
+        this.state.setTimeout(() => {
             if (this.state.gameStatus !== 'active') {
                 return;
             }

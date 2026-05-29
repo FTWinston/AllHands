@@ -1,10 +1,13 @@
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
 import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 import { ViewscreenDisplay as Component } from './ViewscreenDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+
+const timeProvider = { getServerTime: () => Date.now() };
 
 const meta: Meta<typeof Component> = {
     title: 'game-ui/Viewscreen Display',
@@ -12,8 +15,14 @@ const meta: Meta<typeof Component> = {
     parameters: {
         layout: 'fullscreen',
     },
+    decorators: [
+        (Story) => (
+            <TimeProviderContext.Provider value={timeProvider}>
+                <Story />
+            </TimeProviderContext.Provider>
+        ),
+    ],
     args: {
-        timeProvider: { getServerTime: () => Date.now() },
         showMenu: fn(),
     },
     render: (args) => {
@@ -24,7 +33,7 @@ const meta: Meta<typeof Component> = {
             { time: Date.now() + 15000, x: 0, y: 5 },
         ]));
 
-        useLoopingKeyframes<Vector2D>(setCenter, args.timeProvider, 20000);
+        useLoopingKeyframes<Vector2D>(setCenter, 20000);
 
         return (
             <Component

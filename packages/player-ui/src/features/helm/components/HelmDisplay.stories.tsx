@@ -4,6 +4,7 @@ import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
+import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
 import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
 import { useMemo, useState } from 'react';
 import { fn } from 'storybook/test';
@@ -11,12 +12,21 @@ import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.
 import { HelmDisplay as Component } from './HelmDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
+const timeProvider = { getServerTime: () => Date.now() };
+
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Helm/UI',
     component: Component,
     parameters: {
         layout: 'fullscreen',
     },
+    decorators: [
+        (Story) => (
+            <TimeProviderContext.Provider value={timeProvider}>
+                <Story />
+            </TimeProviderContext.Provider>
+        ),
+    ],
     args: {
         onPause: fn(),
     },
@@ -40,7 +50,7 @@ const meta: Meta<typeof Component> = {
         const [activeManeuver, setActiveManeuver] = useState(args.activeManeuver);
         const [activeManeuverTimeout, setActiveManeuverTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
 
-        useLoopingKeyframes<Position>(setCenter, args.timeProvider, 20000);
+        useLoopingKeyframes<Position>(setCenter, 20000);
 
         // Create a player ship object that follows the center position
         const objects: Record<string, GameObjectInfo> = useMemo(() => ({
@@ -109,6 +119,5 @@ export const UI: Story = {
         objects: {},
         power: 5,
         maxHandSize: 5,
-        timeProvider: { getServerTime: () => Date.now() },
     },
 };

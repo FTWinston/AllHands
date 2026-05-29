@@ -4,7 +4,7 @@ import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { Button } from 'common-ui/components/Button';
 import { GameState } from 'engine/state/GameState';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { DevToolsDisplay } from './components/DevToolsDisplay';
 
 type Props = {
@@ -24,7 +24,19 @@ export const DevTools: FC<Props> = ({ room }) => {
         room?.send('adjustHealth', { system, relative, amount });
     }, [room]);
 
+    const adjustTimeScale = useCallback((timeScale: number) => {
+        room?.send('adjustTimeScale', { timeScale });
+    }, [room]);
+
     const [showTools, setShowTools] = useState(false);
+    const [serverTimeScale, setServerTimeScale] = useState(1);
+
+    useEffect(() => {
+        const unsubscribe = room.onMessage<{ timeScale: number }>('pong', (message) => {
+            setServerTimeScale(message.timeScale);
+        });
+        return unsubscribe;
+    }, [room]);
 
     return (
         <>
@@ -48,6 +60,8 @@ export const DevTools: FC<Props> = ({ room }) => {
                     addCard={addCard}
                     addEffect={addEffect}
                     adjustHealth={adjustHealth}
+                    adjustTimeScale={adjustTimeScale}
+                    serverTimeScale={serverTimeScale}
                 />
             )}
         </>
