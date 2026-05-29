@@ -36,9 +36,11 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
         );
     }
 
-    // Build display parameters with damageType override applied
-    const parameters = props.damageType
-        ? { ...cardDefinition.parameters, damageType: props.damageType } as CardParameters
+    // Build display parameters with damageType: resolved from server override or card definition
+    const resolvedDamageType = props.damageType
+        ?? (cardDefinition.targetType === 'weapon-slot' ? cardDefinition.damageType : null);
+    const parameters = resolvedDamageType
+        ? { ...cardDefinition.parameters, damageType: resolvedDamageType } as unknown as CardParameters
         : cardDefinition.parameters;
 
     return (

@@ -21,6 +21,7 @@ export const cardDefinitions = defineCardDefinitions({
     phaserCannon: {
         targetType: 'weapon-slot',
         crew: 'tactical',
+        damageType: 'coherent',
         parameters: {
             cost: 2,
             chargeCost: 5,
@@ -28,12 +29,12 @@ export const cardDefinitions = defineCardDefinitions({
             firingArc: 1,
             damage: 20,
             uses: 3,
-            damageType: 'coherent',
         },
     },
     phaserStrip: {
         targetType: 'weapon-slot',
         crew: 'tactical',
+        damageType: 'coherent',
         parameters: {
             cost: 4,
             chargeCost: 3,
@@ -41,12 +42,12 @@ export const cardDefinitions = defineCardDefinitions({
             firingArc: 3,
             damage: 10,
             uses: 5,
-            damageType: 'coherent',
         },
     },
     photonTorpedo: {
         targetType: 'weapon-slot',
         crew: 'tactical',
+        damageType: 'antimatter',
         parameters: {
             cost: 3,
             chargeCost: 4,
@@ -54,12 +55,12 @@ export const cardDefinitions = defineCardDefinitions({
             firingArc: 0.5,
             damage: 40,
             uses: 1,
-            damageType: 'antimatter',
         },
     },
     photonicCannon: {
         targetType: 'weapon-slot',
         crew: 'tactical',
+        damageType: 'coherent',
         parameters: {
             cost: 5,
             chargeCost: 6,
@@ -67,7 +68,6 @@ export const cardDefinitions = defineCardDefinitions({
             firingArc: 0.5,
             damage: 60,
             uses: 2,
-            damageType: 'coherent',
         },
     },
 

@@ -66,7 +66,7 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         }
         const definition = getCardDefinition(this.card.type);
         if (definition.targetType === 'weapon-slot') {
-            return (definition as WeaponSlotTargetCardDefinition).parameters.damageType;
+            return (definition as WeaponSlotTargetCardDefinition).damageType;
         }
         return null;
     }
