@@ -31,7 +31,7 @@ export const Science = (props: Props) => {
         });
     }, [props.room]);
 
-    if (!localShip?.scienceState) {
+    if (!localShip?.scienceState?.hand) {
         return <div>unable to load</div>;
     }
 
