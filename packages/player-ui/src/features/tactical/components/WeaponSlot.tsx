@@ -7,9 +7,10 @@ import { getFiringState } from 'common-data/features/space/utils/getFiringState'
 import colorPalletes from 'common-ui/ColorPalette.module.css';
 import { DiscreteProgress } from 'common-ui/components/DiscreteProgress';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
-import { Card } from 'common-ui/features/cards/components/Card';
 import { CardBase } from 'common-ui/features/cards/components/CardBase';
+import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
+import { UICardDefinition } from 'common-ui/features/cards/types/UICardDefinition';
 import { ColorPalette } from 'common-ui/types/ColorPalette';
 import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
@@ -20,8 +21,8 @@ type Props = WeaponSlotInfo & {
     firingSolution: FiringSolution | null;
 };
 
-function getCardWrapper(props: Props, fullyCharged: boolean) {
-    if (!props.card) {
+function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, fullyCharged: boolean) {
+    if (!props.card || !cardDefinition) {
         return (
             <CardDropTarget
                 className={styles.cardWrapper}
@@ -35,12 +36,19 @@ function getCardWrapper(props: Props, fullyCharged: boolean) {
         );
     }
 
+    // Build display parameters with damageType override applied
+    const parameters = props.damageType
+        ? { ...cardDefinition.parameters, damageType: props.damageType } as CardParameters
+        : cardDefinition.parameters;
+
     return (
         <>
             <div className={styles.cardWrapper}>
-                <Card
+                <CardDisplay
+                    {...cardDefinition}
+                    parameters={parameters}
                     className={styles.card}
-                    {...props.card}
+                    modifiers={props.modifiers}
                     slotted={true}
                     highlighted={true}
                 />
@@ -148,7 +156,7 @@ export const WeaponSlot = (props: Props) => {
             id={id}
             disabled={!card}
         >
-            {getCardWrapper(props, isFullyCharged)}
+            {getCardWrapper(props, cardDefinition, isFullyCharged)}
 
             <InfoPopup
                 className={classNames(styles.statusIndicator, statusDisabled ? styles.statusDisabled : null, colorPalletes[statusPallete ?? ''])}

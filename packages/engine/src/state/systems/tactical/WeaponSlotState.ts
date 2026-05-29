@@ -22,7 +22,7 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     @type('string') readonly id: string;
     @type(CardState) card: CardState | null = null;
     @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
-    @type('string') damageType: DamageType | '' = '';
+    @type('string') damageType: DamageType | null = null;
     @type('number') charge = 0;
     @type('boolean') primed = false;
     @type(CooldownState) decay: CooldownState | null = null;
@@ -56,7 +56,7 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     }
 
     getDamageType(): DamageType | null {
-        if (this.damageType !== '') return this.damageType;
+        if (this.damageType !== null) return this.damageType;
 
         // Fall back to base card definition
         if (!this.card) return null;
@@ -110,7 +110,7 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
 
         const usesValue = this.modifiers.get('uses');
         this.modifiers.clear();
-        this.damageType = '';
+        this.damageType = null;
 
         if (usesValue === undefined || usesValue <= 1) {
             this.card = null;
