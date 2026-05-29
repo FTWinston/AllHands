@@ -17,6 +17,15 @@ export const Parameter: FC<Props> = ({ name }) => {
     const { parameters, modifiers } = useContext(CardParametersContext);
 
     const base = parameters?.[name] ?? 0;
+
+    if (typeof base === 'string') {
+        return (
+            <span className={styles.parameter}>
+                {base}
+            </span>
+        );
+    }
+
     const modifier = modifiers?.get(name) ?? 0;
     const value = base + modifier;
 

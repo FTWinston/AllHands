@@ -18,22 +18,30 @@ function loadCardDefinitions() {
         },
         phaserCannon: {
             name: 'Phaser Cannon',
-            description: 'A standard phaser cannon effective against light to medium targets.',
+            description: <>
+                A standard <Parameter name="damageType" /> phaser cannon effective against light to medium targets.
+            </>,
             image: <ExampleIcon />,
         },
         phaserStrip: {
             name: 'Phaser Strip',
-            description: 'A wide-area phaser strip that can hit multiple targets in a line.',
+            description: <>
+                A wide-area <Parameter name="damageType" /> phaser strip that can hit multiple targets in a line.
+            </>,
             image: <ExampleIcon />,
         },
         photonTorpedo: {
             name: 'Photon Torpedo',
-            description: 'A high-yield photon torpedo effective against heavily armored targets.',
+            description: <>
+                A high-yield <Parameter name="damageType" /> photon torpedo effective against heavily armored targets.
+            </>,
             image: <ExampleIcon />,
         },
         photonicCannon: {
             name: 'Photonic Cannon',
-            description: 'An advanced energy weapon that delivers devastating photonic blasts.',
+            description: <>
+                An advanced <Parameter name="damageType" /> energy weapon that delivers devastating photonic blasts.
+            </>,
             image: <ExampleIcon />,
         },
 
