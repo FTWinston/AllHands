@@ -52,7 +52,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
      * Add an effect to this system, or reset its duration if already present.
      */
     addEffect(effectType: SystemEffectType, level: number = 1): boolean {
-        const startTime = this.systemState.getGameState().clock.currentTime;
+        const startTime = this.systemState.getGameState().currentTime;
 
         const definition = getSystemEffectDefinition(effectType);
 

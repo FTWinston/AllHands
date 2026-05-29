@@ -60,10 +60,11 @@ function spyOnGeneration(ship: PlayerShip) {
  * Advance time and call update, stepping through in increments to
  * ensure cooldown completions are properly processed.
  */
-function advanceTime(clock: ClockTimer, engineer: EngineerState, ms: number, step = 100) {
+function advanceTime(gameState: GameState, clock: ClockTimer, engineer: EngineerState, ms: number, step = 100) {
     const targetTime = clock.currentTime + ms;
     while (clock.currentTime < targetTime) {
         clock.currentTime = Math.min(clock.currentTime + step, targetTime);
+        gameState.currentTime = clock.currentTime;
         engineer.update(clock.currentTime);
     }
 }
@@ -78,12 +79,14 @@ const slotDuration = generationDurationByReactorPower[defaultSetup.reactor.initi
 
 describe('EngineerState generation priority', () => {
     let ship: PlayerShip;
+    let gameState: GameState;
     let clock: ClockTimer;
     let engineer: EngineerState;
 
     beforeEach(() => {
         const ctx = createTestShip(0);
         ship = ctx.ship;
+        gameState = ctx.gameState;
         clock = ctx.clock;
         engineer = ship.engineerState;
     });
@@ -96,23 +99,23 @@ describe('EngineerState generation priority', () => {
             engineer.update(0);
             expect(generated).toEqual([]);
 
-            advanceTime(clock, engineer, slotDuration);
+            advanceTime(gameState, clock, engineer, slotDuration);
             expect(generated).toEqual(['hull']);
 
-            advanceTime(clock, engineer, slotDuration);
+            advanceTime(gameState, clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'helm']);
 
             // Complete the rest of the cycle.
-            advanceTime(clock, engineer, slotDuration);
+            advanceTime(gameState, clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'helm', 'tactical']);
 
-            advanceTime(clock, engineer, slotDuration);
+            advanceTime(gameState, clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'helm', 'tactical', 'engineer']);
 
-            advanceTime(clock, engineer, slotDuration);
+            advanceTime(gameState, clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'helm', 'tactical', 'engineer', 'science']);
 
-            advanceTime(clock, engineer, slotDuration);
+            advanceTime(gameState, clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'helm', 'tactical', 'engineer', 'science', 'reactor']);
         });
     });
@@ -130,11 +133,11 @@ describe('EngineerState generation priority', () => {
             expect(generated).toEqual([]);
 
             // hull completes → science also generates.
-            advanceTime(clock, engineer, slotDuration);
+            advanceTime(gameState, clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'science']);
 
             // helm completes → science also generates.
-            advanceTime(clock, engineer, slotDuration);
+            advanceTime(gameState, clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'science', 'helm', 'science']);
         });
 
@@ -150,7 +153,7 @@ describe('EngineerState generation priority', () => {
             engineer.update(0);
 
             // Run through the full cycle: 5 active slots (science slot skipped).
-            advanceTime(clock, engineer, 5 * slotDuration);
+            advanceTime(gameState, clock, engineer, 5 * slotDuration);
 
             // Expected: each active slot triggers its system + science.
             // hull+science, helm+science, tactical+science, engineer+science, reactor+science
@@ -175,13 +178,13 @@ describe('EngineerState generation priority', () => {
             const effectEndTime = scienceTile.effects.find(e => e.type === 'generationPriority')!.progress!.endTime;
 
             engineer.update(0);
-            advanceTime(clock, engineer, effectEndTime);
+            advanceTime(gameState, clock, engineer, effectEndTime);
             expect(scienceTile.hasEffect('generationPriority')).toBe(false);
 
             generated.length = 0;
 
             // Run through one full 6-slot cycle.
-            advanceTime(clock, engineer, 6 * slotDuration);
+            advanceTime(gameState, clock, engineer, 6 * slotDuration);
 
             // With priority active science generated after every other system (5 times/cycle).
             // After expiry it should appear exactly once — only in its own sequence slot.
@@ -198,7 +201,7 @@ describe('EngineerState generation priority', () => {
             // Hull's own slot (index 0) is first in sequence, so it gets skipped.
             // Helm starts generating instead.
             engineer.update(0);
-            advanceTime(clock, engineer, slotDuration);
+            advanceTime(gameState, clock, engineer, slotDuration);
 
             // Helm generates, then hull gets bonus. Hull should NOT double-generate.
             expect(generated).toEqual(['helm', 'hull']);
@@ -213,7 +216,7 @@ describe('EngineerState generation priority', () => {
 
             // Start generation.
             engineer.update(0);
-            advanceTime(clock, engineer, slotDuration);
+            advanceTime(gameState, clock, engineer, slotDuration);
             expect(generated).toEqual(['hull', 'science']);
 
             generated.length = 0;
@@ -229,7 +232,7 @@ describe('EngineerState generation priority', () => {
             // Advance through two more slots. science fires first (it is now at
             // the current generating position after the swap), then tactical fires
             // and science gets a bonus — confirming the effect follows the tile.
-            advanceTime(clock, engineer, 2 * slotDuration);
+            advanceTime(gameState, clock, engineer, 2 * slotDuration);
             expect(generated).toEqual(['science', 'tactical', 'science']);
         });
     });

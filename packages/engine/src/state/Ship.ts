@@ -25,7 +25,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         super(
             gameState,
             setup,
-            new MotionKeyframe(gameState.clock.currentTime, setup.position.x, setup.position.y, setup.position.angle)
+            new MotionKeyframe(gameState.currentTime, setup.position.x, setup.position.y, setup.position.angle)
         );
 
         const getCardId = () => this.getCardId();

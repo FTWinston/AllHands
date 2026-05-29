@@ -4,6 +4,7 @@ import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 type PongMessage = {
     clientSendTime: number;
     serverTime: number;
+    timeScale: number;
 };
 
 /**
@@ -11,9 +12,16 @@ type PongMessage = {
  */
 export class TimeSynchronizer implements ITimeProvider {
     private room: Room;
+    private readonly localEpoch: number = Date.now();
 
-    /** The current offset, which is the main output. */
+    /** The current time scale, used to map local wall-clock to server game time. */
+    private timeScale: number = 1;
+
+    /** The current offset, paired with timeScale to map local wall-clock to server game time. */
     private offset: number = 0;
+
+    /** The "actual" time scale, which we lerp towards. */
+    private targetTimeScale: number = 1;
 
     /** The "actual" offset, which we lerp towards. */
     private targetOffset: number = 0;
@@ -42,19 +50,27 @@ export class TimeSynchronizer implements ITimeProvider {
         this.pingTimerId = setInterval(() => this.sendPing(), 3000) as unknown as number;
 
         // Start offset change smoothing timer, updating 10 times per second.
-        this.smoothingTimerId = setInterval(() => this.updateOffset(), 100) as unknown as number;
+        this.smoothingTimerId = setInterval(() => this.updateSync(), 100) as unknown as number;
     }
 
-    private updateOffset() {
-        // Smoothly drift the actual offset towards the calculated target
-        const diff = this.targetOffset - this.offset;
+    private updateSync() {
+        // Smoothly drift the actual offset towards the calculated target.
+        const offsetDiff = this.targetOffset - this.offset;
 
-        // If the drift is massive (startup), snap to it
-        if (Math.abs(diff) > 500) {
+        // If the drift is massive (startup), snap to it.
+        if (Math.abs(offsetDiff) > 500) {
             this.offset = this.targetOffset;
         } else {
             // Lerp for smoothness: one percent of the difference at a time.
-            this.offset += diff * 0.01;
+            this.offset += offsetDiff * 0.01;
+        }
+
+        // Smoothly drift to any new time scale.
+        const scaleDiff = this.targetTimeScale - this.timeScale;
+        if (Math.abs(scaleDiff) > 0.25) {
+            this.timeScale = this.targetTimeScale;
+        } else {
+            this.timeScale += scaleDiff * 0.1;
         }
     }
 
@@ -74,7 +90,11 @@ export class TimeSynchronizer implements ITimeProvider {
     }
 
     public getServerTime(): number {
-        return Date.now() + this.offset;
+        return this.getScaledWallClock(Date.now()) + this.offset;
+    }
+
+    private getScaledWallClock(clientTime: number) {
+        return this.localEpoch + (clientTime - this.localEpoch) * this.timeScale;
     }
 
     private sendPing() {
@@ -86,27 +106,43 @@ export class TimeSynchronizer implements ITimeProvider {
         const now = Date.now();
         const sentTime = message.clientSendTime;
         const serverTime = message.serverTime;
+        const timeScale = message.timeScale;
 
-        // 1. Calculate Round Trip Time (RTT)
+        // 1. If the time scale changed, re-anchor offsets to maintain time continuity
+        //    and clear the ping history (old offsets were calculated with a different scale).
+        if (timeScale !== this.targetTimeScale) {
+            const wallElapsed = now - this.localEpoch;
+            const scaleDelta = this.targetTimeScale - timeScale;
+
+            // Re-anchor so that predicted server time stays the same:
+            // oldScale * elapsed + oldOffset = newScale * elapsed + newOffset
+            this.targetOffset += scaleDelta * wallElapsed;
+            this.offset += (this.timeScale - timeScale) * wallElapsed;
+            this.timeScale = timeScale;
+            this.targetTimeScale = timeScale;
+
+            this.pingHistory.length = 0;
+        }
+
+        // 2. Calculate Round Trip Time (RTT)
         const rtt = now - sentTime;
 
-        // 2. One-way latency (Symmetric assumption)
+        // 3. One-way latency (Symmetric assumption)
         const latency = rtt / 2;
 
-        // 3. Calculate Offset
+        // 4. Calculate offset in y = m*x + b, where x is local wall-clock and y is server game time.
         // If ServerTime is 1000, and it took 10ms (5ms one way) to get here:
-        // The server was at 1000 when my clock was at (now - 5ms).
-        // Offset = ServerTime - (ClientTime - Latency)
-        // Simplifies to:
-        const rawOffset = serverTime - sentTime - latency;
+        // The server was at 1000 when my wall clock was approximately (sentTime + 5ms).
+        const estimatedWallClockAtServerSample = sentTime + latency;
+        const rawOffset = serverTime - this.getScaledWallClock(estimatedWallClockAtServerSample);
 
-        // 4. Add to history, removing the oldest record if we have more than 5.
+        // 5. Add to history, removing the oldest record if we have more than 5.
         this.pingHistory.push(rawOffset);
         if (this.pingHistory.length > 5) {
             this.pingHistory.shift();
         }
 
-        // 5. Calculate Target
+        // 6. Calculate Target
         this.targetOffset = this.calculateAverageOffset();
     }
 

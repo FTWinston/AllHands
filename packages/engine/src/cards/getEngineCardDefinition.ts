@@ -230,7 +230,7 @@ function loadCardDefinitions() {
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
-                slot.addCharge(parameters.cost, gameState.clock.currentTime);
+                slot.addCharge(parameters.cost, gameState.currentTime);
                 return true;
             },
         },
@@ -381,7 +381,7 @@ function loadCardDefinitions() {
         },
         sustain: {
             play: (gameState, _ship, system) => {
-                const currentTime = gameState.clock.currentTime;
+                const currentTime = gameState.currentTime;
                 let restarted = false;
                 for (const effect of system.effects) {
                     if (effect.progress) {

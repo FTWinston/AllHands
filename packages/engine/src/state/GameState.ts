@@ -15,9 +15,17 @@ export class GameState extends Schema {
     public readonly random: IRandom;
     public rules: GameRules | null = null;
 
-    constructor(private readonly idPool: IdProvider, public readonly clock: ClockTimer) {
+    /** The current scaled game time, in milliseconds. Use this instead of clock.currentTime for all game logic. */
+    public currentTime: number;
+
+    /** Multiplier applied to all time-dependent logic. A value of 2 makes everything run twice as fast. */
+    public timeScale: number;
+
+    constructor(private readonly idPool: IdProvider, public readonly clock: ClockTimer, timeScale: number = 1) {
         super();
         this.random = new Random(Math.random);
+        this.currentTime = clock.currentTime;
+        this.timeScale = timeScale;
     }
 
     public getNewId(): string {
@@ -43,13 +51,22 @@ export class GameState extends Schema {
         this.rules?.onObjectRemoved(object);
     }
 
+    /**
+     * Schedule a callback after a delay, automatically adjusted by timeScale.
+     * Use this instead of clock.setTimeout for all game logic delays.
+     */
+    public setTimeout(callback: () => void, delay: number) {
+        return this.clock.setTimeout(callback, delay / this.timeScale);
+    }
+
     public tick(deltaTime: number) {
-        const currentTime = this.clock.currentTime;
+        const scaledDelta = deltaTime * this.timeScale;
+        this.currentTime += scaledDelta;
 
         for (const object of this.objects.values()) {
-            object.tick(deltaTime, currentTime);
+            object.tick(scaledDelta, this.currentTime);
         }
 
-        this.rules?.tick(deltaTime);
+        this.rules?.tick(scaledDelta);
     }
 }

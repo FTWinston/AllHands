@@ -29,7 +29,7 @@ export abstract class MobileObject extends GameObject {
 
     public setMotion(...keyframes: MotionKeyframe[]) {
         // Remove future keyframes, then add the new keyframes, which should include a "now" keyframe.
-        cullFutureKeyframes(this.motion, this.gameState.clock.currentTime);
+        cullFutureKeyframes(this.motion, this.gameState.currentTime);
 
         this.motion.push(...keyframes);
     }

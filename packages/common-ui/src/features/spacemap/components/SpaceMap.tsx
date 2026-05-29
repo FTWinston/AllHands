@@ -1,7 +1,7 @@
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { CSSProperties, forwardRef } from 'react';
+import { useTimeProvider } from '../../../hooks/useTimeProvider';
 import { Canvas } from '../../../components/Canvas';
 import { drawFunction, drawMap } from '../utils/drawMap';
 
@@ -11,7 +11,6 @@ type Props = {
     objects: Record<string, GameObjectInfo>;
     gridColor: string;
     cellRadius: number;
-    timeProvider: ITimeProvider;
     center: Vector2D;
     drawExtraForeground?: drawFunction;
     drawExtraBackground?: drawFunction;
@@ -23,12 +22,13 @@ export const SpaceMap = forwardRef<HTMLCanvasElement, Props>((props, ref) => {
         style,
         objects,
         gridColor,
-        timeProvider,
         cellRadius,
         center,
         drawExtraForeground,
         drawExtraBackground,
     } = props;
+
+    const timeProvider = useTimeProvider();
 
     const draw = (ctx: CanvasRenderingContext2D, bounds: DOMRect) => {
         const currentTime = timeProvider.getServerTime();

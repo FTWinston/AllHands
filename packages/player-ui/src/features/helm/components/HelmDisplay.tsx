@@ -2,7 +2,6 @@ import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
 import { CardCooldown } from 'common-data/types/Cooldown';
@@ -22,11 +21,10 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     objects: Record<string, GameObjectInfo>;
     activeManeuver?: CardCooldown | null;
     cancelManeuver: () => void;
-    timeProvider: ITimeProvider;
 };
 
 export const HelmDisplay = (props: Props) => {
-    const { cards, playCard, center, objects, timeProvider, activeManeuver, cancelManeuver, ...headerProps } = props;
+    const { cards, playCard, center, objects, activeManeuver, cancelManeuver, ...headerProps } = props;
 
     useRootClassName(crewStyles.helm);
 
@@ -40,7 +38,6 @@ export const HelmDisplay = (props: Props) => {
                 />
 
                 <HelmSpaceMap
-                    timeProvider={timeProvider}
                     center={center}
                     objects={objects}
                     activeManeuver={activeManeuver}

@@ -7,7 +7,7 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ownEngineerClientRole, getRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, type CrewRole, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
-import { soloCrewIdentifier } from 'common-data/utils/constants';
+import { soloCrewIdentifier, minTimeScale, maxTimeScale } from 'common-data/utils/constants';
 import { customAlphabet } from 'nanoid/non-secure';
 import { CrewSystemState } from 'src/state/systems/CrewSystemState';
 import { EngineerState } from 'src/state/systems/engineer/EngineerState';
@@ -69,7 +69,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
     onCreate(config: ServerConfig) {
         this.allowMultipleCrews = config.multiship;
 
-        this.state = new GameState(new IdPool(), this.clock);
+        this.state = new GameState(new IdPool(), this.clock, config.timeScale);
 
         this.patchRate = 1000 / config.patchRate;
 
@@ -88,7 +88,8 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             // Echo the client's timestamp back, and add the server's timestamp.
             client.send('pong', {
                 clientSendTime: message.clientSendTime,
-                serverTime: this.clock.currentTime,
+                serverTime: this.state.currentTime,
+                timeScale: this.state.timeScale,
             });
         });
 
@@ -302,6 +303,12 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             systemState.hand.push(new CardState(ship.getCardId(), message.cardId as CardType));
 
             console.log(`[dev] ${client.sessionId} addCard ${message.cardId} to ${message.system}`);
+        });
+
+        this.onMessage('adjustTimeScale', (client, message: { timeScale: number }) => {
+            const timeScale = Math.max(minTimeScale, Math.min(maxTimeScale, message.timeScale));
+            this.state.timeScale = timeScale;
+            console.log(`[dev] ${client.sessionId} adjustTimeScale to ${timeScale}`);
         });
     }
 

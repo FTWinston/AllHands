@@ -2,6 +2,16 @@
     min-width: 500px;
 }
 
+.timeScaleControl {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.timeScaleControl input[type="range"] {
+    flex: 1;
+}
+
 .actionHeader {
   margin-top: 1em;
 }

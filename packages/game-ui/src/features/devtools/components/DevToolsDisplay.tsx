@@ -2,6 +2,7 @@ import { cardDefinitions, CardType } from 'common-data/features/cards/utils/card
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { minTimeScale, maxTimeScale } from 'common-data/utils/constants';
 import { Button } from 'common-ui/components/Button';
 import { Dialog } from 'common-ui/components/Dialog';
 import { RadioGroup } from 'common-ui/components/RadioGroup';
@@ -17,10 +18,13 @@ type Props = {
     adjustHealth: (system: ShipSystem, relative: boolean, amount: number) => void;
     addEffect: (system: ShipSystem, effect: SystemEffectType) => void;
     addCard: (system: CrewRoleName, cardId: string) => void;
+    adjustTimeScale: (timeScale: number) => void;
+    serverTimeScale: number;
 };
 
 export const DevToolsDisplay: FC<Props> = (props) => {
     const [system, setSystem] = useState<ShipSystem>('hull');
+    const [timeScale, setTimeScale] = useState(props.serverTimeScale);
 
     return (
         <Dialog
@@ -30,6 +34,23 @@ export const DevToolsDisplay: FC<Props> = (props) => {
             prompt="These tools let you modify the state of your ship and its systems."
             className={styles.root}
         >
+            <h3>Time Scale</h3>
+            <div className={styles.timeScaleControl}>
+                <input
+                    type="range"
+                    min={minTimeScale}
+                    max={maxTimeScale}
+                    step="0.05"
+                    value={timeScale}
+                    onChange={(e) => {
+                        const value = parseFloat(e.target.value);
+                        setTimeScale(value);
+                        props.adjustTimeScale(value);
+                    }}
+                />
+                <span>{Math.round(timeScale * 100) / 100}×</span>
+            </div>
+
             <h3>System</h3>
             <RadioGroup
                 value={system}

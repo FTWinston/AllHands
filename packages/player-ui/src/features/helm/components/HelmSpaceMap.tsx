@@ -1,7 +1,6 @@
 import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { ITimeProvider } from 'common-data/features/space/types/ITimeProvider';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
 import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
@@ -11,6 +10,7 @@ import { Button } from 'common-ui/components/Button';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
+import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
 import { classNames } from 'common-ui/utils/classNames';
 import { useCallback, useRef, useState } from 'react';
 import { useActiveCard, useOverTargetId } from 'src/features/cardui/components/DragCardProvider';
@@ -22,7 +22,6 @@ import { DropCells } from './DropCells';
 import styles from './HelmSpaceMap.module.css';
 
 type Props = {
-    timeProvider: ITimeProvider;
     center: ReadonlyKeyframes<Position>;
     objects: Record<string, GameObjectInfo>;
     activeManeuver?: CardCooldown | null;
@@ -50,7 +49,9 @@ export const HelmSpaceMap = (props: Props) => {
 
     useAnimationFrame();
 
-    const currentTime = props.timeProvider.getServerTime();
+    const timeProvider = useTimeProvider();
+
+    const currentTime = timeProvider.getServerTime();
 
     const shipPosition = interpolatePosition(props.center, currentTime);
 
@@ -102,7 +103,6 @@ export const HelmSpaceMap = (props: Props) => {
 
             <SpaceMap
                 className={styles.spaceMap}
-                timeProvider={props.timeProvider}
                 center={centerVector}
                 objects={props.objects}
                 cellRadius={cellRadius}
