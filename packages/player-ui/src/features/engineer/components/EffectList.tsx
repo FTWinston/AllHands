@@ -34,7 +34,7 @@ export const EffectList = (props: Props) => {
                     >
                         <EffectIndicator
                             image={definition.image}
-                            positive={definition.positive}
+                            polarity={definition.polarity}
                             name={definition.name}
                             description={definition.description}
                             progress={effect.progress}

@@ -1,8 +1,8 @@
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
-import { MinimalReadonlyMap } from 'common-data/types/MinimalArray';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
+import { MinimalReadonlyMap } from 'common-data/types/MinimalArray';
 import { FC, ReactNode, useCallback, useState } from 'react';
 import crewStyles from '../../../CrewColors.module.css';
 import { classNames } from '../../../utils/classNames';

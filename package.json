@@ -61,6 +61,6 @@
     "wait-on": "^9.0.3"
   },
   "dependencies": {
-    "@colyseus/schema": "github:FTWinston/colyseus-schema"
+    "@colyseus/schema": "^4.0.26"
   }
 }

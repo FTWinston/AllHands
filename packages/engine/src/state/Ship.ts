@@ -131,7 +131,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this._knownObjects.delete(objectId);
 
         this.tacticalState.vulnerabilitiesByTarget.delete(objectId);
-        // TODO: remove from science target list.
+        this.scienceState.unsubscribeFromShip(objectId);
     }
 
     damage(damage: Damage) {
@@ -183,6 +183,12 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
     override destroy() {
         // TODO: add explosion?
+
+        // Clean up any active science scans so the beingScanned effect is removed from targets.
+        this.scienceState.unsubscribeFromHelm();
+        this.scienceState.unsubscribeFromTactical();
+        this.scienceState.unsubscribeFromScience();
+        this.scienceState.unsubscribeFromEngineer();
 
         super.destroy();
     }

@@ -1,5 +1,5 @@
-import { MinimalReadonlyMap } from 'common-data/types/MinimalArray';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { MinimalReadonlyMap } from 'common-data/types/MinimalArray';
 import { FC } from 'react';
 import { getCardDefinition } from '../utils/getUiCardDefinition';
 import { CardDisplay } from './CardDisplay';
