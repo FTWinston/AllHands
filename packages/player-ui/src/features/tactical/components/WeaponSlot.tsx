@@ -39,9 +39,12 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
     // Build display parameters with damageType: resolved from server override or card definition
     const resolvedDamageType = props.damageType
         ?? (cardDefinition.targetType === 'weapon-slot' ? cardDefinition.damageType : null);
-    const parameters: Record<string, number | string> = resolvedDamageType
+    const rawParameters = resolvedDamageType
         ? { ...cardDefinition.parameters, damageType: resolvedDamageType }
         : cardDefinition.parameters;
+    const parameters: Record<string, number | string> = Object.fromEntries(
+        Object.entries(rawParameters).filter((entry): entry is [string, number | string] => entry[1] !== null)
+    );
 
     return (
         <>
