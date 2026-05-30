@@ -16,7 +16,7 @@ const meta: Meta<typeof Component> = {
         layout: 'fullscreen',
     },
     decorators: [
-        (Story) => (
+        Story => (
             <TimeProviderContext.Provider value={timeProvider}>
                 <Story />
             </TimeProviderContext.Provider>

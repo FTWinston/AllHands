@@ -1,11 +1,11 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
+import { WeaponSlotTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { DamageType } from 'common-data/features/space/types/Damage';
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { CardState } from '../../CardState';
-import { CooldownState } from '../../CooldownState';
-import { getCardDefinition } from '../../../cards/getEngineCardDefinition';
-import { WeaponSlotTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
+import { CardState } from 'src/state/CardState';
+import { CooldownState } from 'src/state/CooldownState';
 
 /** Minimum resolved values for specific weapon parameters. Parameters not listed here default to 0. */
 const parameterMinimumValues: Readonly<Record<string, number>> = {

@@ -7,10 +7,10 @@ import { resolveParameters } from 'common-data/features/cards/utils/resolveParam
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { CrewSystemSetupInfo, ScienceSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineDeflectorTargetCardDefinition, EngineEnemyTargetCardDefinition } from 'src/cards/EngineCardDefinition';
-import { getCardDefinition } from '../../../cards/getEngineCardDefinition';
-import { CardState } from '../../CardState';
-import { GameState } from '../../GameState';
-import { Ship } from '../../Ship';
+import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
+import { CardState } from 'src/state/CardState';
+import { GameState } from 'src/state/GameState';
+import { Ship } from 'src/state/Ship';
 import { CrewSystemState } from '../CrewSystemState';
 import { ScannedEngineerState } from './ScannedEngineerState';
 import { ScannedEngineerTileState } from './ScannedEngineerTileState';

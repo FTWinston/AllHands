@@ -1,9 +1,9 @@
 import { ClockTimer } from '@colyseus/timer';
 import { CrewSystemSetupInfo, PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameState } from 'src/state/GameState';
+import { PlayerShip } from 'src/state/PlayerShip';
+import { IdProvider } from 'src/types/IdProvider';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { IdProvider } from '../../../types/IdProvider';
-import { GameState } from '../../GameState';
-import { PlayerShip } from '../../PlayerShip';
 import { EngineerState, generationDurationByReactorPower } from '../engineer/EngineerState';
 
 const minimalCrewSetup: CrewSystemSetupInfo = {

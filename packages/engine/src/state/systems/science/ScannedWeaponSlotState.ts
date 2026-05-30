@@ -1,6 +1,6 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
 import { ScannedWeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { CardState } from '../../CardState';
+import { CardState } from 'src/state/CardState';
 
 export class ScannedWeaponSlotState extends Schema implements ScannedWeaponSlotInfo {
     constructor(id: string) {

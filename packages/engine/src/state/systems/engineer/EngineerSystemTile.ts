@@ -2,9 +2,9 @@ import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { EngineerSystemTileInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { BindableEvent } from '../../../classes/BindableEvent';
-import { getSystemEffectDefinition } from '../../../effects/getEngineSystemEffectDefinition';
-import { CooldownState } from '../../CooldownState';
+import { BindableEvent } from 'src/classes/BindableEvent';
+import { getSystemEffectDefinition } from 'src/effects/getEngineSystemEffectDefinition';
+import { CooldownState } from 'src/state/CooldownState';
 import { SystemState } from '../SystemState';
 import { SystemEffect } from './SystemEffect';
 

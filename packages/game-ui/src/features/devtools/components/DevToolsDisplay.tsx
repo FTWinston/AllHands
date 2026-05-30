@@ -48,7 +48,10 @@ export const DevToolsDisplay: FC<Props> = (props) => {
                         props.adjustTimeScale(value);
                     }}
                 />
-                <span>{Math.round(timeScale * 100) / 100}×</span>
+                <span>
+                    {Math.round(timeScale * 100) / 100}
+                    ×
+                </span>
             </div>
 
             <h3>System</h3>
