@@ -1,8 +1,8 @@
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { CSSProperties, forwardRef } from 'react';
-import { useTimeProvider } from '../../../hooks/useTimeProvider';
 import { Canvas } from '../../../components/Canvas';
+import { useTimeProvider } from '../../../hooks/useTimeProvider';
 import { drawFunction, drawMap } from '../utils/drawMap';
 
 type Props = {

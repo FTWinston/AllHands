@@ -7,10 +7,10 @@ import { TacticalSystemInfo, TacticalSystemSetupInfo, VulnerabilityInfo } from '
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
 import { EngineCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
-import { getCardDefinition } from '../../../cards/getEngineCardDefinition';
-import { CardState } from '../../CardState';
-import { GameState } from '../../GameState';
-import { Ship } from '../../Ship';
+import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
+import { CardState } from 'src/state/CardState';
+import { GameState } from 'src/state/GameState';
+import { Ship } from 'src/state/Ship';
 import { CrewSystemState } from '../CrewSystemState';
 import { TargetVulnerabilitiesState } from './TargetVulnerabilitiesState';
 import { WeaponSlotState } from './WeaponSlotState';

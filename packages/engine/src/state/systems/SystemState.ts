@@ -2,7 +2,7 @@ import { Schema, type } from '@colyseus/schema';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
-import { BindableEvent } from '../../classes/BindableEvent';
+import { BindableEvent } from 'src/classes/BindableEvent';
 import { GameState } from '../GameState';
 import { SystemEffect } from './engineer/SystemEffect';
 import type { Ship } from '../Ship';
