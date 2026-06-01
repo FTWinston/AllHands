@@ -3,11 +3,11 @@ import { DeflectorEffectDelivery, DeflectorEffectModifier, DeflectorEffectSubsta
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType, EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { resolveParameters } from 'common-data/features/cards/utils/resolveParameters';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { CrewSystemSetupInfo, ScienceSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineDeflectorTargetCardDefinition, EngineEnemyTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
+import { resolveParameters } from 'src/cards/resolveParameters';
 import { CardState } from 'src/state/CardState';
 import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';

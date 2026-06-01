@@ -1,8 +1,8 @@
-import { MinimalReadonlyMap } from 'src/types/MinimalArray';
+import { IMap } from '@colyseus/react';
 import { CardType } from '../utils/cardDefinitions';
 
 export type CardInstance = {
     id: number;
     type: CardType;
-    modifiers?: MinimalReadonlyMap<string, number>;
+    modifiers?: IMap<string, number>;
 };

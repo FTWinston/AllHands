@@ -1,4 +1,4 @@
-import { CardParameters } from '../../../features/cards/types/CardParameters';
+import { CardParametersBase } from '../../../features/cards/types/CardParameters';
 import { FiringSolution } from '../types/FiringSolution';
 import { FiringState } from '../types/FiringState';
 import { VulnerabilityInfo } from '../types/GameObjectInfo';
@@ -8,7 +8,7 @@ export function getFiringState(
     firingSolution: FiringSolution | null,
     primed: boolean,
     charge: number,
-    parameters: CardParameters,
+    parameters: CardParametersBase,
     vulnerability?: VulnerabilityInfo
 ): FiringState {
     if (!primed) {

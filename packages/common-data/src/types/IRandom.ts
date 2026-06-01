@@ -1,4 +1,4 @@
-import { MinimalArray, MinimalReadonlyArray } from './MinimalArray';
+import { IArray } from '@colyseus/react';
 
 export interface IRandom {
     getFloat(min: number, max: number): number;
@@ -7,11 +7,11 @@ export interface IRandom {
 
     getInt(maxExclusive: number): number;
 
-    pick<T>(values: MinimalReadonlyArray<T>): T;
+    pick<T>(values: IArray<T>): T;
 
-    insert<T>(array: MinimalArray<T>, value: T): void;
+    insert<T>(array: IArray<T>, value: T): void;
 
-    delete<T>(values: MinimalArray<T>): T;
+    delete<T>(values: IArray<T>): T;
 
-    shuffle(items: MinimalArray<unknown>): void;
+    shuffle(items: IArray<unknown>): void;
 };

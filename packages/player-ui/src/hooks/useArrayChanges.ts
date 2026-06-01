@@ -1,8 +1,8 @@
-import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
+import { IArray } from '@colyseus/react';
 import { useEffect, useRef, useState } from 'react';
 
-export function useArrayChanges<TItem, TItemId>(items: MinimalReadonlyArray<TItem>, getId: (item: TItem) => TItemId) {
-    const knownItems = useRef<MinimalReadonlyArray<TItem>>(items);
+export function useArrayChanges<TItem, TItemId>(items: IArray<TItem>, getId: (item: TItem) => TItemId) {
+    const knownItems = useRef<IArray<TItem>>(items);
     const [currentItemIds, setCurrentItemIds] = useState<Set<TItemId>>(() => new Set(items.map(getId)));
     const [removingItemIds, setRemovingItemIds] = useState<Set<TItemId>>(() => new Set());
     const isFirstRender = useRef(true);

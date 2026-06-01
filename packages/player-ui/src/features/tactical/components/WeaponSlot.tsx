@@ -1,5 +1,5 @@
+import { Snapshot } from '@colyseus/react';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
-import { resolveParameters } from 'common-data/features/cards/utils/resolveParameters';
 import { FiringSolution } from 'common-data/features/space/types/FiringSolution';
 import { FiringState } from 'common-data/features/space/types/FiringState';
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
@@ -11,12 +11,13 @@ import { Card } from 'common-ui/features/cards/components/Card';
 import { CardBase } from 'common-ui/features/cards/components/CardBase';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { ColorPalette } from 'common-ui/types/ColorPalette';
+import { resolveParameters } from 'common-ui/types/resolveParameters';
 import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { DraggableCard } from 'src/features/cardui/components/DraggableCard';
 import styles from './WeaponSlot.module.css';
 
-type Props = WeaponSlotInfo & {
+type Props = Snapshot<WeaponSlotInfo> & {
     firingSolution: FiringSolution | null;
 };
 

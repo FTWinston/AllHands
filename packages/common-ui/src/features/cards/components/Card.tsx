@@ -1,5 +1,4 @@
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { MinimalReadonlyMap } from 'common-data/types/MinimalArray';
 import { FC } from 'react';
 import { getCardDefinition } from '../utils/getUiCardDefinition';
 import { CardDisplay } from './CardDisplay';
@@ -10,7 +9,7 @@ type Props = {
     slotted?: boolean;
     disabled?: boolean;
     highlighted?: boolean;
-    modifiers?: MinimalReadonlyMap<string, number>;
+    modifiers?: Record<string, number>;
     showTraits?: boolean;
 };
 

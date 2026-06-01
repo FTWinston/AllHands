@@ -1,8 +1,8 @@
+import { Snapshot } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps } from 'react';
@@ -14,12 +14,12 @@ import { ScienceTargetList } from './ScienceTargetList';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
-    cards: MinimalReadonlyArray<CardInstance>;
-    targets: MinimalReadonlyArray<GameObjectInfo>;
+    cards: Snapshot<CardInstance[]>;
+    targets: Snapshot<GameObjectInfo[]>;
     modifierSlot: CardType | null;
     substanceSlot: CardType | null;
     deliverySlot: CardType | null;
-    deflectorCard: CardInstance | null;
+    deflectorCard: Snapshot<CardInstance> | null;
 };
 
 export const ScienceDisplay = (props: Props) => {

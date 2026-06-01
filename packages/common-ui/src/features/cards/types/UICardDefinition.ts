@@ -1,3 +1,4 @@
+import { Snapshot } from '@colyseus/react';
 import { CardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { ReactNode } from 'react';
 
@@ -9,7 +10,7 @@ export interface CardDescription {
     descriptionLineHeight?: number;
 }
 
-export type UICardDefinition = CardDefinition & CardDescription;
+export type UICardDefinition = Snapshot<CardDefinition> & CardDescription;
 
 export type UICardInstance = UICardDefinition & {
     id: number;

@@ -1,3 +1,4 @@
+import { Snapshot } from '@colyseus/react';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { Button } from 'common-ui/components/Button';
 import { classNames } from 'common-ui/utils/classNames';
@@ -8,7 +9,7 @@ import { DraggableCard } from './DraggableCard';
 
 type Props = {
     cardId: number;
-    cardTypes: CardType[];
+    cardTypes: Snapshot<CardType[]>;
     availablePower: number;
     onCancel: () => void;
 };

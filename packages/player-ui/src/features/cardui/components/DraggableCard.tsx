@@ -1,10 +1,9 @@
 import { useDraggable } from '@dnd-kit/core';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { resolveParameters } from 'common-data/features/cards/utils/resolveParameters';
-import { MinimalReadonlyMap } from 'common-data/types/MinimalArray';
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
+import { resolveParameter } from 'common-ui/types/resolveParameters';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC, useState } from 'react';
 import { useActiveCard, useDragDisplayMode, useIsOverValidTarget } from './DragCardProvider';
@@ -20,7 +19,7 @@ type Props = {
     targetType?: CardTargetType;
     slotted?: boolean;
     highlighted?: boolean;
-    modifiers?: MinimalReadonlyMap<string, number>;
+    modifiers?: Record<string, number>;
 };
 
 export const DraggableCard: FC<Props> = (props) => {
@@ -28,7 +27,7 @@ export const DraggableCard: FC<Props> = (props) => {
     const isOverValidTarget = useIsOverValidTarget();
 
     const definition = getCardDefinition(props.type);
-    const resolvedCost = resolveParameters(definition.parameters, props.modifiers)['cost'];
+    const resolvedCost = resolveParameter('cost', definition.parameters, props.modifiers);
 
     const targetType = props.targetType ?? definition.targetType;
 

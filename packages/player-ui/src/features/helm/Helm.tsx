@@ -1,4 +1,4 @@
-import { useRoomState } from '@colyseus/react';
+import { Snapshot, useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
@@ -13,8 +13,9 @@ type Props = {
 };
 
 export const Helm = (props: Props) => {
-    const objects = useRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
-    const localShip = objects[props.shipId] as ShipInfo;
+    const objects = useRoomState(props.room, state => state.objects) as Record<string, Snapshot<GameObjectInfo>>;
+    const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo>;
+
     const pause = useCallback(() => {
         props.room.send('pause');
     }, [props.room]);

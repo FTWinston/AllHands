@@ -1,7 +1,8 @@
+import { IArray } from '@colyseus/react';
 import { Schema, type } from '@colyseus/schema';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
+
 import { BindableEvent } from 'src/classes/BindableEvent';
 import { GameState } from '../GameState';
 import { SystemEffect } from './engineer/SystemEffect';
@@ -83,7 +84,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
     /**
      * Get the effects currently applied to this system.
      */
-    getEffects(): MinimalReadonlyArray<SystemEffect> {
+    getEffects(): IArray<SystemEffect> {
         return this.linkedEngineerSystemTile.effects;
     }
 

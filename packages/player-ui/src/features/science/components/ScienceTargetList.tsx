@@ -1,11 +1,11 @@
+import { IArray } from '@colyseus/react';
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
 import { ScienceTarget } from './ScienceTarget';
 import styles from './ScienceTargetList.module.css';
 
 type Props = {
-    targets: MinimalReadonlyArray<GameObjectInfo>;
+    targets: IArray<GameObjectInfo>;
 };
 
 export const ScienceTargetList = (props: Props) => {
