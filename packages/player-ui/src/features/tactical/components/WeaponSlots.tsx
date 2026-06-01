@@ -1,11 +1,11 @@
+import { Snapshot } from '@colyseus/react';
 import { FiringSolution } from 'common-data/features/space/types/FiringSolution';
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { WeaponSlot } from './WeaponSlot';
 import styles from './WeaponSlots.module.css';
 
 type Props = {
-    slots: MinimalReadonlyArray<WeaponSlotInfo>;
+    slots: Snapshot<WeaponSlotInfo[]>;
     firingSolution: FiringSolution | null;
 };
 

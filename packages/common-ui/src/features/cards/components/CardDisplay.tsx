@@ -1,7 +1,8 @@
+import { Snapshot } from '@colyseus/react';
+import { CardParametersBase } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
-import { MinimalReadonlyMap } from 'common-data/types/MinimalArray';
 import { FC, ReactNode, useCallback, useState } from 'react';
 import crewStyles from '../../../CrewColors.module.css';
 import { classNames } from '../../../utils/classNames';
@@ -24,9 +25,9 @@ type Props = {
     nameFontSize?: number;
     descriptionLineHeight?: number;
     sufficientPower?: boolean;
-    parameters: Record<string, number | string>;
-    modifiers?: MinimalReadonlyMap<string, number>;
-    traits?: CardTrait[];
+    parameters: CardParametersBase;
+    modifiers?: Record<string, number>;
+    traits?: Snapshot<CardTrait[]>;
     showTraits?: boolean;
 };
 

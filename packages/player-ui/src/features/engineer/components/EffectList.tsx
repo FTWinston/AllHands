@@ -1,5 +1,5 @@
+import { IArray } from '@colyseus/react';
 import { SystemEffectInstance } from 'common-data/features/ships/types/SystemEffectDefinition';
-import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { classNames } from 'common-ui/utils/classNames';
 import { getSystemEffectDefinition } from 'common-ui/utils/getUiSystemEffectDefinition.js';
 import { useArrayChanges } from 'src/hooks/useArrayChanges';
@@ -8,7 +8,7 @@ import styles from './EffectList.module.css';
 
 type Props = {
     className?: string;
-    effects: MinimalReadonlyArray<SystemEffectInstance> | undefined;
+    effects: IArray<SystemEffectInstance> | undefined;
 };
 
 const getEffectType = (effect: SystemEffectInstance) => effect.type;

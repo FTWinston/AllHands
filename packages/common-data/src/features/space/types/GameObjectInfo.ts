@@ -1,10 +1,10 @@
+import { IArray, IMap } from '@colyseus/react';
 import { CardInstance } from 'src/features/cards/types/CardInstance';
 import { CardType } from 'src/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'src/features/ships/types/SystemEffectDefinition';
 import { VulnerabilityType } from 'src/features/ships/types/VulnerabilityType';
 import { CardCooldown, Cooldown } from 'src/types/Cooldown';
-import { MinimalReadonlyArray, MinimalReadonlyMap } from 'src/types/MinimalArray';
 import { ReadonlyKeyframes } from './Keyframes';
 import { ObjectAppearance } from './ObjectAppearance';
 import { Position } from './Position';
@@ -26,7 +26,7 @@ export interface SystemInfo {
 
 export interface CrewSystemInfo extends SystemInfo {
     maxHandSize: number;
-    hand: MinimalReadonlyArray<CardInstance>;
+    hand: IArray<CardInstance>;
     drawPileSize: number;
     cardGeneration: Cooldown | null;
 }
@@ -38,7 +38,7 @@ export interface HelmSystemInfo extends CrewSystemInfo {
 export interface WeaponSlotInfo {
     id: string;
     card: CardInstance | null;
-    modifiers?: MinimalReadonlyMap<string, number>;
+    modifiers?: IMap<string, number>;
     damageType?: string | null;
     decay?: Cooldown | null;
     charge: number;
@@ -48,7 +48,7 @@ export interface WeaponSlotInfo {
 export interface ScannedWeaponSlotInfo {
     id: string;
     card: CardInstance | null;
-    modifiers?: MinimalReadonlyMap<string, number>;
+    modifiers?: IMap<string, number>;
     charge: number;
 }
 
@@ -58,16 +58,12 @@ export interface VulnerabilityInfo {
 }
 
 export interface TargetVulnerabilities {
-    vulnerabilities: MinimalReadonlyArray<VulnerabilityInfo>;
+    vulnerabilities: IArray<VulnerabilityInfo>;
 }
 
 export interface TacticalSystemInfo extends CrewSystemInfo {
-    vulnerabilitiesByTarget: MinimalReadonlyMap<string, TargetVulnerabilities>;
-    slots: MinimalReadonlyArray<WeaponSlotInfo>;
-}
-
-export interface TacticalSystemClientInfo extends Omit<TacticalSystemInfo, 'vulnerabilitiesByTarget'> {
-    vulnerabilitiesByTarget: Record<string, TargetVulnerabilities>;
+    vulnerabilitiesByTarget: IMap<string, TargetVulnerabilities>;
+    slots: IArray<WeaponSlotInfo>;
 }
 
 export interface ScannedManeuverInfo {
@@ -92,7 +88,7 @@ export interface ScannedHelmInfo extends ScannedBaseInfo {
 }
 
 export interface ScannedTacticalInfo extends ScannedBaseInfo {
-    weaponSlots: MinimalReadonlyArray<ScannedWeaponSlotInfo>;
+    weaponSlots: IArray<ScannedWeaponSlotInfo>;
 }
 
 export interface ScannedScienceInfo extends ScannedBaseInfo {
@@ -100,7 +96,7 @@ export interface ScannedScienceInfo extends ScannedBaseInfo {
 }
 
 export interface ScannedEngineerInfo extends ScannedBaseInfo {
-    engineerTiles: MinimalReadonlyArray<ScannedEngineerTileInfo>;
+    engineerTiles: IArray<ScannedEngineerTileInfo>;
 }
 
 export interface ScienceSystemInfo extends CrewSystemInfo {
@@ -118,12 +114,12 @@ export interface EngineerSystemTileInfo {
     system: ShipSystem;
     power: number;
     health: number;
-    effects: MinimalReadonlyArray<SystemEffectInstance>;
+    effects: IArray<SystemEffectInstance>;
     generating: boolean;
 }
 
 export interface EngineerSystemInfo extends CrewSystemInfo {
-    systems: MinimalReadonlyArray<EngineerSystemTileInfo>;
+    systems: IArray<EngineerSystemTileInfo>;
     repairCapacity: number;
     maxRepairCapacity: number;
 }

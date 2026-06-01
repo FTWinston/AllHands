@@ -1,6 +1,6 @@
+import { IArray } from '@colyseus/react';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'common-data/features/ships/types/SystemEffectDefinition';
-import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { SystemIcon } from 'common-ui/icons/systems';
 import { classNames } from 'common-ui/utils/classNames';
 import { default as HealthIcon } from '../../header/assets/health.svg?react';
@@ -14,7 +14,7 @@ export type SystemInfo = {
     power: number;
     health: number;
     generating: boolean;
-    effects?: MinimalReadonlyArray<SystemEffectInstance>;
+    effects?: IArray<SystemEffectInstance>;
 };
 
 type Props = SystemInfo;

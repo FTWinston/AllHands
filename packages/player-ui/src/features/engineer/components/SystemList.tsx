@@ -1,4 +1,4 @@
-import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
+import { IArray } from '@colyseus/react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
 import { RepairIndicator } from './RepairIndicator';
@@ -6,7 +6,7 @@ import { System, SystemInfo } from './System';
 import styles from './SystemList.module.css';
 
 type Props = {
-    systems: MinimalReadonlyArray<SystemInfo>;
+    systems: IArray<SystemInfo>;
     repairCapacity: number;
     maxRepairCapacity: number;
 };

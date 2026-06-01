@@ -1,11 +1,11 @@
+import { IArray } from '@colyseus/react';
 import { GameObjectInfo, TargetVulnerabilities } from 'common-data/features/space/types/GameObjectInfo';
-import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
 import { TacticalTarget } from './TacticalTarget';
 import styles from './TacticalTargetList.module.css';
 
 type Props = {
-    targets: MinimalReadonlyArray<GameObjectInfo>;
+    targets: IArray<GameObjectInfo>;
     vulnerabilitiesByTarget: Record<string, TargetVulnerabilities>;
     onVisibleTargetChange: (target: GameObjectInfo) => void;
     targetAspect?: number;

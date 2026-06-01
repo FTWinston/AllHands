@@ -1,3 +1,4 @@
+import { Snapshot } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CardBase } from 'common-ui/features/cards/components/CardBase';
@@ -9,7 +10,7 @@ type Props = {
     modifierSlot: CardType | null;
     substanceSlot: CardType | null;
     deliverySlot: CardType | null;
-    deflectorCard: CardInstance | null;
+    deflectorCard: Snapshot<CardInstance> | null;
     availablePower: number;
 };
 

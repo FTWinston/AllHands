@@ -1,7 +1,7 @@
+import { Snapshot, IArray } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps } from 'react';
@@ -14,8 +14,8 @@ import { SystemList } from './SystemList';
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     repair: (system: string) => void;
-    cards: MinimalReadonlyArray<CardInstance>;
-    systems: MinimalReadonlyArray<SystemInfo>;
+    cards: Snapshot<CardInstance[]>;
+    systems: IArray<SystemInfo>;
     repairCapacity: number;
     maxRepairCapacity: number;
 };

@@ -1,9 +1,9 @@
+import { Snapshot } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo, TargetVulnerabilities, WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
-import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
@@ -16,10 +16,10 @@ import { WeaponSlots } from './WeaponSlots';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
-    cards: MinimalReadonlyArray<CardInstance>;
-    slots: MinimalReadonlyArray<WeaponSlotInfo>;
+    cards: Snapshot<CardInstance[]>;
+    slots: Snapshot<WeaponSlotInfo[]>;
     shipMotion: GameObjectInfo['motion'];
-    targets: MinimalReadonlyArray<GameObjectInfo>;
+    targets: Snapshot<GameObjectInfo[]>;
     vulnerabilitiesByTarget: Record<string, TargetVulnerabilities>;
 };
 

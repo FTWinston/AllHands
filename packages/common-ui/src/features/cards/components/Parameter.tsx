@@ -1,11 +1,10 @@
-import { MinimalReadonlyMap } from 'common-data/types/MinimalArray';
 import { FC, createContext, useContext } from 'react';
 import { classNames } from '../../../utils/classNames';
 import styles from './Parameter.module.css';
 
 export const CardParametersContext = createContext<{
     parameters?: Record<string, number | string>;
-    modifiers?: MinimalReadonlyMap<string, number>;
+    modifiers?: Record<string, number>;
 }>({});
 
 type Props = {
@@ -25,7 +24,7 @@ export const Parameter: FC<Props> = ({ name }) => {
         );
     }
 
-    const modifier = modifiers?.get(name) ?? 0;
+    const modifier = modifiers?.[name] ?? 0;
     const value = base + modifier;
 
     let modifierClass: string | undefined;

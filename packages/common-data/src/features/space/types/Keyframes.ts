@@ -1,9 +1,14 @@
-import { MinimalArray, MinimalReadonlyArray } from 'src/types/MinimalArray';
+import { IArray } from '@colyseus/react';
 
 export type Keyframe<T> = Omit<T, 'time'> & {
     time: number;
 };
 
-export type Keyframes<T> = MinimalArray<Keyframe<T>>;
+/**
+ * Like Array<T>, but remove concat and array-returning methods, so it can work with Colyseus ArraySchema.
+ */
+type IEditableArray<T> = Omit<Array<T>, 'concat' | 'reverse' | 'sort' | 'fill' | 'copyWithin'>;
 
-export type ReadonlyKeyframes<T> = MinimalReadonlyArray<Keyframe<T>>;
+export type Keyframes<T> = IEditableArray<Keyframe<T>>;
+
+export type ReadonlyKeyframes<T> = IArray<Keyframe<T>>;

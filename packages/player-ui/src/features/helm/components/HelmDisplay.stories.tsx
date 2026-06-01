@@ -1,9 +1,7 @@
-import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
-import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
 import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
 import { useMemo, useState } from 'react';
@@ -33,7 +31,7 @@ const meta: Meta<typeof Component> = {
     render: (args) => {
         const { cards, expendCard, cardGeneration } = useFakePowerAndCards({
             ...args,
-            cards: args.cards || [] as MinimalReadonlyArray<CardInstance>,
+            cards: args.cards || [],
             createCard: (id: number) => ({
                 id,
                 type: 'slowAndSteady',

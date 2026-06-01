@@ -1,7 +1,7 @@
-import { MinimalReadonlyMap } from 'src/types/MinimalArray';
-import { CardParameters } from '../types/CardParameters';
+import { IMap } from '@colyseus/react';
+import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 
-function applyModifiers(parameters: CardParameters, modifiers: MinimalReadonlyMap<string, number>) {
+function applyModifiers(parameters: CardParameters, modifiers: IMap<string, number>) {
     for (const [key, value] of modifiers) {
         (parameters as Record<string, number>)[key] = (parameters[key] ?? 0) + value;
     }
@@ -9,8 +9,8 @@ function applyModifiers(parameters: CardParameters, modifiers: MinimalReadonlyMa
 
 export function resolveParameters(
     parameters: CardParameters,
-    modifiers?: MinimalReadonlyMap<string, number> | null,
-    additionalModifiers?: MinimalReadonlyMap<string, number> | null
+    modifiers?: IMap<string, number> | null,
+    additionalModifiers?: IMap<string, number> | null
 ): CardParameters {
     if (modifiers && modifiers.size > 0) {
         parameters = { ...parameters };
@@ -30,7 +30,7 @@ export function resolveParameters(
     return parameters;
 }
 
-export function resolveParameter(parameter: string, parameters?: CardParameters, modifiers?: MinimalReadonlyMap<string, number>): number {
+export function resolveParameter(parameter: string, parameters?: CardParameters, modifiers?: IMap<string, number>): number {
     const parameterValue = parameters?.[parameter] ?? 0;
     const modifierValue = modifiers?.get(parameter) ?? 0;
 

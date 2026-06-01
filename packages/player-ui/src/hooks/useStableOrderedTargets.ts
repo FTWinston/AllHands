@@ -1,7 +1,7 @@
-import { GameObjectInfo, ObjectId, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { ObjectId } from 'common-data/features/space/types/GameObjectInfo';
 import { useRef } from 'react';
 
-export function useStableOrderedTargets(objects: Record<string, GameObjectInfo>, localShip: ShipInfo): GameObjectInfo[] {
+export function useStableOrderedTargets<T extends { id: ObjectId }>(objects: Record<string, T>, localShip: T): T[] {
     const insertionOrder = useRef<ObjectId[]>([]);
     const allTargets = Object.values(objects).filter(obj => obj !== localShip);
 

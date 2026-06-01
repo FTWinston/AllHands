@@ -1,7 +1,7 @@
-import { useRoomState } from '@colyseus/react';
+import { Snapshot, useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, ShipInfo, TacticalSystemClientInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, ShipInfo, TacticalSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useCallback } from 'react';
 import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
 import { TacticalDisplay } from './components/TacticalDisplay';
@@ -14,8 +14,8 @@ type Props = {
 };
 
 export const Tactical = (props: Props) => {
-    const objects = useRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
-    const localShip = objects[props.shipId] as ShipInfo;
+    const objects = useRoomState(props.room, state => state.objects) as Record<string, Snapshot<GameObjectInfo>>;
+    const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo>;
     const targets = useStableOrderedTargets(objects, localShip);
 
     const pause = useCallback(() => {
@@ -35,7 +35,7 @@ export const Tactical = (props: Props) => {
         return <div>unable to load</div>;
     }
 
-    const tacticalState = localShip.tacticalState as unknown as TacticalSystemClientInfo;
+    const tacticalState = localShip.tacticalState as unknown as Snapshot<TacticalSystemInfo>;
 
     return (
         <TacticalDisplay

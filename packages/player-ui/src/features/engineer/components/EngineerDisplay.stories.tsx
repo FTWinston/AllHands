@@ -1,6 +1,6 @@
+import { Snapshot } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { Cooldown } from 'common-data/types/Cooldown';
-import { MinimalReadonlyArray } from 'common-data/types/MinimalArray';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fn } from 'storybook/test';
@@ -101,8 +101,8 @@ export const useFakeCardGeneration = (args: UseFakeCardGenerationArgs) => {
 };
 
 type UseFakePowerAndCardsArgs = Omit<UseFakeCardGenerationArgs, 'handSize'> & {
-    cards: MinimalReadonlyArray<CardInstance>;
-    createCard: (id: number) => CardInstance;
+    cards: Snapshot<CardInstance[]>;
+    createCard: (id: number) => Snapshot<CardInstance>;
 };
 
 export const useFakePowerAndCards = (args: UseFakePowerAndCardsArgs) => {
