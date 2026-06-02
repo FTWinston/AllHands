@@ -15,18 +15,20 @@ export function useRoomConnection(
 ) {
     const [connectedRoom, setConnectedRoom] = useState<Room<{ state: GameState }> | null>(null);
     const timeSynchronizer = useRef<TimeSynchronizer | null>(null);
-    const [crewId, setCrewId] = useState<string | null>(null);
-    const [shipId, setShipId] = useState<string | null>(null);
+    const [crewId] = useState<string>(() => new URLSearchParams(window.location.search).get('crew') ?? soloCrewIdentifier);
     const [role, setRole] = useState<CrewRole | null>(null);
     const [ready, setReady] = useState(false);
 
     const gameStatus = useRoomState(connectedRoom ?? emptyRoom, state => state.gameStatus) ?? 'setup';
 
+    // Derive shipId from schema state so it's always in sync with gameStatus (same state patch).
+    // crew.shipId is set permanently when the scenario starts; we return null when not active.
+    const shipId = useRoomState(connectedRoom ?? emptyRoom, state => {
+        if (state?.gameStatus !== 'active') return null;
+        return state.crews?.get(crewId)?.shipId ?? null;
+    }) ?? null;
+
     useEffect(() => {
-        const crewId = new URLSearchParams(window.location.search).get('crew') ?? soloCrewIdentifier;
-
-        setCrewId(crewId);
-
         const wsUrl = `ws://${window.location.hostname}:${window.location.port}`;
         console.log(`connecting to game server at ${wsUrl}..., using crew ID ${crewId}`);
 
@@ -94,7 +96,6 @@ export function useRoomConnection(
 
                 joinedRoom.onMessage<{ shipId: string | null }>('ship', (message) => {
                     console.log(`ship assigned: ${message.shipId}`);
-                    setShipId(message.shipId);
                 });
 
                 joinedRoom.onLeave((code) => {
@@ -111,7 +112,7 @@ export function useRoomConnection(
             timeSynchronizer.current?.stop();
             joinedRoom?.leave();
         };
-    }, [setConnectionState]);
+    }, [setConnectionState, crewId]);
 
     return [connectedRoom, crewId, shipId, role, ready, gameStatus, timeSynchronizer.current] as const;
 }

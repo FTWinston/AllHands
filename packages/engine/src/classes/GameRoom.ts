@@ -567,11 +567,12 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
     startOrResume() {
         console.log(this.state.gameStatus === 'paused' ? 'Game resumed' : 'Game started');
-        this.state.gameStatus = 'active';
 
         for (const crew of this.state.crews.values()) {
             crew.assignToShip(this.state);
         }
+
+        this.state.gameStatus = 'active';
     }
 
     pause() {
@@ -579,7 +580,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         this.state.gameStatus = 'paused';
 
         for (const crew of this.state.crews.values()) {
-            crew.unassignFromShip(this.state);
+            crew.unassignFromShip();
         }
     }
 

@@ -39,7 +39,7 @@ export class PlayerShip extends Ship {
 
         // TODO: do these actually want called? Are we better off leaving the crew assigned to the ship,
         // and letting them view the destroyed ship, then ending the game a short while after?
-        this.crew?.unassignFromShip(this.gameState);
+        this.crew?.unassignFromShip();
         this.crew?.setShip(null);
     }
 }

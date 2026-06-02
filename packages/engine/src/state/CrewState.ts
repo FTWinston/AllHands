@@ -18,6 +18,11 @@ export class CrewState extends Schema {
 
     private clients: ClientArray;
 
+    // Tracks which clients currently have the ship in their view, and under what role.
+    // Used by assignToShip to do same-tick remove→add when a role changes, keeping both
+    // operations in one state patch and avoiding Colyseus 'refId not found' errors.
+    private shipViewRoles = new Map<string, number>(); // clientId → role
+
     setShip(ship: PlayerShip | null) {
         if (ship) {
             ship.crew = this;
@@ -25,6 +30,10 @@ export class CrewState extends Schema {
 
         this.ship = ship;
         this.shipId = ship?.id ?? null;
+
+        if (!ship) {
+            this.shipViewRoles.clear();
+        }
     }
 
     ship: PlayerShip | null = null;
@@ -52,6 +61,7 @@ export class CrewState extends Schema {
     remove(crewClientId: string): void {
         this.crewReady.delete(crewClientId);
         this.unassignRole(crewClientId);
+        this.shipViewRoles.delete(crewClientId);
     }
 
     isUnused() {
@@ -206,30 +216,34 @@ export class CrewState extends Schema {
             throw new Error(`Crew ${this.crewId} has no ship to assign to`);
         }
 
-        const shipClient = this.clients.getById(this.shipClientId);
-        if (shipClient?.view) {
-            shipClient.view.add(this.ship, ownShipClientRole);
+        // Build the desired (clientId → role) mapping from current crew assignments.
+        const newShipViewRoles = new Map<string, number>(
+            ([
+                [this.shipClientId, ownShipClientRole],
+                [this.helmClientId, ownHelmClientRole],
+                [this.tacticalClientId, ownTacticalClientRole],
+                [this.scienceClientId, scienceClientRole],
+                [this.engineerClientId, ownEngineerClientRole],
+            ] as [string, number][]).filter(([clientId]) => !!clientId)
+        );
+
+        // Remove the ship from clients whose role changed or who no longer hold a role.
+        // Doing remove and add in the same call means both land in the same state patch,
+        // so the client sees DELETE + full CREATE rather than a stale delta refId.
+        for (const [clientId, oldRole] of this.shipViewRoles) {
+            if (newShipViewRoles.get(clientId) !== oldRole) {
+                this.clients.getById(clientId)?.view?.remove(this.ship, oldRole);
+            }
         }
 
-        const helmClient = this.clients.getById(this.helmClientId);
-        if (helmClient?.view) {
-            helmClient.view.add(this.ship, ownHelmClientRole);
+        // Add the ship to clients with a new or changed role.
+        for (const [clientId, newRole] of newShipViewRoles) {
+            if (this.shipViewRoles.get(clientId) !== newRole) {
+                this.clients.getById(clientId)?.view?.add(this.ship, newRole);
+            }
         }
 
-        const tacticalClient = this.clients.getById(this.tacticalClientId);
-        if (tacticalClient?.view) {
-            tacticalClient.view.add(this.ship, ownTacticalClientRole);
-        }
-
-        const scienceClient = this.clients.getById(this.scienceClientId);
-        if (scienceClient?.view) {
-            scienceClient.view.add(this.ship, scienceClientRole);
-        }
-
-        const engineerClient = this.clients.getById(this.engineerClientId);
-        if (engineerClient?.view) {
-            engineerClient.view.add(this.ship, ownEngineerClientRole);
-        }
+        this.shipViewRoles = newShipViewRoles;
 
         // Add all game objects to the viewscreen, helm and tactical clients' views.
         for (const object of state.objects.values()) {
@@ -240,43 +254,21 @@ export class CrewState extends Schema {
         this.sendShipMessage(this.ship!.id);
     }
 
-    /** Remove the ship from each client's view, allowing roles to change. */
-    unassignFromShip(state: GameState) {
+    /** Signal clients that the ship is unassigned (pause). Does not touch views.
+     *
+     * The ship is intentionally kept in every client's view during pause to avoid
+     * Colyseus 'refId not found' errors. Those errors occur when an object is removed
+     * from a view in one state patch and then re-added in a later patch: the client
+     * discards the refId tracking on removal, so the subsequent delta is undecodable.
+     *
+     * Role changes during pause are handled atomically in assignToShip on resume —
+     * the old-role remove and the new-role add both land in the same state patch.
+     */
+    unassignFromShip() {
         if (this.ship === null) {
             throw new Error(`Crew ${this.crewId} has no ship to unassign from`);
         }
 
-        const shipClient = this.clients.getById(this.shipClientId);
-        if (shipClient?.view) {
-            shipClient.view.remove(this.ship, ownShipClientRole);
-        }
-
-        const helmClient = this.clients.getById(this.helmClientId);
-        if (helmClient?.view) {
-            helmClient.view.remove(this.ship, ownHelmClientRole);
-        }
-
-        const tacticalClient = this.clients.getById(this.tacticalClientId);
-        if (tacticalClient?.view) {
-            tacticalClient.view.remove(this.ship, ownTacticalClientRole);
-        }
-
-        const scienceClient = this.clients.getById(this.scienceClientId);
-        if (scienceClient?.view) {
-            scienceClient.view.remove(this.ship, scienceClientRole);
-        }
-
-        const engineerClient = this.clients.getById(this.engineerClientId);
-        if (engineerClient?.view) {
-            engineerClient.view.remove(this.ship, ownEngineerClientRole);
-        }
-
-        // Remove all game objects from all client views.
-        for (const object of state.objects.values()) {
-            this.removeObjectFromViews(object);
-        }
-
-        // Notify all clients about the ship unassignment.
         this.sendShipMessage(null);
     }
 
