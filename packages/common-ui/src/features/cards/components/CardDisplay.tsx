@@ -26,6 +26,7 @@ type Props = {
     descriptionLineHeight?: number;
     sufficientPower?: boolean;
     parameters: CardParametersBase;
+    damageType?: string;
     modifiers?: Record<string, number>;
     traits?: Snapshot<CardTrait[]>;
     showTraits?: boolean;
@@ -40,8 +41,12 @@ export const CardDisplay: FC<Props> = (props) => {
         }
     }, []);
 
+    const contextParameters = props.damageType
+        ? { ...props.parameters, damageType: props.damageType }
+        : props.parameters;
+
     return (
-        <CardParametersContext.Provider value={props}>
+        <CardParametersContext.Provider value={{ ...props, parameters: contextParameters }}>
             <CardBase className={classNames(
                 styles.card,
                 crewStyles[props.crew],

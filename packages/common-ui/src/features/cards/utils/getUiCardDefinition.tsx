@@ -23,7 +23,9 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="damage" />
                 {' '}
-                <Parameter name="damageType" /> damage, effective against light to medium targets.
+                <Parameter name="damageType" />
+                {' '}
+                damage, effective against light to medium targets.
             </>,
             image: <ExampleIcon />,
         },
@@ -34,7 +36,9 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="damage" />
                 {' '}
-                <Parameter name="damageType" /> damage that can hit multiple targets in a line.
+                <Parameter name="damageType" />
+                {' '}
+                damage that can hit multiple targets in a line.
             </>,
             image: <ExampleIcon />,
         },
@@ -45,7 +49,9 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="damage" />
                 {' '}
-                <Parameter name="damageType" /> damage, effective against heavily armored targets.
+                <Parameter name="damageType" />
+                {' '}
+                damage, effective against heavily armored targets.
             </>,
             image: <ExampleIcon />,
         },
@@ -56,7 +62,9 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="damage" />
                 {' '}
-                <Parameter name="damageType" /> damage with devastating photonic blasts.
+                <Parameter name="damageType" />
+                {' '}
+                damage with devastating photonic blasts.
             </>,
             image: <ExampleIcon />,
         },
@@ -65,9 +73,11 @@ function loadCardDefinitions() {
             name: 'Quick Charge',
             description: <>
                 Reduce weapon damage by
+                {' '}
                 <Parameter name="damageReduction" />
                 {' '}
                 and charge cost by
+                {' '}
                 <Parameter name="chargeReduction" />
                 .
             </>,
@@ -77,9 +87,11 @@ function loadCardDefinitions() {
             name: 'Heavy Charge',
             description: <>
                 Increase weapon damage by
+                {' '}
                 <Parameter name="damageIncrease" />
                 {' '}
                 but increase charge cost by
+                {' '}
                 <Parameter name="chargeIncrease" />
                 .
             </>,
@@ -89,6 +101,7 @@ function loadCardDefinitions() {
             name: 'Extra Ammo',
             description: <>
                 Add
+                {' '}
                 <Parameter name="extraUses" />
                 {' '}
                 extra uses to the weapon.
@@ -104,9 +117,11 @@ function loadCardDefinitions() {
             name: 'Overcharge',
             description: <>
                 Increase charge capacity by
+                {' '}
                 <Parameter name="capacityIncrease" />
                 {' '}
                 and damage by
+                {' '}
                 <Parameter name="damageMultiplier" />
                 %.
             </>,
@@ -116,6 +131,7 @@ function loadCardDefinitions() {
             name: 'Ionic Surge',
             description: <>
                 If weapon is ion type, increase damage by
+                {' '}
                 <Parameter name="damageMultiplier" />
                 %. Otherwise, change damage type to ion.
             </>,

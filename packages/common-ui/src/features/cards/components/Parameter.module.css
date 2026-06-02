@@ -3,10 +3,10 @@
 }
 
 .increased {
-    color: var(--good-mid);
+    color: var(--good-light);
 }
 
 .decreased {
-    color: var(--danger-mid);
+    color: var(--danger-light);
 }
 

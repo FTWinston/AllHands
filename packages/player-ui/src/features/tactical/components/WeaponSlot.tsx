@@ -16,6 +16,7 @@ import { resolveParameters } from 'common-ui/types/resolveParameters';
 import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { DraggableCard } from 'src/features/cardui/components/DraggableCard';
+import { mergeModifiers } from '../utils/mergeModifiers';
 import styles from './WeaponSlot.module.css';
 
 type Props = Snapshot<WeaponSlotInfo> & {
@@ -23,7 +24,9 @@ type Props = Snapshot<WeaponSlotInfo> & {
 };
 
 function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, fullyCharged: boolean) {
-    if (!props.card || !cardDefinition) {
+    const { card, modifiers, damageType } = props;
+
+    if (!card || !cardDefinition) {
         return (
             <CardDropTarget
                 className={styles.cardWrapper}
@@ -38,7 +41,7 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
     }
 
     // Build display parameters with damageType: resolved from server override or card definition
-    const resolvedDamageType = props.damageType
+    const resolvedDamageType = damageType
         ?? (cardDefinition.targetType === 'weapon-slot' ? cardDefinition.damageType : null);
     const rawParameters = resolvedDamageType
         ? { ...cardDefinition.parameters, damageType: resolvedDamageType }
@@ -47,6 +50,8 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
         Object.entries(rawParameters).filter((entry): entry is [string, number | string] => entry[1] !== null)
     ) as CardParametersBase;
 
+    const mergedModifiers: Record<string, number> = mergeModifiers(card.modifiers, modifiers);
+
     return (
         <>
             <div className={styles.cardWrapper}>
@@ -54,7 +59,7 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
                     {...cardDefinition}
                     parameters={parameters}
                     className={styles.card}
-                    modifiers={props.modifiers}
+                    modifiers={mergedModifiers}
                     slotted={true}
                     highlighted={true}
                 />
@@ -63,7 +68,8 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
                 <DraggableCard
                     index={0}
                     className={classNames(styles.card, styles.actualCard, fullyCharged ? styles.chargedCard : null)}
-                    {...props.card}
+                    {...card}
+                    modifiers={mergedModifiers}
                     availablePower={0}
                     targetType="enemy"
                     slotted={true}
