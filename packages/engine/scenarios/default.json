@@ -35,7 +35,7 @@
         },
         "tactical": {
             "numSlots": 2,
-            "cards": ["phaserStrip", "exampleEnemyTarget", "exampleNoTarget", "phaserCannon", "exampleWeaponTarget", "exampleEnemyTarget", "exampleNoTarget"],
+            "cards": ["phaserStrip", "exampleEnemyTarget", "exampleNoTarget", "phaserCannon", "quickCharge", "heavyCharge", "extraAmmo"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1,

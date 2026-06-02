@@ -1,4 +1,5 @@
 import { CrewRoleName } from '../../ships/types/CrewRole';
+import { DamageType } from '../../space/types/Damage';
 import { CardType } from '../utils/cardDefinitions';
 import { CardParameters } from './CardParameters';
 import { CardTargetType } from './CardTargetType';
@@ -22,6 +23,7 @@ export type ChoiceCardDefinition<TCardKey extends string = CardType> = CommonCar
 
 export type WeaponSlotTargetCardDefinition = CommonCardDefinition & {
     targetType: 'weapon-slot';
+    damageType: DamageType;
     parameters: CardParameters & {
         chargeCost: number;
         maxRange: number;

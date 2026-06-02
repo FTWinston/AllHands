@@ -18,28 +18,143 @@ function loadCardDefinitions() {
         },
         phaserCannon: {
             name: 'Phaser Cannon',
-            description: 'A standard phaser cannon effective against light to medium targets.',
+            description: <>
+                A standard phaser cannon dealing
+                {' '}
+                <Parameter name="damage" />
+                {' '}
+                <Parameter name="damageType" />
+                {' '}
+                damage, effective against light to medium targets.
+            </>,
             image: <ExampleIcon />,
         },
         phaserStrip: {
             name: 'Phaser Strip',
-            description: 'A wide-area phaser strip that can hit multiple targets in a line.',
+            description: <>
+                A wide-area phaser strip dealing
+                {' '}
+                <Parameter name="damage" />
+                {' '}
+                <Parameter name="damageType" />
+                {' '}
+                damage that can hit multiple targets in a line.
+            </>,
             image: <ExampleIcon />,
         },
         photonTorpedo: {
             name: 'Photon Torpedo',
-            description: 'A high-yield photon torpedo effective against heavily armored targets.',
+            description: <>
+                A high-yield photon torpedo dealing
+                {' '}
+                <Parameter name="damage" />
+                {' '}
+                <Parameter name="damageType" />
+                {' '}
+                damage, effective against heavily armored targets.
+            </>,
             image: <ExampleIcon />,
         },
         photonicCannon: {
             name: 'Photonic Cannon',
-            description: 'An advanced energy weapon that delivers devastating photonic blasts.',
+            description: <>
+                An advanced energy weapon dealing
+                {' '}
+                <Parameter name="damage" />
+                {' '}
+                <Parameter name="damageType" />
+                {' '}
+                damage with devastating photonic blasts.
+            </>,
             image: <ExampleIcon />,
         },
 
-        exampleWeaponTarget: {
-            name: 'Some Card with a longer title',
-            description: 'A card that has a particular effect, for a particular crew role.',
+        quickCharge: {
+            name: 'Quick Charge',
+            description: <>
+                Reduce weapon damage by
+                {' '}
+                <Parameter name="damageReduction" />
+                {' '}
+                and charge cost by
+                {' '}
+                <Parameter name="chargeReduction" />
+                .
+            </>,
+            image: <ExampleIcon />,
+        },
+        heavyCharge: {
+            name: 'Heavy Charge',
+            description: <>
+                Increase weapon damage by
+                {' '}
+                <Parameter name="damageIncrease" />
+                {' '}
+                but increase charge cost by
+                {' '}
+                <Parameter name="chargeIncrease" />
+                .
+            </>,
+            image: <ExampleIcon />,
+        },
+        extraAmmo: {
+            name: 'Extra Ammo',
+            description: <>
+                Add
+                {' '}
+                <Parameter name="extraUses" />
+                {' '}
+                extra uses to the weapon.
+            </>,
+            image: <ExampleIcon />,
+        },
+        chargeX: {
+            name: 'Charge X',
+            description: 'Charges the weapon by the current tactical system energy level.',
+            image: <ExampleIcon />,
+        },
+        weaponOvercharge: {
+            name: 'Overcharge',
+            description: <>
+                Increase charge capacity by
+                {' '}
+                <Parameter name="capacityIncrease" />
+                {' '}
+                and damage by
+                {' '}
+                <Parameter name="damageMultiplier" />
+                %.
+            </>,
+            image: <ExampleIcon />,
+        },
+        ionicSurge: {
+            name: 'Ionic Surge',
+            description: <>
+                If weapon is ion type, increase damage by
+                {' '}
+                <Parameter name="damageMultiplier" />
+                %. Otherwise, change damage type to ion.
+            </>,
+            image: <ExampleIcon />,
+        },
+        adaptWeapon: {
+            name: 'Adapt Weapon',
+            description: 'Choose a damage type to convert the weapon to.',
+            image: <ExampleIcon />,
+        },
+        ionConversion: {
+            name: 'Ion Conversion',
+            description: "Convert the weapon's damage type to ion.",
+            image: <ExampleIcon />,
+        },
+        plasmaConversion: {
+            name: 'Plasma Conversion',
+            description: 'Convert the weapon\'s damage type to plasma.',
+            image: <ExampleIcon />,
+        },
+        disruptorConversion: {
+            name: 'Disruptor Conversion',
+            description: 'Convert the weapon\'s damage type to disruptor.',
             image: <ExampleIcon />,
         },
         exampleEnemyTarget: {

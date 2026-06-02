@@ -17,7 +17,7 @@ export const Helm: Story = {
 
 export const Tactical: Story = {
     args: {
-        type: 'exampleWeaponTarget',
+        type: 'quickCharge',
     },
 };
 

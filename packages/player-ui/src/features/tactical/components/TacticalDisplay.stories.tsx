@@ -39,7 +39,7 @@ const meta: Meta<typeof Component> = {
                     case 1:
                         return {
                             id,
-                            type: 'exampleWeaponTarget',
+                            type: 'quickCharge',
                         };
                     default:
                         return {
@@ -102,7 +102,7 @@ export const UI: Story = {
             },
             {
                 id: 2,
-                type: 'exampleWeaponTarget',
+                type: 'quickCharge',
             },
             {
                 id: 3,

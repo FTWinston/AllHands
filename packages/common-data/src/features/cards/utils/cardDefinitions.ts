@@ -21,6 +21,7 @@ export const cardDefinitions = defineCardDefinitions({
     phaserCannon: {
         targetType: 'weapon-slot',
         crew: 'tactical',
+        damageType: 'coherent',
         parameters: {
             cost: 2,
             chargeCost: 5,
@@ -33,6 +34,7 @@ export const cardDefinitions = defineCardDefinitions({
     phaserStrip: {
         targetType: 'weapon-slot',
         crew: 'tactical',
+        damageType: 'coherent',
         parameters: {
             cost: 4,
             chargeCost: 3,
@@ -45,6 +47,7 @@ export const cardDefinitions = defineCardDefinitions({
     photonTorpedo: {
         targetType: 'weapon-slot',
         crew: 'tactical',
+        damageType: 'antimatter',
         parameters: {
             cost: 3,
             chargeCost: 4,
@@ -57,6 +60,7 @@ export const cardDefinitions = defineCardDefinitions({
     photonicCannon: {
         targetType: 'weapon-slot',
         crew: 'tactical',
+        damageType: 'coherent',
         parameters: {
             cost: 5,
             chargeCost: 6,
@@ -67,10 +71,56 @@ export const cardDefinitions = defineCardDefinitions({
         },
     },
 
-    exampleWeaponTarget: {
+    quickCharge: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 1, damageReduction: 5, chargeReduction: 2 },
+    },
+    heavyCharge: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 2, damageIncrease: 10, chargeIncrease: 2 },
+    },
+    extraAmmo: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 2, extraUses: 1 },
+    },
+    chargeX: {
         targetType: 'weapon',
         crew: 'tactical',
         parameters: { cost: 1 },
+    },
+    weaponOvercharge: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 4, charge: 2, capacityIncrease: 3, damageMultiplier: 50 },
+    },
+    ionicSurge: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 3, charge: 1, damageMultiplier: 50 },
+    },
+    adaptWeapon: {
+        targetType: 'choice',
+        crew: 'tactical',
+        cards: ['ionConversion', 'plasmaConversion', 'disruptorConversion'],
+        parameters: { cost: 3 },
+    },
+    ionConversion: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 3 },
+    },
+    plasmaConversion: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 3 },
+    },
+    disruptorConversion: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        parameters: { cost: 3 },
     },
     exampleEnemyTarget: {
         targetType: 'enemy',

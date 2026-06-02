@@ -143,7 +143,7 @@ export const Five: Story = {
             },
             {
                 id: 5,
-                type: 'exampleWeaponTarget',
+                type: 'quickCharge',
             },
         ],
     },
@@ -170,7 +170,7 @@ export const Nine: Story = {
             },
             {
                 id: 5,
-                type: 'exampleWeaponTarget',
+                type: 'quickCharge',
             },
             {
                 id: 6,
