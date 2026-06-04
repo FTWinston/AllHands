@@ -27,8 +27,10 @@ export const Science: Story = {
     },
 };
 
-export const Engineering: Story = {
+export const HighlightedHelm: Story = {
     args: {
-        type: 'auxPower',
+        type: 'slowAndSteady',
+        highlighted: true,
     },
 };
+
