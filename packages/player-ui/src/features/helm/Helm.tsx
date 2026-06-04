@@ -2,6 +2,7 @@ import { Snapshot, useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { useCallback } from 'react';
 import { HelmDisplay } from './components/HelmDisplay';
 import type { Room } from '@colyseus/sdk';
@@ -15,6 +16,7 @@ type Props = {
 export const Helm = (props: Props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, Snapshot<GameObjectInfo>>;
     const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo>;
+    const weaponEffectsRef = useWeaponEffects(props.room);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -52,6 +54,7 @@ export const Helm = (props: Props) => {
             cardGeneration={helmState.cardGeneration}
             cancelManeuver={cancelManeuver}
             activeManeuver={helmState.activeManeuver}
+            weaponEffectsRef={weaponEffectsRef}
         />
     );
 };
