@@ -542,481 +542,481 @@ function loadCardDefinitions() {
         deflectorPhasedAntiprotonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Antiproton Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedAntiprotonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Antiproton Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedAntiprotonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Antiproton Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedAntiprotonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Antiproton Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedTetryonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Tetryon Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedTetryonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Tetryon Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedTetryonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Tetryon Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedTetryonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Tetryon Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedChronitonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Chroniton Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedChronitonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Chroniton Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedChronitonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Chroniton Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedChronitonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Chroniton Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedGravitonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Graviton Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedGravitonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Graviton Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedGravitonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Graviton Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedGravitonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Graviton Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedPolaronBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Polaron Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedPolaronPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Polaron Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedPolaronBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Polaron Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorPhasedPolaronWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Polaron Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentAntiprotonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Antiproton Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentAntiprotonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Antiproton Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentAntiprotonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Antiproton Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentAntiprotonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Antiproton Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentTetryonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Tetryon Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentTetryonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Tetryon Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentTetryonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Tetryon Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentTetryonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Tetryon Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentChronitonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Chroniton Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentChronitonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Chroniton Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentChronitonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Chroniton Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentChronitonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Chroniton Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentGravitonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Graviton Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentGravitonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Graviton Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentGravitonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Graviton Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentGravitonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Graviton Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentPolaronBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Polaron Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentPolaronPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Polaron Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentPolaronBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Polaron Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorCoherentPolaronWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Polaron Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedAntiprotonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Antiproton Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedAntiprotonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Antiproton Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedAntiprotonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Antiproton Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedAntiprotonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Antiproton Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedTetryonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Tetryon Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedTetryonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Tetryon Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedTetryonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Tetryon Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedTetryonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Tetryon Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedChronitonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Chroniton Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedChronitonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Chroniton Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedChronitonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Chroniton Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedChronitonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Chroniton Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedGravitonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Graviton Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedGravitonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Graviton Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedGravitonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Graviton Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedGravitonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Graviton Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedPolaronBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Polaron Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedPolaronPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Polaron Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedPolaronBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Polaron Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorInvertedPolaronWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Polaron Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedAntiprotonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Antiproton Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedAntiprotonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Antiproton Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedAntiprotonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Antiproton Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedAntiprotonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Antiproton Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedTetryonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Tetryon Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedTetryonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Tetryon Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedTetryonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Tetryon Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedTetryonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Tetryon Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedChronitonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Chroniton Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedChronitonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Chroniton Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedChronitonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Chroniton Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedChronitonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Chroniton Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedGravitonBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Graviton Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedGravitonPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Graviton Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedGravitonBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Graviton Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedGravitonWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Graviton Wave deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedPolaronBeam: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Polaron Beam deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedPolaronPulse: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Polaron Pulse deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedPolaronBurst: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Polaron Burst deflector effect
-                return false;
+                return true;
             },
         },
         deflectorModulatedPolaronWave: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Polaron Wave deflector effect
-                return false;
+                return true;
             },
         },
     };

@@ -380,7 +380,6 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             delivery = 'Wave';
         }
 
-        // TODO: implement all the card types so this can be used
         return `deflector${modifier}${substance}${delivery}` as EnemyTargetedCardType;
     }
 }
