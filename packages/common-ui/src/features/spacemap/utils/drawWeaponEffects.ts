@@ -2,17 +2,23 @@ import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo'
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
 
+/** Default forward projection distance for untargeted beam effects, in world units. */
+const BEAM_FORWARD_DISTANCE = 5;
+/** Default forward projection distance for untargeted torpedo effects, in world units. */
+const TORPEDO_FORWARD_DISTANCE = 15;
+/** Fraction of torpedo travel to show as a trail behind the projectile. */
+const TORPEDO_TRAIL_LENGTH = 0.06;
+
 /**
- * Remove expired effects from the array and return it.
+ * Remove expired effects from the array in place.
  */
-function pruneEffects(effects: WeaponEffect[], currentTime: number): WeaponEffect[] {
+function pruneEffects(effects: WeaponEffect[], currentTime: number): void {
     for (let i = effects.length - 1; i >= 0; i--) {
         const effect = effects[i];
         if (currentTime > effect.startTime + effect.duration) {
             effects.splice(i, 1);
         }
     }
-    return effects;
 }
 
 /**
@@ -56,7 +62,7 @@ function drawBeam(
         targetX = targetPos.x;
         targetY = targetPos.y;
     } else {
-        const forward = getForwardPosition(sourcePos, 5);
+        const forward = getForwardPosition(sourcePos, BEAM_FORWARD_DISTANCE);
         targetX = forward.x;
         targetY = forward.y;
     }
@@ -142,7 +148,7 @@ function drawTorpedo(
         targetX = targetPos.x;
         targetY = targetPos.y;
     } else {
-        const forward = getForwardPosition(sourcePos, 15);
+        const forward = getForwardPosition(sourcePos, TORPEDO_FORWARD_DISTANCE);
         targetX = forward.x;
         targetY = forward.y;
     }
@@ -187,8 +193,7 @@ function drawTorpedo(
         ctx.fill();
 
         // Trail
-        const trailLength = 0.06;
-        const trailStartProgress = Math.max(0, progress - trailLength);
+        const trailStartProgress = Math.max(0, progress - TORPEDO_TRAIL_LENGTH);
         const trailStartX = sourcePos.x + (targetX - sourcePos.x) * trailStartProgress;
         const trailStartY = sourcePos.y + (targetY - sourcePos.y) * trailStartProgress;
 
@@ -302,9 +307,9 @@ export function drawWeaponEffects(
     pixelSize: number,
     minimal: boolean
 ) {
-    const activeEffects = pruneEffects(effects, currentTime);
+    pruneEffects(effects, currentTime);
 
-    for (const effect of activeEffects) {
+    for (const effect of effects) {
         switch (effect.type) {
             case 'beam':
                 drawBeam(ctx, effect, objects, currentTime, pixelSize, minimal);
