@@ -156,7 +156,7 @@ function loadCardDefinitions() {
                 }
 
                 gameState.broadcastWeaponEffect({
-                    type: 'torpedo',
+                    type: 'projectile',
                     sourceId: ship.id,
                     targetId: target.id,
                     color: '#00ccff',

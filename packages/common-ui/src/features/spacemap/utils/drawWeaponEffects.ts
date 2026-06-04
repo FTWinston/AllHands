@@ -4,10 +4,10 @@ import { interpolatePosition } from 'common-data/features/space/utils/interpolat
 
 /** Default forward projection distance for untargeted beam effects, in world units. */
 const BEAM_FORWARD_DISTANCE = 5;
-/** Default forward projection distance for untargeted torpedo effects, in world units. */
-const TORPEDO_FORWARD_DISTANCE = 15;
-/** Fraction of torpedo travel to show as a trail behind the projectile. */
-const TORPEDO_TRAIL_LENGTH = 0.06;
+/** Default forward projection distance for untargeted projectile effects, in world units. */
+const PROJECTILE_FORWARD_DISTANCE = 15;
+/** Fraction of projectile travel to show as a trail behind the projectile. */
+const PROJECTILE_TRAIL_LENGTH = 0.06;
 
 /**
  * Remove expired effects from the array in place.
@@ -127,9 +127,9 @@ function drawBeam(
 }
 
 /**
- * Draw a torpedo effect — a moving dot from source to target.
+ * Draw a projectile effect — a moving dot from source to target.
  */
-function drawTorpedo(
+function drawProjectile(
     ctx: CanvasRenderingContext2D,
     effect: WeaponEffect,
     objects: Record<string, GameObjectInfo>,
@@ -148,14 +148,14 @@ function drawTorpedo(
         targetX = targetPos.x;
         targetY = targetPos.y;
     } else {
-        const forward = getForwardPosition(sourcePos, TORPEDO_FORWARD_DISTANCE);
+        const forward = getForwardPosition(sourcePos, PROJECTILE_FORWARD_DISTANCE);
         targetX = forward.x;
         targetY = forward.y;
     }
 
     const progress = getProgress(effect, currentTime);
 
-    // Torpedo travels from source to target
+    // Projectile travels from source to target
     const x = sourcePos.x + (targetX - sourcePos.x) * progress;
     const y = sourcePos.y + (targetY - sourcePos.y) * progress;
     const radius = effect.thickness;
@@ -193,7 +193,7 @@ function drawTorpedo(
         ctx.fill();
 
         // Trail
-        const trailStartProgress = Math.max(0, progress - TORPEDO_TRAIL_LENGTH);
+        const trailStartProgress = Math.max(0, progress - PROJECTILE_TRAIL_LENGTH);
         const trailStartX = sourcePos.x + (targetX - sourcePos.x) * trailStartProgress;
         const trailStartY = sourcePos.y + (targetY - sourcePos.y) * trailStartProgress;
 
@@ -314,8 +314,8 @@ export function drawWeaponEffects(
             case 'beam':
                 drawBeam(ctx, effect, objects, currentTime, pixelSize, minimal);
                 break;
-            case 'torpedo':
-                drawTorpedo(ctx, effect, objects, currentTime, pixelSize, minimal);
+            case 'projectile':
+                drawProjectile(ctx, effect, objects, currentTime, pixelSize, minimal);
                 break;
             case 'explosion':
                 drawExplosion(ctx, effect, objects, currentTime, pixelSize, minimal);

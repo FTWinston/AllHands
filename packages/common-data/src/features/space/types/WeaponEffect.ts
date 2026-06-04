@@ -1,7 +1,7 @@
 import { ObjectId } from './GameObjectInfo';
 
 /** The visual type of weapon effect to display. */
-export type WeaponEffectType = 'beam' | 'torpedo' | 'explosion';
+export type WeaponEffectType = 'beam' | 'projectile' | 'explosion';
 
 /** A weapon effect to be displayed on SpaceMap clients. */
 export interface WeaponEffect {
