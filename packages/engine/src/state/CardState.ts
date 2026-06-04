@@ -17,6 +17,7 @@ export class CardState extends Schema implements CardInstance {
     @type('number') readonly id: number;
     @type('string') readonly type: CardType;
     @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
+    @type('boolean') highlighted: boolean = false;
 
     getParameters(additionalModifiers?: IMap<string, number> | null): CardParameters {
         const definition = getCardDefinition(this.type);
