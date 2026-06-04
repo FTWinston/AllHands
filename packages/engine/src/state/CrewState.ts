@@ -297,12 +297,10 @@ export class CrewState extends Schema {
             return;
         }
 
-        const clientIds = [this.shipClientId, this.helmClientId];
-        for (const clientId of clientIds) {
-            if (clientId) {
-                const client = this.clients.getById(clientId);
-                client?.send('weaponEffect', effect);
-            }
-        }
+        this.clients.getById(this.shipClientId)
+            ?.send('weaponEffect', effect);
+
+        this.clients.getById(this.helmClientId)
+            ?.send('weaponEffect', effect);
     }
 }

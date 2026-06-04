@@ -1,5 +1,8 @@
 import type { Preview } from '@storybook/react-vite';
+import { TimeProviderContext } from '../packages/common-ui/src/contexts/TimeProviderContext';
 import '../packages/common-ui/src/baseline';
+
+const timeProvider = { getServerTime: () => Date.now() };
 
 const preview: Preview = {
     parameters: {
@@ -17,6 +20,14 @@ const preview: Preview = {
             test: 'todo',
         },
     },
+
+    decorators: [
+        Story => (
+            <TimeProviderContext.Provider value={timeProvider}>
+                <Story />
+            </TimeProviderContext.Provider>
+        ),
+    ],
 };
 
 export default preview;

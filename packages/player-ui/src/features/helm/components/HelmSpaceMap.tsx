@@ -14,7 +14,7 @@ import { drawWeaponEffects } from 'common-ui/features/spacemap/utils/drawWeaponE
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
 import { classNames } from 'common-ui/utils/classNames';
-import { MutableRefObject, useCallback, useRef, useState } from 'react';
+import { RefObject, useCallback, useRef, useState } from 'react';
 import { useActiveCard, useOverTargetId } from 'src/features/cardui/components/DragCardProvider';
 import { useVisibilityAnimation } from 'src/hooks/useVisibilityAnimation';
 import { useFreezeVector } from '../hooks/useFreezeVector';
@@ -28,7 +28,7 @@ type Props = {
     objects: Record<string, GameObjectInfo>;
     activeManeuver?: CardCooldown | null;
     cancelManeuver: () => void;
-    weaponEffectsRef: MutableRefObject<WeaponEffect[]>;
+    weaponEffectsRef: RefObject<WeaponEffect[]>;
 };
 
 // Base cell radius in pixels for both SpaceMap and SpaceCells

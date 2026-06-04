@@ -1,5 +1,4 @@
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
-import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
@@ -7,21 +6,12 @@ import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.
 import { TacticalDisplay as Component } from './TacticalDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-const timeProvider = { getServerTime: () => Date.now() };
-
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Tactical/UI',
     component: Component,
     parameters: {
         layout: 'fullscreen',
     },
-    decorators: [
-        Story => (
-            <TimeProviderContext.Provider value={timeProvider}>
-                <Story />
-            </TimeProviderContext.Provider>
-        ),
-    ],
     args: {
         onPause: fn(),
     },
