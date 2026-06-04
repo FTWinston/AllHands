@@ -13,6 +13,7 @@ import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEff
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from '../state/CooldownState';
+import { Ship } from '../state/Ship';
 import { EngineerSystemTile } from '../state/systems/engineer/EngineerSystemTile';
 import { applyMotionCard } from './applyMotionCard';
 import {
@@ -89,34 +90,110 @@ function loadCardDefinitions() {
         },
         phaserCannon: {
             load: (_gameState, _ship, _slot) => {
-                console.log('played phaserCannon'); return true;
+                return true;
             },
-            fire: (_gameState, _ship, _target, _parameters) => {
-                console.log('fired phaserCannon'); return true;
+            fire: (gameState, ship, target, parameters) => {
+                if (target instanceof Ship) {
+                    target.damage({
+                        amount: parameters.damage ?? 20,
+                        damageType: 'coherent',
+                        deliveryMethod: 'beam',
+                    });
+                }
+
+                gameState.broadcastWeaponEffect({
+                    type: 'beam',
+                    sourceId: ship.id,
+                    targetId: target.id,
+                    color: '#ff4400',
+                    thickness: 0.15,
+                    brightness: 1.5,
+                    duration: 600,
+                    startTime: gameState.currentTime,
+                });
+
+                return true;
             },
         },
         phaserStrip: {
             load: (_gameState, _ship, _slot) => {
-                console.log('played phaserStrip'); return true;
+                return true;
             },
-            fire: (_gameState, _ship, _target, _parameters) => {
-                console.log('fired phaserStrip'); return true;
+            fire: (gameState, ship, target, parameters) => {
+                if (target instanceof Ship) {
+                    target.damage({
+                        amount: parameters.damage ?? 10,
+                        damageType: 'coherent',
+                        deliveryMethod: 'beam',
+                    });
+                }
+
+                gameState.broadcastWeaponEffect({
+                    type: 'beam',
+                    sourceId: ship.id,
+                    targetId: target.id,
+                    color: '#ff8800',
+                    thickness: 0.1,
+                    brightness: 1.2,
+                    duration: 800,
+                    startTime: gameState.currentTime,
+                });
+
+                return true;
             },
         },
         photonTorpedo: {
             load: (_gameState, _ship, _slot) => {
-                console.log('played photonTorpedo'); return true;
+                return true;
             },
-            fire: (_gameState, _ship, _target, _parameters) => {
-                console.log('fired photonTorpedo'); return true;
+            fire: (gameState, ship, target, parameters) => {
+                if (target instanceof Ship) {
+                    target.damage({
+                        amount: parameters.damage ?? 40,
+                        damageType: 'antimatter',
+                        deliveryMethod: 'projectile',
+                    });
+                }
+
+                gameState.broadcastWeaponEffect({
+                    type: 'torpedo',
+                    sourceId: ship.id,
+                    targetId: target.id,
+                    color: '#00ccff',
+                    thickness: 0.2,
+                    brightness: 2,
+                    duration: 1200,
+                    startTime: gameState.currentTime,
+                });
+
+                return true;
             },
         },
         photonicCannon: {
             load: (_gameState, _ship, _slot) => {
-                console.log('played photonicCannon'); return true;
+                return true;
             },
-            fire: (_gameState, _ship, _target, _parameters) => {
-                console.log('fired photonicCannon'); return true;
+            fire: (gameState, ship, target, parameters) => {
+                if (target instanceof Ship) {
+                    target.damage({
+                        amount: parameters.damage ?? 60,
+                        damageType: 'coherent',
+                        deliveryMethod: 'beam',
+                    });
+                }
+
+                gameState.broadcastWeaponEffect({
+                    type: 'beam',
+                    sourceId: ship.id,
+                    targetId: target.id,
+                    color: '#ffcc00',
+                    thickness: 0.25,
+                    brightness: 2,
+                    duration: 1000,
+                    startTime: gameState.currentTime,
+                });
+
+                return true;
             },
         },
 
