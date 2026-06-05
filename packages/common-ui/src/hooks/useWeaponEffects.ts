@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 
 /**
  * Listen for weapon effect messages from the server and maintain a list of active effects.
- * Expired effects are pruned each time a new effect arrives or when read.
+ * Expired effects are not pruned here: they're pruned in drawWeaponEffects.
  */
 export function useWeaponEffects(room: Room | null) {
     const effectsRef = useRef<WeaponEffect[]>([]);

@@ -10,13 +10,13 @@ import { drawWeaponEffects } from 'common-ui/features/spacemap/utils/drawWeaponE
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
 import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
-import { FC, MutableRefObject, PropsWithChildren, useCallback, useRef } from 'react';
+import { FC, RefObject, PropsWithChildren, useCallback, useRef } from 'react';
 import styles from './ViewscreenDisplay.module.css';
 
 type Props = PropsWithChildren<{
     center: ReadonlyKeyframes<Vector2D>;
     objects: Record<string, GameObjectInfo>;
-    weaponEffectsRef: MutableRefObject<WeaponEffect[]>;
+    weaponEffectsRef: RefObject<WeaponEffect[]>;
     showMenu: () => void;
 }>;
 

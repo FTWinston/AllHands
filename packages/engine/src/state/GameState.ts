@@ -1,8 +1,8 @@
 import { Schema, type, MapSchema, view } from '@colyseus/schema';
 import { ClockTimer } from '@colyseus/timer';
 import { Random } from 'common-data/classes/Random';
-import { IRandom } from 'common-data/types/IRandom';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
+import { IRandom } from 'common-data/types/IRandom';
 import { IdProvider } from 'src/types/IdProvider';
 import { GameStatus } from '../types/GameStatus';
 import { CrewState } from './CrewState';
@@ -73,7 +73,6 @@ export class GameState extends Schema {
 
     /**
      * Send a weapon effect message to all crews that have visibility of the source object.
-     * This includes crews whose own ship is the source, and crews whose ship can see the source.
      */
     public broadcastWeaponEffect(effect: WeaponEffect) {
         for (const crew of this.crews.values()) {

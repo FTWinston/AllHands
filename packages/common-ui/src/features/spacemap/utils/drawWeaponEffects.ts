@@ -1,4 +1,6 @@
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { Position } from 'common-data/features/space/types/Position';
+import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
 
@@ -8,18 +10,6 @@ const BEAM_FORWARD_DISTANCE = 5;
 const PROJECTILE_FORWARD_DISTANCE = 15;
 /** Fraction of projectile travel to show as a trail behind the projectile. */
 const PROJECTILE_TRAIL_LENGTH = 0.06;
-
-/**
- * Remove expired effects from the array in place.
- */
-function pruneEffects(effects: WeaponEffect[], currentTime: number): void {
-    for (let i = effects.length - 1; i >= 0; i--) {
-        const effect = effects[i];
-        if (currentTime > effect.startTime + effect.duration) {
-            effects.splice(i, 1);
-        }
-    }
-}
 
 /**
  * Get the progress of an effect (0 = just started, 1 = about to end).
@@ -33,7 +23,7 @@ function getProgress(effect: WeaponEffect, currentTime: number): number {
  * Calculate the forward-projected position for an untargeted effect.
  * Projects a fixed distance ahead of the source object in its facing direction.
  */
-function getForwardPosition(sourcePos: { x: number; y: number; angle: number }, distance: number) {
+function projectForward(sourcePos: Position, distance: number): Vector2D {
     return {
         x: sourcePos.x + Math.cos(sourcePos.angle) * distance,
         y: sourcePos.y - Math.sin(sourcePos.angle) * distance,
@@ -62,7 +52,7 @@ function drawBeam(
         targetX = targetPos.x;
         targetY = targetPos.y;
     } else {
-        const forward = getForwardPosition(sourcePos, BEAM_FORWARD_DISTANCE);
+        const forward = projectForward(sourcePos, BEAM_FORWARD_DISTANCE);
         targetX = forward.x;
         targetY = forward.y;
     }
@@ -148,7 +138,7 @@ function drawProjectile(
         targetX = targetPos.x;
         targetY = targetPos.y;
     } else {
-        const forward = getForwardPosition(sourcePos, PROJECTILE_FORWARD_DISTANCE);
+        const forward = projectForward(sourcePos, PROJECTILE_FORWARD_DISTANCE);
         targetX = forward.x;
         targetY = forward.y;
     }
@@ -290,6 +280,7 @@ function drawExplosion(
 
 /**
  * Draw all active weapon effects onto the canvas.
+ * Also prunes expired effects.
  * Call this as a `drawExtraForeground` callback on SpaceMap.
  *
  * @param ctx - Canvas context, already in world coordinates
@@ -307,9 +298,13 @@ export function drawWeaponEffects(
     pixelSize: number,
     minimal: boolean
 ) {
-    pruneEffects(effects, currentTime);
+    for (let i = effects.length - 1; i >= 0; i--) {
+        const effect = effects[i];
+        if (currentTime > effect.startTime + effect.duration) {
+            effects.splice(i, 1);
+            continue;
+        }
 
-    for (const effect of effects) {
         switch (effect.type) {
             case 'beam':
                 drawBeam(ctx, effect, objects, currentTime, pixelSize, minimal);

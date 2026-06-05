@@ -93,9 +93,9 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters) => {
-                if (target instanceof Ship) {
+                if (target instanceof Ship && parameters.damage) {
                     target.damage({
-                        amount: parameters.damage ?? 20,
+                        amount: parameters.damage,
                         damageType: 'coherent',
                         deliveryMethod: 'beam',
                     });
@@ -120,9 +120,9 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters) => {
-                if (target instanceof Ship) {
+                if (target instanceof Ship && parameters.damage) {
                     target.damage({
-                        amount: parameters.damage ?? 10,
+                        amount: parameters.damage,
                         damageType: 'coherent',
                         deliveryMethod: 'beam',
                     });
@@ -147,9 +147,9 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters) => {
-                if (target instanceof Ship) {
+                if (target instanceof Ship && parameters.damage) {
                     target.damage({
-                        amount: parameters.damage ?? 40,
+                        amount: parameters.damage,
                         damageType: 'antimatter',
                         deliveryMethod: 'projectile',
                     });
@@ -174,9 +174,9 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters) => {
-                if (target instanceof Ship) {
+                if (target instanceof Ship && parameters.damage) {
                     target.damage({
-                        amount: parameters.damage ?? 60,
+                        amount: parameters.damage,
                         damageType: 'coherent',
                         deliveryMethod: 'beam',
                     });
