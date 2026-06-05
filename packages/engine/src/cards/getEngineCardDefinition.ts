@@ -13,7 +13,6 @@ import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEff
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from '../state/CooldownState';
-import { Ship } from '../state/Ship';
 import { EngineerSystemTile } from '../state/systems/engineer/EngineerSystemTile';
 import { applyMotionCard } from './applyMotionCard';
 import {
@@ -93,7 +92,7 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters) => {
-                if (target instanceof Ship && parameters.damage) {
+                if (target && parameters.damage) {
                     target.damage({
                         amount: parameters.damage,
                         damageType: 'coherent',
@@ -104,7 +103,7 @@ function loadCardDefinitions() {
                 gameState.broadcastWeaponEffect({
                     type: 'beam',
                     sourceId: ship.id,
-                    targetId: target.id,
+                    targetId: target?.id,
                     color: '#ff4400',
                     thickness: 0.15,
                     brightness: 1.5,
@@ -120,7 +119,7 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters) => {
-                if (target instanceof Ship && parameters.damage) {
+                if (target && parameters.damage) {
                     target.damage({
                         amount: parameters.damage,
                         damageType: 'coherent',
@@ -131,7 +130,7 @@ function loadCardDefinitions() {
                 gameState.broadcastWeaponEffect({
                     type: 'beam',
                     sourceId: ship.id,
-                    targetId: target.id,
+                    targetId: target?.id,
                     color: '#ff8800',
                     thickness: 0.1,
                     brightness: 1.2,
@@ -147,7 +146,7 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters) => {
-                if (target instanceof Ship && parameters.damage) {
+                if (target && parameters.damage) {
                     target.damage({
                         amount: parameters.damage,
                         damageType: 'antimatter',
@@ -158,7 +157,7 @@ function loadCardDefinitions() {
                 gameState.broadcastWeaponEffect({
                     type: 'projectile',
                     sourceId: ship.id,
-                    targetId: target.id,
+                    targetId: target?.id,
                     color: '#00ccff',
                     thickness: 0.2,
                     brightness: 2,
@@ -174,7 +173,7 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters) => {
-                if (target instanceof Ship && parameters.damage) {
+                if (target && parameters.damage) {
                     target.damage({
                         amount: parameters.damage,
                         damageType: 'coherent',
@@ -185,7 +184,7 @@ function loadCardDefinitions() {
                 gameState.broadcastWeaponEffect({
                     type: 'beam',
                     sourceId: ship.id,
-                    targetId: target.id,
+                    targetId: target?.id,
                     color: '#ffcc00',
                     thickness: 0.25,
                     brightness: 2,

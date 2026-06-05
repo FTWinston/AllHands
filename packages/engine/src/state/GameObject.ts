@@ -1,5 +1,6 @@
 import { ArraySchema, Schema, type, view } from '@colyseus/schema';
 import { otherHelmClientRole, otherShipClientRole, otherTacticalClientRole, ownHelmClientRole, ownShipClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { Damage } from 'common-data/features/space/types/Damage';
 import { GameObjectInfo, GameObjectSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
 import { Position } from 'common-data/features/space/types/Position';
@@ -44,6 +45,10 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
     }
 
     public tick(_deltaTime: number, _currentTime: number) {}
+
+    damage(_damage: Damage) {
+        // Can't damage an arbitrary game object, but subclasses can override this to be damageable.
+    }
 
     destroy() {
         this.gameState.remove(this);
