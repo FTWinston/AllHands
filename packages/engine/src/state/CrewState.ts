@@ -1,6 +1,7 @@
 import { ClientArray } from '@colyseus/core';
 import { Schema, type, view, MapSchema } from '@colyseus/schema';
 import { CrewRole, ownHelmClientRole, ownScienceClientRole as scienceClientRole, ownTacticalClientRole, ownEngineerClientRole, ownShipClientRole, otherShipClientRole, otherHelmClientRole, otherTacticalClientRole, otherScienceClientRole } from 'common-data/features/ships/types/CrewRole';
+import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { PlayerShip } from './PlayerShip';
@@ -288,5 +289,18 @@ export class CrewState extends Schema {
                 client?.send('ship', { shipId });
             }
         }
+    }
+
+    /** Send a weapon effect message to the viewscreen (ship) and helm clients. */
+    sendWeaponEffect(effect: WeaponEffect) {
+        if (!this.clients) {
+            return;
+        }
+
+        this.clients.getById(this.shipClientId)
+            ?.send('weaponEffect', effect);
+
+        this.clients.getById(this.helmClientId)
+            ?.send('weaponEffect', effect);
     }
 }

@@ -3,16 +3,18 @@ import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinition
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
+import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
 import { parseVector } from 'common-data/features/space/utils/vectors';
 import { CardCooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
+import { drawWeaponEffects } from 'common-ui/features/spacemap/utils/drawWeaponEffects';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
 import { classNames } from 'common-ui/utils/classNames';
-import { useCallback, useRef, useState } from 'react';
+import { RefObject, useCallback, useRef, useState } from 'react';
 import { useActiveCard, useOverTargetId } from 'src/features/cardui/components/DragCardProvider';
 import { useVisibilityAnimation } from 'src/hooks/useVisibilityAnimation';
 import { useFreezeVector } from '../hooks/useFreezeVector';
@@ -26,6 +28,7 @@ type Props = {
     objects: Record<string, GameObjectInfo>;
     activeManeuver?: CardCooldown | null;
     cancelManeuver: () => void;
+    weaponEffectsRef: RefObject<WeaponEffect[]>;
 };
 
 // Base cell radius in pixels for both SpaceMap and SpaceCells
@@ -86,8 +89,9 @@ export const HelmSpaceMap = (props: Props) => {
             if (motionPath) {
                 drawMotionPath(ctx, motionPath, pixelSize);
             }
+            drawWeaponEffects(ctx, props.weaponEffectsRef.current, props.objects, timeProvider.getServerTime(), pixelSize, true);
         },
-        [motionPath]
+        [motionPath, props.weaponEffectsRef, props.objects, timeProvider]
     );
 
     return (
@@ -108,7 +112,7 @@ export const HelmSpaceMap = (props: Props) => {
                 cellRadius={cellRadius}
                 gridColor="green"
                 ref={canvas}
-                drawExtraForeground={motionPath ? drawExtraForeground : undefined}
+                drawExtraForeground={drawExtraForeground}
             />
 
             <Button

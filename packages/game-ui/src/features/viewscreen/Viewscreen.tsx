@@ -2,6 +2,7 @@ import { useRoomState } from '@colyseus/react';
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { FC, PropsWithChildren } from 'react';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import type { Room } from '@colyseus/sdk';
@@ -18,11 +19,13 @@ const defaultCenter: Keyframes<Vector2D> = [{ time: 0, x: 0, y: 0 }];
 export const Viewscreen: FC<Props> = (props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
     const localShip = objects[props.shipId];
+    const weaponEffectsRef = useWeaponEffects(props.room);
 
     return (
         <ViewscreenDisplay
             center={localShip ? localShip.motion : defaultCenter}
             objects={objects}
+            weaponEffectsRef={weaponEffectsRef}
             showMenu={props.showMenu}
         >
             {props.children}

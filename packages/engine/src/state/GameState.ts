@@ -1,6 +1,7 @@
 import { Schema, type, MapSchema, view } from '@colyseus/schema';
 import { ClockTimer } from '@colyseus/timer';
 import { Random } from 'common-data/classes/Random';
+import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { IRandom } from 'common-data/types/IRandom';
 import { IdProvider } from 'src/types/IdProvider';
 import { GameStatus } from '../types/GameStatus';
@@ -68,5 +69,22 @@ export class GameState extends Schema {
         }
 
         this.rules?.tick(scaledDelta);
+    }
+
+    /**
+     * Send a weapon effect message to all crews that have visibility of the source object.
+     */
+    public broadcastWeaponEffect(effect: WeaponEffect) {
+        for (const crew of this.crews.values()) {
+            const ship = crew.ship;
+            if (!ship) {
+                continue;
+            }
+
+            // Send to crew if their ship is the source, or if the source is in their known objects.
+            if (ship.id === effect.sourceId || ship.knownObjects.has(effect.sourceId)) {
+                crew.sendWeaponEffect(effect);
+            }
+        }
     }
 }

@@ -2,15 +2,13 @@ import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo'
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
-import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
 import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
+import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { useMemo, useState } from 'react';
 import { fn } from 'storybook/test';
 import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
 import { HelmDisplay as Component } from './HelmDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-
-const timeProvider = { getServerTime: () => Date.now() };
 
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Helm/UI',
@@ -18,13 +16,6 @@ const meta: Meta<typeof Component> = {
     parameters: {
         layout: 'fullscreen',
     },
-    decorators: [
-        Story => (
-            <TimeProviderContext.Provider value={timeProvider}>
-                <Story />
-            </TimeProviderContext.Provider>
-        ),
-    ],
     args: {
         onPause: fn(),
     },
@@ -61,9 +52,12 @@ const meta: Meta<typeof Component> = {
             },
         }), [center]);
 
+        const weaponEffectsRef = useWeaponEffects(null);
+
         return (
             <Component
                 {...args}
+                weaponEffectsRef={weaponEffectsRef}
                 cardGeneration={cardGeneration}
                 maxHandSize={args.maxHandSize}
                 cards={cards}

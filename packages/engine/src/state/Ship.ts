@@ -182,7 +182,16 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     }
 
     override destroy() {
-        // TODO: add explosion?
+        // Broadcast explosion effect before removal.
+        this.gameState.broadcastWeaponEffect({
+            type: 'explosion',
+            sourceId: this.id,
+            color: '#ff6600',
+            thickness: 0.5,
+            brightness: 3,
+            duration: 1500,
+            startTime: this.gameState.currentTime,
+        });
 
         // Clean up any active science scans so the beingScanned effect is removed from targets.
         this.scienceState.unsubscribeFromHelm();
