@@ -4,16 +4,20 @@
     position: relative;
     border-radius: 1.5em;
     corner-shape: squircle;
-    border: solid 0.1em var(--color-mid);
+    border: solid 0.1em var(--primary-darkest);
     background-color: var(--primary-darkest);
     padding: 0.5em;
     display: flex;
     flex-direction: column;
     gap: 0.25em;
+    
+    &.slotNotEmpty {
+        border-color: var(--primary-mid);
+    }
 }
 
 .slotLabel {
-    color: var(--grey-mid);
+    color: var(--grey-light);
     font-size: 0.875em;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -27,7 +31,7 @@
 
 .slotEffect {
     font-size: 1.25em;
-    color: var(--color-lightest);
+    color: var(--grey-lightest);
     font-weight: bold;
 }
 
@@ -36,7 +40,7 @@
     color: var(--grey-light);
 }
 
-.slotCardEmpty {
+.slotEmptyText {
     color: var(--grey-mid);
     font-size: 1em;
     padding: 0.25em 0;

@@ -1,5 +1,6 @@
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
+import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import styles from './DeflectorSlot.module.css';
 
@@ -14,7 +15,7 @@ export function DeflectorSlot({ cardType, slotId, label }: Props) {
     const effectParameter = cardDefinition ? cardDefinition.parameters[slotId] : null;
 
     return (
-        <CardDropTarget className={styles.slotRoot} targetType="deflector" id={slotId}>
+        <CardDropTarget className={classNames(styles.slotRoot, cardDefinition ? styles.slotNotEmpty : undefined)} targetType="deflector" id={slotId}>
             <div className={styles.slotLabel}>{label}</div>
 
             {effectParameter
@@ -25,7 +26,7 @@ export function DeflectorSlot({ cardType, slotId, label }: Props) {
                     </div>
                 )
                 : (
-                    <div className={styles.slotCardEmpty}>
+                    <div className={styles.slotEmptyText}>
                         (empty slot)
                     </div>
                 )}
