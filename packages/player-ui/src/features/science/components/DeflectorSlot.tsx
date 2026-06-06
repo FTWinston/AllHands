@@ -14,7 +14,7 @@ export function DeflectorSlot({ cardType, slotId, label }: Props) {
     const effectParameter = cardDefinition ? cardDefinition.parameters[slotId] : null;
 
     return (
-        <CardDropTarget className={styles.slotWrapper} targetType="deflector" id={slotId}>
+        <CardDropTarget className={styles.slotRoot} targetType="deflector" id={slotId}>
             <div className={styles.slotLabel}>{label}</div>
 
             {effectParameter

@@ -20,6 +20,7 @@ export const DeflectorDisplay = (props: Props) => {
     return (
         <div className={styles.deflectorDisplay}>
             <div className={styles.slots}>
+                <h2 className={styles.title}>Deflector</h2>
                 <DeflectorSlot cardType={modifierSlot} slotId="modifier" label="Modifier" />
                 <DeflectorSlot cardType={substanceSlot} slotId="substance" label="Substance" />
                 <DeflectorSlot cardType={deliverySlot} slotId="delivery" label="Delivery" />

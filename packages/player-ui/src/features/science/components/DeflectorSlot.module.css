@@ -1,5 +1,6 @@
-.slotWrapper {
-    font-size: 0.5em;
+.slotRoot {
+    line-height: 1em;
+    flex-grow: 1;
     position: relative;
     border-radius: 1.5em;
     corner-shape: squircle;
