@@ -1,5 +1,5 @@
 import { ArraySchema, Schema, type, view } from '@colyseus/schema';
-import { otherHelmClientRole, otherShipClientRole, otherTacticalClientRole, ownHelmClientRole, ownShipClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { otherHelmClientRole, otherScienceClientRole, otherShipClientRole, otherTacticalClientRole, ownHelmClientRole, ownShipClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { Damage } from 'common-data/features/space/types/Damage';
 import { GameObjectInfo, GameObjectSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
@@ -24,13 +24,13 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
 
     @type('string') public readonly id: string;
 
-    @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | otherTacticalClientRole)
+    @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | otherTacticalClientRole | otherScienceClientRole)
     @type('string') public readonly name: string;
 
-    @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | otherTacticalClientRole)
+    @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | otherTacticalClientRole | otherScienceClientRole)
     @type('string') public readonly appearance: ObjectAppearance;
 
-    @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | otherTacticalClientRole)
+    @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | otherTacticalClientRole | otherScienceClientRole)
     @type('number') relationship: RelationshipType;
 
     @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | ownTacticalClientRole | otherTacticalClientRole)
