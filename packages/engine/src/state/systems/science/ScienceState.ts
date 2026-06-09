@@ -65,12 +65,32 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
      * Subscribe to live updates from a system on a target ship.
      * If already scanning the same system type on a different ship, automatically unsubscribes first.
      */
-    subscribeToSystem(targetShip: Ship, system: ShipSystem): void {
+    subscribeToSystem(targetShip: Ship, system: ShipSystem, unsubscribeFromOthers: boolean): void {
         switch (system) {
-            case 'helm': this.subscribeToHelm(targetShip); break;
-            case 'tactical': this.subscribeToTactical(targetShip); break;
-            case 'science': this.subscribeToScience(targetShip); break;
-            case 'engineer': this.subscribeToEngineer(targetShip); break;
+            case 'helm':
+                this.subscribeToHelm(targetShip);
+                this.unsubscribeFromEngineer();
+                this.unsubscribeFromScience();
+                this.unsubscribeFromTactical();
+                break;
+            case 'tactical':
+                this.subscribeToTactical(targetShip);
+                this.unsubscribeFromEngineer();
+                this.unsubscribeFromHelm();
+                this.unsubscribeFromScience();
+                break;
+            case 'science':
+                this.subscribeToScience(targetShip);
+                this.unsubscribeFromEngineer();
+                this.unsubscribeFromHelm();
+                this.unsubscribeFromTactical();
+                break;
+            case 'engineer':
+                this.subscribeToEngineer(targetShip);
+                this.unsubscribeFromHelm();
+                this.unsubscribeFromScience();
+                this.unsubscribeFromTactical();
+                break;
             default:
                 console.warn('Cannot scan system: ' + system);
         }
@@ -115,7 +135,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.scannedEngineer = null;
     }
 
-    private subscribeToHelm(targetShip: Ship): void {
+    subscribeToHelm(targetShip: Ship): void {
         this.unsubscribeFromHelm();
         const source = targetShip.helmState;
         const state = new ScannedHelmState();
@@ -132,7 +152,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         targetShip.helmState.adjustEffectLevel('beingScanned', 1);
     }
 
-    private subscribeToTactical(targetShip: Ship): void {
+    subscribeToTactical(targetShip: Ship): void {
         this.unsubscribeFromTactical();
         const source = targetShip.tacticalState;
         const state = new ScannedTacticalState();
@@ -149,7 +169,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         targetShip.tacticalState.adjustEffectLevel('beingScanned', 1);
     }
 
-    private subscribeToScience(targetShip: Ship): void {
+    subscribeToScience(targetShip: Ship): void {
         this.unsubscribeFromScience();
         const source = targetShip.scienceState;
         const state = new ScannedScienceState();
@@ -166,7 +186,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         targetShip.scienceState.adjustEffectLevel('beingScanned', 1);
     }
 
-    private subscribeToEngineer(targetShip: Ship): void {
+    subscribeToEngineer(targetShip: Ship): void {
         this.unsubscribeFromEngineer();
         const source = targetShip.engineerState;
         const state = new ScannedEngineerState();
@@ -343,15 +363,15 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
 
     private updateDeflectorCard(): void {
         const modifier = this.modifierSlotCard
-            ? (getCardDefinition(this.modifierSlotCard.type) as EngineDeflectorTargetCardDefinition).parameters.modifier
+            ? (getCardDefinition(this.modifierSlotCard.type) as EngineDeflectorTargetCardDefinition).modifier
             : null;
 
         const substance = this.substanceSlotCard
-            ? (getCardDefinition(this.substanceSlotCard.type) as EngineDeflectorTargetCardDefinition).parameters.substance
+            ? (getCardDefinition(this.substanceSlotCard.type) as EngineDeflectorTargetCardDefinition).substance
             : null;
 
         const delivery = this.deliverySlotCard
-            ? (getCardDefinition(this.deliverySlotCard.type) as EngineDeflectorTargetCardDefinition).parameters.delivery
+            ? (getCardDefinition(this.deliverySlotCard.type) as EngineDeflectorTargetCardDefinition).delivery
             : null;
 
         const cardType = this.determineDeflectorCardType(modifier, substance, delivery);
@@ -360,9 +380,9 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     }
 
     private determineDeflectorCardType(
-        modifier: DeflectorEffectModifier | null,
-        substance: DeflectorEffectSubstance | null,
-        delivery: DeflectorEffectDelivery | null
+        modifier: DeflectorEffectModifier | null | undefined,
+        substance: DeflectorEffectSubstance | null | undefined,
+        delivery: DeflectorEffectDelivery | null | undefined
     ): EnemyTargetedCardType | null {
         if (!modifier && !substance && !delivery) {
             return null;

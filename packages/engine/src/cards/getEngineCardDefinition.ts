@@ -11,6 +11,8 @@ import {
 } from 'common-data/features/cards/utils/cardDefinitions';
 import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { GameState } from 'src/state/GameState';
+import { Ship } from 'src/state/Ship';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from '../state/CooldownState';
 import { EngineerSystemTile } from '../state/systems/engineer/EngineerSystemTile';
@@ -613,6 +615,43 @@ function loadCardDefinitions() {
         generationPriority: {
             play: (_gameState, _ship, system) => {
                 return system.addEffect('generationPriority');
+            },
+        },
+        scan: {
+            load: () => {
+                return true;
+            },
+            play: (_gameState, ship, target, targetSystem) => {
+                if (!(target instanceof Ship)) {
+                    return false;
+                }
+
+                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                return true;
+            },
+        },
+        scanPulse: {
+            load: () => {
+                return true;
+            },
+            play: () => {
+                return true;
+            },
+        },
+        tetryonScan: {
+            load: () => {
+                return true;
+            },
+            play: () => {
+                return true;
+            },
+        },
+        phasedPolaronBeamScan: {
+            load: () => {
+                return true;
+            },
+            play: () => {
+                return true;
             },
         },
         deflectorPhasedAntiprotonBeam: {

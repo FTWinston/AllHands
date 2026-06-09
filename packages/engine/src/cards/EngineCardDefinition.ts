@@ -1,5 +1,6 @@
 import { ChoiceCardDefinition, DeflectorTargetCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
+import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { CardState } from 'src/state/CardState';
 import { GameObject } from 'src/state/GameObject';
@@ -25,12 +26,12 @@ export type WeaponTargetCardFunctionality = {
 };
 
 export type EnemyTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters) => boolean;
+    play: (gameState: GameState, ship: Ship, target: GameObject | null, parameters: CardParameters) => boolean;
 };
 
 export type DeflectorTargetCardFunctionality = {
     load: (gameState: GameState, ship: Ship, slotId: string, parameters: CardParameters) => boolean;
-    play: (gameState: GameState, ship: Ship, target: GameObject | null, parameters: CardParameters) => boolean;
+    play: (gameState: GameState, ship: Ship, target: GameObject, targetSystem: ShipSystem, parameters: CardParameters) => boolean;
 };
 
 export type SystemTargetCardFunctionality = {

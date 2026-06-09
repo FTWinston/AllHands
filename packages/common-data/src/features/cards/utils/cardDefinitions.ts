@@ -326,6 +326,41 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'engineer',
         parameters: { cost: 2, duration: 60 },
     },
+    scan: {
+        targetType: 'deflector',
+        crew: 'science',
+        parameters: {
+            cost: 1,
+        },
+        delivery: 'Beam',
+    },
+    scanPulse: {
+        targetType: 'deflector',
+        crew: 'science',
+        parameters: {
+            cost: 1,
+        },
+        delivery: 'Pulse',
+    },
+    tetryonScan: {
+        targetType: 'deflector',
+        crew: 'science',
+        parameters: {
+            cost: 2,
+        },
+        modifier: 'Coherent',
+        substance: 'Tetryon',
+    },
+    phasedPolaronBeamScan: {
+        targetType: 'deflector',
+        crew: 'science',
+        parameters: {
+            cost: 3,
+        },
+        modifier: 'Phased',
+        substance: 'Polaron',
+        delivery: 'Beam',
+    },
     deflectorPhasedAntiprotonBeam: {
         targetType: 'enemy',
         crew: 'science',

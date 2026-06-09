@@ -407,6 +407,31 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
+        scan: {
+            name: 'Scan',
+            description: <>
+                Reveal info on the targeted system of an enemy ship, for
+                {' '}
+                <Parameter name="duration" />
+                s.
+            </>,
+            image: <ExampleIcon />,
+        },
+        scanPulse: {
+            name: 'Scan pulse (temp)',
+            description: 'A temporary scan card with 1 deflector parameter.',
+            image: <ExampleIcon />,
+        },
+        tetryonScan: {
+            name: 'Tetryon Scan (temp)',
+            description: 'A temporary scan card with 2 deflector parameters.',
+            image: <ExampleIcon />,
+        },
+        phasedPolaronBeamScan: {
+            name: 'Phased Polaron Beam Scan (temp)',
+            description: 'A temporary scan card with 3 deflector parameters.',
+            image: <ExampleIcon />,
+        },
         deflectorPhasedAntiprotonBeam: {
             name: 'Phased Antiproton Beam',
             description: <>

@@ -49,11 +49,9 @@ export type DeflectorEffectDelivery = 'Beam' | 'Pulse' | 'Burst' | 'Wave';
 
 export type DeflectorTargetCardDefinition = CommonCardDefinition & {
     targetType: 'deflector';
-    parameters: CardParameters & {
-        modifier: DeflectorEffectModifier | null;
-        substance: DeflectorEffectSubstance | null;
-        delivery: DeflectorEffectDelivery | null;
-    };
+    modifier?: DeflectorEffectModifier;
+    substance?: DeflectorEffectSubstance;
+    delivery?: DeflectorEffectDelivery;
 };
 
 export type SystemTargetCardDefinition = CommonCardDefinition & {
