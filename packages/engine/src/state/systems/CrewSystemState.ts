@@ -219,7 +219,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             return false;
         }
 
-        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, parameters)) {
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, null, parameters)) {
             console.log('card refused to play');
             return false;
         }

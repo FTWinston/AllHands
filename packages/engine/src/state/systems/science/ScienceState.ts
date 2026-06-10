@@ -46,57 +46,59 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     /**
      * Unsubscribe from all scans targeting the given ship, e.g. when it goes out of range or is destroyed.
      */
-    unsubscribeFromShip(targetId: string): void {
-        if (this._scannedHelmShip?.id === targetId) {
+    unsubscribeFromShip(targetId: string | null = null): void {
+        if (targetId === null || this._scannedHelmShip?.id === targetId) {
             this.unsubscribeFromHelm();
         }
-        if (this._scannedTacticalShip?.id === targetId) {
+        if (targetId === null || this._scannedTacticalShip?.id === targetId) {
             this.unsubscribeFromTactical();
         }
-        if (this._scannedScienceShip?.id === targetId) {
+        if (targetId === null || this._scannedScienceShip?.id === targetId) {
             this.unsubscribeFromScience();
         }
-        if (this._scannedEngineerShip?.id === targetId) {
+        if (targetId === null || this._scannedEngineerShip?.id === targetId) {
             this.unsubscribeFromEngineer();
         }
     }
 
     /**
      * Subscribe to live updates from a system on a target ship.
-     * If already scanning the same system type on a different ship, automatically unsubscribes first.
+     * Automatically unsubscribes from targeting any other ship, optionally also unsubscribes from other systems on the same ship.
      */
     subscribeToSystem(targetShip: Ship, system: ShipSystem, unsubscribeFromOthers: boolean): void {
         switch (system) {
             case 'helm':
                 this.subscribeToHelm(targetShip);
-                this.unsubscribeFromEngineer();
-                this.unsubscribeFromScience();
-                this.unsubscribeFromTactical();
                 break;
             case 'tactical':
                 this.subscribeToTactical(targetShip);
-                this.unsubscribeFromEngineer();
-                this.unsubscribeFromHelm();
-                this.unsubscribeFromScience();
                 break;
             case 'science':
                 this.subscribeToScience(targetShip);
-                this.unsubscribeFromEngineer();
-                this.unsubscribeFromHelm();
-                this.unsubscribeFromTactical();
                 break;
             case 'engineer':
                 this.subscribeToEngineer(targetShip);
-                this.unsubscribeFromHelm();
-                this.unsubscribeFromScience();
-                this.unsubscribeFromTactical();
                 break;
             default:
                 console.warn('Cannot scan system: ' + system);
+                return;
+        }
+
+        if (system !== 'helm' && (unsubscribeFromOthers || this._scannedHelmShip !== targetShip)) {
+            this.unsubscribeFromHelm();
+        }
+        if (system !== 'engineer' && (unsubscribeFromOthers || this._scannedEngineerShip !== targetShip)) {
+            this.unsubscribeFromEngineer();
+        }
+        if (system !== 'science' && (unsubscribeFromOthers || this._scannedScienceShip !== targetShip)) {
+            this.unsubscribeFromScience();
+        }
+        if (system !== 'tactical' && (unsubscribeFromOthers || this._scannedTacticalShip !== targetShip)) {
+            this.unsubscribeFromTactical();
         }
     }
 
-    unsubscribeFromHelm(): void {
+    private unsubscribeFromHelm(): void {
         if (this._scannedHelmShip) {
             this._scannedHelmShip.helmState.scienceScanDataChanged.removeListener(this.getShip().id);
             this._scannedHelmShip.helmState.adjustEffectLevel('beingScanned', -1);
@@ -105,7 +107,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.scannedHelm = null;
     }
 
-    unsubscribeFromTactical(): void {
+    private unsubscribeFromTactical(): void {
         if (this._scannedTacticalShip) {
             this._scannedTacticalShip.tacticalState.scienceScanDataChanged.removeListener(this.getShip().id);
             this._scannedTacticalShip.tacticalState.adjustEffectLevel('beingScanned', -1);
@@ -114,7 +116,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.scannedTactical = null;
     }
 
-    unsubscribeFromScience(): void {
+    private unsubscribeFromScience(): void {
         if (this._scannedScienceShip) {
             this._scannedScienceShip.scienceState.scienceScanDataChanged.removeListener(this.getShip().id);
             this._scannedScienceShip.scienceState.adjustEffectLevel('beingScanned', -1);
@@ -123,7 +125,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.scannedScience = null;
     }
 
-    unsubscribeFromEngineer(): void {
+    private unsubscribeFromEngineer(): void {
         if (this._scannedEngineerShip) {
             const myId = this.getShip().id;
             for (const tile of this._scannedEngineerShip.engineerState.systems) {
@@ -135,7 +137,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.scannedEngineer = null;
     }
 
-    subscribeToHelm(targetShip: Ship): void {
+    private subscribeToHelm(targetShip: Ship): void {
         this.unsubscribeFromHelm();
         const source = targetShip.helmState;
         const state = new ScannedHelmState();
@@ -152,7 +154,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         targetShip.helmState.adjustEffectLevel('beingScanned', 1);
     }
 
-    subscribeToTactical(targetShip: Ship): void {
+    private subscribeToTactical(targetShip: Ship): void {
         this.unsubscribeFromTactical();
         const source = targetShip.tacticalState;
         const state = new ScannedTacticalState();
@@ -169,7 +171,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         targetShip.tacticalState.adjustEffectLevel('beingScanned', 1);
     }
 
-    subscribeToScience(targetShip: Ship): void {
+    private subscribeToScience(targetShip: Ship): void {
         this.unsubscribeFromScience();
         const source = targetShip.scienceState;
         const state = new ScannedScienceState();
@@ -186,7 +188,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         targetShip.scienceState.adjustEffectLevel('beingScanned', 1);
     }
 
-    subscribeToEngineer(targetShip: Ship): void {
+    private subscribeToEngineer(targetShip: Ship): void {
         this.unsubscribeFromEngineer();
         const source = targetShip.engineerState;
         const state = new ScannedEngineerState();
@@ -292,7 +294,9 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             return null;
         }
 
-        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, parameters)) {
+        const targetSystem = null; // TODO: deflector cards never target a specific system, right?
+
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, targetSystem, parameters)) {
             console.log('deflector card refused to play');
             return null;
         }

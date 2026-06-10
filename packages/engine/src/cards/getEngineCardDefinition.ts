@@ -11,7 +11,6 @@ import {
 } from 'common-data/features/cards/utils/cardDefinitions';
 import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
-import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from '../state/CooldownState';
@@ -622,10 +621,12 @@ function loadCardDefinitions() {
                 return true;
             },
             play: (_gameState, ship, target, targetSystem) => {
-                if (!(target instanceof Ship)) {
+                if (!(target instanceof Ship) || targetSystem === null) {
                     return false;
                 }
 
+                // TODO: duration
+                // TODO: delay?
                 ship.scienceState.subscribeToSystem(target, targetSystem, true);
                 return true;
             },

@@ -26,12 +26,12 @@ export type WeaponTargetCardFunctionality = {
 };
 
 export type EnemyTargetCardFunctionality = {
-    play: (gameState: GameState, ship: Ship, target: GameObject | null, parameters: CardParameters) => boolean;
+    play: (gameState: GameState, ship: Ship, target: GameObject | null, targetSystem: ShipSystem | null, parameters: CardParameters) => boolean;
 };
 
 export type DeflectorTargetCardFunctionality = {
     load: (gameState: GameState, ship: Ship, slotId: string, parameters: CardParameters) => boolean;
-    play: (gameState: GameState, ship: Ship, target: GameObject, targetSystem: ShipSystem, parameters: CardParameters) => boolean;
+    play: (gameState: GameState, ship: Ship, target: GameObject | null, targetSystem: ShipSystem | null, parameters: CardParameters) => boolean;
 };
 
 export type SystemTargetCardFunctionality = {
