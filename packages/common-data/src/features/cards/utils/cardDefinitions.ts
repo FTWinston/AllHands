@@ -331,6 +331,7 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'science',
         parameters: {
             cost: 1,
+            duration: 30,
         },
         delivery: 'Beam',
     },

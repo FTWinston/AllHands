@@ -26,7 +26,7 @@
             "maxHealth": 100
         },
         "science": {
-            "cards": ["exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget", "exampleNoTarget"],
+            "cards": ["scan", "scan", "scan", "scan", "scan", "exampleNoTarget", "exampleNoTarget"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1,

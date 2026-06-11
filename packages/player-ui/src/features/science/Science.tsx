@@ -41,6 +41,7 @@ export const Science = (props: Props) => {
         <ScienceDisplay
             cards={scienceState.hand}
             targets={targets}
+            scannedShipId={scienceState.scannedShipId}
             modifierSlot={scienceState.modifierSlotCard?.type ?? null}
             substanceSlot={scienceState.substanceSlotCard?.type ?? null}
             deliverySlot={scienceState.deliverySlotCard?.type ?? null}

@@ -104,6 +104,7 @@ export interface ScienceSystemInfo extends CrewSystemInfo {
     substanceSlotCard: CardInstance | null;
     deliverySlotCard: CardInstance | null;
     deflectorCard: CardInstance | null;
+    scannedShipId: string | null;
     scannedHelm: ScannedHelmInfo | null;
     scannedTactical: ScannedTacticalInfo | null;
     scannedScience: ScannedScienceInfo | null;

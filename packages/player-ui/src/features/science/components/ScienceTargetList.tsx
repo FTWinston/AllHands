@@ -6,10 +6,13 @@ import styles from './ScienceTargetList.module.css';
 
 type Props = {
     targets: IArray<GameObjectInfo>;
+    scannedShipId: string | null;
 };
 
 export const ScienceTargetList = (props: Props) => {
-    const { targets } = props;
+    const { targets, scannedShipId } = props;
+
+    // TODO: get scanned slot info passed here from Science -> ScienceDisplay, and match it up with scannedShipId to determine which ScienceTarget to show it on.
 
     return (
         <HorizontalScroll

@@ -16,6 +16,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cards: Snapshot<CardInstance[]>;
     targets: Snapshot<GameObjectInfo[]>;
+    scannedShipId: string | null;
     modifierSlot: CardType | null;
     substanceSlot: CardType | null;
     deliverySlot: CardType | null;
@@ -23,7 +24,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
 };
 
 export const ScienceDisplay = (props: Props) => {
-    const { cards, playCard, targets, modifierSlot, substanceSlot, deliverySlot, deflectorCard, ...headerProps } = props;
+    const { cards, playCard, targets, scannedShipId, modifierSlot, substanceSlot, deliverySlot, deflectorCard, ...headerProps } = props;
 
     useRootClassName(crewStyles.science);
 
@@ -36,7 +37,7 @@ export const ScienceDisplay = (props: Props) => {
                     {...headerProps}
                 />
 
-                <ScienceTargetList targets={targets} />
+                <ScienceTargetList targets={targets} scannedShipId={scannedShipId} />
 
                 <DeflectorDisplay
                     modifierSlot={modifierSlot}

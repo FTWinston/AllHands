@@ -1,3 +1,4 @@
+import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { fn } from 'storybook/test';
 import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
 import { ScienceDisplay as Component } from './ScienceDisplay';
@@ -50,15 +51,67 @@ export const UI: Story = {
         cards: [
             {
                 id: 1,
-                type: 'exampleNoTarget',
+                type: 'scan',
             },
             {
                 id: 2,
-                type: 'exampleNoTarget',
+                type: 'scan',
             },
             {
                 id: 3,
                 type: 'exampleNoTarget',
+            },
+        ],
+        targets: [
+            {
+                id: 'target1',
+                name: 'Enemy Ship 1',
+                appearance: 'scout',
+                relationship: RelationshipType.Hostile,
+                motion: [
+                    { time: 0, x: 100, y: 100, angle: 0 },
+                    { time: 1000, x: 200, y: 100, angle: 0 },
+                ],
+            },
+            {
+                id: 'target2',
+                name: 'Enemy Ship 2',
+                appearance: 'starfighter',
+                relationship: RelationshipType.Hostile,
+                motion: [
+                    { time: 0, x: -100, y: 100, angle: 0 },
+                    { time: 1000, x: 100, y: -100, angle: 0 },
+                ],
+            },
+            {
+                id: 'target3',
+                name: 'Enemy Ship 3',
+                appearance: 'satellite',
+                relationship: RelationshipType.Hostile,
+                motion: [
+                    { time: 0, x: 100, y: 100, angle: 0 },
+                    { time: 1000, x: 200, y: 100, angle: 0 },
+                ],
+            },
+            {
+                id: 'target4',
+                name: 'Enemy Ship 4',
+                appearance: 'interceptor',
+                relationship: RelationshipType.Hostile,
+                motion: [
+                    { time: 0, x: -100, y: 100, angle: 0 },
+                    { time: 1000, x: 100, y: -100, angle: 0 },
+                ],
+            },
+            {
+                id: 'target5',
+                name: 'Enemy Ship 5',
+                appearance: 'spaceship',
+                relationship: RelationshipType.Hostile,
+                motion: [
+                    { time: 0, x: -100, y: 100, angle: 0 },
+                    { time: 1000, x: 100, y: -100, angle: 0 },
+                ],
             },
         ],
         power: 5,
