@@ -1,5 +1,5 @@
-import { IArray } from '@colyseus/react';
-import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { IArray, Snapshot } from '@colyseus/react';
+import { GameObjectInfo, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
 import { ScienceTarget } from './ScienceTarget';
 import styles from './ScienceTargetList.module.css';
@@ -7,12 +7,15 @@ import styles from './ScienceTargetList.module.css';
 type Props = {
     targets: IArray<GameObjectInfo>;
     scannedShipId: string | null;
+    scannedSystemOrder: IArray<number>;
+    scannedHelm: Snapshot<ScannedHelmInfo> | null;
+    scannedTactical: Snapshot<ScannedTacticalInfo> | null;
+    scannedScience: Snapshot<ScannedScienceInfo> | null;
+    scannedEngineer: Snapshot<ScannedEngineerInfo> | null;
 };
 
 export const ScienceTargetList = (props: Props) => {
-    const { targets, scannedShipId } = props;
-
-    // TODO: get scanned slot info passed here from Science -> ScienceDisplay, and match it up with scannedShipId to determine which ScienceTarget to show it on.
+    const { targets, scannedShipId, scannedHelm, scannedTactical, scannedScience, scannedEngineer } = props;
 
     return (
         <HorizontalScroll
@@ -31,6 +34,11 @@ export const ScienceTargetList = (props: Props) => {
                         motion={target.motion}
                         targetNumber={index + 1}
                         totalTargets={targets.length}
+                        systemOrder={target.id === scannedShipId ? props.scannedSystemOrder : null}
+                        helm={target.id === scannedShipId ? scannedHelm : null}
+                        scannedTactical={target.id === scannedShipId ? scannedTactical : null}
+                        scannedScience={target.id === scannedShipId ? scannedScience : null}
+                        scannedEngineer={target.id === scannedShipId ? scannedEngineer : null}
                     />
                 </li>
             ))}

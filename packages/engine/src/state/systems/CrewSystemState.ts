@@ -15,8 +15,9 @@ import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
 export class CrewSystemState extends SystemState implements CrewSystemInfo {
-    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, private getCardId: () => number) {
+    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, private getCardId: () => number) {
         super(setup, gameState, ship);
+        this.scannedSystemIndex = scannedSystemIndex;
 
         this.setMaxHandSize();
 
@@ -39,6 +40,9 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
     /** Emitted whenever state that is relevant to a science scan changes. */
     readonly scienceScanDataChanged = new BindableEvent<() => void>();
+
+    /** The index of this system, on a scan display of this ship. */
+    readonly scannedSystemIndex: number;
 
     @type([CardState]) hand: ArraySchema<CardState>;
     @type('uint8') drawPileSize: number;

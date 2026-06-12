@@ -20,8 +20,8 @@ import type { Ship } from 'src/state/Ship';
 export const generationDurationByReactorPower = [8_000, 4_000, 2_000, 1_000, 500, 250] as const;
 
 export class EngineerState extends CrewSystemState implements EngineerSystemInfo {
-    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
-        super(setup, gameState, ship, getCardId);
+    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, getCardId: () => number) {
+        super(setup, gameState, ship, scannedSystemIndex, getCardId);
     }
 
     public initSystems() {

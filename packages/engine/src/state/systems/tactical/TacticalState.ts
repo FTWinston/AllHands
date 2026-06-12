@@ -16,8 +16,8 @@ import { TargetVulnerabilitiesState } from './TargetVulnerabilitiesState';
 import { WeaponSlotState } from './WeaponSlotState';
 
 export class TacticalState extends CrewSystemState implements TacticalSystemInfo {
-    constructor(setup: TacticalSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
-        super(setup, gameState, ship, getCardId);
+    constructor(setup: TacticalSystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, getCardId: () => number) {
+        super(setup, gameState, ship, scannedSystemIndex, getCardId);
 
         for (let i = 0; i < setup.numSlots; i++) {
             this.slots.push(new WeaponSlotState(`slot${i + 1}`));

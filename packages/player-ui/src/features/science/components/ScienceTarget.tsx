@@ -1,4 +1,5 @@
-import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { IArray, Snapshot } from '@colyseus/react';
+import { GameObjectInfo, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { ObjectIcon } from 'common-ui/objects';
 import { classNames } from 'common-ui/utils/classNames';
@@ -8,6 +9,11 @@ import styles from './ScienceTarget.module.css';
 type Props = GameObjectInfo & {
     targetNumber: number;
     totalTargets: number;
+    systemOrder: IArray<number> | null;
+    scannedHelm: Snapshot<ScannedHelmInfo> | null;
+    scannedTactical: Snapshot<ScannedTacticalInfo> | null;
+    scannedScience: Snapshot<ScannedScienceInfo> | null;
+    scannedEngineer: Snapshot<ScannedEngineerInfo> | null;
 };
 
 export const ScienceTarget = (props: Props) => {
@@ -37,6 +43,10 @@ export const ScienceTarget = (props: Props) => {
                 appearance={props.appearance}
                 className={styles.image}
             />
+
+            <div className={styles.scansRoot}>
+                {/* Display scan tiles here. Use props.systemOrder, show just system name if there's no state */}
+            </div>
         </div>
     );
 };

@@ -10,3 +10,8 @@ export const shipSystems: ShipSystem[] = [
     'tactical',
     'engineer',
 ];
+
+export const helmSystem = shipSystems.indexOf('helm');
+export const scienceSystem = shipSystems.indexOf('science');
+export const tacticalSystem = shipSystems.indexOf('tactical');
+export const engineerSystem = shipSystems.indexOf('engineer');

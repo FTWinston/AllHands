@@ -1,4 +1,5 @@
 import { entity, type, view } from '@colyseus/schema';
+import { Random } from 'common-data/classes/Random';
 import { ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { Damage } from 'common-data/features/space/types/Damage';
@@ -31,10 +32,15 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         const getCardId = () => this.getCardId();
         this.hullState = new HullSystemState(setup.hull, gameState, this);
         this.reactorState = new ReactorSystemState(setup.reactor, gameState, this);
-        this.helmState = new HelmState(setup.helm, gameState, this, getCardId);
-        this.scienceState = new ScienceState(setup.science, gameState, this, getCardId);
-        this.tacticalState = new TacticalState(setup.tactical, gameState, this, getCardId);
-        this.engineerState = new EngineerState(setup.engineer, gameState, this, getCardId);
+
+        // Randomize the order of systems on the scan interface, so each ship is different.
+        const scanSystemOrder = [0, 1, 2, 3];
+        gameState.random.shuffle(scanSystemOrder);
+
+        this.helmState = new HelmState(setup.helm, gameState, this, scanSystemOrder[0], getCardId);
+        this.scienceState = new ScienceState(setup.science, gameState, this, scanSystemOrder[1], getCardId);
+        this.tacticalState = new TacticalState(setup.tactical, gameState, this, scanSystemOrder[2], getCardId);
+        this.engineerState = new EngineerState(setup.engineer, gameState, this, scanSystemOrder[3], getCardId);
 
         this.engineerState.initSystems();
 

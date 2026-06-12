@@ -1,9 +1,9 @@
-import { type } from '@colyseus/schema';
+import { ArraySchema, type } from '@colyseus/schema';
 import { DeflectorEffectDelivery, DeflectorEffectModifier, DeflectorEffectSubstance } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType, EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
+import { engineerSystem, helmSystem, scienceSystem, ShipSystem, tacticalSystem } from 'common-data/features/ships/types/ShipSystem';
 import { CrewSystemSetupInfo, ScienceSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineDeflectorTargetCardDefinition, EngineEnemyTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
@@ -20,8 +20,8 @@ import { ScannedTacticalState } from './ScannedTacticalState';
 import { ScannedWeaponSlotState } from './ScannedWeaponSlotState';
 
 export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
-    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
-        super(setup, gameState, ship, getCardId);
+    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, getCardId: () => number) {
+        super(setup, gameState, ship, scannedSystemIndex, getCardId);
         this.deflectorCardId = getCardId();
     }
 
@@ -42,6 +42,14 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     @type('string') scannedShipId: string | null = null;
 
     /**
+     * Each ship has a system order, for scanning, so you don't know which is which when you first meet it.
+     * This gets copied here as you reveal a system, and retained so that you still know what a system was when it is obscured.
+     */
+    @type(['uint8']) scannedSystemOrder = new ArraySchema<number>(0, 0, 0, 0);
+
+    // TODO: store a weak map of scanned system order for other ships, so scanning a different ship doesn't stop you knowing which is which on a ship you've scanned before.
+
+    /**
      * Unsubscribe from all scans targeting the given ship, e.g. when it goes out of range or is destroyed.
      */
     unsubscribeFromShip(targetId: string | null = null): void {
@@ -53,6 +61,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
 
             this.scannedShip = null;
             this.scannedShipId = null;
+            this.scannedSystemOrder.fill(0);
         }
     }
 
@@ -78,8 +87,11 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             }
         }
 
-        this.scannedShip = targetShip;
-        this.scannedShipId = targetShip.id;
+        if (this.scannedShipId !== targetShip.id) {
+            this.scannedShip = targetShip;
+            this.scannedShipId = targetShip.id;
+            this.scannedSystemOrder.fill(0);
+        }
 
         switch (system) {
             case 'helm':
@@ -151,6 +163,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     private subscribeToHelm(targetShip: Ship): void {
         this.unsubscribeFromHelm();
         const source = targetShip.helmState;
+        this.scannedSystemOrder[source.scannedSystemIndex] = helmSystem;
         const state = new ScannedHelmState();
         state.targetId = targetShip.id;
         this.copyHelmData(state, source);
@@ -167,6 +180,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     private subscribeToTactical(targetShip: Ship): void {
         this.unsubscribeFromTactical();
         const source = targetShip.tacticalState;
+        this.scannedSystemOrder[source.scannedSystemIndex] = tacticalSystem;
         const state = new ScannedTacticalState();
         state.targetId = targetShip.id;
         this.copyTacticalData(state, source);
@@ -183,6 +197,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     private subscribeToScience(targetShip: Ship): void {
         this.unsubscribeFromScience();
         const source = targetShip.scienceState;
+        this.scannedSystemOrder[source.scannedSystemIndex] = scienceSystem;
         const state = new ScannedScienceState();
         state.targetId = targetShip.id;
         this.copyScienceData(state, source);
@@ -199,6 +214,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     private subscribeToEngineer(targetShip: Ship): void {
         this.unsubscribeFromEngineer();
         const source = targetShip.engineerState;
+        this.scannedSystemOrder[source.scannedSystemIndex] = engineerSystem;
         const state = new ScannedEngineerState();
         state.targetId = targetShip.id;
         this.copyEngineerData(state, source);
