@@ -35,7 +35,7 @@ export const ScienceTargetList = (props: Props) => {
                         targetNumber={index + 1}
                         totalTargets={targets.length}
                         systemOrder={target.id === scannedShipId ? props.scannedSystemOrder : null}
-                        helm={target.id === scannedShipId ? scannedHelm : null}
+                        scannedHelm={target.id === scannedShipId ? scannedHelm : null}
                         scannedTactical={target.id === scannedShipId ? scannedTactical : null}
                         scannedScience={target.id === scannedShipId ? scannedScience : null}
                         scannedEngineer={target.id === scannedShipId ? scannedEngineer : null}

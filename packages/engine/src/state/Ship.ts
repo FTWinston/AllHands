@@ -1,5 +1,4 @@
 import { entity, type, view } from '@colyseus/schema';
-import { Random } from 'common-data/classes/Random';
 import { ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { Damage } from 'common-data/features/space/types/Damage';
