@@ -5,12 +5,12 @@ import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { ObjectIcon } from 'common-ui/objects';
 import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
-import { EngineerSystemScan } from './EngineerSystemScan';
-import { HelmSystemScan } from './HelmSystemScan';
-import { ScienceSystemScan } from './ScienceSystemScan';
+import { ScanEngineerSystem } from './ScanEngineerSystem';
+import { ScanHelmSystem } from './ScanHelmSystem';
+import { ScanScienceSystem } from './ScanScienceSystem';
+import { ScanTacticalSystem } from './ScanTacticalSystem';
+import { ScanUnrevealed } from './ScanUnrevealed';
 import styles from './ScienceTarget.module.css';
-import { TacticalSystemScan } from './TacticalSystemScan';
-import { UnrevealedSystemScan } from './UnrevealedSystemScan';
 
 type Props = GameObjectInfo & {
     targetNumber: number;
@@ -24,19 +24,19 @@ type Props = GameObjectInfo & {
 
 function renderSystem(system: number | undefined, props: Props) {
     if (system === helmSystem && props.scannedHelm) {
-        return <HelmSystemScan {...props.scannedHelm} />;
+        return <ScanHelmSystem {...props.scannedHelm} />;
     } else if (system === tacticalSystem && props.scannedTactical) {
-        return <TacticalSystemScan {...props.scannedTactical} />;
+        return <ScanTacticalSystem {...props.scannedTactical} />;
     } else if (system === scienceSystem && props.scannedScience) {
-        return <ScienceSystemScan {...props.scannedScience} />;
+        return <ScanScienceSystem {...props.scannedScience} />;
     } else if (system === engineerSystem && props.scannedEngineer) {
-        return <EngineerSystemScan {...props.scannedEngineer} />;
+        return <ScanEngineerSystem {...props.scannedEngineer} />;
     }
 
     if (system) {
-        return <UnrevealedSystemScan system={shipSystems[system]} />;
+        return <ScanUnrevealed system={shipSystems[system]} />;
     } else {
-        return <UnrevealedSystemScan />;
+        return <ScanUnrevealed />;
     }
 }
 

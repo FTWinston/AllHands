@@ -1,0 +1,8 @@
+.root {
+    width: 5em;
+    height: 10em;
+    padding: 0.5em;
+    corner-shape: squircle;
+    border-radius: 0.5em;
+    background-color: var(--primary-dark);
+}

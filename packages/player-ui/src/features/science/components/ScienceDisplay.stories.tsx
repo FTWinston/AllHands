@@ -62,6 +62,12 @@ export const UI: Story = {
                 type: 'exampleNoTarget',
             },
         ],
+        scannedSystemOrder: [1, 2, 0, 4],
+        scannedShipId: 'target1',
+        scannedHelm: {
+            targetId: 'target1',
+            activeManeuver: null,
+        },
         targets: [
             {
                 id: 'target1',

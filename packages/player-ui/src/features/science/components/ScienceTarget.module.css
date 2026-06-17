@@ -12,11 +12,12 @@
     position: relative;
     display: grid;
     grid-template-columns: 1fr 3.5em;
-    grid-template-rows: 1.5em 1fr;
+    grid-template-rows: 1.5em 2fr 3fr;
 
     grid-template-areas:
         "name count"
-        "image image";
+        "image image"
+        "scans scans";
 }
 
 .name {
@@ -35,9 +36,6 @@
     object-fit: contain;
     color: var(--color-lightest);
     justify-self: center;
-     max-height: calc(100%);
-     transition: max-height 250ms ease-in-out;
-     will-change: max-height;
 }
 
 .dropTargetOverlay {
@@ -55,4 +53,13 @@
 
 .target:has(.couldDrop) {
     outline: solid var(--primary-mid) 0.25em;
+}
+
+.scansRoot {
+    display: flex;
+    grid-area: scans;
+    gap: 0.25em;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin: 0 -0.5em 1em -0.5em;
 }

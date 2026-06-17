@@ -1,12 +1,12 @@
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
-import { SystemScanBase } from './SystemScanBase';
-import styles from './UnrevealedSystemScan.module.css';
+import { ScanBase } from './ScanBase';
+import styles from './ScanUnrevealed.module.css';
 
 type Props = {
     system?: ShipSystem;
 };
 
-export const UnrevealedSystemScan = (props: Props) => {
+export const ScanUnrevealed = (props: Props) => {
     const content = props.system ? (
         <div className={styles.knownSystem}>
             {props.system}
@@ -18,8 +18,8 @@ export const UnrevealedSystemScan = (props: Props) => {
     );
 
     return (
-        <SystemScanBase className={styles.root}>
+        <ScanBase className={styles.root}>
             {content}
-        </SystemScanBase>
+        </ScanBase>
     );
 };

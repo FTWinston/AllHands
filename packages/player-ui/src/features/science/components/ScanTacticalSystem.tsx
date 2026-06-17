@@ -1,14 +1,14 @@
 import { Snapshot } from '@colyseus/react';
 import { ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
-import styles from './HelmSystemScan.module.css';
-import { SystemScanBase } from './SystemScanBase';
+import { ScanBase } from './ScanBase';
+import styles from './ScanTacticalSystem.module.css';
 
 type Props = Snapshot<ScannedTacticalInfo>;
 
-export const TacticalSystemScan = (props: Props) => {
+export const ScanTacticalSystem = (props: Props) => {
     return (
-        <SystemScanBase className={styles.root}>
+        <ScanBase className={styles.root}>
             (tactical stuff goes here))
-        </SystemScanBase>
+        </ScanBase>
     );
 };

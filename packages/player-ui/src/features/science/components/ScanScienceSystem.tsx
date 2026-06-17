@@ -1,14 +1,14 @@
 import { Snapshot } from '@colyseus/react';
 import { ScannedScienceInfo } from 'common-data/features/space/types/GameObjectInfo';
-import styles from './HelmSystemScan.module.css';
-import { SystemScanBase } from './SystemScanBase';
+import { ScanBase } from './ScanBase';
+import styles from './ScanScienceSystem.module.css';
 
 type Props = Snapshot<ScannedScienceInfo>;
 
-export const ScienceSystemScan = (props: Props) => {
+export const ScanScienceSystem = (props: Props) => {
     return (
-        <SystemScanBase className={styles.root}>
+        <ScanBase className={styles.root}>
             (science stuff goes here))
-        </SystemScanBase>
+        </ScanBase>
     );
 };
