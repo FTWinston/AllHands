@@ -5,7 +5,7 @@ import styles from './ScanScienceSystem.module.css';
 
 type Props = Snapshot<ScannedScienceInfo>;
 
-export const ScanScienceSystem = (props: Props) => {
+export const ScanScienceSystem = (_props: Props) => {
     return (
         <ScanBase className={styles.root}>
             (science stuff goes here))

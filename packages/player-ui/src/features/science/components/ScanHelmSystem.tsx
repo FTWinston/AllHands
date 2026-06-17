@@ -9,6 +9,7 @@ export const ScanHelmSystem = (props: Props) => {
     return (
         <ScanBase className={styles.root}>
             {props.activeManeuver ? `Maneuvering: ${props.activeManeuver.type}` : 'No active maneuver'}
+            {/* TODO: show evade chance */}
         </ScanBase>
     );
 };

@@ -5,7 +5,7 @@ import styles from './ScanTacticalSystem.module.css';
 
 type Props = Snapshot<ScannedTacticalInfo>;
 
-export const ScanTacticalSystem = (props: Props) => {
+export const ScanTacticalSystem = (_props: Props) => {
     return (
         <ScanBase className={styles.root}>
             (tactical stuff goes here))
