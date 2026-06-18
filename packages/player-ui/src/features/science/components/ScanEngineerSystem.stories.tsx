@@ -24,9 +24,12 @@ export const ScanEngineerSystem: Story = {
     args: {
         targetId: 'Enemy-01',
         engineerTiles: [
-            { system: 'hull', power: 1, health: 0.8 },
-            { system: 'reactor', power: 2, health: 1.0 },
-            { system: 'helm', power: 1, health: 0.5 },
+            { system: 'hull', power: 1, health: 5 },
+            { system: 'reactor', power: 2, health: 4 },
+            { system: 'helm', power: 1, health: 3 },
+            { system: 'tactical', power: 3, health: 2 },
+            { system: 'engineer', power: 2, health: 1 },
+            { system: 'science', power: 0, health: 0 },
         ],
     },
 };

@@ -36,7 +36,7 @@ export const ScanTacticalSystem = (props: Props) => {
     ));
 
     return (
-        <ScanBase className={styles.root}>
+        <ScanBase className={styles.root} revealed>
             {slots}
         </ScanBase>
     );

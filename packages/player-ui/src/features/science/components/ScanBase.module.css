@@ -6,4 +6,9 @@
     border-radius: 0.5em;
     background-color: var(--primary-dark);
     overflow: hidden;
+    border: solid 1px var(--primary-dark);
+}
+
+.revealed {
+    border-color: var(--primary-light);
 }
