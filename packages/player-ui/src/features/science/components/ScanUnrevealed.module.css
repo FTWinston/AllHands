@@ -6,6 +6,7 @@
 
 .knownSystem {
     color: var(--grey-light);
+    text-transform: capitalize;
 }
 
 .unknownSystem {

@@ -29,9 +29,10 @@ export function resolveParameters(
     return parameters;
 }
 
-export function resolveParameter(parameter: string, parameters?: CardParametersBase, modifiers?: Record<string, number>): number {
+export function resolveParameter(parameter: string, parameters?: CardParametersBase, modifiers?: Record<string, number>, additionalModifiers?: Record<string, number>): number {
     const parameterValue = parameters?.[parameter] ?? 0;
     const modifierValue = modifiers?.[parameter] ?? 0;
+    const additionalModifierValue = additionalModifiers?.[parameter] ?? 0;
 
-    return parameterValue + modifierValue;
+    return parameterValue + modifierValue + additionalModifierValue;
 }
