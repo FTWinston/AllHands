@@ -26,7 +26,7 @@ export const ScienceTarget: Story = {
         appearance: 'starfighter',
         targetNumber: 1,
         totalTargets: 3,
-        systemOrder: [1, 2, 0, 4],
+        systemOrder: [3, 2, 0, 4],
         scannedHelm: {
             targetId: 'Enemy-01',
             activeManeuver: null,

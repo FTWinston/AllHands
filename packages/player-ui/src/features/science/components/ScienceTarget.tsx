@@ -68,12 +68,12 @@ export const ScienceTarget = (props: Props) => {
                 className={styles.image}
             />
 
-            <div className={styles.scansRoot}>
+            <ul className={styles.scansRoot}>
                 {renderSystem(props.systemOrder?.[0], props)}
                 {renderSystem(props.systemOrder?.[1], props)}
                 {renderSystem(props.systemOrder?.[2], props)}
                 {renderSystem(props.systemOrder?.[3], props)}
-            </div>
+            </ul>
         </div>
     );
 };

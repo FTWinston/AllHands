@@ -7,8 +7,22 @@
     background-color: var(--primary-dark);
     overflow: hidden;
     border: solid 1px var(--primary-dark);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .revealed {
     border-color: var(--primary-light);
+    justify-content: flex-start;
+}
+
+.systemName {
+    color: var(--grey-light);
+    text-transform: capitalize;
+}
+
+.revealed .systemName {
+    font-size: 0.85em;
 }

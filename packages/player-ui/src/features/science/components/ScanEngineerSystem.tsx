@@ -17,7 +17,7 @@ const SystemInfo = (props: ScannedEngineerTileInfo) => {
 
 export const ScanEngineerSystem = (props: Props) => {
     return (
-        <ScanBase className={styles.root} revealed>
+        <ScanBase className={styles.root} system="engineer" revealed>
             {props.engineerTiles.map((tile, index) => (
                 <SystemInfo key={index} {...tile} />
             ))}

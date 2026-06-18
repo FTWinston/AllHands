@@ -62,7 +62,7 @@ export const UI: Story = {
                 type: 'exampleNoTarget',
             },
         ],
-        scannedSystemOrder: [1, 2, 0, 4],
+        scannedSystemOrder: [3, 2, 0, 4],
         scannedShipId: 'target1',
         scannedHelm: {
             targetId: 'target1',

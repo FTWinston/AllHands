@@ -1,14 +1,3 @@
-.root {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.knownSystem {
-    color: var(--grey-light);
-    text-transform: capitalize;
-}
-
 .unknownSystem {
     color: var(--grey-mid);
     font-size: 1.5em;

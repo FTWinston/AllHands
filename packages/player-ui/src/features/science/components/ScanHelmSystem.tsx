@@ -12,7 +12,7 @@ export const ScanHelmSystem = (props: Props) => {
         : undefined;
 
     return (
-        <ScanBase className={styles.root} revealed>
+        <ScanBase className={styles.root} system="helm" revealed>
             {props.activeManeuver ? `Maneuvering: ${manueverName}` : 'No active maneuver'}
             {/* TODO: show evade chance */}
             {/* TODO: show maneuver progress */}

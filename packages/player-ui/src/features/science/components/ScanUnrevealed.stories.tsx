@@ -7,11 +7,11 @@ const meta: Meta<typeof Component> = {
     component: Component,
     render: (args) => {
         return (
-            <div className={crewStyles.science}>
+            <ul className={crewStyles.science}>
                 <Component
                     {...args}
                 />
-            </div>
+            </ul>
         );
     },
 };
