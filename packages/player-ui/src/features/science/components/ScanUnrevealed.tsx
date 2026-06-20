@@ -8,7 +8,7 @@ type Props = {
 
 export const ScanUnrevealed = (props: Props) => {
     return (
-        <ScanBase className={styles.root} system={props.system}>
+        <ScanBase system={props.system}>
             {!props.system && (
                 <div className={styles.unknownSystem}>
                     ?

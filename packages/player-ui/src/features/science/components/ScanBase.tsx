@@ -6,12 +6,12 @@ import styles from './ScanBase.module.css';
 type Props = PropsWithChildren<{
     className?: string;
     system?: ShipSystem;
-    revealed?: true;
+    revealed?: boolean;
 }>;
 
 export const ScanBase = (props: Props) => {
     return (
-        <li className={classNames(styles.root, props.revealed && styles.revealed, props.className)}>
+        <li className={classNames(styles.root, props.revealed ? styles.revealed : styles.hidden, props.className)}>
             {props.system && (
                 <div className={styles.systemName}>
                     {props.system}

@@ -57,13 +57,9 @@
 
 .scansRoot {
     display: flex;
-    position: absolute;
-    bottom: -1em;
-    left: 50%;
-    width: 100vw;
-    transform: translateX(-50%);
-    padding: 0 0.25em;
+    grid-area: scans;
     gap: 0.25em;
     justify-content: space-between;
     align-items: flex-end;
+    margin: 0 -0.5em 1em -0.5em;
 }
