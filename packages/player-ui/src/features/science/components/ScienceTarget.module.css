@@ -12,7 +12,7 @@
     position: relative;
     display: grid;
     grid-template-columns: 1fr 3.5em;
-    grid-template-rows: 1.5em 2fr 3fr;
+    grid-template-rows: 1.5em 1fr 1fr;
 
     grid-template-areas:
         "name count"
@@ -57,9 +57,13 @@
 
 .scansRoot {
     display: flex;
-    grid-area: scans;
+    position: absolute;
+    bottom: -1em;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    padding: 0 0.25em;
     gap: 0.25em;
     justify-content: space-between;
     align-items: flex-end;
-    margin: 0 -0.5em 1em -0.5em;
 }

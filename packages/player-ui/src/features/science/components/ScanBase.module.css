@@ -1,6 +1,7 @@
 .root {
+    font-size: 4.5vw; /* Scale these so that 4 can fit horizontally on the screen, with gaps. */
     width: 5em;
-    height: 10em;
+    height: 8em;
     padding: 0.5em;
     corner-shape: squircle;
     border-radius: 0.5em;
