@@ -3,20 +3,13 @@
 	align-items: stretch;
     justify-content: space-between;
     min-height: 1em;
-
-    &:not(.vertical) > :not(:last-child) {
-        margin-right: 0.333em;
-    }
+    gap: 0.333em;
 }
 
 .vertical {
     flex-direction: column-reverse;
     min-width: 1em;
     
-    > :not(:last-child) {
-        margin-top: 0.333em;
-    }
-
     .block {
         flex-direction: column;
     }
@@ -32,8 +25,13 @@
     overflow: hidden;
 }
 
+.blockOutline {
+    border: solid var(--energy-mid) 0.1em;
+}
+
 .blockActive {
 	background: var(--energy-light);
+    border-color: var(--energy-light);
 }
 
 .decayProgress {

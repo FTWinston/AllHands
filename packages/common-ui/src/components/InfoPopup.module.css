@@ -73,7 +73,7 @@
     color: var(--grey-mid);
 }
 
-.popup svg {
+.description > svg {
     width: 1em;
     height: 1em;
     display: inline;

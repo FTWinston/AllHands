@@ -8,12 +8,17 @@ type Props = {
 
 export const ScanUnrevealed = (props: Props) => {
     return (
-        <ScanBase system={props.system}>
-            {!props.system && (
-                <div className={styles.unknownSystem}>
-                    ?
+        <ScanBase expanded={false}>
+            {props.system ? (
+                <div className={styles.systemName}>
+                    {props.system}
                 </div>
-            )}
+            )
+                : (
+                    <div className={styles.unknownSystem}>
+                        ?
+                    </div>
+                )}
         </ScanBase>
     );
 };

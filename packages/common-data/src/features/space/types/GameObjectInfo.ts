@@ -74,7 +74,7 @@ export interface ScannedManeuverInfo {
 
 export interface ScannedEngineerTileInfo {
     /** The ship system this tile represents. */
-    system: string;
+    system: ShipSystem;
     power: number;
     health: number;
 }

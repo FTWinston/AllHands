@@ -15,26 +15,12 @@
     transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
 }
 
-.revealed {
+.expanded {
     border-color: var(--primary-lightest);
     justify-content: flex-start;
 }
 
-.systemName {
-    color: var(--grey-light);
-    text-transform: capitalize;
-    transition: font-size 0.5s ease-in-out;
-}
-
-.hidden {
+.contracted {
     width: 2.5em;
     height: 2.5em;
-    
-    .systemName {
-        font-size: 0.6em;
-    }
-}
-
-.revealed .systemName {
-    font-size: 0.85em;
 }

@@ -7,6 +7,7 @@ import { LinearProgress } from './LinearProgress';
 export type Props = {
     className?: string;
     vertical?: boolean;
+    outlineInactiveBlocks?: boolean;
     value: number;
     maxValue: number;
     title: string;
@@ -35,7 +36,8 @@ export const DiscreteProgress: FC<Props> = (props) => {
                         key={index}
                         className={classNames(
                             styles.block,
-                            isActive ? styles.blockActive : undefined
+                            isActive ? styles.blockActive : undefined,
+                            props.outlineInactiveBlocks ? styles.blockOutline : undefined
                         )}
                     >
                         {isLastActive && (

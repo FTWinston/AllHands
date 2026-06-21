@@ -3,7 +3,7 @@ import crewStyles from 'common-ui/CrewColors.module.css';
 import { ScanUnrevealed as Component } from './ScanUnrevealed';
 
 const meta: Meta<typeof Component> = {
-    title: 'player-ui/Science/ScanUnrevealed',
+    title: 'player-ui/Science/Scans/Unrevealed',
     component: Component,
     render: (args) => {
         return (

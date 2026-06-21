@@ -3,7 +3,7 @@ import crewStyles from 'common-ui/CrewColors.module.css';
 import { ScanHelmSystem as Component } from './ScanHelmSystem';
 
 const meta: Meta<typeof Component> = {
-    title: 'player-ui/Science/ScanHelmSystem',
+    title: 'player-ui/Science/Scans/Helm',
     component: Component,
     render: (args) => {
         return (

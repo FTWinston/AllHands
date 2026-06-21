@@ -3,7 +3,7 @@ import crewStyles from 'common-ui/CrewColors.module.css';
 import { ScanEngineerSystem as Component } from './ScanEngineerSystem';
 
 const meta: Meta<typeof Component> = {
-    title: 'player-ui/Science/ScanEngineerSystem',
+    title: 'player-ui/Science/Scans/Engineer',
     component: Component,
     render: (args) => {
         return (
@@ -20,7 +20,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const ScanEngineerSystem: Story = {
+export const Engineer: Story = {
     args: {
         targetId: 'Enemy-01',
         engineerTiles: [

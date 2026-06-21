@@ -1,3 +1,36 @@
 .root {
-    opacity: 1;
+    display: grid;
+    gap: 0.125em;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    margin: 0;
+    padding: 0.25em;
+    justify-items: stretch;
+    align-items: stretch;
+}
+
+.system {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1em 1fr;
+    grid-template-areas:
+        "icon icon"
+        "power health";
+    gap: 0.125em 0.5em;
+    font-size: 0.75em;
+}
+
+.systemIcon {
+    grid-area: icon;
+    width: 1em;
+    justify-self: center;
+    color: var(--grey-light);
+}
+
+.systemPower {
+    color: var(--energy-lightest);
+}
+
+.systemHealth {
+    color: var(--danger-lightest);
 }

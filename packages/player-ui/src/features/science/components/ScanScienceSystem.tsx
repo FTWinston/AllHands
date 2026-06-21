@@ -24,7 +24,7 @@ const CardDisplay = (props: Snapshot<CardInstance>) => {
 
 export const ScanScienceSystem = (props: Props) => {
     return (
-        <ScanBase className={styles.root} system="science" revealed>
+        <ScanBase className={styles.root} expanded>
             {props.deflectorCard ? (
                 <CardDisplay {...props.deflectorCard} />
             ) : (

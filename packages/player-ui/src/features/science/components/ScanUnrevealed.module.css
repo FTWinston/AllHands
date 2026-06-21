@@ -2,3 +2,9 @@
     color: var(--grey-mid);
     font-size: 1.5em;
 }
+
+.systemName {
+    color: var(--grey-light);
+    text-transform: capitalize;
+    font-size: 0.6em;
+}

@@ -7,7 +7,7 @@ import styles from './InfoPopup.module.css';
 
 type Props = PropsWithChildren<{
     className?: string;
-    name: string;
+    name?: string;
     description: JSX.Element;
     palette?: ColorPalette;
 }>;
@@ -22,7 +22,7 @@ export const InfoPopup: FC<Props> = props => (
             <Popover.Positioner sideOffset={8}>
                 <Popover.Popup className={classNames(styles.popup)}>
                     <Popover.Arrow className={styles.arrow} />
-                    <Popover.Title className={styles.name}>{props.name}</Popover.Title>
+                    {props.name && <Popover.Title className={styles.name}>{props.name}</Popover.Title>}
                     <Popover.Description className={styles.description}>
                         {props.description}
                     </Popover.Description>
