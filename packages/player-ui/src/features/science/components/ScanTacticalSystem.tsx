@@ -24,7 +24,7 @@ const SlotDisplay = (props: Snapshot<ScannedTacticalInfo>['weaponSlots'][number]
         return (
             <InfoPopup
                 description={<Card {...props.card} modifiers={mergedModifiers} slotted={true} disabled={true} />}
-                className={classNames(styles.weaponSlot)}
+                className={styles.weaponSlot}
             >
                 <div className={styles.cardName}>{cardDef.name}</div>
                 <DiscreteProgress

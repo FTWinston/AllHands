@@ -273,7 +273,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     private copyEngineerData(state: ScannedEngineerState, source: Ship['engineerState']): void {
         // Make the tiles be the same length.
         while (state.engineerTiles.length < source.systems.length) {
-            state.engineerTiles.push(new ScannedEngineerTileState());
+            state.engineerTiles.push(new ScannedEngineerTileState('hull'));
         }
         while (state.engineerTiles.length > source.systems.length) {
             state.engineerTiles.pop();

@@ -1,19 +1,19 @@
 .root {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    justify-items: stretch;
+    align-items: stretch;
     gap: 0.25em;
-    flex-grow: 1;
     padding: 0.25em;
 }
 
 
 .weaponSlot {
-    flex: 1;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    padding: 0.125em 0.25em 0.25em 0.25em;
-    margin: 0;
+    padding: 0.25em;
     gap: 0.25em;
 }
 

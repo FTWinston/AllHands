@@ -11,12 +11,14 @@
 
 .system {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 0.5em 1fr;
     grid-template-rows: 1em 1fr;
+    justify-content: space-between;
+    align-items: center;
     grid-template-areas:
-        "icon icon"
-        "power health";
-    gap: 0.125em 0.5em;
+        "icon icon icon"
+        "power . health";
+    gap: 0.125em 0;
     font-size: 0.75em;
 }
 
@@ -24,11 +26,16 @@
     grid-area: icon;
     width: 1em;
     justify-self: center;
-    color: var(--grey-light);
+    color: var(--grey-lightest);
 }
 
 .systemPower {
     color: var(--energy-lightest);
+}
+
+.separator {
+    font-size: 0.75em;
+    color: var(--grey-mid);
 }
 
 .systemHealth {

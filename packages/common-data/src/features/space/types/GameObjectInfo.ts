@@ -92,6 +92,7 @@ export interface ScannedTacticalInfo extends ScannedBaseInfo {
 }
 
 export interface ScannedScienceInfo extends ScannedBaseInfo {
+    scanSystems: IArray<ShipSystem>;
     deflectorCard: CardInstance | null;
 }
 

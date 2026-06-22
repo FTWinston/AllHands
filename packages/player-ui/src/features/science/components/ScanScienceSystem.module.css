@@ -1,3 +1,63 @@
 .root {
-    opacity: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    justify-items: stretch;
+    align-items: stretch;
+    gap: 0.25em;
+    padding: 0.25em;
+}
+
+.scanTargets {
+    display: flex;
+    flex-direction: column;
+}
+
+.notScanning {
+    flex: 1;
+    font-size: 0.6em;
+    color: var(--grey-mid);
+    line-height: 1.2em;
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.scanTargetList {
+    font-size: 0.6em;
+    line-height: 1.2em;
+    color: var(--grey-light);
+}
+
+.deflectorSlot {
+    overflow: hidden;
+    padding: 0.25em;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+.itemLabel {
+    font-size: 0.5em;
+    margin-top: -0.35em;
+    text-align: center;
+    color: var(--primary-lightest);
+}
+
+.cardName {
+    font-size: 0.7em;
+    line-height: 1.1em;
+    color: var(--grey-light);
+    flex-grow: 1;
+}
+
+.emptySlot {
+    border: 0.1em solid transparent;
+}
+
+.emptySlot .cardName {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--grey-mid);
 }

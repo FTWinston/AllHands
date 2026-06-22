@@ -29,6 +29,7 @@ const SystemInfo = (props: ScannedEngineerTileInfo) => {
         >
             <SystemIcon className={styles.systemIcon} system={props.system} />
             <div className={styles.systemPower}>{props.power}</div>
+            <div className={styles.separator}>/</div>
             <div className={styles.systemHealth}>{props.health}</div>
         </InfoPopup>
     );
