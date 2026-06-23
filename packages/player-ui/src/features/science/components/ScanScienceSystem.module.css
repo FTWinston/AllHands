@@ -29,6 +29,15 @@
     color: var(--grey-light);
 }
 
+.scanTargetList_num3, .scanTargetList_num4 {
+    font-size: 0.54em;
+    line-height: 1.1em;
+}
+
+.systemName {
+    color: var(--grey-lightest);
+}
+
 .deflectorSlot {
     overflow: hidden;
     padding: 0.25em;
