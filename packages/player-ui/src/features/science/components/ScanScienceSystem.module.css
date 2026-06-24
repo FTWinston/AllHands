@@ -8,11 +8,6 @@
     padding: 0.25em;
 }
 
-.scanTargets {
-    display: flex;
-    flex-direction: column;
-}
-
 .notScanning {
     flex: 1;
     font-size: 0.6em;
@@ -24,13 +19,17 @@
 }
 
 .scanTargetList {
-    font-size: 0.6em;
-    line-height: 1.2em;
+    font-size: 0.54em;
+    line-height: 1.3em;
     color: var(--grey-light);
 }
 
+.scanTargetList_num2 {
+    line-height: 1.1em;
+}
+
 .scanTargetList_num3, .scanTargetList_num4 {
-    font-size: 0.54em;
+    font-size: 0.46em;
     line-height: 1.1em;
 }
 
@@ -38,33 +37,7 @@
     color: var(--grey-lightest);
 }
 
-.deflectorSlot {
-    overflow: hidden;
-    padding: 0.25em;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-}
-
-.itemLabel {
-    font-size: 0.5em;
-    margin-top: -0.35em;
-    text-align: center;
-    color: var(--primary-lightest);
-}
-
-.cardName {
-    font-size: 0.7em;
-    line-height: 1.1em;
-    color: var(--grey-light);
-    flex-grow: 1;
-}
-
-.emptySlot {
-    border: 0.1em solid transparent;
-}
-
-.emptySlot .cardName {
+.emptyDeflectorCardName {
     display: flex;
     justify-content: center;
     align-items: center;

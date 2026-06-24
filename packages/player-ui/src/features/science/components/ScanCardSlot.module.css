@@ -1,0 +1,21 @@
+.slot {
+    overflow: hidden;
+    padding: 0.25em;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+.itemLabel {
+    font-size: 0.5em;
+    margin-top: -0.35em;
+    text-align: center;
+    color: var(--primary-lightest);
+}
+
+.cardName {
+    font-size: 0.7em;
+    line-height: 1.1em;
+    color: var(--grey-light);
+    flex-grow: 1;
+}

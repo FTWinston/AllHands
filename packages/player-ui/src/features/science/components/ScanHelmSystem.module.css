@@ -1,3 +1,19 @@
 .root {
-    opacity: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    justify-items: stretch;
+    align-items: stretch;
+    gap: 0.25em;
+    padding: 0.25em;
+}
+
+.evasionValue {
+    display: flex;
+    justify-content: center;
+    padding-top: 0.25em;
+}
+
+.emptyManeuverName {
+    font-size: 0.55em;
 }

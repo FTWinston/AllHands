@@ -1,53 +1,50 @@
 import { Snapshot } from '@colyseus/react';
 import { ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { DiscreteProgress } from 'common-ui/components/DiscreteProgress';
-import { InfoPopup } from 'common-ui/components/InfoPopup';
-import { Card } from 'common-ui/features/cards/components/Card';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { resolveParameter } from 'common-ui/types/resolveParameters';
-import { classNames } from 'common-ui/utils/classNames';
 import { mergeModifiers } from 'src/features/tactical/utils/mergeModifiers';
 import { ScanBase } from './ScanBase';
+import { ScanCardSlot } from './ScanCardSlot';
 import styles from './ScanTacticalSystem.module.css';
 
 type Props = Snapshot<ScannedTacticalInfo>;
 
-const SlotDisplay = (props: Snapshot<ScannedTacticalInfo>['weaponSlots'][number]) => {
-    if (props.card) {
-        const cardDef = getCardDefinition(props.card.type);
+type SlotDisplayProps = Snapshot<ScannedTacticalInfo>['weaponSlots'][number] & { label: string };
 
-        const charge = props.charge ?? 0;
-        const maxCharge = resolveParameter('chargeCost', cardDef.parameters, props.card.modifiers, props.modifiers);
+const SlotDisplay = (props: SlotDisplayProps) => {
+    const mergedModifiers = props.card
+        ? mergeModifiers(props.card.modifiers, props.modifiers)
+        : undefined;
 
-        const mergedModifiers: Record<string, number> = mergeModifiers(props.card.modifiers, props.modifiers);
+    const charge = props.charge ?? 0;
+    const maxCharge = props.card
+        ? resolveParameter('chargeCost', getCardDefinition(props.card.type).parameters, props.card.modifiers, props.modifiers)
+        : 0;
 
-        return (
-            <InfoPopup
-                description={<Card {...props.card} modifiers={mergedModifiers} slotted={true} disabled={true} />}
-                className={styles.weaponSlot}
-            >
-                <div className={styles.cardName}>{cardDef.name}</div>
-                <DiscreteProgress
-                    className={styles.charge}
-                    title="Charge progress"
-                    value={charge}
-                    maxValue={maxCharge}
-                    outlineInactiveBlocks
-                />
-            </InfoPopup>
-        );
-    } else {
-        return (
-            <div className={classNames(styles.weaponSlot, styles.emptySlot)}>
-                (Empty slot)
-            </div>
-        );
-    }
+    return (
+        <ScanCardSlot
+            label={props.label}
+            card={props.card}
+            emptyText="(Empty slot)"
+            modifiers={mergedModifiers}
+            slotted
+            className={styles.weaponSlot}
+        >
+            <DiscreteProgress
+                className={styles.charge}
+                title="Charge progress"
+                value={charge}
+                maxValue={maxCharge}
+                outlineInactiveBlocks
+            />
+        </ScanCardSlot>
+    );
 };
 
 export const ScanTacticalSystem = (props: Props) => {
     const slots = props.weaponSlots.map((slot, index) => (
-        <SlotDisplay key={index} {...slot} />
+        <SlotDisplay key={index} label={`Weapon ${index + 1}`} {...slot} />
     ));
 
     return (

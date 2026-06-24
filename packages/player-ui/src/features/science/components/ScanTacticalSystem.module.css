@@ -10,23 +10,7 @@
 
 
 .weaponSlot {
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding: 0.25em;
     gap: 0.25em;
-}
-
-.emptySlot {
-    font-size: 0.7em;
-    justify-content: center;
-}
-
-.cardName {
-    font-size: 0.8em;
-    line-height: 1.125em;
-    color: var(--grey-light);
-    text-align: left;
 }
 
 .charge.charge {

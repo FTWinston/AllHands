@@ -1,21 +1,30 @@
 import { Snapshot } from '@colyseus/react';
 import { ScannedHelmInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { ScanBase } from './ScanBase';
+import { ScanCardSlot } from './ScanCardSlot';
 import styles from './ScanHelmSystem.module.css';
+import { ScanSection } from './ScanSection';
 
 type Props = Snapshot<ScannedHelmInfo>;
 
 export const ScanHelmSystem = (props: Props) => {
-    const manueverName = props.activeManeuver
-        ? getCardDefinition(props.activeManeuver.type)?.name
-        : undefined;
+    const evasionChancePercent = 0;
 
     return (
         <ScanBase className={styles.root} expanded>
-            {props.activeManeuver ? `Maneuvering: ${manueverName}` : 'No active maneuver'}
-            {/* TODO: show evade chance */}
-            {/* TODO: show maneuver progress */}
+            <ScanCardSlot
+                label="Maneuver"
+                card={props.activeManeuver}
+                emptyText="(No maneuver)"
+                emptyTextClassName={styles.emptyManeuverName}
+            />
+
+            <ScanSection label="Evasion">
+                <div className={styles.evasionValue}>
+                    {evasionChancePercent}
+                    %
+                </div>
+            </ScanSection>
         </ScanBase>
     );
 };

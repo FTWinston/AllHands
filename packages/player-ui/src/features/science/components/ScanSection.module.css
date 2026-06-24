@@ -1,0 +1,17 @@
+.root {
+    overflow: hidden;
+    padding: 0.25em;
+    display: flex;
+    flex-direction: column;
+
+    border: 0.1em solid var(--grey-dark);
+    corner-shape: squircle;
+    border-radius: 1em;
+}
+
+.label {
+    font-size: 0.5em;
+    margin-top: -0.35em;
+    text-align: center;
+    color: var(--primary-lightest);
+}
