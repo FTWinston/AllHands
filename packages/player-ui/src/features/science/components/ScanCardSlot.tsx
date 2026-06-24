@@ -13,6 +13,7 @@ type Props = PropsWithChildren<{
     card: Snapshot<CardInstance> | null | undefined;
     emptyText: string;
     className?: string;
+    cardNameClassName?: string;
     emptyTextClassName?: string;
     modifiers?: Record<string, number>;
     slotted?: boolean;
@@ -29,7 +30,7 @@ export const ScanCardSlot = (props: Props) => {
                 description={<Card {...card} {...(modifiers !== undefined ? { modifiers } : undefined)} slotted={slotted} disabled={true} />}
             >
                 <div className={styles.itemLabel}>{label}</div>
-                <div className={styles.cardName}>{cardDef.name}</div>
+                <div className={classNames(styles.cardName, props.cardNameClassName)}>{cardDef.name}</div>
                 {children}
             </InfoPopup>
         );
@@ -37,7 +38,7 @@ export const ScanCardSlot = (props: Props) => {
 
     return (
         <ScanSection label={label} className={className}>
-            <div className={classNames(styles.cardName, emptyTextClassName)}>{emptyText}</div>
+            <div className={classNames(styles.cardName, styles.emptyText, emptyTextClassName)}>{emptyText}</div>
         </ScanSection>
     );
 };

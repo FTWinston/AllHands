@@ -44,7 +44,6 @@ export const ScanScienceSystem = (props: Props) => {
                 label="Deflector"
                 card={props.deflectorCard}
                 emptyText="(No action)"
-                emptyTextClassName={styles.emptyDeflectorCardName}
             />
         </ScanBase>
     );

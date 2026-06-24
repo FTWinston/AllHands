@@ -36,10 +36,3 @@
 .systemName {
     color: var(--grey-lightest);
 }
-
-.emptyDeflectorCardName {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--grey-mid);
-}

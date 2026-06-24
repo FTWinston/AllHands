@@ -19,3 +19,11 @@
     color: var(--grey-light);
     flex-grow: 1;
 }
+
+.emptyText {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: var(--grey-mid);
+}

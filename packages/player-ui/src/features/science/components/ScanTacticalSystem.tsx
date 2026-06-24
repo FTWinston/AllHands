@@ -30,6 +30,7 @@ const SlotDisplay = (props: SlotDisplayProps) => {
             modifiers={mergedModifiers}
             slotted
             className={styles.weaponSlot}
+            cardNameClassName={styles.weaponCardName}
         >
             <DiscreteProgress
                 className={styles.charge}
