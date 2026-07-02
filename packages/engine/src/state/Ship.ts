@@ -102,7 +102,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         for (const objectId of this._knownObjects) {
             if (!this.gameState.objects.has(objectId)) {
                 // Object was removed from the game, so remove from known objects.
-                this.removeKnownObjectId(objectId);
+                this.deleteKnownObject(objectId);
             }
         }
 
@@ -113,7 +113,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             if (inRange && !this._knownObjects.has(objectId)) {
                 this.addKnownObject(objectId, object);
             } else if (!inRange && this._knownObjects.has(objectId)) {
-                this.removeKnownObject(objectId, object);
+                this.removeObjectVisibility(objectId, object);
             }
         }
     }
@@ -128,15 +128,18 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this._knownObjects.add(objectId);
     }
 
-    protected removeKnownObject(objectId: string, _object: GameObject) {
-        this.removeKnownObjectId(objectId);
+    protected removeObjectVisibility(objectId: string, _object: GameObject) {
+        // Out of range: stop active scanning, but retain accumulated knowledge
+        // (vulnerabilitiesByTarget and systemOrderByTarget persist until the ship is destroyed).
+        this._knownObjects.delete(objectId);
+        this.scienceState.unsubscribeFromShip(objectId);
     }
 
-    private removeKnownObjectId(objectId: string) {
+    private deleteKnownObject(objectId: string) {
+        // Ship destroyed: full cleanup including all retained knowledge.
         this._knownObjects.delete(objectId);
-
-        this.tacticalState.vulnerabilitiesByTarget.delete(objectId);
-        this.scienceState.unsubscribeFromShip(objectId);
+        this.tacticalState.subTargetsByTarget.delete(objectId);
+        this.scienceState.forgetShip(objectId);
     }
 
     damage(damage: Damage) {

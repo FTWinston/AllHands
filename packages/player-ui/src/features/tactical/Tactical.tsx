@@ -43,7 +43,7 @@ export const Tactical = (props: Props) => {
             slots={tacticalState.slots}
             shipMotion={localShip.motion}
             targets={targets}
-            vulnerabilitiesByTarget={tacticalState.vulnerabilitiesByTarget}
+            subTargetsByTarget={tacticalState.subTargetsByTarget}
             onPause={pause}
             power={tacticalState.powerLevel}
             maxHandSize={tacticalState.maxHandSize}

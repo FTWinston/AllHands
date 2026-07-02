@@ -26,6 +26,6 @@ export const TacticalTarget: Story = {
         appearance: 'starfighter',
         targetNumber: 1,
         totalTargets: 3,
-        vulnerabilities: [{ type: 'shields', aspect: 0 }, { type: 'engine', aspect: Math.PI }],
+        subTargets: [{ id: 'helm', system: 'helm', aspect: 0 }, { id: 'tactical', system: 'tactical', aspect: Math.PI }],
     },
 };

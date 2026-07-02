@@ -1,8 +1,8 @@
-import { IArray, Snapshot } from '@colyseus/react';
+import { Snapshot } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedSystemOrderInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps } from 'react';
@@ -17,7 +17,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     cards: Snapshot<CardInstance[]>;
     targets: Snapshot<GameObjectInfo[]>;
     scannedShipId: string | null;
-    scannedSystemOrder: IArray<number>;
+    systemOrderByTarget: Record<string, ScannedSystemOrderInfo>;
     scannedHelm: Snapshot<ScannedHelmInfo> | null;
     scannedTactical: Snapshot<ScannedTacticalInfo> | null;
     scannedScience: Snapshot<ScannedScienceInfo> | null;
@@ -29,7 +29,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
 };
 
 export const ScienceDisplay = (props: Props) => {
-    const { cards, playCard, targets, scannedShipId, scannedSystemOrder, modifierSlot, substanceSlot, deliverySlot, deflectorCard, ...headerProps } = props;
+    const { cards, playCard, targets, scannedShipId, systemOrderByTarget, modifierSlot, substanceSlot, deliverySlot, deflectorCard, ...headerProps } = props;
 
     useRootClassName(crewStyles.science);
 
@@ -45,7 +45,7 @@ export const ScienceDisplay = (props: Props) => {
                 <ScienceTargetList
                     targets={targets}
                     scannedShipId={scannedShipId}
-                    scannedSystemOrder={scannedSystemOrder}
+                    systemOrderByTarget={systemOrderByTarget}
                     scannedHelm={headerProps.scannedHelm}
                     scannedTactical={headerProps.scannedTactical}
                     scannedScience={headerProps.scannedScience}

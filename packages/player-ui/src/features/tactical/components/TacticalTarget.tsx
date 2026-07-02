@@ -1,16 +1,16 @@
 import { IArray } from '@colyseus/react';
-import { GameObjectInfo, VulnerabilityInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, SubTargetInfo } from 'common-data/features/space/types/GameObjectInfo';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { ObjectIcon } from 'common-ui/objects';
 import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
+import { SubTargetList } from './SubTargetList';
 import styles from './TacticalTarget.module.css';
-import { VulnerabilityList } from './VulnerabilityList';
 
 type Props = GameObjectInfo & {
     targetNumber: number;
     totalTargets: number;
-    vulnerabilities?: IArray<VulnerabilityInfo> | null;
+    subTargets?: IArray<SubTargetInfo> | null;
     targetAspect?: number;
 };
 
@@ -20,7 +20,7 @@ export const TacticalTarget = (props: Props) => {
             className={classNames(
                 styles.target,
                 colorPalettes.primary,
-                props.vulnerabilities && props.vulnerabilities.length > 0 ? styles.hasVulnerabilities : styles.noVulnerabilities
+                props.subTargets && props.subTargets.length > 0 ? styles.hasVulnerabilities : styles.noVulnerabilities
             )}
         >
             <CardDropTarget
@@ -48,9 +48,9 @@ export const TacticalTarget = (props: Props) => {
                 className={styles.image}
             />
 
-            <VulnerabilityList
+            <SubTargetList
                 className={styles.vulnerabilities}
-                vulnerabilities={props.vulnerabilities ?? []}
+                subTargets={props.subTargets ?? []}
                 targetId={props.id}
                 targetAspect={props.targetAspect}
             />

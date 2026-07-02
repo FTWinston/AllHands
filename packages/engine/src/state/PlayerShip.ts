@@ -28,8 +28,8 @@ export class PlayerShip extends Ship {
         this.crew?.addObjectToViews(object);
     }
 
-    protected removeKnownObject(objectId: string, object: GameObject) {
-        super.removeKnownObject(objectId, object);
+    protected removeObjectVisibility(objectId: string, object: GameObject) {
+        super.removeObjectVisibility(objectId, object);
 
         this.crew?.removeObjectFromViews(object);
     }

@@ -1,5 +1,5 @@
 import { IArray, Snapshot } from '@colyseus/react';
-import { GameObjectInfo, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedSystemOrderInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
 import { ScienceTarget } from './ScienceTarget';
 import styles from './ScienceTargetList.module.css';
@@ -7,7 +7,7 @@ import styles from './ScienceTargetList.module.css';
 type Props = {
     targets: IArray<GameObjectInfo>;
     scannedShipId: string | null;
-    scannedSystemOrder: IArray<number>;
+    systemOrderByTarget: Record<string, ScannedSystemOrderInfo>;
     scannedHelm: Snapshot<ScannedHelmInfo> | null;
     scannedTactical: Snapshot<ScannedTacticalInfo> | null;
     scannedScience: Snapshot<ScannedScienceInfo> | null;
@@ -34,7 +34,7 @@ export const ScienceTargetList = (props: Props) => {
                         motion={target.motion}
                         targetNumber={index + 1}
                         totalTargets={targets.length}
-                        systemOrder={target.id === scannedShipId ? props.scannedSystemOrder : null}
+                        systemOrder={props.systemOrderByTarget[target.id]?.order ?? null}
                         scannedHelm={target.id === scannedShipId ? scannedHelm : null}
                         scannedTactical={target.id === scannedShipId ? scannedTactical : null}
                         scannedScience={target.id === scannedShipId ? scannedScience : null}

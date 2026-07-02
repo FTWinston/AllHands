@@ -3,7 +3,6 @@ import { CardInstance } from 'src/features/cards/types/CardInstance';
 import { CardType } from 'src/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'src/features/ships/types/SystemEffectDefinition';
-import { VulnerabilityType } from 'src/features/ships/types/VulnerabilityType';
 import { CardCooldown, Cooldown } from 'src/types/Cooldown';
 import { ReadonlyKeyframes } from './Keyframes';
 import { ObjectAppearance } from './ObjectAppearance';
@@ -52,17 +51,19 @@ export interface ScannedWeaponSlotInfo {
     charge: number;
 }
 
-export interface VulnerabilityInfo {
-    type: VulnerabilityType;
-    aspect?: number;
+export interface SubTargetInfo {
+    /** Unique key for this sub-target. System targets use just the system name; vulnerability targets use 'system:vulnerabilityId'. */
+    id: string;
+    system: ShipSystem;
+    aspect: number | null;
 }
 
-export interface TargetVulnerabilities {
-    vulnerabilities: IArray<VulnerabilityInfo>;
+export interface TargetSubTargets {
+    subTargets: IArray<SubTargetInfo>;
 }
 
 export interface TacticalSystemInfo extends CrewSystemInfo {
-    vulnerabilitiesByTarget: IMap<string, TargetVulnerabilities>;
+    subTargetsByTarget: IMap<string, TargetSubTargets>;
     slots: IArray<WeaponSlotInfo>;
 }
 
@@ -77,6 +78,10 @@ export interface ScannedEngineerTileInfo {
     system: ShipSystem;
     power: number;
     health: number;
+}
+
+export interface ScannedSystemOrderInfo {
+    order: IArray<number>;
 }
 
 export interface ScannedBaseInfo {
@@ -107,6 +112,7 @@ export interface ScienceSystemInfo extends CrewSystemInfo {
     deflectorCard: CardInstance | null;
     scannedShipId: string | null;
     scannedSystemOrder: IArray<number>;
+    systemOrderByTarget: IMap<string, ScannedSystemOrderInfo>;
     scannedHelm: ScannedHelmInfo | null;
     scannedTactical: ScannedTacticalInfo | null;
     scannedScience: ScannedScienceInfo | null;

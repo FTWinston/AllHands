@@ -176,11 +176,11 @@ export const UI: Story = {
                 ],
             },
         ],
-        vulnerabilitiesByTarget: {
-            target2: { vulnerabilities: [] },
-            target3: { vulnerabilities: [{ type: 'engine', aspect: Math.PI }] },
-            target4: { vulnerabilities: [{ type: 'shields', aspect: 0 }, { type: 'weapons', aspect: Math.PI }] },
-            target5: { vulnerabilities: [{ type: 'shields', aspect: 0 }, { type: 'weapons', aspect: -Math.PI / 2 }, { type: 'engine', aspect: Math.PI }] },
+        subTargetsByTarget: {
+            target2: { subTargets: [] },
+            target3: { subTargets: [{ id: 'helm', system: 'helm', aspect: Math.PI }] },
+            target4: { subTargets: [{ id: 'engineer', system: 'engineer', aspect: 0 }, { id: 'tactical', system: 'tactical', aspect: Math.PI }] },
+            target5: { subTargets: [{ id: 'hull', system: 'hull', aspect: 0 }, { id: 'tactical', system: 'tactical', aspect: -Math.PI / 2 }, { id: 'helm', system: 'helm', aspect: Math.PI }] },
         },
         power: 5,
         maxHandSize: 5,

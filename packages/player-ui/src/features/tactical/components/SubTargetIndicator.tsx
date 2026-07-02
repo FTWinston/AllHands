@@ -1,24 +1,25 @@
-import { VulnerabilityType } from 'common-data/features/ships/types/VulnerabilityType';
+import { SubTargetInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
-import { getVulnerabilityDescription } from 'common-ui/utils/getVulnerabilityDescription';
+import { getSubTargetDescription } from 'common-ui/utils/getSubTargetDescription';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
-import styles from './VulnerabilityIndicator.module.css';
+import styles from './SubTargetIndicator.module.css';
 
 type Props = {
-    vulnerability: VulnerabilityType;
+    subTarget: SubTargetInfo;
     targetId: string;
     index: number;
     disabled?: boolean;
     hidden?: boolean;
 };
 
-export const VulnerabilityIndicator = (props: Props) => {
-    const { name, description, image } = getVulnerabilityDescription(props.vulnerability);
+export const SubTargetIndicator = (props: Props) => {
+    // TODO: different descriptions for vulnerabilities as opposed to just targeting a system.
+    const { name, description, image } = getSubTargetDescription(props.subTarget.system);
 
     return (
         <CardDropTarget
             targetType="enemy"
-            id={`${props.targetId}:${props.vulnerability}`}
+            id={`${props.targetId}:${props.subTarget.id}`}
             disabled={props.disabled}
             className={styles.dropTarget}
             // @ts-expect-error CSS custom property

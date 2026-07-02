@@ -1,6 +1,6 @@
 import { ReactElement, ReactNode } from 'react';
 
-export interface VulnerabilityDescription {
+export interface SubTargetDescription {
     name: string;
     description: ReactElement;
     image: ReactNode;
