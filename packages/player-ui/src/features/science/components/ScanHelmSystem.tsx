@@ -8,7 +8,7 @@ import { ScanSection } from './ScanSection';
 type Props = Snapshot<ScannedHelmInfo>;
 
 export const ScanHelmSystem = (props: Props) => {
-    const evasionChancePercent = 0;
+    const evasionChancePercent = props.evasionChance;
 
     return (
         <ScanBase className={styles.root} expanded>

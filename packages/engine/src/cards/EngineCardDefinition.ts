@@ -17,7 +17,7 @@ export type ChoiceTargetCardFunctionality = object;
 
 export type WeaponSlotTargetCardFunctionality = {
     load: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
-    fire: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters) => boolean;
+    fire: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters, accuracy: number) => boolean;
 };
 
 export type WeaponTargetCardFunctionality = {

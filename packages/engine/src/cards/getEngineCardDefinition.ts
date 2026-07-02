@@ -11,6 +11,9 @@ import {
 } from 'common-data/features/cards/utils/cardDefinitions';
 import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { DamageType, DeliveryMethod } from 'common-data/features/space/types/Damage';
+import { IRandom } from 'common-data/types/IRandom';
+import { GameObject } from 'src/state/GameObject';
 import { Ship } from 'src/state/Ship';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from '../state/CooldownState';
@@ -76,6 +79,47 @@ function applySwappedEffects(
     }
 }
 
+function getTargetEvasion(target: GameObject): number {
+    if (target instanceof Ship) {
+        const activeCard = target.helmState.activeManeuver?.card;
+        return activeCard?.getParameter('evasion') ?? 0;
+    }
+    return 0;
+}
+
+function rollToHit(random: IRandom, evasion: number, accuracy: number): boolean {
+    const hitChance = Math.max(0, accuracy - evasion);
+    return random.getBoolean(hitChance / 100);
+}
+
+function tryToDamage(
+    target: GameObject | null,
+    random: IRandom,
+    accuracy: number,
+    damageAmount: number | null,
+    damageType: DamageType,
+    delivery: DeliveryMethod
+): boolean {
+    if (!target || !damageAmount) {
+        return false;
+    }
+
+    const evasion = getTargetEvasion(target);
+
+    if (rollToHit(random, evasion, accuracy)) {
+        // TODO: ability to target a specific system or vulnerability.
+        target.damage({
+            amount: damageAmount,
+            damageType: damageType,
+            deliveryMethod: delivery,
+        });
+
+        return true;
+    }
+
+    return false;
+}
+
 function loadCardDefinitions() {
     const cardFunctionalities: CardFunctionalityLookup = {
         flare: {
@@ -92,14 +136,8 @@ function loadCardDefinitions() {
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
-            fire: (gameState, ship, target, parameters) => {
-                if (target && parameters.damage) {
-                    target.damage({
-                        amount: parameters.damage,
-                        damageType: 'coherent',
-                        deliveryMethod: 'beam',
-                    });
-                }
+            fire: (gameState, ship, target, parameters, accuracy) => {
+                tryToDamage(target, gameState.random, accuracy, parameters.damage, 'coherent', 'beam');
 
                 gameState.broadcastWeaponEffect({
                     type: 'beam',
@@ -119,14 +157,8 @@ function loadCardDefinitions() {
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
-            fire: (gameState, ship, target, parameters) => {
-                if (target && parameters.damage) {
-                    target.damage({
-                        amount: parameters.damage,
-                        damageType: 'coherent',
-                        deliveryMethod: 'beam',
-                    });
-                }
+            fire: (gameState, ship, target, parameters, accuracy) => {
+                tryToDamage(target, gameState.random, accuracy, parameters.damage, 'coherent', 'beam');
 
                 gameState.broadcastWeaponEffect({
                     type: 'beam',
@@ -146,14 +178,8 @@ function loadCardDefinitions() {
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
-            fire: (gameState, ship, target, parameters) => {
-                if (target && parameters.damage) {
-                    target.damage({
-                        amount: parameters.damage,
-                        damageType: 'antimatter',
-                        deliveryMethod: 'projectile',
-                    });
-                }
+            fire: (gameState, ship, target, parameters, accuracy) => {
+                tryToDamage(target, gameState.random, accuracy, parameters.damage, 'antimatter', 'projectile');
 
                 gameState.broadcastWeaponEffect({
                     type: 'projectile',
@@ -173,14 +199,8 @@ function loadCardDefinitions() {
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
-            fire: (gameState, ship, target, parameters) => {
-                if (target && parameters.damage) {
-                    target.damage({
-                        amount: parameters.damage,
-                        damageType: 'coherent',
-                        deliveryMethod: 'beam',
-                    });
-                }
+            fire: (gameState, ship, target, parameters, accuracy) => {
+                tryToDamage(target, gameState.random, accuracy, parameters.damage, 'coherent', 'beam');
 
                 gameState.broadcastWeaponEffect({
                     type: 'beam',

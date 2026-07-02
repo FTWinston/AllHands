@@ -97,6 +97,10 @@ export type LocationTargetCardDefinition = CommonCardDefinition & {
     perpendicularPositionOffsets?: number[];
     minDistance?: number;
     maxDistance?: number;
+
+    parameters: CardParameters & {
+        evasion: number;
+    };
 };
 
 // The TCardKey generic allows choice cards to reference other cards without creating a circular reference.

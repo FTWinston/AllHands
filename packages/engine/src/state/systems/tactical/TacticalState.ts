@@ -149,7 +149,14 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             return null;
         }
 
-        cardDef.fire(this.getGameState(), this.getShip(), target, slotParameters);
+        /*
+        const ownHelm = this.getShip().helmState;
+        const ownEvasion = ownHelm.activeManeuver?.card?.getParameter('evasion') ?? 0;
+        const accuracy = 100 - ownEvasion;
+        */
+        const accuracy = 100; // TODO: consider what can reduce (or improve) accuracy, such as evasion, damage, etc.
+
+        cardDef.fire(this.getGameState(), this.getShip(), target, slotParameters, accuracy);
 
         if (slot.card && slot.afterFiring()) {
             // Put card back into discard pile.

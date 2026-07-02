@@ -5,4 +5,5 @@ import { CardState } from 'src/state/CardState';
 export class ScannedHelmState extends Schema implements ScannedHelmInfo {
     @type('string') targetId: string = '';
     @type(CardState) activeManeuver: CardState | null = null;
+    @type('number') evasionChance: number = 0;
 }

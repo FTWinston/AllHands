@@ -136,7 +136,7 @@ export const cardDefinitions = defineCardDefinitions({
         endFacing: CardMotionSegmentFacing.FinalVector,
         baseRotationSpeed: 0.75,
         baseSpeed: 0.75,
-        parameters: { cost: 1 },
+        parameters: { cost: 1, evasion: 0 },
     },
     fullReverse: {
         targetType: 'location',
@@ -148,7 +148,7 @@ export const cardDefinitions = defineCardDefinitions({
         endFacingOffset: Math.PI,
         baseRotationSpeed: 0.75,
         baseSpeed: 0.5,
-        parameters: { cost: 2 },
+        parameters: { cost: 2, evasion: 0 },
     },
     zigZag: {
         targetType: 'location',
@@ -160,7 +160,7 @@ export const cardDefinitions = defineCardDefinitions({
         baseSpeed: 1,
         perpendicularPositionOffsets: [-0.15, 0.25, -0.25, 0.15],
         minDistance: 3,
-        parameters: { cost: 2 },
+        parameters: { cost: 2, evasion: 25 },
     },
     strafe: {
         targetType: 'location',
@@ -169,7 +169,7 @@ export const cardDefinitions = defineCardDefinitions({
         baseRotationSpeed: 1,
         baseSpeed: 0.4,
         maxDistance: 4,
-        parameters: { cost: 1 },
+        parameters: { cost: 1, evasion: 15 },
     },
     sweep: {
         targetType: 'choice',
@@ -188,7 +188,7 @@ export const cardDefinitions = defineCardDefinitions({
         baseSpeed: 1,
         // Sine curve bulging right (positive = right of movement direction)
         perpendicularPositionOffsets: [0.14, 0.26, 0.35, 0.39, 0.39, 0.35, 0.26, 0.14],
-        parameters: { cost: 2 },
+        parameters: { cost: 2, evasion: 15 },
     },
     sweepRight: {
         targetType: 'location',
@@ -201,7 +201,7 @@ export const cardDefinitions = defineCardDefinitions({
         baseSpeed: 1,
         // Sine curve bulging left (negative = left of movement direction)
         perpendicularPositionOffsets: [-0.14, -0.26, -0.35, -0.39, -0.39, -0.35, -0.26, -0.14],
-        parameters: { cost: 2 },
+        parameters: { cost: 2, evasion: 15 },
     },
     faceTarget: {
         targetType: 'location',
@@ -210,7 +210,7 @@ export const cardDefinitions = defineCardDefinitions({
         startFacing: CardMotionSegmentFacing.FinalVector,
         baseRotationSpeed: 1,
         baseSpeed: 0,
-        parameters: { cost: 1 },
+        parameters: { cost: 1, evasion: 0 },
     },
     exampleNoTarget: {
         targetType: 'no-target',

@@ -90,6 +90,7 @@ export interface ScannedBaseInfo {
 
 export interface ScannedHelmInfo extends ScannedBaseInfo {
     activeManeuver: CardInstance | null;
+    evasionChance: number;
 }
 
 export interface ScannedTacticalInfo extends ScannedBaseInfo {

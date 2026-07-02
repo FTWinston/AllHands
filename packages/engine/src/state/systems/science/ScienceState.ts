@@ -287,6 +287,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
 
     private copyHelmData(state: ScannedHelmState, source: Ship['helmState']): void {
         state.activeManeuver = this.cloneCard(source.activeManeuver?.card);
+        state.evasionChance = source.activeManeuver?.card?.getParameter('evasion') ?? 0;
     }
 
     private copyTacticalData(state: ScannedTacticalState, source: Ship['tacticalState']): void {
