@@ -8,37 +8,48 @@ import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';
 import { EngineerSystemTile } from 'src/state/systems/engineer/EngineerSystemTile';
 import { WeaponSlotState } from 'src/state/systems/tactical/WeaponSlotState';
+import type { CardEvaluator } from 'src/ai/types';
 
-export type NoTargetCardFunctionality = {
+/**
+ * This type just adds the optional `aiEvaluator` slot to each card functionality shape below.
+ * The actual card entries — each pairing an `aiEvaluator` with the play functions it must mirror —
+ * are co-located in getEngineCardDefinition.ts, so the two can't drift apart. Cards without one are
+ * never played by the AI (see warnMissingEvaluator in src/ai/evaluators/index.ts).
+ */
+export type EngineCardAiFunctionality = {
+    aiEvaluator?: CardEvaluator;
+};
+
+export type NoTargetCardFunctionality = EngineCardAiFunctionality & {
     play: (gameState: GameState, ship: Ship, parameters: CardParameters) => boolean;
 };
 
-export type ChoiceTargetCardFunctionality = object;
+export type ChoiceTargetCardFunctionality = EngineCardAiFunctionality;
 
-export type WeaponSlotTargetCardFunctionality = {
+export type WeaponSlotTargetCardFunctionality = EngineCardAiFunctionality & {
     load: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
     fire: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters, accuracy: number) => boolean;
 };
 
-export type WeaponTargetCardFunctionality = {
+export type WeaponTargetCardFunctionality = EngineCardAiFunctionality & {
     prime: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
     charge: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
 };
 
-export type EnemyTargetCardFunctionality = {
+export type EnemyTargetCardFunctionality = EngineCardAiFunctionality & {
     play: (gameState: GameState, ship: Ship, target: GameObject | null, targetSystem: ShipSystem | null, parameters: CardParameters) => boolean;
 };
 
-export type DeflectorTargetCardFunctionality = {
+export type DeflectorTargetCardFunctionality = EngineCardAiFunctionality & {
     load: (gameState: GameState, ship: Ship, slotId: string, parameters: CardParameters) => boolean;
     play: (gameState: GameState, ship: Ship, target: GameObject | null, targetSystem: ShipSystem | null, parameters: CardParameters) => boolean;
 };
 
-export type SystemTargetCardFunctionality = {
+export type SystemTargetCardFunctionality = EngineCardAiFunctionality & {
     play: (gameState: GameState, ship: Ship, system: EngineerSystemTile, parameters: CardParameters) => boolean;
 };
 
-export type LocationTargetCardFunctionality = {
+export type LocationTargetCardFunctionality = EngineCardAiFunctionality & {
     play: (gameState: GameState, ship: Ship, cardInstance: CardState, cardDefinition: LocationTargetCardDefinition, location: Vector2D, parameters: CardParameters) => boolean;
 };
 

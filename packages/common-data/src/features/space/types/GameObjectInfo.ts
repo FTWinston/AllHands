@@ -11,11 +11,34 @@ import { RelationshipType } from './RelationshipType';
 
 export type ObjectId = string;
 
+/**
+ * How a faction regards other factions, keyed by faction id (mirrors `FactionState.relations`
+ * for a single faction).
+ *
+ * On the engine side this is a `MapSchema` (satisfies `IMap`); once it reaches a React
+ * component via `useRoomState`, `@colyseus/react` snapshots it into a plain readonly
+ * `Record` instead. Consumers that need to read a value out of this should use
+ * `getDisplayRelationship`, which already handles both shapes.
+ */
+export type FactionRelationshipMap = IMap<string, RelationshipType> | Readonly<Record<string, RelationshipType>>;
+
+/**
+ * Identifies who is viewing the scene, for display-relationship purposes: their own ship
+ * (so it can be recognised as Self), their faction, and that faction's relations towards
+ * other factions.
+ */
+export interface RelationshipViewer {
+    shipId: string | null;
+    faction: string | null;
+    relations: FactionRelationshipMap | null;
+}
+
 export interface GameObjectInfo {
     id: ObjectId;
     name: string;
     appearance: ObjectAppearance;
-    relationship: RelationshipType;
+    /** Faction id, or null for unaffiliated objects (e.g. asteroids). */
+    faction: string | null;
     motion: ReadonlyKeyframes<Position>;
 }
 
@@ -160,7 +183,7 @@ export interface TacticalSystemSetupInfo extends CrewSystemSetupInfo {
 export interface GameObjectSetupInfo {
     name: string;
     appearance: ObjectAppearance;
-    relationship: RelationshipType;
+    faction?: string;
 }
 
 export interface ShipSetupInfo extends GameObjectSetupInfo {
@@ -173,4 +196,29 @@ export interface ShipSetupInfo extends GameObjectSetupInfo {
     engineer: CrewSystemSetupInfo;
 }
 
-export type PlayerShipSetupInfo = Omit<ShipSetupInfo, 'appearance' | 'relationship'>;
+export type PlayerShipSetupInfo = Omit<ShipSetupInfo, 'appearance' | 'faction'>;
+
+export type AiGoalInfo
+    = | { type: 'search-and-destroy' }
+        | { type: 'defend-position'; position: Position; radius: number }
+        | { type: 'guard-ship'; shipId: string };
+
+/** 'flee' is commander-reachable at runtime, but not setup-selectable. */
+export type AiGoalType = AiGoalInfo['type'] | 'flee';
+
+export interface AiPriorities {
+    helm?: number;
+    tactical?: number;
+    science?: number;
+    engineer?: number;
+}
+
+export interface AiShipSetupInfo extends ShipSetupInfo {
+    goal: AiGoalInfo;
+    /** 0..1 decision quality. 1 plays as well as the AI can; 0 is shambolic. */
+    skill: number;
+    /** Hull fraction below which the commander flees. Default 0.25; 0 = never flees. */
+    fleeThreshold?: number;
+    /** Per-role weighting, default 1 each. Affects engineer power allocation and officer thresholds. */
+    priorities?: AiPriorities;
+}

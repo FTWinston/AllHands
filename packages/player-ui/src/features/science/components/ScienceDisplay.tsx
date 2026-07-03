@@ -2,7 +2,7 @@ import { Snapshot } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedSystemOrderInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedSystemOrderInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps } from 'react';
@@ -26,10 +26,11 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     substanceSlot: CardType | null;
     deliverySlot: CardType | null;
     deflectorCard: Snapshot<CardInstance> | null;
+    viewer: RelationshipViewer;
 };
 
 export const ScienceDisplay = (props: Props) => {
-    const { cards, playCard, targets, scannedShipId, systemOrderByTarget, modifierSlot, substanceSlot, deliverySlot, deflectorCard, ...headerProps } = props;
+    const { cards, playCard, targets, scannedShipId, systemOrderByTarget, modifierSlot, substanceSlot, deliverySlot, deflectorCard, viewer, ...headerProps } = props;
 
     useRootClassName(crewStyles.science);
 
@@ -50,6 +51,7 @@ export const ScienceDisplay = (props: Props) => {
                     scannedTactical={headerProps.scannedTactical}
                     scannedScience={headerProps.scannedScience}
                     scannedEngineer={headerProps.scannedEngineer}
+                    viewer={viewer}
                 />
 
                 <DeflectorDisplay

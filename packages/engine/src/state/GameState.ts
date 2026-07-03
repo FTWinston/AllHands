@@ -1,11 +1,14 @@
 import { Schema, type, MapSchema, view } from '@colyseus/schema';
 import { ClockTimer } from '@colyseus/timer';
 import { Random } from 'common-data/classes/Random';
+import { FactionConfig } from 'common-data/features/space/types/FactionConfig';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { IRandom } from 'common-data/types/IRandom';
 import { IdProvider } from 'src/types/IdProvider';
+import { FactionRegistry } from '../classes/FactionRegistry';
 import { GameStatus } from '../types/GameStatus';
 import { CrewState } from './CrewState';
+import { FactionState } from './FactionState';
 import { GameObject } from './GameObject';
 import type { GameRules } from '../classes/GameRules';
 
@@ -13,7 +16,10 @@ export class GameState extends Schema {
     @type('string') gameStatus: GameStatus = 'setup';
     @view() @type({ map: GameObject }) objects = new MapSchema<GameObject>();
     @view() @type({ map: CrewState }) crews = new MapSchema<CrewState>();
+    @view() @type({ map: FactionState }) factions = new MapSchema<FactionState>();
     public readonly random: IRandom;
+    public readonly factionRegistry = new FactionRegistry(this.factions);
+    public playerFaction: string | null = null;
     public rules: GameRules | null = null;
 
     /** The current scaled game time, in milliseconds. Use this instead of clock.currentTime for all game logic. */
@@ -22,9 +28,9 @@ export class GameState extends Schema {
     /** Multiplier applied to all time-dependent logic. A value of 2 makes everything run twice as fast. */
     public timeScale: number;
 
-    constructor(private readonly idPool: IdProvider, public readonly clock: ClockTimer, timeScale: number = 1) {
+    constructor(private readonly idPool: IdProvider, private readonly clock: ClockTimer, timeScale: number = 1, random?: IRandom) {
         super();
-        this.random = new Random(Math.random);
+        this.random = random ?? new Random(Math.random);
         this.currentTime = clock.currentTime;
         this.timeScale = timeScale;
     }
@@ -35,6 +41,11 @@ export class GameState extends Schema {
 
     public add(object: GameObject) {
         this.objects.set(object.id, object);
+    }
+
+    public initFactions(configs: FactionConfig[], playerFaction: string) {
+        this.factionRegistry.init(configs);
+        this.playerFaction = playerFaction;
     }
 
     public remove(object: GameObject) {

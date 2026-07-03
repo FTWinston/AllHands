@@ -1,5 +1,6 @@
 import {
     CardType,
+    ChoiceCardType,
     DeflectorTargetedCardType,
     EnemyTargetedCardType,
     LocationTargetedCardType,
@@ -13,6 +14,11 @@ import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEff
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { DamageType, DeliveryMethod } from 'common-data/features/space/types/Damage';
 import { IRandom } from 'common-data/types/IRandom';
+import { choiceEvaluator } from 'src/ai/evaluators';
+import { distributePowerEvaluator, powerBoostEvaluator } from 'src/ai/evaluators/engineer';
+import { locationCardEvaluator } from 'src/ai/evaluators/helm';
+import { deflectorOnlyEvaluator, scanEvaluator } from 'src/ai/evaluators/science';
+import { weaponLoadEvaluator, weaponModifierEvaluator } from 'src/ai/evaluators/tactical';
 import { GameObject } from 'src/state/GameObject';
 import { Ship } from 'src/state/Ship';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
@@ -21,6 +27,7 @@ import { EngineerSystemTile } from '../state/systems/engineer/EngineerSystemTile
 import { applyMotionCard } from './applyMotionCard';
 import {
     NoTargetCardFunctionality,
+    ChoiceTargetCardFunctionality,
     WeaponSlotTargetCardFunctionality,
     WeaponTargetCardFunctionality,
     EnemyTargetCardFunctionality,
@@ -44,7 +51,11 @@ type CardFunctionalityLookup = Record<UntargetedCardType, NoTargetCardFunctional
     & Record<SystemSlotTargetedCardType, SystemTargetCardFunctionality>
     & Record<EnemyTargetedCardType, EnemyTargetCardFunctionality>
     & Record<DeflectorTargetedCardType, DeflectorTargetCardFunctionality>
-    & Record<LocationTargetedCardType, LocationTargetCardFunctionality>;
+    & Record<LocationTargetedCardType, LocationTargetCardFunctionality>
+    // Choice cards (e.g. `sweep`) have no play functionality of their own — they resolve to a
+    // child card's definition at play time (CrewSystemState.playCard) — so only an aiEvaluator
+    // is ever set here, and only for choice cards the AI actually plays.
+    & Partial<Record<ChoiceCardType, ChoiceTargetCardFunctionality>>;
 
 /**
  * Apply a set of saved effects onto a system, consolidating leveled effects where they already exist.
@@ -133,6 +144,7 @@ function loadCardDefinitions() {
             },
         },
         phaserCannon: {
+            aiEvaluator: weaponLoadEvaluator('phaserCannon'),
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
@@ -154,6 +166,7 @@ function loadCardDefinitions() {
             },
         },
         phaserStrip: {
+            aiEvaluator: weaponLoadEvaluator('phaserStrip'),
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
@@ -175,6 +188,7 @@ function loadCardDefinitions() {
             },
         },
         photonTorpedo: {
+            aiEvaluator: weaponLoadEvaluator('photonTorpedo'),
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
@@ -196,6 +210,7 @@ function loadCardDefinitions() {
             },
         },
         photonicCannon: {
+            aiEvaluator: weaponLoadEvaluator('photonicCannon'),
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
@@ -218,6 +233,7 @@ function loadCardDefinitions() {
         },
 
         quickCharge: {
+            aiEvaluator: weaponModifierEvaluator('quickCharge', 0, 2),
             prime: (_gameState, _ship, slot, parameters) => {
                 const damageReduction = parameters.damageReduction ?? 5;
                 const chargeReduction = parameters.chargeReduction ?? 2;
@@ -226,11 +242,12 @@ function loadCardDefinitions() {
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
-                slot.addCharge(parameters.cost, gameState.clock.currentTime);
+                slot.addCharge(parameters.cost, gameState.currentTime);
                 return true;
             },
         },
         heavyCharge: {
+            aiEvaluator: weaponModifierEvaluator('heavyCharge', 2, 0),
             prime: (_gameState, _ship, slot, parameters) => {
                 const damageIncrease = parameters.damageIncrease ?? 10;
                 const chargeIncrease = parameters.chargeIncrease ?? 2;
@@ -239,34 +256,36 @@ function loadCardDefinitions() {
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
-                slot.addCharge(parameters.cost, gameState.clock.currentTime);
+                slot.addCharge(parameters.cost, gameState.currentTime);
                 return true;
             },
         },
         extraAmmo: {
+            aiEvaluator: weaponModifierEvaluator('extraAmmo', -10, -10),
             prime: (_gameState, _ship, slot, parameters) => {
                 const extraUses = parameters.extraUses ?? 1;
                 slot.adjustParameter('uses', extraUses);
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
-                slot.addCharge(parameters.cost, gameState.clock.currentTime);
+                slot.addCharge(parameters.cost, gameState.currentTime);
                 return true;
             },
         },
         chargeX: {
-            prime: (_gameState, ship, slot) => {
+            prime: (gameState, ship, slot) => {
                 const chargeAmount = ship.tacticalState.powerLevel;
-                slot.addCharge(chargeAmount, _gameState.clock.currentTime);
+                slot.addCharge(chargeAmount, gameState.currentTime);
                 return true;
             },
-            charge: (_gameState, ship, slot) => {
+            charge: (gameState, ship, slot) => {
                 const chargeAmount = ship.tacticalState.powerLevel;
-                slot.addCharge(chargeAmount, _gameState.clock.currentTime);
+                slot.addCharge(chargeAmount, gameState.currentTime);
                 return true;
             },
         },
         weaponOvercharge: {
+            aiEvaluator: weaponModifierEvaluator('weaponOvercharge'),
             prime: (_gameState, _ship, slot, parameters) => {
                 const capacityIncrease = parameters.capacityIncrease ?? 3;
                 const damageMultiplier = parameters.damageMultiplier ?? 50;
@@ -277,11 +296,12 @@ function loadCardDefinitions() {
             },
             charge: (gameState, _ship, slot, parameters) => {
                 const charge = parameters.charge ?? 2;
-                slot.addCharge(charge, gameState.clock.currentTime);
+                slot.addCharge(charge, gameState.currentTime);
                 return true;
             },
         },
         ionicSurge: {
+            aiEvaluator: weaponModifierEvaluator('ionicSurge'),
             prime: (_gameState, _ship, slot, parameters) => {
                 const currentDamageType = slot.getDamageType();
                 if (currentDamageType === 'ion') {
@@ -297,7 +317,7 @@ function loadCardDefinitions() {
             },
             charge: (gameState, _ship, slot, parameters) => {
                 const charge = parameters.charge ?? 1;
-                slot.addCharge(charge, gameState.clock.currentTime);
+                slot.addCharge(charge, gameState.currentTime);
                 return true;
             },
         },
@@ -307,7 +327,7 @@ function loadCardDefinitions() {
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
-                slot.addCharge(parameters.cost, gameState.clock.currentTime);
+                slot.addCharge(parameters.cost, gameState.currentTime);
                 return true;
             },
         },
@@ -317,7 +337,7 @@ function loadCardDefinitions() {
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
-                slot.addCharge(parameters.cost, gameState.clock.currentTime);
+                slot.addCharge(parameters.cost, gameState.currentTime);
                 return true;
             },
         },
@@ -337,32 +357,43 @@ function loadCardDefinitions() {
             },
         },
         slowAndSteady: {
+            aiEvaluator: locationCardEvaluator('slowAndSteady'),
             play: applyMotionCard,
         },
         fullReverse: {
+            aiEvaluator: locationCardEvaluator('fullReverse'),
             play: applyMotionCard,
         },
         zigZag: {
+            aiEvaluator: locationCardEvaluator('zigZag'),
             play: applyMotionCard,
         },
         strafe: {
+            aiEvaluator: locationCardEvaluator('strafe'),
             play: applyMotionCard,
         },
         sweepLeft: {
+            aiEvaluator: locationCardEvaluator('sweepLeft'),
             play: applyMotionCard,
         },
         sweepRight: {
+            aiEvaluator: locationCardEvaluator('sweepRight'),
             play: applyMotionCard,
         },
         faceTarget: {
+            aiEvaluator: locationCardEvaluator('faceTarget'),
             play: applyMotionCard,
+        },
+        sweep: {
+            aiEvaluator: choiceEvaluator(['sweepLeft', 'sweepRight']),
         },
         exampleNoTarget: {
             play: (_gameState, _ship) => {
-                console.log('played exampleNoTarget'); return true;
+                return true;
             },
         },
         auxPower: {
+            aiEvaluator: powerBoostEvaluator('auxPower', 30),
             play: (_gameState, _ship, system) => {
                 return system.addEffect('auxPower');
             },
@@ -495,6 +526,7 @@ function loadCardDefinitions() {
             },
         },
         distributePower: {
+            aiEvaluator: distributePowerEvaluator('distributePower'),
             play: (_gameState, ship, system, parameters) => {
                 const systemIndex = ship.engineerState.systems.indexOf(system);
                 const adjacent = ship.engineerState.getAdjacentSystems(systemIndex);
@@ -509,6 +541,7 @@ function loadCardDefinitions() {
             },
         },
         drawPower: {
+            aiEvaluator: powerBoostEvaluator('drawPower', 25),
             play: (_gameState, ship, system, parameters) => {
                 const systemIndex = ship.engineerState.systems.indexOf(system);
                 const adjacent = ship.engineerState.getAdjacentSystems(systemIndex);
@@ -588,6 +621,7 @@ function loadCardDefinitions() {
             },
         },
         overcharge: {
+            aiEvaluator: powerBoostEvaluator('overcharge', 35),
             play: (_gameState, _ship, system) => {
                 return system.addEffect('overcharge');
             },
@@ -637,6 +671,7 @@ function loadCardDefinitions() {
             },
         },
         scan: {
+            aiEvaluator: scanEvaluator,
             load: () => {
                 return true;
             },
@@ -652,6 +687,7 @@ function loadCardDefinitions() {
             },
         },
         scanPulse: {
+            aiEvaluator: deflectorOnlyEvaluator('scanPulse'),
             load: () => {
                 return true;
             },
@@ -660,6 +696,7 @@ function loadCardDefinitions() {
             },
         },
         tetryonScan: {
+            aiEvaluator: deflectorOnlyEvaluator('tetryonScan'),
             load: () => {
                 return true;
             },
@@ -668,6 +705,7 @@ function loadCardDefinitions() {
             },
         },
         phasedPolaronBeamScan: {
+            aiEvaluator: deflectorOnlyEvaluator('phasedPolaronBeamScan'),
             load: () => {
                 return true;
             },

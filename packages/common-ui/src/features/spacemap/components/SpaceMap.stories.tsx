@@ -1,7 +1,6 @@
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
-import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { useMemo, useRef, useState } from 'react';
 import { useAnimationFrame } from '../../../hooks/useAnimationFrame';
 import { useLoopingKeyframes } from '../../../hooks/useLoopingKeyframes';
@@ -22,12 +21,13 @@ export const Static: Story = {
         center: { x: 0, y: 0 },
         cellRadius: 32,
         gridColor: 'green',
+        viewer: { shipId: '1', faction: 'player', relations: null },
         objects: {
             1: {
                 id: '1',
                 name: 'Player',
                 appearance: 'chevron',
-                relationship: RelationshipType.Self,
+                faction: 'player',
                 motion: [
                     {
                         time: Date.now(),
@@ -79,7 +79,7 @@ export const Moving: Story = {
                 id: '1',
                 name: 'Player',
                 appearance: 'chevron',
-                relationship: RelationshipType.Self,
+                faction: 'player',
                 motion: itemPos,
             },
         }), [itemPos]);

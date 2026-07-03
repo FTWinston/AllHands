@@ -1,6 +1,6 @@
 import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
@@ -26,6 +26,7 @@ import styles from './HelmSpaceMap.module.css';
 type Props = {
     center: ReadonlyKeyframes<Position>;
     objects: Record<string, GameObjectInfo>;
+    viewer: RelationshipViewer;
     activeManeuver?: CardCooldown | null;
     cancelManeuver: () => void;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
@@ -109,6 +110,7 @@ export const HelmSpaceMap = (props: Props) => {
                 className={styles.spaceMap}
                 center={centerVector}
                 objects={props.objects}
+                viewer={props.viewer}
                 cellRadius={cellRadius}
                 gridColor="green"
                 ref={canvas}

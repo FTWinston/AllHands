@@ -67,7 +67,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
 
             this.scannedShip = null;
             this.scannedShipId = null;
-            this.scannedSystemOrder.fill(0);
+            this.resetScannedSystemOrder();
         }
     }
 
@@ -112,7 +112,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
                     this.scannedSystemOrder[i] = history.order[i] ?? 0;
                 }
             } else {
-                this.scannedSystemOrder.fill(0);
+                this.resetScannedSystemOrder();
             }
         }
 
@@ -262,6 +262,17 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.getShip().tacticalState.setSystemSubTargets(targetShip.id, identifiedSystems);
     }
 
+    /**
+     * Engine gap: ArraySchema#fill() is an unimplemented stub in the pinned @colyseus/schema
+     * version (throws "not implemented"). Reset the array element-by-element instead, matching
+     * the manual copy loop already used above for restoring history.
+     */
+    private resetScannedSystemOrder(): void {
+        for (let i = 0; i < this.scannedSystemOrder.length; i++) {
+            this.scannedSystemOrder[i] = 0;
+        }
+    }
+
     private updateSystemOrder(targetId: string, scannedSystemIndex: number, systemId: number): void {
         let targetSystemOrder = this.systemOrderByTarget.get(targetId);
         if (!targetSystemOrder) {
@@ -332,6 +343,49 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             dest.power = src.power;
             dest.health = src.health;
         }
+    }
+
+    /**
+     * Science cards can target a specific scan slot of an enemy ship using 'objectId:slotIndex'
+     * (the same first-colon split convention tactical uses for vulnerability targets).
+     * A plain objectId falls through to the base behaviour (no specific system).
+     */
+    protected override playEnemyCard(
+        cardDefinition: EngineEnemyTargetCardDefinition | EngineDeflectorTargetCardDefinition,
+        targetId: string,
+        parameters: CardParameters
+    ): boolean {
+        const splitPos = targetId.indexOf(':');
+        if (splitPos === -1) {
+            return super.playEnemyCard(cardDefinition, targetId, parameters);
+        }
+
+        const objectId = targetId.substring(0, splitPos);
+        const slotIndex = parseInt(targetId.substring(splitPos + 1), 10);
+
+        const target = this.resolveTarget(objectId);
+        if (!target || !(target instanceof Ship) || Number.isNaN(slotIndex)) {
+            console.warn('invalid science system target: ' + targetId);
+            return false;
+        }
+
+        const crewSystems: Array<[ShipSystem, CrewSystemState]> = [
+            ['helm', target.helmState],
+            ['science', target.scienceState],
+            ['tactical', target.tacticalState],
+            ['engineer', target.engineerState],
+        ];
+        const match = crewSystems.find(([, state]) => state.scannedSystemIndex === slotIndex);
+        if (!match) {
+            console.warn('no system in scan slot: ' + targetId);
+            return false;
+        }
+
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, match[0], parameters)) {
+            console.log('card refused to play');
+            return false;
+        }
+        return true;
     }
 
     override playCard(cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string): EngineCardDefinition | null {

@@ -1,4 +1,4 @@
-import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
@@ -16,6 +16,7 @@ import styles from './ViewscreenDisplay.module.css';
 type Props = PropsWithChildren<{
     center: ReadonlyKeyframes<Vector2D>;
     objects: Record<string, GameObjectInfo>;
+    viewer: RelationshipViewer;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
     showMenu: () => void;
 }>;
@@ -56,6 +57,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
                 className={styles.spaceMap}
                 center={centerVector}
                 objects={props.objects}
+                viewer={props.viewer}
                 cellRadius={cellRadius}
                 gridColor="grey"
                 ref={canvas}

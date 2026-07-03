@@ -1,6 +1,7 @@
 import { IArray, Snapshot } from '@colyseus/react';
 import { engineerSystem, helmSystem, scienceSystem, shipSystems, tacticalSystem } from 'common-data/features/ships/types/ShipSystem';
 import { GameObjectInfo, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { ObjectIcon } from 'common-ui/objects';
 import { classNames } from 'common-ui/utils/classNames';
@@ -13,6 +14,7 @@ import { ScanUnrevealed } from './ScanUnrevealed';
 import styles from './ScienceTarget.module.css';
 
 type Props = GameObjectInfo & {
+    relationship: RelationshipType;
     targetNumber: number;
     totalTargets: number;
     systemOrder: IArray<number> | null;

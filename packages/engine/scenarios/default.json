@@ -2,6 +2,11 @@
     "name": "Default Scenario",
     "description": "A basic starting scenario with one player ship and one enemy.",
     "rules": "endlessCombat",
+    "playerFaction": "player",
+    "factions": [
+        { "id": "player" },
+        { "id": "raiders", "relations": { "player": 1 } }
+    ],
     "player": {
         "name": "Yourself",
         "position": { "x": 0, "y": 0, "angle": 0 },
@@ -57,9 +62,10 @@
                 {
                     "name": "An Enemy",
                     "appearance": "chevron",
-                    "relationship": 1,
+                    "faction": "raiders",
                     "position": { "x": 5, "y": 5, "angle": -3.14159 },
-                    "personality": "balanced",
+                    "goal": { "type": "search-and-destroy" },
+                    "skill": 1,
                     "hull": {
                         "initialPowerLevel": 3,
                         "maxPowerLevel": 3,
@@ -73,7 +79,7 @@
                         "maxHealth": 100
                     },
                     "helm": {
-                        "cards": ["slowAndSteady", "exampleNoTarget"],
+                        "cards": ["slowAndSteady", "zigZag", "strafe", "slowAndSteady"],
                         "initialPowerLevel": 2,
                         "maxPowerLevel": 3,
                         "initialHandSize": 1,
@@ -81,7 +87,7 @@
                         "maxHealth": 3
                     },
                     "science": {
-                        "cards": ["exampleNoTarget", "exampleNoTarget"],
+                        "cards": ["scan", "scan", "scan"],
                         "initialPowerLevel": 2,
                         "maxPowerLevel": 2,
                         "initialHandSize": 1,
@@ -90,7 +96,7 @@
                     },
                     "tactical": {
                         "numSlots": 1,
-                        "cards": ["phaserStrip", "exampleEnemyTarget", "exampleNoTarget"],
+                        "cards": ["phaserCannon", "quickCharge", "heavyCharge"],
                         "initialPowerLevel": 2,
                         "maxPowerLevel": 2,
                         "initialHandSize": 1,
@@ -98,7 +104,7 @@
                         "maxHealth": 3
                     },
                     "engineer": {
-                        "cards": ["exampleNoTarget"],
+                        "cards": ["auxPower", "auxPower", "distributePower"],
                         "initialPowerLevel": 2,
                         "maxPowerLevel": 2,
                         "initialHandSize": 1,

@@ -1,5 +1,6 @@
 import { IArray } from '@colyseus/react';
 import { GameObjectInfo, SubTargetInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { ObjectIcon } from 'common-ui/objects';
 import { classNames } from 'common-ui/utils/classNames';
@@ -8,6 +9,7 @@ import { SubTargetList } from './SubTargetList';
 import styles from './TacticalTarget.module.css';
 
 type Props = GameObjectInfo & {
+    relationship: RelationshipType;
     targetNumber: number;
     totalTargets: number;
     subTargets?: IArray<SubTargetInfo> | null;

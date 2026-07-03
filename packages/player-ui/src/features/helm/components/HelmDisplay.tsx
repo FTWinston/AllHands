@@ -2,7 +2,7 @@ import { Snapshot } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
@@ -20,13 +20,14 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     cards: Snapshot<CardInstance[]>;
     center: ReadonlyKeyframes<Position>;
     objects: Record<string, GameObjectInfo>;
+    viewer: RelationshipViewer;
     activeManeuver?: CardCooldown | null;
     cancelManeuver: () => void;
     weaponEffectsRef: MutableRefObject<WeaponEffect[]>;
 };
 
 export const HelmDisplay = (props: Props) => {
-    const { cards, playCard, center, objects, activeManeuver, cancelManeuver, weaponEffectsRef, ...headerProps } = props;
+    const { cards, playCard, center, objects, viewer, activeManeuver, cancelManeuver, weaponEffectsRef, ...headerProps } = props;
 
     useRootClassName(crewStyles.helm);
 
@@ -42,6 +43,7 @@ export const HelmDisplay = (props: Props) => {
                 <HelmSpaceMap
                     center={center}
                     objects={objects}
+                    viewer={viewer}
                     activeManeuver={activeManeuver}
                     cancelManeuver={cancelManeuver}
                     weaponEffectsRef={weaponEffectsRef}

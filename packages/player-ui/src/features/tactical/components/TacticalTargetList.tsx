@@ -1,5 +1,6 @@
 import { IArray } from '@colyseus/react';
-import { GameObjectInfo, TargetSubTargets } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer, TargetSubTargets } from 'common-data/features/space/types/GameObjectInfo';
+import { getDisplayRelationship } from 'common-data/features/space/utils/getDisplayRelationship';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
 import { TacticalTarget } from './TacticalTarget';
 import styles from './TacticalTargetList.module.css';
@@ -9,10 +10,11 @@ type Props = {
     subTargetsByTarget: Record<string, TargetSubTargets>;
     onVisibleTargetChange: (target: GameObjectInfo) => void;
     targetAspect?: number;
+    viewer: RelationshipViewer;
 };
 
 export const TacticalTargetList = (props: Props) => {
-    const { targets, targetAspect, subTargetsByTarget, onVisibleTargetChange } = props;
+    const { targets, targetAspect, subTargetsByTarget, onVisibleTargetChange, viewer } = props;
 
     // Handler for HorizontalScroll's onScrollFractionChange
     const handleScrollFractionChange = (fraction: number) => {
@@ -41,7 +43,8 @@ export const TacticalTargetList = (props: Props) => {
                         id={target.id}
                         name={target.name}
                         appearance={target.appearance}
-                        relationship={target.relationship}
+                        faction={target.faction}
+                        relationship={getDisplayRelationship(target, viewer)}
                         motion={target.motion}
                         subTargets={subTargetsByTarget[target.id]?.subTargets}
                         targetNumber={index + 1}

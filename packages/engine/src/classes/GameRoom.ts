@@ -459,6 +459,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
         client.view = new StateView();
         client.view.add(crew);
+        this.addFactionToViews([client]);
 
         // Send the crew ID back to the ship client, for providing a link for crew members to join.
         client.send('joined', { crewId });
@@ -484,9 +485,31 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
         client.view = new StateView();
         client.view.add(crew);
+        this.addFactionToViews([client]);
 
         // Send the crew ID back to the crew client, for reference.
         client.send('joined', { crewId });
+    }
+
+    /**
+     * Add the player faction's state to the given clients' views, if factions have been initialized already
+     * (e.g. a client that joins/rejoins after `populateScenario` has run, such as a reconnect mid-game).
+     * Clients that join beforehand get it via the catch-up loop in `populateScenario` once factions exist.
+     */
+    private addFactionToViews(clients: Iterable<Client<{ userData: ClientData }>>) {
+        const { playerFaction } = this.state;
+        if (!playerFaction) {
+            return;
+        }
+
+        const faction = this.state.factions.get(playerFaction);
+        if (!faction) {
+            return;
+        }
+
+        for (const client of clients) {
+            client.view?.add(faction);
+        }
     }
 
     onLeave(client: Client<{ userData: ClientData }>) {
@@ -551,6 +574,12 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
     populateScenario() {
         console.log(`Initializing scenario: ${this.scenario.name}`);
+        this.state.initFactions(this.scenario.factions, this.scenario.playerFaction);
+
+        // Factions didn't exist yet when already-connected clients' views were set up
+        // (see addFactionToViews), so add the now-created player faction to them here.
+        // Clients that join from this point on get it directly from addFactionToViews.
+        this.addFactionToViews(this.clients);
 
         // Create a player ship for each crew using the scenario's player setup.
         for (const crew of this.state.crews.values()) {

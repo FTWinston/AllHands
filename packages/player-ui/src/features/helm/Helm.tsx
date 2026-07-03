@@ -1,7 +1,7 @@
 import { Snapshot, useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { useCallback } from 'react';
 import { HelmDisplay } from './components/HelmDisplay';
@@ -15,6 +15,7 @@ type Props = {
 
 export const Helm = (props: Props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, Snapshot<GameObjectInfo>>;
+    const factions = useRoomState(props.room, state => state.factions) as Record<string, { relations: FactionRelationshipMap }>;
     const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo>;
     const weaponEffectsRef = useWeaponEffects(props.room);
 
@@ -41,12 +42,20 @@ export const Helm = (props: Props) => {
 
     const helmState = localShip.helmState;
 
+    const viewerFaction = localShip.faction ?? null;
+    const viewer: RelationshipViewer = {
+        shipId: props.shipId,
+        faction: viewerFaction,
+        relations: viewerFaction ? factions?.[viewerFaction]?.relations ?? null : null,
+    };
+
     return (
         <HelmDisplay
             cards={helmState.hand}
             onPause={pause}
             center={localShip.motion}
             objects={objects}
+            viewer={viewer}
             power={helmState.powerLevel}
             maxHandSize={helmState.maxHandSize}
             drawPileSize={helmState.drawPileSize}

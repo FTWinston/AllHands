@@ -1,7 +1,6 @@
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
-import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { useMemo, useState } from 'react';
@@ -47,7 +46,7 @@ const meta: Meta<typeof Component> = {
                 id: 'playerShip',
                 name: 'Player',
                 appearance: 'chevron',
-                relationship: RelationshipType.Self,
+                faction: 'player',
                 motion: center,
             },
         }), [center]);
@@ -63,6 +62,7 @@ const meta: Meta<typeof Component> = {
                 cards={cards}
                 center={center}
                 objects={objects}
+                viewer={{ shipId: 'playerShip', faction: 'player', relations: null }}
                 activeManeuver={activeManeuver}
                 cancelManeuver={() => setActiveManeuver(null)}
                 playCard={(cardId, targetType, targetId) => {

@@ -1,7 +1,7 @@
 import { Snapshot, useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useCallback } from 'react';
 import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
 import { ScienceDisplay } from './components/ScienceDisplay';
@@ -15,6 +15,7 @@ type Props = {
 
 export const Science = (props: Props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, Snapshot<GameObjectInfo>>;
+    const factions = useRoomState(props.room, state => state.factions) as Record<string, { relations: FactionRelationshipMap }>;
     const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo>;
     const targets = useStableOrderedTargets(objects, localShip);
 
@@ -37,6 +38,13 @@ export const Science = (props: Props) => {
 
     const scienceState = localShip.scienceState;
 
+    const viewerFaction = localShip?.faction ?? null;
+    const viewer: RelationshipViewer = {
+        shipId: props.shipId,
+        faction: viewerFaction,
+        relations: viewerFaction ? factions?.[viewerFaction]?.relations ?? null : null,
+    };
+
     return (
         <ScienceDisplay
             cards={scienceState.hand}
@@ -57,6 +65,7 @@ export const Science = (props: Props) => {
             drawPileSize={scienceState.drawPileSize}
             playCard={playCard}
             cardGeneration={scienceState.cardGeneration}
+            viewer={viewer}
         />
     );
 };

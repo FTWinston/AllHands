@@ -30,6 +30,7 @@ export const ScienceTarget: Story = {
         scannedHelm: {
             targetId: 'Enemy-01',
             activeManeuver: null,
+            evasionChance: 0,
         },
     },
 };

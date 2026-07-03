@@ -23,7 +23,7 @@ export function useRoomConnection(
 
     // Derive shipId from schema state so it's always in sync with gameStatus (same state patch).
     // crew.shipId is set permanently when the scenario starts; we return null when not active.
-    const shipId = useRoomState(connectedRoom ?? emptyRoom, state => {
+    const shipId = useRoomState(connectedRoom ?? emptyRoom, (state) => {
         if (state?.gameStatus !== 'active') return null;
         return state.crews?.get(crewId)?.shipId ?? null;
     }) ?? null;

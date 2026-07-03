@@ -2,7 +2,7 @@ import { Snapshot } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, TargetSubTargets, WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer, TargetSubTargets, WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
@@ -21,10 +21,11 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     shipMotion: GameObjectInfo['motion'];
     targets: Snapshot<GameObjectInfo[]>;
     subTargetsByTarget: Record<string, TargetSubTargets>;
+    viewer: RelationshipViewer;
 };
 
 export const TacticalDisplay = (props: Props) => {
-    const { cards, slots, playCard, targets, subTargetsByTarget, ...headerProps } = props;
+    const { cards, slots, playCard, targets, subTargetsByTarget, viewer, ...headerProps } = props;
 
     useRootClassName(crewStyles.tactical);
 
@@ -51,6 +52,7 @@ export const TacticalDisplay = (props: Props) => {
                     subTargetsByTarget={subTargetsByTarget}
                     onVisibleTargetChange={setCurrentTarget}
                     targetAspect={firingSolution?.targetAspect}
+                    viewer={viewer}
                 />
 
                 <WeaponSlots slots={slots} firingSolution={firingSolution} />

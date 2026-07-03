@@ -1,4 +1,5 @@
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
+import { resolveSetupRelationship } from 'common-data/features/space/utils/getDisplayRelationship';
 import { svgStrings } from '../../../objects/strings';
 import { getColors } from './relationshipColors';
 import type { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
@@ -73,7 +74,7 @@ export function preloadSvgBitmaps(
 
 export function preloadFromScenario(config: ScenarioConfig): void {
     const appearanceColorPairs = config.encounters.flatMap(encounter =>
-        encounter.enemies.map(enemy => [enemy.appearance, enemy.relationship] as const)
+        encounter.enemies.map(enemy => [enemy.appearance, resolveSetupRelationship(config, enemy.faction)] as const)
     );
 
     const unique = new Map<string, [ObjectAppearance, RelationshipType]>();

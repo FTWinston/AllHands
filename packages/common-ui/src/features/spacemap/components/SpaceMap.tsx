@@ -1,4 +1,4 @@
-import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { CSSProperties, forwardRef } from 'react';
 import { Canvas } from '../../../components/Canvas';
@@ -12,6 +12,7 @@ type Props = {
     gridColor: string;
     cellRadius: number;
     center: Vector2D;
+    viewer: RelationshipViewer;
     drawExtraForeground?: drawFunction;
     drawExtraBackground?: drawFunction;
 };
@@ -24,6 +25,7 @@ export const SpaceMap = forwardRef<HTMLCanvasElement, Props>((props, ref) => {
         gridColor,
         cellRadius,
         center,
+        viewer,
         drawExtraForeground,
         drawExtraBackground,
     } = props;
@@ -32,7 +34,7 @@ export const SpaceMap = forwardRef<HTMLCanvasElement, Props>((props, ref) => {
 
     const draw = (ctx: CanvasRenderingContext2D, bounds: DOMRect) => {
         const currentTime = timeProvider.getServerTime();
-        drawMap(ctx, bounds, gridColor, cellRadius, center, currentTime, Object.values(objects), drawExtraBackground, drawExtraForeground);
+        drawMap(ctx, bounds, gridColor, cellRadius, center, currentTime, Object.values(objects), viewer, drawExtraBackground, drawExtraForeground);
     };
 
     return (

@@ -17,6 +17,7 @@ const meta: Meta<typeof Component> = {
         substanceSlot: null,
         deliverySlot: null,
         deflectorCard: null,
+        viewer: { shipId: null, faction: 'player', relations: { raiders: RelationshipType.Hostile } },
     },
     render: (args) => {
         const { cards, expendCard, cardGeneration } = useFakePowerAndCards({
@@ -63,19 +64,20 @@ export const UI: Story = {
             },
         ],
         systemOrderByTarget: {
-            'target1': { order: [3, 2, 0, 4] },
+            target1: { order: [3, 2, 0, 4] },
         },
         scannedShipId: 'target1',
         scannedHelm: {
             targetId: 'target1',
             activeManeuver: null,
+            evasionChance: 0,
         },
         targets: [
             {
                 id: 'target1',
                 name: 'Enemy Ship 1',
                 appearance: 'scout',
-                relationship: RelationshipType.Hostile,
+                faction: 'raiders',
                 motion: [
                     { time: 0, x: 100, y: 100, angle: 0 },
                     { time: 1000, x: 200, y: 100, angle: 0 },
@@ -85,7 +87,7 @@ export const UI: Story = {
                 id: 'target2',
                 name: 'Enemy Ship 2',
                 appearance: 'starfighter',
-                relationship: RelationshipType.Hostile,
+                faction: 'raiders',
                 motion: [
                     { time: 0, x: -100, y: 100, angle: 0 },
                     { time: 1000, x: 100, y: -100, angle: 0 },
@@ -95,7 +97,7 @@ export const UI: Story = {
                 id: 'target3',
                 name: 'Enemy Ship 3',
                 appearance: 'satellite',
-                relationship: RelationshipType.Hostile,
+                faction: 'raiders',
                 motion: [
                     { time: 0, x: 100, y: 100, angle: 0 },
                     { time: 1000, x: 200, y: 100, angle: 0 },
@@ -105,7 +107,7 @@ export const UI: Story = {
                 id: 'target4',
                 name: 'Enemy Ship 4',
                 appearance: 'interceptor',
-                relationship: RelationshipType.Hostile,
+                faction: 'raiders',
                 motion: [
                     { time: 0, x: -100, y: 100, angle: 0 },
                     { time: 1000, x: 100, y: -100, angle: 0 },
@@ -115,7 +117,7 @@ export const UI: Story = {
                 id: 'target5',
                 name: 'Enemy Ship 5',
                 appearance: 'spaceship',
-                relationship: RelationshipType.Hostile,
+                faction: 'raiders',
                 motion: [
                     { time: 0, x: -100, y: 100, angle: 0 },
                     { time: 1000, x: 100, y: -100, angle: 0 },

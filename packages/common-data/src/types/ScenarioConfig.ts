@@ -1,4 +1,5 @@
 import type { Encounter } from '../features/space/types/Encounter';
+import type { FactionConfig } from '../features/space/types/FactionConfig';
 import type { PlayerShipSetupInfo } from '../features/space/types/GameObjectInfo';
 
 /**
@@ -14,6 +15,10 @@ export type ScenarioConfig = {
     description?: string;
     /** Which GameRules implementation to use. */
     rules: RulesType;
+    /** Factions present in this scenario. */
+    factions: FactionConfig[];
+    /** The faction id assigned to player ships. */
+    playerFaction: string;
     /** Setup info for the player's ship. */
     player: PlayerShipSetupInfo;
     /** Array of encounters in this scenario. */

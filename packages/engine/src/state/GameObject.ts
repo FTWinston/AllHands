@@ -4,7 +4,6 @@ import { Damage } from 'common-data/features/space/types/Damage';
 import { GameObjectInfo, GameObjectSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
 import { Position } from 'common-data/features/space/types/Position';
-import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
 import { IRandom } from 'common-data/types/IRandom';
 import { GameState } from './GameState';
@@ -18,7 +17,7 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
         super();
         this.id = gameState.getNewId();
         this.name = setup.name;
-        this.relationship = setup.relationship;
+        this.faction = setup.faction ?? null;
         this.appearance = setup.appearance;
     }
 
@@ -30,8 +29,7 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
     @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | otherTacticalClientRole | otherScienceClientRole)
     @type('string') public readonly appearance: ObjectAppearance;
 
-    @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | otherTacticalClientRole | otherScienceClientRole)
-    @type('number') relationship: RelationshipType;
+    @type('string') public readonly faction: string | null;
 
     @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | ownTacticalClientRole | otherTacticalClientRole)
     @type([MotionKeyframe]) motion = new ArraySchema<MotionKeyframe>();

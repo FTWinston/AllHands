@@ -33,4 +33,3 @@ export const HighlightedHelm: Story = {
         highlighted: true,
     },
 };
-

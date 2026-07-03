@@ -1,6 +1,6 @@
 import { IArray } from '@colyseus/react';
 import { SubTargetInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { isFacingVulnerability } from 'common-data/features/space/utils/isFacingVulnerability';
+import { isFacingSubTarget } from 'common-data/features/space/utils/isFacingSubTarget';
 import { classNames } from 'common-ui/utils/classNames';
 import { useArrayChanges } from 'src/hooks/useArrayChanges';
 import { SubTargetIndicator } from './SubTargetIndicator';
@@ -26,7 +26,7 @@ export const SubTargetList = (props: Props) => {
         >
             {knownItems.map((subTarget, index) => {
                 const invalidAngle = props.targetAspect !== undefined
-                    && !isFacingVulnerability(props.targetAspect, subTarget);
+                    && !isFacingSubTarget(props.targetAspect, subTarget);
 
                 return (
                     <SubTargetIndicator

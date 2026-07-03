@@ -49,11 +49,13 @@ describe('Scenario files', () => {
     let ajv: InstanceType<typeof Ajv>;
     let validate: ReturnType<typeof ajv.compile>;
 
+    // Schema generation compiles all of common-data with typescript-json-schema; under
+    // full-suite parallel load that can exceed vitest's default 10s hook timeout.
     beforeAll(() => {
         const schema = generateSchemaFromTypeScript();
         ajv = new Ajv({ allErrors: true });
         validate = ajv.compile(schema);
-    });
+    }, 60_000);
 
     it('should have at least one scenario file', () => {
         expect(scenarioFiles.length).toBeGreaterThan(0);
@@ -79,6 +81,24 @@ describe('Scenario files', () => {
             }
 
             expect(valid).toBe(true);
+        });
+
+        it('should only reference factions declared in factions[]', () => {
+            const data = JSON.parse(fileContent);
+            const factionIds = new Set((data.factions ?? []).map((faction: { id: string }) => faction.id));
+
+            // A typo'd faction id here doesn't fail loudly - GameObjectInfo.faction and
+            // FactionRegistry.getRelationship both silently fall back to treating the object as
+            // Neutral, so it just never fights. This test exists to catch that typo instead.
+            expect(factionIds.has(data.playerFaction)).toBe(true);
+
+            for (const encounter of data.encounters ?? []) {
+                for (const enemy of encounter.enemies ?? []) {
+                    if (enemy.faction !== undefined) {
+                        expect(factionIds.has(enemy.faction)).toBe(true);
+                    }
+                }
+            }
         });
     });
 });

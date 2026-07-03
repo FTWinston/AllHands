@@ -1,5 +1,6 @@
-import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { getDisplayRelationship } from 'common-data/features/space/utils/getDisplayRelationship';
 import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
 import { scaleToRange } from 'common-data/utils/scaleToRange';
 import { Rectangle } from '../types/Rectangle';
@@ -56,6 +57,7 @@ export function drawMap(
     center: Vector2D,
     currentTime: number,
     objects: Iterable<GameObjectInfo>,
+    viewer: RelationshipViewer,
     drawExtraBackground?: drawFunction,
     drawExtraForeground?: drawFunction
 ) {
@@ -85,7 +87,7 @@ export function drawMap(
         ctx.translate(position.x, position.y);
         ctx.rotate(-position.angle);
 
-        drawObject(ctx, obj.appearance, obj.relationship);
+        drawObject(ctx, obj.appearance, getDisplayRelationship(obj, viewer));
 
         ctx.rotate(position.angle);
         ctx.translate(-position.x, -position.y);

@@ -1,5 +1,6 @@
 import { IArray, Snapshot } from '@colyseus/react';
-import { GameObjectInfo, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedSystemOrderInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedSystemOrderInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { getDisplayRelationship } from 'common-data/features/space/utils/getDisplayRelationship';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
 import { ScienceTarget } from './ScienceTarget';
 import styles from './ScienceTargetList.module.css';
@@ -12,6 +13,7 @@ type Props = {
     scannedTactical: Snapshot<ScannedTacticalInfo> | null;
     scannedScience: Snapshot<ScannedScienceInfo> | null;
     scannedEngineer: Snapshot<ScannedEngineerInfo> | null;
+    viewer: RelationshipViewer;
 };
 
 export const ScienceTargetList = (props: Props) => {
@@ -30,7 +32,8 @@ export const ScienceTargetList = (props: Props) => {
                         id={target.id}
                         name={target.name}
                         appearance={target.appearance}
-                        relationship={target.relationship}
+                        faction={target.faction}
+                        relationship={getDisplayRelationship(target, props.viewer)}
                         motion={target.motion}
                         targetNumber={index + 1}
                         totalTargets={targets.length}

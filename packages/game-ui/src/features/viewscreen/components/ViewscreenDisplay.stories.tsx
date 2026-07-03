@@ -32,6 +32,7 @@ const meta: Meta<typeof Component> = {
             <Component
                 {...args}
                 center={center}
+                viewer={{ shipId: null, faction: null, relations: null }}
                 weaponEffectsRef={weaponEffectsRef}
             />
         );
