@@ -1,7 +1,7 @@
 import { ArraySchema, MapSchema, type } from '@colyseus/schema';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
-import { CardType, WeaponSlotTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { CardType, WeaponSlotTargetedCardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { FiringState } from 'common-data/features/space/types/FiringState';
 import { TacticalSystemInfo, TacticalSystemSetupInfo, SubTargetInfo } from 'common-data/features/space/types/GameObjectInfo';
@@ -82,6 +82,15 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         if (!slot.card) {
             console.log('weapon slot is empty');
             return false;
+        }
+
+        const { requiredWeaponTrait } = cardDefinition;
+        if (requiredWeaponTrait) {
+            const weaponCardDef = cardDefinitions[slot.card.type as CardType];
+            if (!weaponCardDef.traits?.includes(requiredWeaponTrait)) {
+                console.warn(`card requires weapon with trait: ${requiredWeaponTrait}`);
+                return false;
+            }
         }
 
         // If slot has been primed, use the card's charge function.

@@ -35,6 +35,7 @@ export type WeaponSlotTargetCardDefinition = CommonCardDefinition & {
 
 export type WeaponTargetCardDefinition = CommonCardDefinition & {
     targetType: 'weapon';
+    requiredWeaponTrait?: CardTrait;
 };
 
 export type EnemyTargetCardDefinition = CommonCardDefinition & {

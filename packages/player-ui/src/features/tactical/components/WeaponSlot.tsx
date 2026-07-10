@@ -1,5 +1,7 @@
 import { Snapshot } from '@colyseus/react';
+import { WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters, CardParametersBase } from 'common-data/features/cards/types/CardParameters';
+import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { FiringSolution } from 'common-data/features/space/types/FiringSolution';
 import { FiringState } from 'common-data/features/space/types/FiringState';
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
@@ -15,6 +17,7 @@ import { ColorPalette } from 'common-ui/types/ColorPalette';
 import { resolveParameters } from 'common-ui/types/resolveParameters';
 import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
+import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
 import { DraggableCard } from 'src/features/cardui/components/DraggableCard';
 import { mergeModifiers } from '../utils/mergeModifiers';
 import styles from './WeaponSlot.module.css';
@@ -82,11 +85,21 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
 export const WeaponSlot = (props: Props) => {
     const { id, card, modifiers, charge, decay, firingSolution, primed } = props;
 
-    const cardDefinition = card ? getCardDefinition(card.type) : null;
+    const activeCard = useActiveCard();
+    const activeCardDefinition = activeCard?.targetType === 'weapon'
+        ? cardDefinitions[activeCard.cardType] as WeaponTargetCardDefinition
+        : null;
 
-    const slotParameters = cardDefinition && card ? resolveParameters(cardDefinition.parameters, card.modifiers, modifiers) : {} as CardParameters;
+    const slotCardDefinition = card ? getCardDefinition(card.type) : null;
 
-    const firingState = card && cardDefinition
+    const weaponTraitMismatch = activeCardDefinition !== null
+        && slotCardDefinition !== null
+        && activeCardDefinition.requiredWeaponTrait !== undefined
+        && (slotCardDefinition.traits === undefined || !slotCardDefinition.traits.includes(activeCardDefinition.requiredWeaponTrait));
+
+    const slotParameters = slotCardDefinition && card ? resolveParameters(slotCardDefinition.parameters, card.modifiers, modifiers) : {} as CardParameters;
+
+    const firingState = card && slotCardDefinition
         ? getFiringState(firingSolution, primed, charge, slotParameters)
         : FiringState.NoWeapon;
 
@@ -166,9 +179,9 @@ export const WeaponSlot = (props: Props) => {
             className={classNames(styles.weaponSlot, colorPalletes[mainPallete], isFullyCharged ? null : styles.recharging)}
             targetType="weapon"
             id={id}
-            disabled={!card}
+            disabled={!card || weaponTraitMismatch}
         >
-            {getCardWrapper(props, cardDefinition, isFullyCharged)}
+            {getCardWrapper(props, slotCardDefinition, isFullyCharged)}
 
             <InfoPopup
                 className={classNames(styles.statusIndicator, statusDisabled ? styles.statusDisabled : null, colorPalletes[statusPallete ?? ''])}

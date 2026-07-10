@@ -74,16 +74,17 @@ export const cardDefinitions = defineCardDefinitions({
             uses: 2,
         },
     },
-
-    quickCharge: {
+    lowYield: {
         targetType: 'weapon',
         crew: 'tactical',
+        requiredWeaponTrait: 'torpedoWeapon',
         parameters: { cost: 1, damageReduction: 5, chargeReduction: 2 },
     },
-    heavyCharge: {
+    salvo: {
         targetType: 'weapon',
         crew: 'tactical',
-        parameters: { cost: 2, damageIncrease: 10, chargeIncrease: 2 },
+        requiredWeaponTrait: 'torpedoWeapon',
+        parameters: { cost: 2, damageIncrease: 10, chargeIncrease: 3 },
     },
     extraAmmo: {
         targetType: 'weapon',
@@ -104,27 +105,6 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'weapon',
         crew: 'tactical',
         parameters: { cost: 3, charge: 1, damageMultiplier: 50 },
-    },
-    adaptWeapon: {
-        targetType: 'choice',
-        crew: 'tactical',
-        cards: ['ionConversion', 'plasmaConversion', 'disruptorConversion'],
-        parameters: { cost: 3 },
-    },
-    ionConversion: {
-        targetType: 'weapon',
-        crew: 'tactical',
-        parameters: { cost: 3 },
-    },
-    plasmaConversion: {
-        targetType: 'weapon',
-        crew: 'tactical',
-        parameters: { cost: 3 },
-    },
-    disruptorConversion: {
-        targetType: 'weapon',
-        crew: 'tactical',
-        parameters: { cost: 3 },
     },
     exampleEnemyTarget: {
         targetType: 'enemy',

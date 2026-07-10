@@ -81,10 +81,14 @@ function loadCardDefinitions() {
             image: <ExampleIcon />,
         },
 
-        quickCharge: {
-            name: 'Quick Charge',
+        lowYield: {
+            name: 'Low Yield',
             description: <>
-                Reduce weapon damage by
+                Reduce a
+                {' '}
+                <Trait type="torpedoWeapon" />
+                {' '}
+                damage by
                 {' '}
                 <Parameter name="damageReduction" />
                 {' '}
@@ -95,10 +99,14 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        heavyCharge: {
-            name: 'Heavy Charge',
+        salvo: {
+            name: 'Salvo',
             description: <>
-                Increase weapon damage by
+                Increase a
+                {' '}
+                <Trait type="torpedoWeapon" />
+                {' '}
+                damage by
                 {' '}
                 <Parameter name="damageIncrease" />
                 {' '}
@@ -147,26 +155,6 @@ function loadCardDefinitions() {
                 <Parameter name="damageMultiplier" />
                 %. Otherwise, change damage type to ion.
             </>,
-            image: <ExampleIcon />,
-        },
-        adaptWeapon: {
-            name: 'Adapt Weapon',
-            description: 'Choose a damage type to convert the weapon to.',
-            image: <ExampleIcon />,
-        },
-        ionConversion: {
-            name: 'Ion Conversion',
-            description: "Convert the weapon's damage type to ion.",
-            image: <ExampleIcon />,
-        },
-        plasmaConversion: {
-            name: 'Plasma Conversion',
-            description: 'Convert the weapon\'s damage type to plasma.',
-            image: <ExampleIcon />,
-        },
-        disruptorConversion: {
-            name: 'Disruptor Conversion',
-            description: 'Convert the weapon\'s damage type to disruptor.',
             image: <ExampleIcon />,
         },
         exampleEnemyTarget: {
