@@ -4,6 +4,8 @@ function getTraitDescriptions() {
     const traitDescriptions: Record<CardTrait, string> = {
         primary: 'Card returns to hand when played (if no other primary card in hand)',
         expendable: 'Card is destroyed when played (not added to discard pile).',
+        energyWeapon: 'A weapon that fires a beam or pulse of energy',
+        torpedoWeapon: 'A weapon that fires a projectile',
     };
 
     return traitDescriptions;

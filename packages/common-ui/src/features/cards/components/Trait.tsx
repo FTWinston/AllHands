@@ -10,7 +10,16 @@ type Props = {
  * Converts a camelCase trait identifier to a user-friendly display string.
  */
 export function getTraitDisplayName(trait: CardTrait): string {
-    return trait.charAt(0).toUpperCase() + trait.slice(1);
+    switch (trait) {
+        case 'expendable':
+            return 'Expendable';
+        case 'primary':
+            return 'Primary';
+        case 'energyWeapon':
+            return 'Energy weapon';
+        case 'torpedoWeapon':
+            return 'Torpedo weapon';
+    }
 }
 
 /**

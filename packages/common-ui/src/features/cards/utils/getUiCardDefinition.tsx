@@ -19,39 +19,51 @@ function loadCardDefinitions() {
         phaserCannon: {
             name: 'Phaser Cannon',
             description: <>
-                A standard phaser cannon dealing
+                A short-range
+                {' '}
+                <Trait type="energyWeapon" />
+                {' '}
+                dealing
                 {' '}
                 <Parameter name="damage" />
                 {' '}
                 <Parameter name="damageType" />
                 {' '}
-                damage, effective against light to medium targets.
+                damage, with a narrow field of fire.
             </>,
             image: <ExampleIcon />,
         },
         phaserStrip: {
             name: 'Phaser Strip',
             description: <>
-                A wide-area phaser strip dealing
+                A medium-range
+                {' '}
+                <Trait type="energyWeapon" />
+                {' '}
+                dealing
                 {' '}
                 <Parameter name="damage" />
                 {' '}
                 <Parameter name="damageType" />
                 {' '}
-                damage that can hit multiple targets in a line.
+                damage, with a wide field of fire.
             </>,
             image: <ExampleIcon />,
         },
         photonTorpedo: {
             name: 'Photon Torpedo',
             description: <>
-                A high-yield photon torpedo dealing
+                A long-range
+                {' '}
+                <Trait type="torpedoWeapon" />
+                {' '}
+                dealing
                 {' '}
                 <Parameter name="damage" />
                 {' '}
                 <Parameter name="damageType" />
                 {' '}
-                damage, effective against heavily armored targets.
+                damage.
             </>,
             image: <ExampleIcon />,
         },
