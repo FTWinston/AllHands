@@ -143,7 +143,7 @@ export const Five: Story = {
             },
             {
                 id: 5,
-                type: 'quickCharge',
+                type: 'lowYield',
             },
         ],
     },
@@ -170,7 +170,7 @@ export const Nine: Story = {
             },
             {
                 id: 5,
-                type: 'quickCharge',
+                type: 'lowYield',
             },
             {
                 id: 6,

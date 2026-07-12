@@ -30,7 +30,7 @@ const meta: Meta<typeof Component> = {
                     case 1:
                         return {
                             id,
-                            type: 'quickCharge',
+                            type: 'lowYield',
                         };
                     default:
                         return {
@@ -93,7 +93,7 @@ export const UI: Story = {
             },
             {
                 id: 2,
-                type: 'quickCharge',
+                type: 'lowYield',
             },
             {
                 id: 3,

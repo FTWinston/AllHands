@@ -86,7 +86,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
         const { requiredWeaponTrait } = cardDefinition;
         if (requiredWeaponTrait) {
-            const weaponCardDef = cardDefinitions[slot.card.type as CardType];
+            const weaponCardDef = cardDefinitions[slot.card.type] as EngineWeaponSlotCardDefinition;
             if (!weaponCardDef.traits?.includes(requiredWeaponTrait)) {
                 console.warn(`card requires weapon with trait: ${requiredWeaponTrait}`);
                 return false;
@@ -170,6 +170,11 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         if (slot.card && slot.afterFiring()) {
             // Put card back into discard pile.
             this.handlePlayedCard(slot.card, -1, cardDef, false);
+        }
+
+        const selfDamage = slotParameters['selfDamage'];
+        if (selfDamage) {
+            this.adjustHealth(-selfDamage);
         }
 
         this.scienceScanDataChanged.trigger();

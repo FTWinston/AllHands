@@ -40,7 +40,7 @@
         },
         "tactical": {
             "numSlots": 2,
-            "cards": ["phaserStrip", "exampleEnemyTarget", "exampleNoTarget", "phaserCannon", "quickCharge", "heavyCharge", "extraAmmo"],
+            "cards": ["phaserStrip", "exampleEnemyTarget", "exampleNoTarget", "phaserCannon", "phaserStrip", "photonTorpedo", "lowYield", "fullSpread", "weaponOvercharge"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1,
@@ -96,7 +96,7 @@
                     },
                     "tactical": {
                         "numSlots": 1,
-                        "cards": ["phaserCannon", "quickCharge", "heavyCharge"],
+                        "cards": ["photonTorpedo", "lowYield", "fullSpread"],
                         "initialPowerLevel": 2,
                         "maxPowerLevel": 2,
                         "initialHandSize": 1,

@@ -245,12 +245,12 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        salvo: {
-            aiEvaluator: weaponModifierEvaluator('salvo', 2, 0),
+        fullSpread: {
+            aiEvaluator: weaponModifierEvaluator('fullSpread', 2, 0),
             prime: (_gameState, _ship, slot, parameters) => {
-                const damageIncrease = parameters.damageIncrease ?? 10;
+                const damageMultiplier = parameters.damageMultiplier ?? 175;
                 const chargeIncrease = parameters.chargeIncrease ?? 3;
-                slot.adjustParameter('damage', damageIncrease);
+                slot.adjustParameter('damage', Math.round(slot.getParameter('damage') * damageMultiplier / 100));
                 slot.adjustParameter('chargeCost', chargeIncrease);
                 return true;
             },
@@ -259,15 +259,46 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        extraAmmo: {
-            aiEvaluator: weaponModifierEvaluator('extraAmmo', -10, -10),
+        subCritical: {
+            aiEvaluator: weaponModifierEvaluator('subCritical', -10, -10),
             prime: (_gameState, _ship, slot, parameters) => {
                 const extraUses = parameters.extraUses ?? 1;
                 slot.adjustParameter('uses', extraUses);
+
+                const chargeReduction = parameters.chargeReduction ?? 1;
+                slot.adjustParameter('chargeCost', -chargeReduction);
+
+                const damageMultiplier = parameters.damageMultiplier ?? 75;
+                const currentDamage = slot.getParameter('damage');
+                slot.adjustParameter('damage', Math.round(currentDamage * damageMultiplier / 100));
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
-                slot.addCharge(parameters.cost, gameState.currentTime);
+                const charge = parameters.charge ?? 2;
+                slot.addCharge(charge, gameState.currentTime);
+                return true;
+            },
+        },
+        weaponOvercharge: {
+            aiEvaluator: weaponModifierEvaluator('weaponOvercharge'),
+            prime: (_gameState, _ship, slot, parameters) => {
+                const chargeIncrease = parameters.chargeIncrease ?? 3;
+                slot.adjustParameter('chargeCost', chargeIncrease);
+
+                const damageMultiplier = parameters.damageMultiplier ?? 50;
+                const currentDamage = slot.getParameter('damage');
+                slot.adjustParameter('damage', Math.round(currentDamage * damageMultiplier / 100));
+
+                const fewerUses = parameters.fewerUses ?? 2;
+                slot.adjustParameter('uses', -fewerUses);
+
+                const selfDamage = parameters.selfDamage ?? 2;
+                slot.adjustParameter('selfDamage', selfDamage);
+                return true;
+            },
+            charge: (gameState, _ship, slot, parameters) => {
+                const charge = parameters.charge ?? 2;
+                slot.addCharge(charge, gameState.currentTime);
                 return true;
             },
         },
@@ -280,22 +311,6 @@ function loadCardDefinitions() {
             charge: (gameState, ship, slot) => {
                 const chargeAmount = ship.tacticalState.powerLevel;
                 slot.addCharge(chargeAmount, gameState.currentTime);
-                return true;
-            },
-        },
-        weaponOvercharge: {
-            aiEvaluator: weaponModifierEvaluator('weaponOvercharge'),
-            prime: (_gameState, _ship, slot, parameters) => {
-                const capacityIncrease = parameters.capacityIncrease ?? 3;
-                const damageMultiplier = parameters.damageMultiplier ?? 50;
-                slot.adjustParameter('chargeCost', capacityIncrease);
-                const currentDamage = slot.getParameter('damage');
-                slot.adjustParameter('damage', Math.round(currentDamage * damageMultiplier / 100));
-                return true;
-            },
-            charge: (gameState, _ship, slot, parameters) => {
-                const charge = parameters.charge ?? 2;
-                slot.addCharge(charge, gameState.currentTime);
                 return true;
             },
         },

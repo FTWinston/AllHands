@@ -1,9 +1,11 @@
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { FC } from 'react';
+import { classNames } from '../../../utils/classNames';
 import styles from './Trait.module.css';
 
-type Props = {
+export type TraitProps = {
     type: CardTrait;
+    external?: boolean;
 };
 
 /**
@@ -26,6 +28,6 @@ export function getTraitDisplayName(trait: CardTrait): string {
  * A component that displays a card trait.
  * Used in the traits list above the card description.
  */
-export const Trait: FC<Props> = ({ type }) => {
-    return <span className={styles.trait}>{getTraitDisplayName(type)}</span>;
+export const Trait: FC<TraitProps> = ({ type, external }) => {
+    return <span className={classNames(styles.trait, external ? styles.external : undefined)}>{getTraitDisplayName(type)}</span>;
 };

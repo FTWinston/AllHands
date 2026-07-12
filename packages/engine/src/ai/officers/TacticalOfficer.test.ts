@@ -55,14 +55,14 @@ describe('TacticalOfficer', () => {
     });
 
     it('primes a loaded slot with a modifier card', () => {
-        const { ship, officer, bb } = createWorld(['phaserCannon', 'quickCharge'], 5);
+        const { ship, officer, bb } = createWorld(['photonTorpedo', 'fullSpread'], 5);
         officer.think(bb, 0); // load
         officer.think(bb, 1000); // prime
         expect(ship.tacticalState.slots[0].primed).toBe(true);
     });
 
     it('holds charging while far outside weapon range', () => {
-        const { ship, officer, bb } = createWorld(['phaserCannon', 'quickCharge'], 60); // phaserCannon maxRange 10
+        const { ship, officer, bb } = createWorld(['photonTorpedo', 'fullSpread'], 60); // phaserCannon maxRange 10
         officer.think(bb, 0); // load (45 clears threshold regardless of range)
         officer.think(bb, 1000); // prime scores 40 — priming is fine early
         const playSpy = vi.spyOn(ship.tacticalState, 'playCard');

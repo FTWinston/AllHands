@@ -44,7 +44,7 @@ function createBattle(skill: number, hostile = true, random?: IRandom) {
         skill,
         helm: { ...shipSetup('raiders').helm, cards: ['slowAndSteady', 'zigZag', 'strafe', 'slowAndSteady'] as never, initialHandSize: 2 },
         science: { ...shipSetup('raiders').science, cards: ['scan', 'scan', 'scan'] as never, initialHandSize: 2 },
-        tactical: { ...shipSetup('raiders').tactical, numSlots: 1, cards: ['phaserCannon', 'quickCharge', 'heavyCharge'] as never, initialHandSize: 3 },
+        tactical: { ...shipSetup('raiders').tactical, numSlots: 1, cards: ['photonTorpedo', 'lowYield', 'fullSpread'] as never, initialHandSize: 3 },
         engineer: { ...shipSetup('raiders').engineer, cards: ['auxPower', 'auxPower'] as never, initialHandSize: 2 },
     });
     state.add(attacker);

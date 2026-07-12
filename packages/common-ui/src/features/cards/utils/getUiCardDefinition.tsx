@@ -70,7 +70,11 @@ function loadCardDefinitions() {
         photonicCannon: {
             name: 'Photonic Cannon',
             description: <>
-                An advanced energy weapon dealing
+                An advanced
+                {' '}
+                <Trait type="energyWeapon" />
+                {' '}
+                dealing
                 {' '}
                 <Parameter name="damage" />
                 {' '}
@@ -86,7 +90,7 @@ function loadCardDefinitions() {
             description: <>
                 Reduce a
                 {' '}
-                <Trait type="torpedoWeapon" />
+                <Trait type="torpedoWeapon" external />
                 {' '}
                 damage by
                 {' '}
@@ -99,52 +103,73 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        salvo: {
-            name: 'Salvo',
+        fullSpread: {
+            name: 'Full Spread',
             description: <>
                 Increase a
                 {' '}
-                <Trait type="torpedoWeapon" />
+                <Trait type="torpedoWeapon" external />
                 {' '}
                 damage by
                 {' '}
-                <Parameter name="damageIncrease" />
-                {' '}
-                but increase charge cost by
+                <Parameter name="damageMultiplier" />
+                % but increase charge cost by
                 {' '}
                 <Parameter name="chargeIncrease" />
                 .
             </>,
             image: <ExampleIcon />,
         },
-        extraAmmo: {
-            name: 'Extra Ammo',
+        subCritical: {
+            name: 'Sub-Critical',
             description: <>
-                Add
+                Reduces damage of an
+                {' '}
+                <Trait type="energyWeapon" external />
+                {' '}
+                to
+                {' '}
+                <Parameter name="damageMultiplier" />
+                % of normal, to reduce its charge amount by
+                {' '}
+                <Parameter name="chargeReduction" />
+                {' '}
+                and give it
                 {' '}
                 <Parameter name="extraUses" />
                 {' '}
-                extra uses to the weapon.
+                extra uses.
+            </>,
+            image: <ExampleIcon />,
+        },
+        weaponOvercharge: {
+            name: 'Overcharge',
+            description: <>
+                Increase charge capacity of an
+                {' '}
+                <Trait type="energyWeapon" external />
+                {' '}
+                by
+                {' '}
+                <Parameter name="chargeIncrease" />
+                {' '}
+                and damage by
+                {' '}
+                <Parameter name="damageIncrease" />
+                , reducing it uses by
+                {' '}
+                <Parameter name="fewerUses" />
+                , and dealing
+                {' '}
+                <Parameter name="selfDamage" />
+                {' '}
+                self-damage.
             </>,
             image: <ExampleIcon />,
         },
         chargeX: {
             name: 'Charge X',
             description: 'Charges the weapon by the current tactical system energy level.',
-            image: <ExampleIcon />,
-        },
-        weaponOvercharge: {
-            name: 'Overcharge',
-            description: <>
-                Increase charge capacity by
-                {' '}
-                <Parameter name="capacityIncrease" />
-                {' '}
-                and damage by
-                {' '}
-                <Parameter name="damageMultiplier" />
-                %.
-            </>,
             image: <ExampleIcon />,
         },
         ionicSurge: {

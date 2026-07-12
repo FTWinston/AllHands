@@ -80,26 +80,28 @@ export const cardDefinitions = defineCardDefinitions({
         requiredWeaponTrait: 'torpedoWeapon',
         parameters: { cost: 1, damageReduction: 5, chargeReduction: 2 },
     },
-    salvo: {
+    fullSpread: {
         targetType: 'weapon',
         crew: 'tactical',
         requiredWeaponTrait: 'torpedoWeapon',
-        parameters: { cost: 2, damageIncrease: 10, chargeIncrease: 3 },
+        parameters: { cost: 2, damageMultiplier: 175, chargeIncrease: 3 },
     },
-    extraAmmo: {
+    subCritical: {
         targetType: 'weapon',
         crew: 'tactical',
-        parameters: { cost: 2, extraUses: 1 },
+        requiredWeaponTrait: 'energyWeapon',
+        parameters: { cost: 2, damageMultiplier: 75, chargeReduction: 1, extraUses: 2 },
+    },
+    weaponOvercharge: {
+        targetType: 'weapon',
+        crew: 'tactical',
+        requiredWeaponTrait: 'energyWeapon',
+        parameters: { cost: 4, charge: 2, chargeIncrease: 3, damageIncrease: 3, fewerUses: 2, selfDamage: 2 },
     },
     chargeX: {
         targetType: 'weapon',
         crew: 'tactical',
         parameters: { cost: 1 },
-    },
-    weaponOvercharge: {
-        targetType: 'weapon',
-        crew: 'tactical',
-        parameters: { cost: 4, charge: 2, capacityIncrease: 3, damageMultiplier: 50 },
     },
     ionicSurge: {
         targetType: 'weapon',

@@ -2,7 +2,7 @@ import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { CardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { isValidElement, ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
-import { Trait } from '../components/Trait';
+import { Trait, TraitProps } from '../components/Trait';
 import { getCardDefinition } from './getUiCardDefinition';
 
 /**
@@ -20,7 +20,10 @@ function findTraitTypes(node: ReactNode): CardTrait[] {
     const traits: CardTrait[] = [];
 
     if (node.type === Trait) {
-        traits.push((node.props as { type: CardTrait }).type);
+        const props = node.props as TraitProps;
+        if (props.external !== true) {
+            traits.push(props.type);
+        }
     }
 
     const { children } = node.props as { children?: ReactNode };
