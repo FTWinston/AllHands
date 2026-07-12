@@ -27,7 +27,7 @@ type Props = Snapshot<WeaponSlotInfo> & {
 };
 
 function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, fullyCharged: boolean) {
-    const { card, modifiers, damageType } = props;
+    const { card, modifiers, extraTraits } = props;
 
     if (!card || !cardDefinition) {
         return (
@@ -43,14 +43,8 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
         );
     }
 
-    // Build display parameters with damageType: resolved from server override or card definition
-    const resolvedDamageType = damageType
-        ?? (cardDefinition.targetType === 'weapon-slot' ? cardDefinition.damageType : null);
-    const rawParameters = resolvedDamageType
-        ? { ...cardDefinition.parameters, damageType: resolvedDamageType }
-        : cardDefinition.parameters;
     const parameters = Object.fromEntries(
-        Object.entries(rawParameters).filter((entry): entry is [string, number | string] => entry[1] !== null)
+        Object.entries(cardDefinition.parameters).filter((entry): entry is [string, number] => entry[1] !== null)
     ) as CardParametersBase;
 
     const mergedModifiers: Record<string, number> = mergeModifiers(card.modifiers, modifiers);
@@ -63,6 +57,7 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
                     parameters={parameters}
                     className={styles.card}
                     modifiers={mergedModifiers}
+                    extraTraits={extraTraits ? Array.from(extraTraits) : undefined}
                     slotted={true}
                     highlighted={true}
                 />

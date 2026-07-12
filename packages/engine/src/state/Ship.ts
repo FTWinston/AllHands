@@ -4,6 +4,7 @@ import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSy
 import { Damage } from 'common-data/features/space/types/Damage';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { distanceSq } from 'common-data/features/space/utils/vectors';
+import { applyWeaponTrait } from 'src/cards/applyWeaponTrait';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { MobileObject } from './MobileObject';
@@ -155,17 +156,9 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             // If targeting the hull, or it's what was randomly picked, all damage goes there.
             targetSystemDamage = remainingAmount;
         } else {
-            // Otherwise, damage type and delivery method both affect how damage splits between
-            // the targeted (or randomly picked) system and the hull.
-            let hullDamageScale: number;
-            switch (damage.deliveryMethod) {
-                case 'beam':
-                    hullDamageScale = damage.targetSystem ? 0.2 : 0.4;
-                    break;
-                case 'projectile':
-                    hullDamageScale = damage.targetSystem ? 0.8 : 0.9;
-                    break;
-            }
+            // TODO: Torpedo weapons should do more damage to the hull than energy weapons,
+            // which should do more damage to the targeted system.
+            const hullDamageScale = 0.4;
 
             const systemDamageScale = 1 - hullDamageScale;
 
@@ -180,12 +173,8 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         targetSystem
             .adjustHealth(-targetSystemDamage);
 
-        switch (damage.damageType) {
-            case 'ion':
-                if (targetSystemDamage > 0) {
-                    targetSystem
-                        .adjustEffectLevel('disruptGeneration', 1);
-                }
+        for (const trait of damage.traits) {
+            applyWeaponTrait(trait, this, targetSystem);
         }
     }
 

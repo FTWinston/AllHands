@@ -1,24 +1,32 @@
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 
-function getTraitDescriptions() {
-    const traitDescriptions: Record<CardTrait, string> = {
-        primary: 'Card returns to hand when played (if no other primary card in hand)',
-        expendable: 'Card is destroyed when played (not added to discard pile).',
-        energyWeapon: 'A weapon that fires a beam or pulse of energy',
-        torpedoWeapon: 'A weapon that fires a projectile',
-    };
-
-    return traitDescriptions;
-}
-
-const traitDescriptions = getTraitDescriptions();
-
 export const getTraitDescription = (trait: CardTrait): string => {
-    const description = traitDescriptions[trait];
-
-    if (!description) {
-        throw new Error(`Card trait not found: ${trait}`);
+    switch (trait) {
+        case 'primary':
+            return 'Card returns to hand when played (if no other primary card in hand)';
+        case 'expendable':
+            return 'Card is destroyed when played (not added to discard pile).';
+        case 'energyWeapon':
+            return 'A weapon that fires a beam or pulse of energy';
+        case 'torpedoWeapon':
+            return 'A weapon that fires a projectile';
+        case 'area':
+            return 'Damage nearby targets';
+        case 'cumbersome':
+            return 'Needs to hold aim for 2 seconds';
+        case 'draining':
+            return 'Adds a power draining effect on target system';
+        case 'dampening':
+            return 'Extra reduction to shield power';
+        case 'persistent':
+            return 'Adds a damage over time effect to target system';
+        case 'disabling':
+            return 'Adds an effect that prevents the target system from playing cards';
+        case 'penetrating':
+            return 'Partly bypasses shields';
+        case 'disrupting':
+            return 'Adds a disrupted card to target system hand. Card deals damage when played.';
+        default:
+            throw new Error(`Card trait not found: ${trait as never}`);
     }
-
-    return description;
 };

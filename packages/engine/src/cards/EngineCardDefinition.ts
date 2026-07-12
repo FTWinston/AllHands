@@ -1,5 +1,6 @@
 import { ChoiceCardDefinition, DeflectorTargetCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
+import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { CardState } from 'src/state/CardState';
@@ -28,7 +29,7 @@ export type ChoiceTargetCardFunctionality = EngineCardAiFunctionality;
 
 export type WeaponSlotTargetCardFunctionality = EngineCardAiFunctionality & {
     load: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
-    fire: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters, accuracy: number) => boolean;
+    fire: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters, accuracy: number, weaponTraits: WeaponTrait[]) => boolean;
 };
 
 export type WeaponTargetCardFunctionality = EngineCardAiFunctionality & {

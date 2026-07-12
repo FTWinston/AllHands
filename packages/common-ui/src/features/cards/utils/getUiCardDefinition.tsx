@@ -27,8 +27,6 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="damage" />
                 {' '}
-                <Parameter name="damageType" />
-                {' '}
                 damage, with a narrow field of fire.
             </>,
             image: <ExampleIcon />,
@@ -43,8 +41,6 @@ function loadCardDefinitions() {
                 dealing
                 {' '}
                 <Parameter name="damage" />
-                {' '}
-                <Parameter name="damageType" />
                 {' '}
                 damage, with a wide field of fire.
             </>,
@@ -61,8 +57,6 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="damage" />
                 {' '}
-                <Parameter name="damageType" />
-                {' '}
                 damage.
             </>,
             image: <ExampleIcon />,
@@ -77,8 +71,6 @@ function loadCardDefinitions() {
                 dealing
                 {' '}
                 <Parameter name="damage" />
-                {' '}
-                <Parameter name="damageType" />
                 {' '}
                 damage with devastating photonic blasts.
             </>,

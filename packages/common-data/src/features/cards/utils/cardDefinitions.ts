@@ -22,7 +22,6 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'weapon-slot',
         crew: 'tactical',
         traits: ['energyWeapon'],
-        damageType: 'coherent',
         parameters: {
             cost: 2,
             chargeCost: 5,
@@ -36,7 +35,6 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'weapon-slot',
         crew: 'tactical',
         traits: ['energyWeapon'],
-        damageType: 'coherent',
         parameters: {
             cost: 4,
             chargeCost: 3,
@@ -50,7 +48,6 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'weapon-slot',
         crew: 'tactical',
         traits: ['torpedoWeapon'],
-        damageType: 'antimatter',
         parameters: {
             cost: 3,
             chargeCost: 4,
@@ -64,7 +61,6 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'weapon-slot',
         crew: 'tactical',
         traits: ['energyWeapon'],
-        damageType: 'coherent',
         parameters: {
             cost: 5,
             chargeCost: 6,

@@ -1,3 +1,4 @@
+import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import {
     CardType,
     ChoiceCardType,
@@ -12,7 +13,6 @@ import {
 } from 'common-data/features/cards/utils/cardDefinitions';
 import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
-import { DamageType, DeliveryMethod } from 'common-data/features/space/types/Damage';
 import { IRandom } from 'common-data/types/IRandom';
 import { choiceEvaluator } from 'src/ai/evaluators';
 import { distributePowerEvaluator, powerBoostEvaluator } from 'src/ai/evaluators/engineer';
@@ -108,8 +108,7 @@ function tryToDamage(
     random: IRandom,
     accuracy: number,
     damageAmount: number | null,
-    damageType: DamageType,
-    delivery: DeliveryMethod
+    traits: WeaponTrait[]
 ): boolean {
     if (!target || !damageAmount) {
         return false;
@@ -121,8 +120,7 @@ function tryToDamage(
         // TODO: ability to target a specific system or vulnerability.
         target.damage({
             amount: damageAmount,
-            damageType: damageType,
-            deliveryMethod: delivery,
+            traits,
         });
 
         return true;
@@ -148,8 +146,8 @@ function loadCardDefinitions() {
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
-            fire: (gameState, ship, target, parameters, accuracy) => {
-                tryToDamage(target, gameState.random, accuracy, parameters.damage, 'coherent', 'beam');
+            fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
+                tryToDamage(target, gameState.random, accuracy, parameters.damage, weaponTraits);
 
                 gameState.broadcastWeaponEffect({
                     type: 'beam',
@@ -170,8 +168,8 @@ function loadCardDefinitions() {
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
-            fire: (gameState, ship, target, parameters, accuracy) => {
-                tryToDamage(target, gameState.random, accuracy, parameters.damage, 'coherent', 'beam');
+            fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
+                tryToDamage(target, gameState.random, accuracy, parameters.damage, weaponTraits);
 
                 gameState.broadcastWeaponEffect({
                     type: 'beam',
@@ -192,8 +190,8 @@ function loadCardDefinitions() {
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
-            fire: (gameState, ship, target, parameters, accuracy) => {
-                tryToDamage(target, gameState.random, accuracy, parameters.damage, 'antimatter', 'projectile');
+            fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
+                tryToDamage(target, gameState.random, accuracy, parameters.damage, weaponTraits);
 
                 gameState.broadcastWeaponEffect({
                     type: 'projectile',
@@ -214,8 +212,8 @@ function loadCardDefinitions() {
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
-            fire: (gameState, ship, target, parameters, accuracy) => {
-                tryToDamage(target, gameState.random, accuracy, parameters.damage, 'coherent', 'beam');
+            fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
+                tryToDamage(target, gameState.random, accuracy, parameters.damage, weaponTraits);
 
                 gameState.broadcastWeaponEffect({
                     type: 'beam',
@@ -316,17 +314,19 @@ function loadCardDefinitions() {
         },
         ionicSurge: {
             aiEvaluator: weaponModifierEvaluator('ionicSurge'),
-            prime: (_gameState, _ship, slot, parameters) => {
-                const currentDamageType = slot.getDamageType();
-                if (currentDamageType === 'ion') {
-                    // Weapon is already ion type, increase damage by 50%
-                    const damageMultiplier = parameters.damageMultiplier ?? 50;
-                    const currentDamage = slot.getParameter('damage');
-                    slot.adjustParameter('damage', Math.round(currentDamage * damageMultiplier / 100));
-                } else {
-                    // Change damage type to ion
-                    slot.damageType = 'ion';
-                }
+            prime: (_gameState, _ship, _slot, parameters) => {
+                // TODO: Revisit ionicSurge when CardTrait is extended to include ion damage type.
+                // const currentDamageType = slot.getDamageType();
+                // if (currentDamageType === 'ion') {
+                //     // Weapon is already ion type, increase damage by 50%
+                //     const damageMultiplier = parameters.damageMultiplier ?? 50;
+                //     const currentDamage = slot.getParameter('damage');
+                //     slot.adjustParameter('damage', Math.round(currentDamage * damageMultiplier / 100));
+                // } else {
+                //     // Change damage type to ion
+                //     slot.damageType = 'ion';
+                // }
+                void parameters;
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {

@@ -3,13 +3,14 @@ import { CardParametersBase } from 'common-data/features/cards/types/CardParamet
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
-import { FC, ReactNode, useCallback, useState } from 'react';
+import { FC, Fragment, ReactNode, useCallback, useState } from 'react';
 import crewStyles from '../../../CrewColors.module.css';
 import { classNames } from '../../../utils/classNames';
 import { CardTargetIcon } from '../assets/cardTargetTypes';
 import { CardBase } from './CardBase';
 import styles from './CardDisplay.module.css';
 import { CardParametersContext, Parameter } from './Parameter';
+import { Trait } from './Trait';
 import { TraitDescription } from './TraitDescription';
 
 type Props = {
@@ -26,9 +27,9 @@ type Props = {
     descriptionLineHeight?: number;
     sufficientPower?: boolean;
     parameters: CardParametersBase;
-    damageType?: string;
     modifiers?: Record<string, number>;
     traits?: Snapshot<CardTrait[]>;
+    extraTraits?: CardTrait[];
     showTraits?: boolean;
 };
 
@@ -41,9 +42,7 @@ export const CardDisplay: FC<Props> = (props) => {
         }
     }, []);
 
-    const contextParameters = props.damageType
-        ? { ...props.parameters, damageType: props.damageType }
-        : props.parameters;
+    const contextParameters = props.parameters;
 
     return (
         <CardParametersContext.Provider value={{ ...props, parameters: contextParameters }}>
@@ -72,6 +71,15 @@ export const CardDisplay: FC<Props> = (props) => {
                     style={props.descriptionLineHeight ? { lineHeight: `${props.descriptionLineHeight}em` } : undefined}
                 >
                     {props.description}
+
+                    {props.extraTraits && props.extraTraits.length > 0 && (
+                        props.extraTraits.map(trait => (
+                            <Fragment key={trait}>
+                                {' '}
+                                <Trait type={trait} />
+                            </Fragment>
+                        ))
+                    )}
                 </p>
 
                 {props.showTraits && props.traits && props.traits.length > 0 && (

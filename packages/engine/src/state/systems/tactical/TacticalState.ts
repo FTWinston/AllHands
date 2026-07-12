@@ -1,12 +1,14 @@
 import { ArraySchema, MapSchema, type } from '@colyseus/schema';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import { CardType, WeaponSlotTargetedCardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { FiringState } from 'common-data/features/space/types/FiringState';
 import { TacticalSystemInfo, TacticalSystemSetupInfo, SubTargetInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
+import { isWeaponTrait } from 'src/cards/applyWeaponTrait';
 import { EngineCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { CardState } from 'src/state/CardState';
@@ -165,7 +167,9 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         */
         const accuracy = 100; // TODO: consider what can reduce (or improve) accuracy, such as evasion, damage, etc.
 
-        cardDef.fire(this.getGameState(), this.getShip(), target, slotParameters, accuracy);
+        const traits = this.getWeaponTraits(cardDef, slot);
+
+        cardDef.fire(this.getGameState(), this.getShip(), target, slotParameters, accuracy, traits);
 
         if (slot.card && slot.afterFiring()) {
             // Put card back into discard pile.
@@ -179,6 +183,23 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
         this.scienceScanDataChanged.trigger();
         return cardDef;
+    }
+
+    private getWeaponTraits(cardDef: EngineWeaponSlotCardDefinition, slot: WeaponSlotState): WeaponTrait[] {
+        const traits = new Set<WeaponTrait>();
+        if (cardDef.traits) {
+            for (const trait of cardDef.traits) {
+                if (isWeaponTrait(trait)) {
+                    traits.add(trait);
+                }
+            }
+        }
+
+        for (const trait of slot.extraTraits) {
+            traits.add(trait);
+        }
+
+        return Array.from(traits);
     }
 
     private resolveWeaponSlot(slotId: string): WeaponSlotState | null {

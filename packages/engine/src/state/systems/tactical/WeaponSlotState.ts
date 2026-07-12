@@ -1,9 +1,7 @@
-import { MapSchema, Schema, type } from '@colyseus/schema';
-import { WeaponSlotTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
-import { DamageType } from 'common-data/features/space/types/Damage';
+import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { CardState } from 'src/state/CardState';
 import { CooldownState } from 'src/state/CooldownState';
 
@@ -22,11 +20,12 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     @type('string') readonly id: string;
     @type(CardState) card: CardState | null = null;
     @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
-    @type('string') damageType: DamageType | null = null;
     @type('number') charge = 0;
     @type('boolean') primed = false;
     @type(CooldownState) decay: CooldownState | null = null;
     decayDuration = 0;
+
+    @type(['string']) extraTraits = new ArraySchema<WeaponTrait>();
 
     getParameters(): CardParameters {
         if (!this.card) {
@@ -53,22 +52,6 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         const value = this.card.getParameter(parameter) + (this.modifiers.get(parameter) || 0);
         const min = parameterMinimumValues[parameter] ?? 0;
         return Math.max(min, value);
-    }
-
-    getDamageType(): DamageType | null {
-        if (this.damageType !== null) {
-            return this.damageType;
-        }
-
-        // Fall back to base card definition
-        if (!this.card) {
-            return null;
-        }
-        const definition = getCardDefinition(this.card.type);
-        if (definition.targetType === 'weapon-slot') {
-            return (definition as WeaponSlotTargetCardDefinition).damageType;
-        }
-        return null;
     }
 
     adjustParameter(parameter: string, adjustment: number) {
@@ -114,7 +97,6 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
 
         const usesValue = this.modifiers.get('uses');
         this.modifiers.clear();
-        this.damageType = null;
 
         if (usesValue === undefined || usesValue <= 1) {
             this.card = null;

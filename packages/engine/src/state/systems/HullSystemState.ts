@@ -1,18 +1,19 @@
-import { Damage, DamageType } from 'common-data/features/space/types/Damage';
+import { Damage } from 'common-data/features/space/types/Damage';
 import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { BindableEvent } from 'src/classes/BindableEvent';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
-const damageTypeScales: Record<DamageType, { drain: number; pen: number }> = {
-    coherent: { drain: 1.0, pen: 0.0 },
-    disruptor: { drain: 1.4, pen: 0.0 },
-    ion: { drain: 2.5, pen: -0.2 }, // High drain, low pen
-    plasma: { drain: 0.8, pen: 0.1 },
-    antimatter: { drain: 1.0, pen: 0.2 },
-    tachyon: { drain: 0.5, pen: 0.4 }, // High pen, low drain
-};
+// TODO: Revisit damage type scaling when new card traits are added for damage types.
+// const damageTypeScales: Record<DamageType, { drain: number; pen: number }> = {
+//     coherent: { drain: 1.0, pen: 0.0 },
+//     disruptor: { drain: 1.4, pen: 0.0 },
+//     ion: { drain: 2.5, pen: -0.2 }, // High drain, low pen
+//     plasma: { drain: 0.8, pen: 0.1 },
+//     antimatter: { drain: 1.0, pen: 0.2 },
+//     tachyon: { drain: 0.5, pen: 0.4 }, // High pen, low drain
+// };
 
 export class HullSystemState extends SystemState {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship) {
@@ -28,16 +29,18 @@ export class HullSystemState extends SystemState {
      * and return the remaining damage to be done to the ship itself.
      */
     damageShields(damage: Damage): number {
-        const damageType = damageTypeScales[damage.damageType];
+        // TODO: Revisit shield scaling based on weapon traits when new card traits are added for damage types.
+        // const damageType = damageTypeScales[damage.damageType];
+        const damageTypeScale = { drain: 1.0, pen: 0.0 };
 
         const shieldStrengthFraction = this.linkedEngineerSystemTile.getEffectLevel('shield') / 100;
 
         // Nonlinear falloff so that higher shield levels are disproportionately more effective.
-        let passThroughFraction = Math.pow(1 - shieldStrengthFraction, 2) + damageType.pen;
+        let passThroughFraction = Math.pow(1 - shieldStrengthFraction, 2) + damageTypeScale.pen;
         passThroughFraction = Math.max(0, Math.min(1, passThroughFraction)); // Clamp 0-1
 
         const passThroughDamage = Math.round(damage.amount * passThroughFraction);
-        const absorbedByShields = Math.round((damage.amount - passThroughDamage) * damageType.drain);
+        const absorbedByShields = Math.round((damage.amount - passThroughDamage) * damageTypeScale.drain);
 
         this.linkedEngineerSystemTile.adjustEffectLevel('shield', -absorbedByShields);
 
