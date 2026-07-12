@@ -167,10 +167,23 @@ function loadCardDefinitions() {
         ionicSurge: {
             name: 'Ionic Surge',
             description: <>
-                If weapon is ion type, increase damage by
+                Add the
                 {' '}
-                <Parameter name="damageMultiplier" />
-                %. Otherwise, change damage type to ion.
+                <Trait type="dampening" />
+                {' '}
+                and
+                {' '}
+                <Trait type="disabling" />
+                {' '}
+                effects to the weapon,
+                but increase its charge cost by
+                {' '}
+                <Parameter name="chargeIncrease" />
+                {' '}
+                and reduce its uses by
+                {' '}
+                <Parameter name="fewerUses" />
+                .
             </>,
             image: <ExampleIcon />,
         },

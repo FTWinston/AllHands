@@ -102,7 +102,8 @@ export const cardDefinitions = defineCardDefinitions({
     ionicSurge: {
         targetType: 'weapon',
         crew: 'tactical',
-        parameters: { cost: 3, charge: 1, damageMultiplier: 50 },
+        requiredWeaponTrait: 'energyWeapon',
+        parameters: { cost: 4, chargeIncrease: 2, fewerUses: 1 },
     },
     exampleEnemyTarget: {
         targetType: 'enemy',

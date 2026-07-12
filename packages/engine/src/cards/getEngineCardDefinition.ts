@@ -314,19 +314,15 @@ function loadCardDefinitions() {
         },
         ionicSurge: {
             aiEvaluator: weaponModifierEvaluator('ionicSurge'),
-            prime: (_gameState, _ship, _slot, parameters) => {
-                // TODO: Revisit ionicSurge when CardTrait is extended to include ion damage type.
-                // const currentDamageType = slot.getDamageType();
-                // if (currentDamageType === 'ion') {
-                //     // Weapon is already ion type, increase damage by 50%
-                //     const damageMultiplier = parameters.damageMultiplier ?? 50;
-                //     const currentDamage = slot.getParameter('damage');
-                //     slot.adjustParameter('damage', Math.round(currentDamage * damageMultiplier / 100));
-                // } else {
-                //     // Change damage type to ion
-                //     slot.damageType = 'ion';
-                // }
-                void parameters;
+            prime: (_gameState, _ship, slot, parameters) => {
+                const fewerUses = parameters.fewerUses ?? 2;
+                slot.adjustParameter('uses', -fewerUses);
+
+                const chargeIncrease = parameters.chargeIncrease ?? 2;
+                slot.adjustParameter('chargeCost', chargeIncrease);
+
+                slot.extraTraits.push('draining');
+                slot.extraTraits.push('disrupting');
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
