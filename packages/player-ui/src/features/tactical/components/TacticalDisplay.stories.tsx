@@ -89,19 +89,27 @@ export const UI: Story = {
         cards: [
             {
                 id: 1,
-                type: 'phaserStrip',
+                type: 'phaserCannon',
             },
             {
                 id: 2,
-                type: 'lowYield',
+                type: 'subCritical',
             },
             {
                 id: 3,
-                type: 'exampleEnemyTarget',
+                type: 'ionicSurge',
             },
             {
                 id: 4,
-                type: 'exampleEnemyTarget',
+                type: 'weaponOvercharge',
+            },
+            {
+                id: 5,
+                type: 'photonTorpedo',
+            },
+            {
+                id: 6,
+                type: 'lowYield',
             },
         ],
         slots: [

@@ -56,6 +56,23 @@ export const Primed: Story = {
     },
 };
 
+export const PrimedWithExtraTraits: Story = {
+    args: {
+        id: 'slot2',
+        primed: true,
+        charge: 2,
+        card: {
+            id: 5,
+            type: 'phaserStrip',
+        },
+        decay: {
+            startTime: Date.now(),
+            endTime: Date.now() + 10000,
+        },
+        extraTraits: ['dampening', 'disabling'],
+    },
+};
+
 export const Charged: Story = {
     args: {
         id: 'slot2',
