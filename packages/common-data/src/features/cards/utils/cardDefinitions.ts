@@ -103,6 +103,7 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'weapon',
         crew: 'tactical',
         requiredWeaponTrait: 'energyWeapon',
+        traits: ['dampening', 'disabling'],
         parameters: { cost: 4, chargeIncrease: 2, fewerUses: 1 },
     },
     exampleEnemyTarget: {

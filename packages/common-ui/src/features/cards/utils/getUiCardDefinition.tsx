@@ -209,7 +209,6 @@ function loadCardDefinitions() {
         zigZag: {
             name: 'Zig-zag',
             description: 'Move from side to side while advancing towards a target, facing it the whole time.',
-            descriptionLineHeight: 1.25,
             image: <ExampleIcon />,
         },
         strafe: {
@@ -239,7 +238,6 @@ function loadCardDefinitions() {
         },
         exampleNoTarget: {
             name: 'Some Card with a title that\'s really quite long',
-            nameFontSize: 0.88,
             description: 'A card that has a particular effect, for a particular crew role.',
             image: <ExampleIcon />,
         },

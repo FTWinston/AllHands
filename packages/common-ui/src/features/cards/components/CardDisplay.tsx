@@ -3,7 +3,9 @@ import { CardParametersBase } from 'common-data/features/cards/types/CardParamet
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
-import { FC, Fragment, ReactNode, useCallback, useState } from 'react';
+import { FC, Fragment, ReactNode, useCallback, useMemo, useState } from 'react';
+import { RestrictedHeightText } from '../../../components/RestrictedHeightText';
+import { RestrictedWidthText } from '../../../components/RestrictedWidthText';
 import crewStyles from '../../../CrewColors.module.css';
 import { classNames } from '../../../utils/classNames';
 import { CardTargetIcon } from '../assets/cardTargetTypes';
@@ -23,11 +25,9 @@ type Props = {
     targetType: CardTargetType;
     description: ReactNode;
     image: ReactNode;
-    nameFontSize?: number;
-    descriptionLineHeight?: number;
     sufficientPower?: boolean;
     parameters: CardParametersBase;
-    modifiers?: Record<string, number>;
+    modifiers?: CardParametersBase;
     traits?: Snapshot<CardTrait[]>;
     extraTraits?: CardTrait[];
     showTraits?: boolean;
@@ -42,10 +42,27 @@ export const CardDisplay: FC<Props> = (props) => {
         }
     }, []);
 
-    const contextParameters = props.parameters;
+    // Memoized so that re-renders which don't change the description or extraTraits
+    // (e.g. focus/highlight state changes) don't hand RestrictedHeightText a new
+    // children reference, which would otherwise re-trigger its font-size measurement.
+    const descriptionContent = useMemo(() => (
+        <>
+            {props.description}
+
+            {props.extraTraits && props.extraTraits.length > 0 && (
+                props.extraTraits.map(trait => (
+                    <Fragment key={trait}>
+                        {' '}
+                        <Trait type={trait} />
+                    </Fragment>
+                ))
+            )}
+        </>
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    ), [props.description, props.extraTraits, props.parameters, props.modifiers]);
 
     return (
-        <CardParametersContext.Provider value={{ ...props, parameters: contextParameters }}>
+        <CardParametersContext.Provider value={{ parameters: props.parameters, modifiers: props.modifiers }}>
             <CardBase className={classNames(
                 styles.card,
                 crewStyles[props.crew],
@@ -55,40 +72,31 @@ export const CardDisplay: FC<Props> = (props) => {
                 props.className)}
             >
                 <div className={classNames(styles.image, props.slotted ? styles.noCutouts : styles.cutouts)} role="presentation">{props.image}</div>
-                <h3
-                    className={styles.name}
-                    style={props.nameFontSize ? { fontSize: `${props.nameFontSize}em` } : undefined}
-                >
+                <RestrictedWidthText as="h3" className={styles.name}>
                     {props.name}
-                </h3>
+                </RestrictedWidthText>
 
                 {props.slotted ? null : <div className={styles.cost}><Parameter name="cost" /></div>}
 
                 {props.slotted ? null : <CardTargetIcon targetType={props.targetType} className={styles.targetType} />}
 
-                <p
-                    className={styles.description}
-                    style={props.descriptionLineHeight ? { lineHeight: `${props.descriptionLineHeight}em` } : undefined}
-                >
-                    {props.description}
+                <RestrictedHeightText className={styles.description}>
+                    {descriptionContent}
+                </RestrictedHeightText>
 
-                    {props.extraTraits && props.extraTraits.length > 0 && (
-                        props.extraTraits.map(trait => (
-                            <Fragment key={trait}>
-                                {' '}
-                                <Trait type={trait} />
-                            </Fragment>
-                        ))
-                    )}
-                </p>
-
-                {props.showTraits && props.traits && props.traits.length > 0 && (
-                    <div ref={traitsRef} className={classNames(styles.traits, traitsOnLeft ? styles.traitsLeft : undefined)}>
-                        {props.traits.map(trait => (
-                            <TraitDescription key={trait} trait={trait} />
-                        ))}
-                    </div>
-                )}
+                {props.showTraits && (() => {
+                    const allTraits = [
+                        ...(props.traits ?? []),
+                        ...(props.extraTraits ?? []),
+                    ];
+                    return allTraits.length > 0 && (
+                        <div ref={traitsRef} className={classNames(styles.traits, traitsOnLeft ? styles.traitsLeft : undefined)}>
+                            {allTraits.map(trait => (
+                                <TraitDescription key={trait} trait={trait} />
+                            ))}
+                        </div>
+                    );
+                })()}
             </CardBase>
         </CardParametersContext.Provider>
     );

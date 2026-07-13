@@ -27,7 +27,7 @@ type Props = Snapshot<WeaponSlotInfo> & {
 };
 
 function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, fullyCharged: boolean) {
-    const { card, modifiers, extraTraits } = props;
+    const { card, modifiers } = props;
 
     if (!card || !cardDefinition) {
         return (
@@ -49,6 +49,8 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
 
     const mergedModifiers: Record<string, number> = mergeModifiers(card.modifiers, modifiers);
 
+    const extraTraits = props.extraTraits ? Array.from(props.extraTraits) : undefined;
+
     return (
         <>
             <div className={styles.cardWrapper}>
@@ -57,9 +59,8 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
                     parameters={parameters}
                     className={styles.card}
                     modifiers={mergedModifiers}
-                    extraTraits={extraTraits ? Array.from(extraTraits) : undefined}
+                    extraTraits={extraTraits}
                     slotted={true}
-                    highlighted={true}
                 />
             </div>
             <div className={styles.cardWrapper}>
@@ -68,6 +69,7 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
                     className={classNames(styles.card, styles.actualCard, fullyCharged ? styles.chargedCard : null)}
                     {...card}
                     modifiers={mergedModifiers}
+                    extraTraits={extraTraits}
                     availablePower={0}
                     targetType="enemy"
                     slotted={true}

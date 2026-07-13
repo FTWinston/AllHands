@@ -1,5 +1,7 @@
 import { useDraggable } from '@dnd-kit/core';
+import { CardParametersBase } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
@@ -19,7 +21,8 @@ type Props = {
     targetType?: CardTargetType;
     slotted?: boolean;
     highlighted?: boolean;
-    modifiers?: Record<string, number>;
+    modifiers?: CardParametersBase;
+    extraTraits?: CardTrait[];
 };
 
 export const DraggableCard: FC<Props> = (props) => {
@@ -67,7 +70,15 @@ export const DraggableCard: FC<Props> = (props) => {
             {...listeners}
             {...attributes}
         >
-            <CardDisplay {...definition} slotted={props.slotted} highlighted={props.highlighted} sufficientPower={props.slotted ? undefined : props.availablePower >= resolvedCost} modifiers={props.modifiers} showTraits={isFocused && !isBeingDragged} />
+            <CardDisplay
+                {...definition}
+                slotted={props.slotted}
+                highlighted={props.highlighted}
+                sufficientPower={props.slotted ? undefined : props.availablePower >= resolvedCost}
+                modifiers={props.modifiers}
+                extraTraits={props.extraTraits}
+                showTraits={isFocused && !isBeingDragged}
+            />
         </div>
     );
 };
