@@ -1,10 +1,11 @@
-import { FC, ReactNode, useLayoutEffect, useRef } from 'react';
+import { ComponentPropsWithoutRef, ElementType, ReactNode, useLayoutEffect, useRef } from 'react';
 import styles from './RestrictedHeightText.module.css';
 
-type Props = {
+type Props<T extends ElementType> = {
+    as?: T;
     className?: string;
     children: ReactNode;
-};
+} & Omit<ComponentPropsWithoutRef<T>, 'as' | 'className' | 'children'>;
 
 /**
  * Renders children inside a height-constrained container, binary-searching for the
@@ -22,7 +23,7 @@ type Props = {
  * The binary search runs inside useLayoutEffect — synchronously before the browser
  * paints — so there is no visible intermediate state.
  */
-export const RestrictedHeightText: FC<Props> = ({ className, children }) => {
+export const RestrictedHeightText = <T extends ElementType = 'div'>({ as, className, children }: Props<T>) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const innerRef = useRef<HTMLDivElement>(null);
 
@@ -55,11 +56,13 @@ export const RestrictedHeightText: FC<Props> = ({ className, children }) => {
         inner.style.fontSize = `${lo}em`;
     }, [children]);
 
+    const Container = (as ?? 'div') as ElementType;
+
     return (
-        <div ref={containerRef} className={className}>
+        <Container ref={containerRef} className={className}>
             <div ref={innerRef} className={styles.inner}>
                 {children}
             </div>
-        </div>
+        </Container>
     );
 };

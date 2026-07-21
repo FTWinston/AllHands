@@ -5,7 +5,6 @@ import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { FC, Fragment, ReactNode, useCallback, useMemo, useState } from 'react';
 import { RestrictedHeightText } from '../../../components/RestrictedHeightText';
-import { RestrictedWidthText } from '../../../components/RestrictedWidthText';
 import crewStyles from '../../../CrewColors.module.css';
 import { classNames } from '../../../utils/classNames';
 import { CardTargetIcon } from '../assets/cardTargetTypes';
@@ -72,9 +71,9 @@ export const CardDisplay: FC<Props> = (props) => {
                 props.className)}
             >
                 <div className={classNames(styles.image, props.slotted ? styles.noCutouts : styles.cutouts)} role="presentation">{props.image}</div>
-                <RestrictedWidthText as="h3" className={styles.name}>
+                <RestrictedHeightText as="h3" className={styles.name}>
                     {props.name}
-                </RestrictedWidthText>
+                </RestrictedHeightText>
 
                 {props.slotted ? null : <div className={styles.cost}><Parameter name="cost" /></div>}
 
