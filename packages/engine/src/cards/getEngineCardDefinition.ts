@@ -20,7 +20,6 @@ import { locationCardEvaluator } from 'src/ai/evaluators/helm';
 import { deflectorOnlyEvaluator, scanEvaluator } from 'src/ai/evaluators/science';
 import { weaponLoadEvaluator, weaponModifierEvaluator } from 'src/ai/evaluators/tactical';
 import { GameObject } from 'src/state/GameObject';
-import { Ship } from 'src/state/Ship';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from '../state/CooldownState';
 import { EngineerSystemTile } from '../state/systems/engineer/EngineerSystemTile';
@@ -44,6 +43,11 @@ import {
     EngineDeflectorTargetCardDefinition,
     EngineNoTargetCardDefinition,
 } from './EngineCardDefinition';
+import type { Ship } from 'src/state/Ship';
+
+function isShip(object: GameObject): object is Ship {
+    return 'helmState' in object;
+}
 
 type CardFunctionalityLookup = Record<UntargetedCardType, NoTargetCardFunctionality>
     & Record<WeaponSlotTargetedCardType, WeaponSlotTargetCardFunctionality>
@@ -91,7 +95,7 @@ function applySwappedEffects(
 }
 
 function getTargetEvasion(target: GameObject): number {
-    if (target instanceof Ship) {
+    if (isShip(target)) {
         const activeCard = target.helmState.activeManeuver?.card;
         return activeCard?.getParameter('evasion') ?? 0;
     }
@@ -656,7 +660,7 @@ function loadCardDefinitions() {
                 return true;
             },
             play: (_gameState, ship, target, targetSystem) => {
-                if (!(target instanceof Ship) || targetSystem === null) {
+                if (target === null || !isShip(target) || targetSystem === null) {
                     return false;
                 }
 
