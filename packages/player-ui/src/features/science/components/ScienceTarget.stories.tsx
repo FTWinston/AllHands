@@ -20,7 +20,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const ScienceTarget: Story = {
+export const Target: Story = {
     args: {
         id: 'Enemy-01',
         appearance: 'starfighter',
