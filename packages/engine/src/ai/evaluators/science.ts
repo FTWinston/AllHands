@@ -1,4 +1,4 @@
-import { DeflectorTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { ScanTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { CandidatePlay, CardEvaluator, EvaluationContext } from '../types';
@@ -11,14 +11,14 @@ const SCAN_SLOT_COUNT = 4;
  * (The EXPOSE→EXPLOIT pipeline is stubbed in the engine; the plan stays null for now.)
  */
 function deflectorSlotCandidates(cardId: number, cardType: CardType, cost: number, ctx: EvaluationContext): CandidatePlay[] {
-    const definition = getCardDefinition(cardType) as DeflectorTargetCardDefinition;
+    const definition = getCardDefinition(cardType) as ScanTargetCardDefinition;
     const plan = ctx.blackboard.vulnerabilityPlan;
     const out: CandidatePlay[] = [];
 
     const slots = [
-        ['modifier', definition.modifier ?? null],
-        ['substance', definition.substance ?? null],
-        ['delivery', definition.delivery ?? null],
+        ['modifier', definition.deflectorModifier ?? null],
+        ['substance', definition.deflectorSubstance ?? null],
+        ['delivery', definition.deflectorDelivery ?? null],
     ] as const;
 
     for (const [slotId, property] of slots) {
@@ -29,7 +29,7 @@ function deflectorSlotCandidates(cardId: number, cardType: CardType, cost: numbe
         out.push({
             score,
             cost,
-            action: { kind: 'playCard', cardId, cardType, targetType: 'deflector', targetId: slotId },
+            action: { kind: 'playCard', cardId, cardType, targetType: 'scan', targetId: slotId },
         });
     }
     return out;

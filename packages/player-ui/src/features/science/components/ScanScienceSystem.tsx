@@ -35,8 +35,10 @@ const ScanTargetList = ({ scanSystems }: { scanSystems: IArray<ShipSystem> }) =>
 };
 
 export const ScanScienceSystem = (props: Props) => {
+    const id = `target/${props.targetId}/science`;
+
     return (
-        <ScanBase className={styles.root} expanded>
+        <ScanBase className={styles.root} expanded id={id}>
             <ScanSection label="Sensors">
                 <ScanTargetList scanSystems={props.scanSystems} />
             </ScanSection>

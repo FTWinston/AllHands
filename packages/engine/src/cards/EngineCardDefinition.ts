@@ -1,4 +1,4 @@
-import { ChoiceCardDefinition, DeflectorTargetCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { ChoiceCardDefinition, ScanTargetCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
@@ -41,7 +41,7 @@ export type EnemyTargetCardFunctionality = EngineCardAiFunctionality & {
     play: (gameState: GameState, ship: Ship, target: GameObject | null, targetSystem: ShipSystem | null, parameters: CardParameters) => boolean;
 };
 
-export type DeflectorTargetCardFunctionality = EngineCardAiFunctionality & {
+export type ScanTargetCardFunctionality = EngineCardAiFunctionality & {
     load: (gameState: GameState, ship: Ship, slotId: string, parameters: CardParameters) => boolean;
     play: (gameState: GameState, ship: Ship, target: GameObject | null, targetSystem: ShipSystem | null, parameters: CardParameters) => boolean;
 };
@@ -60,7 +60,7 @@ export type EngineCardFunctionality = NoTargetCardFunctionality
     | WeaponTargetCardFunctionality
     | SystemTargetCardFunctionality
     | EnemyTargetCardFunctionality
-    | DeflectorTargetCardFunctionality
+    | ScanTargetCardFunctionality
     | LocationTargetCardFunctionality;
 
 export type EngineNoTargetCardDefinition = NoTargetCardFunctionality & NoTargetCardDefinition;
@@ -73,7 +73,7 @@ export type EngineWeaponTargetCardDefinition = WeaponTargetCardFunctionality & W
 
 export type EngineEnemyTargetCardDefinition = EnemyTargetCardFunctionality & EnemyTargetCardDefinition;
 
-export type EngineDeflectorTargetCardDefinition = DeflectorTargetCardFunctionality & DeflectorTargetCardDefinition;
+export type EngineScanTargetCardDefinition = ScanTargetCardFunctionality & ScanTargetCardDefinition;
 
 export type EngineSystemTargetCardDefinition = SystemTargetCardFunctionality & SystemTargetCardDefinition;
 
@@ -84,7 +84,7 @@ export type EngineCardDefinition = EngineNoTargetCardDefinition
     | EngineWeaponSlotCardDefinition
     | EngineWeaponTargetCardDefinition
     | EngineEnemyTargetCardDefinition
-    | EngineDeflectorTargetCardDefinition
+    | EngineScanTargetCardDefinition
     | EngineSystemTargetCardDefinition
     | EngineLocationTargetCardDefinition;
 

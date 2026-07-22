@@ -24,7 +24,7 @@ type Props = GameObjectInfo & {
     scannedEngineer: Snapshot<ScannedEngineerInfo> | null;
 };
 
-function renderSystem(system: number | undefined, props: Props) {
+function renderSystem(system: number | undefined, systemIndex: number, props: Props) {
     if (system === helmSystem && props.scannedHelm) {
         return <ScanHelmSystem {...props.scannedHelm} />;
     } else if (system === tacticalSystem && props.scannedTactical) {
@@ -35,10 +35,10 @@ function renderSystem(system: number | undefined, props: Props) {
         return <ScanEngineerSystem {...props.scannedEngineer} />;
     }
 
-    if (system) {
-        return <ScanUnrevealed system={shipSystems[system]} />;
+    if (system !== undefined) {
+        return <ScanUnrevealed systemIndex={systemIndex} targetId={props.id} system={shipSystems[system]} />;
     } else {
-        return <ScanUnrevealed />;
+        return <ScanUnrevealed systemIndex={systemIndex} targetId={props.id} />;
     }
 }
 
@@ -71,10 +71,10 @@ export const ScienceTarget = (props: Props) => {
             />
 
             <ul className={styles.scansRoot}>
-                {renderSystem(props.systemOrder?.[0], props)}
-                {renderSystem(props.systemOrder?.[1], props)}
-                {renderSystem(props.systemOrder?.[2], props)}
-                {renderSystem(props.systemOrder?.[3], props)}
+                {renderSystem(props.systemOrder?.[0], 0, props)}
+                {renderSystem(props.systemOrder?.[1], 1, props)}
+                {renderSystem(props.systemOrder?.[2], 2, props)}
+                {renderSystem(props.systemOrder?.[3], 3, props)}
             </ul>
         </div>
     );

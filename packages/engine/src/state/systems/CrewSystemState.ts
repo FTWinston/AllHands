@@ -3,7 +3,7 @@ import { CardParameters } from 'common-data/features/cards/types/CardParameters'
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CrewSystemSetupInfo, CrewSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { EngineCardDefinition, EngineDeflectorTargetCardDefinition, EngineEnemyTargetCardDefinition, EngineLocationTargetCardDefinition, EngineNoTargetCardDefinition, EngineSystemTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
+import { EngineCardDefinition, EngineScanTargetCardDefinition, EngineEnemyTargetCardDefinition, EngineLocationTargetCardDefinition, EngineNoTargetCardDefinition, EngineSystemTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { resolveParameters } from 'src/cards/resolveParameters';
 import { BindableEvent } from 'src/classes/BindableEvent';
@@ -145,8 +145,8 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         }
 
         if (targetType !== cardDefinition.targetType) {
-            // Deflector cards can also be played directly against an enemy using their play function.
-            if (!(cardDefinition.targetType === 'deflector' && targetType === 'enemy')) {
+            // Scan cards can also be played directly against an enemy using their play function.
+            if (!(cardDefinition.targetType === 'scan' && targetType === 'enemy')) {
                 console.error('playing card on incorrect target type');
                 return null;
             }
@@ -164,7 +164,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             played = this.playWeaponCard(cardDefinition, targetId, parameters);
         } else if (cardDefinition.targetType === 'enemy') {
             played = this.playEnemyCard(cardDefinition, targetId, parameters);
-        } else if (cardDefinition.targetType === 'deflector') {
+        } else if (cardDefinition.targetType === 'scan') {
             if (targetType === 'enemy') {
                 played = this.playEnemyCard(cardDefinition, targetId, parameters);
             } else {
@@ -205,7 +205,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         return false;
     }
 
-    protected playCardIntoDeflectorSlot(_card: CardState, _cardDefinition: EngineDeflectorTargetCardDefinition, _targetId: string, _parameters: CardParameters): boolean {
+    protected playCardIntoDeflectorSlot(_card: CardState, _cardDefinition: EngineScanTargetCardDefinition, _targetId: string, _parameters: CardParameters): boolean {
         console.warn('non-science system trying to play deflector slot card');
         return false;
     }
@@ -215,7 +215,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         return false;
     }
 
-    protected playEnemyCard(cardDefinition: EngineEnemyTargetCardDefinition | EngineDeflectorTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+    protected playEnemyCard(cardDefinition: EngineEnemyTargetCardDefinition | EngineScanTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
         const target = this.resolveTarget(targetId);
 
         if (!target) {

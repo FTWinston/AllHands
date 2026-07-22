@@ -5,7 +5,7 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { CardType, EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { engineerSystem, helmSystem, scienceSystem, shipSystems, ShipSystem, tacticalSystem } from 'common-data/features/ships/types/ShipSystem';
 import { CrewSystemSetupInfo, ScienceSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { EngineCardDefinition, EngineDeflectorTargetCardDefinition, EngineEnemyTargetCardDefinition } from 'src/cards/EngineCardDefinition';
+import { EngineCardDefinition, EngineScanTargetCardDefinition, EngineEnemyTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { resolveParameters } from 'src/cards/resolveParameters';
 import { CardState } from 'src/state/CardState';
@@ -351,7 +351,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
      * A plain objectId falls through to the base behaviour (no specific system).
      */
     protected override playEnemyCard(
-        cardDefinition: EngineEnemyTargetCardDefinition | EngineDeflectorTargetCardDefinition,
+        cardDefinition: EngineEnemyTargetCardDefinition | EngineScanTargetCardDefinition,
         targetId: string,
         parameters: CardParameters
     ): boolean {
@@ -448,7 +448,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         return cardDefinition;
     }
 
-    override playCardIntoDeflectorSlot(card: CardState, cardDefinition: EngineDeflectorTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+    override playCardIntoDeflectorSlot(card: CardState, cardDefinition: EngineScanTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
         if (cardDefinition.parameters[targetId] === null) {
             console.log(`card cannot be played into the ${targetId} slot`);
             return false;
@@ -490,15 +490,15 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
 
     private updateDeflectorCard(): void {
         const modifier = this.modifierSlotCard
-            ? (getCardDefinition(this.modifierSlotCard.type) as EngineDeflectorTargetCardDefinition).modifier
+            ? (getCardDefinition(this.modifierSlotCard.type) as EngineScanTargetCardDefinition).deflectorModifier
             : null;
 
         const substance = this.substanceSlotCard
-            ? (getCardDefinition(this.substanceSlotCard.type) as EngineDeflectorTargetCardDefinition).substance
+            ? (getCardDefinition(this.substanceSlotCard.type) as EngineScanTargetCardDefinition).deflectorSubstance
             : null;
 
         const delivery = this.deliverySlotCard
-            ? (getCardDefinition(this.deliverySlotCard.type) as EngineDeflectorTargetCardDefinition).delivery
+            ? (getCardDefinition(this.deliverySlotCard.type) as EngineScanTargetCardDefinition).deflectorDelivery
             : null;
 
         const cardType = this.determineDeflectorCardType(modifier, substance, delivery);

@@ -6,7 +6,7 @@ import styles from './DeflectorSlot.module.css';
 
 type Props = {
     cardType: CardType | null;
-    slotId: 'modifier' | 'substance' | 'delivery';
+    slotId: string;
     label: string;
 };
 
@@ -15,7 +15,11 @@ export function DeflectorSlot({ cardType, slotId, label }: Props) {
     const effectParameter = cardDefinition ? cardDefinition.parameters[slotId] : null;
 
     return (
-        <CardDropTarget className={classNames(styles.slotRoot, cardDefinition ? styles.slotNotEmpty : undefined)} targetType="deflector" id={slotId}>
+        <CardDropTarget
+            className={classNames(styles.slotRoot, cardDefinition ? styles.slotNotEmpty : undefined)}
+            targetType="scan"
+            id={slotId}
+        >
             <div className={styles.slotLabel}>{label}</div>
 
             {effectParameter

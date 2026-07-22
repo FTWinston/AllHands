@@ -311,40 +311,40 @@ export const cardDefinitions = defineCardDefinitions({
         parameters: { cost: 2, duration: 60 },
     },
     scan: {
-        targetType: 'deflector',
+        targetType: 'scan',
         crew: 'science',
         parameters: {
             cost: 1,
             duration: 30,
         },
-        delivery: 'Beam',
+        deflectorDelivery: 'Beam',
     },
     scanPulse: {
-        targetType: 'deflector',
+        targetType: 'scan',
         crew: 'science',
         parameters: {
             cost: 1,
         },
-        delivery: 'Pulse',
+        deflectorDelivery: 'Pulse',
     },
     tetryonScan: {
-        targetType: 'deflector',
+        targetType: 'scan',
         crew: 'science',
         parameters: {
             cost: 2,
         },
-        modifier: 'Coherent',
-        substance: 'Tetryon',
+        deflectorModifier: 'Coherent',
+        deflectorSubstance: 'Tetryon',
     },
     phasedPolaronBeamScan: {
-        targetType: 'deflector',
+        targetType: 'scan',
         crew: 'science',
         parameters: {
             cost: 3,
         },
-        modifier: 'Phased',
-        substance: 'Polaron',
-        delivery: 'Beam',
+        deflectorModifier: 'Phased',
+        deflectorSubstance: 'Polaron',
+        deflectorDelivery: 'Beam',
     },
     deflectorPhasedAntiprotonBeam: {
         targetType: 'enemy',
@@ -844,7 +844,7 @@ export type SystemSlotTargetedCardType = KeysWithTargetType<typeof cardDefinitio
 
 export type EnemyTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'enemy'>;
 
-export type DeflectorTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'deflector'>;
+export type ScanTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'scan'>;
 
 export type LocationTargetedCardType = KeysWithTargetType<typeof cardDefinitions, 'location'>;
 

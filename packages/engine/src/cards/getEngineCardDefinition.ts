@@ -2,7 +2,7 @@ import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import {
     CardType,
     ChoiceCardType,
-    DeflectorTargetedCardType,
+    ScanTargetedCardType,
     EnemyTargetedCardType,
     LocationTargetedCardType,
     SystemSlotTargetedCardType,
@@ -30,7 +30,7 @@ import {
     WeaponSlotTargetCardFunctionality,
     WeaponTargetCardFunctionality,
     EnemyTargetCardFunctionality,
-    DeflectorTargetCardFunctionality,
+    ScanTargetCardFunctionality,
     SystemTargetCardFunctionality,
     LocationTargetCardFunctionality,
     EngineCardDefinition,
@@ -40,7 +40,7 @@ import {
     EngineLocationTargetCardDefinition,
     EngineSystemTargetCardDefinition,
     EngineEnemyTargetCardDefinition,
-    EngineDeflectorTargetCardDefinition,
+    EngineScanTargetCardDefinition,
     EngineNoTargetCardDefinition,
 } from './EngineCardDefinition';
 import type { Ship } from 'src/state/Ship';
@@ -54,7 +54,7 @@ type CardFunctionalityLookup = Record<UntargetedCardType, NoTargetCardFunctional
     & Record<WeaponTargetedCardType, WeaponTargetCardFunctionality>
     & Record<SystemSlotTargetedCardType, SystemTargetCardFunctionality>
     & Record<EnemyTargetedCardType, EnemyTargetCardFunctionality>
-    & Record<DeflectorTargetedCardType, DeflectorTargetCardFunctionality>
+    & Record<ScanTargetedCardType, ScanTargetCardFunctionality>
     & Record<LocationTargetedCardType, LocationTargetCardFunctionality>
     // Choice cards (e.g. `sweep`) have no play functionality of their own — they resolve to a
     // child card's definition at play time (CrewSystemState.playCard) — so only an aiEvaluator
@@ -1195,7 +1195,7 @@ export function getCardDefinition(type: WeaponTargetedCardType): EngineWeaponTar
 export function getCardDefinition(type: LocationTargetedCardType): EngineLocationTargetCardDefinition;
 export function getCardDefinition(type: SystemSlotTargetedCardType): EngineSystemTargetCardDefinition;
 export function getCardDefinition(type: EnemyTargetedCardType): EngineEnemyTargetCardDefinition;
-export function getCardDefinition(type: DeflectorTargetedCardType): EngineDeflectorTargetCardDefinition;
+export function getCardDefinition(type: ScanTargetedCardType): EngineScanTargetCardDefinition;
 export function getCardDefinition(type: UntargetedCardType): EngineNoTargetCardDefinition;
 export function getCardDefinition(type: CardType): EngineCardDefinition;
 export function getCardDefinition(type: CardType): EngineCardDefinition {
