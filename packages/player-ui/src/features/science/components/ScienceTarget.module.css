@@ -1,23 +1,40 @@
-.target {
+.rootOuter {
     aspect-ratio: 1 / 1;
-    --targetSize: min(calc(100vw - var(--scroll-padding) * 2), calc(40dvh - 4em));
-    --targetSidePadding: 1em;
-    height: var(--targetSize);
+    height: min(calc(100vw - var(--scroll-padding) * 2), calc(40dvh - 4em));
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    align-items: stretch;
+    justify-items: stretch;
+}
+
+.rootInner {
+    font-size: 7cqw; /* Ensure that font-size of everything within the container is relative to the container width, so it all scales consistently as the container does. */
     background-color: var(--primary-darkest-muted);
     border: solid var(--color-mid) 0.1em;
     border-radius: 3em;
     corner-shape: squircle;
-    padding: 0.5em var(--targetSidePadding);
-
     position: relative;
     display: grid;
-    grid-template-columns: 1fr 3.5em;
-    grid-template-rows: 1.5em 1fr 1fr;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    align-items: stretch;
+    justify-items: stretch;
+}
 
+.notRevealedContent {
+    display: grid;
+    margin: 0.5em 1em;
+    grid-template-columns: 1fr 3.5em;
+    grid-template-rows: 1.5em 1fr;
+    border-radius: inherit;
+    corner-shape: inherit;
+
+    align-items: center;
     grid-template-areas:
         "name count"
-        "image image"
-        "scans scans";
+        "image image";
 }
 
 .name {
@@ -55,12 +72,68 @@
     outline: solid var(--primary-mid) 0.25em;
 }
 
-.scansRoot {
-    display: flex;
-    grid-area: scans;
+.systemSelector {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    corner-shape: inherit;
+
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 0.25em;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin: 0 -0.5em 1em -0.5em;
-    container-type: inline-size;
+    justify-content: stretch;
+    align-items: stretch;
+}
+
+.selectableSystem {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    color: var(--grey-light);
+    background-color: var(--primary-darkest-muted);    
+    corner-shape: squircle;
+
+    &:nth-child(1) {
+        border-top-left-radius: 3em;
+    }
+
+    &:nth-child(2) {
+        border-top-right-radius: 3em;
+    }
+
+    &:nth-child(3) {
+        border-bottom-left-radius: 3em;
+    }
+
+    &:nth-child(4) {
+        border-bottom-right-radius: 3em;
+    }
+}
+
+.selectableSystemCouldDrop {
+    display: flex;
+}
+
+.selectableSystemDropping {
+    display: flex;
+    z-index: 1;
+
+    .systemName {
+        color: var(--primary-lightest);
+    }
+}
+
+.unknownSystem {
+    color: var(--grey-mid);
+    font-size: 4em;
+}
+
+.systemName {
+    color: var(--grey-light);
+    text-transform: capitalize;
+    font-size: 1.5em;
 }

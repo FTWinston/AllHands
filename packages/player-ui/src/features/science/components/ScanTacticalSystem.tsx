@@ -44,14 +44,12 @@ const SlotDisplay = (props: SlotDisplayProps) => {
 };
 
 export const ScanTacticalSystem = (props: Props) => {
-    const id = `target/${props.targetId}/tactical`;
-
     const slots = props.weaponSlots.map((slot, index) => (
         <SlotDisplay key={index} label={`Weapon ${index + 1}`} {...slot} />
     ));
 
     return (
-        <ScanBase className={styles.root} expanded id={id}>
+        <ScanBase className={styles.root} system="tactical" targetId={props.targetId}>
             {slots}
         </ScanBase>
     );

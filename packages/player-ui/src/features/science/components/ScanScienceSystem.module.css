@@ -20,17 +20,7 @@
 
 .scanTargetList {
     font-size: 0.54em;
-    line-height: 1.3em;
     color: var(--grey-light);
-}
-
-.scanTargetList_num2 {
-    line-height: 1.1em;
-}
-
-.scanTargetList_num3, .scanTargetList_num4 {
-    font-size: 0.46em;
-    line-height: 1.1em;
 }
 
 .systemName {

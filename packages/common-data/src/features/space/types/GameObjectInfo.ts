@@ -123,7 +123,7 @@ export interface ScannedTacticalInfo extends ScannedBaseInfo {
 }
 
 export interface ScannedScienceInfo extends ScannedBaseInfo {
-    scanSystems: IArray<ShipSystem>;
+    scanSystem: ShipSystem | null;
     deflectorCard: CardInstance | null;
 }
 

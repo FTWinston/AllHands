@@ -30,7 +30,10 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
 };
 
 export const ScienceDisplay = (props: Props) => {
-    const { cards, playCard, targets, scannedShipId, systemOrderByTarget, modifierSlot, substanceSlot, deliverySlot, deflectorCard, viewer, ...headerProps } = props;
+    const {
+        cards, playCard, targets, scannedShipId, systemOrderByTarget, modifierSlot, substanceSlot, deliverySlot,
+        deflectorCard, viewer, scannedHelm, scannedTactical, scannedScience, scannedEngineer, ...headerProps
+    } = props;
 
     useRootClassName(crewStyles.science);
 
@@ -47,10 +50,10 @@ export const ScienceDisplay = (props: Props) => {
                     targets={targets}
                     scannedShipId={scannedShipId}
                     systemOrderByTarget={systemOrderByTarget}
-                    scannedHelm={headerProps.scannedHelm}
-                    scannedTactical={headerProps.scannedTactical}
-                    scannedScience={headerProps.scannedScience}
-                    scannedEngineer={headerProps.scannedEngineer}
+                    scannedHelm={scannedHelm}
+                    scannedTactical={scannedTactical}
+                    scannedScience={scannedScience}
+                    scannedEngineer={scannedEngineer}
                     viewer={viewer}
                 />
 

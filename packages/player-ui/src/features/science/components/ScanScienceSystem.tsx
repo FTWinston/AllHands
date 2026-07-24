@@ -1,8 +1,7 @@
-import { IArray, Snapshot } from '@colyseus/react';
+import { Snapshot } from '@colyseus/react';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { ScannedScienceInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { classNames } from 'common-ui/utils/classNames';
-import React from 'react';
+import { RestrictedHeightText } from 'common-ui/components/RestrictedHeightText';
 import { ScanBase } from './ScanBase';
 import { ScanCardSlot } from './ScanCardSlot';
 import styles from './ScanScienceSystem.module.css';
@@ -10,37 +9,27 @@ import { ScanSection } from './ScanSection';
 
 type Props = Snapshot<ScannedScienceInfo>;
 
-const ScanTargetList = ({ scanSystems }: { scanSystems: IArray<ShipSystem> }) => {
-    if (!scanSystems || scanSystems.length === 0) {
-        return <div className={styles.notScanning}>(Not scanning your ship)</div>;
+const ScanTargetList = ({ scanSystem }: { scanSystem: ShipSystem | null }) => {
+    if (!scanSystem) {
+        return <div className={styles.notScanning}>(Not scanning your&nbsp;ship)</div>;
     }
 
-    const nodes: React.ReactNode[] = [];
-    scanSystems.forEach((system, i) => {
-        if (i > 0) {
-            nodes.push(i === scanSystems.length - 1 ? ' & ' : ', ');
-        }
-        nodes.push(<span key={i} className={styles.systemName}>{system}</span>);
-    });
-
     return (
-        <div className={classNames(styles.scanTargetList, styles[`scanTargetList_num${scanSystems.length}`])}>
+        <RestrictedHeightText className={styles.scanTargetList}>
             Scanning your
             {' '}
-            {nodes}
-            {scanSystems.length === 1 ? ' system' : ' systems'}
-            .
-        </div>
+            <span className={styles.systemName}>{scanSystem}</span>
+            {' '}
+            system.
+        </RestrictedHeightText>
     );
 };
 
 export const ScanScienceSystem = (props: Props) => {
-    const id = `target/${props.targetId}/science`;
-
     return (
-        <ScanBase className={styles.root} expanded id={id}>
+        <ScanBase className={styles.root} system="science" targetId={props.targetId}>
             <ScanSection label="Sensors">
-                <ScanTargetList scanSystems={props.scanSystems} />
+                <ScanTargetList scanSystem={props.scanSystem} />
             </ScanSection>
             <ScanCardSlot
                 label="Deflector"

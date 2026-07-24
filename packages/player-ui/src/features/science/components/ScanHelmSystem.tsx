@@ -9,10 +9,9 @@ type Props = Snapshot<ScannedHelmInfo>;
 
 export const ScanHelmSystem = (props: Props) => {
     const evasionChancePercent = props.evasionChance;
-    const id = `target/${props.targetId}/helm`;
 
     return (
-        <ScanBase className={styles.root} expanded id={id}>
+        <ScanBase className={styles.root} system="helm" targetId={props.targetId}>
             <ScanCardSlot
                 label="Maneuver"
                 card={props.activeManeuver}

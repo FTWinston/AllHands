@@ -1,26 +1,11 @@
 .root {
-    font-size: 7cqw; /* Scale these so that 4 can fit horizontally on the screen, with gaps. */
-    width: 5em;
-    height: 8em;
-    padding: 0.5em;
-    corner-shape: squircle;
-    border-radius: 0.5em;
     background-color: var(--primary-dark);
-    overflow: hidden;
-    border: solid 1px var(--primary-mid);
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     transition: width 0.5s ease-in-out, height 0.5s ease-in-out;
-}
-
-.expanded {
-    border-color: var(--primary-lightest);
-    justify-content: flex-start;
-}
-
-.contracted {
-    width: 2.5em;
-    height: 2.5em;
+    border-radius: inherit;
+    corner-shape: inherit;
+    font-size: 2em;
 }
