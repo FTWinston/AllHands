@@ -345,6 +345,13 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         }
     }
 
+    public closeScan() {
+        this.unsubscribeFromHelm();
+        this.unsubscribeFromTactical();
+        this.unsubscribeFromScience();
+        this.unsubscribeFromEngineer();
+    }
+
     /**
      * Science cards can target a specific scan slot of an enemy ship using 'objectId:slotIndex'
      * (the same first-colon split convention tactical uses for vulnerability targets).

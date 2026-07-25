@@ -21,6 +21,7 @@ type Props = GameObjectInfo & {
     scannedTactical: Snapshot<ScannedTacticalInfo> | null;
     scannedScience: Snapshot<ScannedScienceInfo> | null;
     scannedEngineer: Snapshot<ScannedEngineerInfo> | null;
+    closeRevealedSystem: () => void;
 };
 
 type SystemSelectorProps = {
@@ -91,13 +92,13 @@ export const ScienceTarget = (props: Props) => {
     // If all are null, we show the non-revealed content: the name and appearance of the target,
     // plus the system selector drop targets that only show when dragging a scan card.
     const content = props.scannedHelm
-        ? <ScanHelmSystem {...props.scannedHelm} />
+        ? <ScanHelmSystem {...props.scannedHelm} onClose={props.closeRevealedSystem} />
         : props.scannedTactical
-            ? <ScanTacticalSystem {...props.scannedTactical} />
+            ? <ScanTacticalSystem {...props.scannedTactical} onClose={props.closeRevealedSystem} />
             : props.scannedScience
-                ? <ScanScienceSystem {...props.scannedScience} />
+                ? <ScanScienceSystem {...props.scannedScience} onClose={props.closeRevealedSystem} />
                 : props.scannedEngineer
-                    ? <ScanEngineerSystem {...props.scannedEngineer} />
+                    ? <ScanEngineerSystem {...props.scannedEngineer} onClose={props.closeRevealedSystem} />
                     : (
                         <NonRevealedContent
                             id={props.id}

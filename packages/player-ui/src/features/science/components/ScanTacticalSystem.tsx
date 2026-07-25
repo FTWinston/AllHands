@@ -8,7 +8,9 @@ import { ScanBase } from './ScanBase';
 import { ScanCardSlot } from './ScanCardSlot';
 import styles from './ScanTacticalSystem.module.css';
 
-type Props = Snapshot<ScannedTacticalInfo>;
+type Props = Snapshot<ScannedTacticalInfo> & {
+    onClose: () => void;
+};
 
 type SlotDisplayProps = Snapshot<ScannedTacticalInfo>['weaponSlots'][number] & { label: string };
 
@@ -29,7 +31,6 @@ const SlotDisplay = (props: SlotDisplayProps) => {
             emptyText="(Empty slot)"
             modifiers={mergedModifiers}
             slotted
-            className={styles.weaponSlot}
             cardNameClassName={styles.weaponCardName}
         >
             <DiscreteProgress
@@ -49,7 +50,12 @@ export const ScanTacticalSystem = (props: Props) => {
     ));
 
     return (
-        <ScanBase contentClassName={styles.root} system="tactical" targetId={props.targetId}>
+        <ScanBase
+            contentClassName={styles.root}
+            system="tactical"
+            targetId={props.targetId}
+            onClose={props.onClose}
+        >
             {slots}
         </ScanBase>
     );

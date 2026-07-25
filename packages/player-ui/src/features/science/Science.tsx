@@ -32,6 +32,10 @@ export const Science = (props: Props) => {
         });
     }, [props.room]);
 
+    const closeRevealedSystem = useCallback(() => {
+        props.room.send('closeScan');
+    }, [props.room]);
+
     if (!localShip?.scienceState?.hand) {
         return <div>unable to load</div>;
     }
@@ -66,6 +70,7 @@ export const Science = (props: Props) => {
             playCard={playCard}
             cardGeneration={scienceState.cardGeneration}
             viewer={viewer}
+            closeRevealedSystem={closeRevealedSystem}
         />
     );
 };

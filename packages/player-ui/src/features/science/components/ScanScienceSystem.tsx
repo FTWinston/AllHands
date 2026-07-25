@@ -7,7 +7,9 @@ import { ScanCardSlot } from './ScanCardSlot';
 import styles from './ScanScienceSystem.module.css';
 import { ScanSection } from './ScanSection';
 
-type Props = Snapshot<ScannedScienceInfo>;
+type Props = Snapshot<ScannedScienceInfo> & {
+    onClose: () => void;
+};
 
 const ScanTargetList = ({ scanSystem }: { scanSystem: ShipSystem | null }) => {
     if (!scanSystem) {
@@ -27,7 +29,12 @@ const ScanTargetList = ({ scanSystem }: { scanSystem: ShipSystem | null }) => {
 
 export const ScanScienceSystem = (props: Props) => {
     return (
-        <ScanBase contentClassName={styles.root} system="science" targetId={props.targetId}>
+        <ScanBase
+            contentClassName={styles.root}
+            system="science"
+            targetId={props.targetId}
+            onClose={props.onClose}
+        >
             <ScanSection label="Sensors">
                 <ScanTargetList scanSystem={props.scanSystem} />
             </ScanSection>

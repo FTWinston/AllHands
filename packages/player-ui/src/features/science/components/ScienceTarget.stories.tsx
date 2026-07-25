@@ -1,5 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import crewStyles from 'common-ui/CrewColors.module.css';
+import { fn } from 'storybook/test';
 import { ScienceTarget as Component } from './ScienceTarget';
 
 const meta: Meta<typeof Component> = {
@@ -28,6 +29,7 @@ export const NoRevealedSystem: Story = {
         targetNumber: 1,
         totalTargets: 3,
         systemOrder: [3, 2, 1, 4],
+        closeRevealedSystem: fn(),
     },
 };
 

@@ -11,6 +11,8 @@ import { soloCrewIdentifier, minTimeScale, maxTimeScale } from 'common-data/util
 import { customAlphabet } from 'nanoid/non-secure';
 import { CrewSystemState } from 'src/state/systems/CrewSystemState';
 import { EngineerState } from 'src/state/systems/engineer/EngineerState';
+import { ScienceState } from 'src/state/systems/science/ScienceState';
+import { TacticalState } from 'src/state/systems/tactical/TacticalState';
 import { DEV_TOOLS_ENABLED } from '../generated/devtools';
 import { CardState } from '../state/CardState';
 import { CrewState } from '../state/CrewState';
@@ -258,6 +260,29 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
             console.log(`${client.sessionId} canceled maneuver for ship ${ship.id}`);
         });
+
+        this.onMessage('closeScan', (client) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (clientRole !== ownScienceClientRole) {
+                console.error('Only science can close scans');
+                return;
+            }
+
+            const scienceState = this.getSystemState(ship, clientRole);
+
+            scienceState.closeScan();
+
+            console.log(`${client.sessionId} closed scan for ship ${ship.id}`);
+        });
     }
 
     private registerDevCommandHandlers() {
@@ -379,6 +404,8 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
      */
     private getSystemState(ship: PlayerShip, system: typeof ownHelmClientRole): HelmState;
     private getSystemState(ship: PlayerShip, system: typeof ownEngineerClientRole): EngineerState;
+    private getSystemState(ship: PlayerShip, system: typeof ownTacticalClientRole): TacticalState;
+    private getSystemState(ship: PlayerShip, system: typeof ownScienceClientRole): ScienceState;
     private getSystemState(ship: PlayerShip, system: Exclude<CrewRole, typeof ownHelmClientRole | typeof ownEngineerClientRole>): CrewSystemState;
     private getSystemState(ship: PlayerShip, system: CrewRole): CrewSystemState;
     private getSystemState(ship: PlayerShip, system: CrewRole): HelmState | EngineerState | CrewSystemState {

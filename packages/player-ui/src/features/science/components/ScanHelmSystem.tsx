@@ -5,13 +5,20 @@ import { ScanCardSlot } from './ScanCardSlot';
 import styles from './ScanHelmSystem.module.css';
 import { ScanSection } from './ScanSection';
 
-type Props = Snapshot<ScannedHelmInfo>;
+type Props = Snapshot<ScannedHelmInfo> & {
+    onClose: () => void;
+};
 
 export const ScanHelmSystem = (props: Props) => {
     const evasionChancePercent = props.evasionChance;
 
     return (
-        <ScanBase contentClassName={styles.root} system="helm" targetId={props.targetId}>
+        <ScanBase
+            contentClassName={styles.root}
+            system="helm"
+            targetId={props.targetId}
+            onClose={props.onClose}
+        >
             <ScanCardSlot
                 label="Maneuver"
                 card={props.activeManeuver}

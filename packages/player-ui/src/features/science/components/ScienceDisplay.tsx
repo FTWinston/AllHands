@@ -27,12 +27,14 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     deliverySlot: CardType | null;
     deflectorCard: Snapshot<CardInstance> | null;
     viewer: RelationshipViewer;
+    closeRevealedSystem: () => void;
 };
 
 export const ScienceDisplay = (props: Props) => {
     const {
         cards, playCard, targets, scannedShipId, systemOrderByTarget, modifierSlot, substanceSlot, deliverySlot,
-        deflectorCard, viewer, scannedHelm, scannedTactical, scannedScience, scannedEngineer, ...headerProps
+        deflectorCard, viewer, scannedHelm, scannedTactical, scannedScience, scannedEngineer, closeRevealedSystem,
+        ...headerProps
     } = props;
 
     useRootClassName(crewStyles.science);
@@ -55,6 +57,7 @@ export const ScienceDisplay = (props: Props) => {
                     scannedScience={scannedScience}
                     scannedEngineer={scannedEngineer}
                     viewer={viewer}
+                    closeRevealedSystem={closeRevealedSystem}
                 />
 
                 <DeflectorDisplay

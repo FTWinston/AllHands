@@ -5,13 +5,15 @@ import { SystemIcon } from 'common-ui/icons/systems';
 import { ScanBase } from './ScanBase';
 import styles from './ScanEngineerSystem.module.css';
 
-type Props = Snapshot<ScannedEngineerInfo>;
+type Props = Snapshot<ScannedEngineerInfo> & {
+    onClose: () => void;
+};
 
 const SystemInfo = (props: ScannedEngineerTileInfo) => {
     return (
         <InfoPopup
             className={styles.system}
-            name={`${props.system} status`}
+            name={`${props.system[0].toUpperCase()}${props.system.slice(1)} status`}
             description={(
                 <>
                     <p>
@@ -37,7 +39,12 @@ const SystemInfo = (props: ScannedEngineerTileInfo) => {
 
 export const ScanEngineerSystem = (props: Props) => {
     return (
-        <ScanBase contentClassName={styles.root} system="engineer" targetId={props.targetId}>
+        <ScanBase
+            contentClassName={styles.root}
+            system="engineer"
+            targetId={props.targetId}
+            onClose={props.onClose}
+        >
             {props.engineerTiles.map((tile, index) => (
                 <SystemInfo key={index} {...tile} />
             ))}

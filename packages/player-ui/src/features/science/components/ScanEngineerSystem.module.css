@@ -9,33 +9,40 @@
 
 .system {
     display: grid;
-    grid-template-columns: 1fr 0.5em 1fr;
-    grid-template-rows: 1em 1fr;
+    grid-template-columns: 1fr min-content 1fr;
+    grid-template-rows: 1fr min-content;
     justify-content: space-between;
+    padding-top: 0.25em;
+    padding-bottom: 0.125em;
     align-items: center;
     grid-template-areas:
         "icon icon icon"
-        "power . health";
-    gap: 0.125em 0;
-    font-size: 0.75em;
+        "power separator health";
+    font-size: 0.7em;
+    > * {
+        line-height: 1.1em;
+    }
 }
 
 .systemIcon {
     grid-area: icon;
-    width: 1em;
+    width: 0.85em;
     justify-self: center;
     color: var(--grey-lightest);
 }
 
 .systemPower {
+    grid-area: power;
     color: var(--energy-lightest);
 }
 
 .separator {
+    grid-area: separator;
     font-size: 0.75em;
     color: var(--grey-mid);
 }
 
 .systemHealth {
+    grid-area: health;
     color: var(--danger-lightest);
 }

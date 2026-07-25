@@ -14,6 +14,7 @@ type Props = {
     scannedScience: Snapshot<ScannedScienceInfo> | null;
     scannedEngineer: Snapshot<ScannedEngineerInfo> | null;
     viewer: RelationshipViewer;
+    closeRevealedSystem: () => void;
 };
 
 export const ScienceTargetList = (props: Props) => {
@@ -42,6 +43,7 @@ export const ScienceTargetList = (props: Props) => {
                         scannedTactical={target.id === scannedShipId ? scannedTactical : null}
                         scannedScience={target.id === scannedShipId ? scannedScience : null}
                         scannedEngineer={target.id === scannedShipId ? scannedEngineer : null}
+                        closeRevealedSystem={props.closeRevealedSystem}
                     />
                 </li>
             ))}

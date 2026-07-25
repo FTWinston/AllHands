@@ -7,15 +7,16 @@
     gap: 0.25em;
 }
 
-.weaponSlot {
-    gap: 0.1em;
-}
-
 .weaponCardName.weaponCardName {
-    line-height: 1em;
+    height: 1.25em;
+    margin-bottom: 0.25em;
+
+    > * {
+        line-height: 1em;
+    }
 }
 
 .charge.charge {
-    min-height: 0.67em;
+    min-height: 0.5em;
     gap: 0.25em;
 }

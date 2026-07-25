@@ -126,5 +126,6 @@ export const UI: Story = {
         ],
         power: 5,
         maxHandSize: 5,
+        closeRevealedSystem: fn(),
     },
 };

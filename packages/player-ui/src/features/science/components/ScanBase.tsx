@@ -10,7 +10,7 @@ type Props = PropsWithChildren<{
     contentClassName?: string;
     targetId: ObjectId;
     system: CrewRoleName;
-    close?: () => void;
+    onClose?: () => void;
 }>;
 
 export const ScanBase = (props: Props) => {
@@ -27,7 +27,7 @@ export const ScanBase = (props: Props) => {
             <h2 className={styles.header}>
                 {props.system}
             </h2>
-            <Button className={styles.closeButton} onClick={props.close}>
+            <Button className={styles.closeButton} onClick={props.onClose}>
                 ✕
             </Button>
             <div className={classNames(styles.content, props.contentClassName)}>
