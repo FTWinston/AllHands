@@ -5,15 +5,11 @@
     justify-items: stretch;
     align-items: stretch;
     gap: 0.25em;
-    padding: 0.25em;
 }
 
 .evasionValue {
     display: flex;
     justify-content: center;
-    padding-top: 0.25em;
-}
-
-.emptyManeuverName {
-    font-size: 0.55em;
+    align-items: center;
+    color: var(--grey-light);
 }

@@ -56,6 +56,20 @@ export const Helm_HasManeuver: Story = {
     },
 };
 
+export const Helm_LongManeuverName: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        scannedHelm: {
+            targetId: 'Enemy-01',
+            activeManeuver: {
+                id: 42,
+                type: 'exampleNoTarget',
+            },
+            evasionChance: 5,
+        },
+    },
+};
+
 export const Engineer: Story = {
     args: {
         ...NoRevealedSystem.args,

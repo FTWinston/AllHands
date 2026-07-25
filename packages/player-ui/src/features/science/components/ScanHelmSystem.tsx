@@ -11,12 +11,11 @@ export const ScanHelmSystem = (props: Props) => {
     const evasionChancePercent = props.evasionChance;
 
     return (
-        <ScanBase className={styles.root} system="helm" targetId={props.targetId}>
+        <ScanBase contentClassName={styles.root} system="helm" targetId={props.targetId}>
             <ScanCardSlot
                 label="Maneuver"
                 card={props.activeManeuver}
                 emptyText="(No maneuver)"
-                emptyTextClassName={styles.emptyManeuverName}
             />
 
             <ScanSection label="Evasion">

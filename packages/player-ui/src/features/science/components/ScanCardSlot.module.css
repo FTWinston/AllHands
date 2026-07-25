@@ -18,12 +18,15 @@
     line-height: 1.1em;
     color: var(--grey-light);
     flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 2em;
 }
 
 .emptyText {
     display: flex;
     justify-content: center;
     align-items: center;
-    text-align: center;
     color: var(--grey-mid);
 }

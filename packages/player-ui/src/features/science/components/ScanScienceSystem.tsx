@@ -27,7 +27,7 @@ const ScanTargetList = ({ scanSystem }: { scanSystem: ShipSystem | null }) => {
 
 export const ScanScienceSystem = (props: Props) => {
     return (
-        <ScanBase className={styles.root} system="science" targetId={props.targetId}>
+        <ScanBase contentClassName={styles.root} system="science" targetId={props.targetId}>
             <ScanSection label="Sensors">
                 <ScanTargetList scanSystem={props.scanSystem} />
             </ScanSection>

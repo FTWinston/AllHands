@@ -21,13 +21,14 @@
     grid-template-rows: 1fr;
     align-items: stretch;
     justify-items: stretch;
+    min-height: 0;
 }
 
 .notRevealedContent {
     display: grid;
     margin: 0.5em 1em;
-    grid-template-columns: 1fr 3.5em;
-    grid-template-rows: 1.5em 1fr;
+    grid-template-columns: 1fr max-content;
+    grid-template-rows: min-content 1fr;
     border-radius: inherit;
     corner-shape: inherit;
 

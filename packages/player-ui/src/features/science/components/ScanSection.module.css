@@ -7,6 +7,10 @@
     border: 0.1em solid color-mix(in srgb, var(--primary-mid) 25%, transparent);
     corner-shape: squircle;
     border-radius: 1em;
+
+    > :not(.label) {
+        flex: 1 1 auto;
+    }
 }
 
 .label {

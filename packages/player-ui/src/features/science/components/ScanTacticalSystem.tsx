@@ -49,7 +49,7 @@ export const ScanTacticalSystem = (props: Props) => {
     ));
 
     return (
-        <ScanBase className={styles.root} system="tactical" targetId={props.targetId}>
+        <ScanBase contentClassName={styles.root} system="tactical" targetId={props.targetId}>
             {slots}
         </ScanBase>
     );
