@@ -8,6 +8,7 @@ import styles from './ScanBase.module.css';
 
 type Props = PropsWithChildren<{
     contentClassName?: string;
+    targetName?: string;
     targetId: ObjectId;
     system: CrewRoleName;
     onClose?: () => void;
@@ -24,9 +25,8 @@ export const ScanBase = (props: Props) => {
             id={id}
             className={styles.root}
         >
-            <h2 className={styles.header}>
-                {props.system}
-            </h2>
+            <h2 className={styles.targetName}>{props.targetName}</h2>
+            <h3 className={styles.systemName}>{props.system}</h3>
             <Button className={styles.closeButton} onClick={props.onClose}>
                 ✕
             </Button>

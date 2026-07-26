@@ -3,13 +3,14 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { classNames } from 'common-ui/utils/classNames';
 import { ComponentPropsWithoutRef, ElementType, PropsWithChildren } from 'react';
 import styles from './CardDropTarget.module.css';
-import { useActiveCard } from './DragCardProvider';
+import { ActiveCardInfo, useActiveCard } from './DragCardProvider';
 
 type Props<C extends ElementType = 'div'> = PropsWithChildren<{
     id: string;
     className?: string;
     targetType: CardTargetType;
     acceptAnyCardType?: boolean;
+    canAcceptCard?: (card: ActiveCardInfo) => boolean;
     render?: C;
     disabled?: boolean;
     droppingClassName?: string;
@@ -19,21 +20,24 @@ type Props<C extends ElementType = 'div'> = PropsWithChildren<{
 export function CardDropTarget<C extends ElementType = 'div'>(props: Props<C>) {
     const activeCard = useActiveCard();
 
-    const { id, className, targetType, acceptAnyCardType, render, disabled, children, couldDropClassName, droppingClassName, ...otherProps } = props;
+    const { id, className, targetType, acceptAnyCardType, canAcceptCard, render, disabled, children, couldDropClassName, droppingClassName, ...otherProps } = props;
 
-    const matchesActiveCardTargetType = disabled !== true && activeCard && (acceptAnyCardType || targetType === activeCard.targetType);
+    const matchesActiveCard = disabled !== true && activeCard
+        && (acceptAnyCardType || targetType === activeCard.targetType)
+        && (canAcceptCard === undefined || canAcceptCard(activeCard));
 
     const { setNodeRef, isOver } = useDroppable({
         id: disabled ? '' : id,
-        disabled: !matchesActiveCardTargetType,
+        disabled: !matchesActiveCard,
         data: {
-            acceptAnyCardType: acceptAnyCardType,
-            targetType: targetType,
+            acceptAnyCardType,
+            targetType,
+            canAcceptCard,
         },
     });
 
-    const willDropHere = isOver && matchesActiveCardTargetType;
-    const couldDropHere = !isOver && matchesActiveCardTargetType;
+    const willDropHere = isOver && matchesActiveCard;
+    const couldDropHere = !isOver && matchesActiveCard;
 
     const Component = render ?? 'div';
 

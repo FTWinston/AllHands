@@ -6,6 +6,7 @@ import { ScanBase } from './ScanBase';
 import styles from './ScanEngineerSystem.module.css';
 
 type Props = Snapshot<ScannedEngineerInfo> & {
+    name: string;
     onClose: () => void;
 };
 
@@ -42,6 +43,7 @@ export const ScanEngineerSystem = (props: Props) => {
         <ScanBase
             contentClassName={styles.root}
             system="engineer"
+            targetName={props.name}
             targetId={props.targetId}
             onClose={props.onClose}
         >

@@ -21,7 +21,7 @@
     border-radius: 0.25em;
     overflow: hidden;
     margin: 0.5rem;
-    opacity: 0.25;
+    opacity: 0.5;
     transition: opacity 150ms 300ms;
     pointer-events: none;
 
@@ -43,5 +43,5 @@
 .thumb {
     height: 100%;
     border-radius: inherit;
-    background-color: var(--primary-mid);
+    background-color: var(--primary-light);
 }

@@ -2,23 +2,47 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
+import { ActiveCardInfo } from 'src/features/cardui/components/DragCardProvider';
 import styles from './DeflectorSlot.module.css';
 
 type Props = {
     cardType: CardType | null;
-    slotId: string;
+    slotType: 'modifier' | 'substance' | 'delivery';
     label: string;
 };
 
-export function DeflectorSlot({ cardType, slotId, label }: Props) {
+const cardHasSubstance = (card: ActiveCardInfo) => {
+    const def = getCardDefinition(card.cardType);
+    return def?.targetType === 'scan' && def.deflectorSubstance !== undefined;
+};
+
+const cardHasDelivery = (card: ActiveCardInfo) => {
+    const def = getCardDefinition(card.cardType);
+    return def?.targetType === 'scan' && def.deflectorDelivery !== undefined;
+};
+
+const cardHasModifier = (card: ActiveCardInfo) => {
+    const def = getCardDefinition(card.cardType);
+    return def?.targetType === 'scan' && def.deflectorModifier !== undefined;
+};
+
+export function DeflectorSlot({ cardType, slotType, label }: Props) {
+    const slotId = `deflector/${slotType}`;
     const cardDefinition = cardType ? getCardDefinition(cardType) : null;
     const effectParameter = cardDefinition ? cardDefinition.parameters[slotId] : null;
+
+    const canAcceptCard = slotType === 'delivery'
+        ? cardHasDelivery
+        : slotType === 'substance'
+            ? cardHasSubstance
+            : cardHasModifier;
 
     return (
         <CardDropTarget
             className={classNames(styles.slotRoot, cardDefinition ? styles.slotNotEmpty : undefined)}
             targetType="scan"
             id={slotId}
+            canAcceptCard={canAcceptCard}
         >
             <div className={styles.slotLabel}>{label}</div>
 

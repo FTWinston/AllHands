@@ -8,6 +8,7 @@ import styles from './ScanScienceSystem.module.css';
 import { ScanSection } from './ScanSection';
 
 type Props = Snapshot<ScannedScienceInfo> & {
+    name: string;
     onClose: () => void;
 };
 
@@ -32,6 +33,7 @@ export const ScanScienceSystem = (props: Props) => {
         <ScanBase
             contentClassName={styles.root}
             system="science"
+            targetName={props.name}
             targetId={props.targetId}
             onClose={props.onClose}
         >

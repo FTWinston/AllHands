@@ -6,6 +6,7 @@ import styles from './ScanHelmSystem.module.css';
 import { ScanSection } from './ScanSection';
 
 type Props = Snapshot<ScannedHelmInfo> & {
+    name: string;
     onClose: () => void;
 };
 
@@ -16,6 +17,7 @@ export const ScanHelmSystem = (props: Props) => {
         <ScanBase
             contentClassName={styles.root}
             system="helm"
+            targetName={props.name}
             targetId={props.targetId}
             onClose={props.onClose}
         >

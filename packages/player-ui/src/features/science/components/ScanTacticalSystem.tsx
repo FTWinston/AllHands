@@ -9,6 +9,7 @@ import { ScanCardSlot } from './ScanCardSlot';
 import styles from './ScanTacticalSystem.module.css';
 
 type Props = Snapshot<ScannedTacticalInfo> & {
+    name: string;
     onClose: () => void;
 };
 
@@ -53,6 +54,7 @@ export const ScanTacticalSystem = (props: Props) => {
         <ScanBase
             contentClassName={styles.root}
             system="tactical"
+            targetName={props.name}
             targetId={props.targetId}
             onClose={props.onClose}
         >
