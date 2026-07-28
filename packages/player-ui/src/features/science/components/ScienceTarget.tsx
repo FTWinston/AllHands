@@ -1,4 +1,5 @@
 import { IArray, Snapshot } from '@colyseus/react';
+import { EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { GameObjectInfo, ObjectId, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
@@ -17,6 +18,7 @@ type Props = GameObjectInfo & {
     targetNumber: number;
     totalTargets: number;
     systemOrder: IArray<number> | null;
+    identifiedVulnerability: EnemyTargetedCardType | null;
     scannedHelm: Snapshot<ScannedHelmInfo> | null;
     scannedTactical: Snapshot<ScannedTacticalInfo> | null;
     scannedScience: Snapshot<ScannedScienceInfo> | null;
@@ -92,13 +94,13 @@ export const ScienceTarget = (props: Props) => {
     // If all are null, we show the non-revealed content: the name and appearance of the target,
     // plus the system selector drop targets that only show when dragging a scan card.
     const content = props.scannedHelm
-        ? <ScanHelmSystem {...props.scannedHelm} name={props.name} onClose={props.closeRevealedSystem} />
+        ? <ScanHelmSystem {...props.scannedHelm} name={props.name} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
         : props.scannedTactical
-            ? <ScanTacticalSystem {...props.scannedTactical} name={props.name} onClose={props.closeRevealedSystem} />
+            ? <ScanTacticalSystem {...props.scannedTactical} name={props.name} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
             : props.scannedScience
-                ? <ScanScienceSystem {...props.scannedScience} name={props.name} onClose={props.closeRevealedSystem} />
+                ? <ScanScienceSystem {...props.scannedScience} name={props.name} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
                 : props.scannedEngineer
-                    ? <ScanEngineerSystem {...props.scannedEngineer} name={props.name} onClose={props.closeRevealedSystem} />
+                    ? <ScanEngineerSystem {...props.scannedEngineer} name={props.name} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
                     : (
                         <NonRevealedContent
                             id={props.id}
@@ -109,6 +111,12 @@ export const ScienceTarget = (props: Props) => {
                             systemOrder={props.systemOrder}
                         />
                     );
+
+    /*
+props.identifiedVulnerability
+        ? <ScanVulnerability name={props.name} system="engineer" targetId={props.id} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
+        :
+                    */
 
     return (
         <div className={classNames(styles.rootOuter, colorPalettes.primary)}>

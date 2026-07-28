@@ -46,3 +46,8 @@
     min-height: 0;
     font-size: 2em;
 }
+
+.vulnerabilityName {
+    color: var(--grey-light);
+    text-transform: lowercase;
+}

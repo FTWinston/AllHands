@@ -4,6 +4,7 @@ import colorPalletes from '../ColorPalette.module.css';
 import { ColorPalette } from '../types/ColorPalette';
 import { classNames } from '../utils/classNames';
 import styles from './InfoPopup.module.css';
+import { Popup } from './Popup';
 
 type Props = PropsWithChildren<{
     className?: string;
@@ -14,20 +15,14 @@ type Props = PropsWithChildren<{
 
 export const InfoPopup: FC<Props> = props => (
     <Popover.Root>
-        <Popover.Trigger className={classNames(styles.item, colorPalletes[props.palette ?? 'primary'], props.className)}>
+        <Popover.Trigger
+            className={classNames(styles.item, colorPalletes[props.palette ?? 'primary'], props.className)}
+        >
             {props.children}
         </Popover.Trigger>
-        <Popover.Portal>
-            <Popover.Backdrop className={styles.backdrop} />
-            <Popover.Positioner sideOffset={8}>
-                <Popover.Popup className={classNames(styles.popup)}>
-                    <Popover.Arrow className={styles.arrow} />
-                    {props.name && <Popover.Title className={styles.name}>{props.name}</Popover.Title>}
-                    <Popover.Description className={styles.description}>
-                        {props.description}
-                    </Popover.Description>
-                </Popover.Popup>
-            </Popover.Positioner>
-        </Popover.Portal>
+        <Popup
+            name={props.name}
+            description={props.description}
+        />
     </Popover.Root>
 );

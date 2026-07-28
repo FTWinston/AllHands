@@ -177,3 +177,15 @@ export const Science_Both: Story = {
         },
     },
 };
+
+export const Science_Vulnerability: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        scannedScience: {
+            targetId: 'Enemy-01',
+            scanSystem: null,
+            deflectorCard: null,
+        },
+        identifiedVulnerability: 'exampleEnemyTarget',
+    },
+};

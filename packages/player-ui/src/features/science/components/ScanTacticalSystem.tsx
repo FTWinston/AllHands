@@ -7,9 +7,11 @@ import { mergeModifiers } from 'src/features/tactical/utils/mergeModifiers';
 import { ScanBase } from './ScanBase';
 import { ScanCardSlot } from './ScanCardSlot';
 import styles from './ScanTacticalSystem.module.css';
+import type { EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 
 type Props = Snapshot<ScannedTacticalInfo> & {
     name: string;
+    vulnerability: EnemyTargetedCardType | null;
     onClose: () => void;
 };
 
@@ -54,6 +56,7 @@ export const ScanTacticalSystem = (props: Props) => {
         <ScanBase
             contentClassName={styles.root}
             system="tactical"
+            vulnerability={props.vulnerability}
             targetName={props.name}
             targetId={props.targetId}
             onClose={props.onClose}

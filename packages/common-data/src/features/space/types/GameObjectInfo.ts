@@ -1,7 +1,7 @@
 import { IArray, IMap } from '@colyseus/react';
 import { CardInstance } from 'src/features/cards/types/CardInstance';
 import { WeaponTrait } from 'src/features/cards/types/CardTrait';
-import { CardType } from 'src/features/cards/utils/cardDefinitions';
+import { CardType, EnemyTargetedCardType } from 'src/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'src/features/ships/types/SystemEffectDefinition';
 import { CardCooldown, Cooldown } from 'src/types/Cooldown';
@@ -139,6 +139,7 @@ export interface ScienceSystemInfo extends CrewSystemInfo {
     scannedShipId: string | null;
     scannedSystemOrder: IArray<number>;
     systemOrderByTarget: IMap<string, ScannedSystemOrderInfo>;
+    identifiedVulnerability: EnemyTargetedCardType | null;
     scannedHelm: ScannedHelmInfo | null;
     scannedTactical: ScannedTacticalInfo | null;
     scannedScience: ScannedScienceInfo | null;

@@ -55,6 +55,7 @@ export const Science = (props: Props) => {
             targets={targets}
             scannedShipId={scienceState.scannedShipId}
             systemOrderByTarget={scienceState.systemOrderByTarget}
+            identifiedVulnerability={scienceState.identifiedVulnerability}
             scannedHelm={scienceState.scannedHelm}
             scannedTactical={scienceState.scannedTactical}
             scannedScience={scienceState.scannedScience}

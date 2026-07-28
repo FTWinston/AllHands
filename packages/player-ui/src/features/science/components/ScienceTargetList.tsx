@@ -1,4 +1,5 @@
 import { IArray, Snapshot } from '@colyseus/react';
+import { EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo, RelationshipViewer, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedSystemOrderInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getDisplayRelationship } from 'common-data/features/space/utils/getDisplayRelationship';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
@@ -9,6 +10,7 @@ type Props = {
     targets: IArray<GameObjectInfo>;
     scannedShipId: string | null;
     systemOrderByTarget: Record<string, ScannedSystemOrderInfo>;
+    identifiedVulnerability: EnemyTargetedCardType | null;
     scannedHelm: Snapshot<ScannedHelmInfo> | null;
     scannedTactical: Snapshot<ScannedTacticalInfo> | null;
     scannedScience: Snapshot<ScannedScienceInfo> | null;
@@ -39,6 +41,7 @@ export const ScienceTargetList = (props: Props) => {
                         targetNumber={index + 1}
                         totalTargets={targets.length}
                         systemOrder={props.systemOrderByTarget[target.id]?.order ?? null}
+                        identifiedVulnerability={target.id === scannedShipId ? props.identifiedVulnerability : null}
                         scannedHelm={target.id === scannedShipId ? scannedHelm : null}
                         scannedTactical={target.id === scannedShipId ? scannedTactical : null}
                         scannedScience={target.id === scannedShipId ? scannedScience : null}

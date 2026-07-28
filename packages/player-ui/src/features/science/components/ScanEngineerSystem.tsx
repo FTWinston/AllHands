@@ -1,4 +1,5 @@
 import { Snapshot } from '@colyseus/react';
+import { EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ScannedEngineerInfo, ScannedEngineerTileInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
 import { SystemIcon } from 'common-ui/icons/systems';
@@ -7,6 +8,7 @@ import styles from './ScanEngineerSystem.module.css';
 
 type Props = Snapshot<ScannedEngineerInfo> & {
     name: string;
+    vulnerability: EnemyTargetedCardType | null;
     onClose: () => void;
 };
 
@@ -43,6 +45,7 @@ export const ScanEngineerSystem = (props: Props) => {
         <ScanBase
             contentClassName={styles.root}
             system="engineer"
+            vulnerability={props.vulnerability}
             targetName={props.name}
             targetId={props.targetId}
             onClose={props.onClose}

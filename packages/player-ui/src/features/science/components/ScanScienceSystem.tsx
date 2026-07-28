@@ -1,4 +1,5 @@
 import { Snapshot } from '@colyseus/react';
+import { EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { ScannedScienceInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { RestrictedHeightText } from 'common-ui/components/RestrictedHeightText';
@@ -9,6 +10,7 @@ import { ScanSection } from './ScanSection';
 
 type Props = Snapshot<ScannedScienceInfo> & {
     name: string;
+    vulnerability: EnemyTargetedCardType | null;
     onClose: () => void;
 };
 
@@ -33,6 +35,7 @@ export const ScanScienceSystem = (props: Props) => {
         <ScanBase
             contentClassName={styles.root}
             system="science"
+            vulnerability={props.vulnerability}
             targetName={props.name}
             targetId={props.targetId}
             onClose={props.onClose}

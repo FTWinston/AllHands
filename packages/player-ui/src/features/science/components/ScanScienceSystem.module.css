@@ -18,8 +18,9 @@
 }
 
 .scanTargetList {
-    font-size: 0.54em;
     color: var(--grey-light);
+    height: 2em;
+    font-size: 0.7em;
 }
 
 .systemName {

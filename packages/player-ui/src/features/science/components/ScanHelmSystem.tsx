@@ -1,4 +1,5 @@
 import { Snapshot } from '@colyseus/react';
+import { EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ScannedHelmInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ScanBase } from './ScanBase';
 import { ScanCardSlot } from './ScanCardSlot';
@@ -7,6 +8,7 @@ import { ScanSection } from './ScanSection';
 
 type Props = Snapshot<ScannedHelmInfo> & {
     name: string;
+    vulnerability: EnemyTargetedCardType | null;
     onClose: () => void;
 };
 
@@ -17,6 +19,7 @@ export const ScanHelmSystem = (props: Props) => {
         <ScanBase
             contentClassName={styles.root}
             system="helm"
+            vulnerability={props.vulnerability}
             targetName={props.name}
             targetId={props.targetId}
             onClose={props.onClose}

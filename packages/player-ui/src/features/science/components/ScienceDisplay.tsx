@@ -1,7 +1,7 @@
 import { Snapshot } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
-import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { CardType, EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo, RelationshipViewer, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedSystemOrderInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
@@ -18,6 +18,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     targets: Snapshot<GameObjectInfo[]>;
     scannedShipId: string | null;
     systemOrderByTarget: Record<string, ScannedSystemOrderInfo>;
+    identifiedVulnerability: EnemyTargetedCardType | null;
     scannedHelm: Snapshot<ScannedHelmInfo> | null;
     scannedTactical: Snapshot<ScannedTacticalInfo> | null;
     scannedScience: Snapshot<ScannedScienceInfo> | null;
@@ -33,8 +34,8 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
 export const ScienceDisplay = (props: Props) => {
     const {
         cards, playCard, targets, scannedShipId, systemOrderByTarget, modifierSlot, substanceSlot, deliverySlot,
-        deflectorCard, viewer, scannedHelm, scannedTactical, scannedScience, scannedEngineer, closeRevealedSystem,
-        ...headerProps
+        deflectorCard, viewer, scannedHelm, scannedTactical, scannedScience, scannedEngineer, identifiedVulnerability,
+        closeRevealedSystem, ...headerProps
     } = props;
 
     useRootClassName(crewStyles.science);
@@ -52,6 +53,7 @@ export const ScienceDisplay = (props: Props) => {
                     targets={targets}
                     scannedShipId={scannedShipId}
                     systemOrderByTarget={systemOrderByTarget}
+                    identifiedVulnerability={identifiedVulnerability}
                     scannedHelm={scannedHelm}
                     scannedTactical={scannedTactical}
                     scannedScience={scannedScience}
