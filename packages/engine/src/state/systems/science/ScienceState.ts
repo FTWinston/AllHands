@@ -2,7 +2,7 @@ import { ArraySchema, MapSchema, type } from '@colyseus/schema';
 import { DeflectorEffectDelivery, DeflectorEffectModifier, DeflectorEffectSubstance } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
-import { CardType, EnemyTargetedCardType, ScanTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { CardType, EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { engineerSystem, helmSystem, scienceSystem, shipSystems, ShipSystem, tacticalSystem } from 'common-data/features/ships/types/ShipSystem';
 import { CrewSystemSetupInfo, ScienceSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineScanTargetCardDefinition, EngineEnemyTargetCardDefinition } from 'src/cards/EngineCardDefinition';
