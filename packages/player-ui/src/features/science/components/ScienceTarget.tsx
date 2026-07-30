@@ -33,7 +33,7 @@ type SystemSelectorProps = {
 };
 
 const SelectableSystem = (props: SystemSelectorProps) => {
-    const id = `target/${props.targetId}/unknown/${props.systemIndex}`;
+    const id = `target/${props.targetId}/${props.systemIndex}`;
 
     const content = props.system ? (
         <div className={styles.systemName}>

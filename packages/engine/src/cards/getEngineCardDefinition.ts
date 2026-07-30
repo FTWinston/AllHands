@@ -659,14 +659,22 @@ function loadCardDefinitions() {
             load: () => {
                 return true;
             },
-            play: (_gameState, ship, target, targetSystem) => {
+            reveal: (_gameState, ship, target, targetSystem) => {
                 if (target === null || !isShip(target) || targetSystem === null) {
                     return false;
                 }
 
-                // TODO: duration
+                // TODO: duration?
                 // TODO: delay?
                 ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                return true;
+            },
+            identify: (_gameState, _ship, target, targetSystem) => {
+                if (target === null || !isShip(target) || targetSystem === null) {
+                    return false;
+                }
+
+                // TODO: identify a vulnerability on the target system
                 return true;
             },
         },
@@ -675,7 +683,15 @@ function loadCardDefinitions() {
             load: () => {
                 return true;
             },
-            play: () => {
+            reveal: () => {
+                return true;
+            },
+            identify: (_gameState, _ship, target, targetSystem) => {
+                if (target === null || !isShip(target) || targetSystem === null) {
+                    return false;
+                }
+
+                // TODO: identify a vulnerability on the target system
                 return true;
             },
         },
@@ -684,7 +700,15 @@ function loadCardDefinitions() {
             load: () => {
                 return true;
             },
-            play: () => {
+            reveal: () => {
+                return true;
+            },
+            identify: (_gameState, _ship, target, targetSystem) => {
+                if (target === null || !isShip(target) || targetSystem === null) {
+                    return false;
+                }
+
+                // TODO: identify a vulnerability on the target system
                 return true;
             },
         },
@@ -693,7 +717,15 @@ function loadCardDefinitions() {
             load: () => {
                 return true;
             },
-            play: () => {
+            reveal: () => {
+                return true;
+            },
+            identify: (_gameState, _ship, target, targetSystem) => {
+                if (target === null || !isShip(target) || targetSystem === null) {
+                    return false;
+                }
+
+                // TODO: identify a vulnerability on the target system
                 return true;
             },
         },

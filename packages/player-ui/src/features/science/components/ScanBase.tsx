@@ -21,7 +21,7 @@ type Props = PropsWithChildren<{
 }>;
 
 export const ScanBase = (props: Props) => {
-    const id = `target/${props.targetId}/${props.system}`;
+    const id = `vuln/${props.targetId}/${props.system}`;
 
     const vulnerabilityName = props.vulnerability ? getCardDefinition(props.vulnerability).name : null;
 

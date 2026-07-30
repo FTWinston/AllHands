@@ -3,6 +3,7 @@ import { DeflectorEffectDelivery, DeflectorEffectModifier, DeflectorEffectSubsta
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType, EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { engineerSystem, helmSystem, scienceSystem, shipSystems, ShipSystem, tacticalSystem } from 'common-data/features/ships/types/ShipSystem';
 import { CrewSystemSetupInfo, ScienceSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineScanTargetCardDefinition, EngineEnemyTargetCardDefinition } from 'src/cards/EngineCardDefinition';
@@ -353,49 +354,6 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.unsubscribeFromEngineer();
     }
 
-    /**
-     * Science cards can target a specific scan slot of an enemy ship using 'objectId:slotIndex'
-     * (the same first-colon split convention tactical uses for vulnerability targets).
-     * A plain objectId falls through to the base behaviour (no specific system).
-     */
-    protected override playEnemyCard(
-        cardDefinition: EngineEnemyTargetCardDefinition | EngineScanTargetCardDefinition,
-        targetId: string,
-        parameters: CardParameters
-    ): boolean {
-        const splitPos = targetId.indexOf(':');
-        if (splitPos === -1) {
-            return super.playEnemyCard(cardDefinition, targetId, parameters);
-        }
-
-        const objectId = targetId.substring(0, splitPos);
-        const slotIndex = parseInt(targetId.substring(splitPos + 1), 10);
-
-        const target = this.resolveTarget(objectId);
-        if (!target || !(target instanceof Ship) || Number.isNaN(slotIndex)) {
-            console.warn('invalid science system target: ' + targetId);
-            return false;
-        }
-
-        const crewSystems: Array<[ShipSystem, CrewSystemState]> = [
-            ['helm', target.helmState],
-            ['science', target.scienceState],
-            ['tactical', target.tacticalState],
-            ['engineer', target.engineerState],
-        ];
-        const match = crewSystems.find(([, state]) => state.scannedSystemIndex === slotIndex);
-        if (!match) {
-            console.warn('no system in scan slot: ' + targetId);
-            return false;
-        }
-
-        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, match[0], parameters)) {
-            console.log('card refused to play');
-            return false;
-        }
-        return true;
-    }
-
     override playCard(cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string): EngineCardDefinition | null {
         // If the deflector card is being played against an enemy, handle it separately, as it's not in the hand.
         if (targetType === 'enemy' && cardId === this.deflectorCardId && this.deflectorCard !== null) {
@@ -456,16 +414,59 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         return cardDefinition;
     }
 
-    override playCardIntoDeflectorSlot(card: CardState, cardDefinition: EngineScanTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
-        if (cardDefinition.parameters[targetId] === null) {
-            console.log(`card cannot be played into the ${targetId} slot`);
+    override playScanCardReveal(_card: CardState, cardDefinition: EngineScanTargetCardDefinition, targetId: string, systemIndex: number, parameters: CardParameters): boolean {
+        const target = this.resolveTarget(targetId);
+        if (!target || !(target instanceof Ship)) {
+            console.warn('invalid scan reveal target: ' + targetId);
+            return false;
+        }
+
+        const crewSystems: Array<[ShipSystem, CrewSystemState]> = [
+            ['helm', target.helmState],
+            ['science', target.scienceState],
+            ['tactical', target.tacticalState],
+            ['engineer', target.engineerState],
+        ];
+
+        const match = crewSystems.find(([, state]) => state.scannedSystemIndex === systemIndex);
+        if (!match) {
+            console.warn('no system in scan slot: ' + targetId);
+            return false;
+        }
+
+        if (!cardDefinition.reveal(this.getGameState(), this.getShip(), target, match[0], parameters)) {
+            console.log('card refused to play');
+            return false;
+        }
+
+        return true;
+    }
+
+    override playScanCardIdentify(_card: CardState, cardDefinition: EngineScanTargetCardDefinition, targetId: string, system: CrewRoleName, parameters: CardParameters): boolean {
+        const target = this.resolveTarget(targetId);
+        if (!target || !(target instanceof Ship)) {
+            console.warn('invalid scan vulnerability target: ' + targetId);
+            return false;
+        }
+
+        if (!cardDefinition.identify(this.getGameState(), this.getShip(), target, system, parameters)) {
+            console.log('card refused to play');
+            return false;
+        }
+
+        return true;
+    }
+
+    override playCardIntoDeflectorSlot(card: CardState, cardDefinition: EngineScanTargetCardDefinition, slotId: string, parameters: CardParameters): boolean {
+        if (cardDefinition.parameters[slotId] === null) {
+            console.log(`card cannot be played into the ${slotId} slot`);
             return false;
         }
 
         type ScienceSlotField = 'modifierSlotCard' | 'substanceSlotCard' | 'deliverySlotCard';
         let slot: ScienceSlotField;
 
-        switch (targetId) {
+        switch (slotId) {
             case 'modifier':
                 slot = 'modifierSlotCard';
                 break;
@@ -476,11 +477,11 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
                 slot = 'deliverySlotCard';
                 break;
             default:
-                console.warn('unknown science slot: ' + targetId);
+                console.warn('unknown science slot: ' + slotId);
                 return false;
         }
 
-        if (!cardDefinition.load(this.getGameState(), this.getShip(), targetId, parameters)) {
+        if (!cardDefinition.load(this.getGameState(), this.getShip(), slotId, parameters)) {
             console.log('card refused to load');
             return false;
         }
@@ -535,6 +536,6 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             delivery = 'Wave';
         }
 
-        return `deflector${modifier}${substance}${delivery}` as EnemyTargetedCardType;
+        return `deflector${modifier}${substance}${delivery}`;
     }
 }

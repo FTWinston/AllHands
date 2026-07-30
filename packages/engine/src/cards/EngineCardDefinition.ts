@@ -43,7 +43,8 @@ export type EnemyTargetCardFunctionality = EngineCardAiFunctionality & {
 
 export type ScanTargetCardFunctionality = EngineCardAiFunctionality & {
     load: (gameState: GameState, ship: Ship, slotId: string, parameters: CardParameters) => boolean;
-    play: (gameState: GameState, ship: Ship, target: GameObject | null, targetSystem: ShipSystem | null, parameters: CardParameters) => boolean;
+    reveal: (gameState: GameState, ship: Ship, target: GameObject | null, targetSystem: ShipSystem | null, parameters: CardParameters) => boolean;
+    identify: (gameState: GameState, ship: Ship, target: GameObject | null, targetSystem: ShipSystem | null, parameters: CardParameters) => boolean;
 };
 
 export type SystemTargetCardFunctionality = EngineCardAiFunctionality & {

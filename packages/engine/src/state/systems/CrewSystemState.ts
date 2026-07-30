@@ -2,6 +2,8 @@ import { ArraySchema, type } from '@colyseus/schema';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
+import { isCrewSystem } from 'common-data/features/ships/types/ShipSystem';
 import { CrewSystemSetupInfo, CrewSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineScanTargetCardDefinition, EngineEnemyTargetCardDefinition, EngineLocationTargetCardDefinition, EngineNoTargetCardDefinition, EngineSystemTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
@@ -165,11 +167,32 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         } else if (cardDefinition.targetType === 'enemy') {
             played = this.playEnemyCard(cardDefinition, targetId, parameters);
         } else if (cardDefinition.targetType === 'scan') {
-            if (targetType === 'enemy') {
-                played = this.playEnemyCard(cardDefinition, targetId, parameters);
-            } else {
-                played = this.playCardIntoDeflectorSlot(card, cardDefinition, targetId, parameters);
+            const targetIdParts = targetId.split('/');
+
+            if (targetIdParts[0] === 'target') {
+                let systemIndex = parseInt(targetIdParts[2]);
+                if (targetIdParts.length < 3 || Number.isNaN(systemIndex)) {
+                    console.error('unhandled scan card reveal target:' + targetId);
+                    return null;
+                }
+                played = this.playScanCardReveal(card, cardDefinition, targetIdParts[1], systemIndex, parameters);
+            } else if (targetIdParts[0] === 'vuln') {
+                const system = targetIdParts[2];
+                if (targetIdParts.length < 3 || !isCrewSystem(system)) {
+                    console.error('unhandled scan card vulnerability target:' + targetId);
+                    return null;
+                }
+                played = this.playScanCardIdentify(card, cardDefinition, targetIdParts[1], system, parameters);
+            } else if (targetIdParts[0] === 'deflector') {
+                if (targetIdParts.length < 2) {
+                    console.error('unhandled scan card deflector target:' + targetId);
+                    return null;
+                }
+                played = this.playCardIntoDeflectorSlot(card, cardDefinition, targetIdParts[1], parameters);
                 slotted = true;
+            } else {
+                console.error('unhandled scan card target:' + targetId);
+                return null;
             }
         } else if (cardDefinition.targetType === 'system') {
             played = this.playSystemCard(cardDefinition, targetId, parameters);
@@ -205,7 +228,17 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         return false;
     }
 
-    protected playCardIntoDeflectorSlot(_card: CardState, _cardDefinition: EngineScanTargetCardDefinition, _targetId: string, _parameters: CardParameters): boolean {
+    protected playScanCardReveal(_card: CardState, _cardDefinition: EngineScanTargetCardDefinition, _targetId: string, _systemIndex: number, _parameters: CardParameters): boolean {
+        console.warn('non-science system trying to play scan card');
+        return false;
+    }
+
+    protected playScanCardIdentify(_card: CardState, _cardDefinition: EngineScanTargetCardDefinition, _targetId: string, _system: CrewRoleName, _parameters: CardParameters): boolean {
+        console.warn('non-science system trying to play scan card');
+        return false;
+    }
+
+    protected playCardIntoDeflectorSlot(_card: CardState, _cardDefinition: EngineScanTargetCardDefinition, _slotId: string, _parameters: CardParameters): boolean {
         console.warn('non-science system trying to play deflector slot card');
         return false;
     }
@@ -215,7 +248,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         return false;
     }
 
-    protected playEnemyCard(cardDefinition: EngineEnemyTargetCardDefinition | EngineScanTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+    protected playEnemyCard(cardDefinition: EngineEnemyTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
         const target = this.resolveTarget(targetId);
 
         if (!target) {
