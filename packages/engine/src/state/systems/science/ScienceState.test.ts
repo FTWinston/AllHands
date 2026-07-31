@@ -29,7 +29,7 @@ describe('ScienceState scan-slot targeting', () => {
         const { scanner, target } = createWorld();
         const card = scanner.scienceState.hand[0];
 
-        const played = scanner.scienceState.playCard(card.id, 'scan', 'enemy', `${target.id}:0`);
+        const played = scanner.scienceState.playCard(card.id, 'scan', 'scan', `target/${target.id}/0`);
 
         expect(played).not.toBeNull();
         expect(scanner.scienceState.scannedShipId).toBe(target.id);
@@ -45,7 +45,7 @@ describe('ScienceState scan-slot targeting', () => {
         const card = scanner.scienceState.hand[0];
         const handBefore = scanner.scienceState.hand.length;
 
-        const played = scanner.scienceState.playCard(card.id, 'scan', 'enemy', `${target.id}:9`);
+        const played = scanner.scienceState.playCard(card.id, 'scan', 'enemy', `target/${target.id}/9`);
 
         expect(played).toBeNull();
         expect(scanner.scienceState.hand.length).toBe(handBefore);

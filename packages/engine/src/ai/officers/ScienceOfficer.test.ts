@@ -48,7 +48,7 @@ describe('ScienceOfficer', () => {
         const { ship, enemy, officer, bb } = createWorld();
         const playSpy = vi.spyOn(ship.scienceState, 'playCard');
         officer.think(bb, 0);
-        expect(playSpy).toHaveBeenCalledWith(expect.any(Number), 'scan', 'enemy', `${enemy.id}:0`);
+        expect(playSpy).toHaveBeenCalledWith(expect.any(Number), 'scan', 'enemy', `target/${enemy.id}/0`);
     });
 
     it('moves on to the next unidentified slot after a scan lands', () => {
@@ -56,7 +56,7 @@ describe('ScienceOfficer', () => {
         officer.think(bb, 0); // identifies slot 0
         const playSpy = vi.spyOn(ship.scienceState, 'playCard');
         officer.think(bb, 1000);
-        expect(playSpy).toHaveBeenCalledWith(expect.any(Number), 'scan', 'enemy', `${enemy.id}:1`);
+        expect(playSpy).toHaveBeenCalledWith(expect.any(Number), 'scan', 'enemy', `target/${enemy.id}/1`);
     });
 
     it('does not waste scans without a target', () => {
