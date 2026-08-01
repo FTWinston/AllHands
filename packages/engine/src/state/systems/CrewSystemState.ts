@@ -175,14 +175,14 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
                     console.error('unhandled scan card reveal target:' + targetId);
                     return null;
                 }
-                played = this.playScanCardReveal(card, cardDefinition, targetIdParts[1], systemIndex, parameters);
+                played = this.playScanCardReveal(cardDefinition, targetIdParts[1], systemIndex, parameters);
             } else if (targetIdParts[0] === 'vuln') {
                 const system = targetIdParts[2];
                 if (targetIdParts.length < 3 || !isCrewSystem(system)) {
                     console.error('unhandled scan card vulnerability target:' + targetId);
                     return null;
                 }
-                played = this.playScanCardIdentify(card, cardDefinition, targetIdParts[1], system, parameters);
+                played = this.playScanCardIdentify(cardDefinition, targetIdParts[1], system, parameters);
             } else if (targetIdParts[0] === 'deflector') {
                 if (targetIdParts.length < 2) {
                     console.error('unhandled scan card deflector target:' + targetId);
@@ -228,12 +228,12 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         return false;
     }
 
-    protected playScanCardReveal(_card: CardState, _cardDefinition: EngineScanTargetCardDefinition, _targetId: string, _systemIndex: number, _parameters: CardParameters): boolean {
+    protected playScanCardReveal(_cardDefinition: EngineScanTargetCardDefinition, _targetId: string, _systemIndex: number, _parameters: CardParameters): boolean {
         console.warn('non-science system trying to play scan card');
         return false;
     }
 
-    protected playScanCardIdentify(_card: CardState, _cardDefinition: EngineScanTargetCardDefinition, _targetId: string, _system: CrewRoleName, _parameters: CardParameters): boolean {
+    protected playScanCardIdentify(_cardDefinition: EngineScanTargetCardDefinition, _targetId: string, _system: CrewRoleName, _parameters: CardParameters): boolean {
         console.warn('non-science system trying to play scan card');
         return false;
     }

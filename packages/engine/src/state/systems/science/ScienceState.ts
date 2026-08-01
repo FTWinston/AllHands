@@ -414,7 +414,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         return cardDefinition;
     }
 
-    override playScanCardReveal(_card: CardState, cardDefinition: EngineScanTargetCardDefinition, targetId: string, systemIndex: number, parameters: CardParameters): boolean {
+    override playScanCardReveal(cardDefinition: EngineScanTargetCardDefinition, targetId: string, systemIndex: number, parameters: CardParameters): boolean {
         const target = this.resolveTarget(targetId);
         if (!target || !(target instanceof Ship)) {
             console.warn('invalid scan reveal target: ' + targetId);
@@ -434,7 +434,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             return false;
         }
 
-        if (!cardDefinition.reveal(this.getGameState(), this.getShip(), target, match[0], parameters)) {
+        if (!cardDefinition.revealSystem(this.getGameState(), this.getShip(), target, match[0], parameters)) {
             console.log('card refused to play');
             return false;
         }
@@ -442,14 +442,14 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         return true;
     }
 
-    override playScanCardIdentify(_card: CardState, cardDefinition: EngineScanTargetCardDefinition, targetId: string, system: CrewRoleName, parameters: CardParameters): boolean {
+    override playScanCardIdentify(cardDefinition: EngineScanTargetCardDefinition, targetId: string, system: CrewRoleName, parameters: CardParameters): boolean {
         const target = this.resolveTarget(targetId);
         if (!target || !(target instanceof Ship)) {
             console.warn('invalid scan vulnerability target: ' + targetId);
             return false;
         }
 
-        if (!cardDefinition.identify(this.getGameState(), this.getShip(), target, system, parameters)) {
+        if (!cardDefinition.findVulnerability(this.getGameState(), this.getShip(), target, system, parameters)) {
             console.log('card refused to play');
             return false;
         }

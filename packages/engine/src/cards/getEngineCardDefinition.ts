@@ -659,7 +659,7 @@ function loadCardDefinitions() {
             load: () => {
                 return true;
             },
-            reveal: (_gameState, ship, target, targetSystem) => {
+            revealSystem: (_gameState, ship, target, targetSystem) => {
                 if (target === null || !isShip(target) || targetSystem === null) {
                     return false;
                 }
@@ -669,12 +669,13 @@ function loadCardDefinitions() {
                 ship.scienceState.subscribeToSystem(target, targetSystem, true);
                 return true;
             },
-            identify: (_gameState, _ship, target, targetSystem) => {
+            findVulnerability: (_gameState, _ship, target, targetSystem) => {
                 if (target === null || !isShip(target) || targetSystem === null) {
                     return false;
                 }
 
-                // TODO: identify a vulnerability on the target system
+                // TODO: actually identify a vulnerability on the target system, indicate what exposing it will do
+                _ship.scienceState.identifiedVulnerability = 'deflectorPhasedGravitonBurst';
                 return true;
             },
         },
@@ -683,15 +684,16 @@ function loadCardDefinitions() {
             load: () => {
                 return true;
             },
-            reveal: () => {
+            revealSystem: () => {
                 return true;
             },
-            identify: (_gameState, _ship, target, targetSystem) => {
+            findVulnerability: (_gameState, _ship, target, targetSystem) => {
                 if (target === null || !isShip(target) || targetSystem === null) {
                     return false;
                 }
 
-                // TODO: identify a vulnerability on the target system
+                // TODO: actually identify a vulnerability on the target system, indicate what exposing it will do
+                _ship.scienceState.identifiedVulnerability = 'deflectorPhasedGravitonBurst';
                 return true;
             },
         },
@@ -700,15 +702,16 @@ function loadCardDefinitions() {
             load: () => {
                 return true;
             },
-            reveal: () => {
+            revealSystem: () => {
                 return true;
             },
-            identify: (_gameState, _ship, target, targetSystem) => {
+            findVulnerability: (_gameState, _ship, target, targetSystem) => {
                 if (target === null || !isShip(target) || targetSystem === null) {
                     return false;
                 }
 
-                // TODO: identify a vulnerability on the target system
+                // TODO: actually identify a vulnerability on the target system, indicate what exposing it will do
+                _ship.scienceState.identifiedVulnerability = 'deflectorPhasedGravitonBurst';
                 return true;
             },
         },
@@ -717,15 +720,16 @@ function loadCardDefinitions() {
             load: () => {
                 return true;
             },
-            reveal: () => {
+            revealSystem: () => {
                 return true;
             },
-            identify: (_gameState, _ship, target, targetSystem) => {
+            findVulnerability: (_gameState, _ship, target, targetSystem) => {
                 if (target === null || !isShip(target) || targetSystem === null) {
                     return false;
                 }
 
-                // TODO: identify a vulnerability on the target system
+                // TODO: actually identify a vulnerability on the target system, indicate what exposing it will do
+                _ship.scienceState.identifiedVulnerability = 'deflectorPhasedGravitonBurst';
                 return true;
             },
         },

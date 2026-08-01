@@ -56,7 +56,7 @@ export const UI: Story = {
             },
             {
                 id: 2,
-                type: 'scan',
+                type: 'scanPulse',
             },
             {
                 id: 3,
