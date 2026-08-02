@@ -1,7 +1,10 @@
-import { DeflectorEffectModifier, DeflectorEffectSubstance, DeflectorEffectDelivery } from 'common-data/features/cards/types/CardDefinition';
+import { AssignableDeflectorEffectDelivery, AssignableDeflectorEffectSubstance, AssignableDeflectorEffectModifier } from 'common-data/features/cards/types/CardDefinition';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 
-export type DisplayableTrait = CardTrait | DeflectorEffectModifier | DeflectorEffectSubstance | DeflectorEffectDelivery;
+export type DisplayableTrait = CardTrait
+    | AssignableDeflectorEffectModifier
+    | AssignableDeflectorEffectSubstance
+    | AssignableDeflectorEffectDelivery;
 
 /**
  * Converts a camelCase trait identifier to a user-friendly display string.
@@ -42,16 +45,12 @@ export function getTraitDisplayName(trait: DisplayableTrait): string {
             return 'Modifier: Coherent';
         case 'Inverted':
             return 'Modifier: Inverted';
-        case 'Modulated':
-            return 'Modifier: Modulated';
         case 'Antiproton':
             return 'Substance: Antiproton';
         case 'Tetryon':
             return 'Substance: Tetryon';
         case 'Chroniton':
             return 'Substance: Chroniton';
-        case 'Graviton':
-            return 'Substance: Graviton';
         case 'Polaron':
             return 'Substance: Polaron';
         case 'Beam':
@@ -60,8 +59,6 @@ export function getTraitDisplayName(trait: DisplayableTrait): string {
             return 'Delivery: Pulse';
         case 'Burst':
             return 'Delivery: Burst';
-        case 'Field':
-            return 'Delivery: Field';
 
         default:
             throw new Error(`Card trait not found: ${trait satisfies never}`);

@@ -41,16 +41,22 @@ export type EnemyTargetCardDefinition = CommonCardDefinition & {
 };
 
 export type DeflectorEffectModifier = 'Phased' | 'Coherent' | 'Inverted' | 'Modulated';
+export type DefaultDeflectorEffectModifier = 'Modulated';
+export type AssignableDeflectorEffectModifier = Exclude<DeflectorEffectModifier, DefaultDeflectorEffectModifier>;
 
 export type DeflectorEffectSubstance = 'Antiproton' | 'Tetryon' | 'Chroniton' | 'Graviton' | 'Polaron';
+export type DefaultDeflectorEffectSubstance = 'Graviton';
+export type AssignableDeflectorEffectSubstance = Exclude<DeflectorEffectSubstance, DefaultDeflectorEffectSubstance>;
 
 export type DeflectorEffectDelivery = 'Beam' | 'Pulse' | 'Burst' | 'Field';
+export type DefaultDeflectorEffectDelivery = 'Field';
+export type AssignableDeflectorEffectDelivery = Exclude<DeflectorEffectDelivery, DefaultDeflectorEffectDelivery>;
 
 export type ScanTargetCardDefinition = CommonCardDefinition & {
     targetType: 'scan';
-    deflectorModifier?: DeflectorEffectModifier;
-    deflectorSubstance?: DeflectorEffectSubstance;
-    deflectorDelivery?: DeflectorEffectDelivery;
+    deflectorModifier?: AssignableDeflectorEffectModifier;
+    deflectorSubstance?: AssignableDeflectorEffectSubstance;
+    deflectorDelivery?: AssignableDeflectorEffectDelivery;
 };
 
 export type SystemTargetCardDefinition = CommonCardDefinition & {
