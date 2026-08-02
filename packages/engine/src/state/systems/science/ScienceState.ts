@@ -519,11 +519,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         modifier: DeflectorEffectModifier | null | undefined,
         substance: DeflectorEffectSubstance | null | undefined,
         delivery: DeflectorEffectDelivery | null | undefined
-    ): EnemyTargetedCardType | null {
-        if (!modifier && !substance && !delivery) {
-            return null;
-        }
-
+    ): EnemyTargetedCardType {
         if (!modifier) {
             modifier = 'Modulated';
         }
@@ -533,7 +529,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         }
 
         if (!delivery) {
-            delivery = 'Wave';
+            delivery = 'Field';
         }
 
         return `deflector${modifier}${substance}${delivery}`;

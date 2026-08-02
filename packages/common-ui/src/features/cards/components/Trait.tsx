@@ -1,11 +1,10 @@
-import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { FC } from 'react';
 import { classNames } from '../../../utils/classNames';
-import { getTraitDisplayName } from '../utils/getTraitDisplayName';
+import { DisplayableTrait, getTraitDisplayName } from '../utils/getTraitDisplayName';
 import styles from './Trait.module.css';
 
 export type TraitProps = {
-    type: CardTrait;
+    type: DisplayableTrait;
     external?: boolean;
 };
 

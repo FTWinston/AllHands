@@ -486,8 +486,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorPhasedAntiprotonWave: {
-            name: 'Phased Antiproton Wave',
+        deflectorPhasedAntiprotonField: {
+            name: 'Phased Antiproton Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -522,8 +522,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorPhasedTetryonWave: {
-            name: 'Phased Tetryon Wave',
+        deflectorPhasedTetryonField: {
+            name: 'Phased Tetryon Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -558,8 +558,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorPhasedChronitonWave: {
-            name: 'Phased Chroniton Wave',
+        deflectorPhasedChronitonField: {
+            name: 'Phased Chroniton Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -594,8 +594,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorPhasedGravitonWave: {
-            name: 'Phased Graviton Wave',
+        deflectorPhasedGravitonField: {
+            name: 'Phased Graviton Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -630,8 +630,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorPhasedPolaronWave: {
-            name: 'Phased Polaron Wave',
+        deflectorPhasedPolaronField: {
+            name: 'Phased Polaron Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -666,8 +666,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorCoherentAntiprotonWave: {
-            name: 'Coherent Antiproton Wave',
+        deflectorCoherentAntiprotonField: {
+            name: 'Coherent Antiproton Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -702,8 +702,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorCoherentTetryonWave: {
-            name: 'Coherent Tetryon Wave',
+        deflectorCoherentTetryonField: {
+            name: 'Coherent Tetryon Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -738,8 +738,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorCoherentChronitonWave: {
-            name: 'Coherent Chroniton Wave',
+        deflectorCoherentChronitonField: {
+            name: 'Coherent Chroniton Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -774,8 +774,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorCoherentGravitonWave: {
-            name: 'Coherent Graviton Wave',
+        deflectorCoherentGravitonField: {
+            name: 'Coherent Graviton Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -810,8 +810,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorCoherentPolaronWave: {
-            name: 'Coherent Polaron Wave',
+        deflectorCoherentPolaronField: {
+            name: 'Coherent Polaron Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -846,8 +846,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorInvertedAntiprotonWave: {
-            name: 'Inverted Antiproton Wave',
+        deflectorInvertedAntiprotonField: {
+            name: 'Inverted Antiproton Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -882,8 +882,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorInvertedTetryonWave: {
-            name: 'Inverted Tetryon Wave',
+        deflectorInvertedTetryonField: {
+            name: 'Inverted Tetryon Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -918,8 +918,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorInvertedChronitonWave: {
-            name: 'Inverted Chroniton Wave',
+        deflectorInvertedChronitonField: {
+            name: 'Inverted Chroniton Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -954,8 +954,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorInvertedGravitonWave: {
-            name: 'Inverted Graviton Wave',
+        deflectorInvertedGravitonField: {
+            name: 'Inverted Graviton Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -990,8 +990,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorInvertedPolaronWave: {
-            name: 'Inverted Polaron Wave',
+        deflectorInvertedPolaronField: {
+            name: 'Inverted Polaron Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -1026,8 +1026,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorModulatedAntiprotonWave: {
-            name: 'Modulated Antiproton Wave',
+        deflectorModulatedAntiprotonField: {
+            name: 'Modulated Antiproton Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -1062,8 +1062,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorModulatedTetryonWave: {
-            name: 'Modulated Tetryon Wave',
+        deflectorModulatedTetryonField: {
+            name: 'Modulated Tetryon Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -1098,8 +1098,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorModulatedChronitonWave: {
-            name: 'Modulated Chroniton Wave',
+        deflectorModulatedChronitonField: {
+            name: 'Modulated Chroniton Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -1134,8 +1134,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorModulatedGravitonWave: {
-            name: 'Modulated Graviton Wave',
+        deflectorModulatedGravitonField: {
+            name: 'Modulated Graviton Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}
@@ -1170,8 +1170,8 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        deflectorModulatedPolaronWave: {
-            name: 'Modulated Polaron Wave',
+        deflectorModulatedPolaronField: {
+            name: 'Modulated Polaron Field',
             description: <>
                 <Trait type="expendable" />
                 {' '}

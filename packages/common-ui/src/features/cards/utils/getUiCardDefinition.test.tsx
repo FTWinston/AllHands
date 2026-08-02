@@ -1,15 +1,15 @@
-import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { CardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { isValidElement, ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
 import { Trait, TraitProps } from '../components/Trait';
+import { DisplayableTrait } from './getTraitDisplayName';
 import { getCardDefinition } from './getUiCardDefinition';
 
 /**
  * Recursively walk a React element tree and collect all trait types
  * rendered by the Trait component.
  */
-function findTraitTypes(node: ReactNode): CardTrait[] {
+function findTraitTypes(node: ReactNode): DisplayableTrait[] {
     if (!isValidElement(node)) {
         if (Array.isArray(node)) {
             return node.flatMap(findTraitTypes);
@@ -17,7 +17,7 @@ function findTraitTypes(node: ReactNode): CardTrait[] {
         return [];
     }
 
-    const traits: CardTrait[] = [];
+    const traits: DisplayableTrait[] = [];
 
     if (node.type === Trait) {
         const props = node.props as TraitProps;

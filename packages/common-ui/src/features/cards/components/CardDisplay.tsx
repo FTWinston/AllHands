@@ -42,21 +42,21 @@ export const CardDisplay: FC<Props> = (props) => {
             {props.targetType === 'scan' && props.deflectorModifier && (
                 <>
                     {' '}
-                    <Trait type="deflectorModifier" parameter={props.deflectorModifier} />
+                    <Trait type={props.deflectorModifier} />
                 </>
             )}
 
             {props.targetType === 'scan' && props.deflectorSubstance && (
                 <>
                     {' '}
-                    <Trait type="deflectorSubstance" parameter={props.deflectorSubstance} />
+                    <Trait type={props.deflectorSubstance} />
                 </>
             )}
 
             {props.targetType === 'scan' && props.deflectorDelivery && (
                 <>
                     {' '}
-                    <Trait type="deflectorDelivery" parameter={props.deflectorDelivery} />
+                    <Trait type={props.deflectorDelivery} />
                 </>
             )}
 

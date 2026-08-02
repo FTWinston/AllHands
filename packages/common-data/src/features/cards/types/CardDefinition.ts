@@ -44,7 +44,7 @@ export type DeflectorEffectModifier = 'Phased' | 'Coherent' | 'Inverted' | 'Modu
 
 export type DeflectorEffectSubstance = 'Antiproton' | 'Tetryon' | 'Chroniton' | 'Graviton' | 'Polaron';
 
-export type DeflectorEffectDelivery = 'Beam' | 'Pulse' | 'Burst' | 'Wave';
+export type DeflectorEffectDelivery = 'Beam' | 'Pulse' | 'Burst' | 'Field';
 
 export type ScanTargetCardDefinition = CommonCardDefinition & {
     targetType: 'scan';

@@ -364,7 +364,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 5 },
     },
-    deflectorPhasedAntiprotonWave: {
+    deflectorPhasedAntiprotonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -388,7 +388,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 5 },
     },
-    deflectorPhasedTetryonWave: {
+    deflectorPhasedTetryonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -412,7 +412,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 5 },
     },
-    deflectorPhasedChronitonWave: {
+    deflectorPhasedChronitonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -436,7 +436,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 4 },
     },
-    deflectorPhasedGravitonWave: {
+    deflectorPhasedGravitonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -460,7 +460,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 5 },
     },
-    deflectorPhasedPolaronWave: {
+    deflectorPhasedPolaronField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -484,7 +484,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 5 },
     },
-    deflectorCoherentAntiprotonWave: {
+    deflectorCoherentAntiprotonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -508,7 +508,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 5 },
     },
-    deflectorCoherentTetryonWave: {
+    deflectorCoherentTetryonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -532,7 +532,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 5 },
     },
-    deflectorCoherentChronitonWave: {
+    deflectorCoherentChronitonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -556,7 +556,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 4 },
     },
-    deflectorCoherentGravitonWave: {
+    deflectorCoherentGravitonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -580,7 +580,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 5 },
     },
-    deflectorCoherentPolaronWave: {
+    deflectorCoherentPolaronField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -604,7 +604,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 5 },
     },
-    deflectorInvertedAntiprotonWave: {
+    deflectorInvertedAntiprotonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -628,7 +628,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 5 },
     },
-    deflectorInvertedTetryonWave: {
+    deflectorInvertedTetryonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -652,7 +652,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 5 },
     },
-    deflectorInvertedChronitonWave: {
+    deflectorInvertedChronitonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -676,7 +676,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 4 },
     },
-    deflectorInvertedGravitonWave: {
+    deflectorInvertedGravitonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -700,7 +700,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 5 },
     },
-    deflectorInvertedPolaronWave: {
+    deflectorInvertedPolaronField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -724,7 +724,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 4 },
     },
-    deflectorModulatedAntiprotonWave: {
+    deflectorModulatedAntiprotonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -748,7 +748,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 4 },
     },
-    deflectorModulatedTetryonWave: {
+    deflectorModulatedTetryonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -772,7 +772,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 4 },
     },
-    deflectorModulatedChronitonWave: {
+    deflectorModulatedChronitonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -796,7 +796,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 3 },
     },
-    deflectorModulatedGravitonWave: {
+    deflectorModulatedGravitonField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],
@@ -820,7 +820,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 4 },
     },
-    deflectorModulatedPolaronWave: {
+    deflectorModulatedPolaronField: {
         targetType: 'enemy',
         crew: 'science',
         traits: ['expendable'],

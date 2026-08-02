@@ -751,7 +751,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorPhasedAntiprotonWave: {
+        deflectorPhasedAntiprotonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Antiproton Wave deflector effect
                 return true;
@@ -775,7 +775,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorPhasedTetryonWave: {
+        deflectorPhasedTetryonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Tetryon Wave deflector effect
                 return true;
@@ -799,7 +799,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorPhasedChronitonWave: {
+        deflectorPhasedChronitonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Chroniton Wave deflector effect
                 return true;
@@ -823,7 +823,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorPhasedGravitonWave: {
+        deflectorPhasedGravitonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Graviton Wave deflector effect
                 return true;
@@ -847,7 +847,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorPhasedPolaronWave: {
+        deflectorPhasedPolaronField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Phased Polaron Wave deflector effect
                 return true;
@@ -871,7 +871,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorCoherentAntiprotonWave: {
+        deflectorCoherentAntiprotonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Antiproton Wave deflector effect
                 return true;
@@ -895,7 +895,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorCoherentTetryonWave: {
+        deflectorCoherentTetryonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Tetryon Wave deflector effect
                 return true;
@@ -919,7 +919,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorCoherentChronitonWave: {
+        deflectorCoherentChronitonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Chroniton Wave deflector effect
                 return true;
@@ -943,7 +943,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorCoherentGravitonWave: {
+        deflectorCoherentGravitonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Graviton Wave deflector effect
                 return true;
@@ -967,7 +967,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorCoherentPolaronWave: {
+        deflectorCoherentPolaronField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Coherent Polaron Wave deflector effect
                 return true;
@@ -991,7 +991,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorInvertedAntiprotonWave: {
+        deflectorInvertedAntiprotonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Antiproton Wave deflector effect
                 return true;
@@ -1015,7 +1015,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorInvertedTetryonWave: {
+        deflectorInvertedTetryonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Tetryon Wave deflector effect
                 return true;
@@ -1039,7 +1039,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorInvertedChronitonWave: {
+        deflectorInvertedChronitonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Chroniton Wave deflector effect
                 return true;
@@ -1063,7 +1063,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorInvertedGravitonWave: {
+        deflectorInvertedGravitonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Graviton Wave deflector effect
                 return true;
@@ -1087,7 +1087,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorInvertedPolaronWave: {
+        deflectorInvertedPolaronField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Inverted Polaron Wave deflector effect
                 return true;
@@ -1111,7 +1111,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorModulatedAntiprotonWave: {
+        deflectorModulatedAntiprotonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Antiproton Wave deflector effect
                 return true;
@@ -1135,7 +1135,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorModulatedTetryonWave: {
+        deflectorModulatedTetryonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Tetryon Wave deflector effect
                 return true;
@@ -1159,7 +1159,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorModulatedChronitonWave: {
+        deflectorModulatedChronitonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Chroniton Wave deflector effect
                 return true;
@@ -1183,7 +1183,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorModulatedGravitonWave: {
+        deflectorModulatedGravitonField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Graviton Wave deflector effect
                 return true;
@@ -1207,7 +1207,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        deflectorModulatedPolaronWave: {
+        deflectorModulatedPolaronField: {
             play: (_gameState, _ship, _target) => {
                 // TODO: implement Modulated Polaron Wave deflector effect
                 return true;

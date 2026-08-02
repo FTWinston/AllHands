@@ -4,6 +4,7 @@
   border-radius: 0.5em;
   corner-shape: squircle;
   padding: 0.1em 0.4em;
+  white-space: nowrap;
 
   &:not(.external) {
     border: 1px solid color-mix(in srgb, var(--primary-lightest) 50%, transparent);
