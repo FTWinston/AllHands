@@ -10,7 +10,7 @@ type Props = {
     disabled?: boolean;
     highlighted?: boolean;
     modifiers?: Record<string, number>;
-    showTraits?: boolean;
+    showTraitDescriptions?: boolean;
 };
 
 export const Card: FC<Props> = (props) => {
@@ -24,7 +24,7 @@ export const Card: FC<Props> = (props) => {
             disabled={props.disabled}
             highlighted={props.highlighted}
             modifiers={props.modifiers}
-            showTraits={props.showTraits}
+            showTraitDescriptions={props.showTraitDescriptions}
         />
     );
 };

@@ -77,7 +77,7 @@ export const DraggableCard: FC<Props> = (props) => {
                 sufficientPower={props.slotted ? undefined : props.availablePower >= resolvedCost}
                 modifiers={props.modifiers}
                 extraTraits={props.extraTraits}
-                showTraits={isFocused && !isBeingDragged}
+                showTraitDescriptions={isFocused && !isBeingDragged}
             />
         </div>
     );

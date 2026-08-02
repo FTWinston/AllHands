@@ -1,35 +1,26 @@
-import { Snapshot } from '@colyseus/react';
 import { CardParametersBase } from 'common-data/features/cards/types/CardParameters';
-import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
-import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
-import { FC, Fragment, ReactNode, useCallback, useMemo, useState } from 'react';
+import { FC, Fragment, useCallback, useMemo, useState } from 'react';
 import { RestrictedHeightText } from '../../../components/RestrictedHeightText';
 import crewStyles from '../../../CrewColors.module.css';
 import { classNames } from '../../../utils/classNames';
 import { CardTargetIcon } from '../assets/cardTargetTypes';
+import { UICardDefinition } from '../types/UICardDefinition';
 import { CardBase } from './CardBase';
 import styles from './CardDisplay.module.css';
 import { CardParametersContext, Parameter } from './Parameter';
 import { Trait } from './Trait';
 import { TraitDescription } from './TraitDescription';
 
-type Props = {
+type Props = UICardDefinition & {
     className?: string;
     slotted?: boolean;
     disabled?: boolean;
     highlighted?: boolean;
-    name: string;
-    crew: CrewRoleName;
-    targetType: CardTargetType;
-    description: ReactNode;
-    image: ReactNode;
     sufficientPower?: boolean;
-    parameters: CardParametersBase;
     modifiers?: CardParametersBase;
-    traits?: Snapshot<CardTrait[]>;
     extraTraits?: CardTrait[];
-    showTraits?: boolean;
+    showTraitDescriptions?: boolean;
 };
 
 export const CardDisplay: FC<Props> = (props) => {
@@ -48,6 +39,27 @@ export const CardDisplay: FC<Props> = (props) => {
         <>
             {props.description}
 
+            {props.targetType === 'scan' && props.deflectorModifier && (
+                <>
+                    {' '}
+                    <Trait type="deflectorModifier" parameter={props.deflectorModifier} />
+                </>
+            )}
+
+            {props.targetType === 'scan' && props.deflectorSubstance && (
+                <>
+                    {' '}
+                    <Trait type="deflectorSubstance" parameter={props.deflectorSubstance} />
+                </>
+            )}
+
+            {props.targetType === 'scan' && props.deflectorDelivery && (
+                <>
+                    {' '}
+                    <Trait type="deflectorDelivery" parameter={props.deflectorDelivery} />
+                </>
+            )}
+
             {props.extraTraits && props.extraTraits.length > 0 && (
                 props.extraTraits.map(trait => (
                     <Fragment key={trait}>
@@ -58,7 +70,7 @@ export const CardDisplay: FC<Props> = (props) => {
             )}
         </>
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    ), [props.description, props.extraTraits, props.parameters, props.modifiers]);
+    ), [props.description, props.extraTraits, props.parameters, props.modifiers, props.targetType]);
 
     return (
         <CardParametersContext.Provider value={{ parameters: props.parameters, modifiers: props.modifiers }}>
@@ -83,7 +95,7 @@ export const CardDisplay: FC<Props> = (props) => {
                     {descriptionContent}
                 </RestrictedHeightText>
 
-                {props.showTraits && (() => {
+                {props.showTraitDescriptions && (() => {
                     const allTraits = [
                         ...(props.traits ?? []),
                         ...(props.extraTraits ?? []),
