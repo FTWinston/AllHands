@@ -7,8 +7,9 @@ import styles from './DeflectorSlot.module.css';
 
 type Props = {
     cardType: CardType | null;
-    slotType: 'modifier' | 'substance' | 'delivery';
+    slotType: 'deflectorModifier' | 'deflectorSubstance' | 'deflectorDelivery';
     label: string;
+    emptyEffectLabel: string;
 };
 
 const cardHasSubstance = (card: ActiveCardInfo) => {
@@ -26,14 +27,14 @@ const cardHasModifier = (card: ActiveCardInfo) => {
     return def?.targetType === 'scan' && def.deflectorModifier !== undefined;
 };
 
-export function DeflectorSlot({ cardType, slotType, label }: Props) {
+export function DeflectorSlot({ cardType, slotType, label, emptyEffectLabel }: Props) {
     const slotId = `deflector/${slotType}`;
     const cardDefinition = cardType ? getCardDefinition(cardType) : null;
-    const effectParameter = cardDefinition ? cardDefinition.parameters[slotId] : null;
+    const effectParameter = cardDefinition && cardDefinition.targetType === 'scan' ? cardDefinition[slotType] : null;
 
-    const canAcceptCard = slotType === 'delivery'
+    const canAcceptCard = slotType === 'deflectorDelivery'
         ? cardHasDelivery
-        : slotType === 'substance'
+        : slotType === 'deflectorSubstance'
             ? cardHasSubstance
             : cardHasModifier;
 
@@ -55,7 +56,9 @@ export function DeflectorSlot({ cardType, slotType, label }: Props) {
                 )
                 : (
                     <div className={styles.slotEmptyText}>
-                        (empty slot)
+                        (
+                        {emptyEffectLabel}
+                        )
                     </div>
                 )}
         </CardDropTarget>

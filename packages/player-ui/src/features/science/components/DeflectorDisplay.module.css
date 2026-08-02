@@ -29,18 +29,3 @@
     align-items: center;
     justify-content: center;
 }
-
-.emptyDeflector {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1em;
-    border: solid 0.1em var(--primary-mid);
-    background-color: var(--primary-darkest);
-}
-
-.emptyDeflectorLabel {
-    color: var(--grey-mid);
-    font-size: 1.25em;
-    text-align: center;
-}

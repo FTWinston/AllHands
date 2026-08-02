@@ -26,7 +26,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     modifierSlot: CardType | null;
     substanceSlot: CardType | null;
     deliverySlot: CardType | null;
-    deflectorCard: Snapshot<CardInstance> | null;
+    deflectorCard: Snapshot<CardInstance>;
     viewer: RelationshipViewer;
     closeRevealedSystem: () => void;
 };

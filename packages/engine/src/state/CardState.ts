@@ -51,4 +51,12 @@ export class CardState extends Schema implements CardInstance {
             this.modifiers.set(parameter, adjusted);
         }
     }
+
+    cloneCard() {
+        const card = new CardState(this.id, this.type);
+        for (const [key, value] of this.modifiers) {
+            card.modifiers.set(key, value);
+        }
+        return card;
+    }
 }

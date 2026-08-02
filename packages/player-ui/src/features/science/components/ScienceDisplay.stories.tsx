@@ -16,7 +16,6 @@ const meta: Meta<typeof Component> = {
         modifierSlot: null,
         substanceSlot: null,
         deliverySlot: null,
-        deflectorCard: null,
         viewer: { shipId: null, faction: 'player', relations: { raiders: RelationshipType.Hostile } },
     },
     render: (args) => {
@@ -71,6 +70,11 @@ export const UI: Story = {
             targetId: 'target1',
             activeManeuver: null,
             evasionChance: 0,
+        },
+        substanceSlot: 'scanPulse',
+        deflectorCard: {
+            id: 4,
+            type: 'deflectorCoherentChronitonField',
         },
         targets: [
             {

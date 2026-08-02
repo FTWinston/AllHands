@@ -25,6 +25,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, getCardId: () => number) {
         super(setup, gameState, ship, scannedSystemIndex, getCardId);
         this.deflectorCardId = getCardId();
+        this.deflectorCard = new CardState(this.deflectorCardId, this.determineDeflectorCardType(null, null, null));
     }
 
     private readonly deflectorCardId: number;
@@ -33,7 +34,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     @type(CardState) substanceSlotCard: CardState | null = null;
     @type(CardState) deliverySlotCard: CardState | null = null;
 
-    @type(CardState) deflectorCard: CardState | null = null;
+    @type(CardState) deflectorCard: CardState;
     @type('string') identifiedVulnerability: EnemyTargetedCardType | null = null;
 
     @type(ScannedHelmState) scannedHelm: ScannedHelmState | null = null;
@@ -287,19 +288,8 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.scannedSystemOrder[scannedSystemIndex] = systemId;
     }
 
-    private cloneCard(source: CardState | null | undefined): CardState | null {
-        if (!source) {
-            return null;
-        }
-        const card = new CardState(source.id, source.type);
-        for (const [key, value] of source.modifiers) {
-            card.modifiers.set(key, value);
-        }
-        return card;
-    }
-
     private copyHelmData(state: ScannedHelmState, source: Ship['helmState']): void {
-        state.activeManeuver = this.cloneCard(source.activeManeuver?.card);
+        state.activeManeuver = source.activeManeuver?.card?.cloneCard() ?? null;
         state.evasionChance = source.activeManeuver?.card?.getParameter('evasion') ?? 0;
     }
 
@@ -317,7 +307,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             const src = source.slots[i];
             const dest = state.weaponSlots[i];
             dest.charge = src.charge;
-            dest.card = this.cloneCard(src.card);
+            dest.card = src.card?.cloneCard() ?? null;
             dest.modifiers.clear();
             for (const [key, value] of src.modifiers) {
                 dest.modifiers.set(key, value);
@@ -326,7 +316,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     }
 
     private copyScienceData(state: ScannedScienceState, source: Ship['scienceState']): void {
-        state.deflectorCard = this.cloneCard(source.deflectorCard);
+        state.deflectorCard = source.deflectorCard.cloneCard() ?? null;
     }
 
     private copyEngineerData(state: ScannedEngineerState, source: Ship['engineerState']): void {
@@ -392,7 +382,6 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
 
         // The main deflector card has been played, and should be expended.
         this.handlePlayedCard(this.deflectorCard, -1, cardDefinition, false);
-        this.deflectorCard = null;
 
         // Cards in deflector slots should be discarded when the deflector is activated.
         if (this.modifierSlotCard) {
@@ -410,6 +399,9 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             this.handlePlayedCard(this.deliverySlotCard, -1, cardDef, false);
             this.deliverySlotCard = null;
         }
+
+        const cardType = this.determineDeflectorCardType(null, null, null);
+        this.deflectorCard = new CardState(this.deflectorCardId, cardType);
 
         return cardDefinition;
     }
@@ -511,7 +503,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             : null;
 
         const cardType = this.determineDeflectorCardType(modifier, substance, delivery);
-        this.deflectorCard = cardType !== null ? new CardState(this.deflectorCardId, cardType) : null;
+        this.deflectorCard = new CardState(this.deflectorCardId, cardType);
         this.scienceScanDataChanged.trigger();
     }
 
