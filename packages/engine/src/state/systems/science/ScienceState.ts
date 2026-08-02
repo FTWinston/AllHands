@@ -384,26 +384,41 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.handlePlayedCard(this.deflectorCard, -1, cardDefinition, false);
 
         // Cards in deflector slots should be discarded when the deflector is activated.
-        if (this.modifierSlotCard) {
-            const cardDef = getCardDefinition(this.modifierSlotCard.type);
-            this.handlePlayedCard(this.modifierSlotCard, -1, cardDef, false);
-            this.modifierSlotCard = null;
-        }
-        if (this.substanceSlotCard) {
-            const cardDef = getCardDefinition(this.substanceSlotCard.type);
-            this.handlePlayedCard(this.substanceSlotCard, -1, cardDef, false);
-            this.substanceSlotCard = null;
-        }
-        if (this.deliverySlotCard) {
-            const cardDef = getCardDefinition(this.deliverySlotCard.type);
-            this.handlePlayedCard(this.deliverySlotCard, -1, cardDef, false);
-            this.deliverySlotCard = null;
-        }
+        this.unmountModifierCard();
+        this.unmountSubstanceCard();
+        this.unmountDeliveryCard();
 
         const cardType = this.determineDeflectorCardType(null, null, null);
         this.deflectorCard = new CardState(this.deflectorCardId, cardType);
 
         return cardDefinition;
+    }
+
+    unmountModifierCard() {
+        if (this.modifierSlotCard === null) {
+            return;
+        }
+        const cardDef = getCardDefinition(this.modifierSlotCard.type);
+        this.handlePlayedCard(this.modifierSlotCard, -1, cardDef, false);
+        this.modifierSlotCard = null;
+    }
+
+    unmountSubstanceCard() {
+        if (this.substanceSlotCard === null) {
+            return;
+        }
+        const cardDef = getCardDefinition(this.substanceSlotCard.type);
+        this.handlePlayedCard(this.substanceSlotCard, -1, cardDef, false);
+        this.substanceSlotCard = null;
+    }
+
+    unmountDeliveryCard() {
+        if (this.deliverySlotCard === null) {
+            return;
+        }
+        const cardDef = getCardDefinition(this.deliverySlotCard.type);
+        this.handlePlayedCard(this.deliverySlotCard, -1, cardDef, false);
+        this.deliverySlotCard = null;
     }
 
     override playScanCardReveal(cardDefinition: EngineScanTargetCardDefinition, targetId: string, systemIndex: number, parameters: CardParameters): boolean {

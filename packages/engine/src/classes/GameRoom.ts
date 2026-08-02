@@ -283,6 +283,40 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
             console.log(`${client.sessionId} closed scan for ship ${ship.id}`);
         });
+
+        this.onMessage('unmountDeflector', (client, message: { slot: string }) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (clientRole !== ownScienceClientRole) {
+                console.error('Only science can close scans');
+                return;
+            }
+
+            const scienceSystem = this.getSystemState(ship, clientRole);
+
+            switch (message.slot) {
+                case 'modifier':
+                    scienceSystem.unmountModifierCard();
+                    break;
+                case 'substance':
+                    scienceSystem.unmountSubstanceCard();
+                    break;
+                case 'delivery':
+                    scienceSystem.unmountDeliveryCard();
+                    break;
+                default:
+                    console.error('Unknown deflector slot: ' + message.slot);
+                    break;
+            }
+        });
     }
 
     private registerDevCommandHandlers() {

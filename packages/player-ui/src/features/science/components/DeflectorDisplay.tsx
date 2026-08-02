@@ -11,18 +11,21 @@ type Props = {
     deliverySlot: CardType | null;
     deflectorCard: Snapshot<CardInstance>;
     availablePower: number;
+    unmountModifier: () => void;
+    unmountSubstance: () => void;
+    unmountDelivery: () => void;
 };
 
 export const DeflectorDisplay = (props: Props) => {
-    const { modifierSlot, substanceSlot, deliverySlot, deflectorCard, availablePower } = props;
+    const { modifierSlot, substanceSlot, deliverySlot, deflectorCard, availablePower, unmountModifier, unmountSubstance, unmountDelivery } = props;
 
     return (
         <div className={styles.deflectorDisplay}>
             <div className={styles.slots}>
                 <h2 className={styles.title}>Deflector</h2>
-                <DeflectorSlot cardType={modifierSlot} slotType="deflectorModifier" label="Modifier" emptyEffectLabel="Coherent" />
-                <DeflectorSlot cardType={substanceSlot} slotType="deflectorSubstance" label="Substance" emptyEffectLabel="Graviton" />
-                <DeflectorSlot cardType={deliverySlot} slotType="deflectorDelivery" label="Delivery" emptyEffectLabel="Field" />
+                <DeflectorSlot cardType={modifierSlot} slotType="deflectorModifier" label="Modifier" emptyEffectLabel="Coherent" onClose={unmountModifier} />
+                <DeflectorSlot cardType={substanceSlot} slotType="deflectorSubstance" label="Substance" emptyEffectLabel="Graviton" onClose={unmountSubstance} />
+                <DeflectorSlot cardType={deliverySlot} slotType="deflectorDelivery" label="Delivery" emptyEffectLabel="Field" onClose={unmountDelivery} />
             </div>
 
             <div className={styles.deflectorCard}>

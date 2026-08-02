@@ -36,6 +36,18 @@ export const Science = (props: Props) => {
         props.room.send('closeScan');
     }, [props.room]);
 
+    const unmountDeflectorModifier = useCallback(() => {
+        props.room.send('unmountDeflector', { slot: 'modifier' });
+    }, [props.room]);
+
+    const unmountDeflectorSubstance = useCallback(() => {
+        props.room.send('unmountDeflector', { slot: 'substance' });
+    }, [props.room]);
+
+    const unmountDeflectorDelivery = useCallback(() => {
+        props.room.send('unmountDeflector', { slot: 'delivery' });
+    }, [props.room]);
+
     if (!localShip?.scienceState?.hand) {
         return <div>unable to load</div>;
     }
@@ -72,6 +84,9 @@ export const Science = (props: Props) => {
             cardGeneration={scienceState.cardGeneration}
             viewer={viewer}
             closeRevealedSystem={closeRevealedSystem}
+            unmountDeflectorDelivery={unmountDeflectorDelivery}
+            unmountDeflectorModifier={unmountDeflectorModifier}
+            unmountDeflectorSubstance={unmountDeflectorSubstance}
         />
     );
 };

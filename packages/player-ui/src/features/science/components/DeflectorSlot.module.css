@@ -7,8 +7,13 @@
     border: solid 0.1em var(--primary-darkest);
     background-color: var(--primary-darkest);
     padding: 0.5em;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: auto min-content;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+        "label close"
+        "effect close"
+        "cardName cardName";
     gap: 0.1em;
     
     &.slotNotEmpty {
@@ -21,12 +26,6 @@
     font-size: 0.875em;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-}
-
-.slotCard {
-    display: flex;
-    flex-direction: column;
-    gap: 0.1em;
 }
 
 .slotEffect {
@@ -42,6 +41,12 @@
 
 .slotEmptyText {
     color: var(--grey-mid);
-    font-size: 1em;
+    font-size: 1.1em;
     padding: 0.25em 0;
+}
+
+.closeButton {
+    grid-area: close;
+    padding: 0.333em 0.25em !important;
+    align-self: start;
 }

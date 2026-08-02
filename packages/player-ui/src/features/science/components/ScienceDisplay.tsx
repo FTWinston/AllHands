@@ -29,6 +29,9 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     deflectorCard: Snapshot<CardInstance>;
     viewer: RelationshipViewer;
     closeRevealedSystem: () => void;
+    unmountDeflectorModifier: () => void;
+    unmountDeflectorSubstance: () => void;
+    unmountDeflectorDelivery: () => void;
 };
 
 export const ScienceDisplay = (props: Props) => {
@@ -68,6 +71,9 @@ export const ScienceDisplay = (props: Props) => {
                     deliverySlot={deliverySlot}
                     deflectorCard={deflectorCard}
                     availablePower={headerProps.power}
+                    unmountModifier={props.unmountDeflectorModifier}
+                    unmountSubstance={props.unmountDeflectorSubstance}
+                    unmountDelivery={props.unmountDeflectorDelivery}
                 />
             </CardUI>
         </Screen>

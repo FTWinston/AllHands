@@ -1,4 +1,5 @@
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { Button } from 'common-ui/components/Button';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
@@ -10,6 +11,7 @@ type Props = {
     slotType: 'deflectorModifier' | 'deflectorSubstance' | 'deflectorDelivery';
     label: string;
     emptyEffectLabel: string;
+    onClose?: () => void;
 };
 
 const cardHasSubstance = (card: ActiveCardInfo) => {
@@ -27,7 +29,7 @@ const cardHasModifier = (card: ActiveCardInfo) => {
     return def?.targetType === 'scan' && def.deflectorModifier !== undefined;
 };
 
-export function DeflectorSlot({ cardType, slotType, label, emptyEffectLabel }: Props) {
+export function DeflectorSlot({ cardType, slotType, label, emptyEffectLabel, onClose }: Props) {
     const slotId = `deflector/${slotType}`;
     const cardDefinition = cardType ? getCardDefinition(cardType) : null;
     const effectParameter = cardDefinition && cardDefinition.targetType === 'scan' ? cardDefinition[slotType] : null;
@@ -48,12 +50,7 @@ export function DeflectorSlot({ cardType, slotType, label, emptyEffectLabel }: P
             <div className={styles.slotLabel}>{label}</div>
 
             {effectParameter
-                ? (
-                    <div className={styles.slotCard}>
-                        <div className={styles.slotEffect}>{effectParameter}</div>
-                        <div className={styles.slotCardName}>{cardDefinition?.name}</div>
-                    </div>
-                )
+                ? <div className={styles.slotEffect}>{effectParameter}</div>
                 : (
                     <div className={styles.slotEmptyText}>
                         (
@@ -61,6 +58,12 @@ export function DeflectorSlot({ cardType, slotType, label, emptyEffectLabel }: P
                         )
                     </div>
                 )}
+
+            {cardDefinition && <div className={styles.slotCardName}>{cardDefinition?.name}</div>}
+
+            <Button className={styles.closeButton} onClick={onClose} disabled={!cardDefinition}>
+                ✕
+            </Button>
         </CardDropTarget>
     );
 }
