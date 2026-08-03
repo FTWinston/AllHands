@@ -71,10 +71,10 @@ export const UI: Story = {
             activeManeuver: null,
             evasionChance: 0,
         },
-        substanceSlot: 'scanPulse',
+        deliverySlot: 'scanPulse',
         deflectorCard: {
             id: 4,
-            type: 'deflectorCoherentChronitonField',
+            type: 'deflectorCoherentGravitonPulse',
         },
         targets: [
             {

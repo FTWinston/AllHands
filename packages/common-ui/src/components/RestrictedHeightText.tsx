@@ -56,13 +56,13 @@ export const RestrictedHeightText = <T extends ElementType = 'div'>({ as, classN
         inner.style.fontSize = `${lo}em`;
     }, [children]);
 
-    const Container = (as ?? 'div') as ElementType;
+    const OuterElement = (as ?? 'div') as ElementType;
 
     return (
-        <Container ref={containerRef} className={className}>
+        <OuterElement ref={containerRef} className={className}>
             <div ref={innerRef} className={styles.inner}>
                 {children}
             </div>
-        </Container>
+        </OuterElement>
     );
 };
