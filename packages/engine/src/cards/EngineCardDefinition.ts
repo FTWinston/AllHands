@@ -43,8 +43,8 @@ export type EnemyTargetCardFunctionality = EngineCardAiFunctionality & {
 
 export type ScanTargetCardFunctionality = EngineCardAiFunctionality & {
     load: (gameState: GameState, ship: Ship, slotId: string, parameters: CardParameters) => boolean;
-    revealSystem: (gameState: GameState, ship: Ship, target: GameObject | null, targetSystem: ShipSystem | null, parameters: CardParameters) => boolean;
-    findVulnerability: (gameState: GameState, ship: Ship, target: GameObject | null, targetSystem: ShipSystem | null, parameters: CardParameters) => boolean;
+    revealSystem: (gameState: GameState, ship: Ship, target: Ship, targetSystem: ShipSystem, parameters: CardParameters) => boolean;
+    findVulnerability: (gameState: GameState, ship: Ship, target: Ship, targetSystem: ShipSystem, parameters: CardParameters) => boolean;
 };
 
 export type SystemTargetCardFunctionality = EngineCardAiFunctionality & {

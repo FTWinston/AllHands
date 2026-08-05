@@ -464,6 +464,11 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         return true;
     }
 
+    findVulnerability(_target: Ship, _targetSystem: ShipSystem) {
+        // TODO: actually identify a vulnerability on the target system, indicate what exposing it will do
+        this.identifiedVulnerability = 'deflectorPhasedGravitonBurst';
+    }
+
     override playCardIntoDeflectorSlot(card: CardState, cardDefinition: EngineScanTargetCardDefinition, slotId: string, parameters: CardParameters): boolean {
         if (cardDefinition.parameters[slotId] === null) {
             console.log(`card cannot be played into the ${slotId} slot`);

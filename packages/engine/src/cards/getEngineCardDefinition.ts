@@ -17,7 +17,7 @@ import { IRandom } from 'common-data/types/IRandom';
 import { choiceEvaluator } from 'src/ai/evaluators';
 import { distributePowerEvaluator, powerBoostEvaluator } from 'src/ai/evaluators/engineer';
 import { locationCardEvaluator } from 'src/ai/evaluators/helm';
-import { deflectorOnlyEvaluator, scanEvaluator } from 'src/ai/evaluators/science';
+import { scanEvaluator } from 'src/ai/evaluators/science';
 import { weaponLoadEvaluator, weaponModifierEvaluator } from 'src/ai/evaluators/tactical';
 import { GameObject } from 'src/state/GameObject';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
@@ -654,82 +654,185 @@ function loadCardDefinitions() {
                 return system.addEffect('generationPriority');
             },
         },
-        scan: {
+        passiveScan: {
             aiEvaluator: scanEvaluator,
             load: () => {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                if (target === null || !isShip(target) || targetSystem === null) {
-                    return false;
-                }
-
-                // TODO: duration?
-                // TODO: delay?
                 ship.scienceState.subscribeToSystem(target, targetSystem, true);
                 return true;
             },
-            findVulnerability: (_gameState, _ship, target, targetSystem) => {
-                if (target === null || !isShip(target) || targetSystem === null) {
-                    return false;
-                }
-
-                // TODO: actually identify a vulnerability on the target system, indicate what exposing it will do
-                _ship.scienceState.identifiedVulnerability = 'deflectorPhasedGravitonBurst';
+            findVulnerability: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.findVulnerability(target, targetSystem);
                 return true;
             },
         },
-        scanPulse: {
-            aiEvaluator: deflectorOnlyEvaluator('scanPulse'),
+        antiprotonScan: {
+            aiEvaluator: scanEvaluator,
             load: () => {
                 return true;
             },
-            revealSystem: () => {
+            revealSystem: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.subscribeToSystem(target, targetSystem, true);
                 return true;
             },
-            findVulnerability: (_gameState, _ship, target, targetSystem) => {
-                if (target === null || !isShip(target) || targetSystem === null) {
-                    return false;
-                }
-
-                // TODO: actually identify a vulnerability on the target system, indicate what exposing it will do
-                _ship.scienceState.identifiedVulnerability = 'deflectorPhasedGravitonBurst';
+            findVulnerability: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.findVulnerability(target, targetSystem);
                 return true;
             },
         },
         tetryonScan: {
-            aiEvaluator: deflectorOnlyEvaluator('tetryonScan'),
+            aiEvaluator: scanEvaluator,
             load: () => {
                 return true;
             },
-            revealSystem: () => {
+            revealSystem: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.subscribeToSystem(target, targetSystem, true);
                 return true;
             },
-            findVulnerability: (_gameState, _ship, target, targetSystem) => {
-                if (target === null || !isShip(target) || targetSystem === null) {
-                    return false;
-                }
-
-                // TODO: actually identify a vulnerability on the target system, indicate what exposing it will do
-                _ship.scienceState.identifiedVulnerability = 'deflectorPhasedGravitonBurst';
+            findVulnerability: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.findVulnerability(target, targetSystem);
                 return true;
             },
         },
-        phasedPolaronBeamScan: {
-            aiEvaluator: deflectorOnlyEvaluator('phasedPolaronBeamScan'),
+        chronitonScan: {
+            aiEvaluator: scanEvaluator,
             load: () => {
                 return true;
             },
-            revealSystem: () => {
+            revealSystem: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.subscribeToSystem(target, targetSystem, true);
                 return true;
             },
-            findVulnerability: (_gameState, _ship, target, targetSystem) => {
-                if (target === null || !isShip(target) || targetSystem === null) {
-                    return false;
-                }
-
-                // TODO: actually identify a vulnerability on the target system, indicate what exposing it will do
-                _ship.scienceState.identifiedVulnerability = 'deflectorPhasedGravitonBurst';
+            findVulnerability: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.findVulnerability(target, targetSystem);
+                return true;
+            },
+        },
+        polaronScan: {
+            aiEvaluator: scanEvaluator,
+            load: () => {
+                return true;
+            },
+            revealSystem: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                return true;
+            },
+            findVulnerability: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.findVulnerability(target, targetSystem);
+                return true;
+            },
+        },
+        invertedPulseScan: {
+            aiEvaluator: scanEvaluator,
+            load: () => {
+                return true;
+            },
+            revealSystem: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                return true;
+            },
+            findVulnerability: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.findVulnerability(target, targetSystem);
+                return true;
+            },
+        },
+        coherentBeamScan: {
+            aiEvaluator: scanEvaluator,
+            load: () => {
+                return true;
+            },
+            revealSystem: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                return true;
+            },
+            findVulnerability: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.findVulnerability(target, targetSystem);
+                return true;
+            },
+        },
+        phasedBurstScan: {
+            aiEvaluator: scanEvaluator,
+            load: () => {
+                return true;
+            },
+            revealSystem: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                return true;
+            },
+            findVulnerability: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.findVulnerability(target, targetSystem);
+                return true;
+            },
+        },
+        phasedPolaronScan: {
+            aiEvaluator: scanEvaluator,
+            load: () => {
+                return true;
+            },
+            revealSystem: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                return true;
+            },
+            findVulnerability: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.findVulnerability(target, targetSystem);
+                return true;
+            },
+        },
+        coherentTetryonScan: {
+            aiEvaluator: scanEvaluator,
+            load: () => {
+                return true;
+            },
+            revealSystem: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                return true;
+            },
+            findVulnerability: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.findVulnerability(target, targetSystem);
+                return true;
+            },
+        },
+        coherentChronitonScan: {
+            aiEvaluator: scanEvaluator,
+            load: () => {
+                return true;
+            },
+            revealSystem: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                return true;
+            },
+            findVulnerability: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.findVulnerability(target, targetSystem);
+                return true;
+            },
+        },
+        invertedAntiprotonScan: {
+            aiEvaluator: scanEvaluator,
+            load: () => {
+                return true;
+            },
+            revealSystem: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                return true;
+            },
+            findVulnerability: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.findVulnerability(target, targetSystem);
+                return true;
+            },
+        },
+        invertedChronitonScan: {
+            aiEvaluator: scanEvaluator,
+            load: () => {
+                return true;
+            },
+            revealSystem: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                return true;
+            },
+            findVulnerability: (_gameState, ship, target, targetSystem) => {
+                ship.scienceState.findVulnerability(target, targetSystem);
                 return true;
             },
         },

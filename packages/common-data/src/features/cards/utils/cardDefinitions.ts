@@ -310,22 +310,20 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'engineer',
         parameters: { cost: 2, duration: 60 },
     },
-    scan: {
+    passiveScan: {
         targetType: 'scan',
         crew: 'science',
         parameters: {
             cost: 1,
-            duration: 30,
         },
-        deflectorDelivery: 'Beam',
     },
-    scanPulse: {
+    antiprotonScan: {
         targetType: 'scan',
         crew: 'science',
         parameters: {
-            cost: 1,
+            cost: 2,
         },
-        deflectorDelivery: 'Pulse',
+        deflectorSubstance: 'Antiproton',
     },
     tetryonScan: {
         targetType: 'scan',
@@ -333,10 +331,52 @@ export const cardDefinitions = defineCardDefinitions({
         parameters: {
             cost: 2,
         },
-        deflectorModifier: 'Coherent',
         deflectorSubstance: 'Tetryon',
     },
-    phasedPolaronBeamScan: {
+    chronitonScan: {
+        targetType: 'scan',
+        crew: 'science',
+        parameters: {
+            cost: 2,
+        },
+        deflectorSubstance: 'Chroniton',
+    },
+    polaronScan: {
+        targetType: 'scan',
+        crew: 'science',
+        parameters: {
+            cost: 2,
+        },
+        deflectorSubstance: 'Polaron',
+    },
+    invertedPulseScan: {
+        targetType: 'scan',
+        crew: 'science',
+        parameters: {
+            cost: 3,
+        },
+        deflectorModifier: 'Inverted',
+        deflectorDelivery: 'Pulse',
+    },
+    coherentBeamScan: {
+        targetType: 'scan',
+        crew: 'science',
+        parameters: {
+            cost: 3,
+        },
+        deflectorModifier: 'Coherent',
+        deflectorDelivery: 'Beam',
+    },
+    phasedBurstScan: {
+        targetType: 'scan',
+        crew: 'science',
+        parameters: {
+            cost: 3,
+        },
+        deflectorModifier: 'Phased',
+        deflectorDelivery: 'Burst',
+    },
+    phasedPolaronScan: {
         targetType: 'scan',
         crew: 'science',
         parameters: {
@@ -344,7 +384,43 @@ export const cardDefinitions = defineCardDefinitions({
         },
         deflectorModifier: 'Phased',
         deflectorSubstance: 'Polaron',
+    },
+    coherentTetryonScan: {
+        targetType: 'scan',
+        crew: 'science',
+        parameters: {
+            cost: 3,
+        },
+        deflectorModifier: 'Coherent',
+        deflectorSubstance: 'Tetryon',
+    },
+    coherentChronitonScan: {
+        targetType: 'scan',
+        crew: 'science',
+        parameters: {
+            cost: 4,
+        },
+        deflectorModifier: 'Coherent',
+        deflectorSubstance: 'Chroniton',
         deflectorDelivery: 'Beam',
+    },
+    invertedAntiprotonScan: {
+        targetType: 'scan',
+        crew: 'science',
+        parameters: {
+            cost: 3,
+        },
+        deflectorModifier: 'Inverted',
+        deflectorSubstance: 'Antiproton',
+    },
+    invertedChronitonScan: {
+        targetType: 'scan',
+        crew: 'science',
+        parameters: {
+            cost: 3,
+        },
+        deflectorModifier: 'Inverted',
+        deflectorSubstance: 'Chroniton',
     },
     deflectorPhasedAntiprotonBeam: {
         targetType: 'enemy',

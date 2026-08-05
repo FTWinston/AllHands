@@ -36,20 +36,12 @@ export const getTraitDescription = (trait: DisplayableTrait): string => {
             return 'When slotted into the deflector, its effect is amplified.';
         case 'Inverted':
             return 'When slotted into the deflector, its effect is reversed.';
-            /*
-        case 'Modulated':
-            return 'When slotted into the deflector, its effect intensity varies rapidly.';
-            */
         case 'Antiproton':
             return 'When slotted into the deflector, its effect deals damage to affected objects.';
         case 'Tetryon':
             return 'When slotted into the deflector, its effect drains shields from affected ships.';
         case 'Chroniton':
             return 'When slotted into the deflector, its effect slows actions of affected ships.';
-            /*
-        case 'Graviton':
-            return 'When slotted into the deflector, its effect pushes affected objects away from your ship.';
-            */
         case 'Polaron':
             return 'When slotted into the deflector, its effect drains power from the systems of affected ships.';
         case 'Beam':
@@ -58,10 +50,6 @@ export const getTraitDescription = (trait: DisplayableTrait): string => {
             return 'When slotted into the deflector, emits a pulse in all directions when activated.';
         case 'Burst':
             return 'When slotted into the deflector, emits a slower-moving effect towards a target when activated.';
-            /*
-        case 'Field':
-            return 'When slotted into the deflector, passively emits a continuous effect centered on your ship.';
-            */
 
         default:
             throw new Error(`Card trait not found: ${trait satisfies never}`);

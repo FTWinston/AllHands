@@ -435,29 +435,95 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        scan: {
-            name: 'Scan',
+        passiveScan: {
+            name: 'Passive Scan',
             description: <>
-                Reveal info on the targeted system of an enemy ship, for
-                {' '}
-                <Parameter name="duration" />
-                s.
+                Reveal an enemy system or find a vulnerability.
             </>,
             image: <ExampleIcon />,
         },
-        scanPulse: {
-            name: 'Scan pulse (temp)',
-            description: 'A temporary scan card with 1 deflector parameter.',
+        antiprotonScan: {
+            name: 'Antiproton Scan',
+            description: <>
+                Reveal an enemy system or find a vulnerability.
+            </>,
             image: <ExampleIcon />,
         },
         tetryonScan: {
-            name: 'Tetryon Scan (temp)',
-            description: 'A temporary scan card with 2 deflector parameters.',
+            name: 'Tetryon Scan',
+            description: <>
+                Reveal an enemy system or find a vulnerability.
+            </>,
             image: <ExampleIcon />,
         },
-        phasedPolaronBeamScan: {
-            name: 'Phased Polaron Beam Scan (temp)',
-            description: 'A temporary scan card with 3 deflector parameters.',
+        chronitonScan: {
+            name: 'Chroniton Scan',
+            description: <>
+                Reveal an enemy system or find a vulnerability.
+            </>,
+            image: <ExampleIcon />,
+        },
+        polaronScan: {
+            name: 'Polaron Scan',
+            description: <>
+                Reveal an enemy system or find a vulnerability.
+            </>,
+            image: <ExampleIcon />,
+        },
+        invertedPulseScan: {
+            name: 'Inverted Pulse Scan',
+            description: <>
+                Reveal an enemy system or find a vulnerability.
+            </>,
+            image: <ExampleIcon />,
+        },
+        coherentBeamScan: {
+            name: 'Coherent Beam Scan',
+            description: <>
+                Reveal an enemy system or find a vulnerability.
+            </>,
+            image: <ExampleIcon />,
+        },
+        phasedBurstScan: {
+            name: 'Phased Burst Scan',
+            description: <>
+                Reveal an enemy system or find a vulnerability.
+            </>,
+            image: <ExampleIcon />,
+        },
+        phasedPolaronScan: {
+            name: 'Phased Polaron Scan',
+            description: <>
+                Reveal an enemy system or find a vulnerability.
+            </>,
+            image: <ExampleIcon />,
+        },
+        coherentTetryonScan: {
+            name: 'Coherent Tetryon Scan',
+            description: <>
+                Reveal an enemy system or find a vulnerability.
+            </>,
+            image: <ExampleIcon />,
+        },
+        coherentChronitonScan: {
+            name: 'Coherent Chroniton Scan',
+            description: <>
+                Reveal an enemy system or find a vulnerability.
+            </>,
+            image: <ExampleIcon />,
+        },
+        invertedAntiprotonScan: {
+            name: 'Inverted Antiproton Scan',
+            description: <>
+                Reveal an enemy system or find a vulnerability.
+            </>,
+            image: <ExampleIcon />,
+        },
+        invertedChronitonScan: {
+            name: 'Inverted Chroniton Scan',
+            description: <>
+                Reveal an enemy system or find a vulnerability.
+            </>,
             image: <ExampleIcon />,
         },
         deflectorPhasedAntiprotonBeam: {
