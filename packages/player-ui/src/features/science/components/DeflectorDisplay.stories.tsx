@@ -16,7 +16,7 @@ export const Deflector: Story = {
     args: {
         modifierSlot: null,
         substanceSlot: 'tetryonScan',
-        deliverySlot: 'scanPulse',
+        deliverySlot: 'phasedBurstScan',
         availablePower: 3,
         deflectorCard: {
             id: 4,

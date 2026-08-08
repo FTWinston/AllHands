@@ -51,11 +51,11 @@ export const UI: Story = {
         cards: [
             {
                 id: 1,
-                type: 'scan',
+                type: 'passiveScan',
             },
             {
                 id: 2,
-                type: 'scanPulse',
+                type: 'phasedBurstScan',
             },
             {
                 id: 3,
@@ -71,7 +71,7 @@ export const UI: Story = {
             activeManeuver: null,
             evasionChance: 0,
         },
-        deliverySlot: 'scanPulse',
+        deliverySlot: 'phasedBurstScan',
         deflectorCard: {
             id: 4,
             type: 'deflectorCoherentGravitonPulse',

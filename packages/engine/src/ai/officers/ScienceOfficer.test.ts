@@ -30,7 +30,7 @@ function createWorld() {
         { id: 'raiders', relations: { player: RelationshipType.Hostile } },
     ], 'player');
     const setup = { ...shipSetup('raiders'), goal: { type: 'search-and-destroy' as const }, skill: 1 };
-    setup.science = { ...setup.science, cards: ['scan', 'scan', 'scan'] as never, initialHandSize: 3 };
+    setup.science = { ...setup.science, cards: ['passiveScan', 'passiveScan', 'passiveScan'] as never, initialHandSize: 3 };
     const ship = new AiShip(state, setup);
     state.add(ship);
     const enemy = new AiShip(state, { ...shipSetup('player', 5, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
@@ -48,7 +48,7 @@ describe('ScienceOfficer', () => {
         const { ship, enemy, officer, bb } = createWorld();
         const playSpy = vi.spyOn(ship.scienceState, 'playCard');
         officer.think(bb, 0);
-        expect(playSpy).toHaveBeenCalledWith(expect.any(Number), 'scan', 'enemy', `target/${enemy.id}/0`);
+        expect(playSpy).toHaveBeenCalledWith(expect.any(Number), 'passiveScan', 'enemy', `target/${enemy.id}/0`);
     });
 
     it('moves on to the next unidentified slot after a scan lands', () => {
@@ -56,7 +56,7 @@ describe('ScienceOfficer', () => {
         officer.think(bb, 0); // identifies slot 0
         const playSpy = vi.spyOn(ship.scienceState, 'playCard');
         officer.think(bb, 1000);
-        expect(playSpy).toHaveBeenCalledWith(expect.any(Number), 'scan', 'enemy', `target/${enemy.id}/1`);
+        expect(playSpy).toHaveBeenCalledWith(expect.any(Number), 'passiveScan', 'enemy', `target/${enemy.id}/1`);
     });
 
     it('does not waste scans without a target', () => {

@@ -438,91 +438,131 @@ function loadCardDefinitions() {
         passiveScan: {
             name: 'Passive Scan',
             description: <>
-                Reveal an enemy system or find a vulnerability.
+                No special behaviour.
             </>,
             image: <ExampleIcon />,
         },
         antiprotonScan: {
             name: 'Antiproton Scan',
             description: <>
-                Reveal an enemy system or find a vulnerability.
+                Scanning a system increases its damage taken from all sources by
+                {' '}
+                <Parameter name="damageIncrease" />
+                % for
+                {' '}
+                <Parameter name="duration" />
+                {' '}
+                seconds.
             </>,
             image: <ExampleIcon />,
         },
         tetryonScan: {
             name: 'Tetryon Scan',
             description: <>
-                Reveal an enemy system or find a vulnerability.
+                Finding a vulnerability prevents the target ship's shields from regenerating for
+                {' '}
+                <Parameter name="duration" />
+                {' '}
+                seconds.
             </>,
             image: <ExampleIcon />,
         },
         chronitonScan: {
             name: 'Chroniton Scan',
             description: <>
-                Reveal an enemy system or find a vulnerability.
+                Scanning a system causes it to take
+                {' '}
+                <Parameter name="timeIncrease" />
+                {' '}
+                seconds longer to draw card, for
+                <Parameter name="duration" />
+                {' '}
+                seconds.
             </>,
             image: <ExampleIcon />,
         },
         polaronScan: {
             name: 'Polaron Scan',
             description: <>
-                Reveal an enemy system or find a vulnerability.
+                Finding a vulnerability reduces the target system's available power by 1 for
+                {' '}
+                <Parameter name="duration" />
+                {' '}
+                seconds.
             </>,
             image: <ExampleIcon />,
         },
         invertedPulseScan: {
             name: 'Inverted Pulse Scan',
             description: <>
-                Reveal an enemy system or find a vulnerability.
+                Finding a vulnerability lets you pick from the next 3 cards in your draw pile, discarding the other two.
             </>,
             image: <ExampleIcon />,
         },
         coherentBeamScan: {
             name: 'Coherent Beam Scan',
             description: <>
-                Reveal an enemy system or find a vulnerability.
+                Scanning a system also finds a vulnerability.
             </>,
             image: <ExampleIcon />,
         },
         phasedBurstScan: {
             name: 'Phased Burst Scan',
             description: <>
-                Reveal an enemy system or find a vulnerability.
+                Scanning a system reduces the cost of your next card played by 1.
             </>,
             image: <ExampleIcon />,
         },
         phasedPolaronScan: {
             name: 'Phased Polaron Scan',
             description: <>
-                Reveal an enemy system or find a vulnerability.
+                Scanning a system increases your available power by 1 for
+                {' '}
+                <Parameter name="duration" />
+                {' '}
+                seconds.
             </>,
             image: <ExampleIcon />,
         },
         coherentTetryonScan: {
             name: 'Coherent Tetryon Scan',
             description: <>
-                Reveal an enemy system or find a vulnerability.
+                Scanning a system increases the chance for weapons to hit that system by
+                {' '}
+                <Parameter name="accuracyIncrease" />
+                %.
             </>,
             image: <ExampleIcon />,
         },
         coherentChronitonScan: {
             name: 'Coherent Chroniton Scan',
             description: <>
-                Reveal an enemy system or find a vulnerability.
+                Finding a vulnerability fills your hand with
+                {' '}
+                <Trait type="expendable" external />
+                {' '}
+                copies of the last drawn card.
             </>,
             image: <ExampleIcon />,
         },
         invertedAntiprotonScan: {
             name: 'Inverted Antiproton Scan',
             description: <>
-                Reveal an enemy system or find a vulnerability.
+                Scanning a system increases the damage taken of all other target systems by
+                {' '}
+                <Parameter name="damageIncrease" />
+                % for
+                {' '}
+                <Parameter name="duration" />
+                {' '}
+                seconds.
             </>,
             image: <ExampleIcon />,
         },
         invertedChronitonScan: {
             name: 'Inverted Chroniton Scan',
             description: <>
-                Reveal an enemy system or find a vulnerability.
+                Finding a vulnerability fills your hand with cards from your discard pile.
             </>,
             image: <ExampleIcon />,
         },

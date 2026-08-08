@@ -87,10 +87,10 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
      * Subscribe to live updates from a system on a target ship.
      * Automatically unsubscribes from targeting any other ship, optionally also unsubscribes from other systems on the same ship.
      */
-    subscribeToSystem(targetShip: Ship, system: ShipSystem, unsubscribeFromOthers: boolean): void {
+    subscribeToSystem(targetShip: Ship, system: ShipSystem): void {
         if (this.scannedShip && this.scannedShip.id !== targetShip.id) {
             this.unsubscribeFromShip();
-        } else if (unsubscribeFromOthers) {
+        } else {
             if (system !== 'helm') {
                 this.unsubscribeFromHelm();
             }

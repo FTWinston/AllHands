@@ -322,6 +322,8 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'science',
         parameters: {
             cost: 2,
+            damageIncrease: 10,
+            duration: 12,
         },
         deflectorSubstance: 'Antiproton',
     },
@@ -330,6 +332,7 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'science',
         parameters: {
             cost: 2,
+            duration: 8,
         },
         deflectorSubstance: 'Tetryon',
     },
@@ -338,6 +341,8 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'science',
         parameters: {
             cost: 2,
+            timeIncrease: 1,
+            duration: 15,
         },
         deflectorSubstance: 'Chroniton',
     },
@@ -346,6 +351,7 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'science',
         parameters: {
             cost: 2,
+            duration: 10,
         },
         deflectorSubstance: 'Polaron',
     },
@@ -381,6 +387,7 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'science',
         parameters: {
             cost: 3,
+            duration: 6,
         },
         deflectorModifier: 'Phased',
         deflectorSubstance: 'Polaron',
@@ -409,6 +416,8 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'science',
         parameters: {
             cost: 3,
+            damageIncrease: 15,
+            duration: 8,
         },
         deflectorModifier: 'Inverted',
         deflectorSubstance: 'Antiproton',

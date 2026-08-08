@@ -15,7 +15,7 @@ function createWorld() {
         { id: 'raiders', relations: { player: RelationshipType.Hostile } },
     ], 'player');
     const setup = { ...shipSetup('raiders'), goal: { type: 'search-and-destroy' as const }, skill: 1 };
-    setup.science = { ...setup.science, cards: ['scan', 'scan'] as never, initialHandSize: 2 };
+    setup.science = { ...setup.science, cards: ['passiveScan', 'passiveScan'] as never, initialHandSize: 2 };
     const scanner = new AiShip(state, setup);
     state.add(scanner);
     const target = new AiShip(state, { ...shipSetup('player', 5, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
@@ -29,7 +29,7 @@ describe('ScienceState scan-slot targeting', () => {
         const { scanner, target } = createWorld();
         const card = scanner.scienceState.hand[0];
 
-        const played = scanner.scienceState.playCard(card.id, 'scan', 'scan', `target/${target.id}/0`);
+        const played = scanner.scienceState.playCard(card.id, 'passiveScan', 'scan', `target/${target.id}/0`);
 
         expect(played).not.toBeNull();
         expect(scanner.scienceState.scannedShipId).toBe(target.id);
@@ -45,7 +45,7 @@ describe('ScienceState scan-slot targeting', () => {
         const card = scanner.scienceState.hand[0];
         const handBefore = scanner.scienceState.hand.length;
 
-        const played = scanner.scienceState.playCard(card.id, 'scan', 'enemy', `target/${target.id}/9`);
+        const played = scanner.scienceState.playCard(card.id, 'passiveScan', 'enemy', `target/${target.id}/9`);
 
         expect(played).toBeNull();
         expect(scanner.scienceState.hand.length).toBe(handBefore);
@@ -56,7 +56,7 @@ describe('ScienceState scan-slot targeting', () => {
         const card = scanner.scienceState.hand[0];
         const handBefore = scanner.scienceState.hand.length;
 
-        const played = scanner.scienceState.playCard(card.id, 'scan', 'enemy', 'no-such-object:0');
+        const played = scanner.scienceState.playCard(card.id, 'passiveScan', 'enemy', 'no-such-object:0');
 
         expect(played).toBeNull();
         expect(scanner.scienceState.hand.length).toBe(handBefore);

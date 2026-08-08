@@ -43,7 +43,7 @@ function createBattle(skill: number, hostile = true, random?: IRandom) {
         goal: { type: 'search-and-destroy' },
         skill,
         helm: { ...shipSetup('raiders').helm, cards: ['slowAndSteady', 'zigZag', 'strafe', 'slowAndSteady'] as never, initialHandSize: 2 },
-        science: { ...shipSetup('raiders').science, cards: ['scan', 'scan', 'scan'] as never, initialHandSize: 2 },
+        science: { ...shipSetup('raiders').science, cards: ['passiveScan', 'passiveScan', 'passiveScan'] as never, initialHandSize: 2 },
         tactical: { ...shipSetup('raiders').tactical, numSlots: 1, cards: ['photonTorpedo', 'lowYield', 'fullSpread'] as never, initialHandSize: 3 },
         engineer: { ...shipSetup('raiders').engineer, cards: ['auxPower', 'auxPower'] as never, initialHandSize: 2 },
     });

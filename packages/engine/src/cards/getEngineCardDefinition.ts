@@ -660,7 +660,7 @@ function loadCardDefinitions() {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                ship.scienceState.subscribeToSystem(target, targetSystem);
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem) => {
@@ -674,7 +674,8 @@ function loadCardDefinitions() {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                ship.scienceState.subscribeToSystem(target, targetSystem);
+                // TODO: apply effect to targetSystem: increase damage taken.
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem) => {
@@ -688,11 +689,12 @@ function loadCardDefinitions() {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                ship.scienceState.subscribeToSystem(target, targetSystem);
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
+                // TODO: apply effect to target hull: block shield regeneration.
                 return true;
             },
         },
@@ -702,7 +704,8 @@ function loadCardDefinitions() {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                ship.scienceState.subscribeToSystem(target, targetSystem);
+                // TODO: apply effect to targetSystem: slow card generation.
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem) => {
@@ -716,11 +719,12 @@ function loadCardDefinitions() {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                ship.scienceState.subscribeToSystem(target, targetSystem);
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
+                // TODO: apply effect to targetSystem: reduce power level by 1.
                 return true;
             },
         },
@@ -730,11 +734,12 @@ function loadCardDefinitions() {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                ship.scienceState.subscribeToSystem(target, targetSystem);
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
+                // TODO: draw 3 cards into a "choice" - chosen one goes to hand, other two are discarded
                 return true;
             },
         },
@@ -744,7 +749,8 @@ function loadCardDefinitions() {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                ship.scienceState.subscribeToSystem(target, targetSystem);
+                ship.scienceState.findVulnerability(target, targetSystem); // Also find a vulnerability, immediately.
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem) => {
@@ -758,7 +764,8 @@ function loadCardDefinitions() {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                ship.scienceState.subscribeToSystem(target, targetSystem);
+                // TODO: apply effect to ship.scienceState: cost of playing next card is reduced by 1.
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem) => {
@@ -772,7 +779,8 @@ function loadCardDefinitions() {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                ship.scienceState.subscribeToSystem(target, targetSystem);
+                // TODO: apply effect to own system: increase power by 1.
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem) => {
@@ -786,7 +794,8 @@ function loadCardDefinitions() {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                ship.scienceState.subscribeToSystem(target, targetSystem);
+                // TODO: apply effect to targetSystem: increase chance to hit by x%
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem) => {
@@ -800,11 +809,12 @@ function loadCardDefinitions() {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                ship.scienceState.subscribeToSystem(target, targetSystem);
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
+                // TODO: Fill your hand with expendable copies of your last drawn card.
                 return true;
             },
         },
@@ -814,7 +824,8 @@ function loadCardDefinitions() {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                ship.scienceState.subscribeToSystem(target, targetSystem);
+                // TODO: apply effect to all target systems except targetSystem: increase damage taken.
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem) => {
@@ -828,11 +839,12 @@ function loadCardDefinitions() {
                 return true;
             },
             revealSystem: (_gameState, ship, target, targetSystem) => {
-                ship.scienceState.subscribeToSystem(target, targetSystem, true);
+                ship.scienceState.subscribeToSystem(target, targetSystem);
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
+                // TODO: draw cards from your DISCARD PILE until your hand is full.
                 return true;
             },
         },

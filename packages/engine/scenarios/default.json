@@ -31,7 +31,7 @@
             "maxHealth": 100
         },
         "science": {
-            "cards": ["scan", "scan", "scan", "scan", "scan", "exampleNoTarget", "exampleNoTarget"],
+            "cards": ["passiveScan", "phasedBurstScan", "polaronScan", "invertedPulseScan", "tetryonScan", "coherentChronitonScan"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1,
@@ -87,7 +87,7 @@
                         "maxHealth": 3
                     },
                     "science": {
-                        "cards": ["scan", "scan", "scan"],
+                        "cards": ["passiveScan", "passiveScan", "passiveScan", "passiveScan", "passiveScan"],
                         "initialPowerLevel": 2,
                         "maxPowerLevel": 2,
                         "initialHandSize": 1,
