@@ -12,7 +12,7 @@ export class ReactorSystemState extends SystemState {
     /**
      * Add an "aux power" card to the engineer's hand, if they don't already have one, and the hand isn't full.
      */
-    override generate = new BindableEvent<() => void>(() => {
+    override generate = new BindableEvent(() => {
         const engineerState = this.getShip().engineerState;
 
         if (engineerState.hand.some(card => card.type === 'auxPower')) {

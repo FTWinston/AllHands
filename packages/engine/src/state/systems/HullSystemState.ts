@@ -20,7 +20,7 @@ export class HullSystemState extends SystemState {
         super(setup, gameState, ship);
     }
 
-    override generate = new BindableEvent<() => void>(() => {
+    override generate = new BindableEvent(() => {
         this.linkedEngineerSystemTile.adjustEffectLevel('shield', this.powerLevel);
     });
 

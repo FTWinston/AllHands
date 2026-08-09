@@ -15,7 +15,7 @@ const severity: Partial<Record<RelationshipType, number>> = {
 export class FactionRegistry {
     constructor(private readonly factions: MapSchema<FactionState>) {}
 
-    readonly relationsChanged = new BindableEvent<() => void>();
+    readonly relationsChanged = new BindableEvent();
 
     init(configs: FactionConfig[]): void {
         for (const config of configs) {

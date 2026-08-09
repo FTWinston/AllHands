@@ -165,13 +165,13 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             targetSystemDamage = Math.ceil(remainingAmount * systemDamageScale);
             const hullDamage = remainingAmount - targetSystemDamage;
 
-            this.hullState.adjustHealth(-hullDamage);
+            this.hullState.applyDamage.trigger(hullDamage);
         }
 
         const targetSystem = this.getSystem(damage.targetSystem);
 
         targetSystem
-            .adjustHealth(-targetSystemDamage);
+            .applyDamage.trigger(targetSystemDamage);
 
         for (const trait of damage.traits) {
             applyWeaponTrait(trait, this, targetSystem);
@@ -190,7 +190,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             startTime: this.gameState.currentTime,
         });
 
-        // Clean up any active science scans so the beingScanned effect is removed from targets.
+        // Clean up any active science scans.
         this.scienceState.unsubscribeFromShip();
 
         super.destroy();

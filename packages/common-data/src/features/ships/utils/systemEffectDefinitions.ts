@@ -139,10 +139,15 @@ export const systemEffectDefinitions = defineSystemEffects({
         usesLevels: false,
         duration: 60_000,
     },
-    beingScanned: {
-        category: SystemEffectCategory.Neutral,
+    antiprotonResidue: {
+        category: SystemEffectCategory.Negative,
         usesLevels: true,
-        maxLevel: 255,
+        duration: 12_000,
+    },
+    tetryonAccumulation: {
+        category: SystemEffectCategory.Negative,
+        usesLevels: false,
+        duration: 8_000,
     },
 } as const);
 

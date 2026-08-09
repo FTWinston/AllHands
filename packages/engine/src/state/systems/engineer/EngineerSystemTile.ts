@@ -25,7 +25,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
     @type('boolean') generating = false;
 
     /** Emitted when health or power changes. */
-    readonly scienceScanDataChanged = new BindableEvent<() => void>();
+    readonly scienceScanDataChanged = new BindableEvent();
 
     /** Integer percentage adjustment to shield pass-through damage for this system. Adjusted by shieldFocus/shieldReduced effects. */
     shieldPassThroughModifier: number = 100;

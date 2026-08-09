@@ -1,3 +1,4 @@
+import { systemEffectDefinitions } from 'src/features/ships/utils/systemEffectDefinitions';
 import { CardDefinition, CardMotionSegmentFacing } from '../types/CardDefinition';
 import { CardTargetType } from '../types/CardTargetType';
 
@@ -322,8 +323,8 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'science',
         parameters: {
             cost: 2,
-            damageIncrease: 10,
-            duration: 12,
+            effectLevel: 25,
+            duration: systemEffectDefinitions.antiprotonResidue.duration,
         },
         deflectorSubstance: 'Antiproton',
     },
@@ -332,7 +333,7 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'science',
         parameters: {
             cost: 2,
-            duration: 8,
+            duration: systemEffectDefinitions.tetryonAccumulation.duration,
         },
         deflectorSubstance: 'Tetryon',
     },

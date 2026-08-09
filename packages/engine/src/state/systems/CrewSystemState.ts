@@ -41,7 +41,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     }
 
     /** Emitted whenever state that is relevant to a science scan changes. */
-    readonly scienceScanDataChanged = new BindableEvent<() => void>();
+    readonly scienceScanDataChanged = new BindableEvent();
 
     /** The index of this system, on a scan display of this ship. */
     readonly scannedSystemIndex: number;
@@ -343,7 +343,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
      * Generate a card for this system by drawing from the draw pile,
      * if there is room in the hand.
      */
-    override generate = new BindableEvent<() => void>(() => {
+    override generate = new BindableEvent(() => {
         this.draw();
     });
 }

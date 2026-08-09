@@ -1,18 +1,20 @@
-interface Listener {
+interface Listener<T> {
     preventDefault: boolean;
-    listener: (...args: unknown[]) => unknown;
+    listener: (args: T) => T;
 }
 
 /**
- * An event that can have listeners added and removed, and can have all bound listeners be triggered, with arguments.
- * Listeners can be set to prevent the default action of the event, which is indicated by the return value of trigger.
+ * An event that can have listeners added and removed, and can have all bound listeners be triggered.
+ * Each listener receives the value returned by the previous one (or the initial value for the first),
+ * and its own return value is passed along to the next, and eventually to the default action, unless prevented.
+ * Listeners can be set to prevent the default action of the event.
  */
-export class BindableEvent<T extends (...args: unknown[]) => unknown> {
-    constructor(private readonly defaultAction?: T) {}
+export class BindableEvent<T = void> {
+    constructor(private readonly defaultAction?: (args: T) => void) {}
 
-    private listeners: Map<string, Listener> = new Map();
+    private listeners: Map<string, Listener<T>> = new Map();
 
-    public addListener(id: string, preventDefault: boolean, listener: T) {
+    public addListener(id: string, preventDefault: boolean, listener: (args: T) => T) {
         this.listeners.set(id, { preventDefault, listener });
     }
 
@@ -29,10 +31,9 @@ export class BindableEvent<T extends (...args: unknown[]) => unknown> {
     }
 
     /**
-     * Triggers the event, calling all listeners with the provided arguments.
-     * Returns true if any listener had preventDefault set to true, false otherwise.
+     * Triggers the event, threading the value through each listener in turn, then the default action, unless prevented.
      */
-    public trigger(...args: Parameters<T>) {
+    public trigger(value: T): void {
         let defaultPrevented = false;
 
         for (const { preventDefault, listener } of this.listeners.values()) {
@@ -40,11 +41,11 @@ export class BindableEvent<T extends (...args: unknown[]) => unknown> {
                 defaultPrevented = true;
             }
 
-            listener(...args);
+            value = listener(value) as T;
         }
 
         if (!defaultPrevented && this.defaultAction) {
-            this.defaultAction(...args);
+            this.defaultAction(value);
         }
     }
 }

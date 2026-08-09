@@ -281,11 +281,30 @@ function loadSystemEffectDefinitions() {
             remove: () => {
             },
         },
-        beingScanned: {
-            apply: () => {
+
+        antiprotonResidue: {
+            apply: (system, level) => {
+                // Increase damage taken from all sources by level percent.
+                system.systemState.applyDamage.addListener('antiprotonResidue', false, damage => damage * (1 + level / 100));
                 return true;
             },
-            remove: () => {
+            remove: (system) => {
+                system.systemState.applyDamage.removeListener('antiprotonResidue');
+            },
+            onLevelChanged: (system, newLevel) => {
+                // addListener replaces the old listener, so we can just call it again with the new level.
+                system.systemState.applyDamage.addListener('antiprotonResidue', false, damage => damage * (1 + newLevel / 100));
+            },
+        },
+        tetryonAccumulation: {
+            apply: (system) => {
+                // Prevent this system from generating while this effect is active.
+                system.systemState.generate.addListener('tetryonAccumulation', true, () => {});
+                return true;
+            },
+            remove: (system) => {
+                // When removed, allow generation events to fire again.
+                system.systemState.generate.removeListener('tetryonAccumulation');
             },
         },
     };

@@ -119,5 +119,12 @@ export abstract class SystemState extends Schema implements SystemInfo {
      * Generate (e.g. a card) for this system.
      * Base SystemState does nothing; subclasses can override.
      */
-    public abstract generate: BindableEvent<() => void>;
+    public abstract generate: BindableEvent;
+
+    /**
+     * Adjust health on account of receiving damage.
+     */
+    public applyDamage = new BindableEvent<number>((amount: number) => {
+        this.adjustHealth(-amount);
+    });
 }
