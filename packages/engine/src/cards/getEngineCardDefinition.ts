@@ -11,7 +11,7 @@ import {
     WeaponTargetedCardType,
     cardDefinitions,
 } from 'common-data/features/cards/utils/cardDefinitions';
-import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEffectDefinition';
+import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { IRandom } from 'common-data/types/IRandom';
 import { choiceEvaluator } from 'src/ai/evaluators';
@@ -426,7 +426,7 @@ function loadCardDefinitions() {
         purge: {
             play: (_gameState, _ship, system) => {
                 const negativeEffect = system.effects.find(
-                    e => getSystemEffectDefinition(e.type).polarity === SystemEffectPolarity.Negative
+                    e => getSystemEffectDefinition(e.type).category === SystemEffectCategory.Negative
                 );
 
                 if (!negativeEffect) {

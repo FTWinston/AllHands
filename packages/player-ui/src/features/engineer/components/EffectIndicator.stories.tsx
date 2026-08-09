@@ -1,4 +1,4 @@
-import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEffectDefinition';
+import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { Cooldown } from 'common-data/types/Cooldown';
 import { EffectLevel } from 'common-ui/components/EffectLevelContext';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
@@ -16,7 +16,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Permanent: Story = {
     args: {
-        polarity: SystemEffectPolarity.Positive,
+        category: SystemEffectCategory.Positive,
         image: ExampleIcon,
         name: 'Permanent effect',
         description: <>An effect that has no duration, so it lasts indefinitely.</>,
@@ -26,7 +26,7 @@ export const Permanent: Story = {
 
 export const FixedFraction: Story = {
     args: {
-        polarity: SystemEffectPolarity.Negative,
+        category: SystemEffectCategory.Negative,
         image: ExampleIcon,
         name: 'Fractional effect',
         description: <>An effect that starts half way through a very long duration, so it essentially doesn't animate.</>,
@@ -36,7 +36,7 @@ export const FixedFraction: Story = {
 
 export const WithLevel: Story = {
     args: {
-        polarity: SystemEffectPolarity.Negative,
+        category: SystemEffectCategory.Negative,
         image: ExampleIcon,
         name: 'Leveled effect',
         description: <>
@@ -51,7 +51,7 @@ export const WithLevel: Story = {
 
 export const Cyclic: Story = {
     args: {
-        polarity: SystemEffectPolarity.Negative,
+        category: SystemEffectCategory.Negative,
         image: ExampleIcon,
         name: 'Cyclic effect',
         description: <>An effect that lasts a short duration, toggles off, then on again.</>,

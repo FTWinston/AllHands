@@ -1,4 +1,4 @@
-import { SystemEffectPolarity } from 'common-data/features/ships/types/SystemEffectDefinition';
+import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { Cooldown } from 'common-data/types/Cooldown';
 import { EffectLevelContext } from 'common-ui/components/EffectLevelContext';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
@@ -10,7 +10,7 @@ import styles from './EffectIndicator.module.css';
 type Props = {
     name: string;
     description: JSX.Element;
-    polarity: SystemEffectPolarity;
+    category: SystemEffectCategory;
     image: ComponentType<{ className?: string }>;
     className?: string;
     hidden?: boolean;
@@ -18,11 +18,11 @@ type Props = {
     level?: number;
 };
 
-function getPaletteForPolarity(polarity: SystemEffectPolarity): 'good' | 'grey' | 'danger' {
-    if (polarity === SystemEffectPolarity.Neutral) {
+function getPaletteForCategory(category: SystemEffectCategory): 'good' | 'grey' | 'danger' {
+    if (category === SystemEffectCategory.Neutral) {
         return 'grey';
     }
-    return polarity === SystemEffectPolarity.Positive ? 'good' : 'danger';
+    return category === SystemEffectCategory.Positive ? 'good' : 'danger';
 }
 
 export const EffectIndicator = (props: Props) => {
@@ -31,12 +31,12 @@ export const EffectIndicator = (props: Props) => {
     const title = `${props.name}${props.level ? ` (${props.level})` : ''}`;
 
     return (
-        <EffectLevelContext.Provider value={{ level: props.level ?? 1, polarity: props.polarity }}>
+        <EffectLevelContext.Provider value={{ level: props.level ?? 1, category: props.category }}>
             <InfoPopup
                 className={classNames(styles.effect, props.hidden ? styles.hidden : undefined, props.className)}
                 name={title}
                 description={props.description}
-                palette={getPaletteForPolarity(props.polarity)}
+                palette={getPaletteForCategory(props.category)}
             >
                 <Image className={styles.icon} />
 
