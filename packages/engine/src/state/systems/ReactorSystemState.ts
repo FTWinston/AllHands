@@ -1,5 +1,5 @@
 import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { BindableEvent } from 'src/classes/BindableEvent';
+import { InterceptableAction } from 'src/classes/InterceptableAction';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
@@ -12,7 +12,7 @@ export class ReactorSystemState extends SystemState {
     /**
      * Add an "aux power" card to the engineer's hand, if they don't already have one, and the hand isn't full.
      */
-    override generate = new BindableEvent(() => {
+    override generate = new InterceptableAction(() => {
         const engineerState = this.getShip().engineerState;
 
         if (engineerState.hand.some(card => card.type === 'auxPower')) {
@@ -51,8 +51,8 @@ export class ReactorSystemState extends SystemState {
         const newPower = this.powerLevel;
 
         if (oldPower !== newPower) {
-            // The engineer system needs told when reactor power changes
-            this.getShip().engineerState.onReactorPowerChanged(this.getGameState().currentTime);
+            // Reactor power changes every system's generation duration
+            this.getShip().engineerState.onGenerationDurationChanged();
         }
     }
 }

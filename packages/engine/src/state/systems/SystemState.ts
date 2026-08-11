@@ -2,12 +2,19 @@ import { IArray } from '@colyseus/react';
 import { Schema, type } from '@colyseus/schema';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-
-import { BindableEvent } from 'src/classes/BindableEvent';
+import { getArrayValue } from 'common-data/utils/arrays';
+import { InterceptableAction } from 'src/classes/InterceptableAction';
+import { InterceptableGetter } from 'src/classes/InterceptableGetter';
+import { InterceptableSetter } from 'src/classes/InterceptableSetter';
 import { GameState } from '../GameState';
 import { SystemEffect } from './engineer/SystemEffect';
 import type { Ship } from '../Ship';
 import type { EngineerSystemTile } from './engineer/EngineerSystemTile';
+
+/**
+ * Maps the reactor's power level to the per-system generation duration (ms).
+ */
+export const generationDurationByReactorPower = [8_000, 4_000, 2_000, 1_000, 500, 250];
 
 export abstract class SystemState extends Schema implements SystemInfo {
     constructor(setup: SystemSetupInfo, protected readonly _gameState: GameState, protected readonly _ship: Ship) {
@@ -116,15 +123,24 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }
 
     /**
+     * Get the generation duration for this system, based on the current reactor power level.
+     * Update the engineer system's generation progress when any handler changes this.
+     */
+    public readonly generationDuration = new InterceptableGetter<number>(() => {
+        let reactorPower = this.getShip().reactorState.powerLevel;
+        return getArrayValue(generationDurationByReactorPower, reactorPower);
+    }, () => this.getShip().engineerState.onGenerationDurationChanged());
+
+    /**
      * Generate (e.g. a card) for this system.
      * Base SystemState does nothing; subclasses can override.
      */
-    public abstract generate: BindableEvent;
+    public abstract readonly generate: InterceptableAction;
 
     /**
      * Adjust health on account of receiving damage.
      */
-    public applyDamage = new BindableEvent<number>((amount: number) => {
-        this.adjustHealth(-amount);
+    public readonly applyDamage = new InterceptableSetter<number>((amount: number) => {
+        this.adjustHealth(-Math.round(amount));
     });
 }

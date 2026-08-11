@@ -144,31 +144,31 @@ function loadSystemEffectDefinitions() {
             apply: (system) => {
                 // Stop generation events from firing while this effect is active.
                 // The level of this effect should be reduced by 1 each time a generation event would have fired.
-                system.systemState.generate.addListener('disruptGeneration', true, () => {
+                system.systemState.generate.addHandler('disruptGeneration', true, () => {
                     system.adjustEffectLevel('disruptGeneration', -1);
                 });
                 return true;
             },
             remove: (system) => {
                 // When removed, allow generation events to fire again.
-                system.systemState.generate.removeListener('disruptGeneration');
+                system.systemState.generate.removeHandler('disruptGeneration');
             },
         },
         feedback: {
             apply: (system, level) => {
                 // Take level of damage every time this system generates.
-                system.systemState.generate.addListener('feedback', false, () => {
+                system.systemState.generate.addHandler('feedback', false, () => {
                     system.adjustSystemHealth(-level);
                 });
                 return true;
             },
             remove: (system) => {
                 // When removed, allow generation events to fire again.
-                system.systemState.generate.removeListener('feedback');
+                system.systemState.generate.removeHandler('feedback');
             },
             onLevelChanged: (system, newLevel) => {
                 // addListener replaces the old listener, so we can just call it again with the new level.
-                system.systemState.generate.addListener('feedback', false, () => {
+                system.systemState.generate.addHandler('feedback', false, () => {
                     system.adjustSystemHealth(-newLevel);
                 });
             },
@@ -285,26 +285,26 @@ function loadSystemEffectDefinitions() {
         antiprotonResidue: {
             apply: (system, level) => {
                 // Increase damage taken from all sources by level percent.
-                system.systemState.applyDamage.addListener('antiprotonResidue', false, damage => damage * (1 + level / 100));
+                system.systemState.applyDamage.addHandler('antiprotonResidue', false, damage => damage * (1 + level / 100));
                 return true;
             },
             remove: (system) => {
-                system.systemState.applyDamage.removeListener('antiprotonResidue');
+                system.systemState.applyDamage.removeHandler('antiprotonResidue');
             },
             onLevelChanged: (system, newLevel) => {
                 // addListener replaces the old listener, so we can just call it again with the new level.
-                system.systemState.applyDamage.addListener('antiprotonResidue', false, damage => damage * (1 + newLevel / 100));
+                system.systemState.applyDamage.addHandler('antiprotonResidue', false, damage => damage * (1 + newLevel / 100));
             },
         },
         tetryonAccumulation: {
             apply: (system) => {
                 // Prevent this system from generating while this effect is active.
-                system.systemState.generate.addListener('tetryonAccumulation', true, () => {});
+                system.systemState.generate.addHandler('tetryonAccumulation', true, () => {});
                 return true;
             },
             remove: (system) => {
                 // When removed, allow generation events to fire again.
-                system.systemState.generate.removeListener('tetryonAccumulation');
+                system.systemState.generate.removeHandler('tetryonAccumulation');
             },
         },
     };

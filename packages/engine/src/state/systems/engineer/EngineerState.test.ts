@@ -4,7 +4,8 @@ import { GameState } from 'src/state/GameState';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { IdProvider } from 'src/types/IdProvider';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { EngineerState, generationDurationByReactorPower } from '../engineer/EngineerState';
+import { EngineerState } from '../engineer/EngineerState';
+import { generationDurationByReactorPower } from '../SystemState';
 
 const minimalCrewSetup: CrewSystemSetupInfo = {
     cards: ['exampleNoTarget', 'exampleNoTarget'],
@@ -48,8 +49,9 @@ function spyOnGeneration(ship: PlayerShip) {
     const generated: string[] = [];
 
     for (const tile of ship.engineerState.systems) {
-        vi.spyOn(tile.systemState.generate, 'trigger').mockImplementation(() => {
+        vi.spyOn(tile.systemState.generate, 'invoke').mockImplementation(() => {
             generated.push(tile.system);
+            return true;
         });
     }
 

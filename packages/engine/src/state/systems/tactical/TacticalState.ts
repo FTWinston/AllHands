@@ -69,7 +69,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
 
         slot.card = card;
-        this.scienceScanDataChanged.trigger();
+        this.scienceScanDataChanged.invoke();
 
         return true;
     }
@@ -111,7 +111,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             slot.primed = true;
         }
 
-        this.scienceScanDataChanged.trigger();
+        this.scienceScanDataChanged.invoke();
         return true;
     }
 
@@ -181,7 +181,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             this.adjustHealth(-selfDamage);
         }
 
-        this.scienceScanDataChanged.trigger();
+        this.scienceScanDataChanged.invoke();
         return cardDef;
     }
 

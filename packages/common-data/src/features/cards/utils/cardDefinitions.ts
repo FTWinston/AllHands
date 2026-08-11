@@ -1,4 +1,4 @@
-import { systemEffectDefinitions } from 'src/features/ships/utils/systemEffectDefinitions';
+import { systemEffectDefinitions } from '../../../features/ships/utils/systemEffectDefinitions';
 import { CardDefinition, CardMotionSegmentFacing } from '../types/CardDefinition';
 import { CardTargetType } from '../types/CardTargetType';
 

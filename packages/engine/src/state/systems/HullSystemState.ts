@@ -1,6 +1,6 @@
 import { Damage } from 'common-data/features/space/types/Damage';
 import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { BindableEvent } from 'src/classes/BindableEvent';
+import { InterceptableAction } from 'src/classes/InterceptableAction';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
@@ -20,7 +20,7 @@ export class HullSystemState extends SystemState {
         super(setup, gameState, ship);
     }
 
-    override generate = new BindableEvent(() => {
+    override generate = new InterceptableAction(() => {
         this.linkedEngineerSystemTile.adjustEffectLevel('shield', this.powerLevel);
     });
 

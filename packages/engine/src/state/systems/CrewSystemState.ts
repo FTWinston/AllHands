@@ -8,7 +8,7 @@ import { CrewSystemSetupInfo, CrewSystemInfo } from 'common-data/features/space/
 import { EngineCardDefinition, EngineScanTargetCardDefinition, EngineEnemyTargetCardDefinition, EngineLocationTargetCardDefinition, EngineNoTargetCardDefinition, EngineSystemTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { resolveParameters } from 'src/cards/resolveParameters';
-import { BindableEvent } from 'src/classes/BindableEvent';
+import { InterceptableAction } from 'src/classes/InterceptableAction';
 import { CardState } from '../CardState';
 import { CooldownState } from '../CooldownState';
 import { GameObject } from '../GameObject';
@@ -41,7 +41,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     }
 
     /** Emitted whenever state that is relevant to a science scan changes. */
-    readonly scienceScanDataChanged = new BindableEvent();
+    readonly scienceScanDataChanged = new InterceptableAction();
 
     /** The index of this system, on a scan display of this ship. */
     readonly scannedSystemIndex: number;
@@ -343,7 +343,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
      * Generate a card for this system by drawing from the draw pile,
      * if there is room in the hand.
      */
-    override generate = new BindableEvent(() => {
+    override generate = new InterceptableAction(() => {
         this.draw();
     });
 }

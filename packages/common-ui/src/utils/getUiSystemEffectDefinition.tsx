@@ -1,7 +1,6 @@
 import { systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { EffectLevel } from '../components/EffectLevelContext';
-import { Parameter } from '../features/cards/components/Parameter';
 import { SystemEffectDescription, UISystemEffectDefinition } from '../types/UISystemEffectDefinition';
 
 function loadEffectDefinitions() {
@@ -199,25 +198,17 @@ function loadEffectDefinitions() {
         antiprotonResidue: {
             name: 'Antiproton Residue',
             description: <>
-                Scanners have accumulated antiprotons on this system, increasing its damage taken from all sources by
+                Enemy sensors have accumulated antiprotons on this system, increasing its damage taken from all sources by
                 {' '}
                 <EffectLevel />
-                % for
-                {' '}
-                <Parameter name="duration" />
-                {' '}
-                seconds.
+                %.
             </>,
             image: ExampleIcon,
         },
         tetryonAccumulation: {
             name: 'Tetryon Accumulation',
             description: <>
-                An accumulation of tetryons on this system is preventing it from generating for
-                {' '}
-                <Parameter name="duration" />
-                {' '}
-                seconds.
+                An accumulation of tetryon particles from enemy sensors on the hull is preventing the shields from regenerating.
             </>,
             image: ExampleIcon,
         },

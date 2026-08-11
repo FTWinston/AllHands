@@ -59,7 +59,7 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
 
     setActiveManeuver(maneuver: CardCooldownState) {
         this.activeManeuver = maneuver;
-        this.scienceScanDataChanged.trigger();
+        this.scienceScanDataChanged.invoke();
     }
 
     cancelActiveManeuver() {
@@ -72,7 +72,7 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
             this.handlePlayedCard(this.activeManeuver.card, -1, definition, false);
 
             this.activeManeuver = null;
-            this.scienceScanDataChanged.trigger();
+            this.scienceScanDataChanged.invoke();
         }
 
         this.cancellingManeuver = false;

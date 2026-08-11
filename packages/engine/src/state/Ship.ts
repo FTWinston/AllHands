@@ -165,13 +165,13 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             targetSystemDamage = Math.ceil(remainingAmount * systemDamageScale);
             const hullDamage = remainingAmount - targetSystemDamage;
 
-            this.hullState.applyDamage.trigger(hullDamage);
+            this.hullState.applyDamage.invoke(hullDamage);
         }
 
         const targetSystem = this.getSystem(damage.targetSystem);
 
         targetSystem
-            .applyDamage.trigger(targetSystemDamage);
+            .applyDamage.invoke(targetSystemDamage);
 
         for (const trait of damage.traits) {
             applyWeaponTrait(trait, this, targetSystem);

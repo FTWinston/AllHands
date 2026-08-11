@@ -51,7 +51,7 @@ describe('FactionRegistry', () => {
         const state = createGameState();
         state.initFactions([{ id: 'a' }, { id: 'b' }], 'a');
         let fired = 0;
-        state.factionRegistry.relationsChanged.addListener('test', false, () => {
+        state.factionRegistry.relationsChanged.addHandler('test', false, () => {
             fired++;
         });
         state.factionRegistry.setRelationship('a', 'b', RelationshipType.Hostile);

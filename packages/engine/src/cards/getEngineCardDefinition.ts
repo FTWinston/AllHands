@@ -694,7 +694,7 @@ function loadCardDefinitions() {
             },
             findVulnerability: (_gameState, ship, target, targetSystem, parameters) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
-                target.getSystem(targetSystem).addEffect('tetryonAccumulation', parameters.effectLevel);
+                target.hullState.addEffect('tetryonAccumulation', parameters.effectLevel);
                 return true;
             },
         },

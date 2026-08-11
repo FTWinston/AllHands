@@ -2,7 +2,7 @@ import { MapSchema } from '@colyseus/schema';
 import { FactionConfig } from 'common-data/features/space/types/FactionConfig';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { FactionState } from 'src/state/FactionState';
-import { BindableEvent } from './BindableEvent';
+import { InterceptableAction } from './InterceptableAction';
 import type { GameObject } from 'src/state/GameObject';
 
 /** Higher value wins when two declarations conflict. */
@@ -15,7 +15,7 @@ const severity: Partial<Record<RelationshipType, number>> = {
 export class FactionRegistry {
     constructor(private readonly factions: MapSchema<FactionState>) {}
 
-    readonly relationsChanged = new BindableEvent();
+    readonly relationsChanged = new InterceptableAction();
 
     init(configs: FactionConfig[]): void {
         for (const config of configs) {
@@ -62,6 +62,6 @@ export class FactionRegistry {
 
     setRelationship(factionA: string, factionB: string, relation: RelationshipType): void {
         this.setRelationInternal(factionA, factionB, relation);
-        this.relationsChanged.trigger();
+        this.relationsChanged.invoke();
     }
 }

@@ -145,7 +145,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             this.scannedHelm = null;
 
             if (this.scannedShip) {
-                this.scannedShip.helmState.scienceScanDataChanged.removeListener(this.getShip().id);
+                this.scannedShip.helmState.scienceScanDataChanged.removeHandler(this.getShip().id);
             }
         }
     }
@@ -155,7 +155,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             this.scannedTactical = null;
 
             if (this.scannedShip) {
-                this.scannedShip.tacticalState.scienceScanDataChanged.removeListener(this.getShip().id);
+                this.scannedShip.tacticalState.scienceScanDataChanged.removeHandler(this.getShip().id);
             }
         }
     }
@@ -165,7 +165,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             this.scannedScience = null;
 
             if (this.scannedShip) {
-                this.scannedShip.scienceState.scienceScanDataChanged.removeListener(this.getShip().id);
+                this.scannedShip.scienceState.scienceScanDataChanged.removeHandler(this.getShip().id);
             }
         }
     }
@@ -178,7 +178,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
                 const thisShipId = this.getShip().id;
 
                 for (const tile of this.scannedShip.engineerState.systems) {
-                    tile.scienceScanDataChanged.removeListener(thisShipId);
+                    tile.scienceScanDataChanged.removeHandler(thisShipId);
                 }
             }
         }
@@ -191,7 +191,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         const state = new ScannedHelmState();
         state.targetId = targetShip.id;
         this.copyHelmData(state, source);
-        source.scienceScanDataChanged.addListener(
+        source.scienceScanDataChanged.addHandler(
             this.getShip().id, false,
             () => {
                 this.copyHelmData(this.scannedHelm!, source);
@@ -207,7 +207,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         const state = new ScannedTacticalState();
         state.targetId = targetShip.id;
         this.copyTacticalData(state, source);
-        source.scienceScanDataChanged.addListener(
+        source.scienceScanDataChanged.addHandler(
             this.getShip().id, false,
             () => {
                 this.copyTacticalData(this.scannedTactical!, source);
@@ -223,7 +223,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         const state = new ScannedScienceState();
         state.targetId = targetShip.id;
         this.copyScienceData(state, source);
-        source.scienceScanDataChanged.addListener(
+        source.scienceScanDataChanged.addHandler(
             this.getShip().id, false,
             () => {
                 this.copyScienceData(this.scannedScience!, source);
@@ -244,7 +244,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             this.copyEngineerData(this.scannedEngineer!, source);
         };
         for (const tile of source.systems) {
-            tile.scienceScanDataChanged.addListener(myId, false, callback);
+            tile.scienceScanDataChanged.addHandler(myId, false, callback);
         }
         this.scannedEngineer = state;
     }
@@ -516,7 +516,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
 
         const cardType = this.determineDeflectorCardType(modifier, substance, delivery);
         this.deflectorCard = new CardState(this.deflectorCardId, cardType);
-        this.scienceScanDataChanged.trigger();
+        this.scienceScanDataChanged.invoke();
     }
 
     private determineDeflectorCardType(
