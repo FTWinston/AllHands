@@ -167,7 +167,7 @@ function loadSystemEffectDefinitions() {
                 system.systemState.generate.removeHandler('feedback');
             },
             onLevelChanged: (system, newLevel) => {
-                // addListener replaces the old listener, so we can just call it again with the new level.
+                // addHandler replaces the old handler, so we can just call it again with the new level.
                 system.systemState.generate.addHandler('feedback', false, () => {
                     system.adjustSystemHealth(-newLevel);
                 });
@@ -292,7 +292,7 @@ function loadSystemEffectDefinitions() {
                 system.systemState.applyDamage.removeHandler('antiprotonResidue');
             },
             onLevelChanged: (system, newLevel) => {
-                // addListener replaces the old listener, so we can just call it again with the new level.
+                // addHandler replaces the old handler, so we can just call it again with the new level.
                 system.systemState.applyDamage.addHandler('antiprotonResidue', false, damage => damage * (1 + newLevel / 100));
             },
         },
@@ -305,6 +305,33 @@ function loadSystemEffectDefinitions() {
             remove: (system) => {
                 // When removed, allow generation events to fire again.
                 system.systemState.generate.removeHandler('tetryonAccumulation');
+            },
+        },
+        chronitonSaturation: {
+            apply: (system, level) => {
+                // Increase time to generate a card by level seconds.
+                system.systemState.generationDuration
+                    .addHandler('chronitonSaturation', value => value + level * 1000);
+                return true;
+            },
+            remove: (system) => {
+                system.systemState.generationDuration.removeHandler('chronitonSaturation');
+            },
+            onLevelChanged: (system, newLevel) => {
+                // addHandler replaces the old handler, so we can just call it again with the new level.
+                system.systemState.generationDuration.addHandler('chronitonSaturation', value => value + newLevel * 1000);
+            },
+        },
+        polaronBombardment: {
+            apply: (system, level) => {
+                system.adjustSystemPowerLevel(-level);
+                return true;
+            },
+            remove: (system, _early, level) => {
+                system.adjustSystemPowerLevel(level);
+            },
+            onLevelChanged: (system, newLevel, oldLevel) => {
+                system.adjustSystemPowerLevel(oldLevel - newLevel);
             },
         },
     };

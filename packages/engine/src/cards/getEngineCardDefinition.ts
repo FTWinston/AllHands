@@ -692,9 +692,9 @@ function loadCardDefinitions() {
                 ship.scienceState.subscribeToSystem(target, targetSystem);
                 return true;
             },
-            findVulnerability: (_gameState, ship, target, targetSystem, parameters) => {
+            findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
-                target.hullState.addEffect('tetryonAccumulation', parameters.effectLevel);
+                target.hullState.addEffect('tetryonAccumulation');
                 return true;
             },
         },
@@ -703,9 +703,9 @@ function loadCardDefinitions() {
             load: () => {
                 return true;
             },
-            revealSystem: (_gameState, ship, target, targetSystem, _parameters) => {
+            revealSystem: (_gameState, ship, target, targetSystem, parameters) => {
                 ship.scienceState.subscribeToSystem(target, targetSystem);
-                // TODO: apply effect to targetSystem: slow card generation.
+                target.getSystem(targetSystem).adjustEffectLevel('chronitonSaturation', parameters.effectLevel);
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
@@ -724,7 +724,7 @@ function loadCardDefinitions() {
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
-                // TODO: apply effect to targetSystem: reduce power level by 1.
+                target.getSystem(targetSystem).adjustEffectLevel('polaronBombardment', 1);
                 return true;
             },
         },

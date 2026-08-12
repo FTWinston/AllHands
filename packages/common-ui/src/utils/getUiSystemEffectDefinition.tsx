@@ -212,6 +212,26 @@ function loadEffectDefinitions() {
             </>,
             image: ExampleIcon,
         },
+        chronitonSaturation: {
+            name: 'Chroniton Saturation',
+            description: <>
+                Saturated by chroniton particles from enemy sensors, this system takes
+                {' '}
+                <EffectLevel />
+                seconds longer to generate a card.
+            </>,
+            image: ExampleIcon,
+        },
+        polaronBombardment: {
+            name: 'Polaron Bombardment',
+            description: <>
+                Enemy sensors have bombarded this system with polarons, reducing its available power by
+                {' '}
+                <EffectLevel />
+                .
+            </>,
+            image: ExampleIcon,
+        },
     };
 
     const uiEffectDefinitions = Object.entries(effectDescriptions)

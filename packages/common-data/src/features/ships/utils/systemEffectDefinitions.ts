@@ -149,6 +149,16 @@ export const systemEffectDefinitions = defineSystemEffects({
         usesLevels: false,
         duration: 8_000,
     },
+    chronitonSaturation: {
+        category: SystemEffectCategory.Negative,
+        usesLevels: true,
+        duration: 20_000,
+    },
+    polaronBombardment: {
+        category: SystemEffectCategory.Negative,
+        usesLevels: true,
+        duration: 10_000,
+    },
 } as const);
 
 export type SystemEffectType = keyof typeof systemEffectDefinitions;

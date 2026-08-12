@@ -342,8 +342,8 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'science',
         parameters: {
             cost: 2,
-            timeIncrease: 1,
-            duration: 15,
+            effectLevel: 1,
+            duration: systemEffectDefinitions.chronitonSaturation.duration,
         },
         deflectorSubstance: 'Chroniton',
     },
@@ -352,7 +352,8 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'science',
         parameters: {
             cost: 2,
-            duration: 10,
+            effectLevel: 1,
+            duration: systemEffectDefinitions.polaronBombardment.duration,
         },
         deflectorSubstance: 'Polaron',
     },

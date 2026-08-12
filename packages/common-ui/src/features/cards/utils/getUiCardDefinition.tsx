@@ -472,7 +472,7 @@ function loadCardDefinitions() {
             description: <>
                 Scanning a system causes it to take
                 {' '}
-                <Parameter name="timeIncrease" />
+                <Parameter name="effectLevel" />
                 {' '}
                 seconds longer to draw card, for
                 <Parameter name="duration" />
@@ -484,7 +484,11 @@ function loadCardDefinitions() {
         polaronScan: {
             name: 'Polaron Scan',
             description: <>
-                Finding a vulnerability reduces the target system's available power by 1 for
+                Finding a vulnerability reduces the target system's available power by
+                {' '}
+                <Parameter name="effectLevel" />
+                {' '}
+                for
                 {' '}
                 <Parameter name="duration" />
                 {' '}
