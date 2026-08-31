@@ -6,6 +6,7 @@ import { GameObjectInfo, RelationshipViewer, TargetSubTargets, WeaponSlotInfo } 
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
+import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
 import { ComponentProps, useState } from 'react';
 import { CardUI } from 'src/features/cardui/components/CardUI';
@@ -38,9 +39,15 @@ export const TacticalDisplay = (props: Props) => {
         ? null
         : getFiringSolution(props.shipMotion, currentTarget.motion, currentTime);
 
+    // A weapon slot can be primed once it holds a weapon card, but hasn't yet been primed.
+    const hasPrimeableWeapon = slots.some(slot => slot.card !== null && !slot.primed);
+
+    const isCardHighlighted = (card: Snapshot<CardInstance>) =>
+        hasPrimeableWeapon && getCardDefinition(card.type).targetType === 'weapon';
+
     return (
         <Screen>
-            <CardUI playCard={playCard} cardHand={cards} availablePower={headerProps.power}>
+            <CardUI playCard={playCard} cardHand={cards} availablePower={headerProps.power} isCardHighlighted={isCardHighlighted}>
                 <CrewHeader
                     crew="tactical"
                     handSize={cards.length}

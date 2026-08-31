@@ -10,11 +10,12 @@ type Props = {
     cards: Snapshot<CardInstance[]>;
     availablePower: number;
     shiftDown?: boolean;
+    isCardHighlighted?: (card: Snapshot<CardInstance>) => boolean;
 };
 
 const getCardId = (card: Snapshot<CardInstance>) => card.id;
 
-export const CardHand: FC<Props> = ({ cards, availablePower, shiftDown }) => {
+export const CardHand: FC<Props> = ({ cards, availablePower, shiftDown, isCardHighlighted }) => {
     const { knownItems: knownCards, currentItemIds: inHandCardIds, removingItemIds: removingCardIds } = useArrayChanges(cards, getCardId);
 
     return (
@@ -32,7 +33,7 @@ export const CardHand: FC<Props> = ({ cards, availablePower, shiftDown }) => {
                     type={card.type}
                     availablePower={availablePower}
                     index={index}
-                    highlighted={card.highlighted}
+                    highlighted={card.highlighted || isCardHighlighted?.(card)}
                     className={classNames(
                         styles.card,
                         removingCardIds.has(card.id) ? styles.removing : inHandCardIds.has(card.id) ? null : styles.adding
