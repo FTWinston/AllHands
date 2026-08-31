@@ -16,6 +16,9 @@ export const SubTargetIndicator = (props: Props) => {
     // TODO: different descriptions for vulnerabilities as opposed to just targeting a system.
     const { name, description, image } = getSubTargetDescription(props.subTarget.system);
 
+    // Vulnerability sub-targets have an id of 'system:vulnerabilityId', whereas plain system sub-targets just use the system name.
+    const isVulnerability = props.subTarget.id.includes(':');
+
     return (
         <CardDropTarget
             targetType="enemy"
@@ -29,7 +32,7 @@ export const SubTargetIndicator = (props: Props) => {
                 className={styles.vulnerability}
                 name={name}
                 description={description}
-                palette="danger"
+                palette={isVulnerability ? 'good' : 'danger'}
             >
                 {image}
             </InfoPopup>
