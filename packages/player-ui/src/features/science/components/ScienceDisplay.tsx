@@ -32,20 +32,28 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     unmountDeflectorModifier: () => void;
     unmountDeflectorSubstance: () => void;
     unmountDeflectorDelivery: () => void;
+    pendingDrawChoice: Snapshot<CardInstance[]>;
+    resolveDrawChoice: (cardId: number) => void;
 };
 
 export const ScienceDisplay = (props: Props) => {
     const {
         cards, playCard, targets, scannedShipId, systemOrderByTarget, modifierSlot, substanceSlot, deliverySlot,
         deflectorCard, viewer, scannedHelm, scannedTactical, scannedScience, scannedEngineer, identifiedVulnerability,
-        closeRevealedSystem, ...headerProps
+        closeRevealedSystem, pendingDrawChoice, resolveDrawChoice, ...headerProps
     } = props;
 
     useRootClassName(crewStyles.science);
 
     return (
         <Screen>
-            <CardUI playCard={playCard} cardHand={cards} availablePower={headerProps.power}>
+            <CardUI
+                playCard={playCard}
+                cardHand={cards}
+                availablePower={headerProps.power}
+                pendingDrawChoice={pendingDrawChoice}
+                resolveDrawChoice={resolveDrawChoice}
+            >
                 <CrewHeader
                     crew="science"
                     handSize={cards.length}

@@ -5,6 +5,7 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { FC, PropsWithChildren, useCallback, useState } from 'react';
+import { CardChoiceToDraw } from './CardChoiceToDraw';
 import { CardChoiceToPlay } from './CardChoiceToPlay';
 import { CardDropTarget } from './CardDropTarget';
 import { CardHand } from './CardHand';
@@ -15,6 +16,8 @@ type Props = PropsWithChildren<{
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cardHand: Snapshot<CardInstance[]>;
     onAlternateDrop?: (targetId: string) => void;
+    pendingDrawChoice: Snapshot<CardInstance[]>;
+    resolveDrawChoice: (cardId: number) => void;
 }>;
 
 type ChoiceInfo = {
@@ -26,7 +29,7 @@ type ChoiceInfo = {
  * The full UI for displaying and interacting with a hand of cards.
  * Any CardDropTarget components these cards should interact with should be nested within this component.
  */
-export const CardUI: FC<Props> = ({ playCard, cardHand, availablePower, children, onAlternateDrop }) => {
+export const CardUI: FC<Props> = ({ playCard, cardHand, availablePower, children, onAlternateDrop, pendingDrawChoice, resolveDrawChoice }) => {
     const [choice, setChoice] = useState<ChoiceInfo | null>(null);
 
     const dropCard = useCallback((cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => {
@@ -45,6 +48,8 @@ export const CardUI: FC<Props> = ({ playCard, cardHand, availablePower, children
             playCard(cardId, cardType, targetType, targetId);
         }
     }, [playCard, availablePower]);
+
+    const hasDrawChoice = pendingDrawChoice.length > 0;
 
     return (
         <DragCardProvider onCardDropped={dropCard} onAlternateDrop={onAlternateDrop}>
@@ -71,8 +76,15 @@ export const CardUI: FC<Props> = ({ playCard, cardHand, availablePower, children
             <CardHand
                 cards={cardHand}
                 availablePower={availablePower}
-                shiftDown={!!choice}
+                shiftDown={!!choice || hasDrawChoice}
             />
+
+            {hasDrawChoice && (
+                <CardChoiceToDraw
+                    cards={pendingDrawChoice}
+                    onChoose={resolveDrawChoice}
+                />
+            )}
         </DragCardProvider>
     );
 };

@@ -739,7 +739,7 @@ function loadCardDefinitions() {
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
-                // TODO: draw 3 cards into a "choice" - chosen one goes to hand, other two are discarded
+                ship.scienceState.presentDrawChoice();
                 return true;
             },
         },

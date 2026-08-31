@@ -1,0 +1,69 @@
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.choiceRoot {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2em;
+    background: rgba(0, 0, 0, 0.6);
+    animation: fadeIn 0.5s ease-in-out;
+    pointer-events: all;
+    z-index: 10;
+}
+
+.title {
+    margin: 0;
+}
+
+.cards {
+    position: relative;
+    display: flex;
+    gap: 1em;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 15em;
+
+    --midIndex: calc((var(--numCards) - 1) / 2);
+}
+
+.card {
+    position: absolute;
+    bottom: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: transform 0.33s ease-in-out, opacity 0.33s ease-in-out;
+    transform: translateX(var(--dx)) rotate(var(--r)) translateY(var(--dy)) scale(var(--scale));
+    --midOffset: calc(var(--index) - var(--midIndex));
+    --inHandDx: calc(min(8.5em, ((94vw - 8em) / (var(--numCards) - 1))) * (var(--index) - var(--midIndex)));
+    --dx: var(--inHandDx);
+    --dy: 0;
+    --r: 0deg;
+    --scale: 0.75;
+}
+
+.card:focus, .card:hover {
+    --scale: 0.85;
+    z-index: 1;
+}
+
+.selected {
+    --scale: 1;
+    z-index: 2;
+    filter: drop-shadow(0 0 10px gold);
+}
+
+.okButton {
+    z-index: 2;
+}
