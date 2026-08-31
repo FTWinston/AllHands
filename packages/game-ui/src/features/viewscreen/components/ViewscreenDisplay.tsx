@@ -1,11 +1,12 @@
-import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
-import { interpolateVector } from 'common-data/features/space/utils/interpolate';
+import { interpolatePosition, interpolateVector } from 'common-data/features/space/utils/interpolate';
 import { Button } from 'common-ui/components/Button';
 import { Screen } from 'common-ui/components/Screen';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
+import { drawWeaponArcs, ENEMY_WEAPON_ARC_COLORS, OWN_WEAPON_ARC_COLORS, WeaponArcSlotInfo } from 'common-ui/features/spacemap/utils/drawWeaponArcs';
 import { drawWeaponEffects } from 'common-ui/features/spacemap/utils/drawWeaponEffects';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
@@ -34,13 +35,30 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
 
     const cellRadius = 32; // TODO: make this controllable? automatic?
 
-    const { objects, weaponEffectsRef } = props;
+    const { objects, weaponEffectsRef, viewer } = props;
+
+    const localShip = viewer.shipId ? (objects[viewer.shipId] as unknown as ShipInfo | undefined) : undefined;
+    const ownWeaponSlots = localShip?.tacticalState?.slots as unknown as WeaponArcSlotInfo[] | undefined;
+
+    const scannedTactical = localShip?.scienceState?.scannedTactical;
+    const scannedTarget = scannedTactical ? objects[scannedTactical.targetId] : undefined;
+    const scannedWeaponSlots = scannedTactical?.weaponSlots as unknown as WeaponArcSlotInfo[] | undefined;
 
     const drawExtraForeground = useCallback(
         (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
-            drawWeaponEffects(ctx, weaponEffectsRef.current, objects, timeProvider.getServerTime(), pixelSize, false);
+            const drawTime = timeProvider.getServerTime();
+
+            if (localShip && ownWeaponSlots) {
+                drawWeaponArcs(ctx, interpolatePosition(localShip.motion, drawTime), ownWeaponSlots, OWN_WEAPON_ARC_COLORS, pixelSize);
+            }
+
+            if (scannedTarget && scannedWeaponSlots) {
+                drawWeaponArcs(ctx, interpolatePosition(scannedTarget.motion, drawTime), scannedWeaponSlots, ENEMY_WEAPON_ARC_COLORS, pixelSize);
+            }
+
+            drawWeaponEffects(ctx, weaponEffectsRef.current, objects, drawTime, pixelSize, false);
         },
-        [weaponEffectsRef, objects, timeProvider]
+        [weaponEffectsRef, objects, timeProvider, localShip, ownWeaponSlots, scannedTarget, scannedWeaponSlots]
     );
 
     return (
