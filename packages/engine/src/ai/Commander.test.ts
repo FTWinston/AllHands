@@ -140,6 +140,65 @@ describe('Commander', () => {
         expect(bb.goal).toBe('search-and-destroy');
     });
 
+    it('an unresolved scenario-authored scenarioId is dropped as an invalid ward on the first update', () => {
+        const state = createWorld();
+        const setup = { ...aiSetup(), goal: { type: 'guard-ship' as const, shipId: 'vip' } };
+        const ai = new AiShip(state, setup);
+        state.add(ai);
+        const bb = createBlackboard(setup.goal);
+        const commander = new Commander(ai, state, resolveAiConfig(setup as never));
+
+        // 'vip' isn't a live object id, so without resolution the goal is dropped immediately.
+        commander.update(bb, 0);
+        expect(bb.goal).toBe('search-and-destroy');
+    });
+
+    it('resolveScenarioReferences turns a scenario-authored scenarioId into the ward\'s real runtime id', () => {
+        const state = createWorld();
+        const ward = new AiShip(state, { ...shipSetup('raiders', 3, 0), scenarioId: 'vip', goal: { type: 'search-and-destroy' }, skill: 1 });
+        state.add(ward);
+        const setup = { ...aiSetup(), goal: { type: 'guard-ship' as const, shipId: 'vip' } };
+        const ai = new AiShip(state, setup);
+        state.add(ai);
+        const bb = createBlackboard(setup.goal);
+        const commander = new Commander(ai, state, resolveAiConfig(setup as never));
+
+        // Resolving before the first update, as EndlessCombatEncounters does, keeps the goal.
+        commander.resolveScenarioReferences();
+        commander.update(bb, 0);
+        expect(bb.goal).toBe('guard-ship');
+
+        // The ward is now tracked by its real id, so removing it (not some unrelated object) drops the goal.
+        state.remove(ward);
+        commander.update(bb, 0);
+        expect(bb.goal).toBe('search-and-destroy');
+    });
+
+    it('resolveScenarioReferences is a no-op when shipId is already a live object id or unresolvable', () => {
+        const state = createWorld();
+        const ward = new AiShip(state, { ...shipSetup('raiders', 3, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
+        state.add(ward);
+        const setup = { ...aiSetup(), goal: { type: 'guard-ship' as const, shipId: ward.id } };
+        const ai = new AiShip(state, setup);
+        state.add(ai);
+        const bb = createBlackboard(setup.goal);
+        const commander = new Commander(ai, state, resolveAiConfig(setup as never));
+
+        commander.resolveScenarioReferences();
+        commander.update(bb, 0);
+        expect(bb.goal).toBe('guard-ship');
+
+        const unresolvableSetup = { ...aiSetup(), goal: { type: 'guard-ship' as const, shipId: 'no-such-scenario-id' } };
+        const unresolvableAi = new AiShip(state, unresolvableSetup);
+        state.add(unresolvableAi);
+        const unresolvableCommander = new Commander(unresolvableAi, state, resolveAiConfig(unresolvableSetup as never));
+        const unresolvableBb = createBlackboard(unresolvableSetup.goal);
+
+        unresolvableCommander.resolveScenarioReferences();
+        unresolvableCommander.update(unresolvableBb, 0);
+        expect(unresolvableBb.goal).toBe('search-and-destroy');
+    });
+
     it('drops a target that becomes non-hostile at runtime', () => {
         const state = createWorld();
         const ai = new AiShip(state, aiSetup());

@@ -35,12 +35,28 @@ export class GameState extends Schema {
         this.timeScale = timeScale;
     }
 
+    /** Maps scenario-authored `scenarioId`s to the runtime id of the most recently added object that declared them. */
+    private readonly scenarioIdIndex = new Map<string, string>();
+
     public getNewId(): string {
         return this.idPool.getId();
     }
 
     public add(object: GameObject) {
         this.objects.set(object.id, object);
+
+        if (object.scenarioId !== null) {
+            this.scenarioIdIndex.set(object.scenarioId, object.id);
+        }
+    }
+
+    /**
+     * Resolves a scenario-authored `scenarioId` (see `GameObjectSetupInfo.scenarioId`) to the
+     * live game object that currently owns it, if any.
+     */
+    public getObjectByScenarioId(scenarioId: string): GameObject | undefined {
+        const id = this.scenarioIdIndex.get(scenarioId);
+        return id !== undefined ? this.objects.get(id) : undefined;
     }
 
     public initFactions(configs: FactionConfig[], playerFaction: string) {
@@ -50,6 +66,10 @@ export class GameState extends Schema {
 
     public remove(object: GameObject) {
         this.objects.delete(object.id);
+
+        if (object.scenarioId !== null && this.scenarioIdIndex.get(object.scenarioId) === object.id) {
+            this.scenarioIdIndex.delete(object.scenarioId);
+        }
 
         if (this.gameStatus === 'active') {
             // Remove object from all crew client views.

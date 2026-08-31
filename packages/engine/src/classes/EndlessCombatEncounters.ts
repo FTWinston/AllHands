@@ -17,9 +17,18 @@ export class EndlessCombatEncounters extends GameRules {
     populate(): void {
         // Spawn enemies from the first encounter.
         if (this.scenario.encounters.length > 0) {
+            const spawned: AiShip[] = [];
+
             for (const enemySetup of this.scenario.encounters[0].enemies) {
                 const aiShip = new AiShip(this.state, enemySetup);
                 this.state.add(aiShip);
+                spawned.push(aiShip);
+            }
+
+            // Resolve scenario-authored ship references (e.g. `guard-ship` goals) only once
+            // every ship in this batch exists, so forward references within the encounter work.
+            for (const aiShip of spawned) {
+                aiShip.ai.commander.resolveScenarioReferences();
             }
         }
     }
@@ -71,6 +80,7 @@ export class EndlessCombatEncounters extends GameRules {
 
             const aiShip = new AiShip(this.state, setup);
             this.state.add(aiShip);
+            aiShip.ai.commander.resolveScenarioReferences();
         }, 10_000);
     }
 }

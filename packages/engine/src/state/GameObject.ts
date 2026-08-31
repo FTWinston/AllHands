@@ -16,12 +16,19 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
     ) {
         super();
         this.id = gameState.getNewId();
+        this.scenarioId = setup.scenarioId ?? null;
         this.name = setup.name;
         this.faction = setup.faction ?? null;
         this.appearance = setup.appearance;
     }
 
     @type('string') public readonly id: string;
+
+    /**
+     * Author-chosen id from the scenario file, if any. Used only to resolve scenario-authored
+     * references (see `GameObjectSetupInfo.scenarioId`); not sent to clients.
+     */
+    public readonly scenarioId: string | null;
 
     @view(ownHelmClientRole | ownShipClientRole | otherHelmClientRole | otherShipClientRole | otherTacticalClientRole | otherScienceClientRole)
     @type('string') public readonly name: string;
