@@ -33,7 +33,7 @@ export const CardHand: FC<Props> = ({ cards, availablePower, shiftDown, isCardHi
                     type={card.type}
                     availablePower={availablePower}
                     index={index}
-                    highlighted={card.highlighted || isCardHighlighted?.(card)}
+                    highlighted={isCardHighlighted?.(card)}
                     className={classNames(
                         styles.card,
                         removingCardIds.has(card.id) ? styles.removing : inHandCardIds.has(card.id) ? null : styles.adding
