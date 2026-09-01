@@ -51,6 +51,9 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     drawPile: CardState[];
     discardPile: CardState[];
 
+    /** Cards revealed from the draw pile awaiting a player choice; empty when there is none pending. */
+    @type([CardState]) pendingDrawChoice = new ArraySchema<CardState>();
+
     @type(CooldownState) cardGeneration: CooldownState | null = null;
 
     @type('uint8') maxHandSize = 0;
@@ -106,6 +109,57 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             const card = random.delete(this.hand as CardState[]);
             this.discardPile.push(card);
         }
+    }
+
+    /**
+     * Reveal the top `count` cards of the draw pile as a pending choice, reshuffling the discard
+     * pile into the draw pile if it runs out mid-reveal (matching `draw()`). The choice must
+     * later be resolved via `resolveDrawChoice`.
+     */
+    presentDrawChoice(count = 3) {
+        this.discardPile.push(...this.pendingDrawChoice);
+        this.pendingDrawChoice.clear();
+
+        for (let i = 0; i < count; i++) {
+            let card = this.drawPile.pop();
+            if (!card) {
+                this.drawPile = this.discardPile;
+                this.getShip().random.shuffle(this.drawPile);
+                this.discardPile = [];
+                card = this.drawPile.pop();
+            }
+
+            if (card) {
+                this.pendingDrawChoice.push(card);
+            }
+        }
+
+        this.drawPileSize = this.drawPile.length;
+    }
+
+    /**
+     * Resolve a pending draw choice: the chosen card goes to the hand, unless it's already full,
+     * in which case it's discarded along with the rest of the options.
+     */
+    resolveDrawChoice(cardId: number): boolean {
+        const chosenIndex = this.pendingDrawChoice.findIndex(card => card.id === cardId);
+        if (chosenIndex === -1) {
+            console.warn('chosen card is not part of the pending draw choice');
+            return false;
+        }
+
+        for (let i = 0; i < this.pendingDrawChoice.length; i++) {
+            const card = this.pendingDrawChoice[i];
+            if (i === chosenIndex && this.hand.length < this.maxHandSize) {
+                this.hand.push(card);
+            } else {
+                this.discardPile.push(card);
+            }
+        }
+
+        this.pendingDrawChoice.clear();
+
+        return true;
     }
 
     /**

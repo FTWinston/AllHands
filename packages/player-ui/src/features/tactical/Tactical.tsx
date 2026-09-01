@@ -32,6 +32,10 @@ export const Tactical = (props: Props) => {
         });
     }, [props.room]);
 
+    const resolveDrawChoice = useCallback((cardId: number) => {
+        props.room.send('resolveDrawChoice', { cardId });
+    }, [props.room]);
+
     if (!localShip?.tacticalState?.hand) {
         return <div>unable to load</div>;
     }
@@ -59,6 +63,8 @@ export const Tactical = (props: Props) => {
             playCard={playCard}
             cardGeneration={tacticalState.cardGeneration}
             viewer={viewer}
+            pendingDrawChoice={tacticalState.pendingDrawChoice}
+            resolveDrawChoice={resolveDrawChoice}
         />
     );
 };

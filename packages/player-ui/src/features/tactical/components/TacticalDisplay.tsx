@@ -23,10 +23,12 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     targets: Snapshot<GameObjectInfo[]>;
     subTargetsByTarget: Record<string, TargetSubTargets>;
     viewer: RelationshipViewer;
+    pendingDrawChoice: Snapshot<CardInstance[]>;
+    resolveDrawChoice: (cardId: number) => void;
 };
 
 export const TacticalDisplay = (props: Props) => {
-    const { cards, slots, playCard, targets, subTargetsByTarget, viewer, ...headerProps } = props;
+    const { cards, slots, playCard, targets, subTargetsByTarget, viewer, pendingDrawChoice, resolveDrawChoice, ...headerProps } = props;
 
     useRootClassName(crewStyles.tactical);
 
@@ -52,7 +54,14 @@ export const TacticalDisplay = (props: Props) => {
 
     return (
         <Screen>
-            <CardUI playCard={playCard} cardHand={cards} availablePower={headerProps.power} isCardHighlighted={isCardHighlighted}>
+            <CardUI
+                playCard={playCard}
+                cardHand={cards}
+                availablePower={headerProps.power}
+                pendingDrawChoice={pendingDrawChoice}
+                resolveDrawChoice={resolveDrawChoice}
+                isCardHighlighted={isCardHighlighted}
+            >
                 <CrewHeader
                     crew="tactical"
                     handSize={cards.length}

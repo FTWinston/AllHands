@@ -17,4 +17,8 @@ export class AiShip extends Ship {
         super.tick(deltaTime, currentTime);
         this.ai.update(currentTime);
     }
+
+    public override resolveScenarioReferences(): void {
+        this.ai.commander.resolveScenarioReferences();
+    }
 }

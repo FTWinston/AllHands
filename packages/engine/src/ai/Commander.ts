@@ -29,6 +29,24 @@ export class Commander {
         this.activeGoal = config.goal;
     }
 
+    /**
+     * Resolves a scenario-authored `guard-ship` target from a `scenarioId` to the real runtime
+     * id of the object that currently owns it. Must be called once, after the referenced
+     * object has been created — see `EndlessCombatEncounters` for callers. A no-op if the goal
+     * isn't `guard-ship`, if `shipId` is already a live object id, or if no object currently
+     * has a matching `scenarioId`.
+     */
+    resolveScenarioReferences(): void {
+        if (this.activeGoal.type !== 'guard-ship' || this.gameState.objects.has(this.activeGoal.shipId)) {
+            return;
+        }
+
+        const ward = this.gameState.getObjectByScenarioId(this.activeGoal.shipId);
+        if (ward) {
+            this.activeGoal = { ...this.activeGoal, shipId: ward.id };
+        }
+    }
+
     update(blackboard: Blackboard, currentTime: number): void {
         const skill = this.config.skill;
         // A low-skill commander sometimes fails to reassess the situation at all.

@@ -24,16 +24,24 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     activeManeuver?: CardCooldown | null;
     cancelManeuver: () => void;
     weaponEffectsRef: MutableRefObject<WeaponEffect[]>;
+    pendingDrawChoice: Snapshot<CardInstance[]>;
+    resolveDrawChoice: (cardId: number) => void;
 };
 
 export const HelmDisplay = (props: Props) => {
-    const { cards, playCard, center, objects, viewer, activeManeuver, cancelManeuver, weaponEffectsRef, ...headerProps } = props;
+    const { cards, playCard, center, objects, viewer, activeManeuver, cancelManeuver, weaponEffectsRef, pendingDrawChoice, resolveDrawChoice, ...headerProps } = props;
 
     useRootClassName(crewStyles.helm);
 
     return (
         <Screen>
-            <CardUI playCard={playCard} cardHand={cards} availablePower={headerProps.power}>
+            <CardUI
+                playCard={playCard}
+                cardHand={cards}
+                availablePower={headerProps.power}
+                pendingDrawChoice={pendingDrawChoice}
+                resolveDrawChoice={resolveDrawChoice}
+            >
                 <CrewHeader
                     crew="helm"
                     handSize={cards.length}
