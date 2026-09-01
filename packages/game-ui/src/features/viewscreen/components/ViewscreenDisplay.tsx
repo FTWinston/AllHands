@@ -6,13 +6,14 @@ import { interpolatePosition, interpolateVector } from 'common-data/features/spa
 import { Button } from 'common-ui/components/Button';
 import { Screen } from 'common-ui/components/Screen';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
-import { drawWeaponArcs, ENEMY_WEAPON_ARC_COLORS, OWN_WEAPON_ARC_COLORS, WeaponArcSlotInfo } from 'common-ui/features/spacemap/utils/drawWeaponArcs';
+import { drawWeaponArcs, ENEMY_WEAPON_ARC_COLORS, OWN_WEAPON_ARC_COLORS } from 'common-ui/features/spacemap/utils/drawWeaponArcs';
 import { drawWeaponEffects } from 'common-ui/features/spacemap/utils/drawWeaponEffects';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
 import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
 import { FC, RefObject, PropsWithChildren, useCallback, useRef } from 'react';
 import styles from './ViewscreenDisplay.module.css';
+import type { Snapshot } from '@colyseus/react';
 
 type Props = PropsWithChildren<{
     center: ReadonlyKeyframes<Vector2D>;
@@ -37,12 +38,12 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
 
     const { objects, weaponEffectsRef, viewer } = props;
 
-    const localShip = viewer.shipId ? (objects[viewer.shipId] as unknown as ShipInfo | undefined) : undefined;
-    const ownWeaponSlots = localShip?.tacticalState?.slots as unknown as WeaponArcSlotInfo[] | undefined;
+    const localShip = viewer.shipId ? (objects[viewer.shipId] as unknown as Snapshot<ShipInfo> | undefined) : undefined;
+    const ownWeaponSlots = localShip?.tacticalState?.slots;
 
     const scannedTactical = localShip?.scienceState?.scannedTactical;
     const scannedTarget = scannedTactical ? objects[scannedTactical.targetId] : undefined;
-    const scannedWeaponSlots = scannedTactical?.weaponSlots as unknown as WeaponArcSlotInfo[] | undefined;
+    const scannedWeaponSlots = scannedTactical?.weaponSlots;
 
     const drawExtraForeground = useCallback(
         (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {

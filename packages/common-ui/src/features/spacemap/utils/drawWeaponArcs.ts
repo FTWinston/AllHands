@@ -1,18 +1,19 @@
-import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { Position } from 'common-data/features/space/types/Position';
-import { resolveParameters } from '../../../types/resolveParameters';
+import { resolveParameter } from '../../../types/resolveParameters';
+import type { IArray, IMap, Snapshot } from '@colyseus/react';
+import type { CardInstance } from 'common-data/features/cards/types/CardInstance';
 
 /** Minimal weapon slot shape needed to determine a weapon's range and firing arc. */
 export type WeaponArcSlotInfo = {
     card: CardInstance | null;
-    modifiers?: Record<string, number> | null;
+    modifiers?: IMap<string, number> | null;
 };
 
 /** Alpha for the (quite faint) sector fill. */
 const FILL_ALPHA = 0.12;
 /** Alpha for the (moderately faint) sector outline. */
-const STROKE_ALPHA = 0.35;
+const STROKE_ALPHA = 0.4;
 
 /**
  * Shades from the tactical crew's primary color palette (see `CrewColors.module.css` `.tactical`),
@@ -35,7 +36,7 @@ export const ENEMY_WEAPON_ARC_COLORS: readonly string[] = [
 ];
 
 /** Resolve a weapon slot's effective range and firing arc half-angle (in radians), or null if unequipped. */
-export function getWeaponArcParameters(slot: WeaponArcSlotInfo): { maxRange: number; firingArc: number } | null {
+export function getWeaponArcParameters(slot: Snapshot<WeaponArcSlotInfo>): { maxRange: number; firingArc: number } | null {
     const { card } = slot;
     if (!card) {
         return null;
@@ -46,9 +47,8 @@ export function getWeaponArcParameters(slot: WeaponArcSlotInfo): { maxRange: num
         return null;
     }
 
-    const parameters = resolveParameters(definition.parameters, card.modifiers as Record<string, number> | undefined, slot.modifiers);
-    const maxRange = parameters['maxRange'] ?? 0;
-    const firingArc = parameters['firingArc'] ?? 0;
+    const maxRange = resolveParameter('maxRange', definition.parameters, card.modifiers, slot.modifiers);
+    const firingArc = resolveParameter('firingArc', definition.parameters, card.modifiers, slot.modifiers);
 
     if (maxRange <= 0 || firingArc <= 0) {
         return null;
@@ -106,8 +106,8 @@ function drawWeaponArc(
 export function drawWeaponArcs(
     ctx: CanvasRenderingContext2D,
     position: Position,
-    slots: Iterable<WeaponArcSlotInfo>,
-    colors: readonly string[],
+    slots: Snapshot<WeaponArcSlotInfo[]>,
+    colors: IArray<string>,
     pixelSize: number
 ): void {
     if (colors.length === 0) {

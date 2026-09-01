@@ -61,7 +61,12 @@ export const WithWeaponArcs: Story = {
                 name: 'Player',
                 appearance: 'chevron',
                 faction: 'player',
-                motion: [{ time: Date.now(), x: 0, y: 0, angle: 0 }],
+                motion: [
+                    { time: Date.now(), x: 0, y: 0, angle: 0 },
+                    { time: Date.now() + 5000, x: 5, y: 0, angle: Math.PI / 4 },
+                    { time: Date.now() + 10000, x: 5, y: 5, angle: Math.PI / 2 },
+                    { time: Date.now() + 15000, x: 0, y: 5, angle: (3 * Math.PI) / 4 },
+                ],
                 tacticalState: {
                     slots: [
                         { card: { id: 1, type: 'phaserCannon' } },
