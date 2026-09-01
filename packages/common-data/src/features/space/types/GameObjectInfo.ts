@@ -52,6 +52,8 @@ export interface CrewSystemInfo extends SystemInfo {
     hand: IArray<CardInstance>;
     drawPileSize: number;
     cardGeneration: Cooldown | null;
+    /** Cards revealed from the draw pile awaiting a player choice; empty when there is none pending. */
+    pendingDrawChoice: IArray<CardInstance>;
 }
 
 export interface HelmSystemInfo extends CrewSystemInfo {

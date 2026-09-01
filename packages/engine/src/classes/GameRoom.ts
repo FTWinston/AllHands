@@ -208,6 +208,29 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             console.log(`${client.sessionId} played card ${cardId} type ${cardType} (${cardType}) on ${clientRole} targeting ${targetType}:${targetId}`);
         });
 
+        this.onMessage('resolveDrawChoice', (client, message: { cardId: number }) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const { cardId } = message;
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            const systemState = this.getSystemState(ship, clientRole);
+
+            if (!systemState.resolveDrawChoice(cardId)) {
+                console.error(`Failed to resolve draw choice ${cardId} for ${clientRole} of ship ${ship.id}`);
+                return;
+            }
+
+            console.log(`${client.sessionId} resolved draw choice ${cardId} for ${clientRole} of ship ${ship.id}`);
+        });
+
         this.onMessage('repair', (client, message: { system: ShipSystem }) => {
             if (this.state.gameStatus !== 'active') {
                 return;

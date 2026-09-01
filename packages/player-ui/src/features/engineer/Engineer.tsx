@@ -33,6 +33,10 @@ export const Engineer = (props: Props) => {
         props.room.send('repair', { system });
     }, [props.room]);
 
+    const resolveDrawChoice = useCallback((cardId: number) => {
+        props.room.send('resolveDrawChoice', { cardId });
+    }, [props.room]);
+
     if (!localShip?.engineerState?.hand) {
         return <div>unable to load</div>;
     }
@@ -53,6 +57,8 @@ export const Engineer = (props: Props) => {
             drawPileSize={engineerState.drawPileSize}
             playCard={playCard}
             cardGeneration={engineerState.cardGeneration}
+            pendingDrawChoice={engineerState.pendingDrawChoice}
+            resolveDrawChoice={resolveDrawChoice}
         />
     );
 };

@@ -36,6 +36,10 @@ export const Helm = (props: Props) => {
         props.room.send('cancelManeuver');
     }, [props.room]);
 
+    const resolveDrawChoice = useCallback((cardId: number) => {
+        props.room.send('resolveDrawChoice', { cardId });
+    }, [props.room]);
+
     if (!localShip?.helmState?.hand) {
         return <div>unable to load</div>;
     }
@@ -64,6 +68,8 @@ export const Helm = (props: Props) => {
             cancelManeuver={cancelManeuver}
             activeManeuver={helmState.activeManeuver}
             weaponEffectsRef={weaponEffectsRef}
+            pendingDrawChoice={helmState.pendingDrawChoice}
+            resolveDrawChoice={resolveDrawChoice}
         />
     );
 };
