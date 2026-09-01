@@ -17,10 +17,8 @@ export class EndlessCombatEncounters extends GameRules {
     populate(): void {
         // Spawn enemies from the first encounter.
         if (this.scenario.encounters.length > 0) {
-            for (const enemySetup of this.scenario.encounters[0].enemies) {
-                const aiShip = new AiShip(this.state, enemySetup);
-                this.state.add(aiShip);
-            }
+            const ships = this.scenario.encounters[0].enemies.map(enemySetup => new AiShip(this.state, enemySetup));
+            this.spawnObjects(ships);
         }
     }
 
@@ -70,7 +68,7 @@ export class EndlessCombatEncounters extends GameRules {
             };
 
             const aiShip = new AiShip(this.state, setup);
-            this.state.add(aiShip);
+            this.spawnObjects([aiShip]);
         }, 10_000);
     }
 }
