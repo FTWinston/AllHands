@@ -190,16 +190,17 @@ export interface GameObjectSetupInfo {
     /**
      * Stable, author-chosen identifier used only to let *other parts of the same scenario*
      * (e.g. an AI ship's `guard-ship` goal, or a future victory condition) refer to this
-     * object. This is unrelated to the runtime `id` assigned from the server's id pool: that
-     * id isn't known until the object is actually created, and isn't stable (ids are reused
-     * once released), so scenario files can't reference it directly.
+     * object. This is unrelated to `GameObjectInfo.id`, the runtime id assigned from the
+     * server's id pool once the object is actually created: that id isn't known until then,
+     * and isn't stable (ids are reused once released), so scenario files can't reference it
+     * directly. Once the object exists, this scenario-authored id is available at runtime as
+     * `GameObject.scenarioId`.
      *
-     * Should be unique within a scenario. If several spawned objects share the same
-     * scenarioId (e.g. multiple player ships in multi-crew mode, or several respawns of the
-     * same enemy template), a lookup by scenarioId resolves to whichever of them was added
-     * most recently.
+     * Should be unique within a scenario. If several spawned objects share the same id (e.g.
+     * multiple player ships in multi-crew mode, or several respawns of the same enemy
+     * template), a lookup by this id resolves to whichever of them was added most recently.
      */
-    scenarioId?: string;
+    id?: string;
 }
 
 export interface ShipSetupInfo extends GameObjectSetupInfo {
@@ -220,8 +221,8 @@ export type AiGoalInfo
         /**
          * `shipId` is normally a live runtime object id. When authored in a scenario file
          * (where the runtime id can't be known in advance) it should instead be the target
-         * object's `scenarioId`; the engine resolves it to the real id once the referenced
-         * object exists.
+         * object's scenario-authored `id` (see `GameObjectSetupInfo.id`); the engine resolves
+         * it to the real id once the referenced object exists.
          */
         | { type: 'guard-ship'; shipId: string };
 

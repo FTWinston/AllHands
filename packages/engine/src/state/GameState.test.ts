@@ -13,8 +13,8 @@ function createGameState() {
     return state;
 }
 
-function aiShip(state: GameState, scenarioId?: string) {
-    return new AiShip(state, { ...shipSetup('raiders'), scenarioId, goal: { type: 'search-and-destroy' }, skill: 1 });
+function aiShip(state: GameState, id?: string) {
+    return new AiShip(state, { ...shipSetup('raiders'), id, goal: { type: 'search-and-destroy' }, skill: 1 });
 }
 
 describe('GameState scenarioId lookup', () => {

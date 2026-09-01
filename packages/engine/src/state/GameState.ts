@@ -51,8 +51,8 @@ export class GameState extends Schema {
     }
 
     /**
-     * Resolves a scenario-authored `scenarioId` (see `GameObjectSetupInfo.scenarioId`) to the
-     * live game object that currently owns it, if any.
+     * Resolves a scenario-authored id (see `GameObjectSetupInfo.id`) to the live game object
+     * that currently owns it, if any.
      */
     public getObjectByScenarioId(scenarioId: string): GameObject | undefined {
         const id = this.scenarioIdIndex.get(scenarioId);

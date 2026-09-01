@@ -48,7 +48,7 @@ describe('EndlessCombatEncounters scenarioId resolution', () => {
     it('resolves a guard-ship goal that references a scenarioId defined earlier in the same encounter', () => {
         const state = createGameState();
         const scenario = scenarioWith([
-            aiSetup({ scenarioId: 'boss' }),
+            aiSetup({ id: 'boss' }),
             aiSetup({ goal: { type: 'guard-ship', shipId: 'boss' } }),
         ]);
         new EndlessCombatEncounters(state, scenario).populate();
@@ -68,7 +68,7 @@ describe('EndlessCombatEncounters scenarioId resolution', () => {
         const state = createGameState();
         const scenario = scenarioWith([
             aiSetup({ goal: { type: 'guard-ship', shipId: 'boss' } }),
-            aiSetup({ scenarioId: 'boss' }),
+            aiSetup({ id: 'boss' }),
         ]);
         new EndlessCombatEncounters(state, scenario).populate();
 

@@ -155,7 +155,7 @@ describe('Commander', () => {
 
     it('resolveScenarioReferences turns a scenario-authored scenarioId into the ward\'s real runtime id', () => {
         const state = createWorld();
-        const ward = new AiShip(state, { ...shipSetup('raiders', 3, 0), scenarioId: 'vip', goal: { type: 'search-and-destroy' }, skill: 1 });
+        const ward = new AiShip(state, { ...shipSetup('raiders', 3, 0), id: 'vip', goal: { type: 'search-and-destroy' }, skill: 1 });
         state.add(ward);
         const setup = { ...aiSetup(), goal: { type: 'guard-ship' as const, shipId: 'vip' } };
         const ai = new AiShip(state, setup);
