@@ -22,7 +22,7 @@ export const CardChoiceToDraw: FC<Props> = ({ cards, onChoose }) => {
 
     return (
         <div className={styles.choiceRoot}>
-            <h2 className={styles.title}>Choose a card to draw:</h2>
+            <h2 className={styles.title}>Choose one card to keep:</h2>
             <div
                 className={styles.cards}
                 style={{

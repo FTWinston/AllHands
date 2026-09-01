@@ -16,12 +16,7 @@
     gap: 2em;
     background: rgba(0, 0, 0, 0.6);
     animation: fadeIn 0.5s ease-in-out;
-    pointer-events: all;
-    z-index: 10;
-}
-
-.title {
-    margin: 0;
+    z-index: 1;
 }
 
 .cards {
@@ -39,10 +34,6 @@
 .card {
     position: absolute;
     bottom: 0;
-    padding: 0;
-    border: none;
-    background: none;
-    cursor: pointer;
     transition: transform 0.33s ease-in-out, opacity 0.33s ease-in-out;
     transform: translateX(var(--dx)) rotate(var(--r)) translateY(var(--dy)) scale(var(--scale));
     --midOffset: calc(var(--index) - var(--midIndex));
@@ -54,16 +45,10 @@
 }
 
 .card:focus, .card:hover {
-    --scale: 0.85;
     z-index: 1;
 }
 
 .selected {
     --scale: 1;
-    z-index: 2;
-    filter: drop-shadow(0 0 10px gold);
-}
-
-.okButton {
-    z-index: 2;
+    z-index: 1;
 }

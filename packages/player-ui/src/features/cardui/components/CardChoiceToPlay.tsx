@@ -19,7 +19,7 @@ export const CardChoiceToPlay: FC<Props> = ({ cardId, cardTypes, availablePower,
 
     return (
         <div className={classNames(styles.choiceRoot, activeCard ? styles.choiceRootActive : null)}>
-            <h2 className={styles.title}>Choose:</h2>
+            <h2 className={styles.title}>Play one card:</h2>
             <div
                 className={styles.cards}
                 style={{
