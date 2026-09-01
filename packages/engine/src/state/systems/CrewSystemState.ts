@@ -117,6 +117,9 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
      * later be resolved via `resolveDrawChoice`.
      */
     presentDrawChoice(count = 3) {
+        this.discardPile.push(...this.pendingDrawChoice);
+        this.pendingDrawChoice.clear();
+
         for (let i = 0; i < count; i++) {
             let card = this.drawPile.pop();
             if (!card) {

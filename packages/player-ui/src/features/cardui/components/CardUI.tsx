@@ -35,7 +35,7 @@ type ChoiceInfo = {
  * Any CardDropTarget components these cards should interact with should be nested within this component.
  */
 export const CardUI: FC<Props> = ({ playCard, cardHand, availablePower, children, onAlternateDrop, pendingDrawChoice, resolveDrawChoice, isCardHighlighted }) => {
-    const [choice, setChoice] = useState<ChoiceInfo | null>(null);
+    const [playChoice, setPlayChoice] = useState<ChoiceInfo | null>(null);
 
     const dropCard = useCallback((cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => {
         if (targetType === 'choice') {
@@ -43,13 +43,13 @@ export const CardUI: FC<Props> = ({ playCard, cardHand, availablePower, children
 
             // Only show the choice if the player has enough power to do so.
             if (availablePower >= choiceCardDefinition.parameters.cost) {
-                setChoice({
+                setPlayChoice({
                     choiceCardId: cardId,
                     options: choiceCardDefinition.cards,
                 });
             }
         } else {
-            setChoice(null);
+            setPlayChoice(null);
             playCard(cardId, cardType, targetType, targetId);
         }
     }, [playCard, availablePower]);
@@ -69,23 +69,23 @@ export const CardUI: FC<Props> = ({ playCard, cardHand, availablePower, children
 
             {children}
 
-            {choice && (
+            {playChoice && (
                 <CardChoiceToPlay
-                    cardId={choice.choiceCardId}
-                    cardTypes={choice.options}
+                    cardId={playChoice.choiceCardId}
+                    cardTypes={playChoice.options}
                     availablePower={availablePower}
-                    onCancel={() => setChoice(null)}
+                    onCancel={() => setPlayChoice(null)}
                 />
             )}
 
             <CardHand
                 cards={cardHand}
                 availablePower={availablePower}
-                shiftDown={!!choice || hasDrawChoice}
+                shiftDown={!!playChoice || hasDrawChoice}
                 isCardHighlighted={isCardHighlighted}
             />
 
-            {hasDrawChoice && (
+            {hasDrawChoice && !playChoice && (
                 <CardChoiceToDraw
                     cards={pendingDrawChoice}
                     onChoose={resolveDrawChoice}
