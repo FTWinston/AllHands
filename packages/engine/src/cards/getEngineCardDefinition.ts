@@ -765,7 +765,7 @@ function loadCardDefinitions() {
             },
             revealSystem: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.subscribeToSystem(target, targetSystem);
-                // TODO: apply effect to ship.scienceState: cost of playing next card is reduced by 1.
+                ship.scienceState.addEffect('reducedCardCost');
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
@@ -780,7 +780,7 @@ function loadCardDefinitions() {
             },
             revealSystem: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.subscribeToSystem(target, targetSystem);
-                // TODO: apply effect to own system: increase power by 1.
+                target.getSystem(targetSystem).addEffect('polaronAccumulation', 1);
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {

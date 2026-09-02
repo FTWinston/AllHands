@@ -8,15 +8,16 @@ import { resolveParameter, resolveParameters } from 'src/cards/resolveParameters
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
 
 export class CardState extends Schema implements CardInstance {
-    constructor(id: number, type: CardType) {
+    constructor(id: number, type: CardType, modifiers = new MapSchema<number>()) {
         super();
         this.id = id;
         this.type = type;
+        this.modifiers = modifiers;
     }
 
     @type('number') readonly id: number;
     @type('string') readonly type: CardType;
-    @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
+    @type({ map: 'number' }) readonly modifiers: MapSchema<number>;
 
     getParameters(additionalModifiers?: IMap<string, number> | null): CardParameters {
         const definition = getCardDefinition(this.type);

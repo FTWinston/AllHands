@@ -381,7 +381,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.unmountDeliveryCard();
 
         const cardType = this.determineDeflectorCardType(null, null, null);
-        this.deflectorCard = new CardState(this.deflectorCardId, cardType);
+        this.deflectorCard = new CardState(this.deflectorCardId, cardType, this.deflectorCard.modifiers);
 
         return cardDefinition;
     }
@@ -515,7 +515,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             : null;
 
         const cardType = this.determineDeflectorCardType(modifier, substance, delivery);
-        this.deflectorCard = new CardState(this.deflectorCardId, cardType);
+        this.deflectorCard = new CardState(this.deflectorCardId, cardType, this.deflectorCard.modifiers);
         this.scienceScanDataChanged.invoke();
     }
 
@@ -537,5 +537,12 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         }
 
         return `deflector${modifier}${substance}${delivery}`;
+    }
+
+    override adjustCostOfEveryCard(amount: number) {
+        super.adjustCostOfEveryCard(amount);
+
+        // Also adjust the cost of the card in the deflector slot.
+        this.deflectorCard.modifyParameter('cost', amount);
     }
 }

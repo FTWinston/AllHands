@@ -159,6 +159,15 @@ export const systemEffectDefinitions = defineSystemEffects({
         usesLevels: true,
         duration: 10_000,
     },
+    polaronAccumulation: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: false,
+        duration: 10_000,
+    },
+    reducedCardCost: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: false,
+    },
 } as const);
 
 export type SystemEffectType = keyof typeof systemEffectDefinitions;

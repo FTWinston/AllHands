@@ -243,4 +243,15 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             }
         }
     }
+
+    override adjustCostOfEveryCard(amount: number) {
+        super.adjustCostOfEveryCard(amount);
+
+        // Also adjust the cost of cards in the weapon slots.
+        for (const slot of this.slots) {
+            if (slot.card) {
+                slot.card.modifyParameter('cost', amount);
+            }
+        }
+    }
 }

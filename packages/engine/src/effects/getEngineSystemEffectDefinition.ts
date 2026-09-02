@@ -334,6 +334,24 @@ function loadSystemEffectDefinitions() {
                 system.adjustSystemPowerLevel(oldLevel - newLevel);
             },
         },
+        polaronAccumulation: {
+            apply: (system) => {
+                system.adjustSystemPowerLevel(1);
+                return true;
+            },
+            remove: (system) => {
+                system.adjustSystemPowerLevel(-1);
+            },
+        },
+        reducedCardCost: {
+            apply: (system) => {
+                system.systemState.adjustCostOfEveryCard(-1);
+                return true;
+            },
+            remove: (system) => {
+                system.systemState.adjustCostOfEveryCard(1);
+            },
+        },
     };
 
     const engineSystemEffectDefinitions = Object.entries(systemEffectDefinitions)

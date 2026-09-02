@@ -143,4 +143,10 @@ export abstract class SystemState extends Schema implements SystemInfo {
     public readonly applyDamage = new InterceptableSetter<number>((amount: number) => {
         this.adjustHealth(-Math.round(amount));
     });
+
+    /**
+     * Adjust the cost of every card associated with this system.
+     * Base SystemState does nothing; CrewSystemState overrides and its subclasses can override further.
+     */
+    adjustCostOfEveryCard(_amount: number) {}
 }

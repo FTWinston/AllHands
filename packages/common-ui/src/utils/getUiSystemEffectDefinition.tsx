@@ -232,6 +232,20 @@ function loadEffectDefinitions() {
             </>,
             image: ExampleIcon,
         },
+        polaronAccumulation: {
+            name: 'Polaron Accumulation',
+            description: <>
+                Increase this system's available power by 1.
+            </>,
+            image: ExampleIcon,
+        },
+        reducedCardCost: {
+            name: 'Reduced Card Cost',
+            description: <>
+                The cost of playing the next card is reduced by 1.
+            </>,
+            image: ExampleIcon,
+        },
     };
 
     const uiEffectDefinitions = Object.entries(effectDescriptions)

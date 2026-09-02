@@ -336,6 +336,9 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     protected handlePlayedCard(card: CardState, cardIndex: number, cardDefinition: EngineCardDefinition, playedIntoSlot: boolean): void {
         const traits = cardDefinition.traits ?? [];
 
+        // The "reduced cost of next card" effect should be removed after a card is played.
+        this.removeEffect('reducedCardCost', true);
+
         let removeFromHand = true;
         let addToDiscard = true;
 
@@ -374,6 +377,21 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         }
 
         return this.getGameState().objects.get(targetId) || null;
+    }
+
+    override adjustCostOfEveryCard(amount: number) {
+        // Actually affect every card, whether in the hand, draw pile, or discard pile.
+        for (const card of this.hand) {
+            card.modifyParameter('cost', amount);
+        }
+
+        for (const card of this.drawPile) {
+            card.modifyParameter('cost', amount);
+        }
+
+        for (const card of this.discardPile) {
+            card.modifyParameter('cost', amount);
+        }
     }
 
     /**
