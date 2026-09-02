@@ -45,7 +45,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
     const scannedTarget = scannedTactical ? objects[scannedTactical.targetId] : undefined;
     const scannedWeaponSlots = scannedTactical?.weaponSlots;
 
-    const drawExtraForeground = useCallback(
+    const drawExtraBackground = useCallback(
         (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
             const drawTime = timeProvider.getServerTime();
 
@@ -56,10 +56,17 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
             if (scannedTarget && scannedWeaponSlots) {
                 drawWeaponArcs(ctx, interpolatePosition(scannedTarget.motion, drawTime), scannedWeaponSlots, ENEMY_WEAPON_ARC_COLORS, pixelSize);
             }
+        },
+        [timeProvider, localShip, ownWeaponSlots, scannedTarget, scannedWeaponSlots]
+    );
+
+    const drawExtraForeground = useCallback(
+        (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
+            const drawTime = timeProvider.getServerTime();
 
             drawWeaponEffects(ctx, weaponEffectsRef.current, objects, drawTime, pixelSize, false);
         },
-        [weaponEffectsRef, objects, timeProvider, localShip, ownWeaponSlots, scannedTarget, scannedWeaponSlots]
+        [weaponEffectsRef, objects, timeProvider]
     );
 
     return (
@@ -81,6 +88,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
                 gridColor="grey"
                 ref={canvas}
                 drawExtraForeground={drawExtraForeground}
+                drawExtraBackground={drawExtraBackground}
             />
 
             {props.children}
