@@ -76,6 +76,14 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     private lastDrawnCard: CardState | null = null;
 
     /**
+     * Put a card into the hand. Assumes that there is space, and that it's already been removed from wherever it was before. Does not check for duplicates.
+     */
+    addCardToHand(card: CardState) {
+        this.hand.push(card);
+        this.lastDrawnCard = card;
+    }
+
+    /**
      * Take card(s) from the draw pile and add them to the hand,
      * reshuffling the discard pile into the draw pile if it is exhausted.
      */
@@ -94,8 +102,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             }
 
             if (card) {
-                this.hand.push(card);
-                this.lastDrawnCard = card;
+                this.addCardToHand(card);
             }
         }
 

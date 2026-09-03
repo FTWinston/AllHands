@@ -820,7 +820,7 @@ function loadCardDefinitions() {
                 if (sourceCard) {
                     while (ship.scienceState.hand.length < ship.scienceState.maxHandSize) {
                         const expendableCopy = sourceCard.createExpendableCopy(ship.getCardId());
-                        ship.scienceState.hand.push(expendableCopy);
+                        ship.scienceState.addCardToHand(expendableCopy);
                     }
                 }
                 return true;
@@ -831,9 +831,28 @@ function loadCardDefinitions() {
             load: () => {
                 return true;
             },
-            revealSystem: (_gameState, ship, target, targetSystem, _parameters) => {
+            revealSystem: (_gameState, ship, target, targetSystem, parameters) => {
                 ship.scienceState.subscribeToSystem(target, targetSystem);
-                // TODO: apply effect to all target systems except targetSystem: increase damage taken.
+
+                // Apply effect to all target systems except targetSystem.
+                if (targetSystem !== 'hull') {
+                    target.hullState.addEffect('antiprotonResidue', parameters.effectLevel);
+                }
+                if (targetSystem !== 'reactor') {
+                    target.reactorState.addEffect('antiprotonResidue', parameters.effectLevel);
+                }
+                if (targetSystem !== 'helm') {
+                    target.helmState.addEffect('antiprotonResidue', parameters.effectLevel);
+                }
+                if (targetSystem !== 'tactical') {
+                    target.tacticalState.addEffect('antiprotonResidue', parameters.effectLevel);
+                }
+                if (targetSystem !== 'science') {
+                    target.scienceState.addEffect('antiprotonResidue', parameters.effectLevel);
+                }
+                if (targetSystem !== 'engineer') {
+                    target.engineerState.addEffect('antiprotonResidue', parameters.effectLevel);
+                }
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
@@ -852,7 +871,15 @@ function loadCardDefinitions() {
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
-                // TODO: draw cards from your DISCARD PILE until your hand is full.
+
+                // Draw cards from your discard pile until your hand is full.
+                while (ship.scienceState.hand.length < ship.scienceState.maxHandSize && ship.scienceState.discardPile.length > 0) {
+                    const card = ship.scienceState.discardPile.pop();
+                    if (card) {
+                        ship.scienceState.addCardToHand(card);
+                    }
+                }
+
                 return true;
             },
         },

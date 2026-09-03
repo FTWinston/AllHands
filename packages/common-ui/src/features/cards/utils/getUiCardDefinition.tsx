@@ -554,7 +554,7 @@ function loadCardDefinitions() {
             description: <>
                 Scanning a system increases the damage taken of all other target systems by
                 {' '}
-                <Parameter name="damageIncrease" />
+                <Parameter name="effectLevel" />
                 % for
                 {' '}
                 <Parameter name="duration" />

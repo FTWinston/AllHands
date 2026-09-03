@@ -418,8 +418,8 @@ export const cardDefinitions = defineCardDefinitions({
         crew: 'science',
         parameters: {
             cost: 3,
-            damageIncrease: 15,
-            duration: 8,
+            effectLevel: 15,
+            duration: systemEffectDefinitions.antiprotonResidue.duration,
         },
         deflectorModifier: 'Inverted',
         deflectorSubstance: 'Antiproton',
