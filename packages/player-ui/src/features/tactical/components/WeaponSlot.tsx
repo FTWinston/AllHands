@@ -49,7 +49,7 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
 
     const mergedModifiers: Record<string, number> = mergeModifiers(card.modifiers, modifiers);
 
-    const extraTraits = props.extraTraits ? Array.from(props.extraTraits) : undefined;
+    const extraTraits = card.extraTraits ? Array.from(card.extraTraits) : undefined;
 
     return (
         <>

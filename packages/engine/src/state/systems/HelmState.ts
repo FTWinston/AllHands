@@ -3,7 +3,6 @@ import { CardParameters } from 'common-data/features/cards/types/CardParameters'
 import { HelmSystemInfo, CrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { parseVector } from 'common-data/features/space/utils/vectors';
 import { EngineLocationTargetCardDefinition } from 'src/cards/EngineCardDefinition';
-import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { CardCooldownState } from '../CardCooldownState';
 import { CardState } from '../CardState';
 import { GameState } from '../GameState';
@@ -68,8 +67,7 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
 
     private discardActiveManeuver() {
         if (this.activeManeuver) {
-            const definition = getCardDefinition(this.activeManeuver.card.type);
-            this.handlePlayedCard(this.activeManeuver.card, -1, definition, false);
+            this.handlePlayedCard(this.activeManeuver.card, -1, false);
 
             this.activeManeuver = null;
             this.scienceScanDataChanged.invoke();

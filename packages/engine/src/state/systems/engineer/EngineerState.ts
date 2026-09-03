@@ -389,7 +389,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
 
             this.repairCapacity = Math.min(this.repairCapacity + 10, this.maxRepairCapacity);
 
-            this.handlePlayedCard(card, cardIndex, cardDefinition, false);
+            this.handlePlayedCard(card, cardIndex, false);
 
             return cardDefinition;
         } else {

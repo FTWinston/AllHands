@@ -167,13 +167,13 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         */
         const accuracy = 100; // TODO: consider what can reduce (or improve) accuracy, such as evasion, damage, etc.
 
-        const traits = this.getWeaponTraits(cardDef, slot);
+        const weaponTraits = this.getWeaponTraits(cardDef, slot);
 
-        cardDef.fire(this.getGameState(), this.getShip(), target, slotParameters, accuracy, traits);
+        cardDef.fire(this.getGameState(), this.getShip(), target, slotParameters, accuracy, weaponTraits);
 
         if (slot.card && slot.afterFiring()) {
             // Put card back into discard pile.
-            this.handlePlayedCard(slot.card, -1, cardDef, false);
+            this.handlePlayedCard(slot.card, -1, false);
         }
 
         const selfDamage = slotParameters['selfDamage'];
@@ -195,8 +195,10 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             }
         }
 
-        for (const trait of slot.extraTraits) {
-            traits.add(trait);
+        for (const trait of slot.card?.extraTraits ?? []) {
+            if (isWeaponTrait(trait)) {
+                traits.add(trait);
+            }
         }
 
         return Array.from(traits);

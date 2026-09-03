@@ -64,12 +64,12 @@ export const PrimedWithExtraTraits: Story = {
         card: {
             id: 5,
             type: 'phaserStrip',
+            extraTraits: ['dampening', 'disabling'],
         },
         decay: {
             startTime: Date.now(),
             endTime: Date.now() + 10000,
         },
-        extraTraits: ['dampening', 'disabling'],
     },
 };
 

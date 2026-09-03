@@ -1,6 +1,5 @@
 import { IArray, IMap } from '@colyseus/react';
 import { CardInstance } from 'src/features/cards/types/CardInstance';
-import { WeaponTrait } from 'src/features/cards/types/CardTrait';
 import { CardType, EnemyTargetedCardType } from 'src/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'src/features/ships/types/SystemEffectDefinition';
@@ -64,7 +63,6 @@ export interface WeaponSlotInfo {
     id: string;
     card: CardInstance | null;
     modifiers?: IMap<string, number>;
-    extraTraits?: IArray<WeaponTrait>;
     decay?: Cooldown | null;
     charge: number;
     primed: boolean;
@@ -74,7 +72,6 @@ export interface ScannedWeaponSlotInfo {
     id: string;
     card: CardInstance | null;
     modifiers?: IMap<string, number>;
-    extraTraits?: IArray<WeaponTrait>;
     charge: number;
 }
 

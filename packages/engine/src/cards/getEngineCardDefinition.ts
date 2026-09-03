@@ -325,8 +325,8 @@ function loadCardDefinitions() {
                 const chargeIncrease = parameters.chargeIncrease ?? 2;
                 slot.adjustParameter('chargeCost', chargeIncrease);
 
-                slot.extraTraits.push('draining');
-                slot.extraTraits.push('disrupting');
+                slot.card?.addTrait('draining');
+                slot.card?.addTrait('disrupting');
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {
@@ -795,7 +795,7 @@ function loadCardDefinitions() {
             },
             revealSystem: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.subscribeToSystem(target, targetSystem);
-                // TODO: apply effect to targetSystem: increase chance to hit by x%
+                target.getSystem(targetSystem).addEffect('tetryonSaturation', 30);
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
@@ -814,7 +814,15 @@ function loadCardDefinitions() {
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
-                // TODO: Fill your hand with expendable copies of your last drawn card.
+
+                // Fill your hand with expendable copies of your last drawn card.
+                const sourceCard = ship.scienceState.getLastDrawnCard();
+                if (sourceCard) {
+                    while (ship.scienceState.hand.length < ship.scienceState.maxHandSize) {
+                        const expendableCopy = sourceCard.createExpendableCopy(ship.getCardId());
+                        ship.scienceState.hand.push(expendableCopy);
+                    }
+                }
                 return true;
             },
         },

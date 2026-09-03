@@ -1,6 +1,5 @@
-import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema';
+import { MapSchema, Schema, type } from '@colyseus/schema';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
-import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CardState } from 'src/state/CardState';
 import { CooldownState } from 'src/state/CooldownState';
@@ -24,8 +23,6 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     @type('boolean') primed = false;
     @type(CooldownState) decay: CooldownState | null = null;
     decayDuration = 0;
-
-    @type(['string']) extraTraits = new ArraySchema<WeaponTrait>();
 
     getParameters(): CardParameters {
         if (!this.card) {

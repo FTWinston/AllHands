@@ -373,7 +373,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         }
 
         // The main deflector card has been played, and should be expended.
-        this.handlePlayedCard(this.deflectorCard, -1, cardDefinition, false);
+        this.handlePlayedCard(this.deflectorCard, -1, false);
 
         // Cards in deflector slots should be discarded when the deflector is activated.
         this.unmountModifierCard();
@@ -390,8 +390,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         if (this.modifierSlotCard === null) {
             return;
         }
-        const cardDef = getCardDefinition(this.modifierSlotCard.type);
-        this.handlePlayedCard(this.modifierSlotCard, -1, cardDef, false);
+        this.handlePlayedCard(this.modifierSlotCard, -1, false);
         this.modifierSlotCard = null;
     }
 
@@ -399,8 +398,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         if (this.substanceSlotCard === null) {
             return;
         }
-        const cardDef = getCardDefinition(this.substanceSlotCard.type);
-        this.handlePlayedCard(this.substanceSlotCard, -1, cardDef, false);
+        this.handlePlayedCard(this.substanceSlotCard, -1, false);
         this.substanceSlotCard = null;
     }
 
@@ -408,8 +406,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         if (this.deliverySlotCard === null) {
             return;
         }
-        const cardDef = getCardDefinition(this.deliverySlotCard.type);
-        this.handlePlayedCard(this.deliverySlotCard, -1, cardDef, false);
+        this.handlePlayedCard(this.deliverySlotCard, -1, false);
         this.deliverySlotCard = null;
     }
 

@@ -63,6 +63,12 @@ export abstract class SystemState extends Schema implements SystemInfo {
     maxHealth: number;
 
     /**
+     * Any attacks targeting this system will have their chance to hit modified by this percentage.
+     * TODO: make use of this!
+     */
+    chanceToHitPercentageModifier: number = 0;
+
+    /**
      * Adjust the power level, keeping it within bounds and propagating the change to the linked engineer system.
      */
     adjustPowerLevel(adjustment: number) {

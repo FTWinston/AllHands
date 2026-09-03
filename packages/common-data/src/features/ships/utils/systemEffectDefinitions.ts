@@ -164,6 +164,11 @@ export const systemEffectDefinitions = defineSystemEffects({
         usesLevels: false,
         duration: 10_000,
     },
+    tetryonSaturation: {
+        category: SystemEffectCategory.Negative,
+        usesLevels: true,
+        duration: 8_000,
+    },
     reducedCardCost: {
         category: SystemEffectCategory.Positive,
         usesLevels: false,

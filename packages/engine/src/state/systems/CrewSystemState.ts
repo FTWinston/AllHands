@@ -69,6 +69,12 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         this.setMaxHandSize();
     }
 
+    public getLastDrawnCard(): CardState | null {
+        return this.lastDrawnCard;
+    }
+
+    private lastDrawnCard: CardState | null = null;
+
     /**
      * Take card(s) from the draw pile and add them to the hand,
      * reshuffling the discard pile into the draw pile if it is exhausted.
@@ -89,6 +95,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
             if (card) {
                 this.hand.push(card);
+                this.lastDrawnCard = card;
             }
         }
 
@@ -264,7 +271,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             return null;
         }
 
-        this.handlePlayedCard(card, cardIndex, cardDefinition, slotted);
+        this.handlePlayedCard(card, cardIndex, slotted);
 
         return cardDefinition;
     }
@@ -333,9 +340,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
      * - expendable: Card is destroyed (not added anywhere)
      * - primary: Card returns to hand (if no other primary card in hand), otherwise goes to discard pile
      */
-    protected handlePlayedCard(card: CardState, cardIndex: number, cardDefinition: EngineCardDefinition, playedIntoSlot: boolean): void {
-        const traits = cardDefinition.traits ?? [];
-
+    protected handlePlayedCard(card: CardState, cardIndex: number, playedIntoSlot: boolean): void {
         // The "reduced cost of next card" effect should be removed after a card is played.
         this.removeEffect('reducedCardCost', true);
 
@@ -345,16 +350,20 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         if (playedIntoSlot) {
             // If playing into a slot, it leaves the hand
             addToDiscard = false;
-        } else if (traits.includes('primary') && !this.hand.some((handCard) => {
-            const handCardDef = getCardDefinition(handCard.type);
-            return handCardDef.traits?.includes('primary') ?? false;
+        } else if (card.hasTrait('primary') && !this.hand.some((handCard) => {
+            return handCard.hasTrait('primary') ?? false;
         })) {
             // Primary cards stay in the hand if no other primary card is already there.
             removeFromHand = false;
             addToDiscard = false;
-        } else if (traits.includes('expendable')) {
+        } else if (card.hasTrait('expendable')) {
             // Don't add expendable cards to the discard pile; they are destroyed.
             addToDiscard = false;
+        }
+
+        // Any extra traits are removed from a card when it is played, unless it was going into a slot.
+        if (!playedIntoSlot) {
+            card.extraTraits?.clear();
         }
 
         if (removeFromHand) {

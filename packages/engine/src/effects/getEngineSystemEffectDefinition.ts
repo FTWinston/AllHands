@@ -343,6 +343,18 @@ function loadSystemEffectDefinitions() {
                 system.adjustSystemPowerLevel(-1);
             },
         },
+        tetryonSaturation: {
+            apply: (system, level) => {
+                system.systemState.chanceToHitPercentageModifier += level;
+                return true;
+            },
+            remove: (system, _early, level) => {
+                system.systemState.chanceToHitPercentageModifier -= level;
+            },
+            onLevelChanged: (system, newLevel, oldLevel) => {
+                system.systemState.chanceToHitPercentageModifier += newLevel - oldLevel;
+            },
+        },
         reducedCardCost: {
             apply: (system) => {
                 system.systemState.adjustCostOfEveryCard(-1);

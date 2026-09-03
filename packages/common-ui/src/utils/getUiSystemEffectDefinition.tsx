@@ -239,6 +239,16 @@ function loadEffectDefinitions() {
             </>,
             image: ExampleIcon,
         },
+        tetryonSaturation: {
+            name: 'Tetryon Saturation',
+            description: <>
+                Saturated by tetryon particles from enemy sensors, this system is
+                {' '}
+                <EffectLevel />
+                % more likely to be hit by attacks.
+            </>,
+            image: ExampleIcon,
+        },
         reducedCardCost: {
             name: 'Reduced Card Cost',
             description: <>
