@@ -42,9 +42,8 @@ export class CardState extends Schema implements CardInstance {
     }
 
     hasTrait(trait: CardTrait): boolean {
-        const definition = getCardDefinition(this.type);
-
-        return (definition.traits?.includes(trait) ?? false) || this.extraTraits.includes(trait);
+        return getCardDefinition(this.type).traits?.includes(trait)
+            || this.extraTraits?.includes(trait);
     }
 
     addTrait(trait: CardTrait) {

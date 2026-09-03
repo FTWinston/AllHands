@@ -12,6 +12,7 @@ import { isWeaponTrait } from 'src/cards/applyWeaponTrait';
 import { EngineCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { CardState } from 'src/state/CardState';
+import { GameObject } from 'src/state/GameObject';
 import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';
 import { CrewSystemState } from '../CrewSystemState';
@@ -160,20 +161,15 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             return null;
         }
 
-        /*
-        const ownHelm = this.getShip().helmState;
-        const ownEvasion = ownHelm.activeManeuver?.card?.getParameter('evasion') ?? 0;
-        const accuracy = 100 - ownEvasion;
-        */
-        const accuracy = 100; // TODO: consider what can reduce (or improve) accuracy, such as evasion, damage, etc.
-
-        const weaponTraits = this.getWeaponTraits(cardDef, slot);
+        const slotCard = slot.card;
+        const accuracy = this.determineAccuracy(target, subTarget);
+        const weaponTraits = this.getWeaponTraits(cardDef, slotCard);
 
         cardDef.fire(this.getGameState(), this.getShip(), target, slotParameters, accuracy, weaponTraits);
 
-        if (slot.card && slot.afterFiring()) {
+        if (slotCard && slot.afterFiring()) {
             // Put card back into discard pile.
-            this.handlePlayedCard(slot.card, -1, false);
+            this.handlePlayedCard(slotCard, -1, false);
         }
 
         const selfDamage = slotParameters['selfDamage'];
@@ -185,7 +181,27 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         return cardDef;
     }
 
-    private getWeaponTraits(cardDef: EngineWeaponSlotCardDefinition, slot: WeaponSlotState): WeaponTrait[] {
+    private determineAccuracy(target: GameObject, subTarget: SubTargetInfo | undefined) {
+        let accuracy = 100; // TODO: consider other source of accuracy modifications, such as the weapon being fired.
+
+        if (target instanceof Ship) {
+            // Adjust accuracy based on the target's evasion, if applicable.
+            const targetHelm = target.helmState;
+            const targetEvasion = targetHelm.activeManeuver?.card?.getParameter('evasion') ?? 0;
+            accuracy -= targetEvasion;
+
+            if (subTarget?.system) {
+                // Adjust accuracy based on the sub-targeted system, if applicable.
+                accuracy += target.getSystem(subTarget.system).chanceToHitPercentageModifier;
+            }
+        }
+
+        // Clamp accuracy to [0, 100] range.
+        accuracy = Math.max(0, Math.min(100, accuracy));
+        return accuracy;
+    }
+
+    private getWeaponTraits(cardDef: EngineWeaponSlotCardDefinition, card: CardState | null): WeaponTrait[] {
         const traits = new Set<WeaponTrait>();
         if (cardDef.traits) {
             for (const trait of cardDef.traits) {
@@ -195,7 +211,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             }
         }
 
-        for (const trait of slot.card?.extraTraits ?? []) {
+        for (const trait of card?.extraTraits ?? []) {
             if (isWeaponTrait(trait)) {
                 traits.add(trait);
             }
