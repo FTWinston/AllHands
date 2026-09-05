@@ -9,7 +9,7 @@ import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { CardCooldown } from 'common-data/types/Cooldown';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
-import { ComponentProps, MutableRefObject } from 'react';
+import { ComponentProps, RefObject } from 'react';
 import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
@@ -23,7 +23,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     viewer: RelationshipViewer;
     activeManeuver?: CardCooldown | null;
     cancelManeuver: () => void;
-    weaponEffectsRef: MutableRefObject<WeaponEffect[]>;
+    weaponEffectsRef: RefObject<WeaponEffect[]>;
     pendingDrawChoice: Snapshot<CardInstance[]>;
     resolveDrawChoice: (cardId: number) => void;
 };

@@ -16,6 +16,8 @@ const meta: Meta<typeof Component> = {
     includeStories: /^[A-Z]/,
     args: {
         onPause: fn(),
+        pendingDrawChoice: [],
+        resolveDrawChoice: fn(),
     },
     render: (args) => {
         const { cards, expendCard, cardGeneration } = useFakePowerAndCards({
