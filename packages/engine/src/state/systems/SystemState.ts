@@ -1,6 +1,6 @@
 import { IArray } from '@colyseus/react';
 import { Schema, type } from '@colyseus/schema';
-import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { LeveledSystemEffectType, NonLeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getArrayValue } from 'common-data/utils/arrays';
 import { InterceptableAction } from 'src/classes/InterceptableAction';
@@ -104,8 +104,8 @@ export abstract class SystemState extends Schema implements SystemInfo {
     /**
      * Add an effect to this system.
      */
-    addEffect(effectType: SystemEffectType, level?: number) {
-        this.linkedEngineerSystemTile.addEffect(effectType, level);
+    addEffect(effectType: NonLeveledSystemEffectType) {
+        this.linkedEngineerSystemTile.addEffect(effectType);
     }
 
     /**

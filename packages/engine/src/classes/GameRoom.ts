@@ -6,7 +6,7 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ownEngineerClientRole, getRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, type CrewRole, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
-import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { isLeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { soloCrewIdentifier, minTimeScale, maxTimeScale } from 'common-data/utils/constants';
 import { customAlphabet } from 'nanoid/non-secure';
 import { CrewSystemState } from 'src/state/systems/CrewSystemState';
@@ -368,7 +368,11 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             }
 
             const systemState = this.getShipSystemState(ship, message.system);
-            systemState.addEffect(message.effect);
+            if (isLeveledSystemEffectType(message.effect)) {
+                systemState.adjustEffectLevel(message.effect, 1);
+            } else {
+                systemState.addEffect(message.effect);
+            }
 
             console.log(`[dev] ${client.sessionId} addEffect ${message.effect} to ${message.system}`);
         });
