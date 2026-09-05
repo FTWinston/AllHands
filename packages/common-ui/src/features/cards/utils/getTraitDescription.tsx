@@ -6,6 +6,8 @@ export const getTraitDescription = (trait: DisplayableTrait): string => {
             return 'Card returns to hand when played (if no other primary card in hand)';
         case 'expendable':
             return 'Card is destroyed when played (not added to the deck).';
+        case 'unstable':
+            return 'Card shuffles back into the deck when played, instead of going on the end.';
 
         // Weapon traits
         case 'energyWeapon':

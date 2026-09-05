@@ -142,7 +142,6 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
                 this.pendingDrawChoice.push(card);
             }
         }
-
     }
 
     /**
@@ -339,6 +338,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     /**
      * Handle where a played card goes based on its traits.
      * - expendable: Card is destroyed (not added anywhere)
+     * - unstable: Card shuffles back into the deck when played, instead of going on the end.
      * - primary: Card returns to hand (if no other primary card in hand), otherwise goes to the deck
      */
     protected handlePlayedCard(card: CardState, cardIndex: number, playedIntoSlot: boolean): void {
@@ -347,6 +347,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
         let removeFromHand = true;
         let addToDeck = true;
+        let randomDeckPosition = false;
 
         if (playedIntoSlot) {
             // If playing into a slot, it leaves the hand
@@ -360,6 +361,10 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         } else if (card.hasTrait('expendable')) {
             // Don't add expendable cards to the deck; they are destroyed.
             addToDeck = false;
+        } else if (card.hasTrait('unstable')) {
+            // Unstable cards shuffle back into the deck when played.
+            addToDeck = true;
+            randomDeckPosition = true;
         }
 
         // Any extra traits are removed from a card when it is played, unless it was going into a slot.
@@ -377,7 +382,11 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         }
 
         if (addToDeck) {
-            this.deck.push(card);
+            if (randomDeckPosition) {
+                this.getGameState().random.insert(this.deck, card);
+            } else {
+                this.deck.push(card);
+            }
         }
     }
 

@@ -13,6 +13,8 @@ export function getTraitDisplayName(trait: DisplayableTrait): string {
     switch (trait) {
         case 'expendable':
             return 'Expendable';
+        case 'unstable':
+            return 'Unstable';
         case 'primary':
             return 'Primary';
 

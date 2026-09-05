@@ -87,7 +87,7 @@ export const CrewHeader: FC<Props> = (props) => {
                     isSecondary={true}
                     description={(
                         <>
-                            The number of cards remaining in your deck.
+                            The number of cards in your deck.
                         </>
                     )}
                 />
