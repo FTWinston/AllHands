@@ -30,6 +30,8 @@ export const getTraitDescription = (trait: DisplayableTrait): string => {
             return 'Partly bypasses shields';
         case 'disrupting':
             return 'Adds a disrupted card to target system hand. Card deals damage when played.';
+        case 'destabilizing':
+            return 'Adds an unstable effect to cards in the target system\'s hand.';
 
         // Deflector effects
         case 'Phased':

@@ -1,13 +1,14 @@
 /**
  * A sub-group of @see CardTrait that applies to weapons, affecting how they behave when fired.
- * - area: damage nearby targets
- * - cumbersome: needs to hold aim for 2 seconds
- * - draining: adds a power draining effect on target system
- * - dampening: extra reduction to shield power
- * - persistent: adds a damage over time effect to target system
- * - disabling: adds an effect that prevents the target system from playing cards
- * - penetrating: partly bypasses shields
+ * - area: damage nearby targets.
+ * - cumbersome: needs to hold aim for 2 seconds.
+ * - draining: adds a power draining effect on target system.
+ * - dampening: extra reduction to shield power.
+ * - persistent: adds a damage over time effect to target system.
+ * - disabling: adds an effect that prevents the target system from playing cards.
+ * - penetrating: partly bypasses shields.
  * - disrupting: Adds a disrupted card to target system hand. Card deals damage when played.
+ * - destabilizing: adds an unstable effect to cards in the target system's hand.
  */
 export type WeaponTrait
     = 'area'
@@ -17,7 +18,8 @@ export type WeaponTrait
         | 'persistent'
         | 'disabling'
         | 'penetrating'
-        | 'disrupting';
+        | 'disrupting'
+        | 'destabilizing';
 
 /**
  * Traits that can be assigned to cards, giving them unique behavior.

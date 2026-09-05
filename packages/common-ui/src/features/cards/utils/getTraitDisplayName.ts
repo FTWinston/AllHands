@@ -39,6 +39,8 @@ export function getTraitDisplayName(trait: DisplayableTrait): string {
             return 'Penetrating';
         case 'disrupting':
             return 'Disrupting';
+        case 'destabilizing':
+            return 'Destabilizing';
 
         // Deflector effects
         case 'Phased':
