@@ -23,7 +23,7 @@ export type WeaponTrait
  * Traits that can be assigned to cards, giving them unique behavior.
  * Includes all @see WeaponTrait values, plus:
  * - primary: Card returns to hand when played (if no other primary card in hand).
- * - expendable: Card is destroyed when played (not added to discard pile).
+ * - expendable: Card is destroyed when played (not added to the deck).
  * - energyWeapon: A group of tactical weapon cards. Some charge cards only target cards with this trait.
  * - torpedoWeapon: A group of tactical weapon cards. Some charge cards only target cards with this trait.
  */

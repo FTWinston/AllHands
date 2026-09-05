@@ -87,7 +87,7 @@ export const CrewHeader: FC<Props> = (props) => {
                     isSecondary={true}
                     description={(
                         <>
-                            The number of cards in your draw pile. When this reaches 0, your played cards will be reshuffled into your draw pile.
+                            The number of cards remaining in your deck.
                         </>
                     )}
                 />
