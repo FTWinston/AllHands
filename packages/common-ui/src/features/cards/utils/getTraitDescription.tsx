@@ -5,7 +5,7 @@ export const getTraitDescription = (trait: DisplayableTrait): string => {
         case 'primary':
             return 'Card returns to hand when played (if no other primary card in hand)';
         case 'expendable':
-            return 'Card is destroyed when played (not added to discard pile).';
+            return 'Card is destroyed when played (not added to the deck).';
 
         // Weapon traits
         case 'energyWeapon':

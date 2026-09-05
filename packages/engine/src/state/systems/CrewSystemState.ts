@@ -23,21 +23,17 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
         this.setMaxHandSize();
 
+        const cards = setup.cards.map(cardType => new CardState(getCardId(), cardType));
+
         // The first initialHandSize cards go straight into the hand.
         this.hand = new ArraySchema<CardState>(
-            ...setup.cards
-                .slice(0, setup.initialHandSize)
-                .map(cardType => new CardState(getCardId(), cardType))
+            ...cards.slice(0, setup.initialHandSize)
         );
 
-        // All remaining cards form the draw pile.
-        this.drawPile = setup.cards
-            .slice(setup.initialHandSize)
-            .map(cardType => new CardState(getCardId(), cardType));
-
-        this.drawPileSize = this.drawPile.length;
-
-        this.discardPile = [];
+        // All remaining cards form the deck.
+        this.deck = new ArraySchema<CardState>(
+            ...cards.slice(setup.initialHandSize)
+        );
     }
 
     /** Emitted whenever state that is relevant to a science scan changes. */
@@ -47,9 +43,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     readonly scannedSystemIndex: number;
 
     @type([CardState]) hand: ArraySchema<CardState>;
-    @type('uint8') drawPileSize: number;
-    drawPile: CardState[];
-    discardPile: CardState[];
+    @type([CardState]) deck: ArraySchema<CardState>;
 
     /** Cards revealed from the draw pile awaiting a player choice; empty when there is none pending. */
     @type([CardState]) pendingDrawChoice = new ArraySchema<CardState>();
@@ -84,8 +78,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     }
 
     /**
-     * Take card(s) from the draw pile and add them to the hand,
-     * reshuffling the discard pile into the draw pile if it is exhausted.
+     * Take card(s) from the front of the deck and add them to the hand.
      */
     draw(number = 1) {
         for (let i = 0; i < number; i++) {
@@ -93,24 +86,33 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
                 break;
             }
 
-            let card = this.drawPile.pop();
-            if (!card) {
-                this.drawPile = this.discardPile;
-                this.getShip().random.shuffle(this.drawPile);
-                this.discardPile = [];
-                card = this.drawPile.pop();
-            }
+            const card = this.deck.shift();
 
             if (card) {
                 this.addCardToHand(card);
             }
         }
-
-        this.drawPileSize = this.drawPile.length;
     }
 
     /**
-     * Randomly take card(s) from the hand and add them to the discard pile.
+     * Take card(s) from the bottom of the deck and add them to the hand.
+     */
+    drawFromBottom(number = 1) {
+        for (let i = 0; i < number; i++) {
+            if (this.hand.length >= this.maxHandSize) {
+                break;
+            }
+
+            const card = this.deck.pop();
+
+            if (card) {
+                this.addCardToHand(card);
+            }
+        }
+    }
+
+    /**
+     * Randomly take card(s) from the hand and add them to the end of the deck.
      */
     discard(number = 1) {
         const random = this.getShip().random;
@@ -121,39 +123,31 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             }
 
             const card = random.delete(this.hand as CardState[]);
-            this.discardPile.push(card);
+            this.deck.push(card);
         }
     }
 
     /**
-     * Reveal the top `count` cards of the draw pile as a pending choice, reshuffling the discard
-     * pile into the draw pile if it runs out mid-reveal (matching `draw()`). The choice must
-     * later be resolved via `resolveDrawChoice`.
+     * Reveal the first `count` cards of the deck as a pending choice. The choice must later be
+     * resolved via `resolveDrawChoice`.
      */
     presentDrawChoice(count = 3) {
-        this.discardPile.push(...this.pendingDrawChoice);
+        this.deck.push(...this.pendingDrawChoice);
         this.pendingDrawChoice.clear();
 
         for (let i = 0; i < count; i++) {
-            let card = this.drawPile.pop();
-            if (!card) {
-                this.drawPile = this.discardPile;
-                this.getShip().random.shuffle(this.drawPile);
-                this.discardPile = [];
-                card = this.drawPile.pop();
-            }
+            const card = this.deck.shift();
 
             if (card) {
                 this.pendingDrawChoice.push(card);
             }
         }
 
-        this.drawPileSize = this.drawPile.length;
     }
 
     /**
      * Resolve a pending draw choice: the chosen card goes to the hand, unless it's already full,
-     * in which case it's discarded along with the rest of the options.
+     * in which case it returns to the end of the deck along with the rest of the options.
      */
     resolveDrawChoice(cardId: number): boolean {
         const chosenIndex = this.pendingDrawChoice.findIndex(card => card.id === cardId);
@@ -167,7 +161,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             if (i === chosenIndex && this.hand.length < this.maxHandSize) {
                 this.hand.push(card);
             } else {
-                this.discardPile.push(card);
+                this.deck.push(card);
             }
         }
 
@@ -177,7 +171,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     }
 
     /**
-     * Play a card from the hand by moving it to the discard pile.
+     * Play a card from the hand by moving it to the end of the deck.
      * Ensures that all requirements are met before playing.
      * Returns the card if found and played, null otherwise.
      */
@@ -345,27 +339,27 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     /**
      * Handle where a played card goes based on its traits.
      * - expendable: Card is destroyed (not added anywhere)
-     * - primary: Card returns to hand (if no other primary card in hand), otherwise goes to discard pile
+     * - primary: Card returns to hand (if no other primary card in hand), otherwise goes to the deck
      */
     protected handlePlayedCard(card: CardState, cardIndex: number, playedIntoSlot: boolean): void {
         // The "reduced cost of next card" effect should be removed after a card is played.
         this.removeEffect('reducedCardCost', true);
 
         let removeFromHand = true;
-        let addToDiscard = true;
+        let addToDeck = true;
 
         if (playedIntoSlot) {
             // If playing into a slot, it leaves the hand
-            addToDiscard = false;
+            addToDeck = false;
         } else if (card.hasTrait('primary') && !this.hand.some((handCard) => {
             return handCard.hasTrait('primary') ?? false;
         })) {
             // Primary cards stay in the hand if no other primary card is already there.
             removeFromHand = false;
-            addToDiscard = false;
+            addToDeck = false;
         } else if (card.hasTrait('expendable')) {
-            // Don't add expendable cards to the discard pile; they are destroyed.
-            addToDiscard = false;
+            // Don't add expendable cards to the deck; they are destroyed.
+            addToDeck = false;
         }
 
         // Any extra traits are removed from a card when it is played, unless it was going into a slot.
@@ -382,8 +376,8 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             this.hand.push(card);
         }
 
-        if (addToDiscard) {
-            this.discardPile.push(card);
+        if (addToDeck) {
+            this.deck.push(card);
         }
     }
 
@@ -396,16 +390,12 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     }
 
     override adjustCostOfEveryCard(amount: number) {
-        // Actually affect every card, whether in the hand, draw pile, or discard pile.
+        // Actually affect every card, whether in the hand or deck.
         for (const card of this.hand) {
             card.modifyParameter('cost', amount);
         }
 
-        for (const card of this.drawPile) {
-            card.modifyParameter('cost', amount);
-        }
-
-        for (const card of this.discardPile) {
+        for (const card of this.deck) {
             card.modifyParameter('cost', amount);
         }
     }
@@ -428,7 +418,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     }
 
     /**
-     * Generate a card for this system by drawing from the draw pile,
+     * Generate a card for this system by drawing from the deck,
      * if there is room in the hand.
      */
     override generate = new InterceptableAction(() => {

@@ -59,7 +59,7 @@ export const Tactical = (props: Props) => {
             onPause={pause}
             power={tacticalState.powerLevel}
             maxHandSize={tacticalState.maxHandSize}
-            drawPileSize={tacticalState.drawPileSize}
+            deckSize={tacticalState.deck.length}
             playCard={playCard}
             cardGeneration={tacticalState.cardGeneration}
             viewer={viewer}

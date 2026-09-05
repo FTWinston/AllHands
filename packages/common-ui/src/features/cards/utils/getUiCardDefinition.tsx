@@ -499,7 +499,7 @@ function loadCardDefinitions() {
         invertedPulseScan: {
             name: 'Inverted Pulse Scan',
             description: <>
-                Finding a vulnerability lets you pick from the next 3 cards in your draw pile, discarding the other two.
+                Finding a vulnerability lets you pick from the next 3 cards in your deck, returning the other two to its end.
             </>,
             image: <ExampleIcon />,
         },
@@ -566,7 +566,7 @@ function loadCardDefinitions() {
         invertedChronitonScan: {
             name: 'Inverted Chroniton Scan',
             description: <>
-                Finding a vulnerability fills your hand with cards from your discard pile.
+                Finding a vulnerability fills your hand with cards from the bottom of your deck.
             </>,
             image: <ExampleIcon />,
         },

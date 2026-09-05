@@ -193,7 +193,7 @@ export const UI: Story = {
         },
         power: 5,
         maxHandSize: 5,
-        drawPileSize: 3,
+        deckSize: 3,
         shipMotion: [
             { time: 0, x: 0, y: 0, angle: 0 },
             { time: 1000, x: 0, y: 0, angle: 0 },

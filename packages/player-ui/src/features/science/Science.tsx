@@ -83,7 +83,7 @@ export const Science = (props: Props) => {
             onPause={pause}
             power={scienceState.powerLevel}
             maxHandSize={scienceState.maxHandSize}
-            drawPileSize={scienceState.drawPileSize}
+            deckSize={scienceState.deck.length}
             playCard={playCard}
             cardGeneration={scienceState.cardGeneration}
             viewer={viewer}

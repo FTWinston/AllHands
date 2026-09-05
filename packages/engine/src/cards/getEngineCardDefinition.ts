@@ -872,13 +872,7 @@ function loadCardDefinitions() {
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
 
-                // Draw cards from your discard pile until your hand is full.
-                while (ship.scienceState.hand.length < ship.scienceState.maxHandSize && ship.scienceState.discardPile.length > 0) {
-                    const card = ship.scienceState.discardPile.pop();
-                    if (card) {
-                        ship.scienceState.addCardToHand(card);
-                    }
-                }
+                ship.scienceState.drawFromBottom(ship.scienceState.maxHandSize);
 
                 return true;
             },

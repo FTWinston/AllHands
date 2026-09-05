@@ -366,7 +366,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
     }
 
     /**
-     * Play a card from the hand by moving it to the discard pile.
+     * Play a card from the hand by moving it to the end of the deck.
      * Ensures that all requirements are met before playing.
      * Returns the card if found and played, null otherwise.
      */

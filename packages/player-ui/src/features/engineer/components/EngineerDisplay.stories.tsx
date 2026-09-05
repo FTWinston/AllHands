@@ -32,7 +32,7 @@ const meta: Meta<typeof Component> = {
                 {...args}
                 cardGeneration={cardGeneration}
                 maxHandSize={args.maxHandSize}
-                drawPileSize={9}
+                deckSize={9}
                 cards={cards}
                 playCard={(cardId, targetType, targetId) => {
                     console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);

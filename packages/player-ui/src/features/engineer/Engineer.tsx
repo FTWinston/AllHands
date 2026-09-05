@@ -54,7 +54,7 @@ export const Engineer = (props: Props) => {
             onPause={pause}
             power={engineerState.powerLevel}
             maxHandSize={engineerState.maxHandSize}
-            drawPileSize={engineerState.drawPileSize}
+            deckSize={engineerState.deck.length}
             playCard={playCard}
             cardGeneration={engineerState.cardGeneration}
             pendingDrawChoice={engineerState.pendingDrawChoice}

@@ -15,7 +15,7 @@ function createWorld() {
         { id: 'raiders', relations: { player: RelationshipType.Hostile } },
     ], 'player');
     const setup = { ...shipSetup('raiders'), goal: { type: 'search-and-destroy' as const }, skill: 1 };
-    setup.science = { ...setup.science, cards: ['passiveScan', 'passiveScan'] as never, initialHandSize: 2 };
+    setup.science = { ...setup.science, cards: ['passiveScan', 'passiveScan', 'invertedChronitonScan', 'coherentBeamScan'] as never, initialHandSize: 2 };
     const scanner = new AiShip(state, setup);
     state.add(scanner);
     const target = new AiShip(state, { ...shipSetup('player', 5, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
@@ -25,6 +25,16 @@ function createWorld() {
 }
 
 describe('ScienceState scan-slot targeting', () => {
+    it('draws from the bottom of the deck for vulnerability rewards', () => {
+        const { scanner } = createWorld();
+        const bottomCard = scanner.scienceState.deck.at(-1)!;
+
+        scanner.scienceState.drawFromBottom();
+
+        expect(scanner.scienceState.hand).toContain(bottomCard);
+        expect(scanner.scienceState.deck).not.toContain(bottomCard);
+    });
+
     it('plays a scan onto a specific scan slot of a target ship', () => {
         const { scanner, target } = createWorld();
         const card = scanner.scienceState.hand[0];

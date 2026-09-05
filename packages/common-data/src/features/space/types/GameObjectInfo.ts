@@ -49,7 +49,7 @@ export interface SystemInfo {
 export interface CrewSystemInfo extends SystemInfo {
     maxHandSize: number;
     hand: IArray<CardInstance>;
-    drawPileSize: number;
+    deck: IArray<CardInstance>;
     cardGeneration: Cooldown | null;
     /** Cards revealed from the draw pile awaiting a player choice; empty when there is none pending. */
     pendingDrawChoice: IArray<CardInstance>;

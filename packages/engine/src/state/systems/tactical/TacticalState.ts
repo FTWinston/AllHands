@@ -168,7 +168,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         cardDef.fire(this.getGameState(), this.getShip(), target, slotParameters, accuracy, weaponTraits);
 
         if (slotCard && slot.afterFiring()) {
-            // Put card back into discard pile.
+            // Put card back at the end of the deck.
             this.handlePlayedCard(slotCard, -1, false);
         }
 
