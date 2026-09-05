@@ -180,3 +180,9 @@ export type SystemEffectType = keyof typeof systemEffectDefinitions;
 export type LeveledSystemEffectType = {
     [K in SystemEffectType]: typeof systemEffectDefinitions[K]['usesLevels'] extends true ? K : never
 }[SystemEffectType];
+
+export type NonLeveledSystemEffectType = Exclude<SystemEffectType, LeveledSystemEffectType>;
+
+export function isLeveledSystemEffectType(effectType: SystemEffectType): effectType is LeveledSystemEffectType {
+    return systemEffectDefinitions[effectType].usesLevels;
+}

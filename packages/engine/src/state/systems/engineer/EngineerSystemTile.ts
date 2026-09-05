@@ -145,8 +145,9 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
                 return false;
             }
         } else if (adjustment > 0) {
-            this.addEffect(effectType, 1);
-            return maxLevel <= 1;
+            const level = Math.min(adjustment, maxLevel);
+            this.addEffect(effectType, level);
+            return level >= maxLevel;
         } else {
             return false;
         }

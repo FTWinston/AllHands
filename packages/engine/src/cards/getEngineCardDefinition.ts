@@ -675,7 +675,7 @@ function loadCardDefinitions() {
             },
             revealSystem: (_gameState, ship, target, targetSystem, parameters) => {
                 ship.scienceState.subscribeToSystem(target, targetSystem);
-                target.getSystem(targetSystem).addEffect('antiprotonResidue', parameters.effectLevel);
+                target.getSystem(targetSystem).adjustEffectLevel('antiprotonResidue', parameters.effectLevel);
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
@@ -780,7 +780,7 @@ function loadCardDefinitions() {
             },
             revealSystem: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.subscribeToSystem(target, targetSystem);
-                target.getSystem(targetSystem).addEffect('polaronAccumulation', 1);
+                target.getSystem(targetSystem).addEffect('polaronAccumulation');
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
@@ -795,7 +795,7 @@ function loadCardDefinitions() {
             },
             revealSystem: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.subscribeToSystem(target, targetSystem);
-                target.getSystem(targetSystem).addEffect('tetryonSaturation', 30);
+                target.getSystem(targetSystem).adjustEffectLevel('tetryonSaturation', 30);
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
@@ -836,22 +836,22 @@ function loadCardDefinitions() {
 
                 // Apply effect to all target systems except targetSystem.
                 if (targetSystem !== 'hull') {
-                    target.hullState.addEffect('antiprotonResidue', parameters.effectLevel);
+                    target.hullState.adjustEffectLevel('antiprotonResidue', parameters.effectLevel);
                 }
                 if (targetSystem !== 'reactor') {
-                    target.reactorState.addEffect('antiprotonResidue', parameters.effectLevel);
+                    target.reactorState.adjustEffectLevel('antiprotonResidue', parameters.effectLevel);
                 }
                 if (targetSystem !== 'helm') {
-                    target.helmState.addEffect('antiprotonResidue', parameters.effectLevel);
+                    target.helmState.adjustEffectLevel('antiprotonResidue', parameters.effectLevel);
                 }
                 if (targetSystem !== 'tactical') {
-                    target.tacticalState.addEffect('antiprotonResidue', parameters.effectLevel);
+                    target.tacticalState.adjustEffectLevel('antiprotonResidue', parameters.effectLevel);
                 }
                 if (targetSystem !== 'science') {
-                    target.scienceState.addEffect('antiprotonResidue', parameters.effectLevel);
+                    target.scienceState.adjustEffectLevel('antiprotonResidue', parameters.effectLevel);
                 }
                 if (targetSystem !== 'engineer') {
-                    target.engineerState.addEffect('antiprotonResidue', parameters.effectLevel);
+                    target.engineerState.adjustEffectLevel('antiprotonResidue', parameters.effectLevel);
                 }
                 return true;
             },
