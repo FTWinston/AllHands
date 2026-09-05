@@ -872,7 +872,7 @@ function loadCardDefinitions() {
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
 
-                ship.scienceState.draw(ship.scienceState.maxHandSize);
+                ship.scienceState.drawFromBottom(ship.scienceState.maxHandSize);
 
                 return true;
             },

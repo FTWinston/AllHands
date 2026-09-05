@@ -19,7 +19,7 @@ type Props = {
     power: number;
     handSize: number;
     maxHandSize: number;
-    drawPileSize: number;
+    deckSize: number;
     cardGeneration?: Cooldown | null;
 };
 
@@ -81,9 +81,9 @@ export const CrewHeader: FC<Props> = (props) => {
                 />
 
                 <NumberIndicator
-                    value={props.drawPileSize}
+                    value={props.deckSize}
                     icon={DrawIcon}
-                    name="Draw pile"
+                    name="Deck"
                     isSecondary={true}
                     description={(
                         <>

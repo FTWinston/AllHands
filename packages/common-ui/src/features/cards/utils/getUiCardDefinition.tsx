@@ -566,7 +566,7 @@ function loadCardDefinitions() {
         invertedChronitonScan: {
             name: 'Inverted Chroniton Scan',
             description: <>
-                Finding a vulnerability fills your hand with cards from your deck.
+                Finding a vulnerability fills your hand with cards from the bottom of your deck.
             </>,
             image: <ExampleIcon />,
         },

@@ -23,18 +23,16 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
         this.setMaxHandSize();
 
+        const cards = setup.cards.map(cardType => new CardState(getCardId(), cardType));
+
         // The first initialHandSize cards go straight into the hand.
         this.hand = new ArraySchema<CardState>(
-            ...setup.cards
-                .slice(0, setup.initialHandSize)
-                .map(cardType => new CardState(getCardId(), cardType))
+            ...cards.slice(0, setup.initialHandSize)
         );
 
         // All remaining cards form the deck.
         this.deck = new ArraySchema<CardState>(
-            ...setup.cards
-            .slice(setup.initialHandSize)
-            .map(cardType => new CardState(getCardId(), cardType))
+            ...cards.slice(setup.initialHandSize)
         );
     }
 
@@ -94,7 +92,23 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
                 this.addCardToHand(card);
             }
         }
+    }
 
+    /**
+     * Take card(s) from the bottom of the deck and add them to the hand.
+     */
+    drawFromBottom(number = 1) {
+        for (let i = 0; i < number; i++) {
+            if (this.hand.length >= this.maxHandSize) {
+                break;
+            }
+
+            const card = this.deck.pop();
+
+            if (card) {
+                this.addCardToHand(card);
+            }
+        }
     }
 
     /**
@@ -332,20 +346,20 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         this.removeEffect('reducedCardCost', true);
 
         let removeFromHand = true;
-        let addToDiscard = true;
+        let addToDeck = true;
 
         if (playedIntoSlot) {
             // If playing into a slot, it leaves the hand
-            addToDiscard = false;
+            addToDeck = false;
         } else if (card.hasTrait('primary') && !this.hand.some((handCard) => {
             return handCard.hasTrait('primary') ?? false;
         })) {
             // Primary cards stay in the hand if no other primary card is already there.
             removeFromHand = false;
-            addToDiscard = false;
+            addToDeck = false;
         } else if (card.hasTrait('expendable')) {
             // Don't add expendable cards to the deck; they are destroyed.
-            addToDiscard = false;
+            addToDeck = false;
         }
 
         // Any extra traits are removed from a card when it is played, unless it was going into a slot.
@@ -362,7 +376,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             this.hand.push(card);
         }
 
-        if (addToDiscard) {
+        if (addToDeck) {
             this.deck.push(card);
         }
     }
