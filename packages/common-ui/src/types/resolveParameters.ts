@@ -1,15 +1,17 @@
 import { CardParametersBase } from 'common-data/features/cards/types/CardParameters';
 
-function applyModifiers(parameters: CardParametersBase, modifiers: Record<string, number>) {
+function applyModifiers(parameters: CardParametersBase, modifiers: Partial<Record<string, number>>) {
     for (const [key, value] of Object.entries(modifiers)) {
-        (parameters as Record<string, number>)[key] = (parameters[key] ?? 0) + value;
+        if (value !== undefined) {
+            (parameters as Partial<Record<string, number>>)[key] = (parameters[key] ?? 0) + value;
+        }
     }
 }
 
 export function resolveParameters(
     parameters: CardParametersBase,
-    modifiers?: Record<string, number> | null,
-    additionalModifiers?: Record<string, number> | null
+    modifiers?: Partial<Record<string, number>> | null,
+    additionalModifiers?: Partial<Record<string, number>> | null
 ): CardParametersBase {
     if (modifiers && Object.keys(modifiers).length > 0) {
         parameters = { ...parameters };
@@ -29,7 +31,7 @@ export function resolveParameters(
     return parameters;
 }
 
-export function resolveParameter(parameter: string, parameters?: CardParametersBase, modifiers?: Record<string, number> | null, additionalModifiers?: Record<string, number> | null): number {
+export function resolveParameter(parameter: string, parameters?: CardParametersBase, modifiers?: Partial<Record<string, number>> | null, additionalModifiers?: Partial<Record<string, number>> | null): number {
     const parameterValue = parameters?.[parameter] ?? 0;
     const modifierValue = modifiers?.[parameter] ?? 0;
     const additionalModifierValue = additionalModifiers?.[parameter] ?? 0;

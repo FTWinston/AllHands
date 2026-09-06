@@ -111,7 +111,7 @@ function tryToDamage(
     target: GameObject | null,
     random: IRandom,
     accuracy: number,
-    damageAmount: number | null,
+    damageAmount: number | null | undefined,
     traits: WeaponTrait[]
 ): boolean {
     if (!target || !damageAmount) {
@@ -325,8 +325,8 @@ function loadCardDefinitions() {
                 const chargeIncrease = parameters.chargeIncrease ?? 2;
                 slot.adjustParameter('chargeCost', chargeIncrease);
 
-                slot.card?.addTrait('draining');
-                slot.card?.addTrait('disrupting');
+                slot.card?.addTrait('draining', true);
+                slot.card?.addTrait('disrupting', true);
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {

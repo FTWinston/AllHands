@@ -1,6 +1,7 @@
 import { Snapshot } from '@colyseus/react';
 import { WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters, CardParametersBase } from 'common-data/features/cards/types/CardParameters';
+import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { FiringSolution } from 'common-data/features/space/types/FiringSolution';
 import { FiringState } from 'common-data/features/space/types/FiringState';
@@ -49,7 +50,8 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
 
     const mergedModifiers: Record<string, number> = mergeModifiers(card.modifiers, modifiers);
 
-    const extraTraits = card.extraTraits ? Array.from(card.extraTraits) : undefined;
+    // TODO: Update the UI so that different trait types are be displayed differently.
+    const extraTraits = card.extraTraits ? Array.from(Object.keys(card.extraTraits) as CardTrait[]) : undefined;
 
     return (
         <>

@@ -125,7 +125,11 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
      * Adds the effect at the adjustment's level if positive, and it is not already present.
      * Returns true if no more levels can be added after the increment.
      */
-    adjustEffectLevel(effectType: LeveledSystemEffectType, adjustment: number) {
+    adjustEffectLevel(effectType: LeveledSystemEffectType, adjustment: number | undefined) {
+        if (!adjustment) {
+            return false;
+        }
+
         const def = getSystemEffectDefinition(effectType);
         const maxLevel = def.maxLevel ?? 255;
 

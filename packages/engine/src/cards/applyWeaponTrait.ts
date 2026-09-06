@@ -42,7 +42,7 @@ const traitBehaviors: Record<WeaponTrait, (ship: Ship, targetSystem: SystemState
             if (card.hasTrait('unstable')) {
                 numFromDeck++;
             } else {
-                card.addTrait('unstable');
+                card.addTrait('unstable', true);
             }
         }
 
@@ -52,7 +52,7 @@ const traitBehaviors: Record<WeaponTrait, (ship: Ship, targetSystem: SystemState
             }
 
             if (!card.hasTrait('unstable')) {
-                card.addTrait('unstable');
+                card.addTrait('unstable', true);
                 numFromDeck--;
             }
         }

@@ -3,8 +3,8 @@ import { classNames } from '../../../utils/classNames';
 import styles from './Parameter.module.css';
 
 export const CardParametersContext = createContext<{
-    parameters?: Record<string, number | string>;
-    modifiers?: Record<string, number>;
+    parameters?: Partial<Record<string, number | string>>;
+    modifiers?: Partial<Record<string, number>>;
 }>({});
 
 type Props = {

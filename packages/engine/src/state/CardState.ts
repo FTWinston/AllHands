@@ -1,5 +1,5 @@
 import { IMap } from '@colyseus/react';
-import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema';
+import { MapSchema, Schema, type } from '@colyseus/schema';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
@@ -20,8 +20,11 @@ export class CardState extends Schema implements CardInstance {
     @type('string') readonly type: CardType;
     @type({ map: 'number' }) readonly modifiers: MapSchema<number>;
 
-    /** Traits granted to this specific card instance, in addition to its definition's fixed traits. */
-    @type(['string']) readonly extraTraits = new ArraySchema<CardTrait>();
+    /**
+     * Keys are traits granted to this specific card instance, in addition to its definition's fixed traits.
+     * Values are whether the trait should be removed when the card is played.
+    */
+    @type({ map: 'boolean' }) readonly extraTraits = new MapSchema<boolean, CardTrait>();
 
     getParameters(additionalModifiers?: IMap<string, number> | null): CardParameters {
         const definition = getCardDefinition(this.type);
@@ -43,12 +46,14 @@ export class CardState extends Schema implements CardInstance {
 
     hasTrait(trait: CardTrait): boolean {
         return getCardDefinition(this.type).traits?.includes(trait)
-            || this.extraTraits?.includes(trait);
+            || this.extraTraits?.has(trait);
     }
 
-    addTrait(trait: CardTrait) {
-        if (!this.extraTraits.includes(trait)) {
-            this.extraTraits.push(trait);
+    addTrait(trait: CardTrait, removeOnPlay: boolean) {
+        // Add trait to the map if not already present, or if it's currently temporary but being made permanent.
+        const existingRemoveOnPlay = this.extraTraits.get(trait);
+        if (existingRemoveOnPlay === undefined || (!removeOnPlay && existingRemoveOnPlay)) {
+            this.extraTraits.set(trait, removeOnPlay);
         }
     }
 
@@ -72,15 +77,15 @@ export class CardState extends Schema implements CardInstance {
         for (const [key, value] of this.modifiers) {
             card.modifiers.set(key, value);
         }
-        for (const trait of this.extraTraits) {
-            card.extraTraits.push(trait);
+        for (const [trait, removeOnPlay] of this.extraTraits) {
+            card.extraTraits.set(trait, removeOnPlay);
         }
         return card;
     }
 
     createExpendableCopy(newid: number) {
         const newCard = this.cloneCard(newid);
-        newCard.addTrait('expendable');
+        newCard.addTrait('expendable', true);
         return newCard;
     }
 }

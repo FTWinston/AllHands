@@ -369,7 +369,14 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
         // Any extra traits are removed from a card when it is played, unless it was going into a slot.
         if (!playedIntoSlot) {
-            card.extraTraits?.clear();
+            // Get only the assigned extra traits whose value indicates they should be removed on play.
+            const traitsToRemove = Array.from(card.extraTraits)
+                .filter(([, removeOnPlay]) => removeOnPlay)
+                .map(([trait]) => trait);
+
+            for (const trait of traitsToRemove) {
+                card.extraTraits.delete(trait);
+            }
         }
 
         if (removeFromHand) {

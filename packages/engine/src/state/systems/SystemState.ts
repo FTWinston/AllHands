@@ -116,7 +116,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
         return this.linkedEngineerSystemTile.removeEffect(effect, early);
     }
 
-    adjustEffectLevel(effect: LeveledSystemEffectType, adjustment: number) {
+    adjustEffectLevel(effect: LeveledSystemEffectType, adjustment: number | undefined) {
         return this.linkedEngineerSystemTile.adjustEffectLevel(effect, adjustment);
     }
 

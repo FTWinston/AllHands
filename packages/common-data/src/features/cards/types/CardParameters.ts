@@ -1,3 +1,3 @@
-export type CardParametersBase = Readonly<Record<string, number>>;
+export type CardParametersBase = Readonly<Partial<Record<string, number>>>;
 
 export type CardParameters = Readonly<{ cost: number }> & CardParametersBase;

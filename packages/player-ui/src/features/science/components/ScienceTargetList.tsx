@@ -9,7 +9,7 @@ import styles from './ScienceTargetList.module.css';
 type Props = {
     targets: IArray<GameObjectInfo>;
     scannedShipId: string | null;
-    systemOrderByTarget: Record<string, ScannedSystemOrderInfo>;
+    systemOrderByTarget: Partial<Record<string, ScannedSystemOrderInfo>>;
     identifiedVulnerability: EnemyTargetedCardType | null;
     scannedHelm: Snapshot<ScannedHelmInfo> | null;
     scannedTactical: Snapshot<ScannedTacticalInfo> | null;

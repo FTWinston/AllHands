@@ -17,7 +17,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     cards: Snapshot<CardInstance[]>;
     targets: Snapshot<GameObjectInfo[]>;
     scannedShipId: string | null;
-    systemOrderByTarget: Record<string, ScannedSystemOrderInfo>;
+    systemOrderByTarget: Partial<Record<string, ScannedSystemOrderInfo>>;
     identifiedVulnerability: EnemyTargetedCardType | null;
     scannedHelm: Snapshot<ScannedHelmInfo> | null;
     scannedTactical: Snapshot<ScannedTacticalInfo> | null;

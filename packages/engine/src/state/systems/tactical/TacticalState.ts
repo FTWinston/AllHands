@@ -211,7 +211,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             }
         }
 
-        for (const trait of card?.extraTraits ?? []) {
+        for (const trait of card?.extraTraits.keys() ?? []) {
             if (isWeaponTrait(trait)) {
                 traits.add(trait);
             }

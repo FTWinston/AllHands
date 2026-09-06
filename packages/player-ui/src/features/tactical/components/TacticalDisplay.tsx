@@ -21,7 +21,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     slots: Snapshot<WeaponSlotInfo[]>;
     shipMotion: GameObjectInfo['motion'];
     targets: Snapshot<GameObjectInfo[]>;
-    subTargetsByTarget: Record<string, TargetSubTargets>;
+    subTargetsByTarget: Partial<Record<string, TargetSubTargets>>;
     viewer: RelationshipViewer;
     pendingDrawChoice: Snapshot<CardInstance[]>;
     resolveDrawChoice: (cardId: number) => void;

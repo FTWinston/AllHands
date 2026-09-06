@@ -31,9 +31,9 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
 
         const resolved = this.card.getParameters(this.modifiers);
 
-        for (const key of Object.keys(resolved)) {
+        for (const [key, value] of Object.entries(resolved)) {
             const min = parameterMinimumValues[key] ?? 0;
-            if (resolved[key] < min) {
+            if (value === undefined || value < min) {
                 (resolved as Record<string, number>)[key] = min;
             }
         }

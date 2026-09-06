@@ -9,7 +9,7 @@ type Props = {
     slotted?: boolean;
     disabled?: boolean;
     highlighted?: boolean;
-    modifiers?: Record<string, number>;
+    modifiers?: Partial<Record<string, number>>;
     showTraitDescriptions?: boolean;
 };
 

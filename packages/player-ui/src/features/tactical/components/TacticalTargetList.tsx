@@ -7,7 +7,7 @@ import styles from './TacticalTargetList.module.css';
 
 type Props = {
     targets: IArray<GameObjectInfo>;
-    subTargetsByTarget: Record<string, TargetSubTargets>;
+    subTargetsByTarget: Partial<Record<string, TargetSubTargets>>;
     onVisibleTargetChange: (target: GameObjectInfo) => void;
     targetAspect?: number;
     viewer: RelationshipViewer;
