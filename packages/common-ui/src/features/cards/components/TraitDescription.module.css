@@ -17,3 +17,8 @@
   font-size: 0.75em;
   color: var(--grey-light);
 }
+
+.removedWhenPlayed {
+  padding-top: 0.25em;
+  color: var(--energy-light);
+}

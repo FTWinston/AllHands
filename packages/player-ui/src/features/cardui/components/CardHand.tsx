@@ -33,6 +33,8 @@ export const CardHand: FC<Props> = ({ cards, availablePower, shiftDown, isCardHi
                     type={card.type}
                     availablePower={availablePower}
                     index={index}
+                    modifiers={card.modifiers}
+                    extraTraits={card.extraTraits}
                     highlighted={isCardHighlighted?.(card)}
                     className={classNames(
                         styles.card,

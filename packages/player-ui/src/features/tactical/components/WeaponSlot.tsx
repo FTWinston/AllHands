@@ -1,7 +1,6 @@
 import { Snapshot } from '@colyseus/react';
 import { WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters, CardParametersBase } from 'common-data/features/cards/types/CardParameters';
-import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { FiringSolution } from 'common-data/features/space/types/FiringSolution';
 import { FiringState } from 'common-data/features/space/types/FiringState';
@@ -50,9 +49,6 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
 
     const mergedModifiers: Record<string, number> = mergeModifiers(card.modifiers, modifiers);
 
-    // TODO: Update the UI so that different trait types are be displayed differently.
-    const extraTraits = card.extraTraits ? Array.from(Object.keys(card.extraTraits) as CardTrait[]) : undefined;
-
     return (
         <>
             <div className={styles.cardWrapper}>
@@ -61,7 +57,7 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
                     parameters={parameters}
                     className={styles.card}
                     modifiers={mergedModifiers}
-                    extraTraits={extraTraits}
+                    extraTraits={card.extraTraits}
                     slotted={true}
                 />
             </div>
@@ -71,7 +67,7 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
                     className={classNames(styles.card, styles.actualCard, fullyCharged ? styles.chargedCard : null)}
                     {...card}
                     modifiers={mergedModifiers}
-                    extraTraits={extraTraits}
+                    extraTraits={card.extraTraits}
                     availablePower={0}
                     targetType="enemy"
                     slotted={true}

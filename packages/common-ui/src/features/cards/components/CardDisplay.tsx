@@ -19,7 +19,7 @@ type Props = UICardDefinition & {
     highlighted?: boolean;
     sufficientPower?: boolean;
     modifiers?: CardParametersBase;
-    extraTraits?: CardTrait[];
+    extraTraits?: Partial<Record<CardTrait, boolean>>;
     showTraitDescriptions?: boolean;
 };
 
@@ -60,11 +60,14 @@ export const CardDisplay: FC<Props> = (props) => {
                 </>
             )}
 
-            {props.extraTraits && props.extraTraits.length > 0 && (
-                props.extraTraits.map(trait => (
+            {props.extraTraits && (
+                Object.entries(props.extraTraits).map(([trait, removeOnPlay]) => (
                     <Fragment key={trait}>
                         {' '}
-                        <Trait type={trait} />
+                        <Trait
+                            type={trait as CardTrait}
+                            removeOnPlay={removeOnPlay}
+                        />
                     </Fragment>
                 ))
             )}
@@ -95,19 +98,16 @@ export const CardDisplay: FC<Props> = (props) => {
                     {descriptionContent}
                 </RestrictedHeightText>
 
-                {props.showTraitDescriptions && (() => {
-                    const allTraits = [
-                        ...(props.traits ?? []),
-                        ...(props.extraTraits ?? []),
-                    ];
-                    return allTraits.length > 0 && (
-                        <div ref={traitsRef} className={classNames(styles.traits, traitsOnLeft ? styles.traitsLeft : undefined)}>
-                            {allTraits.map(trait => (
-                                <TraitDescription key={trait} trait={trait} />
-                            ))}
-                        </div>
-                    );
-                })()}
+                {props.showTraitDescriptions && (
+                    <div ref={traitsRef} className={classNames(styles.traits, traitsOnLeft ? styles.traitsLeft : undefined)}>
+                        {props.traits?.map(trait => (
+                            <TraitDescription key={trait} trait={trait} />
+                        ))}
+                        {props.extraTraits && Object.entries(props.extraTraits).map(([trait, removeOnPlay]) => (
+                            <TraitDescription key={trait} trait={trait as CardTrait} removedWhenPlayed={removeOnPlay} />
+                        ))}
+                    </div>
+                )}
             </CardBase>
         </CardParametersContext.Provider>
     );

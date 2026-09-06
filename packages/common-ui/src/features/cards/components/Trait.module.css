@@ -12,4 +12,7 @@
   &.external {
     text-decoration: underline;
   }
+  &.removeOnPlay {
+    color: var(--energy-lightest);
+  }
 }

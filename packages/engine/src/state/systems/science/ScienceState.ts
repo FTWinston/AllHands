@@ -365,9 +365,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             return null;
         }
 
-        const targetSystem = null; // TODO: deflector cards never target a specific system, right?
-
-        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, targetSystem, parameters)) {
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, null, parameters)) {
             console.log('deflector card refused to play');
             return null;
         }

@@ -22,7 +22,7 @@ type Props = {
     slotted?: boolean;
     highlighted?: boolean;
     modifiers?: CardParametersBase;
-    extraTraits?: CardTrait[];
+    extraTraits?: Partial<Record<CardTrait, boolean>>;
 };
 
 export const DraggableCard: FC<Props> = (props) => {

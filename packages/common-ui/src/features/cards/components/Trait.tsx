@@ -5,6 +5,7 @@ import styles from './Trait.module.css';
 
 export type TraitProps = {
     type: DisplayableTrait;
+    removeOnPlay?: boolean;
     external?: boolean;
 };
 
@@ -12,6 +13,6 @@ export type TraitProps = {
  * A component that displays a card trait.
  * Used in the traits list above the card description.
  */
-export const Trait: FC<TraitProps> = ({ type, external }) => {
-    return <span className={classNames(styles.trait, external ? styles.external : undefined)}>{getTraitDisplayName(type)}</span>;
+export const Trait: FC<TraitProps> = ({ type, external, removeOnPlay }) => {
+    return <span className={classNames(styles.trait, external ? styles.external : undefined, removeOnPlay ? styles.removeOnPlay : undefined)}>{getTraitDisplayName(type)}</span>;
 };
