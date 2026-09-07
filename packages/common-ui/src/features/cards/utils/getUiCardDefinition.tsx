@@ -21,7 +21,7 @@ function loadCardDefinitions() {
             description: <>
                 A short-range
                 {' '}
-                <Trait type="energyWeapon" />
+                <Trait trait="energyWeapon" />
                 {' '}
                 dealing
                 {' '}
@@ -36,7 +36,7 @@ function loadCardDefinitions() {
             description: <>
                 A medium-range
                 {' '}
-                <Trait type="energyWeapon" />
+                <Trait trait="energyWeapon" />
                 {' '}
                 dealing
                 {' '}
@@ -51,7 +51,7 @@ function loadCardDefinitions() {
             description: <>
                 A long-range
                 {' '}
-                <Trait type="torpedoWeapon" />
+                <Trait trait="torpedoWeapon" />
                 {' '}
                 dealing
                 {' '}
@@ -66,7 +66,7 @@ function loadCardDefinitions() {
             description: <>
                 An advanced
                 {' '}
-                <Trait type="energyWeapon" />
+                <Trait trait="energyWeapon" />
                 {' '}
                 dealing
                 {' '}
@@ -82,7 +82,7 @@ function loadCardDefinitions() {
             description: <>
                 Reduce a
                 {' '}
-                <Trait type="torpedoWeapon" external />
+                <Trait trait="torpedoWeapon" external />
                 {' '}
                 damage by
                 {' '}
@@ -100,7 +100,7 @@ function loadCardDefinitions() {
             description: <>
                 Increase a
                 {' '}
-                <Trait type="torpedoWeapon" external />
+                <Trait trait="torpedoWeapon" external />
                 {' '}
                 damage by
                 {' '}
@@ -117,7 +117,7 @@ function loadCardDefinitions() {
             description: <>
                 Reduces damage of an
                 {' '}
-                <Trait type="energyWeapon" external />
+                <Trait trait="energyWeapon" external />
                 {' '}
                 to
                 {' '}
@@ -139,7 +139,7 @@ function loadCardDefinitions() {
             description: <>
                 Increase charge capacity of an
                 {' '}
-                <Trait type="energyWeapon" external />
+                <Trait trait="energyWeapon" external />
                 {' '}
                 by
                 {' '}
@@ -169,11 +169,11 @@ function loadCardDefinitions() {
             description: <>
                 Add the
                 {' '}
-                <Trait type="dampening" />
+                <Trait trait="dampening" />
                 {' '}
                 and
                 {' '}
-                <Trait type="disabling" />
+                <Trait trait="disabling" />
                 {' '}
                 effects to the weapon,
                 but increase its charge cost by
@@ -195,7 +195,7 @@ function loadCardDefinitions() {
         slowAndSteady: {
             name: 'Slow & Steady',
             description: <>
-                <Trait type="primary" />
+                <Trait trait="primary" />
                 {' '}
                 Turn towards a target then move towards it at a steady pace.
             </>,
@@ -244,7 +244,7 @@ function loadCardDefinitions() {
         auxPower: {
             name: 'Aux Power',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Increase a system's power level by
                 {' '}
@@ -307,7 +307,7 @@ function loadCardDefinitions() {
         relocateHere: {
             name: 'Relocate Here',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Swap the marked system with the targeted system.
             </>,
@@ -543,7 +543,7 @@ function loadCardDefinitions() {
             description: <>
                 Finding a vulnerability fills your hand with
                 {' '}
-                <Trait type="expendable" external />
+                <Trait trait="expendable" external />
                 {' '}
                 copies of the last drawn card.
             </>,
@@ -573,7 +573,7 @@ function loadCardDefinitions() {
         deflectorPhasedAntiprotonBeam: {
             name: 'Phased Antiproton Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 Emits a long range beam of phased antiprotons in a straight line.
             </>,
             image: <ExampleIcon />,
@@ -581,7 +581,7 @@ function loadCardDefinitions() {
         deflectorPhasedAntiprotonPulse: {
             name: 'Phased Antiproton Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of phased antiprotons in a wide spread.
             </>,
@@ -590,7 +590,7 @@ function loadCardDefinitions() {
         deflectorPhasedAntiprotonBurst: {
             name: 'Phased Antiproton Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of phased antiprotons in all directions that also affects your ship.
             </>,
@@ -599,7 +599,7 @@ function loadCardDefinitions() {
         deflectorPhasedAntiprotonField: {
             name: 'Phased Antiproton Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of phased antiprotons in a narrow spread.
             </>,
@@ -608,7 +608,7 @@ function loadCardDefinitions() {
         deflectorPhasedTetryonBeam: {
             name: 'Phased Tetryon Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of phased tetryons in a straight line.
             </>,
@@ -617,7 +617,7 @@ function loadCardDefinitions() {
         deflectorPhasedTetryonPulse: {
             name: 'Phased Tetryon Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of phased tetryons in a wide spread.
             </>,
@@ -626,7 +626,7 @@ function loadCardDefinitions() {
         deflectorPhasedTetryonBurst: {
             name: 'Phased Tetryon Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of phased tetryons in all directions that also affects your ship.
             </>,
@@ -635,7 +635,7 @@ function loadCardDefinitions() {
         deflectorPhasedTetryonField: {
             name: 'Phased Tetryon Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of phased tetryons in a narrow spread.
             </>,
@@ -644,7 +644,7 @@ function loadCardDefinitions() {
         deflectorPhasedChronitonBeam: {
             name: 'Phased Chroniton Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of phased chronitons in a straight line.
             </>,
@@ -653,7 +653,7 @@ function loadCardDefinitions() {
         deflectorPhasedChronitonPulse: {
             name: 'Phased Chroniton Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of phased chronitons in a wide spread.
             </>,
@@ -662,7 +662,7 @@ function loadCardDefinitions() {
         deflectorPhasedChronitonBurst: {
             name: 'Phased Chroniton Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of phased chronitons in all directions that also affects your ship.
             </>,
@@ -671,7 +671,7 @@ function loadCardDefinitions() {
         deflectorPhasedChronitonField: {
             name: 'Phased Chroniton Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of phased chronitons in a narrow spread.
             </>,
@@ -680,7 +680,7 @@ function loadCardDefinitions() {
         deflectorPhasedGravitonBeam: {
             name: 'Phased Graviton Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of phased gravitons in a straight line.
             </>,
@@ -689,7 +689,7 @@ function loadCardDefinitions() {
         deflectorPhasedGravitonPulse: {
             name: 'Phased Graviton Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of phased gravitons in a wide spread.
             </>,
@@ -698,7 +698,7 @@ function loadCardDefinitions() {
         deflectorPhasedGravitonBurst: {
             name: 'Phased Graviton Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of phased gravitons in all directions that also affects your ship.
             </>,
@@ -707,7 +707,7 @@ function loadCardDefinitions() {
         deflectorPhasedGravitonField: {
             name: 'Phased Graviton Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of phased gravitons in a narrow spread.
             </>,
@@ -716,7 +716,7 @@ function loadCardDefinitions() {
         deflectorPhasedPolaronBeam: {
             name: 'Phased Polaron Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of phased polarons in a straight line.
             </>,
@@ -725,7 +725,7 @@ function loadCardDefinitions() {
         deflectorPhasedPolaronPulse: {
             name: 'Phased Polaron Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of phased polarons in a wide spread.
             </>,
@@ -734,7 +734,7 @@ function loadCardDefinitions() {
         deflectorPhasedPolaronBurst: {
             name: 'Phased Polaron Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of phased polarons in all directions that also affects your ship.
             </>,
@@ -743,7 +743,7 @@ function loadCardDefinitions() {
         deflectorPhasedPolaronField: {
             name: 'Phased Polaron Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of phased polarons in a narrow spread.
             </>,
@@ -752,7 +752,7 @@ function loadCardDefinitions() {
         deflectorCoherentAntiprotonBeam: {
             name: 'Coherent Antiproton Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of coherent antiprotons in a straight line.
             </>,
@@ -761,7 +761,7 @@ function loadCardDefinitions() {
         deflectorCoherentAntiprotonPulse: {
             name: 'Coherent Antiproton Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of coherent antiprotons in a wide spread.
             </>,
@@ -770,7 +770,7 @@ function loadCardDefinitions() {
         deflectorCoherentAntiprotonBurst: {
             name: 'Coherent Antiproton Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of coherent antiprotons in all directions that also affects your ship.
             </>,
@@ -779,7 +779,7 @@ function loadCardDefinitions() {
         deflectorCoherentAntiprotonField: {
             name: 'Coherent Antiproton Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of coherent antiprotons in a narrow spread.
             </>,
@@ -788,7 +788,7 @@ function loadCardDefinitions() {
         deflectorCoherentTetryonBeam: {
             name: 'Coherent Tetryon Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of coherent tetryons in a straight line.
             </>,
@@ -797,7 +797,7 @@ function loadCardDefinitions() {
         deflectorCoherentTetryonPulse: {
             name: 'Coherent Tetryon Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of coherent tetryons in a wide spread.
             </>,
@@ -806,7 +806,7 @@ function loadCardDefinitions() {
         deflectorCoherentTetryonBurst: {
             name: 'Coherent Tetryon Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of coherent tetryons in all directions that also affects your ship.
             </>,
@@ -815,7 +815,7 @@ function loadCardDefinitions() {
         deflectorCoherentTetryonField: {
             name: 'Coherent Tetryon Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of coherent tetryons in a narrow spread.
             </>,
@@ -824,7 +824,7 @@ function loadCardDefinitions() {
         deflectorCoherentChronitonBeam: {
             name: 'Coherent Chroniton Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of coherent chronitons in a straight line.
             </>,
@@ -833,7 +833,7 @@ function loadCardDefinitions() {
         deflectorCoherentChronitonPulse: {
             name: 'Coherent Chroniton Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of coherent chronitons in a wide spread.
             </>,
@@ -842,7 +842,7 @@ function loadCardDefinitions() {
         deflectorCoherentChronitonBurst: {
             name: 'Coherent Chroniton Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of coherent chronitons in all directions that also affects your ship.
             </>,
@@ -851,7 +851,7 @@ function loadCardDefinitions() {
         deflectorCoherentChronitonField: {
             name: 'Coherent Chroniton Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of coherent chronitons in a narrow spread.
             </>,
@@ -860,7 +860,7 @@ function loadCardDefinitions() {
         deflectorCoherentGravitonBeam: {
             name: 'Coherent Graviton Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of coherent gravitons in a straight line.
             </>,
@@ -869,7 +869,7 @@ function loadCardDefinitions() {
         deflectorCoherentGravitonPulse: {
             name: 'Coherent Graviton Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of coherent gravitons in a wide spread.
             </>,
@@ -878,7 +878,7 @@ function loadCardDefinitions() {
         deflectorCoherentGravitonBurst: {
             name: 'Coherent Graviton Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of coherent gravitons in all directions that also affects your ship.
             </>,
@@ -887,7 +887,7 @@ function loadCardDefinitions() {
         deflectorCoherentGravitonField: {
             name: 'Coherent Graviton Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of coherent gravitons in a narrow spread.
             </>,
@@ -896,7 +896,7 @@ function loadCardDefinitions() {
         deflectorCoherentPolaronBeam: {
             name: 'Coherent Polaron Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of coherent polarons in a straight line.
             </>,
@@ -905,7 +905,7 @@ function loadCardDefinitions() {
         deflectorCoherentPolaronPulse: {
             name: 'Coherent Polaron Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of coherent polarons in a wide spread.
             </>,
@@ -914,7 +914,7 @@ function loadCardDefinitions() {
         deflectorCoherentPolaronBurst: {
             name: 'Coherent Polaron Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of coherent polarons in all directions that also affects your ship.
             </>,
@@ -923,7 +923,7 @@ function loadCardDefinitions() {
         deflectorCoherentPolaronField: {
             name: 'Coherent Polaron Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of coherent polarons in a narrow spread.
             </>,
@@ -932,7 +932,7 @@ function loadCardDefinitions() {
         deflectorInvertedAntiprotonBeam: {
             name: 'Inverted Antiproton Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of inverted antiprotons in a straight line.
             </>,
@@ -941,7 +941,7 @@ function loadCardDefinitions() {
         deflectorInvertedAntiprotonPulse: {
             name: 'Inverted Antiproton Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of inverted antiprotons in a wide spread.
             </>,
@@ -950,7 +950,7 @@ function loadCardDefinitions() {
         deflectorInvertedAntiprotonBurst: {
             name: 'Inverted Antiproton Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of inverted antiprotons in all directions that also affects your ship.
             </>,
@@ -959,7 +959,7 @@ function loadCardDefinitions() {
         deflectorInvertedAntiprotonField: {
             name: 'Inverted Antiproton Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of inverted antiprotons in a narrow spread.
             </>,
@@ -968,7 +968,7 @@ function loadCardDefinitions() {
         deflectorInvertedTetryonBeam: {
             name: 'Inverted Tetryon Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of inverted tetryons in a straight line.
             </>,
@@ -977,7 +977,7 @@ function loadCardDefinitions() {
         deflectorInvertedTetryonPulse: {
             name: 'Inverted Tetryon Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of inverted tetryons in a wide spread.
             </>,
@@ -986,7 +986,7 @@ function loadCardDefinitions() {
         deflectorInvertedTetryonBurst: {
             name: 'Inverted Tetryon Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of inverted tetryons in all directions that also affects your ship.
             </>,
@@ -995,7 +995,7 @@ function loadCardDefinitions() {
         deflectorInvertedTetryonField: {
             name: 'Inverted Tetryon Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of inverted tetryons in a narrow spread.
             </>,
@@ -1004,7 +1004,7 @@ function loadCardDefinitions() {
         deflectorInvertedChronitonBeam: {
             name: 'Inverted Chroniton Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of inverted chronitons in a straight line.
             </>,
@@ -1013,7 +1013,7 @@ function loadCardDefinitions() {
         deflectorInvertedChronitonPulse: {
             name: 'Inverted Chroniton Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of inverted chronitons in a wide spread.
             </>,
@@ -1022,7 +1022,7 @@ function loadCardDefinitions() {
         deflectorInvertedChronitonBurst: {
             name: 'Inverted Chroniton Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of inverted chronitons in all directions that also affects your ship.
             </>,
@@ -1031,7 +1031,7 @@ function loadCardDefinitions() {
         deflectorInvertedChronitonField: {
             name: 'Inverted Chroniton Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of inverted chronitons in a narrow spread.
             </>,
@@ -1040,7 +1040,7 @@ function loadCardDefinitions() {
         deflectorInvertedGravitonBeam: {
             name: 'Inverted Graviton Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of inverted gravitons in a straight line.
             </>,
@@ -1049,7 +1049,7 @@ function loadCardDefinitions() {
         deflectorInvertedGravitonPulse: {
             name: 'Inverted Graviton Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of inverted gravitons in a wide spread.
             </>,
@@ -1058,7 +1058,7 @@ function loadCardDefinitions() {
         deflectorInvertedGravitonBurst: {
             name: 'Inverted Graviton Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of inverted gravitons in all directions that also affects your ship.
             </>,
@@ -1067,7 +1067,7 @@ function loadCardDefinitions() {
         deflectorInvertedGravitonField: {
             name: 'Inverted Graviton Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of inverted gravitons in a narrow spread.
             </>,
@@ -1076,7 +1076,7 @@ function loadCardDefinitions() {
         deflectorInvertedPolaronBeam: {
             name: 'Inverted Polaron Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of inverted polarons in a straight line.
             </>,
@@ -1085,7 +1085,7 @@ function loadCardDefinitions() {
         deflectorInvertedPolaronPulse: {
             name: 'Inverted Polaron Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of inverted polarons in a wide spread.
             </>,
@@ -1094,7 +1094,7 @@ function loadCardDefinitions() {
         deflectorInvertedPolaronBurst: {
             name: 'Inverted Polaron Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of inverted polarons in all directions that also affects your ship.
             </>,
@@ -1103,7 +1103,7 @@ function loadCardDefinitions() {
         deflectorInvertedPolaronField: {
             name: 'Inverted Polaron Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of inverted polarons in a narrow spread.
             </>,
@@ -1112,7 +1112,7 @@ function loadCardDefinitions() {
         deflectorModulatedAntiprotonBeam: {
             name: 'Modulated Antiproton Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of modulated antiprotons in a straight line.
             </>,
@@ -1121,7 +1121,7 @@ function loadCardDefinitions() {
         deflectorModulatedAntiprotonPulse: {
             name: 'Modulated Antiproton Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of modulated antiprotons in a wide spread.
             </>,
@@ -1130,7 +1130,7 @@ function loadCardDefinitions() {
         deflectorModulatedAntiprotonBurst: {
             name: 'Modulated Antiproton Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of modulated antiprotons in all directions that also affects your ship.
             </>,
@@ -1139,7 +1139,7 @@ function loadCardDefinitions() {
         deflectorModulatedAntiprotonField: {
             name: 'Modulated Antiproton Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of modulated antiprotons in a narrow spread.
             </>,
@@ -1148,7 +1148,7 @@ function loadCardDefinitions() {
         deflectorModulatedTetryonBeam: {
             name: 'Modulated Tetryon Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of modulated tetryons in a straight line.
             </>,
@@ -1157,7 +1157,7 @@ function loadCardDefinitions() {
         deflectorModulatedTetryonPulse: {
             name: 'Modulated Tetryon Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of modulated tetryons in a wide spread.
             </>,
@@ -1166,7 +1166,7 @@ function loadCardDefinitions() {
         deflectorModulatedTetryonBurst: {
             name: 'Modulated Tetryon Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of modulated tetryons in all directions that also affects your ship.
             </>,
@@ -1175,7 +1175,7 @@ function loadCardDefinitions() {
         deflectorModulatedTetryonField: {
             name: 'Modulated Tetryon Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of modulated tetryons in a narrow spread.
             </>,
@@ -1184,7 +1184,7 @@ function loadCardDefinitions() {
         deflectorModulatedChronitonBeam: {
             name: 'Modulated Chroniton Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of modulated chronitons in a straight line.
             </>,
@@ -1193,7 +1193,7 @@ function loadCardDefinitions() {
         deflectorModulatedChronitonPulse: {
             name: 'Modulated Chroniton Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of modulated chronitons in a wide spread.
             </>,
@@ -1202,7 +1202,7 @@ function loadCardDefinitions() {
         deflectorModulatedChronitonBurst: {
             name: 'Modulated Chroniton Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of modulated chronitons in all directions that also affects your ship.
             </>,
@@ -1211,7 +1211,7 @@ function loadCardDefinitions() {
         deflectorModulatedChronitonField: {
             name: 'Modulated Chroniton Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of modulated chronitons in a narrow spread.
             </>,
@@ -1220,7 +1220,7 @@ function loadCardDefinitions() {
         deflectorModulatedGravitonBeam: {
             name: 'Modulated Graviton Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of modulated gravitons in a straight line.
             </>,
@@ -1229,7 +1229,7 @@ function loadCardDefinitions() {
         deflectorModulatedGravitonPulse: {
             name: 'Modulated Graviton Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of modulated gravitons in a wide spread.
             </>,
@@ -1238,7 +1238,7 @@ function loadCardDefinitions() {
         deflectorModulatedGravitonBurst: {
             name: 'Modulated Graviton Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of modulated gravitons in all directions that also affects your ship.
             </>,
@@ -1247,7 +1247,7 @@ function loadCardDefinitions() {
         deflectorModulatedGravitonField: {
             name: 'Modulated Graviton Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of modulated gravitons in a narrow spread.
             </>,
@@ -1256,7 +1256,7 @@ function loadCardDefinitions() {
         deflectorModulatedPolaronBeam: {
             name: 'Modulated Polaron Beam',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a long range beam of modulated polarons in a straight line.
             </>,
@@ -1265,7 +1265,7 @@ function loadCardDefinitions() {
         deflectorModulatedPolaronPulse: {
             name: 'Modulated Polaron Pulse',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a pulse of modulated polarons in a wide spread.
             </>,
@@ -1274,7 +1274,7 @@ function loadCardDefinitions() {
         deflectorModulatedPolaronBurst: {
             name: 'Modulated Polaron Burst',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a burst of modulated polarons in all directions that also affects your ship.
             </>,
@@ -1283,7 +1283,7 @@ function loadCardDefinitions() {
         deflectorModulatedPolaronField: {
             name: 'Modulated Polaron Field',
             description: <>
-                <Trait type="expendable" />
+                <Trait trait="expendable" />
                 {' '}
                 Emits a wave of modulated polarons in a narrow spread.
             </>,

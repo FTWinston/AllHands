@@ -1,11 +1,12 @@
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { FC } from 'react';
 import { classNames } from '../../../utils/classNames';
 import { DisplayableTrait, getTraitDisplayName } from '../utils/getTraitDisplayName';
 import styles from './Trait.module.css';
 
 export type TraitProps = {
-    type: DisplayableTrait;
-    removeOnPlay?: boolean;
+    trait: DisplayableTrait;
+    type?: ExtraTraitType;
     external?: boolean;
 };
 
@@ -13,6 +14,14 @@ export type TraitProps = {
  * A component that displays a card trait.
  * Used in the traits list above the card description.
  */
-export const Trait: FC<TraitProps> = ({ type, external, removeOnPlay }) => {
-    return <span className={classNames(styles.trait, external ? styles.external : undefined, removeOnPlay ? styles.removeOnPlay : undefined)}>{getTraitDisplayName(type)}</span>;
-};
+export const Trait: FC<TraitProps> = ({ trait, type, external }) => (
+    <span className={classNames(
+        styles.trait,
+        external ? styles.external : undefined,
+        type === ExtraTraitType.RemoveOnPlay ? styles.removeOnPlay : undefined,
+        type === ExtraTraitType.Negative ? styles.negative : undefined
+    )}
+    >
+        {getTraitDisplayName(trait)}
+    </span>
+);

@@ -1,3 +1,4 @@
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { WeaponSlot as Component } from './WeaponSlot';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -65,8 +66,8 @@ export const PrimedWithExtraTraits: Story = {
             id: 5,
             type: 'phaserStrip',
             extraTraits: {
-                dampening: true,
-                disabling: true,
+                dampening: ExtraTraitType.RemoveOnPlay,
+                disabling: ExtraTraitType.RemoveOnPlay,
             },
         },
         decay: {

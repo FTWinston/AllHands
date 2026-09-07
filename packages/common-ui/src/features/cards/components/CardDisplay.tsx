@@ -1,5 +1,6 @@
 import { CardParametersBase } from 'common-data/features/cards/types/CardParameters';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { FC, Fragment, useCallback, useMemo, useState } from 'react';
 import { RestrictedHeightText } from '../../../components/RestrictedHeightText';
 import crewStyles from '../../../CrewColors.module.css';
@@ -19,7 +20,7 @@ type Props = UICardDefinition & {
     highlighted?: boolean;
     sufficientPower?: boolean;
     modifiers?: CardParametersBase;
-    extraTraits?: Partial<Record<CardTrait, boolean>>;
+    extraTraits?: Partial<Record<CardTrait, ExtraTraitType>>;
     showTraitDescriptions?: boolean;
 };
 
@@ -42,31 +43,31 @@ export const CardDisplay: FC<Props> = (props) => {
             {props.targetType === 'scan' && props.deflectorModifier && (
                 <>
                     {' '}
-                    <Trait type={props.deflectorModifier} />
+                    <Trait trait={props.deflectorModifier} type={ExtraTraitType.Normal} />
                 </>
             )}
 
             {props.targetType === 'scan' && props.deflectorSubstance && (
                 <>
                     {' '}
-                    <Trait type={props.deflectorSubstance} />
+                    <Trait trait={props.deflectorSubstance} type={ExtraTraitType.Normal} />
                 </>
             )}
 
             {props.targetType === 'scan' && props.deflectorDelivery && (
                 <>
                     {' '}
-                    <Trait type={props.deflectorDelivery} />
+                    <Trait trait={props.deflectorDelivery} type={ExtraTraitType.Normal} />
                 </>
             )}
 
             {props.extraTraits && (
-                Object.entries(props.extraTraits).map(([trait, removeOnPlay]) => (
+                Object.entries(props.extraTraits).map(([trait, traitType]) => (
                     <Fragment key={trait}>
                         {' '}
                         <Trait
-                            type={trait as CardTrait}
-                            removeOnPlay={removeOnPlay}
+                            trait={trait as CardTrait}
+                            type={traitType}
                         />
                     </Fragment>
                 ))
@@ -101,10 +102,10 @@ export const CardDisplay: FC<Props> = (props) => {
                 {props.showTraitDescriptions && (
                     <div ref={traitsRef} className={classNames(styles.traits, traitsOnLeft ? styles.traitsLeft : undefined)}>
                         {props.traits?.map(trait => (
-                            <TraitDescription key={trait} trait={trait} />
+                            <TraitDescription key={trait} trait={trait} type={ExtraTraitType.Normal} />
                         ))}
-                        {props.extraTraits && Object.entries(props.extraTraits).map(([trait, removeOnPlay]) => (
-                            <TraitDescription key={trait} trait={trait as CardTrait} removedWhenPlayed={removeOnPlay} />
+                        {props.extraTraits && Object.entries(props.extraTraits).map(([trait, traitType]) => (
+                            <TraitDescription key={trait} trait={trait as CardTrait} type={traitType} />
                         ))}
                     </div>
                 )}

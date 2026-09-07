@@ -3,6 +3,7 @@ import { MapSchema, Schema, type } from '@colyseus/schema';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 
 import { resolveParameter, resolveParameters } from 'src/cards/resolveParameters';
@@ -24,7 +25,7 @@ export class CardState extends Schema implements CardInstance {
      * Keys are traits granted to this specific card instance, in addition to its definition's fixed traits.
      * Values are whether the trait should be removed when the card is played.
     */
-    @type({ map: 'boolean' }) readonly extraTraits = new MapSchema<boolean, CardTrait>();
+    @type({ map: 'number' }) readonly extraTraits = new MapSchema<ExtraTraitType, CardTrait>();
 
     getParameters(additionalModifiers?: IMap<string, number> | null): CardParameters {
         const definition = getCardDefinition(this.type);
@@ -49,12 +50,8 @@ export class CardState extends Schema implements CardInstance {
             || this.extraTraits?.has(trait);
     }
 
-    addTrait(trait: CardTrait, removeOnPlay: boolean) {
-        // Add trait to the map if not already present, or if it's currently temporary but being made permanent.
-        const existingRemoveOnPlay = this.extraTraits.get(trait);
-        if (existingRemoveOnPlay === undefined || (!removeOnPlay && existingRemoveOnPlay)) {
-            this.extraTraits.set(trait, removeOnPlay);
-        }
+    addTrait(trait: CardTrait, type: ExtraTraitType) {
+        this.extraTraits.set(trait, type);
     }
 
     modifyParameter(parameter: string, adjustment: number) {
@@ -85,7 +82,7 @@ export class CardState extends Schema implements CardInstance {
 
     createExpendableCopy(newid: number) {
         const newCard = this.cloneCard(newid);
-        newCard.addTrait('expendable', true);
+        newCard.addTrait('expendable', ExtraTraitType.Normal);
         return newCard;
     }
 }

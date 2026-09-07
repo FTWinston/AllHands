@@ -22,3 +22,8 @@
   padding-top: 0.25em;
   color: var(--energy-light);
 }
+
+.negative {
+  padding-top: 0.25em;
+  color: var(--danger-light);
+}

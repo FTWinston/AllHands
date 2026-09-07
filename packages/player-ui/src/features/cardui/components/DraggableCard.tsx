@@ -2,6 +2,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { CardParametersBase } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
@@ -22,7 +23,7 @@ type Props = {
     slotted?: boolean;
     highlighted?: boolean;
     modifiers?: CardParametersBase;
-    extraTraits?: Partial<Record<CardTrait, boolean>>;
+    extraTraits?: Partial<Record<CardTrait, ExtraTraitType>>;
 };
 
 export const DraggableCard: FC<Props> = (props) => {

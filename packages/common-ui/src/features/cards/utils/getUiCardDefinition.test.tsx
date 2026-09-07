@@ -22,7 +22,7 @@ function findTraitTypes(node: ReactNode): DisplayableTrait[] {
     if (node.type === Trait) {
         const props = node.props as TraitProps;
         if (props.external !== true) {
-            traits.push(props.type);
+            traits.push(props.trait);
         }
     }
 

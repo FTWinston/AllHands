@@ -1,4 +1,5 @@
 import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import {
     CardType,
     ChoiceCardType,
@@ -325,8 +326,8 @@ function loadCardDefinitions() {
                 const chargeIncrease = parameters.chargeIncrease ?? 2;
                 slot.adjustParameter('chargeCost', chargeIncrease);
 
-                slot.card?.addTrait('draining', true);
-                slot.card?.addTrait('disrupting', true);
+                slot.card?.addTrait('draining', ExtraTraitType.RemoveOnPlay);
+                slot.card?.addTrait('disrupting', ExtraTraitType.RemoveOnPlay);
                 return true;
             },
             charge: (gameState, _ship, slot, parameters) => {

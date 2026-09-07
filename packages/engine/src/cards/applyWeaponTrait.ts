@@ -1,4 +1,5 @@
 import { CardTrait, WeaponTrait } from 'common-data/features/cards/types/CardTrait';
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { Ship } from 'src/state/Ship';
 import { CrewSystemState } from 'src/state/systems/CrewSystemState';
 import { SystemState } from 'src/state/systems/SystemState';
@@ -42,7 +43,7 @@ const traitBehaviors: Record<WeaponTrait, (ship: Ship, targetSystem: SystemState
             if (card.hasTrait('unstable')) {
                 numFromDeck++;
             } else {
-                card.addTrait('unstable', true);
+                card.addTrait('unstable', ExtraTraitType.RemoveOnPlay);
             }
         }
 
@@ -52,7 +53,7 @@ const traitBehaviors: Record<WeaponTrait, (ship: Ship, targetSystem: SystemState
             }
 
             if (!card.hasTrait('unstable')) {
-                card.addTrait('unstable', true);
+                card.addTrait('unstable', ExtraTraitType.RemoveOnPlay);
                 numFromDeck--;
             }
         }
