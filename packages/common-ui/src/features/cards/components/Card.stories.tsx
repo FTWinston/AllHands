@@ -33,3 +33,10 @@ export const HighlightedHelm: Story = {
         highlighted: true,
     },
 };
+
+export const DamagedTactical: Story = {
+    args: {
+        type: 'lowYield',
+        damaged: true,
+    },
+};

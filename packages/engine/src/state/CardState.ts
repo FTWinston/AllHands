@@ -19,6 +19,7 @@ export class CardState extends Schema implements CardInstance {
 
     @type('number') readonly id: number;
     @type('string') readonly type: CardType;
+    @type('boolean') damaged: boolean = false;
     @type({ map: 'number' }) readonly modifiers: MapSchema<number>;
 
     /**

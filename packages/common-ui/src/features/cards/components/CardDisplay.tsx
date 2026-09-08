@@ -17,6 +17,7 @@ type Props = UICardDefinition & {
     className?: string;
     slotted?: boolean;
     disabled?: boolean;
+    damaged?: boolean;
     highlighted?: boolean;
     sufficientPower?: boolean;
     modifiers?: CardParametersBase;
@@ -84,6 +85,7 @@ export const CardDisplay: FC<Props> = (props) => {
                 props.disabled ? styles.disabled : undefined,
                 props.sufficientPower === false ? styles.insufficientPower : undefined,
                 props.highlighted ? styles.highlighted : undefined,
+                props.damaged ? styles.damaged : undefined,
                 props.className)}
             >
                 <div className={classNames(styles.image, props.slotted ? styles.noCutouts : styles.cutouts)} role="presentation">{props.image}</div>

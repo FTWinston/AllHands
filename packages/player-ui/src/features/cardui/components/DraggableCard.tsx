@@ -21,6 +21,7 @@ type Props = {
     index: number;
     targetType?: CardTargetType;
     slotted?: boolean;
+    damaged?: boolean;
     highlighted?: boolean;
     modifiers?: CardParametersBase;
     extraTraits?: Partial<Record<CardTrait, ExtraTraitType>>;
@@ -75,6 +76,7 @@ export const DraggableCard: FC<Props> = (props) => {
                 {...definition}
                 slotted={props.slotted}
                 highlighted={props.highlighted}
+                damaged={props.damaged}
                 sufficientPower={props.slotted ? undefined : props.availablePower >= resolvedCost}
                 modifiers={props.modifiers}
                 extraTraits={props.extraTraits}

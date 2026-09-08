@@ -8,6 +8,7 @@ type Props = {
     className?: string;
     slotted?: boolean;
     disabled?: boolean;
+    damaged?: boolean;
     highlighted?: boolean;
     modifiers?: Partial<Record<string, number>>;
     showTraitDescriptions?: boolean;
@@ -22,6 +23,7 @@ export const Card: FC<Props> = (props) => {
             className={props.className}
             slotted={props.slotted}
             disabled={props.disabled}
+            damaged={props.damaged}
             highlighted={props.highlighted}
             modifiers={props.modifiers}
             showTraitDescriptions={props.showTraitDescriptions}
