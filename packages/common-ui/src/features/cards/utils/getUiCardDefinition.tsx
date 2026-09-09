@@ -16,14 +16,14 @@ function loadCardDefinitions() {
             description: 'Deploy a smoke screen to obscure vision and provide cover.',
             image: <ExampleIcon />,
         },
-        hullPlaceholder: {
-            name: 'Hull Plating',
-            description: 'A section of the hull.',
+        hullChargeShields: {
+            name: 'Charge shields',
+            description: 'Charge the shields by the hull\'s power level.',
             image: <ExampleIcon />,
         },
-        reactorPlaceholder: {
-            name: 'Reactor Component',
-            description: 'A component of the reactor.',
+        reactorAuxPower: {
+            name: 'Add aux power',
+            description: 'Add an aux power card to the engineer if they don\'t have one.',
             image: <ExampleIcon />,
         },
         phaserCannon: {

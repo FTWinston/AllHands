@@ -1,5 +1,4 @@
 import { NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { InterceptableAction } from 'src/classes/InterceptableAction';
 import { CardState } from '../CardState';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
@@ -7,25 +6,25 @@ import type { Ship } from '../Ship';
 
 export class ReactorSystemState extends SystemState {
     constructor(setup: NonCrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
-        const cards = Array.from({ length: setup.numCards }, () => new CardState(getCardId(), 'reactorPlaceholder'));
+        const cards = Array.from({ length: setup.numCards }, () => new CardState(getCardId(), 'reactorAuxPower'));
 
         super(setup, gameState, ship, cards, 1);
+
+        this.generate.addHandler('reactor', false, () => {
+            if (this.hand.length === 0) {
+                return;
+            }
+
+            const card = this.hand[0];
+
+            // Before drawing a new card, try to play the existing one, and discard it if that fails, e.g. due to it being damaged.
+            if (!this.playCard(card.id, card.type, 'no-target', '')) {
+                this.discard();
+            }
+        });
     }
 
-    /**
-     * Add an "aux power" card to the engineer's hand, if they don't already have one, and the hand isn't full.
-     */
-    override generate = new InterceptableAction(() => {
-        // TODO: play a card, draw a card?
-
-        const engineerState = this.getShip().engineerState;
-
-        if (engineerState.hand.some(card => card.type === 'auxPower')) {
-            return;
-        }
-
-        engineerState.addCard('auxPower');
-    });
+    override readonly maxHandSize = 1;
 
     override adjustHealth(value: number): void {
         const oldHealth = this.health;

@@ -913,12 +913,12 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 3 },
     },
-    hullPlaceholder: {
+    hullChargeShields: {
         targetType: 'no-target',
         crew: 'engineer',
         parameters: { cost: 0 },
     },
-    reactorPlaceholder: {
+    reactorAuxPower: {
         targetType: 'no-target',
         crew: 'engineer',
         parameters: { cost: 0 },

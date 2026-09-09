@@ -1,12 +1,21 @@
 import { IArray } from '@colyseus/react';
 import { ArraySchema, Schema, type } from '@colyseus/schema';
+import { CardParameters } from 'common-data/features/cards/types/CardParameters';
+import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
+import { isCrewSystem } from 'common-data/features/ships/types/ShipSystem';
 import { LeveledSystemEffectType, NonLeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getArrayValue } from 'common-data/utils/arrays';
+import { EngineCardDefinition, EngineNoTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineScanTargetCardDefinition, EngineWeaponTargetCardDefinition, EngineEnemyTargetCardDefinition, EngineSystemTargetCardDefinition, EngineLocationTargetCardDefinition } from 'src/cards/EngineCardDefinition';
+import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
+import { resolveParameters } from 'src/cards/resolveParameters';
 import { InterceptableAction } from 'src/classes/InterceptableAction';
 import { InterceptableGetter } from 'src/classes/InterceptableGetter';
 import { InterceptableSetter } from 'src/classes/InterceptableSetter';
 import { CardState } from '../CardState';
+import { GameObject } from '../GameObject';
 import { GameState } from '../GameState';
 import { SystemEffect } from './engineer/SystemEffect';
 import type { Ship } from '../Ship';
@@ -43,12 +52,82 @@ export abstract class SystemState extends Schema implements SystemInfo {
         this.health = this.maxHealth = this.initializeCardPool(cards);
     }
 
+    /** How many cards can be held in the hand at once. */
+    abstract readonly maxHandSize: number;
+
     /**
-     * Cards held by this system. Only populated for crew systems (see CrewSystemState); other
-     * systems (hull, reactor) leave these empty and use a plain numeric health/maxHealth instead.
+     * Cards available to play for this system.
      */
     @type([CardState]) hand = new ArraySchema<CardState>();
+
+    /**
+     * Cards available to be drawn for this system. Cards are drawn from the front, and discarded to the back.
+     */
     @type([CardState]) deck = new ArraySchema<CardState>();
+
+    public getLastDrawnCard(): CardState | null {
+        return this.lastDrawnCard;
+    }
+
+    private lastDrawnCard: CardState | null = null;
+
+    /**
+     * Put a card into the hand. Assumes that there is space, and that it's already been removed from wherever it was before. Does not check for duplicates.
+     */
+    addCardToHand(card: CardState) {
+        this.hand.push(card);
+        this.lastDrawnCard = card;
+    }
+
+    /**
+     * Take card(s) from the front of the deck and add them to the hand.
+     */
+    draw(number = 1) {
+        for (let i = 0; i < number; i++) {
+            if (this.hand.length >= this.maxHandSize) {
+                break;
+            }
+
+            const card = this.deck.shift();
+
+            if (card) {
+                this.addCardToHand(card);
+            }
+        }
+    }
+
+    /**
+     * Take card(s) from the bottom of the deck and add them to the hand.
+     */
+    drawFromBottom(number = 1) {
+        for (let i = 0; i < number; i++) {
+            if (this.hand.length >= this.maxHandSize) {
+                break;
+            }
+
+            const card = this.deck.pop();
+
+            if (card) {
+                this.addCardToHand(card);
+            }
+        }
+    }
+
+    /**
+     * Randomly take card(s) from the hand and add them to the end of the deck.
+     */
+    discard(number = 1) {
+        const random = this.getShip().random;
+
+        for (let i = 0; i < number; i++) {
+            if (this.hand.length === 0) {
+                return;
+            }
+
+            const card = random.delete(this.hand as CardState[]);
+            this.deck.push(card);
+        }
+    }
 
     /** Get the game state this system belongs to. */
     getGameState(): GameState {
@@ -238,6 +317,246 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }
 
     /**
+     * Play a card from the hand by moving it to the end of the deck.
+     * Ensures that all requirements are met before playing.
+     * Returns the card if found and played, null otherwise.
+     */
+    playCard(cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string): EngineCardDefinition | null {
+        const cardIndex = this.hand.findIndex(card => card.id === cardId);
+        if (cardIndex === -1) {
+            console.warn('card not found');
+            return null;
+        }
+
+        const card = this.hand[cardIndex];
+
+        if (card.damaged) {
+            return null;
+        }
+
+        let cardDefinition = getCardDefinition(card.type);
+
+        if (cardDefinition.targetType === 'choice') {
+            if (!cardDefinition.cards.includes(cardType)) {
+                console.error('card choice mismatch');
+                return null;
+            }
+
+            // If playing a choice card and the specified type is one of that card's choices,
+            // use that type's definition for the rest of the checks and play.
+            cardDefinition = getCardDefinition(cardType);
+        } else if (card.type !== cardType) {
+            console.error('card type mismatch');
+            return null;
+        }
+
+        const parameters = resolveParameters(cardDefinition.parameters, card.modifiers);
+        const resolvedCost = parameters['cost'];
+
+        if (this.powerLevel < resolvedCost) {
+            console.warn('insufficient power to play card');
+            return null;
+        }
+
+        if (targetType !== cardDefinition.targetType) {
+            // Scan cards can also be played directly against an enemy using their play function.
+            if (!(cardDefinition.targetType === 'scan' && targetType === 'enemy')) {
+                console.error('playing card on incorrect target type');
+                return null;
+            }
+        }
+
+        let played: boolean;
+        let slotted: boolean = false;
+
+        if (cardDefinition.targetType === 'no-target') {
+            played = this.playNoTargetCard(cardDefinition, parameters);
+        } else if (cardDefinition.targetType === 'weapon-slot') {
+            played = this.playWeaponSlotCard(cardDefinition, card, targetId, parameters);
+            slotted = true;
+        } else if (cardDefinition.targetType === 'weapon') {
+            played = this.playWeaponCard(cardDefinition, targetId, parameters);
+        } else if (cardDefinition.targetType === 'enemy') {
+            played = this.playEnemyCard(cardDefinition, targetId, parameters);
+        } else if (cardDefinition.targetType === 'scan') {
+            const targetIdParts = targetId.split('/');
+
+            if (targetIdParts[0] === 'target') {
+                let systemIndex = parseInt(targetIdParts[2]);
+                if (targetIdParts.length < 3 || Number.isNaN(systemIndex)) {
+                    console.error('unhandled scan card reveal target:' + targetId);
+                    return null;
+                }
+                played = this.playScanCardReveal(cardDefinition, targetIdParts[1], systemIndex, parameters);
+            } else if (targetIdParts[0] === 'vuln') {
+                const system = targetIdParts[2];
+                if (targetIdParts.length < 3 || !isCrewSystem(system)) {
+                    console.error('unhandled scan card vulnerability target:' + targetId);
+                    return null;
+                }
+                played = this.playScanCardIdentify(cardDefinition, targetIdParts[1], system, parameters);
+            } else if (targetIdParts[0] === 'deflector') {
+                if (targetIdParts.length < 2) {
+                    console.error('unhandled scan card deflector target:' + targetId);
+                    return null;
+                }
+                played = this.playCardIntoDeflectorSlot(card, cardDefinition, targetIdParts[1], parameters);
+                slotted = true;
+            } else {
+                console.error('unhandled scan card target:' + targetId);
+                return null;
+            }
+        } else if (cardDefinition.targetType === 'system') {
+            played = this.playSystemCard(cardDefinition, targetId, parameters);
+        } else if (cardDefinition.targetType === 'location') {
+            played = this.playLocationCard(card, cardDefinition, targetId, parameters);
+            if (played) {
+                slotted = true;
+            }
+        } else {
+            console.error(`unhandled card target type: ${cardDefinition.targetType}`);
+            return null;
+        }
+
+        if (!played) {
+            return null;
+        }
+
+        this.handlePlayedCard(card, cardIndex, slotted);
+
+        return cardDefinition;
+    }
+
+    private playNoTargetCard(cardDefinition: EngineNoTargetCardDefinition, parameters: CardParameters): boolean {
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), parameters)) {
+            console.log('card refused to play');
+            return false;
+        }
+        return true;
+    }
+
+    protected playWeaponSlotCard(_cardDefinition: EngineWeaponSlotCardDefinition, _card: CardState, _targetId: string, _parameters: CardParameters): boolean {
+        console.warn('non-tactical system trying to play weapon slot card');
+        return false;
+    }
+
+    protected playScanCardReveal(_cardDefinition: EngineScanTargetCardDefinition, _targetId: string, _systemIndex: number, _parameters: CardParameters): boolean {
+        console.warn('non-science system trying to play scan card');
+        return false;
+    }
+
+    protected playScanCardIdentify(_cardDefinition: EngineScanTargetCardDefinition, _targetId: string, _system: CrewRoleName, _parameters: CardParameters): boolean {
+        console.warn('non-science system trying to play scan card');
+        return false;
+    }
+
+    protected playCardIntoDeflectorSlot(_card: CardState, _cardDefinition: EngineScanTargetCardDefinition, _slotId: string, _parameters: CardParameters): boolean {
+        console.warn('non-science system trying to play deflector slot card');
+        return false;
+    }
+
+    protected playWeaponCard(_cardDefinition: EngineWeaponTargetCardDefinition, _targetId: string, _parameters: CardParameters): boolean {
+        console.warn('non-tactical system trying to play weapon card');
+        return false;
+    }
+
+    protected playEnemyCard(cardDefinition: EngineEnemyTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+        const target = this.resolveTarget(targetId);
+
+        if (!target) {
+            console.warn('target not found: ' + targetId);
+            return false;
+        }
+
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, null, parameters)) {
+            console.log('card refused to play');
+            return false;
+        }
+
+        return true;
+    }
+
+    protected playSystemCard(_cardDefinition: EngineSystemTargetCardDefinition, _targetId: string, _parameters: CardParameters): boolean {
+        console.warn('non-engineer system trying to play system card');
+        return false;
+    }
+
+    protected playLocationCard(_cardInstance: CardState, _cardDefinition: EngineLocationTargetCardDefinition, _targetId: string, _parameters: CardParameters): boolean {
+        console.warn('non-helm system trying to play location card');
+        return false;
+    }
+
+    /**
+     * Handle where a played card goes based on its traits.
+     * - expendable: Card is destroyed (not added anywhere)
+     * - unstable: Card shuffles back into the deck when played, instead of going on the end.
+     * - primary: Card returns to hand (if no other primary card in hand), otherwise goes to the deck
+     */
+    protected handlePlayedCard(card: CardState, cardIndex: number, playedIntoSlot: boolean): void {
+        // The "reduced cost of next card" effect should be removed after a card is played.
+        this.removeEffect('reducedCardCost', true);
+
+        let removeFromHand = true;
+        let addToDeck = true;
+        let randomDeckPosition = false;
+
+        if (playedIntoSlot) {
+            // If playing into a slot, it leaves the hand
+            addToDeck = false;
+        } else if (card.hasTrait('primary') && !this.hand.some((handCard) => {
+            return handCard.hasTrait('primary') ?? false;
+        })) {
+            // Primary cards stay in the hand if no other primary card is already there.
+            removeFromHand = false;
+            addToDeck = false;
+        } else if (card.hasTrait('expendable')) {
+            // Don't add expendable cards to the deck; they are destroyed.
+            addToDeck = false;
+        } else if (card.hasTrait('unstable')) {
+            // Unstable cards shuffle back into the deck when played.
+            addToDeck = true;
+            randomDeckPosition = true;
+        }
+
+        // Any extra traits are removed from a card when it is played, unless it was going into a slot.
+        if (!playedIntoSlot) {
+            // Get only the assigned extra traits whose value indicates they should be removed on play.
+            const traitsToRemove = Array.from(card.extraTraits)
+                .filter(([, removeOnPlay]) => removeOnPlay)
+                .map(([trait]) => trait);
+
+            for (const trait of traitsToRemove) {
+                card.extraTraits.delete(trait);
+            }
+        }
+
+        if (removeFromHand) {
+            if (cardIndex !== -1) {
+                this.hand.splice(cardIndex, 1);
+            }
+        } else if (cardIndex === -1) {
+            // Don't remove it from the hand ... but it's not already there. Probably it's in a slot. Add it back into the hand!
+            this.hand.push(card);
+        }
+
+        if (addToDeck) {
+            if (randomDeckPosition) {
+                this.getGameState().random.insert(this.deck, card);
+            } else {
+                this.deck.push(card);
+            }
+        }
+    }
+
+    resolveTarget(targetId: string): GameObject | null {
+        if (!this.getShip().knownObjects.has(targetId)) {
+            return null;
+        }
+
+        return this.getGameState().objects.get(targetId) || null;
+    }
+
+    /**
      * Adjust the power level, keeping it within bounds and propagating the change to the linked engineer system.
      */
     adjustPowerLevel(adjustment: number) {
@@ -294,10 +613,12 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }, () => this.getShip().engineerState.onGenerationDurationChanged());
 
     /**
-     * Generate (e.g. a card) for this system.
-     * Base SystemState does nothing; subclasses can override.
+     * Generate a card for this system by drawing from the deck,
+     * if there is room in the hand.
      */
-    public abstract readonly generate: InterceptableAction;
+    public readonly generate = new InterceptableAction(() => {
+        this.draw();
+    });
 
     /**
      * Adjust health on account of receiving damage.
@@ -308,7 +629,14 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
     /**
      * Adjust the cost of every card associated with this system.
-     * Base SystemState does nothing; CrewSystemState overrides and its subclasses can override further.
      */
-    adjustCostOfEveryCard(_amount: number) {}
+    adjustCostOfEveryCard(amount: number) {
+        for (const card of this.hand) {
+            card.modifyParameter('cost', amount);
+        }
+
+        for (const card of this.deck) {
+            card.modifyParameter('cost', amount);
+        }
+    }
 }

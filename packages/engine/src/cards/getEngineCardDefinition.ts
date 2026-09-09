@@ -146,11 +146,23 @@ function loadCardDefinitions() {
                 console.log('played smokeScreen'); return true;
             },
         },
-        hullPlaceholder: {
-            play: () => true,
+        hullChargeShields: {
+            play: (_gameState, ship) => {
+                ship.hullState.adjustEffectLevel('shield', ship.hullState.powerLevel);
+                return true;
+            },
         },
-        reactorPlaceholder: {
-            play: () => true,
+        reactorAuxPower: {
+            play: (_gameState, ship) => {
+                const engineerState = ship.engineerState;
+
+                if (engineerState.hand.some(card => card.type === 'auxPower')) {
+                    return true;
+                }
+
+                engineerState.addCard('auxPower');
+                return true;
+            },
         },
         phaserCannon: {
             aiEvaluator: weaponLoadEvaluator('phaserCannon'),

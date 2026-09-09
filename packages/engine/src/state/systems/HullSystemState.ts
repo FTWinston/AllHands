@@ -1,6 +1,5 @@
 import { Damage } from 'common-data/features/space/types/Damage';
 import { NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { InterceptableAction } from 'src/classes/InterceptableAction';
 import { CardState } from '../CardState';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
@@ -8,15 +7,25 @@ import type { Ship } from '../Ship';
 
 export class HullSystemState extends SystemState {
     constructor(setup: NonCrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
-        const cards = Array.from({ length: setup.numCards }, () => new CardState(getCardId(), 'hullPlaceholder'));
+        const cards = Array.from({ length: setup.numCards }, () => new CardState(getCardId(), 'hullChargeShields'));
 
         super(setup, gameState, ship, cards, 1);
+
+        this.generate.addHandler('hull', false, () => {
+            if (this.hand.length === 0) {
+                return;
+            }
+
+            const card = this.hand[0];
+
+            // Before drawing a new card, try to play the existing one, and discard it if that fails, e.g. due to it being damaged.
+            if (!this.playCard(card.id, card.type, 'no-target', '')) {
+                this.discard();
+            }
+        });
     }
 
-    override generate = new InterceptableAction(() => {
-        // TODO: play a card, draw a card?
-        this.linkedEngineerSystemTile.adjustEffectLevel('shield', this.powerLevel);
-    });
+    override readonly maxHandSize = 1;
 
     /**
      * Apply incoming damage to the shields first, reducing their levels as necessary,
