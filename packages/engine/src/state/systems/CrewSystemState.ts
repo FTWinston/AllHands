@@ -18,22 +18,11 @@ import type { Ship } from '../Ship';
 
 export class CrewSystemState extends SystemState implements CrewSystemInfo {
     constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, private getCardId: () => number) {
-        super(setup, gameState, ship);
-        this.scannedSystemIndex = scannedSystemIndex;
-
-        this.setMaxHandSize();
-
         const cards = setup.cards.map(cardType => new CardState(getCardId(), cardType));
 
-        // The first initialHandSize cards go straight into the hand.
-        this.hand = new ArraySchema<CardState>(
-            ...cards.slice(0, setup.initialHandSize)
-        );
+        super(setup, gameState, ship, cards, setup.initialHandSize);
 
-        // All remaining cards form the deck.
-        this.deck = new ArraySchema<CardState>(
-            ...cards.slice(setup.initialHandSize)
-        );
+        this.scannedSystemIndex = scannedSystemIndex;
     }
 
     /** Emitted whenever state that is relevant to a science scan changes. */
@@ -42,26 +31,12 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     /** The index of this system, on a scan display of this ship. */
     readonly scannedSystemIndex: number;
 
-    @type([CardState]) hand: ArraySchema<CardState>;
-    @type([CardState]) deck: ArraySchema<CardState>;
-
     /** Cards revealed from the draw pile awaiting a player choice; empty when there is none pending. */
     @type([CardState]) pendingDrawChoice = new ArraySchema<CardState>();
 
     @type(CooldownState) cardGeneration: CooldownState | null = null;
 
-    @type('uint8') maxHandSize = 0;
-
-    private setMaxHandSize() {
-        // 5 cards max hand size at max health, scaling linearly down to 1 card at 1 health, and 0 at 0.
-        this.maxHandSize = Math.ceil(5 * this.health / this.maxHealth);
-    }
-
-    override adjustHealth(adjustment: number): void {
-        super.adjustHealth(adjustment);
-
-        this.setMaxHandSize();
-    }
+    @type('uint8') readonly maxHandSize = 5;
 
     public getLastDrawnCard(): CardState | null {
         return this.lastDrawnCard;
@@ -418,9 +393,10 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
     /**
      * Add a new card of the given type to the hand, optionally forceably discarding a random card from the hand if it is full.
+     * This card is generated (not part of the system's original pool), so it doesn't count towards max health.
      */
     addCard(cardType: CardType, force: boolean = false) {
-        if (this.hand.length >= this.health) {
+        if (this.hand.length >= this.maxHandSize) {
             if (force) {
                 // Discard a random card from the hand to make room.
                 this.discard(1);
@@ -429,8 +405,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
             }
         }
 
-        const newCard = new CardState(this.getCardId(), cardType);
-        this.hand.push(newCard);
+        this.addCardToHand(new CardState(this.getCardId(), cardType));
     }
 
     /**

@@ -388,6 +388,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         if (this.modifierSlotCard === null) {
             return;
         }
+        this.markCardUnslotted(this.modifierSlotCard);
         this.handlePlayedCard(this.modifierSlotCard, -1, false);
         this.modifierSlotCard = null;
     }
@@ -396,6 +397,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         if (this.substanceSlotCard === null) {
             return;
         }
+        this.markCardUnslotted(this.substanceSlotCard);
         this.handlePlayedCard(this.substanceSlotCard, -1, false);
         this.substanceSlotCard = null;
     }
@@ -404,6 +406,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         if (this.deliverySlotCard === null) {
             return;
         }
+        this.markCardUnslotted(this.deliverySlotCard);
         this.handlePlayedCard(this.deliverySlotCard, -1, false);
         this.deliverySlotCard = null;
     }
@@ -488,10 +491,12 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         const previousCard = this[slot];
         if (previousCard) {
             // Return the displaced card to the hand.
+            this.markCardUnslotted(previousCard);
             this.hand.push(previousCard);
         }
 
         this[slot] = card;
+        this.markCardSlotted(card);
         this.updateDeflectorCard();
         return true;
     }

@@ -146,6 +146,12 @@ function loadCardDefinitions() {
                 console.log('played smokeScreen'); return true;
             },
         },
+        hullPlaceholder: {
+            play: () => true,
+        },
+        reactorPlaceholder: {
+            play: () => true,
+        },
         phaserCannon: {
             aiEvaluator: weaponLoadEvaluator('phaserCannon'),
             load: (_gameState, _ship, _slot) => {

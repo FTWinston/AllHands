@@ -11,49 +11,40 @@
         "name": "Yourself",
         "position": { "x": 0, "y": 0, "angle": 0 },
         "hull": {
+            "numCards": 15,
             "initialPowerLevel": 3,
-            "maxPowerLevel": 5,
-            "health": 100,
-            "maxHealth": 100
+            "maxPowerLevel": 5
         },
         "reactor": {
+            "numCards": 15,
             "initialPowerLevel": 3,
-            "maxPowerLevel": 5,
-            "health": 100,
-            "maxHealth": 100
+            "maxPowerLevel": 5
         },
         "helm": {
             "cards": ["slowAndSteady", "zigZag", "strafe", "faceTarget", "exampleNoTarget", "sweep", "sweep", "slowAndSteady", "zigZag", "slowAndSteady"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
-            "initialHandSize": 1,
-            "health": 100,
-            "maxHealth": 100
+            "initialHandSize": 1
         },
         "science": {
             "cards": ["passiveScan", "phasedBurstScan", "polaronScan", "invertedPulseScan", "tetryonScan", "coherentChronitonScan"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1,
-            "health": 100,
-            "maxHealth": 100
+            "health": 6
         },
         "tactical": {
             "numSlots": 2,
             "cards": ["phaserStrip", "exampleEnemyTarget", "exampleNoTarget", "phaserCannon", "phaserStrip", "photonTorpedo", "lowYield", "fullSpread", "weaponOvercharge", "subCritical"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
-            "initialHandSize": 1,
-            "health": 100,
-            "maxHealth": 100
+            "initialHandSize": 1
         },
         "engineer": {
             "cards": ["swapSystems", "exampleNoTarget"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
-            "initialHandSize": 1,
-            "health": 100,
-            "maxHealth": 100
+            "initialHandSize": 1
         }
     },
     "encounters": [

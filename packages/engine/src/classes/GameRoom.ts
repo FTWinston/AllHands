@@ -386,7 +386,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             const role = getRole(message.system);
 
             const systemState = this.getSystemState(ship, role);
-            systemState.hand.push(new CardState(ship.getCardId(), message.cardId as CardType));
+            systemState.addCardToHand(new CardState(ship.getCardId(), message.cardId as CardType));
 
             console.log(`[dev] ${client.sessionId} addCard ${message.cardId} to ${message.system}`);
         });

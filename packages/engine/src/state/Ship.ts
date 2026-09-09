@@ -29,14 +29,13 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             new MotionKeyframe(gameState.currentTime, setup.position.x, setup.position.y, setup.position.angle)
         );
 
-        const getCardId = () => this.getCardId();
-        this.hullState = new HullSystemState(setup.hull, gameState, this);
-        this.reactorState = new ReactorSystemState(setup.reactor, gameState, this);
-
         // Randomize the order of systems on the scan interface, so each ship is different.
         const scanSystemOrder = [0, 1, 2, 3];
         gameState.random.shuffle(scanSystemOrder);
 
+        const getCardId = () => this.getCardId();
+        this.hullState = new HullSystemState(setup.hull, gameState, this, getCardId);
+        this.reactorState = new ReactorSystemState(setup.reactor, gameState, this, getCardId);
         this.helmState = new HelmState(setup.helm, gameState, this, scanSystemOrder[0], getCardId);
         this.scienceState = new ScienceState(setup.science, gameState, this, scanSystemOrder[1], getCardId);
         this.tacticalState = new TacticalState(setup.tactical, gameState, this, scanSystemOrder[2], getCardId);

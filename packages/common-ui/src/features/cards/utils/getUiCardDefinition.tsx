@@ -16,6 +16,16 @@ function loadCardDefinitions() {
             description: 'Deploy a smoke screen to obscure vision and provide cover.',
             image: <ExampleIcon />,
         },
+        hullPlaceholder: {
+            name: 'Hull Plating',
+            description: 'A section of the hull.',
+            image: <ExampleIcon />,
+        },
+        reactorPlaceholder: {
+            name: 'Reactor Component',
+            description: 'A component of the reactor.',
+            image: <ExampleIcon />,
+        },
         phaserCannon: {
             name: 'Phaser Cannon',
             description: <>

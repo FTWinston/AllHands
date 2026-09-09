@@ -913,6 +913,16 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 3 },
     },
+    hullPlaceholder: {
+        targetType: 'no-target',
+        crew: 'engineer',
+        parameters: { cost: 0 },
+    },
+    reactorPlaceholder: {
+        targetType: 'no-target',
+        crew: 'engineer',
+        parameters: { cost: 0 },
+    },
 } as const);
 
 export type CardType = keyof typeof cardDefinitions;

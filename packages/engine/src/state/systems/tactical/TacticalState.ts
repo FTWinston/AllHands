@@ -70,6 +70,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
 
         slot.card = card;
+        this.markCardSlotted(card);
         this.scienceScanDataChanged.invoke();
 
         return true;
@@ -169,6 +170,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
         if (slotCard && slot.afterFiring()) {
             // Put card back at the end of the deck.
+            this.markCardUnslotted(slotCard);
             this.handlePlayedCard(slotCard, -1, false);
         }
 

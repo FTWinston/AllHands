@@ -169,8 +169,10 @@ export interface ShipInfo extends GameObjectInfo {
 export interface SystemSetupInfo {
     initialPowerLevel: number;
     maxPowerLevel: number;
-    health: number;
-    maxHealth: number;
+}
+
+export interface NonCrewSystemSetupInfo extends SystemSetupInfo {
+    numCards: number;
 }
 
 export interface CrewSystemSetupInfo extends SystemSetupInfo {
@@ -204,8 +206,8 @@ export interface GameObjectSetupInfo {
 
 export interface ShipSetupInfo extends GameObjectSetupInfo {
     position: Position;
-    hull: SystemSetupInfo;
-    reactor: SystemSetupInfo;
+    hull: NonCrewSystemSetupInfo;
+    reactor: NonCrewSystemSetupInfo;
     helm: CrewSystemSetupInfo;
     science: CrewSystemSetupInfo;
     tactical: TacticalSystemSetupInfo;

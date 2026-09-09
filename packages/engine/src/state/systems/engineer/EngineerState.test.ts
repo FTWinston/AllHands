@@ -12,15 +12,13 @@ const minimalCrewSetup: CrewSystemSetupInfo = {
     initialPowerLevel: 3,
     maxPowerLevel: 5,
     initialHandSize: 0,
-    health: 100,
-    maxHealth: 100,
 };
 
 const defaultSetup: PlayerShipSetupInfo = {
     name: 'Player',
     position: { x: 0, y: 0, angle: 0 },
-    hull: { initialPowerLevel: 3, maxPowerLevel: 5, health: 100, maxHealth: 100 },
-    reactor: { initialPowerLevel: 3, maxPowerLevel: 5, health: 100, maxHealth: 100 },
+    hull: { initialPowerLevel: 3, maxPowerLevel: 5, numCards: 12 },
+    reactor: { initialPowerLevel: 3, maxPowerLevel: 5, numCards: 12 },
     helm: { ...minimalCrewSetup },
     science: { ...minimalCrewSetup },
     tactical: { ...minimalCrewSetup, numSlots: 2 },

@@ -1,26 +1,20 @@
 import { Damage } from 'common-data/features/space/types/Damage';
-import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { InterceptableAction } from 'src/classes/InterceptableAction';
+import { CardState } from '../CardState';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
-// TODO: Revisit damage type scaling when new card traits are added for damage types.
-// const damageTypeScales: Record<DamageType, { drain: number; pen: number }> = {
-//     coherent: { drain: 1.0, pen: 0.0 },
-//     disruptor: { drain: 1.4, pen: 0.0 },
-//     ion: { drain: 2.5, pen: -0.2 }, // High drain, low pen
-//     plasma: { drain: 0.8, pen: 0.1 },
-//     antimatter: { drain: 1.0, pen: 0.2 },
-//     tachyon: { drain: 0.5, pen: 0.4 }, // High pen, low drain
-// };
-
 export class HullSystemState extends SystemState {
-    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship) {
-        super(setup, gameState, ship);
+    constructor(setup: NonCrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
+        const cards = Array.from({ length: setup.numCards }, () => new CardState(getCardId(), 'hullPlaceholder'));
+
+        super(setup, gameState, ship, cards, 1);
     }
 
     override generate = new InterceptableAction(() => {
+        // TODO: play a card, draw a card?
         this.linkedEngineerSystemTile.adjustEffectLevel('shield', this.powerLevel);
     });
 
