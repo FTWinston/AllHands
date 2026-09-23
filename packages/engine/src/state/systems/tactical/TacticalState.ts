@@ -274,4 +274,13 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             }
         }
     }
+
+    cleanupAfterEncounter() {
+        for (const slot of this.slots) {
+            slot.primed = false;
+            slot.charge = 0;
+            slot.card = null;
+        }
+        super.cleanupAfterEncounter();
+    }
 }

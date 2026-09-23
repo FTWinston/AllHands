@@ -11,6 +11,12 @@ export type DisplayableTrait = CardTrait
  */
 export function getTraitDisplayName(trait: DisplayableTrait): string {
     switch (trait) {
+        case 'damaged':
+            return 'Damaged';
+        case 'stabilised':
+            return 'Stabilised';
+        case 'critical':
+            return 'Critically damaged';
         case 'expendable':
             return 'Expendable';
         case 'unstable':

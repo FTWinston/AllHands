@@ -545,4 +545,12 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         // Also adjust the cost of the card in the deflector slot.
         this.deflectorCard.modifyParameter('cost', amount);
     }
+
+    cleanupAfterEncounter() {
+        this.deliverySlotCard = null;
+        this.substanceSlotCard = null;
+        this.modifierSlotCard = null;
+        this.updateDeflectorCard();
+        super.cleanupAfterEncounter();
+    }
 }

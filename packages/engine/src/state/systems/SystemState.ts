@@ -2,6 +2,7 @@ import { IArray } from '@colyseus/react';
 import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { isCrewSystem } from 'common-data/features/ships/types/ShipSystem';
@@ -290,8 +291,16 @@ export abstract class SystemState extends Schema implements SystemInfo {
                 this.lastUnslottedIndex--;
             }
 
-            card.damaged = true;
-            this.getGameState().random.insert(this.repairQueue, card);
+            if (card.hasTrait('stabilised')) {
+                card.removeTrait('stabilised');
+                card.addTrait('critical', ExtraTraitType.Normal);
+            } else {
+                card.addTrait('damaged', ExtraTraitType.Normal);
+
+                // Damaged cards go into the repair queue to be potentially repaired later.
+                // (Critically damaged cards do not.)
+                this.getGameState().random.insert(this.repairQueue, card);
+            }
         }
 
         this.syncHealth();
@@ -304,13 +313,48 @@ export abstract class SystemState extends Schema implements SystemInfo {
                 break;
             }
 
-            card.damaged = false;
+            card.removeTrait('damaged');
+            card.addTrait('stabilised', ExtraTraitType.Normal);
 
             if (this.slottedCards.has(card)) {
                 this.damageQueue.push(card);
             } else {
                 this.insertUnslotted(card);
             }
+        }
+
+        this.syncHealth();
+    }
+
+    cleanupAfterEncounter() {
+        // Restore the deck from the card pool. Clear down modifiers, but don't clean up extra card traits.
+        this.deck.clear();
+        this.deck.push(...this.cardPool);
+
+        for (const card of this.cardPool) {
+            card.modifiers.clear();
+        }
+    }
+
+    /**
+     * Fully repair this system: repair all damaged and critically damaged cards,
+     * rebuilding the damage queue and the repair queue in the process.
+     */
+    fullyRepair() {
+        // Start from a clean slate and rebuild from the card pool, so every card
+        // ends up repaired regardless of which queue (or no queue) it's in.
+        // Critically damaged cards live in neither queue — only in the pool —
+        // so rebuilding from the pool is the only complete way to reach them.
+        this.damageQueue.splice(0, this.damageQueue.length);
+        this.repairQueue.splice(0, this.repairQueue.length);
+
+        for (const card of this.cardPool) {
+            card.removeTrait('damaged');
+            card.removeTrait('critical');
+            card.removeTrait('stabilised');
+
+            this.slottedCards.delete(card);
+            this.insertUnslotted(card);
         }
 
         this.syncHealth();
@@ -330,7 +374,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         const card = this.hand[cardIndex];
 
-        if (card.damaged) {
+        if (card.hasTrait('damaged') || card.hasTrait('critical')) {
             return null;
         }
 

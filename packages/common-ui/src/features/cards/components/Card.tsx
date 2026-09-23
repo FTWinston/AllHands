@@ -1,3 +1,5 @@
+import { CardTrait } from 'common-data/features/cards/types/CardTrait';
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { FC } from 'react';
 import { getCardDefinition } from '../utils/getUiCardDefinition';
@@ -11,22 +13,14 @@ type Props = {
     damaged?: boolean;
     highlighted?: boolean;
     modifiers?: Partial<Record<string, number>>;
+    extraTraits?: Partial<Record<CardTrait, ExtraTraitType>>;
     showTraitDescriptions?: boolean;
 };
 
 export const Card: FC<Props> = (props) => {
-    const definition = getCardDefinition(props.type);
+    const { type, ...otherProps } = props;
 
-    return (
-        <CardDisplay
-            {...definition}
-            className={props.className}
-            slotted={props.slotted}
-            disabled={props.disabled}
-            damaged={props.damaged}
-            highlighted={props.highlighted}
-            modifiers={props.modifiers}
-            showTraitDescriptions={props.showTraitDescriptions}
-        />
-    );
+    const definition = getCardDefinition(type);
+
+    return <CardDisplay {...definition} {...otherProps} />;
 };

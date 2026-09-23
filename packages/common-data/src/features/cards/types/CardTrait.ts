@@ -24,10 +24,13 @@ export type WeaponTrait
 /**
  * Traits that can be assigned to cards, giving them unique behavior.
  * Includes all @see WeaponTrait values, plus:
+ * - damaged: Card cannot be used.
+ * - stabilised: Card functionality has been restored after being damaged.
+ * - critical: Card cannot be used and cannot be stabilised.
  * - primary: Card returns to hand when played (if no other primary card in hand).
  * - expendable: Card is destroyed when played (not added to the deck).
  * - unstable: Card shuffles back into the deck when played, instead of going on the end.
  * - energyWeapon: A group of tactical weapon cards. Some charge cards only target cards with this trait.
  * - torpedoWeapon: A group of tactical weapon cards. Some charge cards only target cards with this trait.
  */
-export type CardTrait = WeaponTrait | 'primary' | 'expendable' | 'unstable' | 'energyWeapon' | 'torpedoWeapon';
+export type CardTrait = WeaponTrait | 'damaged' | 'stabilised' | 'critical' | 'primary' | 'expendable' | 'unstable' | 'energyWeapon' | 'torpedoWeapon';

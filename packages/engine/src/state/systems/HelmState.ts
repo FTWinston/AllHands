@@ -77,4 +77,10 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
 
         this.cancellingManeuver = false;
     }
+
+    cleanupAfterEncounter() {
+        this.activeManeuver = null;
+        this.cancellingManeuver = false;
+        super.cleanupAfterEncounter();
+    }
 }

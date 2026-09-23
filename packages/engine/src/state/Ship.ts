@@ -194,4 +194,16 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
         super.destroy();
     }
+
+    cleanupAfterEncounter() {
+        for (const system of Object.values(this.systems)) {
+            system.cleanupAfterEncounter();
+        }
+    }
+
+    fullyRepair() {
+        for (const system of Object.values(this.systems)) {
+            system.fullyRepair();
+        }
+    }
 }

@@ -2,6 +2,12 @@ import { DisplayableTrait } from './getTraitDisplayName';
 
 export const getTraitDescription = (trait: DisplayableTrait): string => {
     switch (trait) {
+        case 'damaged':
+            return 'Card cannot be used.';
+        case 'stabilised':
+            return 'Card functionality has been restored, but additional damage will make it critically damaged.';
+        case 'critical':
+            return 'Card cannot be used and cannot be stabilised.';
         case 'primary':
             return 'Card returns to hand when played (if no other primary card in hand)';
         case 'expendable':

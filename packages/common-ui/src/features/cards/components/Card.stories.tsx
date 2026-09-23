@@ -1,3 +1,4 @@
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { Card as Component } from './Card';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -37,6 +38,26 @@ export const HighlightedHelm: Story = {
 export const DamagedTactical: Story = {
     args: {
         type: 'lowYield',
-        damaged: true,
+        extraTraits: {
+            damaged: ExtraTraitType.Normal,
+        },
+    },
+};
+
+export const StabilisedTactical: Story = {
+    args: {
+        type: 'lowYield',
+        extraTraits: {
+            stabilised: ExtraTraitType.Normal,
+        },
+    },
+};
+
+export const CriticalTactical: Story = {
+    args: {
+        type: 'lowYield',
+        extraTraits: {
+            critical: ExtraTraitType.Normal,
+        },
     },
 };

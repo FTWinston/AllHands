@@ -6,7 +6,6 @@ import { ExtraTraitType } from './ExtraTraitType';
 export type CardInstance = {
     id: number;
     type: CardType;
-    damaged?: boolean;
     modifiers?: IMap<string, number>;
     extraTraits?: IMap<CardTrait, ExtraTraitType>;
 };

@@ -19,7 +19,6 @@ export class CardState extends Schema implements CardInstance {
 
     @type('number') readonly id: number;
     @type('string') readonly type: CardType;
-    @type('boolean') damaged: boolean = false;
     @type({ map: 'number' }) readonly modifiers: MapSchema<number>;
 
     /**
@@ -53,6 +52,10 @@ export class CardState extends Schema implements CardInstance {
 
     addTrait(trait: CardTrait, type: ExtraTraitType) {
         this.extraTraits.set(trait, type);
+    }
+
+    removeTrait(trait: CardTrait) {
+        this.extraTraits.delete(trait);
     }
 
     modifyParameter(parameter: string, adjustment: number) {
