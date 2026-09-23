@@ -78,6 +78,9 @@ export abstract class SystemState extends Schema implements SystemInfo {
     addCardToHand(card: CardState) {
         this.hand.push(card);
         this.lastDrawnCard = card;
+
+        const cardDefinition = getCardDefinition(card.type);
+        cardDefinition.onDraw?.(this._gameState, this._ship, card);
     }
 
     /**
@@ -374,7 +377,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         const card = this.hand[cardIndex];
 
-        if (card.hasTrait('damaged') || card.hasTrait('critical')) {
+        if (card.isDamaged()) {
             return null;
         }
 

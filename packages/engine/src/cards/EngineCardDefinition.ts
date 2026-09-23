@@ -1,4 +1,5 @@
 import { ChoiceCardDefinition, ScanTargetCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
@@ -17,41 +18,42 @@ import type { CardEvaluator } from 'src/ai/types';
  * are co-located in getEngineCardDefinition.ts, so the two can't drift apart. Cards without one are
  * never played by the AI (see warnMissingEvaluator in src/ai/evaluators/index.ts).
  */
-export type EngineCardAiFunctionality = {
+export type SharedEngineCardDefinition = {
     aiEvaluator?: CardEvaluator;
+    onDraw?: (gameState: GameState, ship: Ship, card: CardState) => boolean;
 };
 
-export type NoTargetCardFunctionality = EngineCardAiFunctionality & {
+export type NoTargetCardFunctionality = SharedEngineCardDefinition & {
     play: (gameState: GameState, ship: Ship, parameters: CardParameters) => boolean;
 };
 
-export type ChoiceTargetCardFunctionality = EngineCardAiFunctionality;
+export type ChoiceTargetCardFunctionality = SharedEngineCardDefinition;
 
-export type WeaponSlotTargetCardFunctionality = EngineCardAiFunctionality & {
+export type WeaponSlotTargetCardFunctionality = SharedEngineCardDefinition & {
     load: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
     fire: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters, accuracy: number, weaponTraits: WeaponTrait[]) => boolean;
 };
 
-export type WeaponTargetCardFunctionality = EngineCardAiFunctionality & {
+export type WeaponTargetCardFunctionality = SharedEngineCardDefinition & {
     prime: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
     charge: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
 };
 
-export type EnemyTargetCardFunctionality = EngineCardAiFunctionality & {
+export type EnemyTargetCardFunctionality = SharedEngineCardDefinition & {
     play: (gameState: GameState, ship: Ship, target: GameObject | null, targetSystem: ShipSystem | null, parameters: CardParameters) => boolean;
 };
 
-export type ScanTargetCardFunctionality = EngineCardAiFunctionality & {
+export type ScanTargetCardFunctionality = SharedEngineCardDefinition & {
     load: (gameState: GameState, ship: Ship, slotId: string, parameters: CardParameters) => boolean;
     revealSystem: (gameState: GameState, ship: Ship, target: Ship, targetSystem: ShipSystem, parameters: CardParameters) => boolean;
     findVulnerability: (gameState: GameState, ship: Ship, target: Ship, targetSystem: ShipSystem, parameters: CardParameters) => boolean;
 };
 
-export type SystemTargetCardFunctionality = EngineCardAiFunctionality & {
+export type SystemTargetCardFunctionality = SharedEngineCardDefinition & {
     play: (gameState: GameState, ship: Ship, system: EngineerSystemTile, parameters: CardParameters) => boolean;
 };
 
-export type LocationTargetCardFunctionality = EngineCardAiFunctionality & {
+export type LocationTargetCardFunctionality = SharedEngineCardDefinition & {
     play: (gameState: GameState, ship: Ship, cardInstance: CardState, cardDefinition: LocationTargetCardDefinition, location: Vector2D, parameters: CardParameters) => boolean;
 };
 
