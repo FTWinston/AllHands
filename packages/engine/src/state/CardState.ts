@@ -58,7 +58,7 @@ export class CardState extends Schema implements CardInstance {
         this.extraTraits.delete(trait);
     }
 
-    isDamaged() {
+    get isDamaged() {
         return this.hasTrait('damaged')
             || this.hasTrait('critical');
     }

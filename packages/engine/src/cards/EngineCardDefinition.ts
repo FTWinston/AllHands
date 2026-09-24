@@ -1,5 +1,4 @@
 import { ChoiceCardDefinition, ScanTargetCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
-import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
@@ -20,7 +19,7 @@ import type { CardEvaluator } from 'src/ai/types';
  */
 export type SharedEngineCardDefinition = {
     aiEvaluator?: CardEvaluator;
-    onDraw?: (gameState: GameState, ship: Ship, card: CardState) => boolean;
+    draw?: (gameState: GameState, ship: Ship, card: CardState) => void;
 };
 
 export type NoTargetCardFunctionality = SharedEngineCardDefinition & {

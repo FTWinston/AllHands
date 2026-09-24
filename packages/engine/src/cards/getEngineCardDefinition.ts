@@ -136,6 +136,54 @@ function tryToDamage(
 
 function loadCardDefinitions() {
     const cardFunctionalities: CardFunctionalityLookup = {
+        reactorPowerHull: {
+            play: (_gameState, _ship) => {
+                return true;
+            },
+            draw: (_gameState, ship, card) => {
+                ship.reactorState.powerCardDrawn(card.isDamaged, ship.hullState);
+            },
+        },
+        reactorPowerReactor: {
+            play: (_gameState, _ship) => {
+                return true;
+            },
+            draw: (_gameState, ship, card) => {
+                ship.reactorState.powerCardDrawn(card.isDamaged, ship.reactorState);
+            },
+        },
+        reactorPowerHelm: {
+            play: (_gameState, _ship) => {
+                return true;
+            },
+            draw: (_gameState, ship, card) => {
+                ship.reactorState.powerCardDrawn(card.isDamaged, ship.helmState);
+            },
+        },
+        reactorPowerScience: {
+            play: (_gameState, _ship) => {
+                return true;
+            },
+            draw: (_gameState, ship, card) => {
+                ship.reactorState.powerCardDrawn(card.isDamaged, ship.scienceState);
+            },
+        },
+        reactorPowerTactical: {
+            play: (_gameState, _ship) => {
+                return true;
+            },
+            draw: (_gameState, ship, card) => {
+                ship.reactorState.powerCardDrawn(card.isDamaged, ship.tacticalState);
+            },
+        },
+        reactorPowerEngineer: {
+            play: (_gameState, _ship) => {
+                return true;
+            },
+            draw: (_gameState, ship, card) => {
+                ship.reactorState.powerCardDrawn(card.isDamaged, ship.engineerState);
+            },
+        },
         flare: {
             play: (_ship) => {
                 console.log('played flare'); return true;
@@ -149,18 +197,6 @@ function loadCardDefinitions() {
         hullChargeShields: {
             play: (_gameState, ship) => {
                 ship.hullState.adjustEffectLevel('shield', ship.hullState.powerLevel);
-                return true;
-            },
-        },
-        reactorAuxPower: {
-            play: (_gameState, ship) => {
-                const engineerState = ship.engineerState;
-
-                if (engineerState.hand.some(card => card.type === 'auxPower')) {
-                    return true;
-                }
-
-                engineerState.addCard('auxPower');
                 return true;
             },
         },

@@ -1,6 +1,6 @@
 import { ArraySchema, type } from '@colyseus/schema';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { CrewSystemSetupInfo, CrewSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { SystemSetupInfo, CrewSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { InterceptableAction } from 'src/classes/InterceptableAction';
 import { CardState } from '../CardState';
 import { CooldownState } from '../CooldownState';
@@ -9,10 +9,8 @@ import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
 export class CrewSystemState extends SystemState implements CrewSystemInfo {
-    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, private getCardId: () => number) {
-        const cards = setup.cards.map(cardType => new CardState(getCardId(), cardType));
-
-        super(setup, gameState, ship, cards, setup.initialHandSize);
+    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, private getCardId: () => number) {
+        super(setup, gameState, ship, getCardId);
 
         this.scannedSystemIndex = scannedSystemIndex;
     }

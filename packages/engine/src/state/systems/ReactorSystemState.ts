@@ -1,14 +1,11 @@
-import { NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { CardState } from '../CardState';
+import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
 export class ReactorSystemState extends SystemState {
-    constructor(setup: NonCrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
-        const cards = Array.from({ length: setup.numCards }, () => new CardState(getCardId(), 'reactorAuxPower'));
-
-        super(setup, gameState, ship, cards, 1);
+    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
+        super(setup, gameState, ship, getCardId);
 
         this.generate.addHandler('reactor', false, () => {
             if (this.hand.length === 0) {
@@ -57,6 +54,22 @@ export class ReactorSystemState extends SystemState {
         if (oldPower !== newPower) {
             // Reactor power changes every system's generation duration
             this.getShip().engineerState.onGenerationDurationChanged();
+        }
+    }
+
+    private lastDrainedSystemFromPowerCard: SystemState | null = null;
+
+    public powerCardDrawn(cardIsDamaged: boolean, associatedSystem: SystemState) {
+        // If there's a ship system currently affected by power drain from a damaged power card, remove that effect.
+        this.lastDrainedSystemFromPowerCard?.adjustEffectLevel('reducedPower', -1);
+
+        if (cardIsDamaged) {
+            // If the drawn card was damaged, then add power drain to its associated system, and remember it so we can clean up later.
+            associatedSystem.adjustEffectLevel('reducedPower', 1);
+            this.lastDrainedSystemFromPowerCard = associatedSystem;
+        } else {
+            // If the drawn card wasn't damaged, apply no drain, and don't remember any system for later cleanup.
+            this.lastDrainedSystemFromPowerCard = null;
         }
     }
 }

@@ -1,6 +1,6 @@
 import { type } from '@colyseus/schema';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
-import { HelmSystemInfo, CrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { HelmSystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { parseVector } from 'common-data/features/space/utils/vectors';
 import { EngineLocationTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { CardCooldownState } from '../CardCooldownState';
@@ -11,7 +11,7 @@ import { CrewSystemState } from './CrewSystemState';
 import type { Ship } from '../Ship';
 
 export class HelmState extends CrewSystemState implements HelmSystemInfo {
-    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, getCardId: () => number) {
+    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, getCardId: () => number) {
         super(setup, gameState, ship, scannedSystemIndex, getCardId);
     }
 

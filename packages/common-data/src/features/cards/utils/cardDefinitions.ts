@@ -9,6 +9,36 @@ function defineCardDefinitions<T extends Record<string, CardDefinition<Extract<k
 }
 
 export const cardDefinitions = defineCardDefinitions({
+    reactorPowerHull: {
+        targetType: 'no-target',
+        crew: 'engineer',
+        parameters: { cost: 0 },
+    },
+    reactorPowerReactor: {
+        targetType: 'no-target',
+        crew: 'engineer',
+        parameters: { cost: 0 },
+    },
+    reactorPowerHelm: {
+        targetType: 'no-target',
+        crew: 'engineer',
+        parameters: { cost: 0 },
+    },
+    reactorPowerScience: {
+        targetType: 'no-target',
+        crew: 'engineer',
+        parameters: { cost: 0 },
+    },
+    reactorPowerTactical: {
+        targetType: 'no-target',
+        crew: 'engineer',
+        parameters: { cost: 0 },
+    },
+    reactorPowerEngineer: {
+        targetType: 'no-target',
+        crew: 'engineer',
+        parameters: { cost: 0 },
+    },
     flare: {
         targetType: 'no-target',
         crew: 'tactical',
@@ -914,11 +944,6 @@ export const cardDefinitions = defineCardDefinitions({
         parameters: { cost: 3 },
     },
     hullChargeShields: {
-        targetType: 'no-target',
-        crew: 'engineer',
-        parameters: { cost: 0 },
-    },
-    reactorAuxPower: {
         targetType: 'no-target',
         crew: 'engineer',
         parameters: { cost: 0 },

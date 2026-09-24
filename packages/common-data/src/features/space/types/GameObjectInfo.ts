@@ -167,20 +167,13 @@ export interface ShipInfo extends GameObjectInfo {
 }
 
 export interface SystemSetupInfo {
+    cards: CardType[];
+    initialHandSize: number;
     initialPowerLevel: number;
     maxPowerLevel: number;
 }
 
-export interface NonCrewSystemSetupInfo extends SystemSetupInfo {
-    numCards: number;
-}
-
-export interface CrewSystemSetupInfo extends SystemSetupInfo {
-    cards: CardType[];
-    initialHandSize: number;
-}
-
-export interface TacticalSystemSetupInfo extends CrewSystemSetupInfo {
+export interface TacticalSystemSetupInfo extends SystemSetupInfo {
     numSlots: number;
 }
 
@@ -206,12 +199,12 @@ export interface GameObjectSetupInfo {
 
 export interface ShipSetupInfo extends GameObjectSetupInfo {
     position: Position;
-    hull: NonCrewSystemSetupInfo;
-    reactor: NonCrewSystemSetupInfo;
-    helm: CrewSystemSetupInfo;
-    science: CrewSystemSetupInfo;
+    hull: SystemSetupInfo;
+    reactor: SystemSetupInfo;
+    helm: SystemSetupInfo;
+    science: SystemSetupInfo;
     tactical: TacticalSystemSetupInfo;
-    engineer: CrewSystemSetupInfo;
+    engineer: SystemSetupInfo;
 }
 
 export type PlayerShipSetupInfo = Omit<ShipSetupInfo, 'appearance' | 'faction'>;

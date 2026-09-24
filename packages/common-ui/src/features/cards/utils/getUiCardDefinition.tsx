@@ -6,6 +6,36 @@ import { CardDescription, UICardDefinition } from '../types/UICardDefinition';
 
 function loadCardDefinitions() {
     const cardDescriptions: Record<CardType, CardDescription> = {
+        reactorPowerHull: {
+            name: 'Hull Power',
+            description: 'Provide power to the hull system.',
+            image: <ExampleIcon />,
+        },
+        reactorPowerReactor: {
+            name: 'Reactor Power',
+            description: 'Provide power to the reactor system.',
+            image: <ExampleIcon />,
+        },
+        reactorPowerHelm: {
+            name: 'Helm Power',
+            description: 'Provide power to the helm system.',
+            image: <ExampleIcon />,
+        },
+        reactorPowerScience: {
+            name: 'Science Power',
+            description: 'Provide power to the science system.',
+            image: <ExampleIcon />,
+        },
+        reactorPowerTactical: {
+            name: 'Tactical Power',
+            description: 'Provide power to the tactical system.',
+            image: <ExampleIcon />,
+        },
+        reactorPowerEngineer: {
+            name: 'Engineer Power',
+            description: 'Provide power to the engineer system.',
+            image: <ExampleIcon />,
+        },
         flare: {
             name: 'Flare',
             description: 'A bright flare that can be launched to illuminate an area or signal allies.',
@@ -19,11 +49,6 @@ function loadCardDefinitions() {
         hullChargeShields: {
             name: 'Charge shields',
             description: 'Charge the shields by the hull\'s power level.',
-            image: <ExampleIcon />,
-        },
-        reactorAuxPower: {
-            name: 'Add aux power',
-            description: 'Add an aux power card to the engineer if they don\'t have one.',
             image: <ExampleIcon />,
         },
         phaserCannon: {

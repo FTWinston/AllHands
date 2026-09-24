@@ -1,29 +1,13 @@
 import { ClockTimer } from '@colyseus/timer';
-import { CrewSystemSetupInfo, PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { GameState } from 'src/state/GameState';
 import { PlayerShip } from 'src/state/PlayerShip';
+import { shipSetup } from 'src/testUtils';
 import { IdProvider } from 'src/types/IdProvider';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { EngineerState } from '../engineer/EngineerState';
 import { generationDurationByReactorPower } from '../SystemState';
 
-const minimalCrewSetup: CrewSystemSetupInfo = {
-    cards: ['exampleNoTarget', 'exampleNoTarget'],
-    initialPowerLevel: 3,
-    maxPowerLevel: 5,
-    initialHandSize: 0,
-};
-
-const defaultSetup: PlayerShipSetupInfo = {
-    name: 'Player',
-    position: { x: 0, y: 0, angle: 0 },
-    hull: { initialPowerLevel: 3, maxPowerLevel: 5, numCards: 12 },
-    reactor: { initialPowerLevel: 3, maxPowerLevel: 5, numCards: 12 },
-    helm: { ...minimalCrewSetup },
-    science: { ...minimalCrewSetup },
-    tactical: { ...minimalCrewSetup, numSlots: 2 },
-    engineer: { ...minimalCrewSetup },
-};
+const defaultSetup = shipSetup(undefined);
 
 function createTestShip(currentTime = 0) {
     let nextId = 1;

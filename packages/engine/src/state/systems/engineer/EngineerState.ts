@@ -4,7 +4,7 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
-import { CrewSystemSetupInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { SystemSetupInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineSystemTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { getSystemEffectDefinition } from 'src/effects/getEngineSystemEffectDefinition';
@@ -15,7 +15,7 @@ import { EngineerSystemTile } from './EngineerSystemTile';
 import type { Ship } from 'src/state/Ship';
 
 export class EngineerState extends CrewSystemState implements EngineerSystemInfo {
-    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, getCardId: () => number) {
+    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, getCardId: () => number) {
         super(setup, gameState, ship, scannedSystemIndex, getCardId);
     }
 

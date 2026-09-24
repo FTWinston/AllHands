@@ -11,14 +11,16 @@
         "name": "Yourself",
         "position": { "x": 0, "y": 0, "angle": 0 },
         "hull": {
-            "numCards": 15,
+            "cards": ["hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields"],
             "initialPowerLevel": 3,
-            "maxPowerLevel": 5
+            "maxPowerLevel": 5,
+            "initialHandSize": 0
         },
         "reactor": {
-            "numCards": 15,
+            "cards": ["reactorPowerHull", "reactorPowerReactor", "reactorPowerHelm", "reactorPowerScience", "reactorPowerTactical", "reactorPowerEngineer", "reactorPowerHull", "reactorPowerReactor", "reactorPowerHelm", "reactorPowerScience", "reactorPowerTactical", "reactorPowerEngineer"],
             "initialPowerLevel": 3,
-            "maxPowerLevel": 5
+            "maxPowerLevel": 5,
+            "initialHandSize": 0
         },
         "helm": {
             "cards": ["slowAndSteady", "zigZag", "strafe", "faceTarget", "exampleNoTarget", "sweep", "sweep", "slowAndSteady", "zigZag", "slowAndSteady"],
@@ -30,8 +32,7 @@
             "cards": ["passiveScan", "phasedBurstScan", "polaronScan", "invertedPulseScan", "tetryonScan", "coherentChronitonScan"],
             "initialPowerLevel": 3,
             "maxPowerLevel": 5,
-            "initialHandSize": 1,
-            "health": 6
+            "initialHandSize": 1
         },
         "tactical": {
             "numSlots": 2,
@@ -58,49 +59,41 @@
                     "goal": { "type": "search-and-destroy" },
                     "skill": 1,
                     "hull": {
+                        "cards": ["hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields"],
                         "initialPowerLevel": 3,
                         "maxPowerLevel": 3,
-                        "health": 10,
-                        "maxHealth": 10
+                        "initialHandSize": 0
                     },
                     "reactor": {
+                        "cards": ["reactorPowerHull", "reactorPowerReactor", "reactorPowerHelm", "reactorPowerScience", "reactorPowerTactical", "reactorPowerEngineer"],
                         "initialPowerLevel": 3,
-                        "maxPowerLevel": 3,
-                        "health": 100,
-                        "maxHealth": 100
+                        "maxPowerLevel": 5,
+                        "initialHandSize": 0
                     },
                     "helm": {
                         "cards": ["slowAndSteady", "zigZag", "strafe", "slowAndSteady"],
                         "initialPowerLevel": 2,
                         "maxPowerLevel": 3,
-                        "initialHandSize": 1,
-                        "health": 3,
-                        "maxHealth": 3
+                        "initialHandSize": 1
                     },
                     "science": {
                         "cards": ["passiveScan", "passiveScan", "passiveScan", "passiveScan", "passiveScan"],
                         "initialPowerLevel": 2,
                         "maxPowerLevel": 2,
-                        "initialHandSize": 1,
-                        "health": 3,
-                        "maxHealth": 3
+                        "initialHandSize": 1
                     },
                     "tactical": {
                         "numSlots": 1,
                         "cards": ["photonTorpedo", "lowYield", "fullSpread"],
                         "initialPowerLevel": 2,
                         "maxPowerLevel": 2,
-                        "initialHandSize": 1,
-                        "health": 3,
-                        "maxHealth": 3
+                        "initialHandSize": 1
                     },
                     "engineer": {
                         "cards": ["auxPower", "auxPower", "distributePower"],
                         "initialPowerLevel": 2,
                         "maxPowerLevel": 2,
-                        "initialHandSize": 1,
-                        "health": 3,
-                        "maxHealth": 3
+                        "initialHandSize": 1
                     }
                 }
             ]

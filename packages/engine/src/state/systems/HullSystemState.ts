@@ -1,15 +1,12 @@
 import { Damage } from 'common-data/features/space/types/Damage';
-import { NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { CardState } from '../CardState';
+import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
 export class HullSystemState extends SystemState {
-    constructor(setup: NonCrewSystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
-        const cards = Array.from({ length: setup.numCards }, () => new CardState(getCardId(), 'hullChargeShields'));
-
-        super(setup, gameState, ship, cards, 1);
+    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
+        super(setup, gameState, ship, getCardId);
 
         this.generate.addHandler('hull', false, () => {
             if (this.hand.length === 0) {

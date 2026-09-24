@@ -32,9 +32,10 @@ export abstract class SystemState extends Schema implements SystemInfo {
         setup: SystemSetupInfo,
         protected readonly _gameState: GameState,
         protected readonly _ship: Ship,
-        cards: CardState[],
-        initialHandSize: number
+        getCardId: () => number
     ) {
+        const cards = setup.cards.map(cardType => new CardState(getCardId(), cardType));
+
         super();
 
         this.underlyingPowerLevel = this.powerLevel = setup.initialPowerLevel;
@@ -42,15 +43,15 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         // The first initialHandSize cards go straight into the hand.
         this.hand = new ArraySchema<CardState>(
-            ...cards.slice(0, initialHandSize)
+            ...cards.slice(0, setup.initialHandSize)
         );
 
         // All remaining cards form the deck.
         this.deck = new ArraySchema<CardState>(
-            ...cards.slice(initialHandSize)
+            ...cards.slice(setup.initialHandSize)
         );
 
-        this.health = this.maxHealth = this.initializeCardPool(cards);
+        this._health = this.maxHealth = this.initializeCardPool(cards);
     }
 
     /** How many cards can be held in the hand at once. */
@@ -80,7 +81,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
         this.lastDrawnCard = card;
 
         const cardDefinition = getCardDefinition(card.type);
-        cardDefinition.onDraw?.(this._gameState, this._ship, card);
+        cardDefinition.draw?.(this._gameState, this._ship, card);
     }
 
     /**
@@ -165,8 +166,13 @@ export abstract class SystemState extends Schema implements SystemInfo {
     @type('uint8') readonly powerLevel: number;
     maxPowerLevel: number;
 
-    readonly health: number;
-    maxHealth: number;
+    private _health: number;
+
+    get health(): number {
+        return this._health;
+    }
+
+    readonly maxHealth: number;
 
     /**
      * Any attacks targeting this system will have their chance to hit modified by this percentage.
@@ -265,7 +271,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
      * Recompute health from the damage queue, and propagate the change to the linked engineer system.
      */
     private syncHealth() {
-        (this as { health: number }).health = this.damageQueue.length;
+        this._health = this.damageQueue.length;
         this.linkedEngineerSystemTile.setHealthFromSystem(this);
     }
 
@@ -377,7 +383,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         const card = this.hand[cardIndex];
 
-        if (card.isDamaged()) {
+        if (card.isDamaged) {
             return null;
         }
 

@@ -5,7 +5,7 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { CardType, EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { engineerSystem, helmSystem, scienceSystem, shipSystems, ShipSystem, tacticalSystem } from 'common-data/features/ships/types/ShipSystem';
-import { CrewSystemSetupInfo, ScienceSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { SystemSetupInfo, ScienceSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineScanTargetCardDefinition, EngineEnemyTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { resolveParameters } from 'src/cards/resolveParameters';
@@ -22,7 +22,7 @@ import { ScannedTacticalState } from './ScannedTacticalState';
 import { ScannedWeaponSlotState } from './ScannedWeaponSlotState';
 
 export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
-    constructor(setup: CrewSystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, getCardId: () => number) {
+    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, getCardId: () => number) {
         super(setup, gameState, ship, scannedSystemIndex, getCardId);
         this.deflectorCardId = getCardId();
         this.deflectorCard = new CardState(this.deflectorCardId, this.determineDeflectorCardType(null, null, null));

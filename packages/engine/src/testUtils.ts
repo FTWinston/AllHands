@@ -1,6 +1,6 @@
-import { CrewSystemSetupInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { SystemSetupInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 
-const minimalCrewSetup: CrewSystemSetupInfo = {
+const minimalSystemSetup: SystemSetupInfo = {
     cards: ['exampleNoTarget'],
     initialPowerLevel: 3,
     maxPowerLevel: 5,
@@ -14,11 +14,11 @@ export function shipSetup(faction: string | undefined, x = 0, y = 0): ShipSetupI
         appearance: 'chevron',
         faction,
         position: { x, y, angle: 0 },
-        hull: { initialPowerLevel: 3, maxPowerLevel: 5, numCards: 15 },
-        reactor: { initialPowerLevel: 3, maxPowerLevel: 5, numCards: 12 },
-        helm: { ...minimalCrewSetup },
-        science: { ...minimalCrewSetup },
-        tactical: { ...minimalCrewSetup, numSlots: 1 },
-        engineer: { ...minimalCrewSetup },
+        hull: { ...minimalSystemSetup },
+        reactor: { ...minimalSystemSetup },
+        helm: { ...minimalSystemSetup },
+        science: { ...minimalSystemSetup },
+        tactical: { ...minimalSystemSetup, numSlots: 1 },
+        engineer: { ...minimalSystemSetup },
     };
 }
