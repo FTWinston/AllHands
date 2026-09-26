@@ -24,18 +24,9 @@ export class ReactorSystemState extends SystemState {
     override readonly maxHandSize = 1;
 
     override adjustHealth(value: number): void {
-        const oldHealth = this.health;
-
         super.adjustHealth(value);
 
-        const newHealth = this.health;
-
-        if (newHealth !== oldHealth) {
-            // The engineer system needs told when reactor health changes
-            this.getShip().engineerState.onReactorHealthChanged(newHealth, this.maxHealth);
-        }
-
-        if (newHealth <= 0) {
+        if (this.health <= 0 && !this.hasEffect('reactorBreach')) {
             this.addEffect('reactorBreach');
 
             for (const system of this.getShip().engineerState.systems) {

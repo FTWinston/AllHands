@@ -20,6 +20,8 @@ import type { CardEvaluator } from 'src/ai/types';
 export type SharedEngineCardDefinition = {
     aiEvaluator?: CardEvaluator;
     draw?: (gameState: GameState, ship: Ship, card: CardState) => void;
+    damaged?: (gameState: GameState, ship: Ship, card: CardState) => void;
+    repaired?: (gameState: GameState, ship: Ship, card: CardState) => void;
 };
 
 export type NoTargetCardFunctionality = SharedEngineCardDefinition & {

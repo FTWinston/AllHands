@@ -143,6 +143,12 @@ function loadCardDefinitions() {
             draw: (_gameState, ship, card) => {
                 ship.reactorState.powerCardDrawn(card.isDamaged, ship.hullState);
             },
+            damaged: (_gameState, ship) => {
+                ship.hullState.adjustEffectLevel('reducedPower', 1);
+            },
+            repaired: (_gameState, ship) => {
+                ship.hullState.adjustEffectLevel('reducedPower', -1);
+            },
         },
         reactorPowerReactor: {
             play: (_gameState, _ship) => {
@@ -150,6 +156,12 @@ function loadCardDefinitions() {
             },
             draw: (_gameState, ship, card) => {
                 ship.reactorState.powerCardDrawn(card.isDamaged, ship.reactorState);
+            },
+            damaged: (_gameState, ship) => {
+                ship.reactorState.adjustEffectLevel('reducedPower', 1);
+            },
+            repaired: (_gameState, ship) => {
+                ship.reactorState.adjustEffectLevel('reducedPower', -1);
             },
         },
         reactorPowerHelm: {
@@ -159,6 +171,12 @@ function loadCardDefinitions() {
             draw: (_gameState, ship, card) => {
                 ship.reactorState.powerCardDrawn(card.isDamaged, ship.helmState);
             },
+            damaged: (_gameState, ship) => {
+                ship.helmState.adjustEffectLevel('reducedPower', 1);
+            },
+            repaired: (_gameState, ship) => {
+                ship.helmState.adjustEffectLevel('reducedPower', -1);
+            },
         },
         reactorPowerScience: {
             play: (_gameState, _ship) => {
@@ -166,6 +184,12 @@ function loadCardDefinitions() {
             },
             draw: (_gameState, ship, card) => {
                 ship.reactorState.powerCardDrawn(card.isDamaged, ship.scienceState);
+            },
+            damaged: (_gameState, ship) => {
+                ship.scienceState.adjustEffectLevel('reducedPower', 1);
+            },
+            repaired: (_gameState, ship) => {
+                ship.scienceState.adjustEffectLevel('reducedPower', -1);
             },
         },
         reactorPowerTactical: {
@@ -175,6 +199,12 @@ function loadCardDefinitions() {
             draw: (_gameState, ship, card) => {
                 ship.reactorState.powerCardDrawn(card.isDamaged, ship.tacticalState);
             },
+            damaged: (_gameState, ship) => {
+                ship.tacticalState.adjustEffectLevel('reducedPower', 1);
+            },
+            repaired: (_gameState, ship) => {
+                ship.tacticalState.adjustEffectLevel('reducedPower', -1);
+            },
         },
         reactorPowerEngineer: {
             play: (_gameState, _ship) => {
@@ -182,6 +212,12 @@ function loadCardDefinitions() {
             },
             draw: (_gameState, ship, card) => {
                 ship.reactorState.powerCardDrawn(card.isDamaged, ship.engineerState);
+            },
+            damaged: (_gameState, ship) => {
+                ship.engineerState.adjustEffectLevel('reducedPower', 1);
+            },
+            repaired: (_gameState, ship) => {
+                ship.engineerState.adjustEffectLevel('reducedPower', -1);
             },
         },
         flare: {

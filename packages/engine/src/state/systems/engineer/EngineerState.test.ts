@@ -58,8 +58,9 @@ function advanceTime(gameState: GameState, clock: ClockTimer, engineer: Engineer
 //
 // So sequence of systems by name: hull, helm, tactical, engineer, science, reactor.
 
+const defaultReactorPower = defaultSetup.reactor.cards.filter(card => card === 'reactorPowerReactor').length + 1;
 /** Per-system generation duration at the reactor power level used in tests. */
-const slotDuration = generationDurationByReactorPower[defaultSetup.reactor.initialPowerLevel];
+const slotDuration = generationDurationByReactorPower[defaultReactorPower];
 
 describe('EngineerState generation priority', () => {
     let ship: PlayerShip;

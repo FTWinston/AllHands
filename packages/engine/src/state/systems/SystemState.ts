@@ -1,4 +1,3 @@
-import { IArray } from '@colyseus/react';
 import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
@@ -38,7 +37,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         super();
 
-        this.underlyingPowerLevel = this.powerLevel = setup.initialPowerLevel;
+        this.underlyingPowerLevel = this.powerLevel = 3; // TODO: determine this from the number of cards in the reactor deck for this system, plus 1. (Assuming none start damaged.)
         this.maxPowerLevel = setup.maxPowerLevel;
 
         // The first initialHandSize cards go straight into the hand.
@@ -310,6 +309,9 @@ export abstract class SystemState extends Schema implements SystemInfo {
                 // (Critically damaged cards do not.)
                 this.getGameState().random.insert(this.repairQueue, card);
             }
+
+            // Trigger any "damaged" effect on the card definition.
+            getCardDefinition(card.type)?.damaged?.(this._gameState, this._ship, card);
         }
 
         this.syncHealth();
@@ -330,6 +332,9 @@ export abstract class SystemState extends Schema implements SystemInfo {
             } else {
                 this.insertUnslotted(card);
             }
+
+            // Trigger any "repaired" effect on the card definition.
+            getCardDefinition(card.type)?.repaired?.(this._gameState, this._ship, card);
         }
 
         this.syncHealth();
@@ -343,6 +348,8 @@ export abstract class SystemState extends Schema implements SystemInfo {
         for (const card of this.cardPool) {
             card.modifiers.clear();
         }
+
+        this.getEffects().clear();
     }
 
     /**
@@ -367,6 +374,8 @@ export abstract class SystemState extends Schema implements SystemInfo {
         }
 
         this.syncHealth();
+
+        this.getEffects().clear();
     }
 
     /**
@@ -625,7 +634,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
     /**
      * Get the effects currently applied to this system.
      */
-    getEffects(): IArray<SystemEffect> {
+    getEffects(): ArraySchema<SystemEffect> {
         return this.linkedEngineerSystemTile.effects;
     }
 

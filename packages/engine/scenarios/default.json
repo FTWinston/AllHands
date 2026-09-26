@@ -12,38 +12,32 @@
         "position": { "x": 0, "y": 0, "angle": 0 },
         "hull": {
             "cards": ["hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields"],
-            "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 0
         },
         "reactor": {
             "cards": ["reactorPowerHull", "reactorPowerReactor", "reactorPowerHelm", "reactorPowerScience", "reactorPowerTactical", "reactorPowerEngineer", "reactorPowerHull", "reactorPowerReactor", "reactorPowerHelm", "reactorPowerScience", "reactorPowerTactical", "reactorPowerEngineer"],
-            "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 0
         },
         "helm": {
             "cards": ["slowAndSteady", "zigZag", "strafe", "faceTarget", "exampleNoTarget", "sweep", "sweep", "slowAndSteady", "zigZag", "slowAndSteady"],
-            "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1
         },
         "science": {
             "cards": ["passiveScan", "phasedBurstScan", "polaronScan", "invertedPulseScan", "tetryonScan", "coherentChronitonScan"],
-            "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1
         },
         "tactical": {
             "numSlots": 2,
             "cards": ["phaserStrip", "exampleEnemyTarget", "exampleNoTarget", "phaserCannon", "phaserStrip", "photonTorpedo", "lowYield", "fullSpread", "weaponOvercharge", "subCritical"],
-            "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1
         },
         "engineer": {
             "cards": ["swapSystems", "exampleNoTarget"],
-            "initialPowerLevel": 3,
             "maxPowerLevel": 5,
             "initialHandSize": 1
         }
@@ -60,38 +54,32 @@
                     "skill": 1,
                     "hull": {
                         "cards": ["hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields", "hullChargeShields"],
-                        "initialPowerLevel": 3,
                         "maxPowerLevel": 3,
                         "initialHandSize": 0
                     },
                     "reactor": {
                         "cards": ["reactorPowerHull", "reactorPowerReactor", "reactorPowerHelm", "reactorPowerScience", "reactorPowerTactical", "reactorPowerEngineer"],
-                        "initialPowerLevel": 3,
                         "maxPowerLevel": 5,
                         "initialHandSize": 0
                     },
                     "helm": {
                         "cards": ["slowAndSteady", "zigZag", "strafe", "slowAndSteady"],
-                        "initialPowerLevel": 2,
                         "maxPowerLevel": 3,
                         "initialHandSize": 1
                     },
                     "science": {
                         "cards": ["passiveScan", "passiveScan", "passiveScan", "passiveScan", "passiveScan"],
-                        "initialPowerLevel": 2,
                         "maxPowerLevel": 2,
                         "initialHandSize": 1
                     },
                     "tactical": {
                         "numSlots": 1,
                         "cards": ["photonTorpedo", "lowYield", "fullSpread"],
-                        "initialPowerLevel": 2,
                         "maxPowerLevel": 2,
                         "initialHandSize": 1
                     },
                     "engineer": {
                         "cards": ["auxPower", "auxPower", "distributePower"],
-                        "initialPowerLevel": 2,
                         "maxPowerLevel": 2,
                         "initialHandSize": 1
                     }

@@ -169,7 +169,6 @@ export interface ShipInfo extends GameObjectInfo {
 export interface SystemSetupInfo {
     cards: CardType[];
     initialHandSize: number;
-    initialPowerLevel: number;
     maxPowerLevel: number;
 }
 
