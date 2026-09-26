@@ -1,6 +1,6 @@
 import { IArray, IMap } from '@colyseus/react';
 import { CardInstance } from 'src/features/cards/types/CardInstance';
-import { CardType, EnemyTargetedCardType } from 'src/features/cards/utils/cardDefinitions';
+import { CardType, EnemyTargetedCardType, UntargetedCardType } from 'src/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'src/features/ships/types/SystemEffectDefinition';
 import { CardCooldown, Cooldown } from 'src/types/Cooldown';
@@ -172,6 +172,10 @@ export interface SystemSetupInfo {
     maxPowerLevel: number;
 }
 
+export interface NonCrewSystemSetupInfo extends SystemSetupInfo {
+    cards: UntargetedCardType[];
+}
+
 export interface TacticalSystemSetupInfo extends SystemSetupInfo {
     numSlots: number;
 }
@@ -198,8 +202,8 @@ export interface GameObjectSetupInfo {
 
 export interface ShipSetupInfo extends GameObjectSetupInfo {
     position: Position;
-    hull: SystemSetupInfo;
-    reactor: SystemSetupInfo;
+    hull: NonCrewSystemSetupInfo;
+    reactor: NonCrewSystemSetupInfo;
     helm: SystemSetupInfo;
     science: SystemSetupInfo;
     tactical: TacticalSystemSetupInfo;

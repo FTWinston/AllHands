@@ -5,8 +5,8 @@ import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
 export class HullSystemState extends SystemState {
-    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, getCardId: () => number) {
-        super(setup, gameState, ship, getCardId);
+    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
+        super(setup, gameState, ship, initialPowerLevel, getCardId);
 
         this.generate.addHandler('hull', false, () => {
             if (this.hand.length === 0) {

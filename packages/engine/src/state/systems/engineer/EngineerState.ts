@@ -14,8 +14,8 @@ import { EngineerSystemTile } from './EngineerSystemTile';
 import type { Ship } from 'src/state/Ship';
 
 export class EngineerState extends CrewSystemState implements EngineerSystemInfo {
-    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, getCardId: () => number) {
-        super(setup, gameState, ship, scannedSystemIndex, getCardId);
+    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, initialPowerLevel: number, getCardId: () => number) {
+        super(setup, gameState, ship, scannedSystemIndex, initialPowerLevel, getCardId);
     }
 
     public initSystems() {

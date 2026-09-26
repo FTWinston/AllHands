@@ -9,8 +9,8 @@ import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
 export class CrewSystemState extends SystemState implements CrewSystemInfo {
-    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, private getCardId: () => number) {
-        super(setup, gameState, ship, getCardId);
+    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, initialPowerLevel: number, private getCardId: () => number) {
+        super(setup, gameState, ship, initialPowerLevel, getCardId);
 
         this.scannedSystemIndex = scannedSystemIndex;
     }

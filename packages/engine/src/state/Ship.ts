@@ -1,4 +1,5 @@
 import { entity, type, view } from '@colyseus/schema';
+import { UntargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { Damage } from 'common-data/features/space/types/Damage';
@@ -34,12 +35,23 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         gameState.random.shuffle(scanSystemOrder);
 
         const getCardId = () => this.getCardId();
-        this.hullState = new HullSystemState(setup.hull, gameState, this, getCardId);
-        this.reactorState = new ReactorSystemState(setup.reactor, gameState, this, getCardId);
-        this.helmState = new HelmState(setup.helm, gameState, this, scanSystemOrder[0], getCardId);
-        this.scienceState = new ScienceState(setup.science, gameState, this, scanSystemOrder[1], getCardId);
-        this.tacticalState = new TacticalState(setup.tactical, gameState, this, scanSystemOrder[2], getCardId);
-        this.engineerState = new EngineerState(setup.engineer, gameState, this, scanSystemOrder[3], getCardId);
+
+        // The reactor cards determine how much baseline power each system gets.
+        const {
+            reactorPowerHull: initialHullPower,
+            reactorPowerReactor: initialReactorPower,
+            reactorPowerHelm: initialHelmPower,
+            reactorPowerScience: initialSciencePower,
+            reactorPowerTactical: initialTacticalPower,
+            reactorPowerEngineer: initialEngineerPower,
+        } = determineSystemPowerFromReactorCards(setup.reactor.cards);
+
+        this.hullState = new HullSystemState(setup.hull, gameState, this, initialHullPower ?? 0, getCardId);
+        this.reactorState = new ReactorSystemState(setup.reactor, gameState, this, initialReactorPower ?? 0, getCardId);
+        this.helmState = new HelmState(setup.helm, gameState, this, scanSystemOrder[0], initialHelmPower ?? 0, getCardId);
+        this.scienceState = new ScienceState(setup.science, gameState, this, scanSystemOrder[1], initialSciencePower ?? 0, getCardId);
+        this.tacticalState = new TacticalState(setup.tactical, gameState, this, scanSystemOrder[2], initialTacticalPower ?? 0, getCardId);
+        this.engineerState = new EngineerState(setup.engineer, gameState, this, scanSystemOrder[3], initialEngineerPower ?? 0, getCardId);
 
         this.engineerState.initSystems();
 
@@ -206,4 +218,15 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             system.fullyRepair();
         }
     }
+}
+
+function determineSystemPowerFromReactorCards(cards: UntargetedCardType[]) {
+    // Count how many cards of each type the reactor has, as this determines the baseline power each system gets.
+    // (Add one to the result for each.)
+
+    return cards.reduce((counts, cardType) => {
+        // If not already present in the count, start at 1 so that we get one more than number of cards for each system.
+        counts[cardType] = (counts[cardType] || 1) + 1;
+        return counts;
+    }, {} as Record<UntargetedCardType, number>);
 }

@@ -31,13 +31,14 @@ export abstract class SystemState extends Schema implements SystemInfo {
         setup: SystemSetupInfo,
         protected readonly _gameState: GameState,
         protected readonly _ship: Ship,
+        initialPowerLevel: number,
         getCardId: () => number
     ) {
         const cards = setup.cards.map(cardType => new CardState(getCardId(), cardType));
 
         super();
 
-        this.underlyingPowerLevel = this.powerLevel = 3; // TODO: determine this from the number of cards in the reactor deck for this system, plus 1. (Assuming none start damaged.)
+        this.underlyingPowerLevel = this.powerLevel = initialPowerLevel;
         this.maxPowerLevel = setup.maxPowerLevel;
 
         // The first initialHandSize cards go straight into the hand.

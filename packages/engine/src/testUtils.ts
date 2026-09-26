@@ -1,6 +1,6 @@
-import { SystemSetupInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { ShipSetupInfo, NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 
-const minimalSystemSetup: SystemSetupInfo = {
+const minimalSystemSetup: NonCrewSystemSetupInfo = {
     cards: ['exampleNoTarget'],
     maxPowerLevel: 5,
     initialHandSize: 0,
