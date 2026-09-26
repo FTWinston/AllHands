@@ -15,7 +15,7 @@ import { rangeBandScore, estimateManeuverEndpoint, projectCurrentEndpoint, getDe
 
 const straightMove: LocationTargetCardDefinition = {
     targetType: 'location',
-    crew: 'helm',
+    system: 'helm',
     startFacing: CardMotionSegmentFacing.FinalVector,
     endFacing: CardMotionSegmentFacing.FinalVector,
     baseRotationSpeed: 1,

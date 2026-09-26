@@ -2,8 +2,8 @@ import { Menu } from '@base-ui-components/react/menu';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { Cooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';
-import { CrewIcon } from 'common-ui/icons/crew';
 import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
+import { SystemIcon } from 'common-ui/icons/systems';
 import { FC } from 'react';
 import { default as DrawIcon } from '../assets/card-draw.svg?react';
 import { default as HandIcon } from '../assets/card-hand.svg?react';
@@ -38,7 +38,7 @@ export const CrewHeader: FC<Props> = (props) => {
                     <CrewMenu onPause={props.onPause} />
                 </Menu.Root>
 
-                <CrewIcon crew={props.crew} className={styles.titleIcon} />
+                <SystemIcon system={props.crew} className={styles.titleIcon} />
                 <div className={styles.titleText}>
                     {props.crew}
                 </div>

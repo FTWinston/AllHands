@@ -1,4 +1,4 @@
-import { CrewRoleName } from '../../ships/types/CrewRole';
+import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { CardType } from '../utils/cardDefinitions';
 import { CardParameters } from './CardParameters';
 import { CardTargetType } from './CardTargetType';
@@ -6,7 +6,7 @@ import { CardTrait } from './CardTrait';
 
 interface CommonCardDefinition {
     targetType: CardTargetType;
-    crew: CrewRoleName;
+    system: ShipSystem;
     parameters: CardParameters;
     traits?: CardTrait[];
 }

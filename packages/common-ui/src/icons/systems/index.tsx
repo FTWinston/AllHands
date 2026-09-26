@@ -1,11 +1,19 @@
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { FC } from 'react';
-import { EngineeringIcon, HelmIcon, ScienceIcon, TacticalIcon } from '../crew';
+import { default as EngineeringIcon } from './engineering.svg?react';
+import { default as HelmIcon } from './helm.svg?react';
 import { default as ReactorIcon } from './reactor.svg?react';
+import { default as ScienceIcon } from './science.svg?react';
 import { default as ShieldsIcon } from './shield.svg?react';
+import { default as TacticalIcon } from './tactical.svg?react';
 
+export { default as HelmIcon } from './helm.svg?react';
 export { default as ReactorIcon } from './reactor.svg?react';
+export { default as ScienceIcon } from './science.svg?react';
 export { default as ShieldsIcon } from './shield.svg?react';
+export { default as TacticalIcon } from './tactical.svg?react';
+export { default as EngineeringIcon } from './engineering.svg?react';
+export { default as HullIcon } from './shield.svg?react';
 
 type IconProps = {
     system: ShipSystem;

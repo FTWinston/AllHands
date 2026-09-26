@@ -12,24 +12,24 @@ type Story = StoryObj<typeof meta>;
 
 export const Helm: Story = {
     args: {
-        crew: 'helm',
+        system: 'helm',
     },
 };
 
 export const Tactical: Story = {
     args: {
-        crew: 'tactical',
+        system: 'tactical',
     },
 };
 
 export const Science: Story = {
     args: {
-        crew: 'science',
+        system: 'science',
     },
 };
 
 export const Engineering: Story = {
     args: {
-        crew: 'engineer',
+        system: 'engineer',
     },
 };

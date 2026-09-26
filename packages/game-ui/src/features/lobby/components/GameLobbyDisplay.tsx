@@ -1,7 +1,7 @@
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { Button } from 'common-ui/components/Button';
 import { Screen } from 'common-ui/components/Screen';
-import { EngineeringIcon, HelmIcon, ScienceIcon, TacticalIcon } from 'common-ui/icons/crew';
+import { EngineeringIcon, HelmIcon, ScienceIcon, TacticalIcon } from 'common-ui/icons/systems';
 import { FC } from 'react';
 import QRCode from 'react-qr-code';
 import styles from './GameLobbyDisplay.module.css';

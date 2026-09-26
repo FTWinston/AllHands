@@ -2,7 +2,6 @@ import { SystemSetupInfo, ShipSetupInfo } from 'common-data/features/space/types
 
 const minimalSystemSetup: SystemSetupInfo = {
     cards: ['exampleNoTarget'],
-    initialPowerLevel: 3,
     maxPowerLevel: 5,
     initialHandSize: 0,
 };

@@ -2,7 +2,7 @@ import { CrewRole, ownEngineerClientRole, ownHelmClientRole, ownScienceClientRol
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { Screen } from 'common-ui/components/Screen';
 import { ToggleButton } from 'common-ui/components/ToggleButton';
-import { HelmIcon, TacticalIcon, ScienceIcon, EngineeringIcon } from 'common-ui/icons/crew';
+import { HelmIcon, TacticalIcon, ScienceIcon, EngineeringIcon } from 'common-ui/icons/systems';
 
 import { FC } from 'react';
 import styles from './GameLobbyDisplay.module.css';

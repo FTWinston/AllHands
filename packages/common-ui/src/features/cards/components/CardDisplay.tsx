@@ -34,7 +34,7 @@ export const CardDisplay: FC<Props> = (props) => {
         <CardParametersContext.Provider value={{ parameters: props.parameters, modifiers: props.modifiers }}>
             <CardBase className={classNames(
                 styles.card,
-                crewStyles[props.crew],
+                crewStyles[props.system],
                 props.disabled ? styles.disabled : undefined,
                 props.sufficientPower === false ? styles.insufficientPower : undefined,
                 props.highlighted ? styles.highlighted : undefined,

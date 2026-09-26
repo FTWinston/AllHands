@@ -1,22 +1,22 @@
-import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { FC } from 'react';
 import crewStyles from '../../../CrewColors.module.css';
-import { CrewIcon } from '../../../icons/crew';
+import { SystemIcon } from '../../../icons/systems';
 import { classNames } from '../../../utils/classNames';
 import styles from './CardBack.module.css';
 import { CardBase } from './CardBase';
+import type { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 
 export type Props = {
-    crew: CrewRoleName;
+    system: ShipSystem;
     className?: string;
 };
 
 export const CardBack: FC<Props> = (props) => {
     return (
-        <CardBase className={classNames(styles.card, styles[props.crew], crewStyles[props.crew], props.className)}>
+        <CardBase className={classNames(styles.card, styles[props.system], crewStyles[props.system], props.className)}>
             <div className={styles.topSpacer} />
-            <CrewIcon crew={props.crew} className={styles.crew} />
-            <h3 className={styles.name}>{props.crew}</h3>
+            <SystemIcon system={props.system} className={styles.crew} />
+            <h3 className={styles.name}>{props.system}</h3>
         </CardBase>
     );
 };
