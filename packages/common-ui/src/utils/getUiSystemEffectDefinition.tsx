@@ -31,6 +31,11 @@ function loadEffectDefinitions() {
             </>,
             image: ExampleIcon,
         },
+        damagedCard: {
+            name: 'Damaged Card',
+            description: <>The next card due to be drawn is damaged.</>,
+            image: ExampleIcon,
+        },
         disruptGeneration: {
             name: 'Disrupted',
             description: <>

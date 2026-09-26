@@ -19,9 +19,13 @@ export const systemEffectDefinitions = defineSystemEffects({
         duration: 30_000,
     },
     reducedPower: {
-        category: SystemEffectCategory.Negative,
+        category: SystemEffectCategory.Neutral,
         usesLevels: true,
         maxLevel: MAX_POWER_LEVEL,
+    },
+    damagedCard: {
+        category: SystemEffectCategory.Neutral,
+        usesLevels: false,
     },
     feedback: {
         category: SystemEffectCategory.Negative,

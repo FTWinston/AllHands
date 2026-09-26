@@ -99,6 +99,18 @@ export abstract class SystemState extends Schema implements SystemInfo {
                 this.addCardToHand(card);
             }
         }
+
+        this.updateDamagedCardEffect();
+    }
+
+    private updateDamagedCardEffect() {
+        if (this.deck[0]?.isDamaged) {
+            if (!this.hasEffect('damagedCard')) {
+                this.addEffect('damagedCard');
+            }
+        } else {
+            this.removeEffect('damagedCard', false);
+        }
     }
 
     /**
@@ -273,6 +285,8 @@ export abstract class SystemState extends Schema implements SystemInfo {
     private syncHealth() {
         this._health = this.damageQueue.length;
         this.linkedEngineerSystemTile.setHealthFromSystem(this);
+
+        this.updateDamagedCardEffect();
     }
 
     /**

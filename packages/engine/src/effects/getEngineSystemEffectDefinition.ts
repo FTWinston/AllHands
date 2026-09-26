@@ -140,6 +140,12 @@ function loadSystemEffectDefinitions() {
                 system.adjustSystemPowerLevel(oldLevel - newLevel);
             },
         },
+        damagedCard: {
+            apply: () => {
+                return true;
+            },
+            remove: () => {},
+        },
         disruptGeneration: {
             apply: (system) => {
                 // Stop generation events from firing while this effect is active.
