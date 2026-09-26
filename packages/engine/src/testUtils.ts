@@ -14,7 +14,7 @@ export function shipSetup(faction: string | undefined, x = 0, y = 0): ShipSetupI
         faction,
         position: { x, y, angle: 0 },
         hull: { ...minimalSystemSetup },
-        reactor: { ...minimalSystemSetup },
+        reactor: { ...minimalSystemSetup, cards: ['reactorPowerHull', 'reactorPowerReactor', 'reactorPowerHelm', 'reactorPowerScience', 'reactorPowerTactical', 'reactorPowerEngineer', 'reactorPowerHull', 'reactorPowerReactor', 'reactorPowerHelm', 'reactorPowerScience', 'reactorPowerTactical', 'reactorPowerEngineer'] },
         helm: { ...minimalSystemSetup },
         science: { ...minimalSystemSetup },
         tactical: { ...minimalSystemSetup, numSlots: 1 },
