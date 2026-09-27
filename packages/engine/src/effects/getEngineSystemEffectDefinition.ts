@@ -150,31 +150,32 @@ function loadSystemEffectDefinitions() {
             apply: (system) => {
                 // Stop generation events from firing while this effect is active.
                 // The level of this effect should be reduced by 1 each time a generation event would have fired.
-                system.systemState.triggerDraw.addHandler('disruptGeneration', true, () => {
+                system.systemState.triggerDraw.addInterceptor('disruptGeneration', () => {
                     system.adjustEffectLevel('disruptGeneration', -1);
+                    return true;
                 });
                 return true;
             },
             remove: (system) => {
                 // When removed, allow generation events to fire again.
-                system.systemState.triggerDraw.removeHandler('disruptGeneration');
+                system.systemState.triggerDraw.removeInterceptor('disruptGeneration');
             },
         },
         feedback: {
             apply: (system, level) => {
                 // Take level of damage every time this system generates.
-                system.systemState.triggerDraw.addHandler('feedback', false, () => {
+                system.systemState.triggerDraw.addListener('feedback', () => {
                     system.adjustSystemHealth(-level);
                 });
                 return true;
             },
             remove: (system) => {
                 // When removed, allow generation events to fire again.
-                system.systemState.triggerDraw.removeHandler('feedback');
+                system.systemState.triggerDraw.removeListener('feedback');
             },
             onLevelChanged: (system, newLevel) => {
-                // addHandler replaces the old handler, so we can just call it again with the new level.
-                system.systemState.triggerDraw.addHandler('feedback', false, () => {
+                // addAfterHandler replaces the old handler, so we can just call it again with the new level.
+                system.systemState.triggerDraw.addListener('feedback', () => {
                     system.adjustSystemHealth(-newLevel);
                 });
             },
@@ -305,12 +306,14 @@ function loadSystemEffectDefinitions() {
         tetryonAccumulation: {
             apply: (system) => {
                 // Prevent this system from generating while this effect is active.
-                system.systemState.triggerDraw.addHandler('tetryonAccumulation', true, () => {});
+                system.systemState.triggerDraw.addInterceptor('tetryonAccumulation', () => {
+                    return true;
+                });
                 return true;
             },
             remove: (system) => {
                 // When removed, allow generation events to fire again.
-                system.systemState.triggerDraw.removeHandler('tetryonAccumulation');
+                system.systemState.triggerDraw.removeInterceptor('tetryonAccumulation');
             },
         },
         chronitonSaturation: {

@@ -1,34 +1,44 @@
-interface ActionInterceptor {
-    preventDefault: boolean;
-    handle: () => void;
-}
-
 /**
- * An action that can have handlers added and removed, and can have all bound handlers triggered.
- * Each handler receives the value returned by the previous one (or the initial value for the first),
- * and its own return value is passed along to the next, and eventually to the default action, unless prevented.
- * Handlers can be set to prevent the default action of the event.
+ * An action that can have interceptors and listeners added and removed, and can have all bound handlers triggered.
+ * Interceptors are invoked before the default action and can prevent it from executing by returning true.
+ * Listeners are invoked after the default action.
  */
 export class InterceptableAction {
-    private handlers: Map<string, ActionInterceptor> = new Map();
+    private interceptors: Map<string, () => boolean | undefined> = new Map();
+    private listeners: Map<string, () => void> = new Map();
 
     constructor(private readonly defaultAction?: () => void) {}
 
-    public addHandler(
+    public addInterceptor(
         id: string,
-        preventDefault: boolean,
-        handle: () => void
+        handle: () => boolean | undefined
     ): this {
-        this.handlers.set(id, { preventDefault, handle });
+        this.interceptors.set(id, handle);
         return this;
     }
 
-    public removeHandler(id: string): boolean {
-        return this.handlers.delete(id);
+    public removeInterceptor(id: string): boolean {
+        return this.interceptors.delete(id);
+    }
+
+    public hasInterceptor(id: string): boolean {
+        return this.interceptors.has(id);
+    }
+
+    /**
+     * Adds a handler that will be invoked after the main handlers and default action.
+     */
+    public addListener(id: string, handle: () => void): this {
+        this.listeners.set(id, handle);
+        return this;
+    }
+
+    public removeListener(id: string): boolean {
+        return this.listeners.delete(id);
     }
 
     public hasHandler(id: string): boolean {
-        return this.handlers.has(id);
+        return this.listeners.has(id);
     }
 
     /**
@@ -38,11 +48,10 @@ export class InterceptableAction {
     public invoke(): boolean {
         let defaultPrevented = false;
 
-        for (const { preventDefault, handle } of this.handlers.values()) {
-            if (preventDefault) {
+        for (const handle of this.interceptors.values()) {
+            if (handle()) {
                 defaultPrevented = true;
             }
-            handle();
         }
 
         if (defaultPrevented) {
@@ -51,6 +60,10 @@ export class InterceptableAction {
 
         if (this.defaultAction) {
             this.defaultAction();
+        }
+
+        for (const handle of this.listeners.values()) {
+            handle();
         }
 
         return true;
