@@ -31,7 +31,7 @@ function spyOnGeneration(ship: PlayerShip) {
     const generated: string[] = [];
 
     for (const tile of ship.engineerState.systems) {
-        vi.spyOn(tile.systemState.generate, 'invoke').mockImplementation(() => {
+        vi.spyOn(tile.systemState.triggerDraw, 'invoke').mockImplementation(() => {
             generated.push(tile.system);
             return true;
         });

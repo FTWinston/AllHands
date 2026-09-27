@@ -8,7 +8,7 @@ export class HullSystemState extends SystemState {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
         super(setup, gameState, ship, initialPowerLevel, getCardId);
 
-        this.generate.addHandler('hull', false, () => {
+        this.triggerDraw.addHandler('hull', false, () => {
             if (this.hand.length === 0) {
                 return;
             }

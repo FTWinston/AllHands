@@ -7,7 +7,7 @@ export class ReactorSystemState extends SystemState {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
         super(setup, gameState, ship, initialPowerLevel, getCardId);
 
-        this.generate.addHandler('reactor', false, () => {
+        this.triggerDraw.addHandler('reactor', false, () => {
             if (this.hand.length === 0) {
                 return;
             }

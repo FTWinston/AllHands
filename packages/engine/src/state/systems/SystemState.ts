@@ -690,10 +690,9 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }, () => this.getShip().engineerState.onGenerationDurationChanged());
 
     /**
-     * Generate a card for this system by drawing from the deck,
-     * if there is room in the hand.
+     * Draw a card from this system's deck into its hand, if there is room.
      */
-    public readonly generate = new InterceptableAction(() => {
+    public readonly triggerDraw = new InterceptableAction(() => {
         this.draw();
     });
 

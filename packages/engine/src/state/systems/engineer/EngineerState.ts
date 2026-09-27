@@ -147,12 +147,12 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         } else if (currentTime >= this.generationProgress.endTime) {
             // Generation complete: unmark and generate.
             systemTile.generating = false;
-            systemTile.systemState.generate.invoke();
+            systemTile.systemState.triggerDraw.invoke();
 
             // If a system has generationPriority, also trigger generation on it.
             const priorityTile = this.systems.find(t => t.hasEffect('generationPriority'));
             if (priorityTile && priorityTile !== systemTile) {
-                priorityTile.systemState.generate.invoke();
+                priorityTile.systemState.triggerDraw.invoke();
             }
 
             // Advance to the next system.
