@@ -12,7 +12,7 @@ import { MobileObject } from './MobileObject';
 import { MotionKeyframe } from './MotionKeyframe';
 import { EngineerState } from './systems/engineer/EngineerState';
 import { HelmState } from './systems/HelmState';
-import { HullSystemState } from './systems/HullSystemState';
+import { HullState } from './systems/HullState';
 import { ReactorState } from './systems/ReactorState';
 import { ScienceState } from './systems/science/ScienceState';
 import { SystemState } from './systems/SystemState';
@@ -46,7 +46,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             reactorPowerEngineer: initialEngineerPower,
         } = determineSystemPowerFromReactorCards(setup.reactor.cards);
 
-        this.hullState = new HullSystemState(setup.hull, gameState, this, initialHullPower ?? 0, getCardId);
+        this.hullState = new HullState(setup.hull, gameState, this, initialHullPower ?? 0, getCardId);
         this.reactorState = new ReactorState(setup.reactor, gameState, this, initialReactorPower ?? 0, getCardId);
         this.helmState = new HelmState(setup.helm, gameState, this, scanSystemOrder[0], initialHelmPower ?? 0, getCardId);
         this.scienceState = new ScienceState(setup.science, gameState, this, scanSystemOrder[1], initialSciencePower ?? 0, getCardId);
@@ -71,7 +71,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         return this.nextCardId++;
     }
 
-    hullState: HullSystemState;
+    hullState: HullState;
     reactorState: ReactorState;
     @view(ownHelmClientRole) @type(HelmState) helmState: HelmState;
     @view(ownScienceClientRole) @type(ScienceState) scienceState: ScienceState;
@@ -102,6 +102,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             this.updateKnownObjects(currentTime);
         }
 
+        this.reactorState.update(currentTime);
         this.helmState.update(currentTime);
         // this.scienceState.update(currentTime);
         this.tacticalState.update(currentTime);

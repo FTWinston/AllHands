@@ -153,14 +153,7 @@ function loadCardDefinitions() {
         },
         reactorPowerReactor: {
             play: (_gameState, ship) => {
-                const engineerState = ship.engineerState;
-
-                if (engineerState.hand.some(card => card.type === 'auxPower')) {
-                    return true;
-                }
-
-                engineerState.addCard('auxPower');
-
+                ship.reactorState.scheduledDraw.invoke();
                 return true;
             },
             draw: (_gameState, ship, card) => {

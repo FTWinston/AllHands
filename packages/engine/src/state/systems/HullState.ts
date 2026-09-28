@@ -4,7 +4,7 @@ import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
-export class HullSystemState extends SystemState {
+export class HullState extends SystemState {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
         super(setup, gameState, ship, initialPowerLevel, getCardId);
 
