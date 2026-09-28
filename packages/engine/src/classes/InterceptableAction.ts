@@ -1,13 +1,16 @@
+import { ListenableEvent } from './ListenableEvent';
+
 /**
  * An action that can have interceptors and listeners added and removed, and can have all bound handlers triggered.
  * Interceptors are invoked before the default action and can prevent it from executing by returning true.
  * Listeners are invoked after the default action.
  */
-export class InterceptableAction {
+export class InterceptableAction extends ListenableEvent {
     private interceptors: Map<string, () => boolean | undefined> = new Map();
-    private listeners: Map<string, () => void> = new Map();
 
-    constructor(private readonly defaultAction?: () => void) {}
+    constructor(private readonly defaultAction?: () => void) {
+        super();
+    }
 
     public addInterceptor(
         id: string,
@@ -23,22 +26,6 @@ export class InterceptableAction {
 
     public hasInterceptor(id: string): boolean {
         return this.interceptors.has(id);
-    }
-
-    /**
-     * Adds a handler that will be invoked after the main handlers and default action.
-     */
-    public addListener(id: string, handle: () => void): this {
-        this.listeners.set(id, handle);
-        return this;
-    }
-
-    public removeListener(id: string): boolean {
-        return this.listeners.delete(id);
-    }
-
-    public hasHandler(id: string): boolean {
-        return this.listeners.has(id);
     }
 
     /**
@@ -58,13 +45,9 @@ export class InterceptableAction {
             return false;
         }
 
-        if (this.defaultAction) {
-            this.defaultAction();
-        }
+        this.defaultAction?.();
 
-        for (const handle of this.listeners.values()) {
-            handle();
-        }
+        this.triggerListeners();
 
         return true;
     }

@@ -1,16 +1,20 @@
+import { ListenableEvent } from './ListenableEvent';
+
 /**
  * A getter that can have handlers added to modify its output.
  * Each handler receives the value returned by the previous one (or the initial value for the first),
  * and its own return value is passed along to the next, until the last one is returned.
  * Includes an optional callback for when any handlers are added or removed, so that the getter can be re-evaluated if necessary.
  */
-export class InterceptableGetter<TOutput> {
+export class InterceptableGetter<TOutput> extends ListenableEvent {
     private handlers: Map<string, (output: TOutput) => TOutput> = new Map();
 
     constructor(
         private readonly defaultGetter: () => TOutput,
         private readonly handlerChangeCallback?: () => void
-    ) {}
+    ) {
+        super();
+    }
 
     public addHandler(id: string, filter: (output: TOutput) => TOutput) {
         this.handlers.set(id, filter);
@@ -33,6 +37,8 @@ export class InterceptableGetter<TOutput> {
         for (const filter of this.handlers.values()) {
             output = filter(output);
         }
+
+        this.triggerListeners();
 
         return output;
     }

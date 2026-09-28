@@ -1,3 +1,5 @@
+import { ListenableEvent } from './ListenableEvent';
+
 interface SetterInterceptor<TInput> {
     preventDefault: boolean;
     handle: (input: TInput) => TInput;
@@ -9,10 +11,12 @@ interface SetterInterceptor<TInput> {
  * Each handler receives the value returned by the previous one (or the initial value for the first),
  * and its own return value is passed along to the next, and eventually to the default action, unless prevented.
  */
-export class InterceptableSetter<TInput> {
+export class InterceptableSetter<TInput> extends ListenableEvent {
     private handlers: Map<string, SetterInterceptor<TInput>> = new Map();
 
-    constructor(private readonly defaultSetter?: (input: TInput) => void) {}
+    constructor(private readonly defaultSetter?: (input: TInput) => void) {
+        super();
+    }
 
     public addHandler(
         id: string,
@@ -52,6 +56,8 @@ export class InterceptableSetter<TInput> {
         if (this.defaultSetter) {
             this.defaultSetter(input);
         }
+
+        this.triggerListeners();
 
         return true;
     }
