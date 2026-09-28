@@ -1,20 +1,41 @@
 import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { CooldownState } from '../CooldownState';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
-export class ReactorSystemState extends SystemState {
+/**
+ * Maps the reactor's power level to how long it takes to draw a card (ms).
+ */
+export const generationDurationByReactorPower = [8_000, 4_000, 2_000, 1_000, 500, 250];
+
+export class ReactorState extends SystemState {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
         super(setup, gameState, ship, initialPowerLevel, getCardId);
 
-        this.triggerDraw.addListener('reactor', () => {
-            const card = this.hand[0];
-
+        this.cardAddedToHand.addListener('reactor', (card) => {
             // Immediately after drawing a card, try to play it, and discard it if that fails for any reason.
-            if (card && !this.playCard(card.id, card.type, 'no-target', '')) {
+            if (!this.playCard(card.id, card.type, 'no-target', '')) {
                 this.discard();
             }
         });
+
+        this.drawProgress = new CooldownState(gameState.currentTime, gameState.currentTime + this.getDrawDuration());
+    }
+
+    /** Cooldown tracking progress of drawing reactor cards. */
+    private drawProgress: CooldownState;
+
+    update(currentTime: number) {
+        // Regularly draw cards. This system is the only one that does this on its own.
+        if (this.drawProgress.endTime <= currentTime) {
+            this.drawFromTop();
+            this.drawProgress.repeat();
+        }
+    }
+
+    private getDrawDuration(): number {
+        return generationDurationByReactorPower[this.powerLevel];
     }
 
     override readonly maxHandSize = 1;
@@ -39,8 +60,8 @@ export class ReactorSystemState extends SystemState {
         const newPower = this.powerLevel;
 
         if (oldPower !== newPower) {
-            // Reactor power changes every system's generation duration
-            this.getShip().engineerState.onGenerationDurationChanged();
+            // Recalculate drawProgress based on the new power level, keeping percentage duration the same.
+            this.drawProgress.rescaleToDuration(this.getGameState().currentTime, this.getDrawDuration());
         }
     }
 

@@ -7,24 +7,18 @@ import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { isCrewSystem } from 'common-data/features/ships/types/ShipSystem';
 import { LeveledSystemEffectType, NonLeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { getArrayValue } from 'common-data/utils/arrays';
 import { EngineCardDefinition, EngineNoTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineScanTargetCardDefinition, EngineWeaponTargetCardDefinition, EngineEnemyTargetCardDefinition, EngineSystemTargetCardDefinition, EngineLocationTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { resolveParameters } from 'src/cards/resolveParameters';
 import { InterceptableAction } from 'src/classes/InterceptableAction';
-import { InterceptableGetter } from 'src/classes/InterceptableGetter';
 import { InterceptableSetter } from 'src/classes/InterceptableSetter';
+import { ListenableEvent } from 'src/classes/ListenableEvent';
 import { CardState } from '../CardState';
 import { GameObject } from '../GameObject';
 import { GameState } from '../GameState';
 import { SystemEffect } from './engineer/SystemEffect';
 import type { Ship } from '../Ship';
 import type { EngineerSystemTile } from './engineer/EngineerSystemTile';
-
-/**
- * Maps the reactor's power level to the per-system generation duration (ms).
- */
-export const generationDurationByReactorPower = [8_000, 4_000, 2_000, 1_000, 500, 250];
 
 export abstract class SystemState extends Schema implements SystemInfo {
     constructor(
@@ -82,12 +76,14 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         const cardDefinition = getCardDefinition(card.type);
         cardDefinition.draw?.(this._gameState, this._ship, card);
+
+        this.cardAddedToHand.triggerListeners(card);
     }
 
     /**
      * Take card(s) from the front of the deck and add them to the hand.
      */
-    draw(number = 1) {
+    drawFromTop(number = 1) {
         for (let i = 0; i < number; i++) {
             if (this.hand.length >= this.maxHandSize) {
                 break;
@@ -681,20 +677,16 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }
 
     /**
-     * Get the generation duration for this system, based on the current reactor power level.
-     * Update the engineer system's generation progress when any handler changes this.
-     */
-    public readonly generationDuration = new InterceptableGetter<number>(() => {
-        let reactorPower = this.getShip().reactorState.powerLevel;
-        return getArrayValue(generationDurationByReactorPower, reactorPower);
-    }, () => this.getShip().engineerState.onGenerationDurationChanged());
-
-    /**
      * Draw a card from this system's deck into its hand, if there is room.
      */
-    public readonly triggerDraw = new InterceptableAction(() => {
-        this.draw();
+    public readonly scheduledDraw = new InterceptableAction(() => {
+        this.drawFromTop();
     });
+
+    /**
+     * Fired whenever a card is added to the hand, whether drawing from the deck or any other means.
+     */
+    public readonly cardAddedToHand = new ListenableEvent<CardState>();
 
     /**
      * Adjust health on account of receiving damage.

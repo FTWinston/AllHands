@@ -12,6 +12,16 @@ export class CooldownState extends Schema implements Cooldown {
     @type('number') endTime: number;
 
     /**
+     * Advance this cooldown to repeat another cycle of the same duration,
+     * starting from its current endTime.
+     */
+    repeat() {
+        const duration = this.endTime - this.startTime;
+        this.startTime += duration;
+        this.endTime += duration;
+    }
+
+    /**
      * Adjust start and end times, preserving the progress fraction at the given time,
      * adjusting to fit a new end time.
      */

@@ -148,34 +148,34 @@ function loadSystemEffectDefinitions() {
         },
         disruptGeneration: {
             apply: (system) => {
-                // Stop generation events from firing while this effect is active.
-                // The level of this effect should be reduced by 1 each time a generation event would have fired.
-                system.systemState.triggerDraw.addInterceptor('disruptGeneration', () => {
+                // Stop scheduled draw events while this effect is active.
+                // The level of this effect should be reduced by 1 each time a scheduled draw would have fired.
+                system.systemState.scheduledDraw.addInterceptor('disruptGeneration', () => {
                     system.adjustEffectLevel('disruptGeneration', -1);
                     return true;
                 });
                 return true;
             },
             remove: (system) => {
-                // When removed, allow generation events to fire again.
-                system.systemState.triggerDraw.removeInterceptor('disruptGeneration');
+                // When removed, allow scheduled draw events to fire again.
+                system.systemState.scheduledDraw.removeInterceptor('disruptGeneration');
             },
         },
         feedback: {
             apply: (system, level) => {
-                // Take level of damage every time this system generates.
-                system.systemState.triggerDraw.addListener('feedback', () => {
+                // Take level of damage every time this system does a scheduled draw.
+                system.systemState.scheduledDraw.addListener('feedback', () => {
                     system.adjustSystemHealth(-level);
                 });
                 return true;
             },
             remove: (system) => {
-                // When removed, allow generation events to fire again.
-                system.systemState.triggerDraw.removeListener('feedback');
+                // When removed, allow scheduled draw events to fire again.
+                system.systemState.scheduledDraw.removeListener('feedback');
             },
             onLevelChanged: (system, newLevel) => {
                 // addAfterHandler replaces the old handler, so we can just call it again with the new level.
-                system.systemState.triggerDraw.addListener('feedback', () => {
+                system.systemState.scheduledDraw.addListener('feedback', () => {
                     system.adjustSystemHealth(-newLevel);
                 });
             },
@@ -306,29 +306,35 @@ function loadSystemEffectDefinitions() {
         tetryonAccumulation: {
             apply: (system) => {
                 // Prevent this system from generating while this effect is active.
-                system.systemState.triggerDraw.addInterceptor('tetryonAccumulation', () => {
+                system.systemState.scheduledDraw.addInterceptor('tetryonAccumulation', () => {
                     return true;
                 });
                 return true;
             },
             remove: (system) => {
-                // When removed, allow generation events to fire again.
-                system.systemState.triggerDraw.removeInterceptor('tetryonAccumulation');
+                // When removed, allow scheduled draw events to fire again.
+                system.systemState.scheduledDraw.removeInterceptor('tetryonAccumulation');
             },
         },
         chronitonSaturation: {
-            apply: (system, level) => {
+            apply: (/* system, level */) => {
+                /*
                 // Increase time to generate a card by level seconds.
                 system.systemState.generationDuration
                     .addHandler('chronitonSaturation', value => value + level * 1000);
+                */
                 return true;
             },
-            remove: (system) => {
+            remove: (/* system */) => {
+                /*
                 system.systemState.generationDuration.removeHandler('chronitonSaturation');
+                */
             },
-            onLevelChanged: (system, newLevel) => {
+            onLevelChanged: (/* system, newLevel */) => {
+                /*
                 // addHandler replaces the old handler, so we can just call it again with the new level.
                 system.systemState.generationDuration.addHandler('chronitonSaturation', value => value + newLevel * 1000);
+                */
             },
         },
         polaronBombardment: {

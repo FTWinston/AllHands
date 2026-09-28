@@ -5,7 +5,7 @@ import { shipSetup } from 'src/testUtils';
 import { IdProvider } from 'src/types/IdProvider';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { EngineerState } from '../engineer/EngineerState';
-import { generationDurationByReactorPower } from '../SystemState';
+import { generationDurationByReactorPower } from '../ReactorState';
 
 const defaultSetup = shipSetup(undefined);
 
@@ -31,7 +31,7 @@ function spyOnGeneration(ship: PlayerShip) {
     const generated: string[] = [];
 
     for (const tile of ship.engineerState.systems) {
-        vi.spyOn(tile.systemState.triggerDraw, 'invoke').mockImplementation(() => {
+        vi.spyOn(tile.systemState.scheduledDraw, 'invoke').mockImplementation(() => {
             generated.push(tile.system);
             return true;
         });
@@ -212,7 +212,6 @@ describe('EngineerState generation priority', () => {
             const otherTile = engineer.systems[otherIndex];
             engineer.systems[scienceIndex] = otherTile;
             engineer.systems[otherIndex] = scienceTile;
-            engineer.onSystemsSwapped(scienceIndex, otherIndex);
 
             // Advance through two more slots. science fires first (it is now at
             // the current generating position after the swap), then tactical fires

@@ -8,11 +8,9 @@ export class HullSystemState extends SystemState {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
         super(setup, gameState, ship, initialPowerLevel, getCardId);
 
-        this.triggerDraw.addListener('hull', () => {
-            const card = this.hand[0];
-
+        this.cardAddedToHand.addListener('hull', (card) => {
             // Immediately after drawing a card, try to play it, and discard it if that fails for any reason.
-            if (card && !this.playCard(card.id, card.type, 'no-target', '')) {
+            if (!this.playCard(card.id, card.type, 'no-target', '')) {
                 this.discard();
             }
         });

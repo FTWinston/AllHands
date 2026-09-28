@@ -1,13 +1,13 @@
 /**
  * An event that can have listeners added and removed, and can have all bound handlers triggered.
  */
-export class ListenableEvent {
-    private listeners: Map<string, () => void> = new Map();
+export class ListenableEvent<TArg = void> {
+    private listeners: Map<string, (arg: TArg) => void> = new Map();
 
     /**
      * Adds a handler that will be invoked.
      */
-    public addListener(id: string, handle: () => void): this {
+    public addListener(id: string, handle: (arg: TArg) => void): this {
         this.listeners.set(id, handle);
         return this;
     }
@@ -23,9 +23,9 @@ export class ListenableEvent {
     /**
      * Calls every registered listener.
      */
-    public triggerListeners() {
+    public triggerListeners(arg: TArg) {
         for (const handle of this.listeners.values()) {
-            handle();
+            handle(arg);
         }
     }
 }

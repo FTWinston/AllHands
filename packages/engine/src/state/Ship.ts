@@ -13,7 +13,7 @@ import { MotionKeyframe } from './MotionKeyframe';
 import { EngineerState } from './systems/engineer/EngineerState';
 import { HelmState } from './systems/HelmState';
 import { HullSystemState } from './systems/HullSystemState';
-import { ReactorSystemState } from './systems/ReactorSystemState';
+import { ReactorState } from './systems/ReactorState';
 import { ScienceState } from './systems/science/ScienceState';
 import { SystemState } from './systems/SystemState';
 import { TacticalState } from './systems/tactical/TacticalState';
@@ -47,7 +47,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         } = determineSystemPowerFromReactorCards(setup.reactor.cards);
 
         this.hullState = new HullSystemState(setup.hull, gameState, this, initialHullPower ?? 0, getCardId);
-        this.reactorState = new ReactorSystemState(setup.reactor, gameState, this, initialReactorPower ?? 0, getCardId);
+        this.reactorState = new ReactorState(setup.reactor, gameState, this, initialReactorPower ?? 0, getCardId);
         this.helmState = new HelmState(setup.helm, gameState, this, scanSystemOrder[0], initialHelmPower ?? 0, getCardId);
         this.scienceState = new ScienceState(setup.science, gameState, this, scanSystemOrder[1], initialSciencePower ?? 0, getCardId);
         this.tacticalState = new TacticalState(setup.tactical, gameState, this, scanSystemOrder[2], initialTacticalPower ?? 0, getCardId);
@@ -72,7 +72,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     }
 
     hullState: HullSystemState;
-    reactorState: ReactorSystemState;
+    reactorState: ReactorState;
     @view(ownHelmClientRole) @type(HelmState) helmState: HelmState;
     @view(ownScienceClientRole) @type(ScienceState) scienceState: ScienceState;
     @view(ownTacticalClientRole) @type(TacticalState) tacticalState: TacticalState;

@@ -137,7 +137,8 @@ function tryToDamage(
 function loadCardDefinitions() {
     const cardFunctionalities: CardFunctionalityLookup = {
         reactorPowerHull: {
-            play: (_gameState, _ship) => {
+            play: (_gameState, ship) => {
+                ship.hullState.scheduledDraw.invoke();
                 return true;
             },
             draw: (_gameState, ship, card) => {
@@ -151,7 +152,15 @@ function loadCardDefinitions() {
             },
         },
         reactorPowerReactor: {
-            play: (_gameState, _ship) => {
+            play: (_gameState, ship) => {
+                const engineerState = ship.engineerState;
+
+                if (engineerState.hand.some(card => card.type === 'auxPower')) {
+                    return true;
+                }
+
+                engineerState.addCard('auxPower');
+
                 return true;
             },
             draw: (_gameState, ship, card) => {
@@ -165,7 +174,8 @@ function loadCardDefinitions() {
             },
         },
         reactorPowerHelm: {
-            play: (_gameState, _ship) => {
+            play: (_gameState, ship) => {
+                ship.helmState.scheduledDraw.invoke();
                 return true;
             },
             draw: (_gameState, ship, card) => {
@@ -179,7 +189,8 @@ function loadCardDefinitions() {
             },
         },
         reactorPowerScience: {
-            play: (_gameState, _ship) => {
+            play: (_gameState, ship) => {
+                ship.scienceState.scheduledDraw.invoke();
                 return true;
             },
             draw: (_gameState, ship, card) => {
@@ -193,7 +204,8 @@ function loadCardDefinitions() {
             },
         },
         reactorPowerTactical: {
-            play: (_gameState, _ship) => {
+            play: (_gameState, ship) => {
+                ship.tacticalState.scheduledDraw.invoke();
                 return true;
             },
             draw: (_gameState, ship, card) => {
@@ -207,7 +219,8 @@ function loadCardDefinitions() {
             },
         },
         reactorPowerEngineer: {
-            play: (_gameState, _ship) => {
+            play: (_gameState, ship) => {
+                ship.engineerState.scheduledDraw.invoke();
                 return true;
             },
             draw: (_gameState, ship, card) => {
@@ -480,7 +493,6 @@ function loadCardDefinitions() {
                 const otherSystem = ship.engineerState.systems[otherSystemIndex];
                 ship.engineerState.systems[systemIndex] = otherSystem;
                 ship.engineerState.systems[otherSystemIndex] = system;
-                ship.engineerState.onSystemsSwapped(systemIndex, otherSystemIndex);
                 return true;
             },
         },
@@ -495,7 +507,6 @@ function loadCardDefinitions() {
                 const otherSystem = ship.engineerState.systems[otherSystemIndex];
                 ship.engineerState.systems[systemIndex] = otherSystem;
                 ship.engineerState.systems[otherSystemIndex] = system;
-                ship.engineerState.onSystemsSwapped(systemIndex, otherSystemIndex);
                 return true;
             },
         },
@@ -510,7 +521,6 @@ function loadCardDefinitions() {
                 const otherSystem = ship.engineerState.systems[otherSystemIndex];
                 ship.engineerState.systems[systemIndex] = otherSystem;
                 ship.engineerState.systems[otherSystemIndex] = system;
-                ship.engineerState.onSystemsSwapped(systemIndex, otherSystemIndex);
                 return true;
             },
         },
@@ -577,7 +587,6 @@ function loadCardDefinitions() {
                 const relocatingIndex = ship.engineerState.systems.indexOf(relocatingSystem);
                 ship.engineerState.systems[systemIndex] = relocatingSystem;
                 ship.engineerState.systems[relocatingIndex] = system;
-                ship.engineerState.onSystemsSwapped(systemIndex, relocatingIndex);
                 relocatingSystem.removeEffect('relocating', true);
                 return true;
             },
