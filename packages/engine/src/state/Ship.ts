@@ -223,11 +223,8 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
 function determineSystemPowerFromReactorCards(cards: UntargetedCardType[]) {
     // Count how many cards of each type the reactor has, as this determines the baseline power each system gets.
-    // (Add one to the result for each.)
-
     return cards.reduce((counts, cardType) => {
-        // If not already present in the count, start at 1 so that we get one more than number of cards for each system.
-        counts[cardType] = (counts[cardType] || 1) + 1;
+        counts[cardType] = (counts[cardType] || 0) + 1;
         return counts;
     }, {} as Record<UntargetedCardType, number>);
 }

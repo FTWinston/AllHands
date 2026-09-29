@@ -16,7 +16,7 @@
             "initialHandSize": 0
         },
         "reactor": {
-            "cards": ["reactorPowerHull", "reactorPowerHelm", "reactorPowerTactical", "reactorPowerEngineer", "reactorPowerScience", "reactorPowerReactor", "reactorPowerHull", "reactorPowerHelm", "reactorPowerTactical", "reactorPowerEngineer", "reactorPowerScience", "reactorPowerReactor"],
+            "cards": ["reactorPowerHull", "reactorPowerHelm", "reactorPowerTactical", "reactorPowerEngineer", "reactorPowerScience", "reactorPowerReactor", "reactorPowerHull", "reactorPowerHelm", "reactorPowerTactical", "reactorPowerEngineer", "reactorPowerScience", "reactorPowerReactor", "reactorPowerHull", "reactorPowerHelm", "reactorPowerTactical", "reactorPowerEngineer", "reactorPowerScience", "reactorPowerReactor"],
             "maxPowerLevel": 5,
             "initialHandSize": 0
         },
@@ -58,7 +58,7 @@
                         "initialHandSize": 0
                     },
                     "reactor": {
-                        "cards": ["reactorPowerHull", "reactorPowerHelm", "reactorPowerTactical", "reactorPowerEngineer", "reactorPowerScience", "reactorPowerReactor"],
+                        "cards": ["reactorPowerHull", "reactorPowerHelm", "reactorPowerTactical", "reactorPowerEngineer", "reactorPowerScience", "reactorPowerReactor", "reactorPowerHull", "reactorPowerHelm", "reactorPowerTactical", "reactorPowerEngineer", "reactorPowerScience", "reactorPowerReactor"],
                         "maxPowerLevel": 5,
                         "initialHandSize": 0
                     },

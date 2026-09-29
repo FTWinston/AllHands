@@ -79,22 +79,6 @@ export class ReactorState extends SystemState {
         }
     }
 
-    private lastDrainedSystemFromPowerCard: SystemState | null = null;
-
-    public powerCardDrawn(cardIsDamaged: boolean, associatedSystem: SystemState) {
-        // If there's a ship system currently affected by power drain from a damaged power card, remove that effect.
-        this.lastDrainedSystemFromPowerCard?.adjustEffectLevel('reducedPower', -1);
-
-        if (cardIsDamaged) {
-            // If the drawn card was damaged, then add power drain to its associated system, and remember it so we can clean up later.
-            associatedSystem.adjustEffectLevel('reducedPower', 1);
-            this.lastDrainedSystemFromPowerCard = associatedSystem;
-        } else {
-            // If the drawn card wasn't damaged, apply no drain, and don't remember any system for later cleanup.
-            this.lastDrainedSystemFromPowerCard = null;
-        }
-    }
-
     static getCardTypeForSystem(system: ShipSystem): CardType {
         switch (system) {
             case 'hull':
