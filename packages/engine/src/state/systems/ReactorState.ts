@@ -21,19 +21,18 @@ export class ReactorState extends SystemState {
         });
 
         this.drawProgress = new CooldownState(gameState.currentTime, gameState.currentTime + this.getDrawDuration());
+    }
 
+    override performScheduledDraw() {
         // When "triggered" to draw a card, instead check if the engineer has an 'auxPower' card, and add one if not.
         // (Actual reactor card drawn is handled by checking drawProgress in update.)
-        this.scheduledDraw.addInterceptor('reactor', () => {
-            const engineerState = ship.engineerState;
+        const engineerState = this.getShip().engineerState;
 
-            if (engineerState.hand.some(card => card.type === 'auxPower')) {
-                return true;
-            }
-
-            engineerState.addCard('auxPower');
+        if (engineerState.hand.some(card => card.type === 'auxPower')) {
             return true;
-        });
+        }
+
+        engineerState.addCard('auxPower');
     }
 
     /** Cooldown tracking progress of drawing reactor cards. */

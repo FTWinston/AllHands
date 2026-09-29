@@ -679,9 +679,11 @@ export abstract class SystemState extends Schema implements SystemInfo {
     /**
      * Draw a card from this system's deck into its hand, if there is room.
      */
-    public readonly scheduledDraw = new InterceptableAction(() => {
+    public readonly scheduledDraw = new InterceptableAction(() => this.performScheduledDraw());
+
+    protected performScheduledDraw() {
         this.drawFromTop();
-    });
+    }
 
     /**
      * Fired whenever a card is added to the hand, whether drawing from the deck or any other means.
