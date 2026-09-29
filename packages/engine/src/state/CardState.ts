@@ -94,4 +94,10 @@ export class CardState extends Schema implements CardInstance {
         newCard.addTrait('expendable', ExtraTraitType.Normal);
         return newCard;
     }
+
+    static createExpendable(cardType: CardType, newId: number) {
+        const state = new CardState(newId, cardType);
+        state.addTrait('expendable', ExtraTraitType.Normal);
+        return state;
+    }
 }

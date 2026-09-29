@@ -1,3 +1,5 @@
+import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CooldownState } from '../CooldownState';
 import { GameState } from '../GameState';
@@ -90,6 +92,25 @@ export class ReactorState extends SystemState {
         } else {
             // If the drawn card wasn't damaged, apply no drain, and don't remember any system for later cleanup.
             this.lastDrainedSystemFromPowerCard = null;
+        }
+    }
+
+    static getCardTypeForSystem(system: ShipSystem): CardType {
+        switch (system) {
+            case 'hull':
+                return 'reactorPowerHull';
+            case 'reactor':
+                return 'reactorPowerReactor';
+            case 'helm':
+                return 'reactorPowerHelm';
+            case 'tactical':
+                return 'reactorPowerTactical';
+            case 'science':
+                return 'reactorPowerScience';
+            case 'engineer':
+                return 'reactorPowerEngineer';
+            default:
+                throw new Error(`Unknown system: ${system}`);
         }
     }
 }

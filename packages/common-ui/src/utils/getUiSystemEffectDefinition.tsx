@@ -193,13 +193,6 @@ function loadEffectDefinitions() {
             </>,
             image: ExampleIcon,
         },
-        generationPriority: {
-            name: 'Generation Priority',
-            description: <>
-                This system generates after any other system generates, but skips its own slot in the sequence.
-            </>,
-            image: ExampleIcon,
-        },
         antiprotonResidue: {
             name: 'Antiproton Residue',
             description: <>

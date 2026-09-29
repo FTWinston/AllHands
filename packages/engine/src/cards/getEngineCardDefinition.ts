@@ -20,7 +20,9 @@ import { distributePowerEvaluator, powerBoostEvaluator } from 'src/ai/evaluators
 import { locationCardEvaluator } from 'src/ai/evaluators/helm';
 import { scanEvaluator } from 'src/ai/evaluators/science';
 import { weaponLoadEvaluator, weaponModifierEvaluator } from 'src/ai/evaluators/tactical';
+import { CardState } from 'src/state/CardState';
 import { GameObject } from 'src/state/GameObject';
+import { ReactorState } from 'src/state/systems/ReactorState';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from '../state/CooldownState';
 import { EngineerSystemTile } from '../state/systems/engineer/EngineerSystemTile';
@@ -742,9 +744,21 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        generationPriority: {
-            play: (_gameState, _ship, system) => {
-                return system.addEffect('generationPriority');
+        reactorPriority: {
+            play: (_gameState, ship, system) => {
+                const cardType = ReactorState.getCardTypeForSystem(system.system);
+
+                // Before every non-expendable card in the reactor deck, add an expendable copy of this system's corresponding reactor card.
+                for (let index = 0; index < ship.reactorState.deck.length; index++) {
+                    const destinationCard = ship.reactorState.deck[index];
+                    if (!destinationCard.hasTrait('expendable')) {
+                        const newCard = CardState.createExpendable(cardType, ship.getCardId());
+                        ship.reactorState.deck.splice(index, 0, newCard);
+                        index++;
+                    }
+                }
+
+                return true;
             },
         },
         passiveScan: {

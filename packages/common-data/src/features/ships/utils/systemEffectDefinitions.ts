@@ -138,11 +138,6 @@ export const systemEffectDefinitions = defineSystemEffects({
         maxLevel: 3,
         duration: 20_000,
     },
-    generationPriority: {
-        category: SystemEffectCategory.Positive,
-        usesLevels: false,
-        duration: 60_000,
-    },
     antiprotonResidue: {
         category: SystemEffectCategory.Negative,
         usesLevels: true,

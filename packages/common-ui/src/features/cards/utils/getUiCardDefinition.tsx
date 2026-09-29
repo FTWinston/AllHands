@@ -460,13 +460,14 @@ function loadCardDefinitions() {
             description: 'Swap all status effects between a system and its horizontal neighbor, preserving cooldowns.',
             image: <ExampleIcon />,
         },
-        generationPriority: {
-            name: 'Generation Priority',
+        reactorPriority: {
+            name: 'Reactor Priority',
             description: <>
-                For
-                <Parameter name="duration" />
+                Adds an
                 {' '}
-                seconds, the targeted system generates after any other system generates.
+                <Trait trait="expendable" external />
+                {' '}
+                copy of this system's card before each regular card in the reactor deck.
             </>,
             image: <ExampleIcon />,
         },

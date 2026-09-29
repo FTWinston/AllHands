@@ -275,19 +275,6 @@ function loadSystemEffectDefinitions() {
         divertScienceLoss: createOneToOneTransferEffect('divertScienceGain', -1),
         divertTacticalGain: createOneToOneTransferEffect('divertTacticalLoss', 1),
         divertTacticalLoss: createOneToOneTransferEffect('divertTacticalGain', -1),
-        generationPriority: {
-            apply: (system) => {
-                // Remove this effect from every other ship system.
-                for (const s of system.systemState.getShip().engineerState.systems) {
-                    if (s !== system) {
-                        s.removeEffect('generationPriority', true);
-                    }
-                }
-                return true;
-            },
-            remove: () => {
-            },
-        },
 
         antiprotonResidue: {
             apply: (system, level) => {

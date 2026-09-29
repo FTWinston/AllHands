@@ -336,10 +336,10 @@ export const cardDefinitions = defineCardDefinitions({
         system: 'engineer',
         parameters: { cost: 3 },
     },
-    generationPriority: {
+    reactorPriority: {
         targetType: 'system',
         system: 'engineer',
-        parameters: { cost: 2, duration: 60 },
+        parameters: { cost: 2 },
     },
     passiveScan: {
         targetType: 'scan',
