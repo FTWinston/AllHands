@@ -12,6 +12,7 @@ import {
     WeaponTargetedCardType,
     cardDefinitions,
 } from 'common-data/features/cards/utils/cardDefinitions';
+import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { IRandom } from 'common-data/types/IRandom';
@@ -22,7 +23,6 @@ import { scanEvaluator } from 'src/ai/evaluators/science';
 import { weaponLoadEvaluator, weaponModifierEvaluator } from 'src/ai/evaluators/tactical';
 import { CardState } from 'src/state/CardState';
 import { GameObject } from 'src/state/GameObject';
-import { ReactorState } from 'src/state/systems/ReactorState';
 import { getSystemEffectDefinition } from '../effects/getEngineSystemEffectDefinition';
 import { CooldownState } from '../state/CooldownState';
 import { EngineerSystemTile } from '../state/systems/engineer/EngineerSystemTile';
@@ -728,7 +728,26 @@ function loadCardDefinitions() {
         },
         reactorPriority: {
             play: (_gameState, ship, system) => {
-                const cardType = ReactorState.getCardTypeForSystem(system.system);
+                function getReactorCardTypeForSystem(system: ShipSystem): CardType {
+                    switch (system) {
+                        case 'hull':
+                            return 'reactorPowerHull';
+                        case 'reactor':
+                            return 'reactorPowerReactor';
+                        case 'helm':
+                            return 'reactorPowerHelm';
+                        case 'tactical':
+                            return 'reactorPowerTactical';
+                        case 'science':
+                            return 'reactorPowerScience';
+                        case 'engineer':
+                            return 'reactorPowerEngineer';
+                        default:
+                            throw new Error(`Unknown system: ${system}`);
+                    }
+                }
+
+                const cardType = getReactorCardTypeForSystem(system.system);
 
                 // Before every non-expendable card in the reactor deck, add an expendable copy of this system's corresponding reactor card.
                 for (let index = 0; index < ship.reactorState.deck.length; index++) {
