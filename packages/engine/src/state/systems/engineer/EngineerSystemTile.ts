@@ -14,12 +14,14 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         this.system = system;
         this.power = systemState.powerLevel;
         this.health = systemState.health;
+        this.maxHealth = systemState.maxHealth;
         systemState.linkEngineerSystem(this);
     }
 
     @type('string') system: ShipSystem;
     @type('number') readonly power: number;
     @type('number') readonly health: number;
+    @type('number') readonly maxHealth: number;
     @type([SystemEffect]) effects = new ArraySchema<SystemEffect>();
 
     @type('boolean') generating = false;
@@ -32,6 +34,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
 
     setHealthFromSystem(systemState: SystemState) {
         (this as { health: number }).health = systemState.health;
+        (this as { maxHealth: number }).maxHealth = systemState.maxHealth;
         this.scienceScanDataChanged.invoke();
     }
 

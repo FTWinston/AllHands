@@ -13,6 +13,7 @@ export type SystemInfo = {
     system: ShipSystem;
     power: number;
     health: number;
+    maxHealth: number;
     generating: boolean;
     effects?: IArray<SystemEffectInstance>;
 };
@@ -40,8 +41,12 @@ export const System = (props: Props) => {
             </div>
             <div className={styles.attribute}>
                 <HealthIcon className={styles.attributeIcon} />
-                <div className={styles.attributeValue}>{props.health}</div>
-                <div className={styles.attributeMax}>%</div>
+                <div className={classNames(styles.attributeValue, props.health < props.maxHealth ? styles.lowHealth : undefined, props.health <= 0 ? styles.noHealth : undefined)}>{props.health}</div>
+                <div className={styles.attributeMax}>
+                    /
+                    {' '}
+                    {props.maxHealth}
+                </div>
             </div>
 
             <EffectList className={styles.effects} effects={props.effects} />

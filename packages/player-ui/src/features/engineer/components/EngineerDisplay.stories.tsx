@@ -165,7 +165,8 @@ export const UI: Story = {
         systems: [
             {
                 system: 'hull',
-                health: 75,
+                health: 15,
+                maxHealth: 18,
                 power: 5,
                 generating: true,
                 effects: [
@@ -185,7 +186,8 @@ export const UI: Story = {
             },
             {
                 system: 'reactor',
-                health: 100,
+                health: 18,
+                maxHealth: 18,
                 power: 5,
                 generating: false,
                 effects: [
@@ -197,13 +199,15 @@ export const UI: Story = {
             },
             {
                 system: 'helm',
-                health: 100,
+                health: 18,
+                maxHealth: 18,
                 power: 5,
                 generating: false,
             },
             {
                 system: 'science',
-                health: 100,
+                health: 18,
+                maxHealth: 18,
                 power: 5,
                 generating: false,
                 effects: [
@@ -243,7 +247,8 @@ export const UI: Story = {
             },
             {
                 system: 'tactical',
-                health: 100,
+                health: 18,
+                maxHealth: 18,
                 power: 5,
                 generating: false,
                 effects: [
@@ -275,7 +280,8 @@ export const UI: Story = {
             },
             {
                 system: 'engineer',
-                health: 60,
+                health: 18,
+                maxHealth: 18,
                 power: 5,
                 generating: false,
                 effects: [
