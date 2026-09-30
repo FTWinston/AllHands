@@ -138,8 +138,26 @@ export abstract class SystemState extends Schema implements SystemInfo {
             }
 
             const card = random.delete(this.hand as CardState[]);
+
+            if (!card.hasTrait('expendable')) {
+                this.deck.push(card);
+            }
+        }
+    }
+
+    discardCard(cardId: number) {
+        const cardIndex = this.hand.findIndex(card => card.id === cardId);
+        if (cardIndex === -1) {
+            return false;
+        }
+
+        const [card] = this.hand.splice(cardIndex, 1);
+
+        if (!card.hasTrait('expendable')) {
             this.deck.push(card);
         }
+
+        return true;
     }
 
     /** Get the game state this system belongs to. */

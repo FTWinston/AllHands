@@ -8,8 +8,7 @@ import { ActiveCardInfo, useActiveCard } from './DragCardProvider';
 type Props<C extends ElementType = 'div'> = PropsWithChildren<{
     id: string;
     className?: string;
-    targetType: CardTargetType;
-    acceptAnyCardType?: boolean;
+    targetType: CardTargetType | 'any';
     canAcceptCard?: (card: ActiveCardInfo) => boolean;
     render?: C;
     disabled?: boolean;
@@ -20,17 +19,16 @@ type Props<C extends ElementType = 'div'> = PropsWithChildren<{
 export function CardDropTarget<C extends ElementType = 'div'>(props: Props<C>) {
     const activeCard = useActiveCard();
 
-    const { id, className, targetType, acceptAnyCardType, canAcceptCard, render, disabled, children, couldDropClassName, droppingClassName, ref, ...otherProps } = props;
+    const { id, className, targetType, canAcceptCard, render, disabled, children, couldDropClassName, droppingClassName, ref, ...otherProps } = props;
 
     const matchesActiveCard = disabled !== true && activeCard
-        && (acceptAnyCardType || targetType === activeCard.targetType)
+        && (targetType === activeCard.targetType || targetType === 'any')
         && (canAcceptCard === undefined || canAcceptCard(activeCard));
 
     const { setNodeRef, isOver } = useDroppable({
         id: disabled ? '' : id,
         disabled: !matchesActiveCard,
         data: {
-            acceptAnyCardType,
             targetType,
             canAcceptCard,
         },

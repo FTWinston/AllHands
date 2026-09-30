@@ -166,7 +166,7 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
                 const dropData = event.over.data.current;
                 if (dropData) {
                     const targetType = dropData.targetType;
-                    const allowed = (dropData.acceptAnyCardType || targetType === activeCard.targetType)
+                    const allowed = (targetType === activeCard.targetType || targetType === 'any')
                         && (dropData.canAcceptCard === undefined || dropData.canAcceptCard(activeCard));
 
                     if (allowed) {

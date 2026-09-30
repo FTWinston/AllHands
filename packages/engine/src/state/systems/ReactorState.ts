@@ -16,7 +16,7 @@ export class ReactorState extends SystemState {
         super(setup, gameState, ship, initialPowerLevel, getCardId);
 
         this.cardAddedToHand.addListener('reactor', (card) => {
-            // Immediately after drawing a card, try to play it, and discard it if that fails for any reason.
+            // Immediately after drawing a card, try to play it, and discard it if that fails for any reason, such as it being damaged.
             if (!this.playCard(card.id, card.type, 'no-target', '')) {
                 this.discard();
             }

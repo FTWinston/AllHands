@@ -184,7 +184,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             }
         });
 
-        this.onMessage('playCard', (client, message: { cardId: number; cardType: CardType; targetType: CardTargetType; targetId: string }) => {
+        this.onMessage('playCard', (client, message: { cardId: number; cardType: CardType; targetType: CardTargetType | 'any'; targetId: string }) => {
             if (this.state.gameStatus !== 'active') {
                 return;
             }
@@ -199,13 +199,27 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
             const systemState = this.getSystemState(ship, clientRole);
 
-            const card = systemState.playCard(cardId, cardType, targetType, targetId);
-            if (!card) {
-                console.error(`Failed play card ${cardId} type ${cardType} targeting ${targetType}:${targetId} for ${clientRole} of ship ${ship.id}`);
-                return;
-            }
+            if (targetType === 'any') {
+                if (targetId !== 'discard') {
+                    console.error(`Invalid targetId ${targetId} for discarding card ${cardId}`);
+                    return;
+                }
 
-            console.log(`${client.sessionId} played card ${cardId} type ${cardType} (${cardType}) on ${clientRole} targeting ${targetType}:${targetId}`);
+                if (!systemState.discardCard(cardId)) {
+                    console.error(`Failed to discard card ${cardId} for ${clientRole} of ship ${ship.id}`);
+                    return;
+                }
+
+                console.log(`${client.sessionId} discarded card ${cardId} for ${clientRole} of ship ${ship.id}`);
+            } else {
+                const card = systemState.playCard(cardId, cardType, targetType, targetId);
+                if (!card) {
+                    console.error(`Failed play card ${cardId} type ${cardType} targeting ${targetType}:${targetId} for ${clientRole} of ship ${ship.id}`);
+                    return;
+                }
+
+                console.log(`${client.sessionId} played card ${cardId} type ${cardType} (${cardType}) on ${clientRole} targeting ${targetType}:${targetId}`);
+            }
         });
 
         this.onMessage('resolveDrawChoice', (client, message: { cardId: number }) => {

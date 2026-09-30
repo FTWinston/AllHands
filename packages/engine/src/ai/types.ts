@@ -40,6 +40,7 @@ export interface Blackboard {
 
 export type CandidateAction
     = | { kind: 'playCard'; cardId: number; cardType: CardType; targetType: CardTargetType; targetId: string }
+        | { kind: 'discardCard'; cardId: number }
         | { kind: 'repair'; system: ShipSystem }
         | { kind: 'cancelManeuver' };
 

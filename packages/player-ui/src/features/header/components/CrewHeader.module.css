@@ -47,3 +47,8 @@ button.menuButton {
     gap: 1em;
     align-items: center;
 }
+
+.deckIndicator {
+    corner-shape: squircle;
+    border-radius: 1em;
+}

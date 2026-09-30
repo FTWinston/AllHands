@@ -5,6 +5,7 @@ import { Button } from 'common-ui/components/Button';
 import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
 import { SystemIcon } from 'common-ui/icons/systems';
 import { FC } from 'react';
+import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { default as DrawIcon } from '../assets/card-draw.svg?react';
 import { default as HandIcon } from '../assets/card-hand.svg?react';
 import { default as HealthIcon } from '../assets/health.svg?react';
@@ -80,17 +81,19 @@ export const CrewHeader: FC<Props> = (props) => {
                     generation={props.cardGeneration}
                 />
 
-                <NumberIndicator
-                    value={props.deckSize}
-                    icon={DrawIcon}
-                    name="Deck"
-                    isSecondary={true}
-                    description={(
-                        <>
-                            The number of cards in your deck.
-                        </>
-                    )}
-                />
+                <CardDropTarget id="discard" targetType="any" className={styles.deckIndicator}>
+                    <NumberIndicator
+                        value={props.deckSize}
+                        icon={DrawIcon}
+                        name="Deck"
+                        isSecondary={true}
+                        description={(
+                            <>
+                                Drag cards here to return them to the bottom of your deck.
+                            </>
+                        )}
+                    />
+                </CardDropTarget>
             </div>
         </div>
     );
