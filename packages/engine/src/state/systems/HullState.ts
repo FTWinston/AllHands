@@ -6,7 +6,7 @@ import type { Ship } from '../Ship';
 
 export class HullState extends SystemState {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
-        super(setup, gameState, ship, initialPowerLevel, getCardId);
+        super(setup, 'hull', gameState, ship, initialPowerLevel, getCardId);
 
         this.cardAddedToHand.addListener('hull', (card) => {
             // Immediately after drawing a card, try to play it, and discard it if that fails for any reason, such as it being damaged.

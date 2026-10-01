@@ -49,7 +49,6 @@ const meta: Meta<typeof Component> = {
             <Component
                 {...args}
                 cardGeneration={cardGeneration}
-                maxHandSize={args.maxHandSize}
                 cards={cards}
                 playCard={(cardId, _cardType, targetType, targetId) => {
                     console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);
@@ -194,7 +193,6 @@ export const UI: Story = {
             target5: { subTargets: [{ id: 'hull', system: 'hull', aspect: 0 }, { id: 'tactical', system: 'tactical', aspect: -Math.PI / 2 }, { id: 'helm', system: 'helm', aspect: Math.PI }] },
         },
         power: 5,
-        maxHandSize: 5,
         deckSize: 3,
         shipMotion: [
             { time: 0, x: 0, y: 0, angle: 0 },

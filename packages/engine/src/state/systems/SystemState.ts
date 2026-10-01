@@ -4,7 +4,7 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
-import { isCrewSystem } from 'common-data/features/ships/types/ShipSystem';
+import { isCrewSystem, ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { LeveledSystemEffectType, NonLeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineNoTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineScanTargetCardDefinition, EngineWeaponTargetCardDefinition, EngineEnemyTargetCardDefinition, EngineSystemTargetCardDefinition, EngineLocationTargetCardDefinition } from 'src/cards/EngineCardDefinition';
@@ -23,6 +23,7 @@ import type { EngineerSystemTile } from './engineer/EngineerSystemTile';
 export abstract class SystemState extends Schema implements SystemInfo {
     constructor(
         setup: SystemSetupInfo,
+        readonly system: ShipSystem,
         protected readonly _gameState: GameState,
         protected readonly _ship: Ship,
         initialPowerLevel: number,

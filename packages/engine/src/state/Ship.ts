@@ -53,8 +53,6 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this.tacticalState = new TacticalState(setup.tactical, gameState, this, scanSystemOrder[2], initialTacticalPower ?? 0, getCardId);
         this.engineerState = new EngineerState(setup.engineer, gameState, this, scanSystemOrder[3], initialEngineerPower ?? 0, getCardId);
 
-        this.engineerState.initSystems();
-
         this.systems = new Map<ShipSystem, SystemState>([
             ['hull', this.hullState],
             ['reactor', this.reactorState],
@@ -63,6 +61,10 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             ['tactical', this.tacticalState],
             ['engineer', this.engineerState],
         ]);
+
+        this.engineerState.initSystems();
+
+        this.updateCardGeneration();
     }
 
     private nextCardId = 1;
@@ -206,6 +208,16 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this.scienceState.unsubscribeFromShip();
 
         super.destroy();
+    }
+
+    /**
+     * Update the card generation timers displayed for each crew system.
+     */
+    updateCardGeneration() {
+        this.helmState.updateCardGeneration();
+        this.scienceState.updateCardGeneration();
+        this.tacticalState.updateCardGeneration();
+        this.engineerState.updateCardGeneration();
     }
 
     cleanupAfterEncounter() {

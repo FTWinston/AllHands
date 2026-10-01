@@ -1,4 +1,6 @@
+import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { getReactorCardTypeForSystem } from 'src/cards/getReactorCardTypeForSystem';
 import { CooldownState } from '../CooldownState';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
@@ -11,7 +13,7 @@ export const generationDurationByReactorPower = [8_000, 4_000, 2_000, 1_000, 500
 
 export class ReactorState extends SystemState {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
-        super(setup, gameState, ship, initialPowerLevel, getCardId);
+        super(setup, 'reactor', gameState, ship, initialPowerLevel, getCardId);
 
         this.cardAddedToHand.addListener('reactor', (card) => {
             // Immediately after drawing a card, try to play it, and discard it if that fails for any reason, such as it being damaged.
@@ -50,6 +52,25 @@ export class ReactorState extends SystemState {
         return generationDurationByReactorPower[this.powerLevel];
     }
 
+    getDrawTimeForSystemCard(system: ShipSystem): number | null {
+        const firstDrawStartTime = this.drawProgress.startTime;
+        const drawDuration = this.getDrawDuration();
+
+        let cardType = getReactorCardTypeForSystem(system);
+
+        if (!cardType) {
+            return null;
+        }
+
+        const firstCardIndexForSystem = this.deck.findIndex(card => card.type === cardType);
+
+        if (firstCardIndexForSystem === -1) {
+            return null;
+        }
+
+        return firstDrawStartTime + (drawDuration * (firstCardIndexForSystem + 1));
+    }
+
     override readonly maxHandSize = 1;
 
     override adjustHealth(value: number): void {
@@ -74,6 +95,8 @@ export class ReactorState extends SystemState {
         if (oldPower !== newPower) {
             // Recalculate drawProgress based on the new power level, keeping percentage duration the same.
             this.drawProgress.rescaleToDuration(this.getGameState().currentTime, this.getDrawDuration());
+
+            this.getShip().updateCardGeneration();
         }
     }
 }

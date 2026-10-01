@@ -1,5 +1,6 @@
 import { ArraySchema, type } from '@colyseus/schema';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemSetupInfo, CrewSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { InterceptableAction } from 'src/classes/InterceptableAction';
 import { CardState } from '../CardState';
@@ -9,8 +10,8 @@ import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
 export class CrewSystemState extends SystemState implements CrewSystemInfo {
-    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, initialPowerLevel: number, private getCardId: () => number) {
-        super(setup, gameState, ship, initialPowerLevel, getCardId);
+    constructor(setup: SystemSetupInfo, system: ShipSystem, gameState: GameState, ship: Ship, scannedSystemIndex: number, initialPowerLevel: number, private getCardId: () => number) {
+        super(setup, system, gameState, ship, initialPowerLevel, getCardId);
 
         this.scannedSystemIndex = scannedSystemIndex;
     }
@@ -27,6 +28,25 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     @type(CooldownState) cardGeneration: CooldownState | null = null;
 
     override readonly maxHandSize = 5;
+
+    override drawFromTop() {
+        super.drawFromTop();
+
+        this.updateCardGeneration();
+    }
+
+    updateCardGeneration() {
+        let currentTime = this.getGameState().currentTime;
+        let cardDrawTime = this.getShip().reactorState.getDrawTimeForSystemCard(this.system);
+
+        if (cardDrawTime === null) {
+            this.cardGeneration = null;
+        } else if (this.cardGeneration && this.cardGeneration.endTime > currentTime) {
+            this.cardGeneration.rescaleToEnd(currentTime, cardDrawTime);
+        } else {
+            this.cardGeneration = new CooldownState(currentTime, cardDrawTime);
+        }
+    }
 
     /**
      * Reveal the first `count` cards of the deck as a pending choice. The choice must later be

@@ -19,13 +19,13 @@
 .value {
     font-weight: bold;
     color: var(--grey-lightest);
-    width: 0.75em;
+    width: 1.25em;
 }
 
 .secondaryValue {
     font-weight: bold;
     color: var(--grey-light);
-    width: 0.75em;
+    width: 1.25em;
 }
 
 .icon {

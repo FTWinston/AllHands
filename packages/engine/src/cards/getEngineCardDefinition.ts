@@ -12,7 +12,6 @@ import {
     WeaponTargetedCardType,
     cardDefinitions,
 } from 'common-data/features/cards/utils/cardDefinitions';
-import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { IRandom } from 'common-data/types/IRandom';
@@ -46,6 +45,7 @@ import {
     EngineScanTargetCardDefinition,
     EngineNoTargetCardDefinition,
 } from './EngineCardDefinition';
+import { getReactorCardTypeForSystem } from './getReactorCardTypeForSystem';
 import type { Ship } from 'src/state/Ship';
 
 function isShip(object: GameObject): object is Ship {
@@ -728,25 +728,6 @@ function loadCardDefinitions() {
         },
         reactorPriority: {
             play: (_gameState, ship, system) => {
-                function getReactorCardTypeForSystem(system: ShipSystem): CardType {
-                    switch (system) {
-                        case 'hull':
-                            return 'reactorPowerHull';
-                        case 'reactor':
-                            return 'reactorPowerReactor';
-                        case 'helm':
-                            return 'reactorPowerHelm';
-                        case 'tactical':
-                            return 'reactorPowerTactical';
-                        case 'science':
-                            return 'reactorPowerScience';
-                        case 'engineer':
-                            return 'reactorPowerEngineer';
-                        default:
-                            throw new Error(`Unknown system: ${system}`);
-                    }
-                }
-
                 const cardType = getReactorCardTypeForSystem(system.system);
 
                 // Before every non-expendable card in the reactor deck, add an expendable copy of this system's corresponding reactor card.
@@ -758,6 +739,9 @@ function loadCardDefinitions() {
                         index++;
                     }
                 }
+
+                // Recalculate each system's card generation cooldowns after modifying the reactor deck.
+                ship.updateCardGeneration();
 
                 return true;
             },

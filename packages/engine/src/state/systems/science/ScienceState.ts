@@ -23,7 +23,7 @@ import { ScannedWeaponSlotState } from './ScannedWeaponSlotState';
 
 export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, initialPowerLevel: number, getCardId: () => number) {
-        super(setup, gameState, ship, scannedSystemIndex, initialPowerLevel, getCardId);
+        super(setup, 'science', gameState, ship, scannedSystemIndex, initialPowerLevel, getCardId);
         this.deflectorCardId = getCardId();
         this.deflectorCard = new CardState(this.deflectorCardId, this.determineDeflectorCardType(null, null, null));
     }

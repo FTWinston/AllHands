@@ -12,7 +12,7 @@ import type { Ship } from '../Ship';
 
 export class HelmState extends CrewSystemState implements HelmSystemInfo {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, initialPowerLevel: number, getCardId: () => number) {
-        super(setup, gameState, ship, scannedSystemIndex, initialPowerLevel, getCardId);
+        super(setup, 'helm', gameState, ship, scannedSystemIndex, initialPowerLevel, getCardId);
     }
 
     @type(CardCooldownState) activeManeuver: CardCooldownState | null = null;
