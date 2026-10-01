@@ -58,7 +58,6 @@ export const Tactical = (props: Props) => {
             subTargetsByTarget={tacticalState.subTargetsByTarget}
             onPause={pause}
             power={tacticalState.powerLevel}
-            maxHandSize={tacticalState.maxHandSize}
             deckSize={tacticalState.deck.length}
             playCard={playCard}
             cardGeneration={tacticalState.cardGeneration}

@@ -47,7 +47,6 @@ export interface SystemInfo {
 }
 
 export interface CrewSystemInfo extends SystemInfo {
-    maxHandSize: number;
     hand: IArray<CardInstance>;
     deck: IArray<CardInstance>;
     cardGeneration: Cooldown | null;
@@ -149,6 +148,7 @@ export interface EngineerSystemTileInfo {
     system: ShipSystem;
     power: number;
     health: number;
+    maxHealth: number;
     effects: IArray<SystemEffectInstance>;
     generating: boolean;
 }

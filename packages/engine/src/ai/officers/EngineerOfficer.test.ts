@@ -98,7 +98,7 @@ describe('EngineerOfficer', () => {
     });
 
     it('cycles the worst card into the repair meter under hand pressure', () => {
-        // Fill the hand (maxHandSize 5 at full health). sustain has no registered evaluator (best score 0)
+        // Fill the hand (maxHandSize is 5). sustain has no registered evaluator (best score 0)
         // and is not expendable, so it is the cyclable "worst" card. auxPower is expendable —
         // both the evaluator-side filter and the engine (EngineerState repair-target play) exclude it.
         const { ship, officer, bb } = createWorld(['sustain', 'sustain', 'sustain', 'sustain', 'auxPower']);

@@ -53,7 +53,6 @@ export const Engineer = (props: Props) => {
             repair={repair}
             onPause={pause}
             power={engineerState.powerLevel}
-            maxHandSize={engineerState.maxHandSize}
             deckSize={engineerState.deck.length}
             playCard={playCard}
             cardGeneration={engineerState.cardGeneration}

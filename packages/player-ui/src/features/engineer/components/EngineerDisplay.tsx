@@ -39,7 +39,6 @@ export const EngineerDisplay = (props: Props) => {
             >
                 <CrewHeader
                     crew="engineer"
-                    handSize={cards.length}
                     {...headerProps}
                 />
 

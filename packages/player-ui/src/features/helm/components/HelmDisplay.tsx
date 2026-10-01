@@ -44,7 +44,6 @@ export const HelmDisplay = (props: Props) => {
             >
                 <CrewHeader
                     crew="helm"
-                    handSize={cards.length}
                     {...headerProps}
                 />
 

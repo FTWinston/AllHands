@@ -82,7 +82,6 @@ export const Science = (props: Props) => {
             deflectorCard={scienceState.deflectorCard}
             onPause={pause}
             power={scienceState.powerLevel}
-            maxHandSize={scienceState.maxHandSize}
             deckSize={scienceState.deck.length}
             playCard={playCard}
             cardGeneration={scienceState.cardGeneration}

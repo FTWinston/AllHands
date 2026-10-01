@@ -61,7 +61,6 @@ export const Helm = (props: Props) => {
             objects={objects}
             viewer={viewer}
             power={helmState.powerLevel}
-            maxHandSize={helmState.maxHandSize}
             deckSize={helmState.deck.length}
             playCard={playCard}
             cardGeneration={helmState.cardGeneration}

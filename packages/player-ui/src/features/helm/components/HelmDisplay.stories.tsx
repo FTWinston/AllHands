@@ -60,7 +60,6 @@ const meta: Meta<typeof Component> = {
                 {...args}
                 weaponEffectsRef={weaponEffectsRef}
                 cardGeneration={cardGeneration}
-                maxHandSize={args.maxHandSize}
                 cards={cards}
                 center={center}
                 objects={objects}
@@ -112,6 +111,5 @@ export const UI: Story = {
         ],
         objects: {},
         power: 5,
-        maxHandSize: 5,
     },
 };

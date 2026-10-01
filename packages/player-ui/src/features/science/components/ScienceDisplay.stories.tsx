@@ -34,7 +34,6 @@ const meta: Meta<typeof Component> = {
             <Component
                 {...args}
                 cardGeneration={cardGeneration}
-                maxHandSize={args.maxHandSize}
                 cards={cards}
                 playCard={(cardId, targetType, targetId) => {
                     console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);
@@ -131,7 +130,6 @@ export const UI: Story = {
             },
         ],
         power: 5,
-        maxHandSize: 5,
         closeRevealedSystem: fn(),
     },
 };

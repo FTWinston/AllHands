@@ -64,7 +64,6 @@ export const TacticalDisplay = (props: Props) => {
             >
                 <CrewHeader
                     crew="tactical"
-                    handSize={cards.length}
                     {...headerProps}
                 />
 

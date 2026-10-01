@@ -56,7 +56,6 @@ export const ScienceDisplay = (props: Props) => {
             >
                 <CrewHeader
                     crew="science"
-                    handSize={cards.length}
                     {...headerProps}
                 />
 

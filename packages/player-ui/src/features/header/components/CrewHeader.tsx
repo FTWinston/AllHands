@@ -7,8 +7,6 @@ import { SystemIcon } from 'common-ui/icons/systems';
 import { FC } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { default as DrawIcon } from '../assets/card-draw.svg?react';
-import { default as HandIcon } from '../assets/card-hand.svg?react';
-import { default as HealthIcon } from '../assets/health.svg?react';
 import { default as PowerIcon } from '../assets/power.svg?react';
 import styles from './CrewHeader.module.css';
 import { CrewMenu } from './CrewMenu';
@@ -18,8 +16,6 @@ type Props = {
     crew: CrewRoleName;
     onPause: () => void;
     power: number;
-    handSize: number;
-    maxHandSize: number;
     deckSize: number;
     cardGeneration?: Cooldown | null;
 };
@@ -61,26 +57,6 @@ export const CrewHeader: FC<Props> = (props) => {
                     )}
                 />
 
-                <NumberIndicator
-                    value={props.handSize}
-                    icon={HandIcon}
-                    maxValue={props.maxHandSize}
-                    name="Hand Size & Health"
-                    description={(
-                        <>
-                            The number of cards in your hand
-                            {' '}
-                            <HandIcon />
-                            {' '}
-                            increases over time, up to the system health value
-                            {' '}
-                            <HealthIcon />
-                            , which is controlled by the Engineer.
-                        </>
-                    )}
-                    generation={props.cardGeneration}
-                />
-
                 <CardDropTarget id="discard" targetType="any" className={styles.deckIndicator}>
                     <NumberIndicator
                         value={props.deckSize}
@@ -92,6 +68,7 @@ export const CrewHeader: FC<Props> = (props) => {
                                 Drag cards here to return them to the bottom of your deck.
                             </>
                         )}
+                        generation={props.cardGeneration}
                     />
                 </CardDropTarget>
             </div>

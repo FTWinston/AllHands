@@ -33,8 +33,7 @@ const meta: Meta<typeof Component> = {
             <Component
                 {...args}
                 cardGeneration={cardGeneration}
-                maxHandSize={args.maxHandSize}
-                deckSize={9}
+                deckSize={18}
                 cards={cards}
                 playCard={(cardId, targetType, targetId) => {
                     console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);
@@ -51,7 +50,6 @@ type Story = StoryObj<typeof meta>;
 type UseFakeCardGenerationArgs = {
     power: number;
     handSize: number;
-    maxHandSize: number;
     generateCard?: () => void;
 };
 
@@ -60,11 +58,11 @@ export const useFakeCardGeneration = (args: UseFakeCardGenerationArgs) => {
     const justChanged = useRef(false);
     const generateCard = args.generateCard;
 
-    const { maxHandSize, power } = args;
+    const { power } = args;
 
     const [cardGeneration, setCardGeneration] = useState<Cooldown | undefined>(undefined);
 
-    const shouldGenerateCard = handSize < maxHandSize;
+    const shouldGenerateCard = handSize < 5;
 
     useEffect(() => {
         justChanged.current = true;
@@ -73,7 +71,7 @@ export const useFakeCardGeneration = (args: UseFakeCardGenerationArgs) => {
             if (shouldGenerateCard) {
                 setCardGeneration({ startTime: Date.now(), endTime: Date.now() + 5000 });
                 if (!justChanged.current) {
-                    setHandSize(handSize => Math.min(handSize + 1, maxHandSize));
+                    setHandSize(handSize => Math.min(handSize + 1, 5));
                     generateCard?.();
                 }
             } else {
@@ -88,7 +86,7 @@ export const useFakeCardGeneration = (args: UseFakeCardGenerationArgs) => {
         const interval = setInterval(adjustGeneration, 5000);
 
         return () => clearInterval(interval);
-    }, [maxHandSize, shouldGenerateCard, generateCard]);
+    }, [shouldGenerateCard, generateCard]);
 
     const checkPowerAndRemoveCard = (powerCost: number) => {
         if (power >= powerCost) {
@@ -310,6 +308,5 @@ export const UI: Story = {
         ],
         repairCapacity: 50,
         power: 5,
-        maxHandSize: 5,
     },
 };

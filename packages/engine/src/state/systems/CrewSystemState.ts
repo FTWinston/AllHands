@@ -26,7 +26,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
     @type(CooldownState) cardGeneration: CooldownState | null = null;
 
-    @type('uint8') override readonly maxHandSize = 5;
+    override readonly maxHandSize = 5;
 
     /**
      * Reveal the first `count` cards of the deck as a pending choice. The choice must later be
