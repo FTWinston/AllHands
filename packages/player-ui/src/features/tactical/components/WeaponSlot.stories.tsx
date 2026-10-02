@@ -1,3 +1,4 @@
+import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { WeaponSlot as Component } from './WeaponSlot';
@@ -68,7 +69,7 @@ export const PrimedWithExtraTraits: Story = {
             extraTraits: {
                 dampening: ExtraTraitType.RemoveOnPlay,
                 disabling: ExtraTraitType.RemoveOnPlay,
-            },
+            } as Record<CardTrait, ExtraTraitType>, // TODO: remove this when https://github.com/colyseus/react-tools/pull/14 merges
         },
         decay: {
             startTime: Date.now(),

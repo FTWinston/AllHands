@@ -6,7 +6,7 @@ import { GameLobbyDisplay } from './GameLobbyDisplay';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = {
-    room: Room<{ state: GameState }>;
+    room: Room<unknown, GameState>;
     crewId: string;
     role: CrewRole | null;
     ready: boolean;

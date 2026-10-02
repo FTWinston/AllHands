@@ -8,7 +8,7 @@ import { FC, useCallback, useEffect, useState } from 'react';
 import { DevToolsDisplay } from './components/DevToolsDisplay';
 
 type Props = {
-    room: Room<{ state: GameState }>;
+    room: Room<unknown, GameState>;
 };
 
 export const DevTools: FC<Props> = ({ room }) => {

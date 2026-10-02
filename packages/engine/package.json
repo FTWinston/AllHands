@@ -8,9 +8,9 @@
     "build:devtools": "node -e \"require('fs').mkdirSync('src/generated',{recursive:true});require('fs').writeFileSync('src/generated/devtools.ts','export const DEV_TOOLS_ENABLED = true;\\n');\" && tsc && tsc-alias"
   },
   "dependencies": {
-    "@colyseus/core": "^0.17.36",
-    "@colyseus/ws-transport": "^0.17.9",
-    "colyseus": "^0.17.8",
+    "@colyseus/core": "^0.18.18",
+    "@colyseus/ws-transport": "^0.18.4",
+    "colyseus": "^0.18.9",
     "common-data": "1.0.0",
     "express": "^5.1.0",
     "nanoid": "^5.1.5"

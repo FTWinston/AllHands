@@ -7,7 +7,7 @@ import type { GameState } from 'engine/state/GameState';
 type Props = {
     serverAddress: ServerAddress;
     allowMultipleCrews: boolean;
-    room: Room<{ state: GameState }>;
+    room: Room<unknown, GameState>;
     crewId: string;
     disconnect: () => void;
 };

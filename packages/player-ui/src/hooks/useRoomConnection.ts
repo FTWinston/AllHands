@@ -8,12 +8,12 @@ import type { ConnectionState } from 'common-data/types/ConnectionState';
 import type { GameState } from 'engine/state/GameState';
 
 // A temporary stub that satisfies useRoomState's property access when room is null.
-const emptyRoom = { state: null, serializer: { decoder: null } } as unknown as Room<{ state: GameState }>;
+const emptyRoom = { state: null, serializer: { decoder: null } } as unknown as Room<unknown, GameState>;
 
 export function useRoomConnection(
     setConnectionState: (state: ConnectionState) => void
 ) {
-    const [connectedRoom, setConnectedRoom] = useState<Room<{ state: GameState }> | null>(null);
+    const [connectedRoom, setConnectedRoom] = useState<Room<unknown, GameState> | null>(null);
     const timeSynchronizer = useRef<TimeSynchronizer | null>(null);
     const [crewId] = useState<string>(() => new URLSearchParams(window.location.search).get('crew') ?? soloCrewIdentifier);
     const [role, setRole] = useState<CrewRole | null>(null);
@@ -34,7 +34,7 @@ export function useRoomConnection(
 
         const client = new Client(wsUrl);
 
-        let joinedRoom: Room<{ state: GameState }> | undefined;
+        let joinedRoom: Room<unknown, GameState> | undefined;
 
         console.log('sending join options', { type: 'crew', crewId });
 

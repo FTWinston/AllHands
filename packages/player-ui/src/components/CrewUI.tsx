@@ -10,7 +10,7 @@ import type { GameState } from 'engine/state/GameState';
 type Props = {
     shipId: string;
     role: CrewRole;
-    room: Room<{ state: GameState }>;
+    room: Room<unknown, GameState>;
 };
 
 export const CrewUI: FC<Props> = (props) => {
