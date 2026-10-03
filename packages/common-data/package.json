@@ -16,6 +16,7 @@
     "tsc-alias": "^1.8.16"
   },
   "dependencies": {
-    "@colyseus/react": "^0.18.2"
+    "@colyseus/react": "^0.18.4",
+    "@colyseus/schema": "^5.0.35"
   }
 }
