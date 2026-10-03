@@ -1,9 +1,6 @@
-import { ClockTimer } from '@colyseus/timer';
 import { IRandom } from 'common-data/types/IRandom';
 import { AiShip } from 'src/state/AiShip';
-import { GameState } from 'src/state/GameState';
-import { shipSetup } from 'src/testUtils';
-import { IdProvider } from 'src/types/IdProvider';
+import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
 import { registerCardEvaluator } from '../evaluators';
 import { CandidatePlay, createBlackboard, resolveAiConfig } from '../types';
@@ -33,10 +30,10 @@ class TestOfficer extends Officer {
     }
 }
 
+const rooms = setupGameRoom();
+
 function createWorld(random: IRandom, skill = 1) {
-    let nextId = 1;
-    const idPool: IdProvider = { getId: () => String(nextId++), releaseId: () => {} };
-    const state = new GameState(idPool, new ClockTimer(false), 1, random);
+    const state = rooms.createState(random);
     state.initFactions([{ id: 'raiders' }], 'raiders');
     const setup = { ...shipSetup('raiders'), goal: { type: 'search-and-destroy' as const }, skill };
     // exampleNoTarget costs 2; science initial power 3.

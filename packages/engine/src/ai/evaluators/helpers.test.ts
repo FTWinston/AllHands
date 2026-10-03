@@ -1,17 +1,16 @@
 import { ArraySchema } from '@colyseus/schema';
-import { ClockTimer } from '@colyseus/timer';
 import { CardMotionSegmentFacing, LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { AiShip } from 'src/state/AiShip';
 import { CardState } from 'src/state/CardState';
-import { GameState } from 'src/state/GameState';
 import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { WeaponSlotState } from 'src/state/systems/tactical/WeaponSlotState';
-import { shipSetup } from 'src/testUtils';
-import { IdProvider } from 'src/types/IdProvider';
+import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
 import { ResolvedAiConfig } from '../types';
 import { rangeBandScore, estimateManeuverEndpoint, projectCurrentEndpoint, getDesiredRangeFromSlots, priorityFor } from './helpers';
+
+const rooms = setupGameRoom();
 
 const straightMove: LocationTargetCardDefinition = {
     targetType: 'location',
@@ -70,9 +69,7 @@ describe('estimateManeuverEndpoint', () => {
 
 describe('projectCurrentEndpoint', () => {
     it('returns the final motion keyframe, not the initial one', () => {
-        let nextId = 1;
-        const idPool: IdProvider = { getId: () => String(nextId++), releaseId: () => {} };
-        const state = new GameState(idPool, new ClockTimer(false));
+        const state = rooms.createState();
         const ship = new AiShip(state, { ...shipSetup('raiders', 0, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
         ship.motion.push(new MotionKeyframe(1000, 10, 20, 0.5));
 

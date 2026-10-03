@@ -1,16 +1,13 @@
-import { ClockTimer } from '@colyseus/timer';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { AiShip } from 'src/state/AiShip';
-import { GameState } from 'src/state/GameState';
-import { shipSetup } from 'src/testUtils';
-import { IdProvider } from 'src/types/IdProvider';
+import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect, vi } from 'vitest';
 import { COMMANDER_INTERVAL, OFFICER_INTERVAL } from './ShipAi';
 
+const rooms = setupGameRoom();
+
 function createAiShip() {
-    let nextId = 1;
-    const idPool: IdProvider = { getId: () => String(nextId++), releaseId: () => {} };
-    const state = new GameState(idPool, new ClockTimer(false));
+    const state = rooms.createState();
     state.initFactions([{ id: 'raiders', relations: { player: RelationshipType.Hostile } }, { id: 'player' }], 'player');
     const ship = new AiShip(state, { ...shipSetup('raiders'), goal: { type: 'search-and-destroy' }, skill: 1 });
     state.add(ship);

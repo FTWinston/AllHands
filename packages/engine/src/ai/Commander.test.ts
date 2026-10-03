@@ -1,18 +1,15 @@
-import { ClockTimer } from '@colyseus/timer';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { IRandom } from 'common-data/types/IRandom';
 import { AiShip } from 'src/state/AiShip';
-import { GameState } from 'src/state/GameState';
-import { shipSetup } from 'src/testUtils';
-import { IdProvider } from 'src/types/IdProvider';
+import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
 import { Commander } from './Commander';
 import { createBlackboard, resolveAiConfig } from './types';
 
+const rooms = setupGameRoom();
+
 function createWorld(random?: IRandom) {
-    let nextId = 1;
-    const idPool: IdProvider = { getId: () => String(nextId++), releaseId: () => {} };
-    const state = new GameState(idPool, new ClockTimer(false), 1, random);
+    const state = rooms.createState(random);
     state.initFactions([
         { id: 'player' },
         { id: 'raiders', relations: { player: RelationshipType.Hostile } },

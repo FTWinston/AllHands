@@ -13,6 +13,8 @@ export default defineConfig({
                     name: 'unit',
                     include: ['packages/*/src/**/*.test.{js,ts,jsx,tsx}'],
                     environment: 'node',
+                    // Colyseus calls process.send(), which breaks vitest's child-process (forks) pool.
+                    pool: 'threads',
                 },
             },
             {

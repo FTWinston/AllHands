@@ -1,9 +1,6 @@
-import { ClockTimer } from '@colyseus/timer';
 import { IRandom } from 'common-data/types/IRandom';
 import { AiShip } from 'src/state/AiShip';
-import { GameState } from 'src/state/GameState';
-import { shipSetup } from 'src/testUtils';
-import { IdProvider } from 'src/types/IdProvider';
+import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect, vi } from 'vitest';
 import { createBlackboard, resolveAiConfig } from '../types';
 import { EngineerOfficer } from './EngineerOfficer';
@@ -20,10 +17,10 @@ function fixedRandom(): IRandom {
     };
 }
 
+const rooms = setupGameRoom();
+
 function createWorld(engineerCards: string[]) {
-    let nextId = 1;
-    const idPool: IdProvider = { getId: () => String(nextId++), releaseId: () => {} };
-    const state = new GameState(idPool, new ClockTimer(false), 1, fixedRandom());
+    const state = rooms.createState(fixedRandom());
     state.initFactions([{ id: 'raiders' }], 'raiders');
     const setup = { ...shipSetup('raiders'), goal: { type: 'search-and-destroy' as const }, skill: 1 };
     setup.engineer = { ...setup.engineer, cards: engineerCards as never, initialHandSize: engineerCards.length };

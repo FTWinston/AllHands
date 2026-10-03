@@ -2,22 +2,18 @@ import { ClockTimer } from '@colyseus/timer';
 import { GameState } from 'src/state/GameState';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { Ship } from 'src/state/Ship';
-import { shipSetup } from 'src/testUtils';
-import { IdProvider } from 'src/types/IdProvider';
+import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { generationDurationByReactorPower } from '../ReactorState';
 
+const rooms = setupGameRoom();
 const defaultSetup = shipSetup(undefined);
 
 function createTestShip(currentTime = 0) {
-    let nextId = 1;
-    const idPool: IdProvider = {
-        getId: () => String(nextId++),
-        releaseId: () => {},
-    };
-    const clock = new ClockTimer(false);
+    const gameState = rooms.createState();
+    const clock = rooms.getClock();
     clock.currentTime = currentTime;
-    const gameState = new GameState(idPool, clock);
+    gameState.currentTime = currentTime;
     const ship = new PlayerShip(gameState, defaultSetup);
     gameState.add(ship);
     return { ship, gameState, clock };

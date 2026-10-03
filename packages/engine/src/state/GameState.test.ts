@@ -1,14 +1,12 @@
-import { ClockTimer } from '@colyseus/timer';
 import { AiShip } from 'src/state/AiShip';
 import { GameState } from 'src/state/GameState';
-import { shipSetup } from 'src/testUtils';
-import { IdProvider } from 'src/types/IdProvider';
+import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
 
+const rooms = setupGameRoom();
+
 function createGameState() {
-    let nextId = 1;
-    const idPool: IdProvider = { getId: () => String(nextId++), releaseId: () => {} };
-    const state = new GameState(idPool, new ClockTimer(false));
+    const state = rooms.createState();
     state.initFactions([{ id: 'raiders' }], 'raiders');
     return state;
 }

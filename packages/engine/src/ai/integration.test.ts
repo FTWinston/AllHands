@@ -1,11 +1,9 @@
-import { ClockTimer } from '@colyseus/timer';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { IRandom } from 'common-data/types/IRandom';
 import { AiShip } from 'src/state/AiShip';
 import { GameState } from 'src/state/GameState';
 import { PlayerShip } from 'src/state/PlayerShip';
-import { shipSetup } from 'src/testUtils';
-import { IdProvider } from 'src/types/IdProvider';
+import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
 
 const FIVE_MINUTES = 5 * 60 * 1000;
@@ -24,10 +22,10 @@ function alwaysSkipRandom(): IRandom {
     };
 }
 
+const rooms = setupGameRoom();
+
 function createBattle(skill: number, hostile = true, random?: IRandom) {
-    let nextId = 1;
-    const idPool: IdProvider = { getId: () => String(nextId++), releaseId: () => {} };
-    const state = new GameState(idPool, new ClockTimer(false), 1, random);
+    const state = rooms.createState(random);
     state.initFactions([
         { id: 'player' },
         { id: 'raiders', relations: hostile ? { player: RelationshipType.Hostile } : { player: RelationshipType.Friendly } },
