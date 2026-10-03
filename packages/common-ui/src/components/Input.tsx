@@ -1,4 +1,4 @@
-import { Input as BaseInput } from '@base-ui-components/react/input';
+import { Input as BaseInput } from '@base-ui/react/input';
 
 import { ComponentProps, FC } from 'react';
 import { classNames } from '../utils/classNames';

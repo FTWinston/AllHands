@@ -1,4 +1,4 @@
-import { Tabs as BaseTabs } from '@base-ui-components/react/tabs';
+import { Tabs as BaseTabs } from '@base-ui/react/tabs';
 import { FC, ReactNode } from 'react';
 import { classNames } from '../utils/classNames';
 import styles from './Tabs.module.css';

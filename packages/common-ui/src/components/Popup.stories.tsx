@@ -1,4 +1,4 @@
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import { Popup as Component } from './Popup';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 

@@ -1,4 +1,4 @@
-import { Button as ButtonBase, ButtonProps } from '@base-ui-components/react/button';
+import { Button as ButtonBase, ButtonProps } from '@base-ui/react/button';
 import { FC, ReactNode } from 'react';
 import colorPalletes from '../ColorPalette.module.css';
 import { ColorPalette } from '../types/ColorPalette';

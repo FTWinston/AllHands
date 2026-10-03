@@ -1,4 +1,4 @@
-import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
+import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import { FC, PropsWithChildren } from 'react';
 import { classNames } from '../utils/classNames';
 import styles from './Dialog.module.css';

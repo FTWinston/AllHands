@@ -1,4 +1,4 @@
-import { Toggle } from '@base-ui-components/react/toggle';
+import { Toggle } from '@base-ui/react/toggle';
 import { FC } from 'react';
 import { classNames } from '../utils/classNames';
 import { Button, Props as ButtonProps } from './Button';

@@ -1,4 +1,4 @@
-import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
+import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import { FC } from 'react';
 import { Button } from './Button';
 import styles from './ConfirmDialog.module.css';

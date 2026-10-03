@@ -1,4 +1,4 @@
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import { EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ObjectId } from 'common-data/features/space/types/GameObjectInfo';

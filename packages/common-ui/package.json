@@ -11,7 +11,7 @@
     "./*": "./src/*"
   },
   "dependencies": {
-    "@base-ui-components/react": "^1.0.0-beta.7",
+    "@base-ui/react": "^1.8.0",
     "@colyseus/sdk": "^0.18.4",
     "@fontsource/jura": "^5.2.6",
     "engine": "1.0.0",

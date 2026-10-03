@@ -1,4 +1,4 @@
-import { Tabs as BaseTabs } from '@base-ui-components/react/tabs';
+import { Tabs as BaseTabs } from '@base-ui/react/tabs';
 import { classNames } from '../utils/classNames';
 import styles from './RadioGroup.module.css';
 

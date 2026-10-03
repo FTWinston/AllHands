@@ -72,7 +72,7 @@ The project is organized as an npm workspace with the following packages:
 #### 5. **common-ui** (`packages/common-ui`)
 - Shared React components used by both player-ui and game-ui
 - UI utilities and common visual elements
-- Dependencies: React, `@base-ui-components/react`, `colyseus.js`
+- Dependencies: React, `@base-ui/react`, `colyseus.js`
 
 #### 6. **common-data** (`packages/common-data`)
 - Shared TypeScript types, utilities, and constants
@@ -268,7 +268,7 @@ Within each group, imports are alphabetized (case-insensitive).
 - **Electron:** Desktop app wrapper
 - **React 19:** UI framework (latest version)
 - **Vite:** Build tool and dev server
-- **Base UI Components:** Accessible React components (`@base-ui-components/react`)
+- **Base UI Components:** Accessible React components (`@base-ui/react`)
 - **dnd-kit:** Drag and drop for card interactions
 
 ### Performance Considerations

@@ -1,4 +1,4 @@
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { Cooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';

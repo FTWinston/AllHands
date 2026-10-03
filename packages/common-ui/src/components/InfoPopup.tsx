@@ -1,4 +1,4 @@
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import { FC, JSX, PropsWithChildren } from 'react';
 import colorPalletes from '../ColorPalette.module.css';
 import { ColorPalette } from '../types/ColorPalette';

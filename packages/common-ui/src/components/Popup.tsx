@@ -1,4 +1,4 @@
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import { FC, JSX, PropsWithChildren, RefObject } from 'react';
 import { classNames } from '../utils/classNames';
 import styles from './Popup.module.css';
