@@ -62,7 +62,6 @@ export const CrewHeader: FC<Props> = (props) => {
                         value={props.deckSize}
                         icon={DrawIcon}
                         name="Deck"
-                        isSecondary={true}
                         description={(
                             <>
                                 Drag cards here to return them to the bottom of your deck.
