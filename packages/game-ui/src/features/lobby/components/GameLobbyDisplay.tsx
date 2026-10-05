@@ -109,6 +109,7 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
             <div className={styles.footer}>
                 <Button
                     onClick={props.disconnect}
+                    palette="danger"
                 >
                     Disconnect
                 </Button>

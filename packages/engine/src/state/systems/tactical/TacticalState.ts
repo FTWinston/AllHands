@@ -89,7 +89,8 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
 
         const { requiredWeaponTrait } = cardDefinition;
-        if (requiredWeaponTrait) {
+        // The trait restriction applies only to priming; any weapon can be charged.
+        if (requiredWeaponTrait && !slot.primed) {
             const weaponCardDef = cardDefinitions[slot.card.type] as EngineWeaponSlotCardDefinition;
             if (!weaponCardDef.traits?.includes(requiredWeaponTrait)) {
                 console.warn(`card requires weapon with trait: ${requiredWeaponTrait}`);

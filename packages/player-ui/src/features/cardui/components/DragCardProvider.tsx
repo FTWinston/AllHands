@@ -10,6 +10,7 @@ export type ActiveCardInfo = {
     targetType: CardTargetType;
     cardType: CardType;
     isAlternateDrag?: boolean;
+    isDamaged?: boolean;
 };
 
 type DragPosition = {
@@ -109,6 +110,7 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
                 targetType: data.targetType,
                 cardType: data.cardType,
                 isAlternateDrag: data.isAlternateDrag,
+                isDamaged: data.isDamaged,
             });
         }
 

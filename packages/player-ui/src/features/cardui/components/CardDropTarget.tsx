@@ -22,7 +22,7 @@ export function CardDropTarget<C extends ElementType = 'div'>(props: Props<C>) {
     const { id, className, targetType, canAcceptCard, render, disabled, children, couldDropClassName, droppingClassName, ref, ...otherProps } = props;
 
     const matchesActiveCard = disabled !== true && activeCard
-        && (targetType === activeCard.targetType || targetType === 'any')
+        && (activeCard.isDamaged ? targetType === 'any' : (targetType === activeCard.targetType || targetType === 'any'))
         && (canAcceptCard === undefined || canAcceptCard(activeCard));
 
     const { setNodeRef, isOver } = useDroppable({

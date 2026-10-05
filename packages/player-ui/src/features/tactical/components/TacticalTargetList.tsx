@@ -8,7 +8,7 @@ import styles from './TacticalTargetList.module.css';
 type Props = {
     targets: IArray<GameObjectInfo>;
     subTargetsByTarget: Partial<Record<string, TargetSubTargets>>;
-    onVisibleTargetChange: (target: GameObjectInfo) => void;
+    onVisibleTargetChange: (index: number) => void;
     targetAspect?: number;
     viewer: RelationshipViewer;
 };
@@ -26,7 +26,7 @@ export const TacticalTargetList = (props: Props) => {
         const clamped = Math.max(0, Math.min(1, fraction));
         // Compute index (round to nearest)
         const index = Math.round(clamped * (targets.length - 1));
-        onVisibleTargetChange(targets[index]);
+        onVisibleTargetChange(index);
     };
 
     return (

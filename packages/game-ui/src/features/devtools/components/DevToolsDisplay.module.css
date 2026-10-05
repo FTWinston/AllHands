@@ -22,4 +22,5 @@
     gap: 1em;
     justify-content: center;
     overflow-y: auto;
+    max-height: 60vh;
 }

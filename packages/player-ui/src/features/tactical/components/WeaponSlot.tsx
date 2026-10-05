@@ -89,6 +89,7 @@ export const WeaponSlot = (props: Props) => {
 
     const weaponTraitMismatch = activeCardDefinition !== null
         && slotCardDefinition !== null
+        && !primed
         && activeCardDefinition.requiredWeaponTrait !== undefined
         && (slotCardDefinition.traits === undefined || !slotCardDefinition.traits.includes(activeCardDefinition.requiredWeaponTrait));
 

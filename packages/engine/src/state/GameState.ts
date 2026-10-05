@@ -65,17 +65,18 @@ export class GameState extends Schema {
     }
 
     public remove(object: GameObject) {
+        // Views must be updated while the object is still attached to `objects`; once it's
+        // deleted its parent link is gone and the view can't queue the DELETE for clients.
+        if (this.gameStatus === 'active') {
+            for (const crew of this.crews.values()) {
+                crew.removeObjectFromViews(object);
+            }
+        }
+
         this.objects.delete(object.id);
 
         if (object.scenarioId !== null && this.scenarioIdIndex.get(object.scenarioId) === object.id) {
             this.scenarioIdIndex.delete(object.scenarioId);
-        }
-
-        if (this.gameStatus === 'active') {
-            // Remove object from all crew client views.
-            for (const crew of this.crews.values()) {
-                crew.removeObjectFromViews(object);
-            }
         }
 
         this.idPool.releaseId(object.id);

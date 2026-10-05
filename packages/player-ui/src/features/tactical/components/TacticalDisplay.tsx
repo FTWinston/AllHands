@@ -8,7 +8,7 @@ import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
-import { ComponentProps, useCallback, useMemo, useState } from 'react';
+import { ComponentProps, useCallback, useState } from 'react';
 import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
@@ -34,22 +34,35 @@ export const TacticalDisplay = (props: Props) => {
 
     const timeProvider = useTimeProvider();
 
-    const [currentTarget, setCurrentTarget] = useState<GameObjectInfo | null>(null);
+    // Store the index, not the target: snapshots go stale when targets move, die or are replaced.
+    const [currentTargetIndex, setCurrentTargetIndex] = useState(0);
+    const currentTarget = targets[Math.min(currentTargetIndex, targets.length - 1)] ?? null;
 
     const currentTime = timeProvider.getServerTime();
     const firingSolution = currentTarget === null
         ? null
         : getFiringSolution(props.shipMotion, currentTarget.motion, currentTime);
 
-    // A weapon slot can be primed once it holds a weapon card, but hasn't yet been primed.
-    const hasPrimeableWeapon = useMemo(
-        () => slots.some(slot => slot.card !== null && !slot.primed),
-        [slots]
-    );
-
+    // A card is highlighted if it can prime at least one unprimed weapon slot.
     const isCardHighlighted = useCallback(
-        (card: Snapshot<CardInstance>) => hasPrimeableWeapon && getCardDefinition(card.type).targetType === 'weapon',
-        [hasPrimeableWeapon]
+        (card: Snapshot<CardInstance>) => {
+            const definition = getCardDefinition(card.type);
+            if (definition.targetType !== 'weapon') {
+                return false;
+            }
+
+            const { requiredWeaponTrait } = definition;
+            return slots.some((slot) => {
+                if (!slot.card || slot.primed) {
+                    return false;
+                }
+                if (requiredWeaponTrait === undefined) {
+                    return true;
+                }
+                return getCardDefinition(slot.card.type).traits?.includes(requiredWeaponTrait) ?? false;
+            });
+        },
+        [slots]
     );
 
     return (
@@ -70,7 +83,7 @@ export const TacticalDisplay = (props: Props) => {
                 <TacticalTargetList
                     targets={targets}
                     subTargetsByTarget={subTargetsByTarget}
-                    onVisibleTargetChange={setCurrentTarget}
+                    onVisibleTargetChange={setCurrentTargetIndex}
                     targetAspect={firingSolution?.targetAspect}
                     viewer={viewer}
                 />

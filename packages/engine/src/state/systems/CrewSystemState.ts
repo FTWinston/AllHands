@@ -29,12 +29,6 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
     override readonly maxHandSize = 5;
 
-    override drawFromTop() {
-        super.drawFromTop();
-
-        this.updateCardGeneration();
-    }
-
     updateCardGeneration() {
         let currentTime = this.getGameState().currentTime;
         let cardDrawTime = this.getShip().reactorState.getDrawTimeForSystemCard(this.system);
@@ -44,7 +38,8 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         } else if (this.cardGeneration && this.cardGeneration.endTime > currentTime) {
             this.cardGeneration.rescaleToEnd(currentTime, cardDrawTime);
         } else {
-            this.cardGeneration = new CooldownState(currentTime, cardDrawTime);
+            // Start from the previous completion time (if any) so the counter restarts without a gap.
+            this.cardGeneration = new CooldownState(this.cardGeneration?.endTime ?? currentTime, cardDrawTime);
         }
     }
 

@@ -13,7 +13,7 @@ type Props = {
 
 export const MainMenu: FC<Props> = (props) => {
     return (
-        <Screen padded>
+        <Screen centered padded>
             <Menu title="All Hands">
                 <MenuItem
                     text="Start single-crew game"

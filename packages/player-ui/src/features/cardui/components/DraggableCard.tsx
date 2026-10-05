@@ -35,9 +35,11 @@ export const DraggableCard: FC<Props> = (props) => {
 
     const targetType = props.targetType ?? definition.targetType;
 
+    const isDamaged = props.extraTraits?.['damaged'] !== undefined || props.extraTraits?.['critical'] !== undefined;
+
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: props.elementId ?? props.id.toString(),
-        data: { id: props.id, targetType, cardType: props.type },
+        data: { id: props.id, targetType, cardType: props.type, isDamaged },
     });
 
     const dragDisplayMode = useDragDisplayMode();

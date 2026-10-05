@@ -1,6 +1,6 @@
 import { entity, type, view } from '@colyseus/schema';
 import { UntargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole } from 'common-data/features/ships/types/CrewRole';
+import { ownShipClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { Damage } from 'common-data/features/space/types/Damage';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
@@ -76,8 +76,8 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     hullState: HullState;
     reactorState: ReactorState;
     @view(ownHelmClientRole) @type(HelmState) helmState: HelmState;
-    @view(ownScienceClientRole) @type(ScienceState) scienceState: ScienceState;
-    @view(ownTacticalClientRole) @type(TacticalState) tacticalState: TacticalState;
+    @view(ownShipClientRole | ownScienceClientRole) @type(ScienceState) scienceState: ScienceState;
+    @view(ownShipClientRole | ownTacticalClientRole) @type(TacticalState) tacticalState: TacticalState;
     @view(ownEngineerClientRole) @type(EngineerState) engineerState: EngineerState;
 
     private systems: ReadonlyMap<ShipSystem, SystemState>;

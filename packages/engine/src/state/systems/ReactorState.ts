@@ -45,6 +45,9 @@ export class ReactorState extends SystemState {
         if (this.drawProgress.endTime <= currentTime) {
             this.drawFromTop();
             this.drawProgress.repeat();
+
+            // Only now are drawProgress and the deck order final, so crew cooldowns can be computed correctly.
+            this.getShip().updateCardGeneration();
         }
     }
 
