@@ -336,7 +336,7 @@ export const cardDefinitions = defineCardDefinitions({
         system: 'engineer',
         parameters: { cost: 3 },
     },
-    reactorPriority: {
+    drawPriority: {
         targetType: 'system',
         system: 'engineer',
         parameters: { cost: 2 },

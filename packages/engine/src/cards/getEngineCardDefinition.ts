@@ -726,7 +726,7 @@ function loadCardDefinitions() {
                 return true;
             },
         },
-        reactorPriority: {
+        drawPriority: {
             play: (_gameState, ship, system) => {
                 const cardType = getReactorCardTypeForSystem(system.system);
 

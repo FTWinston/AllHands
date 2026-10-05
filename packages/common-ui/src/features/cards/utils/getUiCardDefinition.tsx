@@ -460,8 +460,8 @@ function loadCardDefinitions() {
             description: 'Swap all status effects between a system and its horizontal neighbor, preserving cooldowns.',
             image: <ExampleIcon />,
         },
-        reactorPriority: {
-            name: 'Reactor Priority',
+        drawPriority: {
+            name: 'Draw Priority',
             description: <>
                 Adds an
                 {' '}
