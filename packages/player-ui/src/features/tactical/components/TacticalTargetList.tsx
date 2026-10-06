@@ -53,6 +53,7 @@ export const TacticalTargetList = (props: Props) => {
                     />
                 </li>
             ))}
+            {targets.length === 0 && <li className={styles.itemWrapper}>No targets available</li>}
         </HorizontalScroll>
     );
 };

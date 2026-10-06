@@ -4,6 +4,7 @@
 
 .itemWrapper {
     width: calc(100vw - var(--scroll-padding) * 2);
+    min-height: 30dvh;
     display: flex;
     align-items: center;
     justify-content: center;
