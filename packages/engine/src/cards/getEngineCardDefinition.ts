@@ -110,6 +110,14 @@ function rollToHit(random: IRandom, evasion: number, accuracy: number): boolean 
     return random.getBoolean(hitChance / 100);
 }
 
+function getTargetPosition(target: GameObject | null, time: number) {
+    if (!target) {
+        return undefined;
+    }
+    const { x, y } = target.getPosition(time);
+    return { x, y };
+}
+
 function tryToDamage(
     target: GameObject | null,
     random: IRandom,
@@ -232,12 +240,14 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
+                const targetPosition = getTargetPosition(target, gameState.currentTime);
                 tryToDamage(target, gameState.random, accuracy, parameters.damage, weaponTraits);
 
                 gameState.broadcastWeaponEffect({
                     type: 'beam',
                     sourceId: ship.id,
                     targetId: target?.id,
+                    targetPosition,
                     color: '#ff4400',
                     thickness: 0.15,
                     brightness: 1.5,
@@ -254,12 +264,14 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
+                const targetPosition = getTargetPosition(target, gameState.currentTime);
                 tryToDamage(target, gameState.random, accuracy, parameters.damage, weaponTraits);
 
                 gameState.broadcastWeaponEffect({
                     type: 'beam',
                     sourceId: ship.id,
                     targetId: target?.id,
+                    targetPosition,
                     color: '#ff8800',
                     thickness: 0.1,
                     brightness: 1.2,
@@ -276,12 +288,14 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
+                const targetPosition = getTargetPosition(target, gameState.currentTime);
                 tryToDamage(target, gameState.random, accuracy, parameters.damage, weaponTraits);
 
                 gameState.broadcastWeaponEffect({
                     type: 'projectile',
                     sourceId: ship.id,
                     targetId: target?.id,
+                    targetPosition,
                     color: '#00ccff',
                     thickness: 0.2,
                     brightness: 2,
@@ -298,12 +312,14 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
+                const targetPosition = getTargetPosition(target, gameState.currentTime);
                 tryToDamage(target, gameState.random, accuracy, parameters.damage, weaponTraits);
 
                 gameState.broadcastWeaponEffect({
                     type: 'beam',
                     sourceId: ship.id,
                     targetId: target?.id,
+                    targetPosition,
                     color: '#ffcc00',
                     thickness: 0.25,
                     brightness: 2,

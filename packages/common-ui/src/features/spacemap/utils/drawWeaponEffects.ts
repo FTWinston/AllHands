@@ -51,6 +51,9 @@ function drawBeam(
         const targetPos = interpolatePosition(objects[effect.targetId].motion, currentTime);
         targetX = targetPos.x;
         targetY = targetPos.y;
+    } else if (effect.targetPosition) {
+        targetX = effect.targetPosition.x;
+        targetY = effect.targetPosition.y;
     } else {
         const forward = projectForward(sourcePos, BEAM_FORWARD_DISTANCE);
         targetX = forward.x;
@@ -137,6 +140,9 @@ function drawProjectile(
         const targetPos = interpolatePosition(objects[effect.targetId].motion, currentTime);
         targetX = targetPos.x;
         targetY = targetPos.y;
+    } else if (effect.targetPosition) {
+        targetX = effect.targetPosition.x;
+        targetY = effect.targetPosition.y;
     } else {
         const forward = projectForward(sourcePos, PROJECTILE_FORWARD_DISTANCE);
         targetX = forward.x;

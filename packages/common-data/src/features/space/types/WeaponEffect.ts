@@ -11,6 +11,8 @@ export interface WeaponEffect {
     sourceId: ObjectId;
     /** The object ID of the target. If not specified, the effect projects forward from the source, rotating with it. */
     targetId?: ObjectId;
+    /** Target position when fired, used if the target no longer exists (e.g. destroyed by this shot). */
+    targetPosition?: { x: number; y: number };
     /** CSS color string for the effect (e.g. '#ff0000', 'orange'). */
     color: string;
     /** Thickness of the effect in world units. */
