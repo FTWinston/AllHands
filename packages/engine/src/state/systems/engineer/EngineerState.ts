@@ -6,6 +6,7 @@ import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemSetupInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineSystemTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
+import { getReactorCardTypeForSystem } from 'src/cards/getReactorCardTypeForSystem';
 import { getSystemEffectDefinition } from 'src/effects/getEngineSystemEffectDefinition';
 import { GameState } from 'src/state/GameState';
 import { CrewSystemState } from '../CrewSystemState';
@@ -35,6 +36,15 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
      * How much to repair when repairing a system. Consumed when repairing, and recharged by playing cards onto the "repair" (fake) system target.
      */
     @type('uint8') repairCapacity: number = this.maxRepairCapacity;
+
+    override updateCardGeneration() {
+        super.updateCardGeneration();
+
+        const topCardType = this.getShip().reactorState.deck[0]?.type;
+        for (const tile of this.systems) {
+            tile.generating = getReactorCardTypeForSystem(tile.system) === topCardType;
+        }
+    }
 
     update(currentTime: number) {
         this.removeExpiredEffects(currentTime);
