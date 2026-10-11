@@ -32,5 +32,6 @@ export type WeaponTrait
  * - unstable: Card shuffles back into the deck when played, instead of going on the end.
  * - energyWeapon: A group of tactical weapon cards. Some charge cards only target cards with this trait.
  * - torpedoWeapon: A group of tactical weapon cards. Some charge cards only target cards with this trait.
+ * - rechargeable: A weapon with this trait can be topped up with one more card after it has been fully charged. Doing so removes the trait.
  */
-export type CardTrait = WeaponTrait | 'damaged' | 'stabilised' | 'critical' | 'primary' | 'expendable' | 'unstable' | 'energyWeapon' | 'torpedoWeapon';
+export type CardTrait = WeaponTrait | 'damaged' | 'stabilised' | 'critical' | 'primary' | 'expendable' | 'unstable' | 'energyWeapon' | 'torpedoWeapon' | 'rechargeable';

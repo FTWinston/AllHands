@@ -1,7 +1,4 @@
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
-import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
-import { CardState } from 'src/state/CardState';
-import { getCardEvaluator } from '../evaluators';
 import { priorityFor } from '../evaluators/helpers';
 import { CandidatePlay, EvaluationContext } from '../types';
 import { Officer } from './Officer';
@@ -41,31 +38,12 @@ export class EngineerOfficer extends Officer {
             if (worst) {
                 out.push({
                     score: CYCLE_SCORE,
-                    cost: 0,
+                    cost: worst.getParameter('cost'),
                     action: { kind: 'playCard', cardId: worst.id, cardType: worst.type, targetType: 'system', targetId: 'repair' },
                 });
             }
         }
 
         return out;
-    }
-
-    /** The card whose best current candidate scores lowest (expendables excluded — the meter rejects them). */
-    private findWorstCard(ctx: EvaluationContext): CardState | null {
-        let worst: CardState | null = null;
-        let worstScore = Infinity;
-        for (const card of ctx.system.hand) {
-            const definition = getCardDefinition(card.type);
-            if ((definition.traits ?? []).includes('expendable')) {
-                continue;
-            }
-            const evaluator = getCardEvaluator(card.type);
-            const best = evaluator ? Math.max(0, ...evaluator(card, ctx).map(c => c.score)) : 0;
-            if (best < worstScore) {
-                worstScore = best;
-                worst = card;
-            }
-        }
-        return worst;
     }
 }

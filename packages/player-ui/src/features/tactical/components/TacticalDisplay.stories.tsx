@@ -54,26 +54,24 @@ const meta: Meta<typeof Component> = {
                     console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);
                     expendCard(cardId);
 
-                    if (targetType === 'weapon-slot') {
+                    if (targetType === 'any' as string && targetId.startsWith('charge:')) {
+                        const card = cards.find(c => c.id === cardId);
+                        const cardCost = card ? getCardDefinition(card.type).parameters.cost ?? 0 : 0;
+                        setSlots(prevSlots => prevSlots.map((slot) => {
+                            if (slot.id !== targetId.substring('charge:'.length) || !slot.card) {
+                                return slot;
+                            }
+                            const totalCharge = getCardDefinition(slot.card.type).parameters.totalCharge ?? 0;
+                            const charge = Math.min(totalCharge, slot.charge + cardCost);
+                            return { ...slot, charge, hasBeenFullyCharged: slot.hasBeenFullyCharged || charge >= totalCharge };
+                        }));
+                    } else if (targetType === 'weapon-slot') {
                         const card = cards.find(c => c.id === cardId) || null;
                         if (card) {
-                            setSlots(prevSlots => prevSlots.map(slot => slot.id === targetId ? { ...slot, weapon: {
-                                primed: false,
-                                card,
-                                charge: 0,
-                            } } : slot));
+                            setSlots(prevSlots => prevSlots.map(slot => slot.id === targetId ? { ...slot, card, modified: false, hasBeenFullyCharged: false, charge: 0 } : slot));
                         }
                     } else if (targetType === 'weapon') {
-                        const card = cards.find(c => c.id === cardId);
-                        const cardCost = card ? getCardDefinition(card.type).parameters.cost : 0;
-
-                        if (cardCost) {
-                            setSlots(prevSlots => prevSlots.map(slot => slot.id === targetId ? {
-                                ...slot,
-                                charge: slot.charge + cardCost,
-                                primed: slot.primed,
-                            } : slot));
-                        }
+                        setSlots(prevSlots => prevSlots.map(slot => slot.id === targetId ? { ...slot, modified: true } : slot));
                     }
                 }}
                 slots={slots}
@@ -118,11 +116,13 @@ export const UI: Story = {
                 id: 'slot1',
                 card: null,
                 charge: 0,
-                primed: false,
+                modified: false,
+                hasBeenFullyCharged: false,
             },
             {
                 id: 'slot2',
-                primed: false,
+                modified: false,
+                hasBeenFullyCharged: false,
                 charge: 0,
                 card: {
                     id: 5,

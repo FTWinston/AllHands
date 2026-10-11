@@ -37,7 +37,6 @@ export type WeaponSlotTargetCardFunctionality = SharedEngineCardDefinition & {
 
 export type WeaponTargetCardFunctionality = SharedEngineCardDefinition & {
     prime: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
-    charge: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
 };
 
 export type EnemyTargetCardFunctionality = SharedEngineCardDefinition & {

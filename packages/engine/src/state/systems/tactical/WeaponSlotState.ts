@@ -20,7 +20,8 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     @type(CardState) card: CardState | null = null;
     @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
     @type('number') charge = 0;
-    @type('boolean') primed = false;
+    @type('boolean') modified = false;
+    @type('boolean') hasBeenFullyCharged = false;
     @type(CooldownState) decay: CooldownState | null = null;
     decayDuration = 0;
 
@@ -56,66 +57,70 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         this.modifiers.set(parameter, current + adjustment);
     }
 
-    isCharged(): boolean {
-        if (!this.card) {
+    /** Until first full charge a weapon takes charge freely; afterwards only a rechargeable weapon can be topped up. */
+    canBeCharged(): boolean {
+        if (!this.card || this.charge >= this.getParameter('totalCharge')) {
             return false;
         }
 
-        const chargeCost = this.getParameter('chargeCost');
-
-        return this.charge >= chargeCost;
+        return !this.hasBeenFullyCharged || this.card.hasTrait('rechargeable');
     }
 
+    /** Add charge (up to the weapon's total charge). Decay starts once the weapon is first fully charged. */
     addCharge(amount: number, currentTime: number) {
         if (!this.card) {
             return;
         }
 
-        const chargeCost = this.getParameter('chargeCost');
-        this.charge = Math.min(chargeCost, this.charge + amount);
-
-        // If already decaying, set the duration to 1 second faster than it was before, but not dropping below 1 second.
-        // If not already decaying, set duration to 30 seconds.
-        if (this.decay === null) {
-            this.decayDuration = 30000;
-        } else {
-            this.decayDuration = Math.max(1000, this.decayDuration - 1000);
+        // Any top-up uses up the trait, so a recharge is a single card.
+        if (this.hasBeenFullyCharged) {
+            this.card.removeTrait('rechargeable');
         }
 
-        // Start or restart the decay process from now.
-        this.decay = new CooldownState(currentTime, currentTime + this.decayDuration);
+        const totalCharge = this.getParameter('totalCharge');
+        this.charge = Math.min(this.charge + amount, totalCharge);
+
+        if (!this.hasBeenFullyCharged && this.charge >= totalCharge) {
+            this.hasBeenFullyCharged = true;
+            this.decayDuration = 30000;
+            this.decay = new CooldownState(currentTime, currentTime + this.decayDuration);
+        }
     }
 
-    /** Return true if the weapon card should be discarded. */
-    afterFiring() {
-        this.charge = 0;
-        this.primed = false;
-        this.decay = null;
+    /** Consume one use's charge & reset charge decay. Return true if the weapon was discarded for running out of charge. */
+    afterFiring(currentTime: number): boolean {
+        this.charge -= this.getParameter('chargePerUse');
 
-        const usesValue = this.modifiers.get('uses');
-        this.modifiers.clear();
-
-        if (usesValue === undefined || usesValue <= 1) {
-            this.card = null;
+        if (this.discardIfEmpty()) {
             return true;
-        } else {
-            this.modifiers.set('uses', usesValue - 1);
+        }
+
+        this.decay = new CooldownState(currentTime, currentTime + this.decayDuration);
+        return false;
+    }
+
+    /** Decay charge when due. Return true if the weapon was discarded for running out of charge. */
+    update(currentTime: number): boolean {
+        if (!this.card || !this.decay || this.decay.endTime > currentTime) {
             return false;
         }
+
+        this.decay = new CooldownState(this.decay.endTime, this.decay.endTime + this.decayDuration);
+        this.charge -= 1;
+        return this.discardIfEmpty();
     }
 
-    update(currentTime: number) {
-        if (!this.decay || this.decay.endTime > currentTime) {
-            return;
+    private discardIfEmpty(): boolean {
+        if (this.charge > 0) {
+            return false;
         }
 
-        // If there's charge left, reduce it by 1 and restart the decay. If not, stop the decay.
-        if (this.charge <= 1) {
-            this.decay = null;
-            this.charge = 0;
-        } else {
-            this.decay = new CooldownState(this.decay.endTime, this.decay.endTime + this.decayDuration);
-            this.charge -= 1;
-        }
+        this.charge = 0;
+        this.modified = false;
+        this.hasBeenFullyCharged = false;
+        this.decay = null;
+        this.modifiers.clear();
+        this.card = null;
+        return true;
     }
 }

@@ -73,7 +73,7 @@ describe('AI ship integration', () => {
         // Assertion set A (charge functions real): damage landed.
         expect(totalHealth(dummy)).toBeLessThan(before);
         // Assertion set B (charge functions stubbed): replace the line above with:
-        // expect(attacker.tacticalState.slots[0].primed).toBe(true);
+        // expect(attacker.tacticalState.slots[0].modified).toBe(true);
     });
 
     it('an AI that always skips its thinks never acts', () => {

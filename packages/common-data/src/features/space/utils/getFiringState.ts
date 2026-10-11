@@ -6,17 +6,13 @@ import { isFacingSubTarget } from './isFacingSubTarget.js';
 
 export function getFiringState(
     firingSolution: FiringSolution | null,
-    primed: boolean,
+    hasBeenFullyCharged: boolean,
     charge: number,
     parameters: CardParametersBase,
     subTarget?: SubTargetInfo
 ): FiringState {
-    if (!primed) {
-        return FiringState.NotPrimed;
-    }
-
-    const chargeCost = parameters['chargeCost'] ?? 0;
-    if (charge < chargeCost) {
+    const chargePerUse = parameters['chargePerUse'] ?? 0;
+    if (!hasBeenFullyCharged || charge <= 0 || charge < chargePerUse) {
         return FiringState.NotCharged;
     }
 

@@ -55,11 +55,11 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['energyWeapon'],
         parameters: {
             cost: 2,
-            chargeCost: 5,
+            chargePerUse: 5,
+            totalCharge: 15,
             maxRange: 10,
             firingArc: 1,
             damage: 20,
-            uses: 3,
         },
     },
     phaserStrip: {
@@ -68,11 +68,11 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['energyWeapon'],
         parameters: {
             cost: 4,
-            chargeCost: 3,
+            chargePerUse: 3,
+            totalCharge: 15,
             maxRange: 6,
             firingArc: 3,
             damage: 10,
-            uses: 5,
         },
     },
     photonTorpedo: {
@@ -81,11 +81,11 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['torpedoWeapon'],
         parameters: {
             cost: 3,
-            chargeCost: 4,
+            chargePerUse: 4,
+            totalCharge: 4,
             maxRange: 20,
             firingArc: 0.5,
             damage: 40,
-            uses: 1,
         },
     },
     photonicCannon: {
@@ -94,11 +94,11 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['energyWeapon'],
         parameters: {
             cost: 5,
-            chargeCost: 6,
+            chargePerUse: 6,
+            totalCharge: 12,
             maxRange: 15,
             firingArc: 0.5,
             damage: 60,
-            uses: 2,
         },
     },
     lowYield: {
@@ -123,12 +123,7 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'weapon',
         system: 'tactical',
         requiredWeaponTrait: 'energyWeapon',
-        parameters: { cost: 4, charge: 2, chargeIncrease: 3, damageIncrease: 3, fewerUses: 2, selfDamage: 2 },
-    },
-    chargeX: {
-        targetType: 'weapon',
-        system: 'tactical',
-        parameters: { cost: 1 },
+        parameters: { cost: 4, chargeIncrease: 3, damageIncrease: 3, fewerUses: 2, selfDamage: 2 },
     },
     ionicSurge: {
         targetType: 'weapon',
@@ -136,6 +131,11 @@ export const cardDefinitions = defineCardDefinitions({
         requiredWeaponTrait: 'energyWeapon',
         traits: ['dampening', 'disabling'],
         parameters: { cost: 4, chargeIncrease: 2, fewerUses: 1 },
+    },
+    rechargeable: {
+        targetType: 'weapon',
+        system: 'tactical',
+        parameters: { cost: 2 },
     },
     exampleEnemyTarget: {
         targetType: 'enemy',

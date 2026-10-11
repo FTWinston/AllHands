@@ -17,22 +17,33 @@ const meta: Meta<typeof Component> = {
             <Component {...args} />
         </div>
     ),
+    args: {
+        modified: false,
+        hasBeenFullyCharged: true,
+    },
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const decay = {
+    startTime: Date.now(),
+    endTime: Date.now() + 10000,
+};
+
 export const Empty: Story = {
     args: {
         id: 'slot1',
         card: null,
+        charge: 0,
+        hasBeenFullyCharged: false,
     },
 };
 
 export const WithCard: Story = {
     args: {
         id: 'slot2',
-        primed: false,
+        hasBeenFullyCharged: false,
         charge: 0,
         card: {
             id: 5,
@@ -41,27 +52,36 @@ export const WithCard: Story = {
     },
 };
 
-export const Primed: Story = {
+export const PartlyCharged: Story = {
     args: {
         id: 'slot2',
-        primed: true,
-        charge: 2,
+        hasBeenFullyCharged: false,
+        charge: 6,
         card: {
             id: 5,
             type: 'phaserStrip',
         },
-        decay: {
-            startTime: Date.now(),
-            endTime: Date.now() + 10000,
+    },
+};
+
+export const Modified: Story = {
+    args: {
+        id: 'slot2',
+        modified: true,
+        hasBeenFullyCharged: false,
+        charge: 6,
+        card: {
+            id: 5,
+            type: 'phaserStrip',
         },
     },
 };
 
-export const PrimedWithExtraTraits: Story = {
+export const ModifiedWithExtraTraits: Story = {
     args: {
         id: 'slot2',
-        primed: true,
-        charge: 2,
+        modified: true,
+        charge: 12,
         card: {
             id: 5,
             type: 'phaserStrip',
@@ -70,42 +90,46 @@ export const PrimedWithExtraTraits: Story = {
                 disabling: ExtraTraitType.RemoveOnPlay,
             },
         },
-        decay: {
-            startTime: Date.now(),
-            endTime: Date.now() + 10000,
-        },
+        decay,
     },
 };
 
 export const Charged: Story = {
     args: {
         id: 'slot2',
-        primed: true,
-        charge: 4,
+        charge: 12,
         card: {
             id: 5,
             type: 'phaserStrip',
         },
-        decay: {
-            startTime: Date.now(),
-            endTime: Date.now() + 10000,
+        decay,
+    },
+};
+
+export const Rechargeable: Story = {
+    args: {
+        id: 'slot2',
+        charge: 2,
+        card: {
+            id: 5,
+            type: 'phaserStrip',
+            extraTraits: {
+                rechargeable: ExtraTraitType.RemoveOnPlay,
+            },
         },
+        decay,
     },
 };
 
 export const CantFire: Story = {
     args: {
         id: 'slot2',
-        primed: true,
-        charge: 4,
+        charge: 12,
         card: {
             id: 5,
             type: 'phaserStrip',
         },
-        decay: {
-            startTime: Date.now(),
-            endTime: Date.now() + 10000,
-        },
+        decay,
         firingSolution: {
             range: 2000,
             relativeBearing: 0,

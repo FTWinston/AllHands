@@ -14,6 +14,8 @@ export const getTraitDescription = (trait: DisplayableTrait): string => {
             return 'Card is destroyed when played (not added to the deck).';
         case 'unstable':
             return 'Card shuffles back into the deck when played, instead of going on the end.';
+        case 'rechargeable':
+            return 'Weapon can be topped up with one more card after being fully charged. Doing so removes this trait.';
 
         // Weapon traits
         case 'energyWeapon':

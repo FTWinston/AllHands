@@ -23,6 +23,8 @@ export function getTraitDisplayName(trait: DisplayableTrait): string {
             return 'Unstable';
         case 'primary':
             return 'Primary';
+        case 'rechargeable':
+            return 'Rechargeable';
 
         // Weapon traits
         case 'energyWeapon':

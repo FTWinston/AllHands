@@ -1,4 +1,6 @@
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
+import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
+import { CardState } from 'src/state/CardState';
 import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';
 import { CrewSystemState } from 'src/state/systems/CrewSystemState';
@@ -98,6 +100,24 @@ export abstract class Officer {
         }
     }
 
+    /** The card whose best current candidate scores lowest, among those that can be spent on a capacity meter and pass the optional filter. */
+    protected findWorstCard(ctx: EvaluationContext, filter?: (card: CardState) => boolean): CardState | null {
+        let worst: CardState | null = null;
+        let worstScore = Infinity;
+        for (const card of ctx.system.hand) {
+            if (card.isDamaged || (getCardDefinition(card.type).traits ?? []).includes('expendable') || (filter && !filter(card))) {
+                continue;
+            }
+            const evaluator = getCardEvaluator(card.type);
+            const best = evaluator ? Math.max(0, ...evaluator(card, ctx).map(c => c.score)) : 0;
+            if (best < worstScore) {
+                worstScore = best;
+                worst = card;
+            }
+        }
+        return worst;
+    }
+
     protected execute(action: CandidateAction): void {
         switch (action.kind) {
             case 'playCard':
@@ -105,6 +125,9 @@ export abstract class Officer {
                 break;
             case 'repair':
                 this.ship.engineerState.repair(action.system);
+                break;
+            case 'chargeWeaponSlot':
+                this.ship.tacticalState.chargeWeaponSlot(action.cardId, action.slotId);
                 break;
             case 'cancelManeuver':
                 this.ship.helmState.cancelActiveManeuver();

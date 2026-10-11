@@ -1,11 +1,11 @@
 .weaponSlot {
     background-color: var(--color-mid);
     padding: 0.125em;
-    border-radius: 0.75em;
+    border-radius: 1.5em;
     corner-shape: squircle;
     border: solid 0.1em var(--color-mid);
     display: grid;
-    grid-template-columns: auto 1.5em;
+    grid-template-columns: auto 3em;
     grid-template-rows: auto 2.5em;
     grid-template-areas:
         "card progress"
@@ -24,6 +24,17 @@
     border-radius: 1.5em;
 }
 
+.modifyTarget {
+    grid-area: card;
+    display: grid;
+    corner-shape: squircle;
+    border-radius: 1.5em;
+    --drop-outline-width: 0.167em; /* matches the empty slot's outline, which is drawn in the 0.667em zoomed-out wrapper */
+
+    .cardWrapper {
+        grid-area: 1 / 1;
+    }
+}
 .card {
     transition: transform 0.33s ease-in-out;
     transform-origin: top left;
@@ -35,7 +46,8 @@
 }
 
 .actualCard:focus {
-    transform: scale(1.5);
+    /* Shift by the slot's border + padding (0.225em of the slot, i.e. 0.3375em at this card's 0.667em font size) so the zoomed card aligns with the slot's outer corner. */
+    transform: translate(-0.3375em, -0.3375em) scale(1.5);
     z-index: 10;
 }
 
@@ -76,8 +88,17 @@
     border-color: var(--color-darkest);
 }
 
-.progress {
+.chargeTarget {
     grid-area: progress;
+    display: flex;
+    flex-direction: column;
+    justify-self: stretch;
+    corner-shape: squircle;
+    border-radius: 1em;
+    --drop-outline-width: 0.167em;
+}
+
+.progress {
     flex-basis: 0;
     flex-grow: 1;
     justify-self: stretch;

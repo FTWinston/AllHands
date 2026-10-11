@@ -16,7 +16,7 @@ export function targetRange(ctx: EvaluationContext): number | null {
 }
 
 /** Charge decays in ~30s: charging far outside range wastes the play. */
-function chargeScore(slot: WeaponSlotState, ctx: EvaluationContext): number {
+export function chargeScore(slot: WeaponSlotState, ctx: EvaluationContext): number {
     const range = targetRange(ctx);
     if (range === null) {
         return 8;
@@ -49,20 +49,16 @@ export function weaponLoadEvaluator(cardType: WeaponSlotTargetedCardType): CardE
     };
 }
 
-export function weaponModifierEvaluator(cardType: WeaponTargetedCardType, primeBias = 0, chargeBias = 0): CardEvaluator {
+export function weaponModifierEvaluator(cardType: WeaponTargetedCardType, primeBias = 0): CardEvaluator {
     return (card, ctx) => {
         const cost = card.getParameter('cost');
         const out: CandidatePlay[] = [];
         for (const slot of ctx.ship.tacticalState.slots) {
-            if (!slot.card) {
+            if (!slot.card || slot.modified) {
                 continue;
             }
             const action = { kind: 'playCard' as const, cardId: card.id, cardType: cardType as CardType, targetType: 'weapon' as const, targetId: slot.id };
-            if (!slot.primed) {
-                out.push({ score: 40 + primeBias, cost, action });
-            } else if (!slot.isCharged()) {
-                out.push({ score: chargeScore(slot, ctx) + chargeBias, cost, action });
-            }
+            out.push({ score: 40 + primeBias, cost, action });
         }
         return out;
     };

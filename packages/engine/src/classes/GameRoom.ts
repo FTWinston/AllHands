@@ -199,7 +199,21 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
             const systemState = this.getSystemState(ship, clientRole);
 
-            if (targetType === 'any') {
+            const chargePrefix = 'charge:';
+            if (targetType === 'any' && targetId.startsWith(chargePrefix)) {
+                if (clientRole !== ownTacticalClientRole) {
+                    console.error('Only tactical can charge weapons');
+                    return;
+                }
+
+                const slotId = targetId.substring(chargePrefix.length);
+                if (!this.getSystemState(ship, clientRole).chargeWeaponSlot(cardId, slotId)) {
+                    console.error(`Failed to charge weapon slot ${slotId} with card ${cardId} for ship ${ship.id}`);
+                    return;
+                }
+
+                console.log(`${client.sessionId} charged weapon slot ${slotId} with card ${cardId} for ship ${ship.id}`);
+            } else if (targetType === 'any') {
                 if (targetId !== 'discard') {
                     console.error(`Invalid targetId ${targetId} for discarding card ${cardId}`);
                     return;

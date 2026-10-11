@@ -23,11 +23,11 @@ export type ChoiceCardDefinition<TCardKey extends string = CardType> = CommonCar
 export type WeaponSlotTargetCardDefinition = CommonCardDefinition & {
     targetType: 'weapon-slot';
     parameters: CardParameters & {
-        chargeCost: number;
+        chargePerUse: number;
+        totalCharge: number;
         maxRange: number;
         firingArc: number;
         damage: number;
-        uses: number;
     };
 };
 

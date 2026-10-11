@@ -64,7 +64,10 @@ export interface WeaponSlotInfo {
     modifiers?: IMap<string, number>;
     decay?: Cooldown | null;
     charge: number;
-    primed: boolean;
+    /** Whether the weapon has been given a modifier card. */
+    modified: boolean;
+    /** Whether the weapon has reached full charge since it was slotted. It can't fire before this. */
+    hasBeenFullyCharged: boolean;
 }
 
 export interface ScannedWeaponSlotInfo {

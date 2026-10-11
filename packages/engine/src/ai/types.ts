@@ -42,6 +42,7 @@ export type CandidateAction
     = | { kind: 'playCard'; cardId: number; cardType: CardType; targetType: CardTargetType; targetId: string }
         | { kind: 'discardCard'; cardId: number }
         | { kind: 'repair'; system: ShipSystem }
+        | { kind: 'chargeWeaponSlot'; cardId: number; slotId: string }
         | { kind: 'cancelManeuver' };
 
 export interface CandidatePlay {

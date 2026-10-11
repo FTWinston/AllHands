@@ -17,7 +17,7 @@ import { ColorPalette } from 'common-ui/types/ColorPalette';
 import { resolveParameters } from 'common-ui/types/resolveParameters';
 import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
-import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
+import { ActiveCardInfo, useActiveCard } from 'src/features/cardui/components/DragCardProvider';
 import { DraggableCard } from 'src/features/cardui/components/DraggableCard';
 import { mergeModifiers } from '../utils/mergeModifiers';
 import styles from './WeaponSlot.module.css';
@@ -26,7 +26,12 @@ type Props = Snapshot<WeaponSlotInfo> & {
     firingSolution: FiringSolution | null;
 };
 
-function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, fullyCharged: boolean) {
+// Only weapon and weapon slot cards can be spent as charge, and damaged cards can't be used.
+const canSpendOnCharge = (card: ActiveCardInfo) => !card.isDamaged
+    && (card.targetType === 'weapon' || card.targetType === 'weapon-slot')
+    && !getCardDefinition(card.cardType).traits?.includes('expendable');
+
+function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, fullyCharged: boolean, canModify: boolean) {
     const { card, modifiers } = props;
 
     if (!card || !cardDefinition) {
@@ -50,7 +55,12 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
     const mergedModifiers: Record<string, number> = mergeModifiers(card.modifiers, modifiers);
 
     return (
-        <>
+        <CardDropTarget
+            className={styles.modifyTarget}
+            targetType="weapon"
+            id={props.id}
+            disabled={!canModify}
+        >
             <div className={styles.cardWrapper}>
                 <CardDisplay
                     {...cardDefinition}
@@ -73,12 +83,12 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
                     slotted={true}
                 />
             </div>
-        </>
+        </CardDropTarget>
     );
 }
 
 export const WeaponSlot = (props: Props) => {
-    const { id, card, modifiers, charge, decay, firingSolution, primed } = props;
+    const { id, card, modifiers, charge, decay, firingSolution, modified, hasBeenFullyCharged } = props;
 
     const activeCard = useActiveCard();
     const activeCardDefinition = activeCard?.targetType === 'weapon'
@@ -89,19 +99,25 @@ export const WeaponSlot = (props: Props) => {
 
     const weaponTraitMismatch = activeCardDefinition !== null
         && slotCardDefinition !== null
-        && !primed
+        && !modified
         && activeCardDefinition.requiredWeaponTrait !== undefined
         && (slotCardDefinition.traits === undefined || !slotCardDefinition.traits.includes(activeCardDefinition.requiredWeaponTrait));
 
     const slotParameters = slotCardDefinition && card ? resolveParameters(slotCardDefinition.parameters, card.modifiers, modifiers) : {} as CardParameters;
 
     const firingState = card && slotCardDefinition
-        ? getFiringState(firingSolution, primed, charge, slotParameters)
+        ? getFiringState(firingSolution, hasBeenFullyCharged, charge, slotParameters)
         : FiringState.NoWeapon;
 
     const isFullyCharged = firingState !== FiringState.NoWeapon
-        && firingState !== FiringState.NotPrimed
         && firingState !== FiringState.NotCharged;
+
+    const totalCharge = slotParameters['totalCharge'] ?? 0;
+
+    // Mirrors the server: free charging until first full, then only rechargeable weapons.
+    const canBeCharged = !!card
+        && charge < totalCharge
+        && (!hasBeenFullyCharged || card.extraTraits?.['rechargeable'] !== undefined);
 
     let statusText: string;
     let mainPallete: ColorPalette | undefined;
@@ -118,18 +134,19 @@ export const WeaponSlot = (props: Props) => {
             statusHeading = 'Empty weapon slot';
             description = <>Drag a weapon card into this slot to equip it.</>;
             break;
-        case FiringState.NotPrimed:
-            statusText = 'prime';
-            mainPallete = 'primary';
-            statusPallete = 'energy';
-            statusHeading = 'Unprimed weapon';
-            description = <>Drag a non-weapon card onto this slot to prime it with that card's prime effect.</>;
-            break;
         case FiringState.NotCharged:
-            statusText = 'charge';
             mainPallete = 'primary';
-            statusHeading = 'Charging weapon';
-            description = <>Drag non-weapon cards onto this slot to charge it.</>;
+            if (canBeCharged && charge === 0 && !modified && !hasBeenFullyCharged) {
+                statusText = 'modify?';
+                statusHeading = 'Unmodified weapon';
+                description = <>Drag a modifier card onto the weapon to modify it, or drag weapon or weapon slot cards onto the charge meter to start charging it.</>;
+            } else {
+                statusText = 'charge';
+                statusHeading = 'Uncharged weapon';
+                description = canBeCharged
+                    ? <>Drag weapon or weapon slot cards onto the charge meter to charge it. The weapon can't fire until it is fully charged.</>
+                    : <>There isn't enough charge for another shot, and this weapon can't be recharged.</>;
+            }
             break;
         case FiringState.NoTarget:
             statusText = 'no target';
@@ -170,14 +187,8 @@ export const WeaponSlot = (props: Props) => {
     }
 
     return (
-        <CardDropTarget
-            render="li"
-            className={classNames(styles.weaponSlot, colorPalletes[mainPallete], isFullyCharged ? null : styles.recharging)}
-            targetType="weapon"
-            id={id}
-            disabled={!card || weaponTraitMismatch}
-        >
-            {getCardWrapper(props, slotCardDefinition, isFullyCharged)}
+        <li className={classNames(styles.weaponSlot, colorPalletes[mainPallete], isFullyCharged ? null : styles.recharging)}>
+            {getCardWrapper(props, slotCardDefinition, isFullyCharged, !!card && !modified && !weaponTraitMismatch)}
 
             <InfoPopup
                 className={classNames(styles.statusIndicator, statusDisabled ? styles.statusDisabled : null, colorPalletes[statusPallete ?? ''])}
@@ -188,14 +199,22 @@ export const WeaponSlot = (props: Props) => {
                 {statusText}
             </InfoPopup>
 
-            <DiscreteProgress
-                className={styles.progress}
-                title="Charge progress"
-                value={charge ?? 0}
-                maxValue={slotParameters['chargeCost'] ?? 0}
-                vertical={true}
-                decay={decay}
-            />
-        </CardDropTarget>
+            <CardDropTarget
+                className={styles.chargeTarget}
+                targetType="any"
+                id={`charge:${id}`}
+                canAcceptCard={canSpendOnCharge}
+                disabled={!canBeCharged}
+            >
+                <DiscreteProgress
+                    className={styles.progress}
+                    title="Charge progress"
+                    value={charge ?? 0}
+                    maxValue={totalCharge}
+                    vertical={true}
+                    decay={decay}
+                />
+            </CardDropTarget>
+        </li>
     );
 };

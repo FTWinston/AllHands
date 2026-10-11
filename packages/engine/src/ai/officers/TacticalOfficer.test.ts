@@ -51,40 +51,48 @@ describe('TacticalOfficer', () => {
         expect(ship.tacticalState.slots[0].card?.type).toBe('phaserCannon');
     });
 
-    it('primes a loaded slot with a modifier card', () => {
+    it('modifies a loaded slot with a modifier card', () => {
+        const { ship, officer, bb } = createWorld(['photonTorpedo', 'fullSpread'], 60); // out of range, so charging scores too low to compete
+        officer.think(bb, 0); // load
+        const slot = ship.tacticalState.slots[0];
+        officer.think(bb, 1000); // modify
+        expect(slot.modified).toBe(true);
+    });
+
+    it('spends a weapon card to charge a loaded weapon in range', () => {
         const { ship, officer, bb } = createWorld(['photonTorpedo', 'fullSpread'], 5);
         officer.think(bb, 0); // load
-        officer.think(bb, 1000); // prime
-        expect(ship.tacticalState.slots[0].primed).toBe(true);
+        officer.think(bb, 1000); // charge scores 55, beating modifying at 42
+        const slot = ship.tacticalState.slots[0];
+        expect(slot.charge).toBe(2);
+        expect(slot.modified).toBe(false);
     });
 
     it('holds charging while far outside weapon range', () => {
         const { ship, officer, bb } = createWorld(['photonTorpedo', 'fullSpread'], 60); // phaserCannon maxRange 10
         officer.think(bb, 0); // load (45 clears threshold regardless of range)
-        officer.think(bb, 1000); // prime scores 40 — priming is fine early
-        const playSpy = vi.spyOn(ship.tacticalState, 'playCard');
+        officer.think(bb, 1000); // modifying scores 42 — fine early
+        const chargeSpy = vi.spyOn(ship.tacticalState, 'chargeWeaponSlot');
         officer.think(bb, 2000); // charge would score 8 < threshold 20 → hold
-        expect(playSpy).not.toHaveBeenCalled();
+        expect(chargeSpy).not.toHaveBeenCalled();
     });
 
-    it('fires a charged, primed weapon at a target in range and arc', () => {
+    it('fires a fully charged weapon at a target in range and arc, without modifying it', () => {
         const { ship, officer, bb } = createWorld(['phaserCannon'], 5);
         officer.think(bb, 0); // load
         const slot = ship.tacticalState.slots[0];
-        slot.primed = true;
-        slot.charge = slot.getParameter('chargeCost'); // stage: fully charged
+        slot.addCharge(slot.getParameter('totalCharge'), 0); // stage: fully charged
 
         officer.think(bb, 1000);
 
-        expect(slot.charge).toBe(0); // afterFiring reset — the shot really happened
+        expect(slot.charge).toBe(slot.getParameter('totalCharge') - slot.getParameter('chargePerUse')); // the shot really happened
     });
 
     it('aims at a vulnerability sub-target when one is exposed', () => {
         const { ship, enemy, officer, bb } = createWorld(['phaserCannon'], 5);
         officer.think(bb, 0);
         const slot = ship.tacticalState.slots[0];
-        slot.primed = true;
-        slot.charge = slot.getParameter('chargeCost');
+        slot.addCharge(slot.getParameter('totalCharge'), 0);
 
         const entry = new TargetSubTargetsState();
         entry.subTargets.push(new SubTargetState('tactical:v1', 'tactical'));

@@ -24,7 +24,7 @@ const SlotDisplay = (props: SlotDisplayProps) => {
 
     const charge = props.charge ?? 0;
     const maxCharge = props.card
-        ? resolveParameter('chargeCost', getCardDefinition(props.card.type).parameters, props.card.modifiers, props.modifiers)
+        ? resolveParameter('totalCharge', getCardDefinition(props.card.type).parameters, props.card.modifiers, props.modifiers)
         : 0;
 
     return (

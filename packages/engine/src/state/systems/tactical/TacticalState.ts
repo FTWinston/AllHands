@@ -34,7 +34,11 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
     update(currentTime: number) {
         for (const slot of this.slots) {
-            slot.update(currentTime);
+            const slotCard = slot.card;
+            if (slot.update(currentTime) && slotCard) {
+                this.markCardUnslotted(slotCard);
+                this.handlePlayedCard(slotCard, -1, false);
+            }
         }
     }
 
@@ -89,8 +93,12 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
 
         const { requiredWeaponTrait } = cardDefinition;
-        // The trait restriction applies only to priming; any weapon can be charged.
-        if (requiredWeaponTrait && !slot.primed) {
+        if (slot.modified) {
+            console.log('weapon is already modified');
+            return false;
+        }
+
+        if (requiredWeaponTrait) {
             const weaponCardDef = cardDefinitions[slot.card.type] as EngineWeaponSlotCardDefinition;
             if (!weaponCardDef.traits?.includes(requiredWeaponTrait)) {
                 console.warn(`card requires weapon with trait: ${requiredWeaponTrait}`);
@@ -98,22 +106,34 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             }
         }
 
-        // If slot has been primed, use the card's charge function.
-        // Otherwise, use the card's prime function, and mark the slot as primed.
-        if (slot.primed) {
-            if (!cardDefinition.charge(this.getGameState(), this.getShip(), slot, parameters)) {
-                console.log('card refused to charge');
-                return false;
-            }
-        } else {
-            if (!cardDefinition.prime(this.getGameState(), this.getShip(), slot, parameters)) {
-                console.log('card refused to prime');
-                return false;
-            }
-
-            slot.primed = true;
+        if (!cardDefinition.prime(this.getGameState(), this.getShip(), slot, parameters)) {
+            console.log('card refused to prime');
+            return false;
         }
 
+        slot.modified = true;
+        this.scienceScanDataChanged.invoke();
+        return true;
+    }
+
+    /** Spend a hand card to charge a weapon slot by the card's power cost. Only weapon and weapon slot cards can be spent this way. */
+    chargeWeaponSlot(cardId: number, slotId: string): boolean {
+        const slot = this.resolveWeaponSlot(slotId);
+        if (!slot?.canBeCharged()) {
+            return false;
+        }
+
+        const found = this.findCardForCapacity(cardId);
+        if (!found || found.cost <= 0) {
+            return false;
+        }
+
+        if (found.definition.targetType !== 'weapon' && found.definition.targetType !== 'weapon-slot') {
+            return false;
+        }
+
+        slot.addCharge(found.cost, this.getGameState().currentTime);
+        this.handlePlayedCard(found.card, found.cardIndex, false);
         this.scienceScanDataChanged.invoke();
         return true;
     }
@@ -156,7 +176,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         const currentTime = this.getGameState().currentTime;
         const slotParameters = slot.getParameters();
         const firingSolution = getFiringSolution(this.getShip().motion, target.motion, currentTime);
-        const firingState = getFiringState(firingSolution, slot.primed, slot.charge, slotParameters, subTarget);
+        const firingState = getFiringState(firingSolution, slot.hasBeenFullyCharged, slot.charge, slotParameters, subTarget);
 
         if (firingState !== FiringState.CanFire) {
             console.warn(`cannot fire: firingState=${firingState}`);
@@ -169,7 +189,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
         cardDef.fire(this.getGameState(), this.getShip(), target, slotParameters, accuracy, weaponTraits);
 
-        if (slotCard && slot.afterFiring()) {
+        if (slotCard && slot.afterFiring(currentTime)) {
             // Put card back at the end of the deck.
             this.markCardUnslotted(slotCard);
             this.handlePlayedCard(slotCard, -1, false);
@@ -278,8 +298,10 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
     cleanupAfterEncounter() {
         for (const slot of this.slots) {
-            slot.primed = false;
+            slot.modified = false;
+            slot.hasBeenFullyCharged = false;
             slot.charge = 0;
+            slot.decay = null;
             slot.card = null;
         }
         super.cleanupAfterEncounter();

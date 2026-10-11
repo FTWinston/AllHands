@@ -123,7 +123,7 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="damageReduction" />
                 {' '}
-                and charge cost by
+                and charge per use by
                 {' '}
                 <Parameter name="chargeReduction" />
                 .
@@ -140,7 +140,7 @@ function loadCardDefinitions() {
                 damage by
                 {' '}
                 <Parameter name="damageMultiplier" />
-                % but increase charge cost by
+                % but increase charge per use by
                 {' '}
                 <Parameter name="chargeIncrease" />
                 .
@@ -157,7 +157,7 @@ function loadCardDefinitions() {
                 to
                 {' '}
                 <Parameter name="damageMultiplier" />
-                % of normal, to reduce its charge amount by
+                % of normal, to reduce its charge per use by
                 {' '}
                 <Parameter name="chargeReduction" />
                 {' '}
@@ -172,7 +172,7 @@ function loadCardDefinitions() {
         weaponOvercharge: {
             name: 'Overcharge',
             description: <>
-                Increase charge capacity of an
+                Increase the charge per use of an
                 {' '}
                 <Trait trait="energyWeapon" external />
                 {' '}
@@ -194,11 +194,6 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        chargeX: {
-            name: 'Charge X',
-            description: 'Charges the weapon by the current tactical system energy level.',
-            image: <ExampleIcon />,
-        },
         ionicSurge: {
             name: 'Ionic Surge',
             description: <>
@@ -211,7 +206,7 @@ function loadCardDefinitions() {
                 <Trait trait="disabling" />
                 {' '}
                 effects to the weapon,
-                but increase its charge cost by
+                but increase its charge per use by
                 {' '}
                 <Parameter name="chargeIncrease" />
                 {' '}
@@ -219,6 +214,17 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="fewerUses" />
                 .
+            </>,
+            image: <ExampleIcon />,
+        },
+        rechargeable: {
+            name: 'Rechargeable',
+            description: <>
+                Give a weapon the
+                {' '}
+                <Trait trait="rechargeable" external />
+                {' '}
+                trait, so it can be topped up with one more card once fully charged.
             </>,
             image: <ExampleIcon />,
         },

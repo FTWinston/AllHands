@@ -2,6 +2,8 @@ import { ArraySchema, type } from '@colyseus/schema';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemSetupInfo, CrewSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
+import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { InterceptableAction } from 'src/classes/InterceptableAction';
 import { CardState } from '../CardState';
 import { CooldownState } from '../CooldownState';
@@ -83,6 +85,36 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         this.pendingDrawChoice.clear();
 
         return true;
+    }
+
+    /**
+     * Validate that a hand card can be spent to refill a capacity meter (repair, charge): it must be usable,
+     * not expendable, and affordable at this system's power level. Does not remove it from the hand.
+     */
+    protected findCardForCapacity(cardId: number): { card: CardState; cardIndex: number; cost: number; definition: EngineCardDefinition } | null {
+        const cardIndex = this.hand.findIndex(card => card.id === cardId);
+        if (cardIndex === -1) {
+            console.warn('card not found');
+            return null;
+        }
+
+        const card = this.hand[cardIndex];
+        if (card.isDamaged) {
+            return null;
+        }
+
+        const definition = getCardDefinition(card.type);
+        if ((definition.traits ?? []).includes('expendable')) {
+            return null;
+        }
+
+        const cost = card.getParameter('cost');
+        if (this.powerLevel < cost) {
+            console.warn('insufficient power to use card');
+            return null;
+        }
+
+        return { card, cardIndex, cost, definition };
     }
 
     /**

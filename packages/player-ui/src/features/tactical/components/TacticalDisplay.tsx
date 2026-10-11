@@ -53,7 +53,7 @@ export const TacticalDisplay = (props: Props) => {
 
             const { requiredWeaponTrait } = definition;
             return slots.some((slot) => {
-                if (!slot.card || slot.primed) {
+                if (!slot.card || slot.modified) {
                     return false;
                 }
                 if (requiredWeaponTrait === undefined) {

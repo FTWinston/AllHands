@@ -5,7 +5,6 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemSetupInfo, EngineerSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineSystemTargetCardDefinition } from 'src/cards/EngineCardDefinition';
-import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { getReactorCardTypeForSystem } from 'src/cards/getReactorCardTypeForSystem';
 import { getSystemEffectDefinition } from 'src/effects/getEngineSystemEffectDefinition';
 import { GameState } from 'src/state/GameState';
@@ -105,27 +104,17 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
      * Returns the card if found and played, null otherwise.
      */
     override playCard(cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string): EngineCardDefinition | null {
-        const cardIndex = this.hand.findIndex(card => card.id === cardId);
-        if (cardIndex === -1) {
-            console.warn('card not found');
-            return null;
-        }
-
         if (targetType === 'system' && targetId === 'repair') {
-            const card = this.hand[cardIndex];
-
-            let cardDefinition = getCardDefinition(card.type);
-
-            if ((cardDefinition.traits ?? []).includes('expendable')) {
-                // Expendable cards can't be used for repairs.
+            const found = this.findCardForCapacity(cardId);
+            if (!found) {
                 return null;
             }
 
             this.repairCapacity = Math.min(this.repairCapacity + 10, this.maxRepairCapacity);
 
-            this.handlePlayedCard(card, cardIndex, false);
+            this.handlePlayedCard(found.card, found.cardIndex, false);
 
-            return cardDefinition;
+            return found.definition;
         } else {
             return super.playCard(cardId, cardType, targetType, targetId);
         }
