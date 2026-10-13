@@ -7,6 +7,7 @@ import { CooldownState } from 'src/state/CooldownState';
 /** Minimum resolved values for specific weapon parameters. Parameters not listed here default to 0. */
 const parameterMinimumValues: Readonly<Record<string, number>> = {
     damage: 1,
+    accuracy: -100,
 };
 
 export class WeaponSlotState extends Schema implements WeaponSlotInfo {

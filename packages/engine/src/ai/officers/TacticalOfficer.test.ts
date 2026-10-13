@@ -52,7 +52,7 @@ describe('TacticalOfficer', () => {
     });
 
     it('modifies a loaded slot with a modifier card', () => {
-        const { ship, officer, bb } = createWorld(['photonTorpedo', 'fullSpread'], 60); // out of range, so charging scores too low to compete
+        const { ship, officer, bb } = createWorld(['photonTorpedo', 'lowYield'], 60); // out of range, so charging scores too low to compete
         officer.think(bb, 0); // load
         const slot = ship.tacticalState.slots[0];
         officer.think(bb, 1000); // modify
@@ -60,16 +60,16 @@ describe('TacticalOfficer', () => {
     });
 
     it('spends a weapon card to charge a loaded weapon in range', () => {
-        const { ship, officer, bb } = createWorld(['photonTorpedo', 'fullSpread'], 5);
+        const { ship, officer, bb } = createWorld(['photonTorpedo', 'lowYield'], 5);
         officer.think(bb, 0); // load
         officer.think(bb, 1000); // charge scores 55, beating modifying at 42
         const slot = ship.tacticalState.slots[0];
-        expect(slot.charge).toBe(2);
+        expect(slot.charge).toBe(1);
         expect(slot.modified).toBe(false);
     });
 
     it('holds charging while far outside weapon range', () => {
-        const { ship, officer, bb } = createWorld(['photonTorpedo', 'fullSpread'], 60); // phaserCannon maxRange 10
+        const { ship, officer, bb } = createWorld(['photonTorpedo', 'lowYield'], 60); // phaserCannon maxRange 10
         officer.think(bb, 0); // load (45 clears threshold regardless of range)
         officer.think(bb, 1000); // modifying scores 42 — fine early
         const chargeSpy = vi.spyOn(ship.tacticalState, 'chargeWeaponSlot');

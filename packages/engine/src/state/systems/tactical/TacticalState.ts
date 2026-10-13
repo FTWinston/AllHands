@@ -20,6 +20,9 @@ import { SubTargetState } from './SubTargetState';
 import { TargetSubTargetsState } from './TargetSubTargetsState';
 import { WeaponSlotState } from './WeaponSlotState';
 
+/** Game-time delay between each shot of a multi-shot weapon, in ms. */
+const extraShotDelay = 200;
+
 export class TacticalState extends CrewSystemState implements TacticalSystemInfo {
     constructor(setup: TacticalSystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, initialPowerLevel: number, getCardId: () => number) {
         super(setup, 'tactical', gameState, ship, scannedSystemIndex, initialPowerLevel, getCardId);
@@ -184,10 +187,20 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
 
         const slotCard = slot.card;
-        const accuracy = this.determineAccuracy(target, subTarget);
+        const accuracy = this.determineAccuracy(target, subTarget, slotParameters['accuracy'] ?? 0);
         const weaponTraits = this.getWeaponTraits(cardDef, slotCard);
 
-        cardDef.fire(this.getGameState(), this.getShip(), target, slotParameters, accuracy, weaponTraits);
+        const gameState = this.getGameState();
+        const ship = this.getShip();
+        cardDef.fire(gameState, ship, target, slotParameters, accuracy, weaponTraits);
+
+        const extraShots = Math.max(0, Math.floor(slotParameters['extraShots'] ?? 0));
+
+        for (let i = 1; i <= extraShots; i++) {
+            gameState.setTimeout(() => {
+                cardDef.fire(gameState, ship, target, slotParameters, accuracy, weaponTraits);
+            }, i * extraShotDelay);
+        }
 
         if (slotCard && slot.afterFiring(currentTime)) {
             // Put card back at the end of the deck.
@@ -204,8 +217,8 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         return cardDef;
     }
 
-    private determineAccuracy(target: GameObject, subTarget: SubTargetInfo | undefined) {
-        let accuracy = 100; // TODO: consider other source of accuracy modifications, such as the weapon being fired.
+    private determineAccuracy(target: GameObject, subTarget: SubTargetInfo | undefined, weaponAccuracy: number) {
+        let accuracy = 100 + weaponAccuracy;
 
         if (target instanceof Ship) {
             // Adjust accuracy based on the target's evasion, if applicable.

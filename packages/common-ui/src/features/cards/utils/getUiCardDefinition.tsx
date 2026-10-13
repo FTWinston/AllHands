@@ -81,21 +81,6 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        photonTorpedo: {
-            name: 'Photon Torpedo',
-            description: <>
-                A long-range
-                {' '}
-                <Trait trait="torpedoWeapon" />
-                {' '}
-                dealing
-                {' '}
-                <Parameter name="damage" />
-                {' '}
-                damage.
-            </>,
-            image: <ExampleIcon />,
-        },
         photonicCannon: {
             name: 'Photonic Cannon',
             description: <>
@@ -111,7 +96,36 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-
+        photonTorpedo: {
+            name: 'Photon Torpedo',
+            description: <>
+                A long-range
+                {' '}
+                <Trait trait="torpedoWeapon" />
+                {' '}
+                dealing
+                {' '}
+                <Parameter name="damage" />
+                {' '}
+                damage.
+            </>,
+            image: <ExampleIcon />,
+        },
+        quantumTorpedo: {
+            name: 'Quantum Torpedo',
+            description: <>
+                A medium-range
+                {' '}
+                <Trait trait="torpedoWeapon" />
+                {' '}
+                dealing
+                {' '}
+                <Parameter name="damage" />
+                {' '}
+                damage.
+            </>,
+            image: <ExampleIcon />,
+        },
         lowYield: {
             name: 'Low Yield',
             description: <>
@@ -126,12 +140,12 @@ function loadCardDefinitions() {
                 and charge per use by
                 {' '}
                 <Parameter name="chargeReduction" />
-                .
+                . Total charge becomes one use.
             </>,
             image: <ExampleIcon />,
         },
-        fullSpread: {
-            name: 'Full Spread',
+        highYield: {
+            name: 'High Yield',
             description: <>
                 Increase a
                 {' '}
@@ -139,7 +153,140 @@ function loadCardDefinitions() {
                 {' '}
                 damage by
                 {' '}
-                <Parameter name="damageMultiplier" />
+                <Parameter name="damageIncrease" />
+                {' '}
+                and charge per use by
+                {' '}
+                <Parameter name="chargeIncrease" />
+                . Total charge becomes one use.
+            </>,
+            image: <ExampleIcon />,
+        },
+        extendedRange: {
+            name: 'Extended Range',
+            description: <>
+                Reduce a
+                {' '}
+                <Trait trait="torpedoWeapon" external />
+                {' '}
+                damage by
+                {' '}
+                <Parameter name="damageReduction" />
+                {' '}
+                and increase its maximum range by
+                {' '}
+                <Parameter name="maxRangeIncrease" />
+                {' '}
+                and minimum range by
+                {' '}
+                <Parameter name="minRangeIncrease" />
+                .
+            </>,
+            image: <ExampleIcon />,
+        },
+        projectileManoeuvrability: {
+            name: 'Projectile Manoeuvrability',
+            description: <>
+                Increase a
+                {' '}
+                <Trait trait="torpedoWeapon" external />
+                {' '}
+                charge per use by
+                {' '}
+                <Parameter name="chargeIncrease" />
+                , its firing arc by
+                {' '}
+                <Parameter name="firingArcIncrease" />
+                {' '}
+                and its accuracy by
+                {' '}
+                <Parameter name="accuracyIncrease" />
+                %.
+            </>,
+            image: <ExampleIcon />,
+        },
+        fullSpread: {
+            name: 'Full Spread',
+            description: <>
+                A
+                {' '}
+                <Trait trait="torpedoWeapon" external />
+                {' '}
+                fires
+                {' '}
+                <Parameter name="extraShots" />
+                {' '}
+                extra times, but deals
+                {' '}
+                <Parameter name="damageReduction" />
+                {' '}
+                less damage, has
+                {' '}
+                <Parameter name="accuracyReduction" />
+                % less accuracy and uses
+                {' '}
+                <Parameter name="chargeMultiplier" />
+                % charge per use. Total charge becomes one use.
+            </>,
+            image: <ExampleIcon />,
+        },
+        highIntensity: {
+            name: 'High Intensity',
+            description: <>
+                Increase an
+                {' '}
+                <Trait trait="energyWeapon" external />
+                {' '}
+                damage by
+                {' '}
+                <Parameter name="damageIncrease" />
+                {' '}
+                and charge per use by
+                {' '}
+                <Parameter name="chargeIncrease" />
+                , but narrow its firing arc by
+                {' '}
+                <Parameter name="firingArcReduction" />
+                .
+            </>,
+            image: <ExampleIcon />,
+        },
+        lensingEnhancement: {
+            name: 'Lensing Enhancement',
+            description: <>
+                Widen an
+                {' '}
+                <Trait trait="energyWeapon" external />
+                {' '}
+                firing arc by
+                {' '}
+                <Parameter name="firingArcIncrease" />
+                {' '}
+                and increase its damage by
+                {' '}
+                <Parameter name="damageIncrease" />
+                {' '}
+                and charge per use by
+                {' '}
+                <Parameter name="chargeIncrease" />
+                .
+            </>,
+            image: <ExampleIcon />,
+        },
+        precisionFocus: {
+            name: 'Precision Focus',
+            description: <>
+                Increase an
+                {' '}
+                <Trait trait="energyWeapon" external />
+                {' '}
+                damage by
+                {' '}
+                <Parameter name="damageIncrease" />
+                {' '}
+                and accuracy by
+                {' '}
+                <Parameter name="accuracyIncrease" />
                 % but increase charge per use by
                 {' '}
                 <Parameter name="chargeIncrease" />
@@ -161,11 +308,10 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="chargeReduction" />
                 {' '}
-                and give it
+                and increase its total charge by
                 {' '}
-                <Parameter name="extraUses" />
-                {' '}
-                extra uses.
+                <Parameter name="totalChargeIncrease" />
+                .
             </>,
             image: <ExampleIcon />,
         },
@@ -183,14 +329,36 @@ function loadCardDefinitions() {
                 and damage by
                 {' '}
                 <Parameter name="damageIncrease" />
-                , reducing it uses by
+                , increasing its total charge by
                 {' '}
-                <Parameter name="fewerUses" />
+                <Parameter name="totalChargeIncrease" />
                 , and dealing
                 {' '}
                 <Parameter name="selfDamage" />
                 {' '}
                 self-damage.
+            </>,
+            image: <ExampleIcon />,
+        },
+        rapidFire: {
+            name: 'Rapid Fire',
+            description: <>
+                An
+                {' '}
+                <Trait trait="energyWeapon" external />
+                {' '}
+                fires
+                {' '}
+                <Parameter name="extraShots" />
+                {' '}
+                extra times, but deals
+                {' '}
+                <Parameter name="damageReduction" />
+                {' '}
+                less damage and uses
+                {' '}
+                <Parameter name="chargeMultiplier" />
+                % charge per use. Total charge becomes one use.
             </>,
             image: <ExampleIcon />,
         },
@@ -203,16 +371,36 @@ function loadCardDefinitions() {
                 {' '}
                 and
                 {' '}
-                <Trait trait="disabling" />
+                <Trait trait="draining" />
                 {' '}
                 effects to the weapon,
-                but increase its charge per use by
+                but reduce its damage by
+                {' '}
+                <Parameter name="damageReduction" />
+                {' '}
+                and increase its charge per use by
                 {' '}
                 <Parameter name="chargeIncrease" />
+                .
+            </>,
+            image: <ExampleIcon />,
+        },
+        extendedUse: {
+            name: 'Extended Use',
+            description: <>
+                Increase a weapon's total charge by
                 {' '}
-                and reduce its uses by
+                <Parameter name="totalChargeIncrease" />
+                .
+            </>,
+            image: <ExampleIcon />,
+        },
+        efficiency: {
+            name: 'Efficiency',
+            description: <>
+                Reduce a weapon's charge per use by
                 {' '}
-                <Parameter name="fewerUses" />
+                <Parameter name="chargeReduction" />
                 .
             </>,
             image: <ExampleIcon />,
