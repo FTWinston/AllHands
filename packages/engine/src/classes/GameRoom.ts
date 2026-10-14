@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
@@ -13,6 +11,10 @@ import { CrewSystemState } from 'src/state/systems/CrewSystemState';
 import { EngineerState } from 'src/state/systems/engineer/EngineerState';
 import { ScienceState } from 'src/state/systems/science/ScienceState';
 import { TacticalState } from 'src/state/systems/tactical/TacticalState';
+import { Campaign } from '../campaign/Campaign';
+import { factionConfigs, playerFactionId } from '../campaign/factions';
+import { playerShipSetup } from '../campaign/playerShipSetup';
+import { getDevEncounterList, hasEncounter } from '../encounters/EncounterRegistry';
 import { DEV_TOOLS_ENABLED } from '../generated/devtools';
 import { CardState } from '../state/CardState';
 import { CrewState } from '../state/CrewState';
@@ -20,15 +22,9 @@ import { GameState } from '../state/GameState';
 import { PlayerShip } from '../state/PlayerShip';
 import { HelmState } from '../state/systems/HelmState';
 import { SystemState } from '../state/systems/SystemState';
-import { EndlessCombatEncounters } from './EndlessCombatEncounters';
-import { GameRules } from './GameRules';
 import { IdPool } from './IdPool';
-import type { RulesType, ScenarioConfig } from 'common-data/types/ScenarioConfig';
+import type { DevLoadEncounterPayload, SectorServerMessages } from 'common-data/features/sectors/types/SectorMessages';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
-
-const rulesRegistry: Record<RulesType, new (state: GameState, scenario: ScenarioConfig) => GameRules> = {
-    endlessCombat: EndlessCombatEncounters,
-};
 
 interface JoinOptions {
     type?: 'ship' | 'crew';
@@ -40,7 +36,6 @@ type ClientData = Required<JoinOptions>;
 export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
     private idGenerator = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 3);
     private allowMultipleCrews = false;
-    private scenario: ScenarioConfig = this.loadScenario('default');
 
     getCrewId() {
         if (!this.allowMultipleCrews) {
@@ -55,18 +50,6 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
         return id;
     };
-
-    private loadScenario(scenarioName: string): ScenarioConfig {
-        // Look for scenario files in a 'scenarios' directory relative to the engine package
-        const scenarioPath = path.join(__dirname, '..', '..', 'scenarios', `${scenarioName}.json`);
-
-        if (!fs.existsSync(scenarioPath)) {
-            throw new Error(`Scenario file not found: ${scenarioPath}`);
-        }
-
-        const scenarioData = fs.readFileSync(scenarioPath, 'utf-8');
-        return JSON.parse(scenarioData) as ScenarioConfig;
-    }
 
     onCreate(config: ServerConfig) {
         this.allowMultipleCrews = config.multiship;
@@ -138,21 +121,6 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 this.startOrResume();
             } else {
                 console.warn('Cannot resume: game is not paused');
-            }
-        });
-
-        this.onMessage('scenario', (client, scenarioName: string) => {
-            console.log(`Scenario change request from ${client.sessionId}: ${scenarioName}`);
-            if (this.state.gameStatus !== 'setup') {
-                console.warn('Cannot change scenario after game has started');
-                return;
-            }
-
-            try {
-                this.scenario = this.loadScenario(scenarioName);
-                console.log(`Scenario changed to ${scenarioName}`);
-            } catch (error) {
-                console.error(`Failed to load scenario ${scenarioName}:`, error);
             }
         });
 
@@ -368,6 +336,22 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                     break;
             }
         });
+
+        this.onMessage('dismissMessage', (client) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship || clientRole !== ownTacticalClientRole) {
+                console.error('Only tactical can dismiss sector messages');
+                return;
+            }
+
+            if (!this.state.campaign?.dismissMessage()) {
+                console.warn(`Rejected message dismissal from ${client.sessionId}`);
+            }
+        });
     }
 
     private registerDevCommandHandlers() {
@@ -423,6 +407,31 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             const timeScale = Math.max(minTimeScale, Math.min(maxTimeScale, message.timeScale));
             this.state.timeScale = timeScale;
             console.log(`[dev] ${client.sessionId} adjustTimeScale to ${timeScale}`);
+        });
+
+        this.onMessage('devLoadEncounter', (client, message: DevLoadEncounterPayload) => {
+            if (client.userData?.type !== 'ship') {
+                console.error('Dev commands can only be sent by ship clients');
+                return;
+            }
+
+            if (typeof message?.encounterId !== 'string' || !hasEncounter(message.encounterId)) {
+                console.error(`[dev] Unknown encounter: ${String(message?.encounterId)}`);
+                return;
+            }
+
+            if (this.state.gameStatus === 'setup') {
+                // Skip the lobby: create the ships and start the game, then replace the first sector intro.
+                this.populateScenario();
+                this.startOrResume();
+            }
+
+            if (this.state.gameStatus === 'ended' || !this.state.campaign?.devLoadEncounter(message.encounterId)) {
+                console.error(`[dev] Could not load encounter ${message.encounterId}`);
+                return;
+            }
+
+            console.log(`[dev] ${client.sessionId} devLoadEncounter ${message.encounterId}`);
         });
     }
 
@@ -579,6 +588,11 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
         // Send the crew ID back to the ship client, for providing a link for crew members to join.
         client.send('joined', { crewId });
+
+        if (DEV_TOOLS_ENABLED) {
+            const encounters: SectorServerMessages['devEncounterList'] = getDevEncounterList();
+            client.send('devEncounterList', encounters);
+        }
     }
 
     private onCrewJoin(client: Client<{ userData: ClientData }>, crewId: string) {
@@ -689,25 +703,24 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
     }
 
     populateScenario() {
-        console.log(`Initializing scenario: ${this.scenario.name}`);
-        this.state.initFactions(this.scenario.factions, this.scenario.playerFaction);
+        console.log('Initializing campaign');
+        this.state.initFactions(factionConfigs, playerFactionId);
 
         // Factions didn't exist yet when already-connected clients' views were set up
         // (see addFactionToViews), so add the now-created player faction to them here.
         // Clients that join from this point on get it directly from addFactionToViews.
         this.addFactionToViews(this.clients);
 
-        // Create a player ship for each crew using the scenario's player setup.
+        // Create a player ship for each crew.
         for (const crew of this.state.crews.values()) {
-            const ship = new PlayerShip(this.state, this.scenario.player);
+            const ship = new PlayerShip(this.state, playerShipSetup);
             this.state.add(ship);
             crew.setShip(ship);
         }
 
-        const RulesClass = rulesRegistry[this.scenario.rules];
-        const rules = new RulesClass(this.state, this.scenario);
-        this.state.rules = rules;
-        rules.populate();
+        const campaign = new Campaign(this.state);
+        this.state.campaign = campaign;
+        campaign.start();
     }
 
     startOrResume() {

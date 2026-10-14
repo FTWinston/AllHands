@@ -1,14 +1,17 @@
+import { Snapshot } from '@colyseus/react';
 import { useDraggable } from '@dnd-kit/core';
 import { CardParametersBase } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
+import { RouteCardInfo } from 'common-data/features/cards/types/RouteCardInfo';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
+import { getRouteCardDescription } from 'common-ui/features/cards/utils/getRouteCardDescription';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { resolveParameter } from 'common-ui/types/resolveParameters';
 import { classNames } from 'common-ui/utils/classNames';
-import { FC, useState } from 'react';
+import { FC, useMemo, useState } from 'react';
 import { useActiveCard, useDragDisplayMode, useIsOverValidTarget } from './DragCardProvider';
 import styles from './DraggableCard.module.css';
 
@@ -16,7 +19,6 @@ type Props = {
     className?: string;
     id: number;
     elementId?: string;
-    type: CardType;
     availablePower: number;
     index: number;
     targetType?: CardTargetType;
@@ -24,22 +26,30 @@ type Props = {
     highlighted?: boolean;
     modifiers?: CardParametersBase;
     extraTraits?: Partial<Record<CardTrait, ExtraTraitType>>;
+    type: CardType;
+    /** Only on 'route' cards; replaces the card's name, description and image. */
+    route?: Snapshot<RouteCardInfo>;
 };
 
 export const DraggableCard: FC<Props> = (props) => {
     const activeCard = useActiveCard();
     const isOverValidTarget = useIsOverValidTarget();
 
-    const definition = getCardDefinition(props.type);
+    const baseDefinition = getCardDefinition(props.type);
+    const { route } = props;
+    const definition = useMemo(() => route ? { ...baseDefinition, ...getRouteCardDescription(route) } : baseDefinition, [baseDefinition, route]);
     const resolvedCost = resolveParameter('cost', definition.parameters, props.modifiers);
 
     const targetType = props.targetType ?? definition.targetType;
 
     const isDamaged = props.extraTraits?.['damaged'] !== undefined || props.extraTraits?.['critical'] !== undefined;
+    const isUnplayable = props.extraTraits?.['unplayable'] !== undefined;
+    const isPriority = definition.traits?.includes('priority') || props.extraTraits?.['priority'] !== undefined;
 
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: props.elementId ?? props.id.toString(),
-        data: { id: props.id, targetType, cardType: props.type, isDamaged },
+        disabled: isUnplayable,
+        data: { id: props.id, targetType, cardType: props.type, isDamaged, isPriority },
     });
 
     const dragDisplayMode = useDragDisplayMode();
@@ -76,6 +86,7 @@ export const DraggableCard: FC<Props> = (props) => {
             <CardDisplay
                 {...definition}
                 slotted={props.slotted}
+                disabled={isUnplayable}
                 highlighted={props.highlighted}
                 sufficientPower={props.slotted ? undefined : props.availablePower >= resolvedCost}
                 modifiers={props.modifiers}

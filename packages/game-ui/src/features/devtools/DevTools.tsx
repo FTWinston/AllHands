@@ -6,12 +6,16 @@ import { Button } from 'common-ui/components/Button';
 import { GameState } from 'engine/state/GameState';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { DevToolsDisplay } from './components/DevToolsDisplay';
+import type { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
+import type { DevLoadEncounterPayload } from 'common-data/features/sectors/types/SectorMessages';
 
 type Props = {
     room: Room<unknown, GameState>;
+    encounters: readonly DevEncounterInfo[];
+    inLobby?: boolean;
 };
 
-export const DevTools: FC<Props> = ({ room }) => {
+export const DevTools: FC<Props> = ({ room, encounters, inLobby }) => {
     const addCard = useCallback((system: CrewRoleName, cardId: string) => {
         room?.send('addCard', { system, cardId });
     }, [room]);
@@ -26,6 +30,10 @@ export const DevTools: FC<Props> = ({ room }) => {
 
     const adjustTimeScale = useCallback((timeScale: number) => {
         room?.send('adjustTimeScale', { timeScale });
+    }, [room]);
+
+    const loadEncounter = useCallback((encounterId: string) => {
+        room?.send('devLoadEncounter', { encounterId } satisfies DevLoadEncounterPayload);
     }, [room]);
 
     const [showTools, setShowTools] = useState(false);
@@ -62,6 +70,9 @@ export const DevTools: FC<Props> = ({ room }) => {
                     adjustHealth={adjustHealth}
                     adjustTimeScale={adjustTimeScale}
                     serverTimeScale={serverTimeScale}
+                    encounters={encounters}
+                    loadEncounter={loadEncounter}
+                    inLobby={inLobby}
                 />
             )}
         </>

@@ -8,6 +8,7 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 
 import { resolveParameter, resolveParameters } from 'src/cards/resolveParameters';
 import { getCardDefinition } from '../cards/getEngineCardDefinition';
+import { RouteCardInfoState } from './RouteCardInfoState';
 
 export class CardState extends Schema implements CardInstance {
     constructor(id: number, type: CardType, modifiers = new MapSchema<number>()) {
@@ -26,6 +27,9 @@ export class CardState extends Schema implements CardInstance {
      * Values are whether the trait should be removed when the card is played.
     */
     @type({ map: 'number' }) readonly extraTraits = new MapSchema<ExtraTraitType, CardTrait>();
+
+    /** Only set on 'route' cards. */
+    @type(RouteCardInfoState) route?: RouteCardInfoState;
 
     getParameters(additionalModifiers?: IMap<string, number> | null): CardParameters {
         const definition = getCardDefinition(this.type);

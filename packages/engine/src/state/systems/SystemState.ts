@@ -134,11 +134,14 @@ export abstract class SystemState extends Schema implements SystemInfo {
         const random = this.getShip().random;
 
         for (let i = 0; i < number; i++) {
-            if (this.hand.length === 0) {
+            // Campaign cards (e.g. Warp Away) are never discarded at random.
+            const candidates = this.hand.filter(card => !card.hasTrait('priority') && !card.hasTrait('unplayable'));
+            if (candidates.length === 0) {
                 return;
             }
 
-            const card = random.delete(this.hand as CardState[]);
+            const card = random.pick(candidates);
+            this.hand.splice(this.hand.indexOf(card), 1);
 
             if (!card.hasTrait('expendable')) {
                 this.deck.push(card);
@@ -152,7 +155,12 @@ export abstract class SystemState extends Schema implements SystemInfo {
             return false;
         }
 
-        const [card] = this.hand.splice(cardIndex, 1);
+        const card = this.hand[cardIndex];
+        if (card.hasTrait('priority') || card.hasTrait('unplayable')) {
+            return false;
+        }
+
+        this.hand.splice(cardIndex, 1);
 
         if (!card.hasTrait('expendable')) {
             this.deck.push(card);
@@ -371,9 +379,13 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }
 
     cleanupAfterEncounter() {
-        // Restore the deck from the card pool. Clear down modifiers, but don't clean up extra card traits.
+        for (const card of [...this.slottedCards]) {
+            this.markCardUnslotted(card);
+        }
+
+        // Restore the deck from the pool cards that aren't in the hand. Clear down modifiers, but don't clean up extra card traits.
         this.deck.clear();
-        this.deck.push(...this.cardPool);
+        this.deck.push(...[...this.cardPool].filter(card => !this.hand.includes(card)));
 
         for (const card of this.cardPool) {
             card.modifiers.clear();
@@ -422,7 +434,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         const card = this.hand[cardIndex];
 
-        if (card.isDamaged) {
+        if (card.isDamaged || card.hasTrait('unplayable')) {
             return null;
         }
 
@@ -462,7 +474,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
         let slotted: boolean = false;
 
         if (cardDefinition.targetType === 'no-target') {
-            played = this.playNoTargetCard(cardDefinition, parameters);
+            played = this.playNoTargetCard(cardDefinition, card, parameters);
         } else if (cardDefinition.targetType === 'weapon-slot') {
             played = this.playWeaponSlotCard(cardDefinition, card, targetId, parameters);
             slotted = true;
@@ -514,13 +526,14 @@ export abstract class SystemState extends Schema implements SystemInfo {
             return null;
         }
 
-        this.handlePlayedCard(card, cardIndex, slotted);
+        // Playing a route or warp card swaps the whole hand, so the index may have moved.
+        this.handlePlayedCard(card, this.hand.indexOf(card), slotted);
 
         return cardDefinition;
     }
 
-    private playNoTargetCard(cardDefinition: EngineNoTargetCardDefinition, parameters: CardParameters): boolean {
-        if (!cardDefinition.play(this.getGameState(), this.getShip(), parameters)) {
+    private playNoTargetCard(cardDefinition: EngineNoTargetCardDefinition, card: CardState, parameters: CardParameters): boolean {
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), parameters, card)) {
             console.log('card refused to play');
             return false;
         }

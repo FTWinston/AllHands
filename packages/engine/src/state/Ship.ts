@@ -221,13 +221,13 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     }
 
     cleanupAfterEncounter() {
-        for (const system of Object.values(this.systems)) {
+        for (const system of this.systems.values()) {
             system.cleanupAfterEncounter();
         }
     }
 
     fullyRepair() {
-        for (const system of Object.values(this.systems)) {
+        for (const system of this.systems.values()) {
             system.fullyRepair();
         }
     }

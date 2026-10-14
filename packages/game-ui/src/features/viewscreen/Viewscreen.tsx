@@ -5,7 +5,10 @@ import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { FC, PropsWithChildren } from 'react';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
+import { ViewscreenPhaseDisplay } from './components/ViewscreenPhaseDisplay';
 import type { Room } from '@colyseus/sdk';
+import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
+import type { SectorMapInfo, SectorMessageInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = PropsWithChildren<{
@@ -21,6 +24,26 @@ export const Viewscreen: FC<Props> = (props) => {
     const factions = useRoomState(props.room, state => state.factions) as Record<string, { relations: FactionRelationshipMap }>;
     const localShip = objects[props.shipId];
     const weaponEffectsRef = useWeaponEffects(props.room);
+
+    const phase = (useRoomState(props.room, state => state.phase) ?? 'setup') as GamePhase;
+    const outcome = (useRoomState(props.room, state => state.outcome) ?? null) as GameOutcome | null;
+    // Snapshots are plain objects, so the shared info interfaces describe them (objective is a looser union in the schema).
+    const map = (useRoomState(props.room, state => state.map) ?? null) as unknown as SectorMapInfo | null;
+    const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
+
+    if (phase !== 'encounter') {
+        return (
+            <ViewscreenPhaseDisplay
+                phase={phase}
+                outcome={outcome}
+                map={map}
+                message={message}
+                showMenu={props.showMenu}
+            >
+                {props.children}
+            </ViewscreenPhaseDisplay>
+        );
+    }
 
     const viewerFaction = localShip?.faction ?? null;
     const viewer: RelationshipViewer = {

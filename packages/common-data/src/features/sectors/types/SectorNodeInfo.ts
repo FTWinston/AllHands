@@ -1,0 +1,25 @@
+import type { EnvironmentType } from './EnvironmentType';
+import type { ObjectiveInfo } from './ObjectiveInfo';
+
+export type SectorNodeKind = 'combat' | 'repair' | 'boss';
+
+/** Key into the engine's encounter class registry. */
+export type EncounterId = string;
+
+export interface SectorNodeInfo {
+    id: string;
+    kind: SectorNodeKind;
+    encounterId: EncounterId;
+    name: string;
+    /** Absent for repair nodes. */
+    environment?: EnvironmentType;
+    /** References `FactionConfig.id`. Absent for nodes without hostiles. */
+    factionId?: string;
+    /** Absent for repair nodes. */
+    objective?: ObjectiveInfo;
+    /** Normalised 0..1 layout position; x runs start to boss. */
+    x: number;
+    y: number;
+    /** Ids of the nodes reachable from this one. */
+    next: string[];
+}

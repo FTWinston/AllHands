@@ -32,7 +32,7 @@ export class Commander {
     /**
      * Resolves a scenario-authored `guard-ship` target from a `scenarioId` to the real runtime
      * id of the object that currently owns it. Must be called once, after the referenced
-     * object has been created — see `EndlessCombatEncounters` for callers. A no-op if the goal
+     * object has been created — see `Encounter.spawnObjects` for callers. A no-op if the goal
      * isn't `guard-ship`, if `shipId` is already a live object id, or if no object currently
      * has a matching `scenarioId`.
      */

@@ -29,7 +29,50 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
     @type(CooldownState) cardGeneration: CooldownState | null = null;
 
+    /** The real hand, held here (still synced, so its cards stay alive on clients) while `hand` shows a fake hand. */
+    @type([CardState]) storedHand = new ArraySchema<CardState>();
+
+    private showingFakeHand = false;
+
     override readonly maxHandSize = 5;
+
+    /** Replace the visible hand with these cards, setting the real hand aside untouched. */
+    showFakeHand(cards: CardState[]) {
+        if (!this.showingFakeHand) {
+            this.storedHand.push(...this.hand);
+            this.showingFakeHand = true;
+        }
+
+        this.hand.clear();
+        this.hand.push(...cards);
+    }
+
+    /** Bring the real hand back, dropping any fake hand being shown. */
+    restoreRealHand() {
+        if (!this.showingFakeHand) {
+            return;
+        }
+
+        this.hand.clear();
+        this.hand.push(...this.storedHand);
+        this.storedHand.clear();
+        this.showingFakeHand = false;
+    }
+
+    /** Add a card to the visible hand, ignoring the hand size limit. */
+    addExtraCard(card: CardState) {
+        this.hand.push(card);
+    }
+
+    removeCard(cardId: number): boolean {
+        const index = this.hand.findIndex(card => card.id === cardId);
+        if (index === -1) {
+            return false;
+        }
+
+        this.hand.splice(index, 1);
+        return true;
+    }
 
     updateCardGeneration() {
         let currentTime = this.getGameState().currentTime;
@@ -132,5 +175,10 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         }
 
         this.addCardToHand(new CardState(this.getCardId(), cardType));
+    }
+
+    override cleanupAfterEncounter() {
+        this.pendingDrawChoice.clear();
+        super.cleanupAfterEncounter();
     }
 }

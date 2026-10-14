@@ -3,6 +3,8 @@ import { Room, Client } from '@colyseus/sdk';
 import { roomIdentifier } from 'common-data/utils/constants';
 import { TimeSynchronizer } from 'common-ui/classes/TimeSynchronizer';
 import { useEffect, useRef, useState } from 'react';
+import type { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
+import type { SectorServerMessages } from 'common-data/features/sectors/types/SectorMessages';
 import type { ConnectionState } from 'common-data/types/ConnectionState';
 import type { ServerAddress } from 'common-data/types/ServerAddress';
 import type { GameState } from 'engine/state/GameState';
@@ -18,6 +20,8 @@ export function useRoomConnection(
     const timeSynchronizer = useRef<TimeSynchronizer | null>(null);
     const [crewId, setCrewId] = useState<string | null>(null);
     const [shipId, setShipId] = useState<string | null>(null);
+    // Only ever populated by servers built with dev tools; the server sends the list once, right after joining.
+    const [devEncounters, setDevEncounters] = useState<DevEncounterInfo[]>([]);
 
     const gameStatus = useRoomState(room ?? emptyRoom, state => state.gameStatus) ?? 'setup';
 
@@ -55,6 +59,12 @@ export function useRoomConnection(
                     setShipId(message.shipId);
                 });
 
+                if (import.meta.env.VITE_DEV_TOOLS) {
+                    joinedRoom.onMessage<SectorServerMessages['devEncounterList']>('devEncounterList', (encounters) => {
+                        setDevEncounters(encounters);
+                    });
+                }
+
                 joinedRoom.onLeave((code) => {
                     console.log('disconnected from server', code);
                     setConnectionState('disconnected');
@@ -71,5 +81,5 @@ export function useRoomConnection(
         };
     }, [serverAddress, setConnectionState]);
 
-    return [room, crewId, shipId, gameStatus, timeSynchronizer.current] as const;
+    return [room, crewId, shipId, gameStatus, timeSynchronizer.current, devEncounters] as const;
 }

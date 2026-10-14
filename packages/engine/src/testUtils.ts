@@ -1,8 +1,14 @@
 import { boot, type ColyseusTestServer } from '@colyseus/testing';
 import { defineRoom } from 'colyseus';
+import { Random } from 'common-data/classes/Random';
 import { ShipSetupInfo, NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { roomIdentifier } from 'common-data/utils/constants';
+import { Campaign } from 'src/campaign/Campaign';
+import { factionConfigs, playerFactionId } from 'src/campaign/factions';
+import { playerShipSetup } from 'src/campaign/playerShipSetup';
+import { sectorThemes, type SectorTheme } from 'src/campaign/sectorThemes';
 import { GameRoom } from 'src/classes/GameRoom';
+import { PlayerShip } from 'src/state/PlayerShip';
 import { beforeAll, afterAll, beforeEach } from 'vitest';
 import type { IRandom } from 'common-data/types/IRandom';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
@@ -58,7 +64,43 @@ export function setupGameRoom() {
         getClock() {
             return room.clock;
         },
+        getRoom() {
+            return room;
+        },
+        getServer() {
+            return colyseus;
+        },
     };
+}
+
+/** A deterministic random source (mulberry32), so generated content can be reproduced. */
+export function seededRandom(seed: number): Random {
+    let a = seed >>> 0;
+    return new Random(() => {
+        a = (a + 0x6D2B79F5) >>> 0;
+        let t = a;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    });
+}
+
+/** Creates factions, one player ship per count, and a started campaign (in its first sector intro) on the state. */
+export function startCampaign(state: GameState, shipCount = 1, themes: readonly SectorTheme[] = sectorThemes) {
+    state.initFactions(factionConfigs, playerFactionId);
+
+    const ships: PlayerShip[] = [];
+    for (let i = 0; i < shipCount; i++) {
+        const ship = new PlayerShip(state, playerShipSetup);
+        state.add(ship);
+        ships.push(ship);
+    }
+
+    const campaign = new Campaign(state, themes);
+    state.campaign = campaign;
+    campaign.start();
+
+    return { campaign, ships };
 }
 
 const minimalSystemSetup: NonCrewSystemSetupInfo = {

@@ -1013,6 +1013,19 @@ export const cardDefinitions = defineCardDefinitions({
         system: 'hull',
         parameters: { cost: 0 },
     },
+    // Handed out by the campaign: one 'route' card per reachable node (content in the instance's `route`), and Warp Away once an encounter is won.
+    route: {
+        targetType: 'no-target',
+        system: 'helm',
+        traits: ['expendable'],
+        parameters: { cost: 0 },
+    },
+    warpAway: {
+        targetType: 'no-target',
+        system: 'helm',
+        traits: ['expendable'],
+        parameters: { cost: 0 },
+    },
 } as const);
 
 export type CardType = keyof typeof cardDefinitions;

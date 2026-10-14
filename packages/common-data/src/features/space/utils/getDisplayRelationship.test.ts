@@ -1,12 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { ScenarioConfig } from '../../../types/ScenarioConfig';
+import { FactionConfig } from '../types/FactionConfig';
 import { RelationshipViewer } from '../types/GameObjectInfo';
 import { RelationshipType } from '../types/RelationshipType';
 import { getDisplayRelationship, resolveSetupRelationship } from './getDisplayRelationship';
 
-/** Minimal ScenarioConfig-shaped literal: resolveSetupRelationship only reads `factions` and `playerFaction`. */
-function config(playerFaction: string, relations: Array<{ id: string; relations?: Record<string, RelationshipType> }>): ScenarioConfig {
-    return { playerFaction, factions: relations } as ScenarioConfig;
+function config(playerFaction: string, factions: FactionConfig[]) {
+    return { playerFaction, factions };
 }
 
 function viewer(shipId: string | null, faction: string | null, relations: RelationshipViewer['relations']): RelationshipViewer {

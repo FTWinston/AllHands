@@ -12,10 +12,16 @@ import { ComponentProps, useCallback, useState } from 'react';
 import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
+import { SectorMessagePrompt } from './SectorMessagePrompt';
 import { TacticalTargetList } from './TacticalTargetList';
 import { WeaponSlots } from './WeaponSlots';
+import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
+import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
+    phase?: GamePhase;
+    message?: SectorMessageInfo | null;
+    onDismissMessage?: () => void;
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cards: Snapshot<CardInstance[]>;
     slots: Snapshot<WeaponSlotInfo[]>;
@@ -28,7 +34,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
 };
 
 export const TacticalDisplay = (props: Props) => {
-    const { cards, slots, playCard, targets, subTargetsByTarget, viewer, pendingDrawChoice, resolveDrawChoice, ...headerProps } = props;
+    const { cards, slots, playCard, targets, subTargetsByTarget, viewer, pendingDrawChoice, resolveDrawChoice, phase, message, onDismissMessage, ...headerProps } = props;
 
     useRootClassName(crewStyles.tactical);
 
@@ -90,6 +96,10 @@ export const TacticalDisplay = (props: Props) => {
 
                 <WeaponSlots slots={slots} firingSolution={firingSolution} />
             </CardUI>
+
+            {(phase === 'sectorIntro' || phase === 'sectorOutro') && onDismissMessage && (
+                <SectorMessagePrompt message={message ?? null} onDismiss={onDismissMessage} />
+            )}
         </Screen>
     );
 };

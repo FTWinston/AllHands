@@ -1,5 +1,6 @@
 import { CardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { default as ExampleIcon } from '../../../icons/exampleIcon.svg?react';
+import { WarpAwayIcon } from '../components/CampaignCardIcon';
 import { Parameter } from '../components/Parameter';
 import { Trait } from '../components/Trait';
 import { CardDescription, UICardDefinition } from '../types/UICardDefinition';
@@ -50,6 +51,25 @@ function loadCardDefinitions() {
             name: 'Charge shields',
             description: 'Charge the shields by the hull\'s power level.',
             image: <ExampleIcon />,
+        },
+        // Route cards are normally shown with `getRouteCardDescription`, which replaces these.
+        route: {
+            name: 'Route',
+            description: <>
+                <Trait trait="expendable" />
+                {' '}
+                Travel to the next sector node.
+            </>,
+            image: <ExampleIcon />,
+        },
+        warpAway: {
+            name: 'Warp Away',
+            description: <>
+                <Trait trait="expendable" />
+                {' '}
+                Leave the area and return to the sector map.
+            </>,
+            image: <WarpAwayIcon />,
         },
         phaserCannon: {
             name: 'Phaser Cannon',

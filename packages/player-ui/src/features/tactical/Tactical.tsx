@@ -6,6 +6,8 @@ import { useCallback } from 'react';
 import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
 import { TacticalDisplay } from './components/TacticalDisplay';
 import type { Room } from '@colyseus/sdk';
+import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
+import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = {
@@ -18,7 +20,12 @@ export const Tactical = (props: Props) => {
     const factions = useRoomState(props.room, state => state.factions) as Record<string, { relations: FactionRelationshipMap }>;
     const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo>;
     const targets = useStableOrderedTargets(objects, localShip);
+    const phase = (useRoomState(props.room, state => state.phase) ?? 'setup') as GamePhase;
+    const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
 
+    const dismissMessage = useCallback(() => {
+        props.room.send('dismissMessage');
+    }, [props.room]);
     const pause = useCallback(() => {
         props.room.send('pause');
     }, [props.room]);
@@ -64,6 +71,9 @@ export const Tactical = (props: Props) => {
             viewer={viewer}
             pendingDrawChoice={tacticalState.pendingDrawChoice}
             resolveDrawChoice={resolveDrawChoice}
+            phase={phase}
+            message={message}
+            onDismissMessage={dismissMessage}
         />
     );
 };
