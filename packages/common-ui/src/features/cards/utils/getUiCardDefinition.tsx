@@ -56,7 +56,7 @@ function loadCardDefinitions() {
         route: {
             name: 'Route',
             description: <>
-                <Trait trait="expendable" />
+                <Trait trait="priority" />
                 {' '}
                 Travel to the next sector node.
             </>,
@@ -65,7 +65,7 @@ function loadCardDefinitions() {
         warpAway: {
             name: 'Warp Away',
             description: <>
-                <Trait trait="expendable" />
+                <Trait trait="priority" />
                 {' '}
                 Leave the area and return to the sector map.
             </>,

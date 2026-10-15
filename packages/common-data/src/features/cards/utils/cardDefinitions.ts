@@ -1017,13 +1017,13 @@ export const cardDefinitions = defineCardDefinitions({
     route: {
         targetType: 'no-target',
         system: 'helm',
-        traits: ['expendable'],
+        traits: ['priority'],
         parameters: { cost: 0 },
     },
     warpAway: {
         targetType: 'no-target',
         system: 'helm',
-        traits: ['expendable'],
+        traits: ['priority'],
         parameters: { cost: 0 },
     },
 } as const);

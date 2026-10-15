@@ -1,4 +1,5 @@
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { DEV_TOOLS_ENABLED } from 'src/generated/devtools';
 import { setupGameRoom } from 'src/testUtils';
 import { describe, expect, it } from 'vitest';
 import { getHostileShips } from '../encounters/hostiles';
@@ -140,18 +141,32 @@ describe('GameRoom campaign messages', () => {
         expect(ship.helmState.hand).toContain(card);
         expect(ship.scienceState.hand).toHaveLength(state.map!.availableNodeIds.length);
     });
-    it('dev client can start any encounter from the lobby', async () => {
-        const room = rooms.getRoom();
-        const shipClient = await connect(room, { type: 'ship' });
+    if (DEV_TOOLS_ENABLED) {
+        it('dev client can start any encounter from the lobby', async () => {
+            const room = rooms.getRoom();
+            const shipClient = await connect(room, { type: 'ship' });
 
-        expect(room.state.gameStatus).toBe('setup');
-        await send(room, shipClient, 'devLoadEncounter', { encounterId: 'assault' });
+            expect(room.state.gameStatus).toBe('setup');
+            await send(room, shipClient, 'devLoadEncounter', { encounterId: 'assault' });
 
-        expect(room.state.gameStatus).toBe('active');
-        expect(room.state.phase).toBe('encounter');
-        expect(room.state.encounter?.encounterId).toBe('assault');
+            expect(room.state.gameStatus).toBe('active');
+            expect(room.state.phase).toBe('encounter');
+            expect(room.state.encounter?.encounterId).toBe('assault');
 
-        await send(room, shipClient, 'devLoadEncounter', { encounterId: 'bogus' });
-        expect(room.state.encounter?.encounterId).toBe('assault');
-    });
+            await send(room, shipClient, 'devLoadEncounter', { encounterId: 'bogus' });
+            expect(room.state.encounter?.encounterId).toBe('assault');
+        });
+    } else {
+        it('dev client cannot start encounters from the lobby', async () => {
+            const room = rooms.getRoom();
+            const shipClient = await connect(room, { type: 'ship' });
+
+            expect(room.state.gameStatus).toBe('setup');
+            await send(room, shipClient, 'devLoadEncounter', { encounterId: 'assault' });
+
+            expect(room.state.gameStatus).toBe('setup');
+            expect(room.state.phase).toBe('lobby');
+            expect(room.state.encounter?.encounterId).toBeUndefined();
+        });
+    }
 });
