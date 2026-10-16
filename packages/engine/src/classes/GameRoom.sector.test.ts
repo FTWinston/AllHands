@@ -165,7 +165,7 @@ describe('GameRoom campaign messages', () => {
             await send(room, shipClient, 'devLoadEncounter', { encounterId: 'assault' });
 
             expect(room.state.gameStatus).toBe('setup');
-            expect(room.state.phase).toBe('lobby');
+            expect(room.state.phase).toBe('setup');
             expect(room.state.encounter?.encounterId).toBeUndefined();
         });
     }

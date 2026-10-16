@@ -107,7 +107,7 @@ function useCardDescription(props: Props) {
     ), [props.description, props.extraTraits, props.parameters, props.modifiers, props.targetType]);
 }
 
-export function useCardTraitDescriptions(
+function useCardTraitDescriptions(
     showTraitDescriptions: Props['showTraitDescriptions'],
     traits: Props['traits'],
     extraTraits: Props['extraTraits']
