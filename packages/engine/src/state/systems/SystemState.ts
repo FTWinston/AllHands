@@ -135,7 +135,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         for (let i = 0; i < number; i++) {
             // Campaign cards (e.g. Warp Away) are never discarded at random.
-            const candidates = this.hand.filter(card => !card.hasTrait('priority') && !card.hasTrait('unplayable'));
+            const candidates = this.hand.filter(card => !card.hasTrait('priority'));
             if (candidates.length === 0) {
                 return;
             }
@@ -156,7 +156,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
         }
 
         const card = this.hand[cardIndex];
-        if (card.hasTrait('priority') || card.hasTrait('unplayable')) {
+        if (card.hasTrait('priority')) {
             return false;
         }
 
@@ -383,9 +383,12 @@ export abstract class SystemState extends Schema implements SystemInfo {
             this.markCardUnslotted(card);
         }
 
-        // Restore the deck from the pool cards that aren't in the hand. Clear down modifiers, but don't clean up extra card traits.
+        // Restore the deck from the card pool. Clear down modifiers, but don't clean up extra card traits.
         this.deck.clear();
-        this.deck.push(...[...this.cardPool].filter(card => !this.hand.includes(card)));
+        this.deck.push(...this.cardPool);
+
+        // And clear the hand, so that it can be repopulated.
+        this.hand.clear();
 
         for (const card of this.cardPool) {
             card.modifiers.clear();
