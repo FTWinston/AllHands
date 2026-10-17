@@ -28,8 +28,7 @@ export class Campaign {
     private sectorIndex = -1;
     private sector: SectorInfo | null = null;
     private encounter: Encounter | null = null;
-    private warpOffered = false;
-    private readonly warpCards = new Map<Ship, CardState>();
+    private playerShipsInEncounter = new Set<PlayerShip>();
     private tearingDown = false;
 
     constructor(
@@ -128,18 +127,21 @@ export class Campaign {
 
     /** Helm plays the Warp Away card, ending the completed encounter. */
     warpAway(ship: Ship): boolean {
-        const card = this.warpCards.get(ship);
-        if (!this.isInEncounter || !this.warpOffered || !card || !ship.helmState.hand.includes(card)) {
+        if (!this.isInEncounter || !(ship instanceof PlayerShip) || !this.playerShipsInEncounter.has(ship)) {
             return false;
         }
 
-        const node = this.encounter!.node;
-        this.teardownEncounter();
+        this.playerShipsInEncounter.delete(ship);
 
-        if (!this.state.map || node.id === this.state.map.bossNodeId) {
-            this.enterOutro();
-        } else {
-            this.showMap();
+        if (this.playerShipsInEncounter.size === 0) {
+            const node = this.encounter!.node;
+            this.teardownEncounter();
+
+            if (!this.state.map || node.id === this.state.map.bossNodeId) {
+                this.enterOutro();
+            } else {
+                this.showMap();
+            }
         }
 
         return true;
@@ -216,9 +218,10 @@ export class Campaign {
                 playerShipSetup.position.y,
                 playerShipSetup.position.angle
             ));
+
+            this.playerShipsInEncounter.add(ship);
         }
 
-        this.warpOffered = false;
         this.encounter = createEncounter(this.state, node);
         this.state.phase = 'encounter';
 
@@ -237,32 +240,21 @@ export class Campaign {
 
     /** Once the objective is met, every helm gets an expendable Warp Away card in its hand. */
     private offerWarpAway(): void {
-        if (this.warpOffered) {
+        if (!this.state.encounter || this.state.encounter.objectiveMet) {
             return;
         }
 
-        this.warpOffered = true;
-        if (this.state.encounter) {
-            this.state.encounter.objectiveMet = true;
-        }
+        this.state.encounter.objectiveMet = true;
 
-        for (const ship of getPlayerShips(this.state)) {
+        for (const ship of this.playerShipsInEncounter) {
             const card = new CardState(ship.getCardId(), 'warpAway');
             ship.helmState.addCardToHand(card);
-            this.warpCards.set(ship, card);
         }
     }
 
     /** Ends the running encounter: removes the warp cards and every non-player object, and resets the player ships' card state. */
     private teardownEncounter(): void {
-        this.warpOffered = false;
-
-        for (const [ship, card] of this.warpCards) {
-            ship.helmState.removeCard(card.id);
-        }
-
-        this.warpCards.clear();
-
+        this.playerShipsInEncounter.clear();
         this.encounter = null;
         this.state.encounter = null;
 
