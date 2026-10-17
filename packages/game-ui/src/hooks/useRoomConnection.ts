@@ -4,7 +4,6 @@ import { roomIdentifier } from 'common-data/utils/constants';
 import { TimeSynchronizer } from 'common-ui/classes/TimeSynchronizer';
 import { useEffect, useRef, useState } from 'react';
 import type { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
-import type { SectorServerMessages } from 'common-data/features/sectors/types/SectorMessages';
 import type { ConnectionState } from 'common-data/types/ConnectionState';
 import type { ServerAddress } from 'common-data/types/ServerAddress';
 import type { GameState } from 'engine/state/GameState';
@@ -60,7 +59,7 @@ export function useRoomConnection(
                 });
 
                 if (import.meta.env.VITE_DEV_TOOLS) {
-                    joinedRoom.onMessage<SectorServerMessages['devEncounterList']>('devEncounterList', (encounters) => {
+                    joinedRoom.onMessage<DevEncounterInfo[]>('devEncounterList', (encounters) => {
                         setDevEncounters(encounters);
                     });
                 }

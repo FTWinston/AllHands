@@ -2,6 +2,8 @@ import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
+import { EncounterId } from 'common-data/features/sectors/types/SectorNodeInfo';
 import { ownEngineerClientRole, getRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, type CrewRole, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { isLeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
@@ -23,7 +25,6 @@ import { PlayerShip } from '../state/PlayerShip';
 import { HelmState } from '../state/systems/HelmState';
 import { SystemState } from '../state/systems/SystemState';
 import { IdPool } from './IdPool';
-import type { DevLoadEncounterPayload, PlayNonEncounterCardPayload, SectorServerMessages } from 'common-data/features/sectors/types/SectorMessages';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
 
 interface JoinOptions {
@@ -353,7 +354,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             }
         });
 
-        this.onMessage('playNonEncounterCard', (client, message: PlayNonEncounterCardPayload) => {
+        this.onMessage('playNonEncounterCard', (client, message: { cardId: number }) => {
             if (this.state.gameStatus !== 'active') {
                 return;
             }
@@ -431,7 +432,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             console.log(`[dev] ${client.sessionId} adjustTimeScale to ${timeScale}`);
         });
 
-        this.onMessage('devLoadEncounter', (client, message: DevLoadEncounterPayload) => {
+        this.onMessage('devLoadEncounter', (client, message: { encounterId: EncounterId }) => {
             if (client.userData?.type !== 'ship') {
                 console.error('Dev commands can only be sent by ship clients');
                 return;
@@ -612,7 +613,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         client.send('joined', { crewId });
 
         if (DEV_TOOLS_ENABLED) {
-            const encounters: SectorServerMessages['devEncounterList'] = getDevEncounterList();
+            const encounters: DevEncounterInfo[] = getDevEncounterList();
             client.send('devEncounterList', encounters);
         }
     }

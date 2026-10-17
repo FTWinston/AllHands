@@ -1,4 +1,5 @@
 import { Room } from '@colyseus/sdk';
+import { EncounterId } from 'common-data/features/sectors/types/SectorNodeInfo';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
@@ -7,7 +8,6 @@ import { GameState } from 'engine/state/GameState';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { DevToolsDisplay } from './components/DevToolsDisplay';
 import type { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
-import type { DevLoadEncounterPayload } from 'common-data/features/sectors/types/SectorMessages';
 
 type Props = {
     room: Room<unknown, GameState>;
@@ -32,8 +32,8 @@ export const DevTools: FC<Props> = ({ room, encounters, inLobby }) => {
         room?.send('adjustTimeScale', { timeScale });
     }, [room]);
 
-    const loadEncounter = useCallback((encounterId: string) => {
-        room?.send('devLoadEncounter', { encounterId } satisfies DevLoadEncounterPayload);
+    const loadEncounter = useCallback((encounterId: EncounterId) => {
+        room?.send('devLoadEncounter', { encounterId });
     }, [room]);
 
     const [showTools, setShowTools] = useState(false);
