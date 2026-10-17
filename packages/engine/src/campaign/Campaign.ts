@@ -1,5 +1,6 @@
 import { getPlayerShips } from 'src/utils/shipQueries';
 import { createEncounter, getDefaultNode, hasEncounter } from '../encounters/EncounterRegistry';
+import { CardState } from '../state/CardState';
 import { EncounterSummaryState } from '../state/EncounterSummaryState';
 import { MotionKeyframe } from '../state/MotionKeyframe';
 import { ObjectiveState } from '../state/ObjectiveState';
@@ -7,12 +8,11 @@ import { PlayerShip } from '../state/PlayerShip';
 import { SectorMapState } from '../state/SectorMapState';
 import { SectorMessageState } from '../state/SectorMessageState';
 import { Ship } from '../state/Ship';
-import { createRouteCards, createWarpAwayCard } from './campaignCards';
+import { createRouteCards } from './campaignCards';
 import { playerShipSetup } from './playerShipSetup';
 import { generateSector } from './SectorGenerator';
 import { sectorThemes, type SectorTheme } from './sectorThemes';
 import type { Encounter } from '../encounters/Encounter';
-import type { CardState } from '../state/CardState';
 import type { GameObject } from '../state/GameObject';
 import type { GameState } from '../state/GameState';
 import type { GameOutcome } from 'common-data/features/sectors/types/GamePhase';
@@ -249,8 +249,8 @@ export class Campaign {
         }
 
         for (const ship of getPlayerShips(this.state)) {
-            const card = createWarpAwayCard(ship);
-            ship.helmState.addExtraCard(card);
+            const card = new CardState(ship.getCardId(), 'warpAway');
+            ship.helmState.addCardToHand(card);
             this.warpCards.set(ship, card);
         }
     }

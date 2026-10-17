@@ -31,17 +31,12 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     @type(CooldownState) cardGeneration: CooldownState | null = null;
 
     /**
-     * Cards shown instead of this system's display while outside an encounter (route cards on the map, Warp Away once an encounter is won).
+     * Cards shown instead of this system's display while outside an encounter (route cards on the map).
      * Built by the campaign; they are not card definitions and never enter the deck or hand.
      */
     @type([NonEncounterCardState]) nonEncounterCards = new ArraySchema<NonEncounterCardState>();
 
     override readonly maxHandSize = 5;
-
-    /** Add a card to the hand, ignoring the hand size limit. */
-    addExtraCard(card: CardState) {
-        this.hand.push(card);
-    }
 
     removeCard(cardId: number): boolean {
         const index = this.hand.findIndex(card => card.id === cardId);
