@@ -5,6 +5,7 @@ import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, ShipInfo } 
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { useCallback } from 'react';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
+import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { HelmDisplay } from './components/HelmDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
@@ -55,7 +56,7 @@ export const Helm = (props: Props) => {
     const helmState = localShip.helmState;
 
     // Outside an encounter, these cards are offered instead of the usual display.
-    if (phase === 'map' || helmState.nonEncounterCards.length > 0) {
+    if (isOutsideEncounter(phase) || helmState.nonEncounterCards.length > 0) {
         return (
             <NonEncounterDisplay
                 crew="helm"

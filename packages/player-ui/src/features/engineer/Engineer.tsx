@@ -4,6 +4,7 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useCallback } from 'react';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
+import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { EngineerDisplay } from './components/EngineerDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
@@ -47,7 +48,7 @@ export const Engineer = (props: Props) => {
 
     const engineerState = localShip.engineerState;
 
-    if (phase === 'map') {
+    if (isOutsideEncounter(phase)) {
         return (
             <NonEncounterDisplay
                 crew="engineer"

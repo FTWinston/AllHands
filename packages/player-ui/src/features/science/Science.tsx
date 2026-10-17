@@ -5,6 +5,7 @@ import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, ShipInfo } 
 import { useCallback } from 'react';
 import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
+import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { ScienceDisplay } from './components/ScienceDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
@@ -67,7 +68,7 @@ export const Science = (props: Props) => {
     const scienceState = localShip.scienceState;
 
     // Outside an encounter, these cards are offered instead of the usual display.
-    if (phase === 'map' || scienceState.nonEncounterCards.length > 0) {
+    if (isOutsideEncounter(phase) || scienceState.nonEncounterCards.length > 0) {
         return (
             <NonEncounterDisplay
                 crew="science"

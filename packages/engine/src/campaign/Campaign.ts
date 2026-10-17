@@ -240,7 +240,7 @@ export class Campaign {
 
     /** Once the objective is met, every helm gets an expendable Warp Away card in its hand. */
     private offerWarpAway(): void {
-        if (!this.state.encounter || this.state.encounter.objectiveMet) {
+        if (!this.state.encounter || !this.state.encounter.objectiveMet) {
             return;
         }
 
