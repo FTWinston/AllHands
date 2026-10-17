@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import styles from './GameEndedDisplay.module.css';
 import type { GameOutcome } from 'common-data/features/sectors/types/GamePhase';
-import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMapInfo';
+import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMessageInfo';
 
 type Props = {
     outcome: GameOutcome | null;

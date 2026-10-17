@@ -1,5 +1,5 @@
 import { Schema, type } from '@colyseus/schema';
-import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMapInfo';
+import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMessageInfo';
 
 export class SectorMessageState extends Schema implements SectorMessageInfo {
     constructor(info: SectorMessageInfo) {

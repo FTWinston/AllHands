@@ -8,7 +8,7 @@ import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import { ViewscreenPhaseDisplay } from './components/ViewscreenPhaseDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
-import type { SectorMapInfo, SectorMessageInfo } from 'common-data/features/sectors/types/SectorMapInfo';
+import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMessageInfo';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = PropsWithChildren<{
@@ -28,8 +28,6 @@ export const Viewscreen: FC<Props> = (props) => {
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
     const isEnded = useRoomState(props.room, state => state.gameStatus) === 'ended';
     const outcome = (useRoomState(props.room, state => state.outcome) ?? null) as GameOutcome | null;
-    // Snapshots are plain objects, so the shared info interfaces describe them (objective is a looser union in the schema).
-    const map = (useRoomState(props.room, state => state.map) ?? null) as unknown as SectorMapInfo | null;
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
 
     if (isEnded || phase !== 'encounter') {
@@ -38,7 +36,6 @@ export const Viewscreen: FC<Props> = (props) => {
                 phase={phase}
                 isEnded={isEnded}
                 outcome={outcome}
-                map={map}
                 message={message}
                 showMenu={props.showMenu}
             >

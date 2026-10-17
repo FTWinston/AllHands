@@ -10,7 +10,7 @@ import { SectorMessagePrompt } from './components/SectorMessagePrompt';
 import { TacticalDisplay } from './components/TacticalDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
-import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMapInfo';
+import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMessageInfo';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = {

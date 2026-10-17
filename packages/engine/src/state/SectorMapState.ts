@@ -1,34 +1,30 @@
-import { ArraySchema, Schema, type } from '@colyseus/schema';
-import { SectorNodeState } from './SectorNodeState';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
-import type { SectorMapInfo } from 'common-data/features/sectors/types/SectorMapInfo';
+import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 
-export class SectorMapState extends Schema implements SectorMapInfo {
-    constructor(sector: SectorInfo, sectorIndex: number, sectorCount: number) {
-        super();
+/**
+ * The current sector's graph and position. Server-only: players learn about the available nodes solely via their route cards.
+ */
+export class SectorMapState {
+    constructor(sector: SectorInfo, readonly sectorIndex: number, readonly sectorCount: number) {
         this.sectorId = sector.id;
         this.sectorName = sector.name;
-        this.sectorIndex = sectorIndex;
-        this.sectorCount = sectorCount;
-        this.nodes.push(...sector.nodes.map(node => new SectorNodeState(node)));
+        this.nodes = sector.nodes;
         this.startNodeIds = [...sector.startNodeIds];
         this.bossNodeId = sector.bossNodeId;
         this.setAvailableNodes(this.startNodeIds);
     }
 
-    @type('string') readonly sectorId: string;
-    @type('string') readonly sectorName: string;
-    @type('number') readonly sectorIndex: number;
-    @type('number') readonly sectorCount: number;
-    @type([SectorNodeState]) readonly nodes = new ArraySchema<SectorNodeState>();
-    @type('string') currentNodeId: string | null = null;
-    @type(['string']) readonly visitedNodeIds = new ArraySchema<string>();
-    @type(['string']) readonly availableNodeIds = new ArraySchema<string>();
+    readonly sectorId: string;
+    readonly sectorName: string;
+    readonly nodes: readonly SectorNodeInfo[];
+    currentNodeId: string | null = null;
+    readonly visitedNodeIds: string[] = [];
+    availableNodeIds: string[] = [];
 
     readonly startNodeIds: readonly string[];
     readonly bossNodeId: string;
 
-    getNode(nodeId: string): SectorNodeState | undefined {
+    getNode(nodeId: string): SectorNodeInfo | undefined {
         return this.nodes.find(node => node.id === nodeId);
     }
 
@@ -45,7 +41,6 @@ export class SectorMapState extends Schema implements SectorMapInfo {
     }
 
     private setAvailableNodes(nodeIds: Iterable<string>) {
-        this.availableNodeIds.clear();
-        this.availableNodeIds.push(...nodeIds);
+        this.availableNodeIds = [...nodeIds];
     }
 }

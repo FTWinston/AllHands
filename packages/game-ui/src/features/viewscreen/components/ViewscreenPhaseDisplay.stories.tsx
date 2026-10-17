@@ -10,7 +10,6 @@ const meta: Meta<typeof Component> = {
     },
     args: {
         outcome: null,
-        map: null,
         message: null,
         showMenu: fn(),
     },

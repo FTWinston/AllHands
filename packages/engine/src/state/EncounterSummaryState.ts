@@ -1,23 +1,16 @@
-import { Schema, type } from '@colyseus/schema';
-import { ObjectiveState } from './ObjectiveState';
 import type { EnvironmentType } from 'common-data/features/sectors/types/EnvironmentType';
+import type { ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { EncounterId } from 'common-data/features/sectors/types/SectorNodeInfo';
 
-/** What clients may show about the running encounter; the encounter itself is server-only. */
-export class EncounterSummaryState extends Schema {
-    constructor(encounterId: EncounterId, name: string) {
-        super();
-        this.encounterId = encounterId;
-        this.name = name;
-    }
+/** Server-only summary of the running encounter; clients learn nothing about it beyond what their cards and displays show. */
+export class EncounterSummaryState {
+    constructor(readonly encounterId: EncounterId, readonly name: string) {}
 
-    @type('string') readonly encounterId: EncounterId;
-    @type('string') readonly name: string;
-    @type('string') environment?: EnvironmentType;
-    @type('string') factionId?: string;
+    environment?: EnvironmentType;
+    factionId?: string;
     /** Absent for encounters without an objective, such as repair stations. */
-    @type(ObjectiveState) objective?: ObjectiveState;
-    @type('boolean') objectiveMet = false;
+    objective?: ObjectiveInfo;
+    objectiveMet = false;
     /** Game time (ms) at which a `survive` objective completes; 0 otherwise. */
-    @type('number') objectiveEndTime = 0;
+    objectiveEndTime = 0;
 }

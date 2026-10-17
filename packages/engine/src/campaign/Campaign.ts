@@ -3,7 +3,6 @@ import { createEncounter, getDefaultNode, hasEncounter } from '../encounters/Enc
 import { CardState } from '../state/CardState';
 import { EncounterSummaryState } from '../state/EncounterSummaryState';
 import { MotionKeyframe } from '../state/MotionKeyframe';
-import { ObjectiveState } from '../state/ObjectiveState';
 import { PlayerShip } from '../state/PlayerShip';
 import { SectorMapState } from '../state/SectorMapState';
 import { SectorMessageState } from '../state/SectorMessageState';
@@ -127,7 +126,7 @@ export class Campaign {
 
     /** Helm plays the Warp Away card, ending the completed encounter. */
     warpAway(ship: Ship): boolean {
-        if (!this.isInEncounter || !(ship instanceof PlayerShip) || !this.playerShipsInEncounter.has(ship)) {
+        if (!this.isInEncounter || !this.state.encounter?.objectiveMet || !(ship instanceof PlayerShip) || !this.playerShipsInEncounter.has(ship)) {
             return false;
         }
 
@@ -229,7 +228,7 @@ export class Campaign {
         const summary = new EncounterSummaryState(encounterNode.encounterId, encounterNode.name);
         summary.environment = encounterNode.environment;
         summary.factionId = encounterNode.factionId;
-        summary.objective = encounterNode.objective ? new ObjectiveState(encounterNode.objective) : undefined;
+        summary.objective = encounterNode.objective ? encounterNode.objective : undefined;
         this.state.encounter = summary;
 
         // Subscribe before starting, as an encounter may complete immediately.
@@ -240,7 +239,7 @@ export class Campaign {
 
     /** Once the objective is met, every helm gets an expendable Warp Away card in its hand. */
     private offerWarpAway(): void {
-        if (!this.state.encounter || !this.state.encounter.objectiveMet) {
+        if (!this.state.encounter || this.state.encounter.objectiveMet) {
             return;
         }
 

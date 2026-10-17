@@ -23,23 +23,25 @@ export function getRouteCardDetails(route: Readonly<RouteCardInfo>): Detail[] {
     return details;
 }
 
-/** Replaces the static name, description and image of a 'route' card with its node's content. */
+/** Replaces the static name, description and image of a 'route' card with its node's content. Basic (helm) cards reveal nothing about the node. */
 export function getRouteCardDescription(route: Readonly<RouteCardInfo>): CardDescription {
     return {
         name: route.title,
-        description: (
-            <>
-                <b>{getNodeKindLabel(route.nodeKind)}</b>
-                {getRouteCardDetails(route).map(detail => (
-                    <Fragment key={detail.label}>
-                        <br />
-                        <b>{detail.label}</b>
-                        {': '}
-                        {detail.value}
-                    </Fragment>
-                ))}
-            </>
-        ),
+        description: route.detail === 'full'
+            ? (
+                <>
+                    <b>{getNodeKindLabel(route.nodeKind)}</b>
+                    {getRouteCardDetails(route).map(detail => (
+                        <Fragment key={detail.label}>
+                            <br />
+                            <b>{detail.label}</b>
+                            {': '}
+                            {detail.value}
+                        </Fragment>
+                    ))}
+                </>
+            )
+            : 'Travel to location',
         image: <RouteIcon nodeKind={route.nodeKind} />,
     };
 }

@@ -1,7 +1,7 @@
 import { Button } from 'common-ui/components/Button';
 import { FC } from 'react';
 import styles from './SectorMessagePrompt.module.css';
-import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMapInfo';
+import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMessageInfo';
 
 type Props = {
     message: SectorMessageInfo | null;
