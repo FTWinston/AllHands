@@ -34,7 +34,6 @@ export const CardHand: FC<Props> = ({ cards, availablePower, shiftDown, isCardHi
                     availablePower={availablePower}
                     index={index}
                     modifiers={card.modifiers}
-                    route={card.route}
                     extraTraits={card.extraTraits}
                     highlighted={isCardHighlighted?.(card)}
                     className={classNames(

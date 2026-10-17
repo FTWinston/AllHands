@@ -1,4 +1,4 @@
-import { CartelSyndicateBossEncounter, HegemonyAdmiralEncounter, RaiderWarlordEncounter } from './bosses';
+import { BossAEncounter, BossBEncounter, BossCEncounter } from './bosses';
 import { AmbushEncounter, AssaultEncounter, EscortEncounter, SkirmishEncounter } from './CombatEncounter';
 import { RepairStationEncounter } from './RepairStationEncounter';
 import { defaultSurviveDurationMs, SurviveEncounter } from './SurviveEncounter';
@@ -22,15 +22,15 @@ export interface EncounterDefinition {
 }
 
 const definitions: readonly EncounterDefinition[] = [
-    { id: 'skirmish', name: 'Skirmish', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'deepSpace', defaultFactionId: 'raiders', create: (state, node) => new SkirmishEncounter(state, node) },
-    { id: 'ambush', name: 'Ambush', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'asteroidField', defaultFactionId: 'raiders', create: (state, node) => new AmbushEncounter(state, node) },
-    { id: 'assault', name: 'Assault', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'nebula', defaultFactionId: 'cartel', create: (state, node) => new AssaultEncounter(state, node) },
-    { id: 'escort', name: 'Escorted Cruiser', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'gasGiant', defaultFactionId: 'hegemony', create: (state, node) => new EscortEncounter(state, node) },
-    { id: 'survive', name: 'Hold Out', kind: 'combat', objective: { type: 'survive', durationMs: defaultSurviveDurationMs }, defaultEnvironment: 'asteroidField', defaultFactionId: 'raiders', create: (state, node) => new SurviveEncounter(state, node) },
+    { id: 'skirmish', name: 'Skirmish', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'deepSpace', defaultFactionId: 'factionA', create: (state, node) => new SkirmishEncounter(state, node) },
+    { id: 'ambush', name: 'Ambush', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'asteroidField', defaultFactionId: 'factionA', create: (state, node) => new AmbushEncounter(state, node) },
+    { id: 'assault', name: 'Assault', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'nebula', defaultFactionId: 'factionB', create: (state, node) => new AssaultEncounter(state, node) },
+    { id: 'escort', name: 'Escorted Cruiser', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'gasGiant', defaultFactionId: 'factionC', create: (state, node) => new EscortEncounter(state, node) },
+    { id: 'survive', name: 'Hold Out', kind: 'combat', objective: { type: 'survive', durationMs: defaultSurviveDurationMs }, defaultEnvironment: 'asteroidField', defaultFactionId: 'factionA', create: (state, node) => new SurviveEncounter(state, node) },
     { id: 'repairStation', name: 'Repair Station', kind: 'repair', create: (state, node) => new RepairStationEncounter(state, node) },
-    { id: 'bossRaiders', name: 'Warlord\'s Maw', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'asteroidField', defaultFactionId: 'raiders', create: (state, node) => new RaiderWarlordEncounter(state, node) },
-    { id: 'bossCartel', name: 'The Golden Toll', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'nebula', defaultFactionId: 'cartel', create: (state, node) => new CartelSyndicateBossEncounter(state, node) },
-    { id: 'bossHegemony', name: 'Dominion of Steel', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'deepSpace', defaultFactionId: 'hegemony', create: (state, node) => new HegemonyAdmiralEncounter(state, node) },
+    { id: 'bossA', name: 'Placeholder Boss A', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'asteroidField', defaultFactionId: 'factionA', create: (state, node) => new BossAEncounter(state, node) },
+    { id: 'bossB', name: 'Placeholder Boss B', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'nebula', defaultFactionId: 'factionB', create: (state, node) => new BossBEncounter(state, node) },
+    { id: 'bossC', name: 'Placeholder Boss C', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'deepSpace', defaultFactionId: 'factionC', create: (state, node) => new BossCEncounter(state, node) },
 ];
 
 const registry = new Map<EncounterId, EncounterDefinition>(definitions.map(definition => [definition.id, definition]));

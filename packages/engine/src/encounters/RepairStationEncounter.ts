@@ -1,4 +1,4 @@
-import { getPlayerShips } from '../campaign/playerShips';
+import { getPlayerShips } from 'src/utils/shipQueries';
 import { Encounter } from './Encounter';
 import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameState } from 'src/state/GameState';

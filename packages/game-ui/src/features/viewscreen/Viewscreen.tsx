@@ -25,16 +25,18 @@ export const Viewscreen: FC<Props> = (props) => {
     const localShip = objects[props.shipId];
     const weaponEffectsRef = useWeaponEffects(props.room);
 
-    const phase = (useRoomState(props.room, state => state.phase) ?? 'setup') as GamePhase;
+    const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
+    const isEnded = useRoomState(props.room, state => state.gameStatus) === 'ended';
     const outcome = (useRoomState(props.room, state => state.outcome) ?? null) as GameOutcome | null;
     // Snapshots are plain objects, so the shared info interfaces describe them (objective is a looser union in the schema).
     const map = (useRoomState(props.room, state => state.map) ?? null) as unknown as SectorMapInfo | null;
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
 
-    if (phase !== 'encounter') {
+    if (isEnded || phase !== 'encounter') {
         return (
             <ViewscreenPhaseDisplay
                 phase={phase}
+                isEnded={isEnded}
                 outcome={outcome}
                 map={map}
                 message={message}

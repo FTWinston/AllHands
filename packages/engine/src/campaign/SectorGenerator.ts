@@ -5,6 +5,9 @@ import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
 import type { EncounterId, SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { IRandom } from 'common-data/types/IRandom';
 
+/** A node while it is being built, before its links are fixed. */
+type MutableNode = Omit<SectorNodeInfo, 'next'> & { next: string[] };
+
 /** Layers 0..8; every path visits one node per layer. */
 export const sectorLayerCount = 9;
 const midRepairLayer = 4;
@@ -27,7 +30,7 @@ export function generateSector(random: IRandom, theme: SectorTheme): SectorInfo 
     const layerSizes = Array.from({ length: sectorLayerCount }, (_, layer) => getLayerSize(random, layer));
     const names = createNamePicker(random, theme);
 
-    const layers: SectorNodeInfo[][] = layerSizes.map((size, layer) =>
+    const layers: MutableNode[][] = layerSizes.map((size, layer) =>
         Array.from({ length: size }, (_, index) => createNode(random, theme, names, layer, index, size))
     );
 
@@ -40,6 +43,7 @@ export function generateSector(random: IRandom, theme: SectorTheme): SectorInfo 
         name: theme.name,
         introMessage: theme.introMessage,
         outroMessage: theme.outroMessage,
+        defeatMessage: theme.defeatMessage,
         nodes: layers.flat(),
         startNodeIds: layers[0].map(node => node.id),
         bossNodeId: layers[bossLayer][0].id,
@@ -59,7 +63,7 @@ function getLayerSize(random: IRandom, layer: number): number {
     return layer === midRepairLayer ? 1 + random.getInt(2) : 2 + random.getInt(3);
 }
 
-function createNode(random: IRandom, theme: SectorTheme, names: NamePicker, layer: number, index: number, layerSize: number): SectorNodeInfo {
+function createNode(random: IRandom, theme: SectorTheme, names: NamePicker, layer: number, index: number, layerSize: number): MutableNode {
     const base = {
         id: `${theme.id}-${layer}-${index}`,
         x: layer / (sectorLayerCount - 1),
@@ -126,11 +130,11 @@ function getLayoutY(random: IRandom, index: number, layerSize: number): number {
  * Links each node to the proportionally-aligned node in the next layer (plus occasionally its neighbour),
  * then gives any node left without an incoming link one, so nothing is orphaned.
  */
-function linkLayers(random: IRandom, from: SectorNodeInfo[], to: SectorNodeInfo[]) {
+function linkLayers(random: IRandom, from: MutableNode[], to: MutableNode[]) {
     const map = (index: number, fromSize: number, toSize: number) =>
         fromSize === 1 ? 0 : Math.round((index * (toSize - 1)) / (fromSize - 1));
 
-    const link = (source: SectorNodeInfo, targetIndex: number) => {
+    const link = (source: MutableNode, targetIndex: number) => {
         const targetId = to[targetIndex].id;
         if (!source.next.includes(targetId)) {
             source.next.push(targetId);

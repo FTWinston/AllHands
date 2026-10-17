@@ -52,16 +52,6 @@ function loadCardDefinitions() {
             description: 'Charge the shields by the hull\'s power level.',
             image: <ExampleIcon />,
         },
-        // Route cards are normally shown with `getRouteCardDescription`, which replaces these.
-        route: {
-            name: 'Route',
-            description: <>
-                <Trait trait="priority" />
-                {' '}
-                Travel to the next sector node.
-            </>,
-            image: <ExampleIcon />,
-        },
         warpAway: {
             name: 'Warp Away',
             description: <>

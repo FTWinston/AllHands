@@ -1,5 +1,6 @@
 import type { EnvironmentType } from './EnvironmentType';
 import type { ObjectiveInfo } from './ObjectiveInfo';
+import type { IArray } from '@colyseus/react';
 
 export type SectorNodeKind = 'combat' | 'repair' | 'boss';
 
@@ -21,5 +22,5 @@ export interface SectorNodeInfo {
     x: number;
     y: number;
     /** Ids of the nodes reachable from this one. */
-    next: string[];
+    next: IArray<string>;
 }

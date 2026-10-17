@@ -19,11 +19,11 @@ describe('getRouteCardDetails', () => {
             ...basicRoute,
             detail: 'full',
             environment: 'asteroidField',
-            factionId: 'deepSpaceRaiders',
+            factionId: 'factionA',
             objective: { type: 'survive', durationMs: 90_000 },
         })).toEqual([
             { label: 'Environment', value: 'Asteroid field' },
-            { label: 'Hostile', value: 'Deep Space Raiders' },
+            { label: 'Hostile', value: 'Faction A' },
             { label: 'Objective', value: 'Survive for 1 minute 30 seconds' },
         ]);
     });

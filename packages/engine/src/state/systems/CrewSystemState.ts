@@ -8,6 +8,7 @@ import { InterceptableAction } from 'src/classes/InterceptableAction';
 import { CardState } from '../CardState';
 import { CooldownState } from '../CooldownState';
 import { GameState } from '../GameState';
+import { NonEncounterCardState } from '../NonEncounterCardState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
@@ -29,37 +30,15 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
     @type(CooldownState) cardGeneration: CooldownState | null = null;
 
-    /** The real hand, held here (still synced, so its cards stay alive on clients) while `hand` shows a fake hand. */
-    @type([CardState]) storedHand = new ArraySchema<CardState>();
-
-    private showingFakeHand = false;
+    /**
+     * Cards shown instead of this system's display while outside an encounter (route cards on the map, Warp Away once an encounter is won).
+     * Built by the campaign; they are not card definitions and never enter the deck or hand.
+     */
+    @type([NonEncounterCardState]) nonEncounterCards = new ArraySchema<NonEncounterCardState>();
 
     override readonly maxHandSize = 5;
 
-    /** Replace the visible hand with these cards, setting the real hand aside untouched. */
-    showFakeHand(cards: CardState[]) {
-        if (!this.showingFakeHand) {
-            this.storedHand.push(...this.hand);
-            this.showingFakeHand = true;
-        }
-
-        this.hand.clear();
-        this.hand.push(...cards);
-    }
-
-    /** Bring the real hand back, dropping any fake hand being shown. */
-    restoreRealHand() {
-        if (!this.showingFakeHand) {
-            return;
-        }
-
-        this.hand.clear();
-        this.hand.push(...this.storedHand);
-        this.storedHand.clear();
-        this.showingFakeHand = false;
-    }
-
-    /** Add a card to the visible hand, ignoring the hand size limit. */
+    /** Add a card to the hand, ignoring the hand size limit. */
     addExtraCard(card: CardState) {
         this.hand.push(card);
     }
@@ -72,6 +51,16 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
         this.hand.splice(index, 1);
         return true;
+    }
+
+    setNonEncounterCards(cards: readonly NonEncounterCardState[]) {
+        this.nonEncounterCards.clear();
+        this.nonEncounterCards.push(...cards);
+    }
+
+    /** Forget the running card generation timer, so the next update starts a fresh one from the current time. */
+    resetCardGeneration() {
+        this.cardGeneration = null;
     }
 
     updateCardGeneration() {

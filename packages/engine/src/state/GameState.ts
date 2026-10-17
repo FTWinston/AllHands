@@ -18,7 +18,8 @@ import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/
 
 export class GameState extends Schema {
     @type('string') gameStatus: GameStatus = 'setup';
-    @type('string') phase: GamePhase = 'setup';
+    /** Null until the campaign starts. */
+    @type('string') phase: GamePhase | null = null;
     @type('string') outcome: GameOutcome | null = null;
     /** The current sector's graph and position; null before the first sector starts. */
     @type(SectorMapState) map: SectorMapState | null = null;
@@ -33,9 +34,6 @@ export class GameState extends Schema {
     public readonly factionRegistry = new FactionRegistry(this.factions);
     public playerFaction: string | null = null;
     public campaign: Campaign | null = null;
-
-    /** While true, ships neither draw new cards nor advance card generation timers (e.g. while on the sector map). */
-    public cardGenerationPaused = false;
 
     /** The current scaled game time, in milliseconds. Use this instead of clock.currentTime for all game logic. */
     public currentTime: number;
@@ -105,6 +103,11 @@ export class GameState extends Schema {
      */
     public setTimeout(callback: () => void, delay: number) {
         return this.clock.setTimeout(callback, delay / this.timeScale);
+    }
+
+    /** Ship systems (card draws, timers) only run during an encounter; game time itself always advances. */
+    public get isSimulatingSystems(): boolean {
+        return !this.campaign || this.campaign.isInEncounter;
     }
 
     public tick(deltaTime: number) {

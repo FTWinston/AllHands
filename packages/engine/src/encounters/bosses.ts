@@ -2,20 +2,20 @@ import { BossEncounter } from './BossEncounter';
 import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameState } from 'src/state/GameState';
 
-export class RaiderWarlordEncounter extends BossEncounter {
+export class BossAEncounter extends BossEncounter {
     constructor(state: GameState, node: SectorNodeInfo) {
-        super(state, node, { bossName: 'Warlord Kragg\'s Maw', escorts: ['scout', 'scout'] });
+        super(state, node, { bossName: 'Boss A', escorts: ['scout', 'scout'] });
     }
 }
 
-export class CartelSyndicateBossEncounter extends BossEncounter {
+export class BossBEncounter extends BossEncounter {
     constructor(state: GameState, node: SectorNodeInfo) {
-        super(state, node, { bossName: 'Golden Toll', escorts: ['fighter', 'scout'] });
+        super(state, node, { bossName: 'Boss B', escorts: ['fighter', 'scout'] });
     }
 }
 
-export class HegemonyAdmiralEncounter extends BossEncounter {
+export class BossCEncounter extends BossEncounter {
     constructor(state: GameState, node: SectorNodeInfo) {
-        super(state, node, { bossName: 'Dominion of Steel', escorts: ['heavy', 'fighter'] });
+        super(state, node, { bossName: 'Boss C', escorts: ['heavy', 'fighter'] });
     }
 }

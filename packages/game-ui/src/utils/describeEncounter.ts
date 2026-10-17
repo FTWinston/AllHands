@@ -1,4 +1,4 @@
-import { getEnvironmentLabel, getFactionLabel, getNodeKindLabel, getObjectiveLabel } from 'common-data/features/sectors/utils/sectorLabels';
+import { getEnvironmentLabel, getFactionLabel, getNodeKindLabel, getObjectiveLabel } from 'common-ui/features/sectors/utils/sectorLabels';
 import type { EnvironmentType } from 'common-data/features/sectors/types/EnvironmentType';
 import type { ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';

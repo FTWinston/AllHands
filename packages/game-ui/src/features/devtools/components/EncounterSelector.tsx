@@ -1,5 +1,5 @@
-import { getNodeKindLabel } from 'common-data/features/sectors/utils/sectorLabels';
 import { Button } from 'common-ui/components/Button';
+import { getNodeKindLabel } from 'common-ui/features/sectors/utils/sectorLabels';
 import { FC } from 'react';
 import { describeEncounter } from '../../../utils/describeEncounter';
 import styles from './EncounterSelector.module.css';

@@ -9,10 +9,6 @@ export class SurviveObjective extends Objective {
         super(state);
     }
 
-    override get isMet(): boolean {
-        return this.started && this.state.currentTime >= this._endTime;
-    }
-
     override get endTime(): number {
         return this._endTime;
     }
@@ -20,5 +16,11 @@ export class SurviveObjective extends Objective {
     override start(): void {
         this._endTime = this.state.currentTime + this.durationMs;
         this.started = true;
+    }
+
+    override tick(_deltaTime: number): void {
+        if (this.started && this.state.currentTime >= this._endTime) {
+            this.isMet = true;
+        }
     }
 }

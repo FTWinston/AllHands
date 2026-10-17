@@ -42,9 +42,9 @@ export const SectorOutro: Story = {
 };
 
 export const Victory: Story = {
-    args: { phase: 'ended', outcome: 'victory' },
+    args: { phase: 'sectorOutro', isEnded: true, outcome: 'victory' },
 };
 
 export const Defeat: Story = {
-    args: { phase: 'ended', outcome: 'defeat' },
+    args: { phase: 'encounter', isEnded: true, outcome: 'defeat', message: { kind: 'defeat', title: 'Placeholder Sector 1', text: 'Placeholder defeat message for sector 1.' } },
 };

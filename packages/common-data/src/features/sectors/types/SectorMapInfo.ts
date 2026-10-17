@@ -1,4 +1,5 @@
 import type { SectorNodeInfo } from './SectorNodeInfo';
+import type { IArray } from '@colyseus/react';
 
 /** Client-facing graph and position; the engine's schema state implements this. */
 export interface SectorMapInfo {
@@ -7,17 +8,17 @@ export interface SectorMapInfo {
     /** Zero-based index of the current sector. */
     sectorIndex: number;
     sectorCount: number;
-    nodes: readonly SectorNodeInfo[];
+    nodes: IArray<SectorNodeInfo>;
     /** Null until the first node is chosen. */
     currentNodeId: string | null;
-    visitedNodeIds: readonly string[];
+    visitedNodeIds: IArray<string>;
     /** Nodes selectable from the current position. */
-    availableNodeIds: readonly string[];
+    availableNodeIds: IArray<string>;
 }
 
-/** Sector intro/outro message shown on the viewscreen. */
+/** Sector intro/outro/defeat message shown on the viewscreen. */
 export interface SectorMessageInfo {
-    kind: 'intro' | 'outro';
+    kind: 'intro' | 'outro' | 'defeat';
     title: string;
     text: string;
 }

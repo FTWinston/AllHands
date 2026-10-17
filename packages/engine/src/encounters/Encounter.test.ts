@@ -1,7 +1,7 @@
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
+import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
 import { getDefaultNode, getDevEncounterList, getEncounterIds } from './EncounterRegistry';
-import { getHostileShips } from './hostiles';
 import { RepairStationEncounter } from './RepairStationEncounter';
 import { defaultSurviveDurationMs } from './SurviveEncounter';
 import type { Ship } from 'src/state/Ship';
@@ -32,7 +32,7 @@ function totalMaxHealth(ship: Ship) {
 describe('encounter registry', () => {
     it('registers the expected encounters', () => {
         expect(getEncounterIds().sort()).toEqual([
-            'ambush', 'assault', 'bossCartel', 'bossHegemony', 'bossRaiders', 'escort', 'repairStation', 'skirmish', 'survive',
+            'ambush', 'assault', 'bossA', 'bossB', 'bossC', 'escort', 'repairStation', 'skirmish', 'survive',
         ]);
         expect(getDevEncounterList().map(info => info.id)).toEqual(getEncounterIds());
     });
@@ -45,7 +45,7 @@ describe('devLoadEncounter', () => {
         expect(campaign.devLoadEncounter(encounterId)).toBe(true);
         expect(state.phase).toBe('encounter');
         expect(state.encounter!.encounterId).toBe(encounterId);
-        expect(state.cardGenerationPaused).toBe(false);
+        expect(campaign.isInEncounter).toBe(true);
 
         const hostiles = getHostileShips(state);
         if (encounterId === 'repairStation') {
@@ -83,14 +83,15 @@ describe('devLoadEncounter', () => {
         expect(state.phase).toBe('sectorIntro');
     });
 
-    it('restores the real hands when loaded from the map', () => {
+    it('clears the route cards when loaded from the map', () => {
         const { state, campaign, ships } = createCampaign();
-        const realHelm = [...ships[0].helmState.hand];
         campaign.dismissMessage();
+        expect(ships[0].helmState.nonEncounterCards.length).toBeGreaterThan(0);
 
         campaign.devLoadEncounter('skirmish');
 
-        expect([...ships[0].helmState.hand]).toEqual(realHelm);
+        expect(ships[0].helmState.nonEncounterCards).toHaveLength(0);
+        expect(ships[0].scienceState.nonEncounterCards).toHaveLength(0);
         expect(state.phase).toBe('encounter');
     });
 
@@ -150,7 +151,7 @@ describe('objectives', () => {
         expect(getHostileShips(state)).toHaveLength(0);
     });
 
-    it.each(['bossRaiders', 'bossCartel', 'bossHegemony'] as const)('%s completes when the boss dies, even with escorts alive', (encounterId) => {
+    it.each(['bossA', 'bossB', 'bossC'] as const)('%s completes when the boss dies, even with escorts alive', (encounterId) => {
         const { state, campaign, ships } = createCampaign();
         campaign.devLoadEncounter(encounterId);
 

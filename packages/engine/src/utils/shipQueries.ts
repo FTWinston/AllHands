@@ -1,7 +1,12 @@
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { AiShip } from 'src/state/AiShip';
+import { PlayerShip } from 'src/state/PlayerShip';
 import type { GameObject } from 'src/state/GameObject';
 import type { GameState } from 'src/state/GameState';
+
+export function getPlayerShips(state: GameState): PlayerShip[] {
+    return [...state.objects.values()].filter((object): object is PlayerShip => object instanceof PlayerShip);
+}
 
 export function isHostileShip(state: GameState, object: GameObject): object is AiShip {
     return object instanceof AiShip

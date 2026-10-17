@@ -36,6 +36,8 @@ export abstract class SystemState extends Schema implements SystemInfo {
         this.underlyingPowerLevel = this.powerLevel = initialPowerLevel;
         this.maxPowerLevel = setup.maxPowerLevel;
 
+        this.initialHandSize = setup.initialHandSize;
+
         // The first initialHandSize cards go straight into the hand.
         this.hand = new ArraySchema<CardState>(
             ...cards.slice(0, setup.initialHandSize)
@@ -47,6 +49,16 @@ export abstract class SystemState extends Schema implements SystemInfo {
         );
 
         this._health = this.maxHealth = this.initializeCardPool(cards);
+    }
+
+    private readonly initialHandSize: number;
+
+    /** Draw up to the initial hand size, e.g. at the start of an encounter. */
+    dealInitialHand() {
+        const missing = this.initialHandSize - this.hand.length;
+        if (missing > 0) {
+            this.drawFromTop(missing);
+        }
     }
 
     /** How many cards can be held in the hand at once. */

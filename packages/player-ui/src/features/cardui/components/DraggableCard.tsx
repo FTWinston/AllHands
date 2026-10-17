@@ -1,17 +1,15 @@
-import { Snapshot } from '@colyseus/react';
 import { useDraggable } from '@dnd-kit/core';
 import { CardParametersBase } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
-import { RouteCardInfo } from 'common-data/features/cards/types/RouteCardInfo';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
-import { getRouteCardDescription } from 'common-ui/features/cards/utils/getRouteCardDescription';
+import { UICardDefinition } from 'common-ui/features/cards/types/UICardDefinition';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { resolveParameter } from 'common-ui/types/resolveParameters';
 import { classNames } from 'common-ui/utils/classNames';
-import { FC, useMemo, useState } from 'react';
+import { FC, useState } from 'react';
 import { useActiveCard, useDragDisplayMode, useIsOverValidTarget } from './DragCardProvider';
 import styles from './DraggableCard.module.css';
 
@@ -27,17 +25,15 @@ type Props = {
     modifiers?: CardParametersBase;
     extraTraits?: Partial<Record<CardTrait, ExtraTraitType>>;
     type: CardType;
-    /** Only on 'route' cards; replaces the card's name, description and image. */
-    route?: Snapshot<RouteCardInfo>;
+    /** For cards that are not card definitions, which have no definition to look up by `type`. */
+    definition?: UICardDefinition;
 };
 
 export const DraggableCard: FC<Props> = (props) => {
     const activeCard = useActiveCard();
     const isOverValidTarget = useIsOverValidTarget();
 
-    const baseDefinition = getCardDefinition(props.type);
-    const { route } = props;
-    const definition = useMemo(() => route ? { ...baseDefinition, ...getRouteCardDescription(route) } : baseDefinition, [baseDefinition, route]);
+    const definition = props.definition ?? getCardDefinition(props.type);
     const resolvedCost = resolveParameter('cost', definition.parameters, props.modifiers);
 
     const targetType = props.targetType ?? definition.targetType;

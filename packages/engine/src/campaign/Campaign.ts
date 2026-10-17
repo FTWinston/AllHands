@@ -1,3 +1,4 @@
+import { getPlayerShips } from 'src/utils/shipQueries';
 import { createEncounter, getDefaultNode, hasEncounter } from '../encounters/EncounterRegistry';
 import { EncounterSummaryState } from '../state/EncounterSummaryState';
 import { MotionKeyframe } from '../state/MotionKeyframe';
@@ -6,8 +7,7 @@ import { PlayerShip } from '../state/PlayerShip';
 import { SectorMapState } from '../state/SectorMapState';
 import { SectorMessageState } from '../state/SectorMessageState';
 import { Ship } from '../state/Ship';
-import { createRouteHand, createWarpAwayCard } from './campaignCards';
-import { getPlayerShips } from './playerShips';
+import { createRouteCards, createWarpAwayCard } from './campaignCards';
 import { playerShipSetup } from './playerShipSetup';
 import { generateSector } from './SectorGenerator';
 import { sectorThemes, type SectorTheme } from './sectorThemes';
@@ -15,7 +15,7 @@ import type { Encounter } from '../encounters/Encounter';
 import type { CardState } from '../state/CardState';
 import type { GameObject } from '../state/GameObject';
 import type { GameState } from '../state/GameState';
-import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
+import type { GameOutcome } from 'common-data/features/sectors/types/GamePhase';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
 import type { EncounterId, SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 
@@ -28,7 +28,6 @@ export class Campaign {
     private sectorIndex = -1;
     private sector: SectorInfo | null = null;
     private encounter: Encounter | null = null;
-    private isDevEncounter = false;
     private warpOffered = false;
     private readonly warpCards = new Map<Ship, CardState>();
     private tearingDown = false;
@@ -42,9 +41,18 @@ export class Campaign {
         return this.encounter;
     }
 
+    /** Ships only simulate their systems while this is true. */
+    get isInEncounter(): boolean {
+        return this.state.phase === 'encounter' && !this.isEnded;
+    }
+
+    private get isEnded(): boolean {
+        return this.state.gameStatus === 'ended';
+    }
+
     /** Begins the first sector. Does nothing once started. */
     start(): void {
-        if (this.state.phase !== 'setup') {
+        if (this.state.phase !== null) {
             return;
         }
 
@@ -52,7 +60,7 @@ export class Campaign {
     }
 
     tick(deltaTime: number): void {
-        if (this.state.phase !== 'encounter' || !this.encounter) {
+        if (!this.isInEncounter || !this.encounter) {
             return;
         }
 
@@ -61,7 +69,7 @@ export class Campaign {
     }
 
     onObjectRemoved(object: GameObject): void {
-        if (this.tearingDown || this.state.phase === 'setup' || this.state.phase === 'ended') {
+        if (this.tearingDown || this.state.phase === null || this.isEnded) {
             return;
         }
 
@@ -82,7 +90,7 @@ export class Campaign {
     /** Tactical acknowledges the sector intro or outro message. */
     dismissMessage(): boolean {
         const { phase } = this.state;
-        if (phase !== 'sectorIntro' && phase !== 'sectorOutro') {
+        if (this.isEnded || (phase !== 'sectorIntro' && phase !== 'sectorOutro')) {
             return false;
         }
 
@@ -100,9 +108,9 @@ export class Campaign {
     }
 
     /** Helm picks the next node (by playing a route card); the first valid selection is final for every crew. */
-    selectRoute(ship: Ship, nodeId: string): boolean {
+    selectRoute(_ship: PlayerShip, nodeId: string): boolean {
         const map = this.state.map;
-        if (this.state.phase !== 'map' || !map || !this.sector || !this.isPlayerShip(ship)) {
+        if (this.state.phase !== 'map' || this.isEnded || !map || !this.sector) {
             return false;
         }
 
@@ -116,21 +124,21 @@ export class Campaign {
         }
 
         map.moveTo(nodeId);
-        this.startEncounter(node, false);
+        this.startEncounter(node);
         return true;
     }
 
     /** Helm plays the Warp Away card, ending the completed encounter. */
     warpAway(ship: Ship): boolean {
         const card = this.warpCards.get(ship);
-        if (this.state.phase !== 'encounter' || !this.warpOffered || !card || !ship.helmState.hand.includes(card)) {
+        if (!this.isInEncounter || !this.warpOffered || !card || !ship.helmState.hand.includes(card)) {
             return false;
         }
 
         const node = this.encounter!.node;
         this.teardownEncounter();
 
-        if (!this.isDevEncounter && node.id === this.state.map?.bossNodeId) {
+        if (!this.state.map || node.id === this.state.map.bossNodeId) {
             this.enterOutro();
         } else {
             this.showMap();
@@ -141,25 +149,18 @@ export class Campaign {
 
     /** Dev tools: abandon whatever is running and start the given encounter standalone with repaired ships. */
     devLoadEncounter(encounterId: EncounterId): boolean {
-        const { phase } = this.state;
-        if (phase === 'setup' || phase === 'ended' || !hasEncounter(encounterId)) {
+        if (this.state.phase === null || this.isEnded || !hasEncounter(encounterId)) {
             return false;
-        }
-
-        const ships = getPlayerShips(this.state);
-        for (const ship of ships) {
-            ship.helmState.restoreRealHand();
-            ship.scienceState.restoreRealHand();
         }
 
         this.teardownEncounter();
 
-        for (const ship of ships) {
+        for (const ship of getPlayerShips(this.state)) {
             ship.fullyRepair();
         }
 
         this.state.message = null;
-        this.startEncounter(getDefaultNode(encounterId), true);
+        this.startEncounter(getDefaultNode(encounterId));
         return true;
     }
 
@@ -171,43 +172,47 @@ export class Campaign {
         this.state.map = new SectorMapState(this.sector, index, this.themes.length);
         this.state.message = new SectorMessageState({ kind: 'intro', title: this.sector.name, text: this.sector.introMessage });
         this.state.encounter = null;
-        this.setPhase('sectorIntro');
+        this.state.phase = 'sectorIntro';
     }
 
     private enterOutro(): void {
         const sector = this.sector!;
         this.state.message = new SectorMessageState({ kind: 'outro', title: sector.name, text: sector.outroMessage });
-        this.setPhase('sectorOutro');
+        this.state.phase = 'sectorOutro';
     }
 
     private finish(outcome: GameOutcome): void {
         this.encounter?.dispose();
         this.encounter = null;
         this.state.encounter = null;
-        this.state.message = null;
+        this.state.message = outcome === 'defeat' && this.sector
+            ? new SectorMessageState({ kind: 'defeat', title: this.sector.name, text: this.sector.defeatMessage })
+            : null;
         this.state.outcome = outcome;
         this.state.gameStatus = 'ended';
-        this.state.phase = 'ended';
     }
 
-    /** The map shows each helm and science a route card per available node; their real hands are set aside untouched. */
+    /**
+     * The map shows each helm and science a route card per available node, instead of their displays.
+     * Hands are already empty here (see `teardownEncounter`), and no cards are drawn until the next encounter because game time stops.
+     */
     private showMap(): void {
         const map = this.state.map!;
         const nodes = this.sector!.nodes.filter(node => map.availableNodeIds.includes(node.id));
 
         for (const ship of getPlayerShips(this.state)) {
-            ship.helmState.showFakeHand(createRouteHand(ship, nodes, 'basic'));
-            ship.scienceState.showFakeHand(createRouteHand(ship, nodes, 'full'));
+            ship.helmState.setNonEncounterCards(createRouteCards(ship, nodes, 'basic'));
+            ship.scienceState.setNonEncounterCards(createRouteCards(ship, nodes, 'full'));
         }
 
-        this.setPhase('map');
+        this.state.phase = 'map';
     }
 
-    private startEncounter(node: SectorNodeInfo, isDev: boolean): void {
-        const ships = getPlayerShips(this.state);
-        for (const ship of ships) {
-            ship.helmState.restoreRealHand();
-            ship.scienceState.restoreRealHand();
+    private startEncounter(node: SectorNodeInfo): void {
+        for (const ship of getPlayerShips(this.state)) {
+            ship.helmState.setNonEncounterCards([]);
+            ship.scienceState.setNonEncounterCards([]);
+            ship.startEncounter();
             ship.setMotion(new MotionKeyframe(
                 this.state.currentTime,
                 playerShipSetup.position.x,
@@ -216,10 +221,9 @@ export class Campaign {
             ));
         }
 
-        this.isDevEncounter = isDev;
         this.warpOffered = false;
         this.encounter = createEncounter(this.state, node);
-        this.setPhase('encounter');
+        this.state.phase = 'encounter';
 
         const { node: encounterNode } = this.encounter;
         const summary = new EncounterSummaryState(encounterNode.encounterId, encounterNode.name);
@@ -233,7 +237,7 @@ export class Campaign {
         this.checkObjective();
     }
 
-    /** Once the objective is met, every helm gets an expendable Warp Away card in its real hand. */
+    /** Once the objective is met, every helm gets an expendable Warp Away card in its hand. */
     private checkObjective(): void {
         if (this.warpOffered || !this.encounter?.isComplete) {
             return;
@@ -253,12 +257,13 @@ export class Campaign {
 
     /** Ends the running encounter: removes the warp cards and every non-player object, and resets the player ships' card state. */
     private teardownEncounter(): void {
+        this.warpOffered = false;
+
         for (const [ship, card] of this.warpCards) {
             ship.helmState.removeCard(card.id);
         }
 
         this.warpCards.clear();
-        this.warpOffered = false;
 
         this.encounter?.dispose();
         this.encounter = null;
@@ -282,15 +287,5 @@ export class Campaign {
         for (const ship of getPlayerShips(this.state)) {
             ship.cleanupAfterEncounter();
         }
-    }
-
-    private setPhase(phase: GamePhase): void {
-        this.state.phase = phase;
-        // Draws stay frozen everywhere except in an encounter, so nothing is gained or lost while choosing a route.
-        this.state.cardGenerationPaused = phase !== 'encounter';
-    }
-
-    private isPlayerShip(ship: Ship): boolean {
-        return this.state.objects.get(ship.id) === ship;
     }
 }

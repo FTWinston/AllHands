@@ -68,7 +68,7 @@ describe.each(sectorThemes.map(theme => [theme.id, theme] as const))('generateSe
 
         expect(reachable.size).toBe(nodes.size);
 
-        const hasInbound = new Set(sector.nodes.flatMap(node => node.next));
+        const hasInbound = new Set(sector.nodes.flatMap(node => [...node.next]));
         for (const node of sector.nodes) {
             expect(hasInbound.has(node.id) || sector.startNodeIds.includes(node.id)).toBe(true);
         }

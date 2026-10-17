@@ -23,7 +23,7 @@ import { PlayerShip } from '../state/PlayerShip';
 import { HelmState } from '../state/systems/HelmState';
 import { SystemState } from '../state/systems/SystemState';
 import { IdPool } from './IdPool';
-import type { DevLoadEncounterPayload, SectorServerMessages } from 'common-data/features/sectors/types/SectorMessages';
+import type { DevLoadEncounterPayload, PlayNonEncounterCardPayload, SectorServerMessages } from 'common-data/features/sectors/types/SectorMessages';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
 
 interface JoinOptions {
@@ -350,6 +350,28 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
             if (!this.state.campaign?.dismissMessage()) {
                 console.warn(`Rejected message dismissal from ${client.sessionId}`);
+            }
+        });
+
+        this.onMessage('playNonEncounterCard', (client, message: PlayNonEncounterCardPayload) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            const card = this.getSystemState(ship, clientRole).nonEncounterCards.find(candidate => candidate.id === message?.cardId);
+            if (!card?.playable) {
+                console.warn(`Rejected non-encounter card ${message?.cardId} from ${client.sessionId}`);
+                return;
+            }
+
+            if (!this.state.campaign?.selectRoute(ship, card.route.nodeId)) {
+                console.warn(`Failed to play non-encounter card ${card.id} for ${clientRole} of ship ${ship.id}`);
             }
         });
     }

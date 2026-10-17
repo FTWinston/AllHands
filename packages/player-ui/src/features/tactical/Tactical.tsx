@@ -4,6 +4,8 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, ShipInfo, TacticalSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useCallback } from 'react';
 import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
+import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
+import { SectorMessagePrompt } from './components/SectorMessagePrompt';
 import { TacticalDisplay } from './components/TacticalDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
@@ -20,7 +22,7 @@ export const Tactical = (props: Props) => {
     const factions = useRoomState(props.room, state => state.factions) as Record<string, { relations: FactionRelationshipMap }>;
     const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo>;
     const targets = useStableOrderedTargets(objects, localShip);
-    const phase = (useRoomState(props.room, state => state.phase) ?? 'setup') as GamePhase;
+    const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
 
     const dismissMessage = useCallback(() => {
@@ -49,6 +51,18 @@ export const Tactical = (props: Props) => {
 
     const tacticalState = localShip.tacticalState as unknown as Snapshot<TacticalSystemInfo>;
 
+    if (phase === 'map') {
+        return (
+            <NonEncounterDisplay
+                crew="tactical"
+                onPause={pause}
+                power={tacticalState.powerLevel}
+                deckSize={tacticalState.deck.length}
+                cardGeneration={tacticalState.cardGeneration}
+            />
+        );
+    }
+
     const viewerFaction = localShip?.faction ?? null;
     const viewer: RelationshipViewer = {
         shipId: props.shipId,
@@ -71,9 +85,10 @@ export const Tactical = (props: Props) => {
             viewer={viewer}
             pendingDrawChoice={tacticalState.pendingDrawChoice}
             resolveDrawChoice={resolveDrawChoice}
-            phase={phase}
-            message={message}
-            onDismissMessage={dismissMessage}
-        />
+        >
+            {(phase === 'sectorIntro' || phase === 'sectorOutro') && (
+                <SectorMessagePrompt message={message} onDismiss={dismissMessage} />
+            )}
+        </TacticalDisplay>
     );
 };

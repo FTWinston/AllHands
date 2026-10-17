@@ -7,6 +7,7 @@ export interface SectorTheme {
     name: string;
     introMessage: string;
     outroMessage: string;
+    defeatMessage: string;
     /** Hostile faction that populates the sector's combat nodes and boss. */
     factionId: string;
     environments: readonly EnvironmentType[];
@@ -15,47 +16,51 @@ export interface SectorTheme {
     stationNames: readonly string[];
 }
 
+// All content below is placeholder text, until the campaign is written.
 export const sectorThemes: readonly SectorTheme[] = [
     {
-        id: 'scrapfields',
-        name: 'The Scrapfields',
-        introMessage: 'Long-range scans show the Scrapfields littered with the wreckage of a dozen wars, and raider crews picking it clean. Their warlord has sworn to strip every passing ship for parts. Plot a course through the debris, and be ready for company.',
-        outroMessage: 'The warlord\'s flagship is a drifting hulk, and the raider fleet has scattered to the winds. The way out of the Scrapfields lies open. Beyond it waits the Gilded Reach, where the cartels charge a toll for everything.',
-        factionId: 'raiders',
+        id: 'sector1',
+        name: 'Placeholder Sector 1',
+        introMessage: 'Placeholder intro message for sector 1.',
+        outroMessage: 'Placeholder outro message for sector 1.',
+        defeatMessage: 'Placeholder defeat message for sector 1.',
+        factionId: 'factionA',
         environments: ['asteroidField', 'deepSpace', 'nebula'],
-        bossEncounterId: 'bossRaiders',
+        bossEncounterId: 'bossA',
         locationNames: [
-            'Rustwater Drift', 'Slag Heap', 'Hull Graveyard', 'Cinder Belt', 'Gantry Ruins', 'Bent Spar', 'Salvage Row', 'Ash Cairn',
-            'Ironbite Shoal', 'Dead Relay', 'Scorch Ring', 'Tangle Reef', 'Hollow Anvil', 'Wreck of the Persistence', 'Grit Narrows', 'Cold Forge',
+            'Location 1-1', 'Location 1-2', 'Location 1-3', 'Location 1-4', 'Location 1-5', 'Location 1-6', 'Location 1-7', 'Location 1-8',
+            'Location 1-9', 'Location 1-10', 'Location 1-11', 'Location 1-12', 'Location 1-13', 'Location 1-14', 'Location 1-15', 'Location 1-16',
         ],
-        stationNames: ['Patchwork Dock', 'Tinker\'s Rest', 'Welders\' Haven', 'Mend Point'],
+        stationNames: ['Station 1-1', 'Station 1-2', 'Station 1-3', 'Station 1-4'],
     },
     {
-        id: 'gildedReach',
-        name: 'The Gilded Reach',
-        introMessage: 'The Gilded Reach glitters with beacon-lit trade lanes, every one of them owned. The Cartel\'s enforcers have been told to expect you, and the syndicate\'s flagship watches the far end of the lane. Pay no toll. Take no prisoners.',
-        outroMessage: 'The Golden Toll has gone dark, and with it the Cartel\'s grip on the Reach. Merchants are already broadcasting thanks on every open channel. Ahead lie the Hegemony Marches, and the fleet that has been waiting for you.',
-        factionId: 'cartel',
+        id: 'sector2',
+        name: 'Placeholder Sector 2',
+        introMessage: 'Placeholder intro message for sector 2.',
+        outroMessage: 'Placeholder outro message for sector 2.',
+        defeatMessage: 'Placeholder defeat message for sector 2.',
+        factionId: 'factionB',
         environments: ['nebula', 'gasGiant', 'deepSpace'],
-        bossEncounterId: 'bossCartel',
+        bossEncounterId: 'bossB',
         locationNames: [
-            'Gilt Junction', 'Toll Gate Nine', 'Auric Shallows', 'Brokerage Deep', 'Lantern Lane', 'Customs Anchorage', 'Velvet Vortex', 'Ledger Point',
-            'Silk Meridian', 'Counting House', 'Bullion Spur', 'Prism Haze', 'Opal Passage', 'Brass Orbit', 'Tariff Station Gamma', 'Mirrorgate',
+            'Location 2-1', 'Location 2-2', 'Location 2-3', 'Location 2-4', 'Location 2-5', 'Location 2-6', 'Location 2-7', 'Location 2-8',
+            'Location 2-9', 'Location 2-10', 'Location 2-11', 'Location 2-12', 'Location 2-13', 'Location 2-14', 'Location 2-15', 'Location 2-16',
         ],
-        stationNames: ['Free Port Calloway', 'Honest Dock', 'Quiet Berth', 'Neutral Ground'],
+        stationNames: ['Station 2-1', 'Station 2-2', 'Station 2-3', 'Station 2-4'],
     },
     {
-        id: 'hegemonyMarches',
-        name: 'The Hegemony Marches',
-        introMessage: 'The Marches are the Hegemony\'s last line, and its fleets hold every approach to the core. There is no more room to run. Break the Dominion of Steel and the war ends here.',
-        outroMessage: 'The Dominion of Steel breaks apart in a cascade of fire, and the Hegemony fleet stands down across the Marches. The long road is finished, and the ship and her crew are still flying. Well done.',
-        factionId: 'hegemony',
+        id: 'sector3',
+        name: 'Placeholder Sector 3',
+        introMessage: 'Placeholder intro message for sector 3.',
+        outroMessage: 'Placeholder outro message for sector 3.',
+        defeatMessage: 'Placeholder defeat message for sector 3.',
+        factionId: 'factionC',
         environments: ['deepSpace', 'gasGiant', 'asteroidField'],
-        bossEncounterId: 'bossHegemony',
+        bossEncounterId: 'bossC',
         locationNames: [
-            'Bastion Approach', 'Picket Line Seven', 'Sentinel Reach', 'Ordnance Yard', 'Standing Wall', 'Garrison Verge', 'Iron Crown', 'Muster Field',
-            'Citadel Shadow', 'Vigil Station', 'Lancer\'s Gap', 'Bulwark Deep', 'Parade Ground', 'Hammer Rise', 'Cordon Delta', 'Final Rampart',
+            'Location 3-1', 'Location 3-2', 'Location 3-3', 'Location 3-4', 'Location 3-5', 'Location 3-6', 'Location 3-7', 'Location 3-8',
+            'Location 3-9', 'Location 3-10', 'Location 3-11', 'Location 3-12', 'Location 3-13', 'Location 3-14', 'Location 3-15', 'Location 3-16',
         ],
-        stationNames: ['Last Light Depot', 'Forward Dock Theta', 'Field Hospital Ship', 'Reserve Anchorage'],
+        stationNames: ['Station 3-1', 'Station 3-2', 'Station 3-3', 'Station 3-4'],
     },
 ];

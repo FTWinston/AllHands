@@ -3,7 +3,7 @@ import { ObjectiveState } from './ObjectiveState';
 import type { EnvironmentType } from 'common-data/features/sectors/types/EnvironmentType';
 import type { EncounterId, SectorNodeInfo, SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 
-export class SectorNodeState extends Schema {
+export class SectorNodeState extends Schema implements SectorNodeInfo {
     constructor(info: SectorNodeInfo) {
         super();
         this.id = info.id;
@@ -28,19 +28,4 @@ export class SectorNodeState extends Schema {
     @type('number') readonly x: number;
     @type('number') readonly y: number;
     @type(['string']) readonly next = new ArraySchema<string>();
-
-    toInfo(): SectorNodeInfo {
-        return {
-            id: this.id,
-            kind: this.kind,
-            encounterId: this.encounterId,
-            name: this.name,
-            environment: this.environment,
-            factionId: this.factionId,
-            objective: this.objective,
-            x: this.x,
-            y: this.y,
-            next: [...this.next],
-        };
-    }
 }

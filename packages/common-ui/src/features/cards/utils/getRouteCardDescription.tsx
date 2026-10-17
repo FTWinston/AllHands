@@ -1,5 +1,5 @@
-import { getEnvironmentLabel, getFactionLabel, getNodeKindLabel, getObjectiveLabel } from 'common-data/features/sectors/utils/sectorLabels';
 import { Fragment } from 'react';
+import { getEnvironmentLabel, getFactionLabel, getNodeKindLabel, getObjectiveLabel } from '../../sectors/utils/sectorLabels';
 import { RouteIcon } from '../components/CampaignCardIcon';
 import { Trait } from '../components/Trait';
 import type { CardDescription } from '../types/UICardDefinition';

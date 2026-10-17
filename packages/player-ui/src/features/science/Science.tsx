@@ -4,8 +4,10 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useCallback } from 'react';
 import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
+import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { ScienceDisplay } from './components/ScienceDisplay';
 import type { Room } from '@colyseus/sdk';
+import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = {
@@ -18,6 +20,8 @@ export const Science = (props: Props) => {
     const factions = useRoomState(props.room, state => state.factions) as Record<string, { relations: FactionRelationshipMap }>;
     const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo>;
     const targets = useStableOrderedTargets(objects, localShip);
+
+    const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -48,6 +52,10 @@ export const Science = (props: Props) => {
         props.room.send('unmountDeflector', { slot: 'delivery' });
     }, [props.room]);
 
+    const playNonEncounterCard = useCallback((cardId: number) => {
+        props.room.send('playNonEncounterCard', { cardId });
+    }, [props.room]);
+
     const resolveDrawChoice = useCallback((cardId: number) => {
         props.room.send('resolveDrawChoice', { cardId });
     }, [props.room]);
@@ -57,6 +65,21 @@ export const Science = (props: Props) => {
     }
 
     const scienceState = localShip.scienceState;
+
+    // Outside an encounter, these cards are offered instead of the usual display.
+    if (phase === 'map' || scienceState.nonEncounterCards.length > 0) {
+        return (
+            <NonEncounterDisplay
+                crew="science"
+                cards={scienceState.nonEncounterCards}
+                playCard={playNonEncounterCard}
+                onPause={pause}
+                power={scienceState.powerLevel}
+                deckSize={scienceState.deck.length}
+                cardGeneration={scienceState.cardGeneration}
+            />
+        );
+    }
 
     const viewerFaction = localShip?.faction ?? null;
     const viewer: RelationshipViewer = {

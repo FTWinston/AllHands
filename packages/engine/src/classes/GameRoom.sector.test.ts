@@ -1,8 +1,8 @@
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { DEV_TOOLS_ENABLED } from 'src/generated/devtools';
 import { setupGameRoom } from 'src/testUtils';
+import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
-import { getHostileShips } from '../encounters/hostiles';
 import type { GameRoom } from './GameRoom';
 import type { ColyseusTestServer } from '@colyseus/testing';
 
@@ -81,22 +81,22 @@ describe('GameRoom campaign messages', () => {
 
     it('only helm can play a route card, and only on the map', async () => {
         const { room, state, ship, clients } = await startGame();
-        const playRoute = (role: RoleName, card: { id: number; type: string }) =>
-            send(room, clients[role], 'playCard', { cardId: card.id, cardType: card.type, targetType: 'no-target', targetId: '' });
+        const playRoute = (role: RoleName, cardId: number) => send(room, clients[role], 'playNonEncounterCard', { cardId });
 
         await send(room, clients.tactical, 'dismissMessage');
-        const target = ship.helmState.hand[0];
+        const target = ship.helmState.nonEncounterCards[0];
         const targetNodeId = target.route!.nodeId;
 
-        for (const role of ['science', 'engineer'] as const) {
-            await playRoute(role, ship.scienceState.hand[0]);
-            expect(state.phase).toBe('map');
-        }
-
-        await playRoute('helm', { id: -1, type: 'route' });
+        await playRoute('science', ship.scienceState.nonEncounterCards[0].id);
+        expect(state.phase).toBe('map');
+        // Engineer has no such cards, so even helm's card id means nothing to them.
+        await playRoute('engineer', target.id);
         expect(state.phase).toBe('map');
 
-        await playRoute('helm', target);
+        await playRoute('helm', -1);
+        expect(state.phase).toBe('map');
+
+        await playRoute('helm', target.id);
         expect(state.phase).toBe('encounter');
         expect(state.map!.currentNodeId).toBe(targetNodeId);
     });
@@ -104,7 +104,7 @@ describe('GameRoom campaign messages', () => {
     it('helm can play Warp Away only once the card exists', async () => {
         const { room, state, ship, clients } = await startGame();
         await send(room, clients.tactical, 'dismissMessage');
-        await send(room, clients.helm, 'playCard', { cardId: ship.helmState.hand[0].id, cardType: 'route', targetType: 'no-target', targetId: '' });
+        await send(room, clients.helm, 'playNonEncounterCard', { cardId: ship.helmState.nonEncounterCards[0].id });
         expect(state.phase).toBe('encounter');
 
         // The card has not been offered, so a guessed id does nothing.
@@ -128,18 +128,15 @@ describe('GameRoom campaign messages', () => {
         expect(ship.helmState.hand.some(card => card.type === 'warpAway')).toBe(false);
     });
 
-    it('does not let route cards be discarded, nor science preview cards played', async () => {
+    it('does not let science preview cards be played', async () => {
         const { room, state, ship, clients } = await startGame();
         await send(room, clients.tactical, 'dismissMessage');
 
-        const [card] = ship.helmState.hand;
-        const [preview] = ship.scienceState.hand;
-        await send(room, clients.helm, 'playCard', { cardId: card.id, cardType: card.type, targetType: 'any', targetId: 'discard' });
-        await send(room, clients.science, 'playCard', { cardId: preview.id, cardType: preview.type, targetType: 'no-target', targetId: '' });
+        const [preview] = ship.scienceState.nonEncounterCards;
+        await send(room, clients.science, 'playNonEncounterCard', { cardId: preview.id });
 
         expect(state.phase).toBe('map');
-        expect(ship.helmState.hand).toContain(card);
-        expect(ship.scienceState.hand).toHaveLength(state.map!.availableNodeIds.length);
+        expect(ship.scienceState.nonEncounterCards).toHaveLength(state.map!.availableNodeIds.length);
     });
     if (DEV_TOOLS_ENABLED) {
         it('dev client can start any encounter from the lobby', async () => {
@@ -165,7 +162,7 @@ describe('GameRoom campaign messages', () => {
             await send(room, shipClient, 'devLoadEncounter', { encounterId: 'assault' });
 
             expect(room.state.gameStatus).toBe('setup');
-            expect(room.state.phase).toBe('setup');
+            expect(room.state.phase).toBeNull();
             expect(room.state.encounter?.encounterId).toBeUndefined();
         });
     }

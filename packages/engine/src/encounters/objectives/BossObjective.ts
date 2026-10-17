@@ -6,11 +6,6 @@ export const bossScenarioId = 'boss';
 
 export class BossObjective extends Objective {
     private boss: GameObject | undefined;
-    private bossDestroyed = false;
-
-    override get isMet(): boolean {
-        return this.bossDestroyed;
-    }
 
     override start(): void {
         this.boss = this.state.getObjectByScenarioId(bossScenarioId);
@@ -21,7 +16,7 @@ export class BossObjective extends Objective {
 
     override onObjectRemoved(object: GameObject): void {
         if (object === this.boss) {
-            this.bossDestroyed = true;
+            this.isMet = true;
         }
     }
 }

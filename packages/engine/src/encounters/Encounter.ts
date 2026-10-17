@@ -5,7 +5,7 @@ import type { GameObject } from 'src/state/GameObject';
 import type { GameState } from 'src/state/GameState';
 
 /** The faction used when a node does not name one (e.g. standalone dev launches). */
-export const defaultEnemyFactionId = 'raiders';
+export const defaultEnemyFactionId = 'factionA';
 
 /**
  * One node's worth of gameplay: spawns what it needs, tracks its objective, and reports completion.

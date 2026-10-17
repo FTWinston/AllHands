@@ -5,9 +5,10 @@ export const playerFactionId = 'player';
 
 const hostileToPlayer = { [playerFactionId]: RelationshipType.Hostile };
 
+/** Placeholder factions, until the campaign is written. */
 export const factionConfigs: FactionConfig[] = [
     { id: playerFactionId },
-    { id: 'raiders', relations: hostileToPlayer },
-    { id: 'cartel', relations: hostileToPlayer },
-    { id: 'hegemony', relations: hostileToPlayer },
+    { id: 'factionA', relations: hostileToPlayer },
+    { id: 'factionB', relations: hostileToPlayer },
+    { id: 'factionC', relations: hostileToPlayer },
 ];

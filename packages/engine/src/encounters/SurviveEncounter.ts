@@ -1,6 +1,6 @@
+import { getHostileShips } from 'src/utils/shipQueries';
 import { spawnEnemies, type EnemySpawn } from './CombatEncounter';
 import { Encounter } from './Encounter';
-import { getHostileShips } from './hostiles';
 import type { EnemyRole } from '../campaign/enemyTemplates';
 import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameState } from 'src/state/GameState';

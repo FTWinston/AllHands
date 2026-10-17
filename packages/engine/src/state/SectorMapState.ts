@@ -1,9 +1,9 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { SectorNodeState } from './SectorNodeState';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
+import type { SectorMapInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 
-/** Mirrors `SectorMapInfo`, but cannot `implement` it: `ArraySchema` is not assignable to the readonly arrays it declares. */
-export class SectorMapState extends Schema {
+export class SectorMapState extends Schema implements SectorMapInfo {
     constructor(sector: SectorInfo, sectorIndex: number, sectorCount: number) {
         super();
         this.sectorId = sector.id;

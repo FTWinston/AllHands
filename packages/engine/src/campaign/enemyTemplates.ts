@@ -1,4 +1,3 @@
-import { getFactionLabel } from 'common-data/features/sectors/utils/sectorLabels';
 import type { AiGoalInfo, AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import type { Position } from 'common-data/features/space/types/Position';
 import type { IRandom } from 'common-data/types/IRandom';
@@ -60,9 +59,9 @@ const roleNames: Record<EnemyRole, string> = {
 
 /** Faction-specific competence multiplier, so later-sector factions play better. */
 const factionSkill: Record<string, number> = {
-    raiders: 0.7,
-    cartel: 0.85,
-    hegemony: 1,
+    factionA: 0.7,
+    factionB: 0.85,
+    factionC: 1,
 };
 
 export interface EnemySetupOptions {
@@ -75,7 +74,7 @@ export function createEnemySetup(role: EnemyRole, factionId: string, position: P
     const template = roleTemplates[role];
     return {
         ...template,
-        name: options.name ?? `${getFactionLabel(factionId)} ${roleNames[role]}`,
+        name: options.name ?? `${factionId} ${roleNames[role]}`,
         faction: factionId,
         position,
         goal: options.goal ?? { type: 'search-and-destroy' },

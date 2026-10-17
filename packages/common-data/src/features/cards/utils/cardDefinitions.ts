@@ -1013,13 +1013,7 @@ export const cardDefinitions = defineCardDefinitions({
         system: 'hull',
         parameters: { cost: 0 },
     },
-    // Handed out by the campaign: one 'route' card per reachable node (content in the instance's `route`), and Warp Away once an encounter is won.
-    route: {
-        targetType: 'no-target',
-        system: 'helm',
-        traits: ['priority'],
-        parameters: { cost: 0 },
-    },
+    // Added to the helm's hand by the campaign once an encounter's objective is met.
     warpAway: {
         targetType: 'no-target',
         system: 'helm',

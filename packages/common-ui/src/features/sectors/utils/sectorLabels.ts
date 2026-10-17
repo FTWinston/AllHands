@@ -1,6 +1,6 @@
-import type { EnvironmentType } from '../types/EnvironmentType';
-import type { ObjectiveInfo } from '../types/ObjectiveInfo';
-import type { SectorNodeKind } from '../types/SectorNodeInfo';
+import type { EnvironmentType } from 'common-data/features/sectors/types/EnvironmentType';
+import type { ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
+import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 
 const environmentLabels: Record<EnvironmentType, string> = {
     deepSpace: 'Deep space',
@@ -13,6 +13,13 @@ const nodeKindLabels: Record<SectorNodeKind, string> = {
     combat: 'Combat',
     repair: 'Repair station',
     boss: 'Boss',
+};
+
+/** Placeholder names, until the factions are written. */
+const factionLabels: Record<string, string> = {
+    factionA: 'Faction A',
+    factionB: 'Faction B',
+    factionC: 'Faction C',
 };
 
 export function getEnvironmentLabel(environment: EnvironmentType): string {
@@ -36,10 +43,9 @@ export function getObjectiveLabel(objective: ObjectiveInfo): string {
     }
 }
 
-/** Title-cases a faction id such as `deepSpaceRaiders` or `void-raiders`. */
+/** Falls back to the id itself for a faction without a predefined label. */
 export function getFactionLabel(factionId: string): string {
-    const words = factionId.replace(/([a-z0-9])([A-Z])/g, '$1 $2').split(/[\s_-]+/).filter(Boolean);
-    return words.map(word => word[0].toUpperCase() + word.slice(1)).join(' ');
+    return factionLabels[factionId] ?? factionId;
 }
 
 function formatDuration(durationMs: number): string {
