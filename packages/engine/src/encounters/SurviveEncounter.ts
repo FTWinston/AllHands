@@ -16,12 +16,24 @@ const reinforcementRoles: readonly EnemyRole[] = ['scout', 'fighter', 'scout', '
  */
 export class SurviveEncounter extends Encounter {
     private sinceLastWave = 0;
+    private endTime = 0;
+    private started = false;
+    private readonly durationMs: number;
 
     constructor(state: GameState, node: SectorNodeInfo) {
-        super(state, {
-            ...node,
-            objective: node.objective?.type === 'survive' ? node.objective : { type: 'survive', durationMs: defaultSurviveDurationMs },
-        });
+        const objective = node.objective?.type === 'survive' ? node.objective : { type: 'survive' as const, durationMs: defaultSurviveDurationMs };
+        super(state, { ...node, objective });
+        this.durationMs = objective.durationMs;
+    }
+
+    override get objectiveEndTime(): number {
+        return this.endTime;
+    }
+
+    override start(): void {
+        super.start();
+        this.endTime = this.state.currentTime + this.durationMs;
+        this.started = true;
     }
 
     protected populate(): void {
@@ -30,7 +42,9 @@ export class SurviveEncounter extends Encounter {
     }
 
     override tick(deltaTime: number): void {
-        super.tick(deltaTime);
+        if (this.started && this.state.currentTime >= this.endTime) {
+            this.complete();
+        }
 
         if (this.isComplete) {
             return;

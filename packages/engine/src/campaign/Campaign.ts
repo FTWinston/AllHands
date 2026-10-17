@@ -65,7 +65,6 @@ export class Campaign {
         }
 
         this.encounter.tick(deltaTime);
-        this.checkObjective();
     }
 
     onObjectRemoved(object: GameObject): void {
@@ -83,7 +82,6 @@ export class Campaign {
 
         if (this.state.phase === 'encounter' && this.encounter) {
             this.encounter.onObjectRemoved(object);
-            this.checkObjective();
         }
     }
 
@@ -182,7 +180,6 @@ export class Campaign {
     }
 
     private finish(outcome: GameOutcome): void {
-        this.encounter?.dispose();
         this.encounter = null;
         this.state.encounter = null;
         this.state.message = outcome === 'defeat' && this.sector
@@ -232,14 +229,15 @@ export class Campaign {
         summary.objective = encounterNode.objective ? new ObjectiveState(encounterNode.objective) : undefined;
         this.state.encounter = summary;
 
+        // Subscribe before starting, as an encounter may complete immediately.
+        this.encounter.onComplete.addListener('campaign', () => this.offerWarpAway());
         this.encounter.start();
         summary.objectiveEndTime = this.encounter.objectiveEndTime;
-        this.checkObjective();
     }
 
     /** Once the objective is met, every helm gets an expendable Warp Away card in its hand. */
-    private checkObjective(): void {
-        if (this.warpOffered || !this.encounter?.isComplete) {
+    private offerWarpAway(): void {
+        if (this.warpOffered) {
             return;
         }
 
@@ -265,7 +263,6 @@ export class Campaign {
 
         this.warpCards.clear();
 
-        this.encounter?.dispose();
         this.encounter = null;
         this.state.encounter = null;
 

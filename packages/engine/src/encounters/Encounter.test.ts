@@ -193,11 +193,17 @@ describe('RepairStationEncounter', () => {
         }
     });
 
-    it('has no objective and is complete straight away', () => {
+    it('has no objective and is complete once started', () => {
         const { state } = createCampaign();
         const encounter = new RepairStationEncounter(state, getDefaultNode('repairStation'));
+        let completions = 0;
+        encounter.onComplete.addListener('test', () => completions++);
+
+        expect(encounter.isComplete).toBe(false);
+        encounter.start();
 
         expect(encounter.isComplete).toBe(true);
+        expect(completions).toBe(1);
         expect(encounter.node.objective).toBeUndefined();
     });
 

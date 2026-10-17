@@ -1,7 +1,9 @@
 import { createEnemySetup, ringPosition, type EnemyRole } from '../campaign/enemyTemplates';
 import { AiShip } from '../state/AiShip';
+import { getHostileShips } from '../utils/shipQueries';
 import { Encounter } from './Encounter';
 import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { GameObject } from 'src/state/GameObject';
 import type { GameState } from 'src/state/GameState';
 
 export interface EnemySpawn {
@@ -29,6 +31,11 @@ export function spawnEnemies(state: GameState, factionId: string, spawns: readon
     )));
 }
 
+/** True when no hostile ships remain in the game state. */
+export function allHostilesDestroyed(state: GameState): boolean {
+    return getHostileShips(state).length === 0;
+}
+
 /** A fixed set of enemies that must all be destroyed; subclasses only differ in composition. */
 export abstract class CombatEncounter extends Encounter {
     protected abstract readonly composition: readonly EnemySpawn[];
@@ -39,6 +46,21 @@ export abstract class CombatEncounter extends Encounter {
 
     protected populate(): void {
         this.spawnObjects(spawnEnemies(this.state, this.factionId, this.composition));
+    }
+
+    override start(): void {
+        super.start();
+        this.checkComplete();
+    }
+
+    override onObjectRemoved(_object: GameObject): void {
+        this.checkComplete();
+    }
+
+    private checkComplete(): void {
+        if (allHostilesDestroyed(this.state)) {
+            this.complete();
+        }
     }
 }
 

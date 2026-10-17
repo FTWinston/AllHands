@@ -14,4 +14,9 @@ export class RepairStationEncounter extends Encounter {
             ship.fullyRepair();
         }
     }
+
+    override start(): void {
+        super.start();
+        this.complete();
+    }
 }

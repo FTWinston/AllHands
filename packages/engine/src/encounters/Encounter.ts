@@ -1,5 +1,4 @@
-import { createObjective } from './objectives/createObjective';
-import type { Objective } from './objectives/Objective';
+import { ListenableEvent } from 'src/classes/ListenableEvent';
 import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameObject } from 'src/state/GameObject';
 import type { GameState } from 'src/state/GameState';
@@ -8,46 +7,49 @@ import type { GameState } from 'src/state/GameState';
 export const defaultEnemyFactionId = 'factionA';
 
 /**
- * One node's worth of gameplay: spawns what it needs, tracks its objective, and reports completion.
- * The `Campaign` owns the lifecycle (start, tick, removal notifications, dispose) and the environment
- * is purely informational (it is carried to clients through the encounter summary).
+ * One node's worth of gameplay: spawns what it needs, decides when its objective is met, and reports
+ * completion via `onComplete`. The `Campaign` owns the lifecycle (start, tick, removal notifications)
+ * and the environment is purely informational (it is carried to clients through the encounter summary).
  */
 export abstract class Encounter {
-    protected readonly objective: Objective | null;
+    private _isComplete = false;
 
-    constructor(protected readonly state: GameState, public readonly node: SectorNodeInfo) {
-        this.objective = node.objective ? createObjective(node.objective, state) : null;
-    }
+    /** Fired once, when the encounter becomes complete. */
+    readonly onComplete = new ListenableEvent();
+
+    constructor(protected readonly state: GameState, public readonly node: SectorNodeInfo) {}
 
     get factionId(): string {
         return this.node.factionId ?? defaultEnemyFactionId;
     }
 
-    /** True once the objective is met; always true for encounters without an objective. */
+    /** True once the encounter's objective has been met. */
     get isComplete(): boolean {
-        return this.objective?.isMet ?? true;
+        return this._isComplete;
     }
 
     /** Game time (ms) at which a timed objective completes, or 0. */
     get objectiveEndTime(): number {
-        return this.objective?.endTime ?? 0;
+        return 0;
     }
 
+    /** Spawns the encounter's objects. Subclasses override this to also evaluate their objective. */
     start(): void {
         this.populate();
-        this.objective?.start();
     }
 
-    tick(deltaTime: number): void {
-        this.objective?.tick(deltaTime);
-    }
+    tick(_deltaTime: number): void {}
 
-    onObjectRemoved(object: GameObject): void {
-        this.objective?.onObjectRemoved(object);
-    }
+    onObjectRemoved(_object: GameObject): void {}
 
-    dispose(): void {
-        this.objective?.dispose();
+    /** Marks the encounter complete and fires `onComplete`; does nothing if already complete. */
+    protected complete(): void {
+        if (this._isComplete) {
+            return;
+        }
+
+        this._isComplete = true;
+        this.onComplete.triggerListeners();
     }
 
     /** Creates the encounter's initial objects. */
