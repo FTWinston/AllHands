@@ -18,9 +18,5 @@ Build order: common-data → engine/common-ui → player-ui/game-ui → game-app
 
 ## Conventions
 - Match surrounding style; `*Info` interfaces in common-data are implemented directly by engine state classes (`implements SectorNodeInfo`) — don't write `toInfo()` converters. Use `IArray` in interfaces so both `ArraySchema` and plain arrays satisfy them.
-- Payload-less client messages use `undefined` as the payload type.
-- "Fake"/non-encounter cards (e.g. route cards) are NOT in `cardDefinitions.ts`; they're built dynamically (`NonEncounterCardInfo`/`NonEncounterCardState`, `getNonEncounterCardDefinition` in common-ui) and synced via `CrewSystemState.nonEncounterCards`. Warp Away is a regular card added to helm's hand.
 - Game flow: `GamePhase` = sectorIntro|map|encounter|sectorOutro; ended/setup come from `GameStatus`. Game clock always advances; ship internals only tick during an encounter (`isSimulatingSystems`). `Ship.startEncounter()` resets timers and deals hands.
-- Content (faction/sector names, messages) is placeholder for now; real writing comes later.
 - Reviews happen on GitHub PRs; use `gh api graphql` reviewThreads (`isResolved:false`) to list open comments.
-- Many files have mixed line endings; git normalises, don't mass-reformat.
