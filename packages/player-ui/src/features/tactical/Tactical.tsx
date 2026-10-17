@@ -5,6 +5,7 @@ import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, ShipInfo, T
 import { useCallback } from 'react';
 import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
+import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { SectorMessagePrompt } from './components/SectorMessagePrompt';
 import { TacticalDisplay } from './components/TacticalDisplay';
 import type { Room } from '@colyseus/sdk';
@@ -51,7 +52,7 @@ export const Tactical = (props: Props) => {
 
     const tacticalState = localShip.tacticalState as unknown as Snapshot<TacticalSystemInfo>;
 
-    if (phase === 'map') {
+    if (isOutsideEncounter(phase)) {
         return (
             <NonEncounterDisplay
                 crew="tactical"
@@ -59,7 +60,11 @@ export const Tactical = (props: Props) => {
                 power={tacticalState.powerLevel}
                 deckSize={tacticalState.deck.length}
                 cardGeneration={tacticalState.cardGeneration}
-            />
+            >
+                {(phase === 'sectorIntro' || phase === 'sectorOutro') && (
+                    <SectorMessagePrompt message={message} onDismiss={dismissMessage} />
+                )}
+            </NonEncounterDisplay>
         );
     }
 
@@ -85,10 +90,6 @@ export const Tactical = (props: Props) => {
             viewer={viewer}
             pendingDrawChoice={tacticalState.pendingDrawChoice}
             resolveDrawChoice={resolveDrawChoice}
-        >
-            {(phase === 'sectorIntro' || phase === 'sectorOutro') && (
-                <SectorMessagePrompt message={message} onDismiss={dismissMessage} />
-            )}
-        </TacticalDisplay>
+        />
     );
 };

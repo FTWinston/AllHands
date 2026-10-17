@@ -1,7 +1,6 @@
 import { Fragment } from 'react';
 import { getEnvironmentLabel, getFactionLabel, getNodeKindLabel, getObjectiveLabel } from '../../sectors/utils/sectorLabels';
 import { RouteIcon } from '../components/CampaignCardIcon';
-import { Trait } from '../components/Trait';
 import type { CardDescription } from '../types/UICardDefinition';
 import type { RouteCardInfo } from 'common-data/features/cards/types/RouteCardInfo';
 
@@ -30,8 +29,6 @@ export function getRouteCardDescription(route: Readonly<RouteCardInfo>): CardDes
         name: route.title,
         description: (
             <>
-                <Trait trait="expendable" />
-                {' '}
                 <b>{getNodeKindLabel(route.nodeKind)}</b>
                 {getRouteCardDetails(route).map(detail => (
                     <Fragment key={detail.label}>
