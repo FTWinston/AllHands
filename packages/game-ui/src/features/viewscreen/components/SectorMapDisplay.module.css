@@ -1,0 +1,164 @@
+.root {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding: 1em 3em 1em;
+    font-size: clamp(0.875rem, 1.7vmin, 1.75rem);
+    color: var(--grey-light);
+    background-color: black;
+}
+
+.header {
+    text-align: center;
+}
+
+.title {
+    font-size: 2.2em;
+    line-height: 1.1;
+    color: var(--grey-lightest);
+}
+
+.subtitle {
+    font-size: 1.1em;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--primary-light);
+}
+
+.body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    gap: 2em;
+}
+
+.graph {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    max-width: none;
+}
+
+.edge {
+    stroke-width: 4;
+    stroke-linecap: round;
+}
+
+.edge_travelled {
+    stroke: var(--primary-mid);
+}
+
+.edge_available {
+    stroke: var(--grey-lightest);
+    stroke-dasharray: 10 8;
+}
+
+.edge_unreachable {
+    stroke: var(--grey-dark);
+    stroke-opacity: 0.6;
+}
+
+.node {
+    outline: none;
+}
+
+.glyph {
+    --kind-color: var(--grey-light);
+}
+
+.glyph.combat {
+    --kind-color: var(--danger-light);
+}
+
+.glyph.repair {
+    --kind-color: var(--good-light);
+}
+
+.glyph.boss {
+    --kind-color: var(--primary-light);
+}
+
+.shape {
+    fill: var(--grey-darkest);
+    stroke: var(--kind-color);
+    stroke-width: 4;
+}
+
+.mark {
+    fill: none;
+    stroke: var(--kind-color);
+    stroke-width: 5;
+    stroke-linecap: round;
+}
+
+.check {
+    fill: none;
+    stroke: var(--good-light);
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.halo {
+    fill: none;
+    stroke: var(--grey-lightest);
+    stroke-width: 4;
+    animation: pulse 1.4s ease-in-out infinite;
+}
+
+.currentRing {
+    fill: none;
+    stroke: var(--grey-lightest);
+    stroke-width: 4;
+    stroke-dasharray: 4 6;
+    stroke-linecap: round;
+}
+
+.glyph.visited {
+    opacity: 0.45;
+}
+
+.glyph.unreachable {
+    opacity: 0.35;
+}
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5em 2em;
+    font-size: 0.9em;
+}
+
+.legend li {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.legendGlyph {
+    width: 2em;
+    height: 2em;
+}
+
+.legendGlyph .glyph.unreachable {
+    opacity: 1;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        stroke-opacity: 1;
+    }
+
+    50% {
+        stroke-opacity: 0.25;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .halo {
+        animation: none;
+    }
+}

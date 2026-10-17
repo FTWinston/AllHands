@@ -21,8 +21,8 @@ export class GameState extends Schema {
     /** Null until the campaign starts. */
     @type('string') phase: GamePhase | null = null;
     @type('string') outcome: GameOutcome | null = null;
-    /** Server-only. The current sector's graph and position; null before the first sector starts. */
-    map: SectorMapState | null = null;
+    /** The current sector's graph and position (no node details); null before the first sector starts. */
+    @type(SectorMapState) map: SectorMapState | null = null;
     /** The sector intro/outro message awaiting tactical's dismissal; null when none. */
     @type(SectorMessageState) message: SectorMessageState | null = null;
     /** Server-only. Summary of the running encounter; null outside the encounter phase. */

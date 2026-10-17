@@ -1,31 +1,43 @@
+import { ArraySchema, Schema, type } from '@colyseus/schema';
+import { SectorMapNodeState } from './SectorMapNodeState';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
+import type { SectorMapInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 
 /**
- * The current sector's graph and position. Server-only: players learn about the available nodes solely via their route cards.
+ * The current sector's graph and position. Only the graph shape and position are synced;
+ * what each node holds stays server-side, so players only learn it through their route cards.
  */
-export class SectorMapState {
-    constructor(sector: SectorInfo, readonly sectorIndex: number, readonly sectorCount: number) {
+export class SectorMapState extends Schema implements SectorMapInfo {
+    constructor(sector: SectorInfo, sectorIndex: number, sectorCount: number) {
+        super();
         this.sectorId = sector.id;
         this.sectorName = sector.name;
-        this.nodes = sector.nodes;
+        this.sectorIndex = sectorIndex;
+        this.sectorCount = sectorCount;
+        this.nodes.push(...sector.nodes.map(node => new SectorMapNodeState(node)));
+        this.fullNodes = sector.nodes;
         this.startNodeIds = [...sector.startNodeIds];
         this.bossNodeId = sector.bossNodeId;
         this.setAvailableNodes(this.startNodeIds);
     }
 
-    readonly sectorId: string;
-    readonly sectorName: string;
-    readonly nodes: readonly SectorNodeInfo[];
-    currentNodeId: string | null = null;
-    readonly visitedNodeIds: string[] = [];
-    availableNodeIds: string[] = [];
+    @type('string') readonly sectorName: string;
+    @type('number') readonly sectorIndex: number;
+    @type('number') readonly sectorCount: number;
+    @type([SectorMapNodeState]) readonly nodes = new ArraySchema<SectorMapNodeState>();
+    @type('string') currentNodeId: string | null = null;
+    @type(['string']) readonly visitedNodeIds = new ArraySchema<string>();
+    @type(['string']) readonly availableNodeIds = new ArraySchema<string>();
 
+    /** Server-only: the full node data, including environment, faction and objective. */
+    private readonly fullNodes: readonly SectorNodeInfo[];
+    readonly sectorId: string;
     readonly startNodeIds: readonly string[];
     readonly bossNodeId: string;
 
     getNode(nodeId: string): SectorNodeInfo | undefined {
-        return this.nodes.find(node => node.id === nodeId);
+        return this.fullNodes.find(node => node.id === nodeId);
     }
 
     /** Moves the shared position to a node and makes its successors the next available choices. */
@@ -41,6 +53,7 @@ export class SectorMapState {
     }
 
     private setAvailableNodes(nodeIds: Iterable<string>) {
-        this.availableNodeIds = [...nodeIds];
+        this.availableNodeIds.clear();
+        this.availableNodeIds.push(...nodeIds);
     }
 }
