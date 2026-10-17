@@ -1,5 +1,5 @@
 import { IMap } from '@colyseus/react';
-import { ScenarioConfig } from '../../../types/ScenarioConfig';
+import { FactionConfig } from '../types/FactionConfig';
 import { FactionRelationshipMap, RelationshipViewer } from '../types/GameObjectInfo';
 import { RelationshipType } from '../types/RelationshipType';
 
@@ -43,8 +43,8 @@ export function getDisplayRelationship(
     return relationship ?? RelationshipType.Neutral;
 }
 
-/** Resolve a setup-time faction to its relationship with the scenario's player faction (for preloading). */
-export function resolveSetupRelationship(config: ScenarioConfig, faction: string | undefined): RelationshipType {
+/** Resolve a setup-time faction to its relationship with the player faction (for preloading). */
+export function resolveSetupRelationship(config: { playerFaction: string; factions: FactionConfig[] }, faction: string | undefined): RelationshipType {
     if (!faction) {
         return RelationshipType.None;
     }

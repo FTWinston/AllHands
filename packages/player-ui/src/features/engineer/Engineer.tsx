@@ -3,8 +3,10 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useCallback } from 'react';
+import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { EngineerDisplay } from './components/EngineerDisplay';
 import type { Room } from '@colyseus/sdk';
+import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = {
@@ -15,6 +17,8 @@ type Props = {
 export const Engineer = (props: Props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, Snapshot<GameObjectInfo>>;
     const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo>;
+
+    const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -42,6 +46,18 @@ export const Engineer = (props: Props) => {
     }
 
     const engineerState = localShip.engineerState;
+
+    if (phase === 'map') {
+        return (
+            <NonEncounterDisplay
+                crew="engineer"
+                onPause={pause}
+                power={engineerState.powerLevel}
+                deckSize={engineerState.deck.length}
+                cardGeneration={engineerState.cardGeneration}
+            />
+        );
+    }
     const systems = engineerState.systems;
 
     return (

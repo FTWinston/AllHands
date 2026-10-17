@@ -16,6 +16,10 @@ export const getTraitDescription = (trait: DisplayableTrait): string => {
             return 'Card shuffles back into the deck when played, instead of going on the end.';
         case 'rechargeable':
             return 'Weapon can be topped up with one more card after being fully charged. Doing so removes this trait.';
+        case 'priority':
+            return 'Cannot be discarded otherwise used, except by playing it.';
+        case 'unplayable':
+            return 'This card cannot be played.';
 
         // Weapon traits
         case 'energyWeapon':

@@ -8,14 +8,14 @@ import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
-import { ComponentProps, useCallback, useState } from 'react';
+import { ComponentProps, PropsWithChildren, useCallback, useState } from 'react';
 import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
 import { TacticalTargetList } from './TacticalTargetList';
 import { WeaponSlots } from './WeaponSlots';
 
-type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
+type Props = PropsWithChildren<Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cards: Snapshot<CardInstance[]>;
     slots: Snapshot<WeaponSlotInfo[]>;
@@ -25,10 +25,10 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     viewer: RelationshipViewer;
     pendingDrawChoice: Snapshot<CardInstance[]>;
     resolveDrawChoice: (cardId: number) => void;
-};
+}>;
 
 export const TacticalDisplay = (props: Props) => {
-    const { cards, slots, playCard, targets, subTargetsByTarget, viewer, pendingDrawChoice, resolveDrawChoice, ...headerProps } = props;
+    const { cards, slots, playCard, targets, subTargetsByTarget, viewer, pendingDrawChoice, resolveDrawChoice, children, ...headerProps } = props;
 
     useRootClassName(crewStyles.tactical);
 
@@ -90,6 +90,8 @@ export const TacticalDisplay = (props: Props) => {
 
                 <WeaponSlots slots={slots} firingSolution={firingSolution} />
             </CardUI>
+
+            {children}
         </Screen>
     );
 };

@@ -40,6 +40,12 @@ export class ReactorState extends SystemState {
     /** Cooldown tracking progress of drawing reactor cards. */
     private drawProgress: CooldownState;
 
+    /** Restart the card draw timer from the current game time, e.g. at the start of an encounter. */
+    resetCardGeneration() {
+        const currentTime = this.getGameState().currentTime;
+        this.drawProgress = new CooldownState(currentTime, currentTime + this.getDrawDuration());
+    }
+
     update(currentTime: number) {
         // Regularly draw cards. This system is the only one that does this on its own.
         if (this.drawProgress.endTime <= currentTime) {

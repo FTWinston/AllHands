@@ -5,6 +5,7 @@ import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
+import { UICardDefinition } from 'common-ui/features/cards/types/UICardDefinition';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { resolveParameter } from 'common-ui/types/resolveParameters';
 import { classNames } from 'common-ui/utils/classNames';
@@ -16,7 +17,6 @@ type Props = {
     className?: string;
     id: number;
     elementId?: string;
-    type: CardType;
     availablePower: number;
     index: number;
     targetType?: CardTargetType;
@@ -24,22 +24,28 @@ type Props = {
     highlighted?: boolean;
     modifiers?: CardParametersBase;
     extraTraits?: Partial<Record<CardTrait, ExtraTraitType>>;
+    type: CardType;
+    /** For cards that are not card definitions, which have no definition to look up by `type`. */
+    definition?: UICardDefinition;
 };
 
 export const DraggableCard: FC<Props> = (props) => {
     const activeCard = useActiveCard();
     const isOverValidTarget = useIsOverValidTarget();
 
-    const definition = getCardDefinition(props.type);
+    const definition = props.definition ?? getCardDefinition(props.type);
     const resolvedCost = resolveParameter('cost', definition.parameters, props.modifiers);
 
     const targetType = props.targetType ?? definition.targetType;
 
     const isDamaged = props.extraTraits?.['damaged'] !== undefined || props.extraTraits?.['critical'] !== undefined;
+    const isUnplayable = props.extraTraits?.['unplayable'] !== undefined;
+    const isPriority = definition.traits?.includes('priority') || props.extraTraits?.['priority'] !== undefined;
 
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: props.elementId ?? props.id.toString(),
-        data: { id: props.id, targetType, cardType: props.type, isDamaged },
+        disabled: isUnplayable,
+        data: { id: props.id, targetType, cardType: props.type, isDamaged, isPriority },
     });
 
     const dragDisplayMode = useDragDisplayMode();
@@ -76,6 +82,7 @@ export const DraggableCard: FC<Props> = (props) => {
             <CardDisplay
                 {...definition}
                 slotted={props.slotted}
+                disabled={isUnplayable}
                 highlighted={props.highlighted}
                 sufficientPower={props.slotted ? undefined : props.availablePower >= resolvedCost}
                 modifiers={props.modifiers}

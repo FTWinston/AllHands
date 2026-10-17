@@ -259,6 +259,11 @@ function loadCardDefinitions() {
                 return true;
             },
         },
+        warpAway: {
+            play: (gameState, ship) => {
+                return gameState.campaign?.warpAway(ship) === true;
+            },
+        },
         phaserCannon: {
             aiEvaluator: weaponLoadEvaluator('phaserCannon'),
             load: (_gameState, _ship, _slot) => {

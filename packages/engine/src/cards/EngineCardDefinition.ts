@@ -25,7 +25,7 @@ export type SharedEngineCardDefinition = {
 };
 
 export type NoTargetCardFunctionality = SharedEngineCardDefinition & {
-    play: (gameState: GameState, ship: Ship, parameters: CardParameters) => boolean;
+    play: (gameState: GameState, ship: Ship, parameters: CardParameters, card: CardState) => boolean;
 };
 
 export type ChoiceTargetCardFunctionality = SharedEngineCardDefinition;

@@ -11,6 +11,7 @@ export type ActiveCardInfo = {
     cardType: CardType;
     isAlternateDrag?: boolean;
     isDamaged?: boolean;
+    isPriority?: boolean;
 };
 
 type DragPosition = {
@@ -111,6 +112,7 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
                 cardType: data.cardType,
                 isAlternateDrag: data.isAlternateDrag,
                 isDamaged: data.isDamaged,
+                isPriority: data.isPriority,
             });
         }
 
@@ -168,13 +170,14 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
                 const dropData = event.over.data.current;
                 if (dropData) {
                     const targetType = dropData.targetType;
-                    const allowed = (targetType === activeCard.targetType || targetType === 'any')
+                    // Campaign cards can't be discarded ('any'), only played.
+                    const allowed = (targetType === activeCard.targetType || (targetType === 'any' && !activeCard.isPriority))
                         && (dropData.canAcceptCard === undefined || dropData.canAcceptCard(activeCard));
 
                     if (allowed) {
                         onCardDropped(cardId, activeCard.cardType, targetType, String(event.over.id));
 
-                        if (activeCard && dragPosition && targetType !== 'weapon-slot') {
+                        if (activeCard && dragPosition && targetType !== 'weapon-slot' && !activeCard.isPriority) {
                             setDroppedCardEffect({
                                 id: activeCard.id,
                                 cardType: activeCard.cardType,

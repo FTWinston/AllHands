@@ -1,0 +1,37 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+.groupHeader {
+    margin-bottom: 0.5em;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.encounter {
+    width: 100%;
+    text-align: left;
+    border-radius: 0.75em;
+}
+
+.encounter span {
+    display: block;
+}
+
+.name {
+    font-weight: 700;
+}
+
+.details {
+    font-size: 0.85em;
+    font-weight: 400;
+    opacity: 0.85;
+}

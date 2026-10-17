@@ -1013,6 +1013,12 @@ export const cardDefinitions = defineCardDefinitions({
         system: 'hull',
         parameters: { cost: 0 },
     },
+    warpAway: {
+        targetType: 'no-target',
+        system: 'helm',
+        traits: ['priority'],
+        parameters: { cost: 0 },
+    },
 } as const);
 
 export type CardType = keyof typeof cardDefinitions;

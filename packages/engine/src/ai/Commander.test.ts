@@ -160,7 +160,7 @@ describe('Commander', () => {
         const bb = createBlackboard(setup.goal);
         const commander = new Commander(ai, state, resolveAiConfig(setup as never));
 
-        // Resolving before the first update, as EndlessCombatEncounters does, keeps the goal.
+        // Resolving before the first update, as `Encounter.spawnObjects` does, keeps the goal.
         commander.resolveScenarioReferences();
         commander.update(bb, 0);
         expect(bb.goal).toBe('guard-ship');

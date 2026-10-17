@@ -1,5 +1,6 @@
 import { IArray, IMap } from '@colyseus/react';
 import { CardInstance } from 'src/features/cards/types/CardInstance';
+import { NonEncounterCardInfo } from 'src/features/cards/types/NonEncounterCardInfo';
 import { CardType, EnemyTargetedCardType, UntargetedCardType } from 'src/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'src/features/ships/types/SystemEffectDefinition';
@@ -52,6 +53,8 @@ export interface CrewSystemInfo extends SystemInfo {
     cardGeneration: Cooldown | null;
     /** Cards revealed from the draw pile awaiting a player choice; empty when there is none pending. */
     pendingDrawChoice: IArray<CardInstance>;
+    /** Shown instead of the system's display while outside an encounter; empty during one (see `NonEncounterCardInfo`). */
+    nonEncounterCards: IArray<NonEncounterCardInfo>;
 }
 
 export interface HelmSystemInfo extends CrewSystemInfo {

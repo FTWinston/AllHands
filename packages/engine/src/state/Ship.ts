@@ -98,6 +98,10 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     public tick(deltaTime: number, currentTime: number) {
         super.tick(deltaTime, currentTime);
 
+        if (!this.gameState.isSimulatingSystems) {
+            return;
+        }
+
         this.detectionTimer += deltaTime;
         if (this.detectionTimer >= this.detectionInterval) {
             this.detectionTimer = 0;
@@ -220,14 +224,29 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this.engineerState.updateCardGeneration();
     }
 
+    /** Start card draws and generation timers over, at the beginning of an encounter. */
+    startEncounter() {
+        this.detectionTimer = 0;
+        this.reactorState.resetCardGeneration();
+        this.helmState.resetCardGeneration();
+        this.scienceState.resetCardGeneration();
+        this.tacticalState.resetCardGeneration();
+        this.engineerState.resetCardGeneration();
+        for (const system of this.systems.values()) {
+            system.dealInitialHand();
+        }
+
+        this.updateCardGeneration();
+    }
+
     cleanupAfterEncounter() {
-        for (const system of Object.values(this.systems)) {
+        for (const system of this.systems.values()) {
             system.cleanupAfterEncounter();
         }
     }
 
     fullyRepair() {
-        for (const system of Object.values(this.systems)) {
+        for (const system of this.systems.values()) {
             system.fullyRepair();
         }
     }
