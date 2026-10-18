@@ -1,5 +1,6 @@
-import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { CrewRole, ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
+import { useState } from 'react';
 import { fn } from 'storybook/test';
 
 import { GameLobbyDisplay } from './GameLobbyDisplay';
@@ -95,5 +96,41 @@ export const MultipleCrewReady: Story = {
         tacticalOccupied: true,
         scienceOccupied: true,
         engineerOccupied: true,
+    },
+};
+
+export const Interactive: Story = {
+    args: {
+        crewId: soloCrewIdentifier,
+        role: null,
+        ready: false,
+        helmOccupied: false,
+        tacticalOccupied: true,
+        scienceOccupied: false,
+        engineerOccupied: false,
+    },
+    render: function Render(args) {
+        const [role, setRole] = useState<CrewRole | null>(args.role);
+        const [ready, setReady] = useState(args.ready);
+
+        // Tactical is held by someone else; other systems are occupied only by this player.
+        return (
+            <GameLobbyDisplay
+                {...args}
+                role={role}
+                ready={ready}
+                helmOccupied={role === ownHelmClientRole}
+                scienceOccupied={role === ownScienceClientRole}
+                engineerOccupied={role === ownEngineerClientRole}
+                onRoleChange={(newRole) => {
+                    args.onRoleChange(newRole);
+                    setRole(newRole === '' ? null : newRole);
+                }}
+                onReadyChange={(newReady) => {
+                    args.onReadyChange(newReady);
+                    setReady(newReady);
+                }}
+            />
+        );
     },
 };

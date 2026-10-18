@@ -74,14 +74,23 @@ for (let i = 0; i < TOTAL_PLAYERS; i++) {
         // Wait for the page to load.
         await page.waitForLoadState('load');
 
-        // Wait for buttons to load to ensure DOM is ready
-        // Using a generic 'button' selector, but waiting for at least 4 to exist.
-        await page.waitForFunction(() => document.querySelectorAll('button').length >= 4);
+        // Wait for the hand of system cards to be dealt.
+        const cards = page.locator('[aria-roledescription="draggable"]');
+        await cards.nth(3).waitFor();
 
-        // Click the specific role button (1st, 2nd, 3rd, 4th)
-        // .nth(i) is 0-indexed, so it clicks the 1st button for player 0, etc.
-        await page.locator('button').nth(i).click();
-        
+        // Drag the specific system card (1st, 2nd, 3rd, 4th) up out of the hand, to claim that role.
+        // Cards overlap their neighbour to the right, so grab each one near its left edge.
+        const box = await cards.nth(i).boundingBox();
+        if (!box) {
+            throw new Error('System card has no bounding box');
+        }
+        const x = box.x + box.width * 0.25;
+        const y = box.y + box.height / 2;
+        await page.mouse.move(x, y);
+        await page.mouse.down();
+        await page.mouse.move(x, 100, { steps: 20 });
+        await page.mouse.up();
+
         // Click the last button (the "Ready" button).
         await page.locator('button').last().click();
 

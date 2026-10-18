@@ -2,11 +2,13 @@ import { CrewRole, ownEngineerClientRole, ownHelmClientRole, ownScienceClientRol
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { Screen } from 'common-ui/components/Screen';
 import { ToggleButton } from 'common-ui/components/ToggleButton';
-import { HelmIcon, TacticalIcon, ScienceIcon, EngineeringIcon } from 'common-ui/icons/systems';
-
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
+import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
+import { DragCardProvider } from 'src/features/cardui/components/DragCardProvider';
 import styles from './GameLobbyDisplay.module.css';
-import { LobbyRole } from './LobbyRole';
+import { lobbyCards } from './lobbyCards';
+import { LobbyHand } from './LobbyHand';
+import { RoleSlot } from './RoleSlot';
 
 export type Props = {
     crewId: string;
@@ -33,77 +35,56 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
         onReadyChange,
     } = props;
 
-    return (
-        <Screen padded>
-            <h1>Choose your role</h1>
-            {crewId !== soloCrewIdentifier && (
-                <p>
-                    You are a member of crew
-                    {crewId}
-                    .
-                </p>
-            )}
-            <ul className={styles.roleList}>
-                <li className={styles.roleItem}>
-                    <LobbyRole
-                        name="Helm"
-                        icon={<HelmIcon />}
-                        occupied={helmOccupied}
-                        selected={role === ownHelmClientRole}
-                        onSelectionChange={(selected) => {
-                            onRoleChange(selected ? ownHelmClientRole : '');
-                        }}
-                    />
-                </li>
-                <li className={styles.roleItem}>
-                    <LobbyRole
-                        name="Tactical"
-                        icon={<TacticalIcon />}
-                        occupied={tacticalOccupied}
-                        selected={role === ownTacticalClientRole}
-                        onSelectionChange={(selected) => {
-                            onRoleChange(selected ? ownTacticalClientRole : '');
-                        }}
-                    />
-                </li>
-                <li className={styles.roleItem}>
-                    <LobbyRole
-                        name="Science"
-                        icon={<ScienceIcon />}
-                        occupied={scienceOccupied}
-                        selected={role === ownScienceClientRole}
-                        onSelectionChange={(selected) => {
-                            onRoleChange(selected ? ownScienceClientRole : '');
-                        }}
-                    />
-                </li>
-                <li className={styles.roleItem}>
-                    <LobbyRole
-                        name="Engineer"
-                        icon={<EngineeringIcon />}
-                        occupied={engineerOccupied}
-                        selected={role === ownEngineerClientRole}
-                        onSelectionChange={(selected) => {
-                            onRoleChange(selected ? ownEngineerClientRole : '');
-                        }}
-                    />
-                </li>
-            </ul>
-            <p>
-                When you&apos;re happy with your role, indicate that you are ready.
-                When every role is occupied and ready, the game will start.
-            </p>
+    const isOccupied = (cardRole: CrewRole) => {
+        switch (cardRole) {
+            case ownHelmClientRole: return helmOccupied;
+            case ownTacticalClientRole: return tacticalOccupied;
+            case ownScienceClientRole: return scienceOccupied;
+            case ownEngineerClientRole: return engineerOccupied;
+        }
+    };
 
-            <div className={styles.footer}>
-                <ToggleButton
-                    pressed={role !== null && ready}
-                    disabled={role === null}
-                    onPressedChanged={onReadyChange}
-                    className={styles.readyToggle}
-                >
-                    {role !== null && ready ? 'Ready' : 'Not Ready'}
-                </ToggleButton>
-            </div>
+    // The card for this player's own role is in the slot, rather than their hand.
+    const handCards = useMemo(() => lobbyCards.filter(card => card.id !== role), [role]);
+
+    const isReady = role !== null && ready;
+
+    return (
+        <Screen padded className={styles.screen}>
+            <DragCardProvider onCardDropped={cardId => onRoleChange(cardId as CrewRole)}>
+                <CardDropTarget id="noTarget" targetType="no-target" disabled={role !== null} />
+
+                <h1 className={styles.title}>Choose your role</h1>
+                {crewId !== soloCrewIdentifier && (
+                    <p>
+                        You are a member of crew
+                        {' '}
+                        {crewId}
+                        .
+                    </p>
+                )}
+
+                <p className={styles.instructions}>
+                    {role === null
+                        ? 'Drag a card up from your hand to claim that system. Damaged cards have already been claimed.'
+                        : 'When every system is claimed and everyone is ready, the game will start.'}
+                </p>
+
+                <RoleSlot role={role} canRelease={!isReady} onRelease={() => onRoleChange('')} />
+
+                <div className={styles.footer}>
+                    <ToggleButton
+                        pressed={isReady}
+                        disabled={role === null}
+                        onPressedChanged={onReadyChange}
+                        className={styles.readyToggle}
+                    >
+                        {isReady ? 'Ready' : 'Not Ready'}
+                    </ToggleButton>
+                </div>
+
+                <LobbyHand cards={handCards} isOccupied={isOccupied} hasRole={role !== null} />
+            </DragCardProvider>
         </Screen>
     );
 };
