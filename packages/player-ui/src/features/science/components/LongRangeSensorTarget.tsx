@@ -41,7 +41,7 @@ export const LongRangeSensorTarget = (props: Props) => (
 
             <dl className={styles.details}>
                 <dt>Type</dt>
-                <dd>{getNodeKindLabel(props.kind)}</dd>
+                <dd>{getNodeKindLabel(props.kind, props.elite)}</dd>
                 {getDestinationDetails(props).map(detail => (
                     <Fragment key={detail.label}>
                         <dt>{detail.label}</dt>

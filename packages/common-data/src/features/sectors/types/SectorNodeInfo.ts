@@ -18,6 +18,8 @@ export interface SectorNodeInfo {
     factionId?: string;
     /** Absent for repair nodes. */
     objective?: ObjectiveInfo;
+    /** A tougher combat encounter, bringing an extra heavy cruiser. Known from the outset, for route planning. */
+    elite?: boolean;
     /** Normalised 0..1 layout position; x runs start to boss. */
     x: number;
     y: number;

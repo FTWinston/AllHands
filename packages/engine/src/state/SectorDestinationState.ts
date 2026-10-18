@@ -11,6 +11,7 @@ export class SectorDestinationState extends Schema implements SectorDestinationI
         this.id = info.id;
         this.kind = info.kind;
         this.name = info.name;
+        this.elite = info.elite;
         this.environment = info.environment;
         this.factionId = info.factionId;
         this.objective = info.objective ? new ObjectiveState(info.objective) : undefined;
@@ -19,6 +20,7 @@ export class SectorDestinationState extends Schema implements SectorDestinationI
     @type('string') readonly id: string;
     @type('string') readonly kind: SectorNodeKind;
     @type('string') readonly name: string;
+    @type('boolean') readonly elite?: boolean;
     @type('string') readonly environment?: EnvironmentType;
     @type('string') readonly factionId?: string;
     @type(ObjectiveState) readonly objective?: ObjectiveState;

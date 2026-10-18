@@ -6,6 +6,8 @@ export interface SectorMapNodeInfo {
     id: string;
     kind: SectorNodeKind;
     name: string;
+    /** Whether a combat node is a tougher, elite encounter. Shown from the outset, for route planning. */
+    elite: boolean;
     /** Normalised 0..1 layout position; x runs start to boss, and y is one of a fixed set of evenly spaced rows. */
     x: number;
     y: number;

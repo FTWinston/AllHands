@@ -31,6 +31,14 @@ export function spawnEnemies(state: GameState, factionId: string, spawns: readon
     )));
 }
 
+/** What an elite encounter brings on top of its usual enemies. */
+export const eliteReinforcements: readonly EnemySpawn[] = [{ role: 'heavy' }];
+
+/** The spawns for a node: elite nodes add `eliteReinforcements`. */
+export function withEliteReinforcements(node: SectorNodeInfo, spawns: readonly EnemySpawn[]): readonly EnemySpawn[] {
+    return node.elite ? [...spawns, ...eliteReinforcements] : spawns;
+}
+
 /** True when no hostile ships remain in the game state. */
 export function allHostilesDestroyed(state: GameState): boolean {
     return getHostileShips(state).length === 0;
@@ -45,7 +53,7 @@ export abstract class CombatEncounter extends Encounter {
     }
 
     protected populate(): void {
-        this.spawnObjects(spawnEnemies(this.state, this.factionId, this.composition));
+        this.spawnObjects(spawnEnemies(this.state, this.factionId, withEliteReinforcements(this.node, this.composition)));
     }
 
     override start(): void {

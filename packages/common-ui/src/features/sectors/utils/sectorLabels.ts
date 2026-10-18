@@ -26,8 +26,8 @@ export function getEnvironmentLabel(environment: EnvironmentType): string {
     return environmentLabels[environment];
 }
 
-export function getNodeKindLabel(kind: SectorNodeKind): string {
-    return nodeKindLabels[kind];
+export function getNodeKindLabel(kind: SectorNodeKind, elite = false): string {
+    return elite ? `Elite ${nodeKindLabels[kind].toLowerCase()}` : nodeKindLabels[kind];
 }
 
 export function getObjectiveLabel(objective: ObjectiveInfo): string {

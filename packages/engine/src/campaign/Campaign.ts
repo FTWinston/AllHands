@@ -171,7 +171,7 @@ export class Campaign {
     private enterSector(index: number): void {
         const theme = this.themes[index];
         this.sectorIndex = index;
-        this.sector = generateSector(this.state.random, theme);
+        this.sector = generateSector(this.state.random, theme, index);
 
         this.state.map = new SectorMapState(this.sector, index, this.themes.length);
         this.state.message = new SectorMessageState({ kind: 'intro', title: this.sector.name, text: this.sector.introMessage });

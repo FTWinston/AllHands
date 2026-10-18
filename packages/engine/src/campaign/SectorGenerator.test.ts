@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { hasEncounter } from '../encounters/EncounterRegistry';
 import { seededRandom } from '../testUtils';
-import { generateSector, maxRouteChoices, sectorLayerCount, sectorRowCount } from './SectorGenerator';
+import { generateSector, getMaxEliteCount, maxMidRepairCount, maxRouteChoices, midRepairLayers, sectorLayerCount, sectorRowCount } from './SectorGenerator';
 import { sectorThemes } from './sectorThemes';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
 
@@ -18,9 +18,9 @@ function enumeratePaths(sector: SectorInfo): string[][] {
     return walk(sector.startNodeId);
 }
 
-describe.each(sectorThemes.map(theme => [theme.id, theme] as const))('generateSector (%s)', (_name, theme) => {
+describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorIndex] as const))('generateSector (%s)', (_name, theme, sectorIndex) => {
     it.each(seeds)('seed %i satisfies the graph invariants', (seed) => {
-        const sector = generateSector(seededRandom(seed), theme);
+        const sector = generateSector(seededRandom(seed), theme, sectorIndex);
         const nodes = new Map(sector.nodes.map(node => [node.id, node]));
 
         expect(nodes.size).toBe(sector.nodes.length);
@@ -84,7 +84,7 @@ describe.each(sectorThemes.map(theme => [theme.id, theme] as const))('generateSe
     });
 
     it.each(seeds)('seed %i puts each column on distinct rows, with no crossing links', (seed) => {
-        const sector = generateSector(seededRandom(seed), theme);
+        const sector = generateSector(seededRandom(seed), theme, sectorIndex);
         const nodes = new Map(sector.nodes.map(node => [node.id, node]));
 
         for (let layer = 0; layer < sectorLayerCount; layer++) {
@@ -103,7 +103,7 @@ describe.each(sectorThemes.map(theme => [theme.id, theme] as const))('generateSe
     });
 
     it.each(seeds)('seed %i lines nodes up with the middle of their inputs', (seed) => {
-        const sector = generateSector(seededRandom(seed), theme);
+        const sector = generateSector(seededRandom(seed), theme, sectorIndex);
         const inputs = new Map(sector.nodes.map(node => [node.id, sector.nodes.filter(other => other.next.includes(node.id))]));
 
         /** Level with the middle one of an odd number of rows, or between the middle two of an even number. */
@@ -126,8 +126,8 @@ describe.each(sectorThemes.map(theme => [theme.id, theme] as const))('generateSe
         }
     });
 
-    it.each(seeds)('seed %i puts the repair stops and boss on every path', (seed) => {
-        const sector = generateSector(seededRandom(seed), theme);
+    it.each(seeds)('seed %i starts every path at a repair station, and ends it with another then the boss', (seed) => {
+        const sector = generateSector(seededRandom(seed), theme, sectorIndex);
         const nodes = new Map(sector.nodes.map(node => [node.id, node]));
         const paths = enumeratePaths(sector);
 
@@ -138,30 +138,57 @@ describe.each(sectorThemes.map(theme => [theme.id, theme] as const))('generateSe
             expect(path.at(-1)).toBe(sector.bossNodeId);
 
             const kinds = path.map(id => nodes.get(id)!.kind);
-            expect(kinds.filter(kind => kind === 'repair')).toHaveLength(3);
             expect(kinds[0]).toBe('repair');
             expect(kinds.at(-2)).toBe('repair');
-
-            // The other repair node sits roughly halfway.
-            const middleRepair = kinds.indexOf('repair', 1);
-            expect(Math.abs(middleRepair - (path.length - 1) / 2)).toBeLessThanOrEqual(1);
-
-            // Three encounters before each repair stop.
-            expect(kinds.slice(1, middleRepair)).toEqual(['combat', 'combat', 'combat']);
-            expect(kinds.slice(middleRepair + 1, -2)).toEqual(['combat', 'combat', 'combat']);
         }
-
-        // A single mid repair node is enough to put one on every path, unless the routes after it need more than one node could offer.
-        const midRepairs = new Set(paths.map(path => path[4]));
-        const afterMidRepairs = new Set(paths.map(path => path[5]));
-        expect(midRepairs.size).toBe(Math.ceil(afterMidRepairs.size / maxRouteChoices));
 
         // The graph is bigger than any one path, so there are real choices.
         expect(sector.nodes.length).toBeGreaterThan(sectorLayerCount + 2);
     });
 
+    it.each(seeds)('seed %i scatters repair stations that routes can avoid, and elite encounters, never back to back', (seed) => {
+        const sector = generateSector(seededRandom(seed), theme, sectorIndex);
+        const nodes = new Map(sector.nodes.map(node => [node.id, node]));
+        const paths = enumeratePaths(sector);
+        const layerOf = (id: string) => Math.round(nodes.get(id)!.x * (sectorLayerCount - 1));
+
+        const midRepairs = sector.nodes.filter(node => node.kind === 'repair' && layerOf(node.id) > 0 && layerOf(node.id) < sectorLayerCount - 2);
+        const elites = sector.nodes.filter(node => node.elite);
+
+        expect(midRepairs.length).toBeGreaterThan(0);
+        expect(midRepairs.length).toBeLessThanOrEqual(maxMidRepairCount);
+        expect(elites.length).toBeGreaterThan(0);
+        expect(elites.length).toBeLessThanOrEqual(getMaxEliteCount(sectorIndex));
+
+        for (const repair of midRepairs) {
+            expect(layerOf(repair.id)).toBeGreaterThanOrEqual(midRepairLayers.first);
+            expect(layerOf(repair.id)).toBeLessThanOrEqual(midRepairLayers.last);
+        }
+
+        for (const elite of elites) {
+            expect(elite.kind).toBe('combat');
+        }
+
+        // No two repair stations or elites back to back.
+        for (const optional of [midRepairs, elites]) {
+            const ids = new Set(optional.map(node => node.id));
+            for (const node of optional) {
+                expect(node.next.some(next => ids.has(next))).toBe(false);
+            }
+        }
+
+        // Some route avoids every mid-sector repair station, though elites may be unavoidable.
+        const midRepairIds = new Set(midRepairs.map(node => node.id));
+        expect(paths.some(path => path.every(id => !midRepairIds.has(id)))).toBe(true);
+
+        for (const path of paths) {
+            const kinds = path.map(id => nodes.get(id)!.kind);
+            expect(kinds.some((kind, index) => kind === 'repair' && kinds[index + 1] === 'repair')).toBe(false);
+        }
+    });
+
     it.each(seeds)('seed %i gives every node coherent per-node data', (seed) => {
-        const sector = generateSector(seededRandom(seed), theme);
+        const sector = generateSector(seededRandom(seed), theme, sectorIndex);
 
         for (const node of sector.nodes) {
             expect(node.name.length).toBeGreaterThan(0);
@@ -187,11 +214,53 @@ describe.each(sectorThemes.map(theme => [theme.id, theme] as const))('generateSe
         }
     });
 
-    it('is deterministic for a seed and varies between seeds', () => {
-        const first = generateSector(seededRandom(7), theme);
-        expect(generateSector(seededRandom(7), theme)).toEqual(first);
+    it.each(seeds)('seed %i only offers choices that each have something the others lack, in what the map shows', (seed) => {
+        const sector = generateSector(seededRandom(seed), theme, sectorIndex);
+        const nodes = new Map(sector.nodes.map(node => [node.id, node]));
+        const symbolOf = (node: SectorInfo['nodes'][number]) => (node.elite ? 'elite' : node.kind);
 
-        const layouts = new Set(seeds.map(seed => JSON.stringify(generateSector(seededRandom(seed), theme).nodes)));
+        /** Every sequence of node types the map shows on the way from a node to the boss. */
+        const getFutures = (id: string) => new Set(enumeratePaths({ ...sector, startNodeId: id })
+            .map(path => path.map(pathId => symbolOf(nodes.get(pathId)!)).join(',')));
+
+        for (const node of sector.nodes) {
+            const choices = node.next.map(getFutures);
+            choices.forEach((futures, index) => {
+                for (const other of choices.filter((_, otherIndex) => otherIndex !== index)) {
+                    expect([...futures].some(future => !other.has(future))).toBe(true);
+                }
+            });
+        }
+    });
+
+    it('sometimes lets a route visit both mid-sector repair stations', () => {
+        const visitsBoth = seeds.some((seed) => {
+            const sector = generateSector(seededRandom(seed), theme, sectorIndex);
+            const nodes = new Map(sector.nodes.map(node => [node.id, node]));
+            return enumeratePaths(sector).some(path => path.slice(1, -2).filter(id => nodes.get(id)!.kind === 'repair').length === 2);
+        });
+
+        expect(visitsBoth).toBe(true);
+    });
+
+    it('is deterministic for a seed and varies between seeds', () => {
+        const first = generateSector(seededRandom(7), theme, sectorIndex);
+        expect(generateSector(seededRandom(7), theme, sectorIndex)).toEqual(first);
+
+        const layouts = new Set(seeds.map(seed => JSON.stringify(generateSector(seededRandom(seed), theme, sectorIndex).nodes)));
         expect(layouts.size).toBeGreaterThan(1);
+    });
+});
+
+describe('generateSector across sectors', () => {
+    it('puts more elites in later sectors', () => {
+        const averageElites = sectorThemes.map((theme, sectorIndex) => {
+            const counts = seeds.map(seed => generateSector(seededRandom(seed), theme, sectorIndex).nodes.filter(node => node.elite).length);
+            return counts.reduce((sum, count) => sum + count, 0) / counts.length;
+        });
+
+        for (let sectorIndex = 1; sectorIndex < averageElites.length; sectorIndex++) {
+            expect(averageElites[sectorIndex]).toBeGreaterThan(averageElites[sectorIndex - 1]);
+        }
     });
 });

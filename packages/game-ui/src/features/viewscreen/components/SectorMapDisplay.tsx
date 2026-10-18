@@ -51,7 +51,16 @@ const Edge: FC<{ edge: MapEdgeLayout; fromKind: SectorNodeKind; toKind: SectorNo
     );
 };
 
-const NodeGlyph: FC<{ kind: SectorNodeKind; status: MapNodeStatus; radius: number }> = ({ kind, status, radius }) => {
+/** Points of a spiked ring, for elite encounters: alternately out past `radius` and in a little way short of it. */
+function getSpikedPoints(radius: number, spikes: number) {
+    return Array.from({ length: spikes * 2 }, (_, i) => {
+        const angle = (Math.PI / spikes) * i;
+        const distance = radius * (i % 2 === 0 ? 1.15 : 0.9);
+        return `${Math.cos(angle) * distance},${Math.sin(angle) * distance}`;
+    }).join(' ');
+}
+
+const NodeGlyph: FC<{ kind: SectorNodeKind; elite?: boolean; status: MapNodeStatus; radius: number }> = ({ kind, elite, status, radius }) => {
     const inner = radius * 0.5;
 
     return (
@@ -61,7 +70,9 @@ const NodeGlyph: FC<{ kind: SectorNodeKind; status: MapNodeStatus; radius: numbe
 
             {kind === 'combat' && (
                 <>
-                    <circle className={styles.shape} r={radius} />
+                    {elite
+                        ? <polygon className={styles.shape} points={getSpikedPoints(radius, 8)} />
+                        : <circle className={styles.shape} r={radius} />}
                     <path className={styles.mark} d={`M${-inner} ${-inner}L${inner} ${inner}M${inner} ${-inner}L${-inner} ${inner}`} />
                 </>
             )}
@@ -94,14 +105,14 @@ const NodeGlyph: FC<{ kind: SectorNodeKind; status: MapNodeStatus; radius: numbe
     );
 };
 
-const LegendGlyph: FC<{ kind: SectorNodeKind; status: MapNodeStatus }> = ({ kind, status }) => (
+const LegendGlyph: FC<{ kind: SectorNodeKind; elite?: boolean; status: MapNodeStatus }> = ({ kind, elite, status }) => (
     <svg className={styles.legendGlyph} viewBox="-26 -26 52 52" aria-hidden="true">
-        <NodeGlyph kind={kind} status={status} radius={14} />
+        <NodeGlyph kind={kind} elite={elite} status={status} radius={14} />
     </svg>
 );
 
 function describeNode(node: SectorMapNodeInfo, status: MapNodeStatus): string {
-    return `${node.name}: ${getNodeKindLabel(node.kind)} (${statusLabels[status]})`;
+    return `${node.name}: ${getNodeKindLabel(node.kind, node.elite)} (${statusLabels[status]})`;
 }
 
 export const SectorMapDisplay: FC<Props> = ({ map }) => {
@@ -137,7 +148,7 @@ export const SectorMapDisplay: FC<Props> = ({ map }) => {
                                 className={styles.node}
                             >
                                 <title>{describeNode(node, status)}</title>
-                                <NodeGlyph kind={node.kind} status={status} radius={radius} />
+                                <NodeGlyph kind={node.kind} elite={node.elite} status={status} radius={radius} />
                                 {showLabel && (
                                     <text className={`${styles.nodeLabel} ${styles[status]}`} y={radius + 28} textAnchor="middle">
                                         {node.name}
@@ -153,6 +164,10 @@ export const SectorMapDisplay: FC<Props> = ({ map }) => {
                 <li>
                     <LegendGlyph kind="combat" status="unreachable" />
                     Combat
+                </li>
+                <li>
+                    <LegendGlyph kind="combat" elite status="unreachable" />
+                    Elite combat
                 </li>
                 <li>
                     <LegendGlyph kind="repair" status="unreachable" />

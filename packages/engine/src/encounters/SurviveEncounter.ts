@@ -1,5 +1,5 @@
 import { getHostileShips } from 'src/utils/shipQueries';
-import { spawnEnemies, type EnemySpawn } from './CombatEncounter';
+import { spawnEnemies, withEliteReinforcements, type EnemySpawn } from './CombatEncounter';
 import { Encounter } from './Encounter';
 import type { EnemyRole } from '../campaign/enemyTemplates';
 import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
@@ -38,7 +38,7 @@ export class SurviveEncounter extends Encounter {
 
     protected populate(): void {
         const opening: EnemySpawn[] = [{ role: 'fighter' }, { role: 'scout' }];
-        this.spawnObjects(spawnEnemies(this.state, this.factionId, opening));
+        this.spawnObjects(spawnEnemies(this.state, this.factionId, withEliteReinforcements(this.node, opening)));
     }
 
     override tick(deltaTime: number): void {

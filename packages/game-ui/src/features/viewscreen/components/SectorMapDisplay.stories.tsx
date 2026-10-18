@@ -3,8 +3,8 @@ import { SectorMapDisplay as Component } from './SectorMapDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { SectorMapInfo, SectorMapNodeInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 
-/** Positions a node on the map's grid of 7 rows. */
-const at = (x: number, row: number) => ({ x, y: row / 6 });
+/** Positions a regular node on the map's grid of 7 rows. */
+const at = (x: number, row: number) => ({ x, y: row / 6, elite: false });
 
 const nodes: SectorMapNodeInfo[] = [
     { id: 'start', kind: 'repair', name: 'Waypoint Station', ...at(0, 3), next: ['n1a', 'n1b', 'n1c'] },
@@ -12,9 +12,9 @@ const nodes: SectorMapNodeInfo[] = [
     { id: 'n1b', kind: 'combat', name: 'Ambush', ...at(0.25, 3), next: ['n2a', 'n2b'] },
     { id: 'n1c', kind: 'combat', name: 'Survive', ...at(0.25, 5), next: ['n2b'] },
     { id: 'n2a', kind: 'repair', name: 'Repair Station', ...at(0.5, 1), next: ['n3a', 'n3b'] },
-    { id: 'n2b', kind: 'combat', name: 'Hold the Line', ...at(0.5, 4), next: ['n3b', 'n3c'] },
+    { id: 'n2b', kind: 'combat', name: 'Hold the Line', ...at(0.5, 4), elite: true, next: ['n3b', 'n3c'] },
     { id: 'n3a', kind: 'combat', name: 'Assault', ...at(0.75, 0), next: ['boss'] },
-    { id: 'n3b', kind: 'combat', name: 'Escort', ...at(0.75, 2), next: ['boss'] },
+    { id: 'n3b', kind: 'combat', name: 'Escort', ...at(0.75, 2), elite: true, next: ['boss'] },
     { id: 'n3c', kind: 'repair', name: 'Repair Station', ...at(0.75, 6), next: ['boss'] },
     { id: 'boss', kind: 'boss', name: 'Placeholder Boss A', ...at(1, 3), next: [] },
 ];

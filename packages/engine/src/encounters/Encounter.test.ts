@@ -1,7 +1,7 @@
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
-import { getDefaultNode, getDevEncounterList, getEncounterIds } from './EncounterRegistry';
+import { createEncounter, getDefaultNode, getDevEncounterList, getEncounterIds } from './EncounterRegistry';
 import { RepairStationEncounter } from './RepairStationEncounter';
 import { defaultSurviveDurationMs } from './SurviveEncounter';
 import type { Ship } from 'src/state/Ship';
@@ -221,5 +221,25 @@ describe('RepairStationEncounter', () => {
 
         campaign.devLoadEncounter('repairStation');
         expect(totalHealth(ships[0])).toBe(totalMaxHealth(ships[0]));
+    });
+});
+
+describe('elite encounters', () => {
+    it.each(['skirmish', 'ambush', 'assault', 'escort', 'survive'])('%s brings an extra heavy cruiser when elite', (encounterId) => {
+        const { state } = createCampaign();
+        const spawnHostiles = (elite: boolean) => {
+            for (const ship of getHostileShips(state)) {
+                state.remove(ship);
+            }
+
+            createEncounter(state, { ...getDefaultNode(encounterId), elite }).start();
+            return getHostileShips(state).map(ship => ship.name);
+        };
+
+        const regular = spawnHostiles(false);
+        const elite = spawnHostiles(true);
+
+        expect(elite).toHaveLength(regular.length + 1);
+        expect(elite.filter(name => name.endsWith('Heavy Cruiser'))).toHaveLength(regular.filter(name => name.endsWith('Heavy Cruiser')).length + 1);
     });
 });
