@@ -4,13 +4,13 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { SectorMapInfo, SectorMapNodeInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 
 const nodes: SectorMapNodeInfo[] = [
-    { id: 'n0a', kind: 'combat', x: 0, y: 0.25, next: ['n1a', 'n1b'] },
-    { id: 'n0b', kind: 'combat', x: 0, y: 0.75, next: ['n1b'] },
-    { id: 'n1a', kind: 'repair', x: 0.33, y: 0.15, next: ['n2a'] },
-    { id: 'n1b', kind: 'combat', x: 0.33, y: 0.7, next: ['n2a', 'n2b'] },
-    { id: 'n2a', kind: 'combat', x: 0.66, y: 0.3, next: ['boss'] },
-    { id: 'n2b', kind: 'repair', x: 0.66, y: 0.85, next: ['boss'] },
-    { id: 'boss', kind: 'boss', x: 1, y: 0.5, next: [] },
+    { id: 'n0a', kind: 'combat', name: 'Skirmish', x: 0, y: 0.25, next: ['n1a', 'n1b'] },
+    { id: 'n0b', kind: 'combat', name: 'Ambush', x: 0, y: 0.75, next: ['n1b'] },
+    { id: 'n1a', kind: 'repair', name: 'Repair Station', x: 0.33, y: 0.15, next: ['n2a'] },
+    { id: 'n1b', kind: 'combat', name: 'Hold the Line', x: 0.33, y: 0.7, next: ['n2a', 'n2b'] },
+    { id: 'n2a', kind: 'combat', name: 'Assault', x: 0.66, y: 0.3, next: ['boss'] },
+    { id: 'n2b', kind: 'repair', name: 'Repair Station', x: 0.66, y: 0.85, next: ['boss'] },
+    { id: 'boss', kind: 'boss', name: 'Placeholder Boss A', x: 1, y: 0.5, next: [] },
 ];
 
 const baseMap: SectorMapInfo = {

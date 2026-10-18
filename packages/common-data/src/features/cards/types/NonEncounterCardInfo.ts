@@ -9,7 +9,5 @@ export type NonEncounterCardKind = 'route';
 export interface NonEncounterCardInfo {
     id: number;
     kind: NonEncounterCardKind;
-    /** False for cards that are shown for information only. */
-    playable: boolean;
     route: RouteCardInfo;
 }

@@ -366,7 +366,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             }
 
             const card = this.getSystemState(ship, clientRole).nonEncounterCards.find(candidate => candidate.id === message?.cardId);
-            if (!card?.playable) {
+            if (!card) {
                 console.warn(`Rejected non-encounter card ${message?.cardId} from ${client.sessionId}`);
                 return;
             }

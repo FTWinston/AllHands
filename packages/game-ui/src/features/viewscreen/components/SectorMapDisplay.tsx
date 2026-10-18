@@ -1,7 +1,8 @@
+import { getNodeKindLabel } from 'common-ui/features/sectors/utils/sectorLabels';
 import { FC } from 'react';
 import { layoutSectorMap, MapNodeStatus } from '../utils/layoutSectorMap';
 import styles from './SectorMapDisplay.module.css';
-import type { SectorMapInfo } from 'common-data/features/sectors/types/SectorMapInfo';
+import type { SectorMapInfo, SectorMapNodeInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 
 type Props = {
@@ -72,8 +73,8 @@ const LegendGlyph: FC<{ kind: SectorNodeKind; status: MapNodeStatus }> = ({ kind
     </svg>
 );
 
-function describeNode(kind: SectorNodeKind, status: MapNodeStatus): string {
-    return `${kind} (${statusLabels[status]})`;
+function describeNode(node: SectorMapNodeInfo, status: MapNodeStatus): string {
+    return `${node.name}: ${getNodeKindLabel(node.kind)} (${statusLabels[status]})`;
 }
 
 export const SectorMapDisplay: FC<Props> = ({ map }) => {
@@ -103,16 +104,23 @@ export const SectorMapDisplay: FC<Props> = ({ map }) => {
 
                     {layout.nodes.map(({ node, status, x, y }) => {
                         const radius = getRadius(node.kind);
+                        const showLabel = status === 'available' || status === 'current' || node.kind === 'boss';
 
                         return (
                             <g
                                 key={node.id}
                                 transform={`translate(${x} ${y})`}
                                 role="img"
-                                aria-label={describeNode(node.kind, status)}
+                                aria-label={describeNode(node, status)}
                                 className={styles.node}
                             >
+                                <title>{describeNode(node, status)}</title>
                                 <NodeGlyph kind={node.kind} status={status} radius={radius} />
+                                {showLabel && (
+                                    <text className={`${styles.nodeLabel} ${styles[status]}`} y={radius + 34} textAnchor="middle">
+                                        {node.name}
+                                    </text>
+                                )}
                             </g>
                         );
                     })}

@@ -86,7 +86,7 @@ describe('Campaign phase flow', () => {
         expect(campaign.dismissMessage()).toBe(false);
     });
 
-    it('offers each of the next nodes as a helm route card and a science preview card', () => {
+    it('offers each of the next nodes as a helm route card and a science long range sensor reading', () => {
         const { state, campaign, ships } = createCampaign();
         campaign.dismissMessage();
 
@@ -94,24 +94,21 @@ describe('Campaign phase flow', () => {
         const [ship] = ships;
 
         const helmCards = [...ship.helmState.nonEncounterCards];
-        const scienceCards = [...ship.scienceState.nonEncounterCards];
         expect(helmCards).toHaveLength(available.length);
-        expect(scienceCards).toHaveLength(available.length);
 
         for (const card of helmCards) {
             expect(card.kind).toBe('route');
-            expect(card.route).toMatchObject({ detail: 'basic' });
             expect(available).toContain(card.route!.nodeId);
-            expect(card.playable).toBe(true);
         }
 
-        for (const card of scienceCards) {
-            expect(card.kind).toBe('route');
-            expect(card.route).toMatchObject({ detail: 'full' });
-            expect(available).toContain(card.route!.nodeId);
-            expect(card.playable).toBe(false);
+        const destinations = [...ship.scienceState.destinations];
+        expect(destinations.map(destination => destination.id).sort()).toEqual([...available].sort());
+        for (const destination of destinations) {
+            const node = state.map!.getNode(destination.id)!;
+            expect(destination).toMatchObject({ kind: node.kind, name: node.name, environment: node.environment, factionId: node.factionId });
         }
 
+        expect(ship.scienceState.nonEncounterCards).toHaveLength(0);
         expect(ship.tacticalState.nonEncounterCards).toHaveLength(0);
         expect(ship.engineerState.nonEncounterCards).toHaveLength(0);
         expect(helmCards.map(card => card.route!.nodeId).sort()).toEqual([...available].sort());
@@ -150,7 +147,7 @@ describe('Campaign phase flow', () => {
 
         campaign.selectRoute(ship, state.map!.availableNodeIds[0]);
         expect(ship.helmState.nonEncounterCards).toHaveLength(0);
-        expect(ship.scienceState.nonEncounterCards).toHaveLength(0);
+        expect(ship.scienceState.destinations).toHaveLength(0);
 
         // The first encounter tick has a normal delta, and the reactor starts a fresh draw cycle from now.
         expect(ship.helmState.hand.length).toBeGreaterThan(0);
@@ -216,16 +213,6 @@ describe('Campaign phase flow', () => {
         const stranger = new PlayerShip(state, playerShipSetup);
         expect(campaign.warpAway(stranger)).toBe(false);
         expect(state.phase).toBe('encounter');
-    });
-
-    it('only offers playable route cards to helm', () => {
-        const { state, campaign, ships } = createCampaign();
-        const [ship] = ships;
-        campaign.dismissMessage();
-
-        expect(ship.helmState.nonEncounterCards.every(card => card.playable)).toBe(true);
-        expect(ship.scienceState.nonEncounterCards.some(card => card.playable)).toBe(false);
-        expect(state.phase).toBe('map');
     });
 
     it('playing a helm route card starts that encounter', () => {

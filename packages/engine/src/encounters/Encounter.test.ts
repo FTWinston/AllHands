@@ -83,15 +83,16 @@ describe('devLoadEncounter', () => {
         expect(state.phase).toBe('sectorIntro');
     });
 
-    it('clears the route cards when loaded from the map', () => {
+    it('clears the route cards and destinations when loaded from the map', () => {
         const { state, campaign, ships } = createCampaign();
         campaign.dismissMessage();
         expect(ships[0].helmState.nonEncounterCards.length).toBeGreaterThan(0);
+        expect(ships[0].scienceState.destinations.length).toBeGreaterThan(0);
 
         campaign.devLoadEncounter('skirmish');
 
         expect(ships[0].helmState.nonEncounterCards).toHaveLength(0);
-        expect(ships[0].scienceState.nonEncounterCards).toHaveLength(0);
+        expect(ships[0].scienceState.destinations).toHaveLength(0);
         expect(state.phase).toBe('encounter');
     });
 

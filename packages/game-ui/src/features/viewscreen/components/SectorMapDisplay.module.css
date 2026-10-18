@@ -124,6 +124,18 @@
     opacity: 0.35;
 }
 
+.nodeLabel {
+    font-size: 22px;
+    fill: var(--grey-light);
+    pointer-events: none;
+}
+
+.nodeLabel.available,
+.nodeLabel.current {
+    fill: var(--grey-lightest);
+    font-weight: 700;
+}
+
 .legend {
     display: flex;
     flex-wrap: wrap;

@@ -3,6 +3,7 @@ import { DeflectorEffectDelivery, DeflectorEffectModifier, DeflectorEffectSubsta
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType, EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { SectorDestinationInfo } from 'common-data/features/sectors/types/SectorDestinationInfo';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { engineerSystem, helmSystem, scienceSystem, shipSystems, ShipSystem, tacticalSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemSetupInfo, ScienceSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
@@ -11,6 +12,7 @@ import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { resolveParameters } from 'src/cards/resolveParameters';
 import { CardState } from 'src/state/CardState';
 import { GameState } from 'src/state/GameState';
+import { SectorDestinationState } from 'src/state/SectorDestinationState';
 import { Ship } from 'src/state/Ship';
 import { CrewSystemState } from '../CrewSystemState';
 import { ScannedEngineerState } from './ScannedEngineerState';
@@ -57,6 +59,14 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
      * Sent to the client so the Science display can show the correct layout for any viewed ship.
      */
     @type({ map: ScannedSystemOrderState }) systemOrderByTarget = new MapSchema<ScannedSystemOrderState>();
+
+    /** Long range sensor readings of the nodes the ship can travel to next; empty except on the sector map. */
+    @type([SectorDestinationState]) destinations = new ArraySchema<SectorDestinationState>();
+
+    setDestinations(destinations: readonly SectorDestinationInfo[]) {
+        this.destinations.clear();
+        this.destinations.push(...destinations.map(destination => new SectorDestinationState(destination)));
+    }
 
     /**
      * Unsubscribe from all scans targeting the given ship, e.g. when it goes out of range or is destroyed.

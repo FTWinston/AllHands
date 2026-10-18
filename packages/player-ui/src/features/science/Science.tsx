@@ -6,6 +6,7 @@ import { useCallback } from 'react';
 import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
+import { LongRangeSensorList } from './components/LongRangeSensorList';
 import { ScienceDisplay } from './components/ScienceDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
@@ -53,10 +54,6 @@ export const Science = (props: Props) => {
         props.room.send('unmountDeflector', { slot: 'delivery' });
     }, [props.room]);
 
-    const playNonEncounterCard = useCallback((cardId: number) => {
-        props.room.send('playNonEncounterCard', { cardId });
-    }, [props.room]);
-
     const resolveDrawChoice = useCallback((cardId: number) => {
         props.room.send('resolveDrawChoice', { cardId });
     }, [props.room]);
@@ -67,18 +64,18 @@ export const Science = (props: Props) => {
 
     const scienceState = localShip.scienceState;
 
-    // Outside an encounter, these cards are offered instead of the usual display.
-    if (isOutsideEncounter(phase) || scienceState.nonEncounterCards.length > 0) {
+    // Outside an encounter, long range sensors show what the next destinations hold, instead of the usual display.
+    if (isOutsideEncounter(phase)) {
         return (
             <NonEncounterDisplay
                 crew="science"
-                cards={scienceState.nonEncounterCards}
-                playCard={playNonEncounterCard}
                 onPause={pause}
                 power={scienceState.powerLevel}
                 deckSize={scienceState.deck.length}
                 cardGeneration={scienceState.cardGeneration}
-            />
+            >
+                {phase === 'map' && <LongRangeSensorList destinations={scienceState.destinations} />}
+            </NonEncounterDisplay>
         );
     }
 

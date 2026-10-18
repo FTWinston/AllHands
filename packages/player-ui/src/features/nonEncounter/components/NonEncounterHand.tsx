@@ -1,4 +1,3 @@
-import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { NonEncounterCardInfo } from 'common-data/features/cards/types/NonEncounterCardInfo';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
@@ -38,7 +37,6 @@ export const NonEncounterHand: FC<Props> = ({ cards, system }) => {
                     definition={getNonEncounterCardDefinition(card, system)}
                     availablePower={0}
                     index={index}
-                    extraTraits={card.playable ? undefined : { unplayable: ExtraTraitType.Normal }}
                     className={classNames(
                         cardHandStyles.card,
                         removingCardIds.has(card.id) ? cardHandStyles.removing : inHandCardIds.has(card.id) ? null : cardHandStyles.adding

@@ -1,10 +1,11 @@
 import type { SectorNodeKind } from './SectorNodeInfo';
 import type { IArray } from '@colyseus/react';
 
-/** A node as the viewscreen map draws it: layout and links only. What a node holds is only revealed by science's route cards. */
+/** A node as the viewscreen map draws it: name, layout and links only. What a node holds is only revealed by science's long range sensors. */
 export interface SectorMapNodeInfo {
     id: string;
     kind: SectorNodeKind;
+    name: string;
     /** Normalised 0..1 layout position; x runs start to boss. */
     x: number;
     y: number;

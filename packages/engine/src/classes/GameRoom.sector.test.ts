@@ -87,9 +87,9 @@ describe('GameRoom campaign messages', () => {
         const target = ship.helmState.nonEncounterCards[0];
         const targetNodeId = target.route!.nodeId;
 
-        await playRoute('science', ship.scienceState.nonEncounterCards[0].id);
+        // Other crew have no such cards, so even helm's card id means nothing to them.
+        await playRoute('science', target.id);
         expect(state.phase).toBe('map');
-        // Engineer has no such cards, so even helm's card id means nothing to them.
         await playRoute('engineer', target.id);
         expect(state.phase).toBe('map');
 
@@ -128,16 +128,6 @@ describe('GameRoom campaign messages', () => {
         expect(ship.helmState.hand.some(card => card.type === 'warpAway')).toBe(false);
     });
 
-    it('does not let science preview cards be played', async () => {
-        const { room, state, ship, clients } = await startGame();
-        await send(room, clients.tactical, 'dismissMessage');
-
-        const [preview] = ship.scienceState.nonEncounterCards;
-        await send(room, clients.science, 'playNonEncounterCard', { cardId: preview.id });
-
-        expect(state.phase).toBe('map');
-        expect(ship.scienceState.nonEncounterCards).toHaveLength(state.map!.availableNodeIds.length);
-    });
     if (DEV_TOOLS_ENABLED) {
         it('dev client can start any encounter from the lobby', async () => {
             const room = rooms.getRoom();

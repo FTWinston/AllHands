@@ -14,7 +14,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'handSize'> & {
     /** Cards to offer instead of the crew's usual display; none for crew that only wait on the sector map. */
     cards?: Snapshot<NonEncounterCardInfo[]>;
     playCard?: (cardId: number) => void;
-    /** Rendered over the display, e.g. a sector message prompt. */
+    /** Rendered within the display, e.g. science's long range sensors or tactical's sector message prompt. */
     children?: ReactNode;
 };
 

@@ -6,7 +6,7 @@ import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNo
 
 /**
  * The current sector's graph and position. Only the graph shape and position are synced;
- * what each node holds stays server-side, so players only learn it through their route cards.
+ * what each node holds stays server-side, so players only learn it through science's long range sensors.
  */
 export class SectorMapState extends Schema implements SectorMapInfo {
     constructor(sector: SectorInfo, sectorIndex: number, sectorCount: number) {

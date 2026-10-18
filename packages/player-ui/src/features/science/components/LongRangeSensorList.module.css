@@ -1,0 +1,10 @@
+.root {
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    margin: 0.5em 0 0;
+    text-align: center;
+    color: var(--grey-lightest);
+}

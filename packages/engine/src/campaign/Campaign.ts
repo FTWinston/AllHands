@@ -191,7 +191,7 @@ export class Campaign {
     }
 
     /**
-     * The map shows each helm and science a route card per available node, instead of their displays.
+     * The map gives each helm a route card per available node, and shows what those nodes hold on science's long range sensors.
      * Hands are already empty here (see `teardownEncounter`), and no cards are drawn until the next encounter because game time stops.
      */
     private showMap(): void {
@@ -199,8 +199,8 @@ export class Campaign {
         const nodes = this.sector!.nodes.filter(node => map.availableNodeIds.includes(node.id));
 
         for (const ship of getPlayerShips(this.state)) {
-            ship.helmState.setNonEncounterCards(createRouteCards(ship, nodes, 'basic'));
-            ship.scienceState.setNonEncounterCards(createRouteCards(ship, nodes, 'full'));
+            ship.helmState.setNonEncounterCards(createRouteCards(ship, nodes));
+            ship.scienceState.setDestinations(nodes);
         }
 
         this.state.phase = 'map';
@@ -209,7 +209,7 @@ export class Campaign {
     private startEncounter(node: SectorNodeInfo): void {
         for (const ship of getPlayerShips(this.state)) {
             ship.helmState.setNonEncounterCards([]);
-            ship.scienceState.setNonEncounterCards([]);
+            ship.scienceState.setDestinations([]);
             ship.startEncounter();
             ship.setMotion(new MotionKeyframe(
                 this.state.currentTime,
