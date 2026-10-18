@@ -1,0 +1,68 @@
+.rootOuter {
+    aspect-ratio: 1 / 1;
+    height: min(calc(100vw - var(--scroll-padding) * 2), calc(40dvh - 4em));
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    align-items: stretch;
+    justify-items: stretch;
+}
+
+.rootInner {
+    font-size: 7cqw; /* Keep everything relative to the container width, as with science targets. */
+    background-color: var(--primary-darkest-muted);
+    border: solid var(--color-mid) 0.1em;
+    border-radius: 3em;
+    corner-shape: squircle;
+    padding: 0.5em 1em;
+    display: grid;
+    grid-template-columns: 1fr max-content;
+    grid-template-rows: min-content minmax(0, 1fr) min-content;
+    grid-template-areas:
+        "name count"
+        "image image"
+        "details details";
+    align-items: center;
+    min-height: 0;
+}
+
+.name {
+    font-size: 1.25em;
+    grid-area: name;
+    color: var(--grey-lightest);
+}
+
+.count {
+    grid-area: count;
+    justify-self: end;
+}
+
+.image {
+    grid-area: image;
+    justify-self: center;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    min-height: 0;
+    padding: 0.25em 0;
+}
+
+.details {
+    grid-area: details;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.1em 0.75em;
+    font-size: 0.8em;
+    margin: 0 0 0.5em;
+    padding-left: 0.5em;
+    border-left: 0.25em solid var(--color-light);
+
+    dt {
+        color: var(--grey-mid);
+    }
+
+    dd {
+        margin: 0;
+        color: var(--grey-lightest);
+    }
+}

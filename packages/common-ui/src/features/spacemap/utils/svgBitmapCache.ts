@@ -1,9 +1,5 @@
-import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
-import { resolveSetupRelationship } from 'common-data/features/space/utils/getDisplayRelationship';
 import { svgStrings } from '../../../objects/strings';
-import { getColors } from './relationshipColors';
 import type { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
-import type { ScenarioConfig } from 'common-data/types/ScenarioConfig';
 
 const BITMAP_SIZE = 128;
 
@@ -69,24 +65,5 @@ export function preloadSvgBitmaps(
         for (const [mainColor, highlight] of colorPairs) {
             getSvgBitmap(appearance, mainColor, highlight);
         }
-    }
-}
-
-export function preloadFromScenario(config: ScenarioConfig): void {
-    const appearanceColorPairs = config.encounters.flatMap(encounter =>
-        encounter.enemies.map(enemy => [enemy.appearance, resolveSetupRelationship(config, enemy.faction)] as const)
-    );
-
-    const unique = new Map<string, [ObjectAppearance, RelationshipType]>();
-    for (const [appearance, relationship] of appearanceColorPairs) {
-        const key = `${appearance}-${relationship}`;
-        if (!unique.has(key)) {
-            unique.set(key, [appearance, relationship]);
-        }
-    }
-
-    for (const [appearance, relationship] of unique.values()) {
-        const colorPair = getColors(relationship);
-        getSvgBitmap(appearance, colorPair[0], colorPair[1]);
     }
 }

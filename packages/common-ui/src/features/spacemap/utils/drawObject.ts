@@ -4,7 +4,7 @@ import { getColors } from './relationshipColors';
 import { getSvgBitmap } from './svgBitmapCache';
 
 export { getColors } from './relationshipColors';
-export { preloadFromScenario, preloadSvgBitmaps } from './svgBitmapCache';
+export { preloadSvgBitmaps } from './svgBitmapCache';
 
 export function drawObject(
     ctx: CanvasRenderingContext2D,

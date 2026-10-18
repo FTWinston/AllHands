@@ -25,7 +25,7 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
     @type('string') public readonly id: string;
 
     /**
-     * Scenario-authored id from the scenario file's `id` field, if any (see
+     * Scenario-authored id from the setup info's `id` field, if any (see
      * `GameObjectSetupInfo.id`). Used only to resolve scenario-authored references; not sent
      * to clients.
      */
@@ -55,7 +55,7 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
     /**
      * Resolves any scenario-authored references this object holds (e.g. an AI ship's
      * `guard-ship` goal) from `scenarioId`s to real runtime ids, now that the rest of its
-     * batch (see `GameRules.spawnObjects`) has been created. No-op by default; overridden
+     * batch (see `Encounter.spawnObjects`) has been created. No-op by default; overridden
      * where relevant.
      */
     resolveScenarioReferences(): void {}

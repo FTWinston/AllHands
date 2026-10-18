@@ -3,16 +3,15 @@ import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { interpolatePosition, interpolateVector } from 'common-data/features/space/utils/interpolate';
-import { Button } from 'common-ui/components/Button';
 import { Screen } from 'common-ui/components/Screen';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
 import { drawWeaponArcs, ENEMY_WEAPON_ARC_COLORS, OWN_WEAPON_ARC_COLORS } from 'common-ui/features/spacemap/utils/drawWeaponArcs';
 import { drawWeaponEffects } from 'common-ui/features/spacemap/utils/drawWeaponEffects';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
-import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
 import { FC, RefObject, PropsWithChildren, useCallback, useRef } from 'react';
 import styles from './ViewscreenDisplay.module.css';
+import { ViewscreenMenuButton } from './ViewscreenMenuButton';
 import type { Snapshot } from '@colyseus/react';
 
 type Props = PropsWithChildren<{
@@ -71,13 +70,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
 
     return (
         <Screen>
-            <Button
-                className={styles.menuButton}
-                title="Menu"
-                onClick={props.showMenu}
-            >
-                <MenuIcon className={styles.menuButtonIcon} />
-            </Button>
+            <ViewscreenMenuButton showMenu={props.showMenu} />
 
             <SpaceMap
                 className={styles.spaceMap}

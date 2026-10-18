@@ -1,0 +1,38 @@
+.prompt {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    width: min(32em, 90vw);
+    max-height: 70dvh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+    padding: 1.5em;
+    text-align: center;
+    background-color: var(--primary-darkest-muted);
+    border: solid var(--primary-mid) 0.2em;
+    border-radius: 1.5em;
+    corner-shape: squircle;
+    box-shadow: 0 0 2em 0.5em color-mix(in srgb, var(--primary-light) 40%, transparent);
+}
+
+.title {
+    font-size: 1.5em;
+    line-height: 1.1;
+    color: var(--grey-lightest);
+}
+
+.text {
+    line-height: 1.5;
+    color: var(--grey-light);
+    white-space: pre-line;
+}
+
+.button {
+    font-size: 1.5em;
+    min-width: 8em;
+}

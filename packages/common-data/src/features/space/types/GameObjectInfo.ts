@@ -1,6 +1,8 @@
 import { IArray, IMap } from '@colyseus/react';
 import { CardInstance } from 'src/features/cards/types/CardInstance';
+import { NonEncounterCardInfo } from 'src/features/cards/types/NonEncounterCardInfo';
 import { CardType, EnemyTargetedCardType, UntargetedCardType } from 'src/features/cards/utils/cardDefinitions';
+import { SectorDestinationInfo } from 'src/features/sectors/types/SectorDestinationInfo';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'src/features/ships/types/SystemEffectDefinition';
 import { CardCooldown, Cooldown } from 'src/types/Cooldown';
@@ -52,6 +54,8 @@ export interface CrewSystemInfo extends SystemInfo {
     cardGeneration: Cooldown | null;
     /** Cards revealed from the draw pile awaiting a player choice; empty when there is none pending. */
     pendingDrawChoice: IArray<CardInstance>;
+    /** Shown instead of the system's display while outside an encounter; empty during one (see `NonEncounterCardInfo`). */
+    nonEncounterCards: IArray<NonEncounterCardInfo>;
 }
 
 export interface HelmSystemInfo extends CrewSystemInfo {
@@ -145,6 +149,8 @@ export interface ScienceSystemInfo extends CrewSystemInfo {
     scannedTactical: ScannedTacticalInfo | null;
     scannedScience: ScannedScienceInfo | null;
     scannedEngineer: ScannedEngineerInfo | null;
+    /** Long range sensor readings of the nodes the ship can travel to next; empty except on the sector map. */
+    destinations: IArray<SectorDestinationInfo>;
 }
 
 export interface EngineerSystemTileInfo {

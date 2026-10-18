@@ -1,4 +1,5 @@
 import { CardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
+import { WarpAwayIcon } from '../../../icons/cards/WarpAway';
 import { default as ExampleIcon } from '../../../icons/exampleIcon.svg?react';
 import { Parameter } from '../components/Parameter';
 import { Trait } from '../components/Trait';
@@ -50,6 +51,15 @@ function loadCardDefinitions() {
             name: 'Charge shields',
             description: 'Charge the shields by the hull\'s power level.',
             image: <ExampleIcon />,
+        },
+        warpAway: {
+            name: 'Warp Away',
+            description: <>
+                <Trait trait="priority" />
+                {' '}
+                Leave the area and return to the sector map.
+            </>,
+            image: <WarpAwayIcon />,
         },
         phaserCannon: {
             name: 'Phaser Cannon',

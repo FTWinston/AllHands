@@ -36,6 +36,14 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
      */
     @type('uint8') repairCapacity: number = this.maxRepairCapacity;
 
+    override resetCardGeneration() {
+        super.resetCardGeneration();
+
+        for (const tile of this.systems) {
+            tile.generating = false;
+        }
+    }
+
     override updateCardGeneration() {
         super.updateCardGeneration();
 

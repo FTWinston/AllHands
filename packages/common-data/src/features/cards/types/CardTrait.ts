@@ -33,5 +33,7 @@ export type WeaponTrait
  * - energyWeapon: A group of tactical weapon cards. Some charge cards only target cards with this trait.
  * - torpedoWeapon: A group of tactical weapon cards. Some charge cards only target cards with this trait.
  * - rechargeable: A weapon with this trait can be topped up with one more card after it has been fully charged. Doing so removes the trait.
+ * - priority: Cannot be discarded or used for charging, can only be played.
+ * - unplayable: Card cannot be played or discarded.
  */
-export type CardTrait = WeaponTrait | 'damaged' | 'stabilised' | 'critical' | 'primary' | 'expendable' | 'unstable' | 'energyWeapon' | 'torpedoWeapon' | 'rechargeable';
+export type CardTrait = WeaponTrait | 'damaged' | 'stabilised' | 'critical' | 'primary' | 'expendable' | 'unstable' | 'energyWeapon' | 'torpedoWeapon' | 'rechargeable' | 'priority' | 'unplayable';

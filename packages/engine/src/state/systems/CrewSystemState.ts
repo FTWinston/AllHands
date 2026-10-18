@@ -8,6 +8,7 @@ import { InterceptableAction } from 'src/classes/InterceptableAction';
 import { CardState } from '../CardState';
 import { CooldownState } from '../CooldownState';
 import { GameState } from '../GameState';
+import { NonEncounterCardState } from '../NonEncounterCardState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
@@ -29,7 +30,33 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
     @type(CooldownState) cardGeneration: CooldownState | null = null;
 
+    /**
+     * Cards shown instead of this system's display while outside an encounter (route cards on the map).
+     * Built by the campaign; they are not card definitions and never enter the deck or hand.
+     */
+    @type([NonEncounterCardState]) nonEncounterCards = new ArraySchema<NonEncounterCardState>();
+
     override readonly maxHandSize = 5;
+
+    removeCard(cardId: number): boolean {
+        const index = this.hand.findIndex(card => card.id === cardId);
+        if (index === -1) {
+            return false;
+        }
+
+        this.hand.splice(index, 1);
+        return true;
+    }
+
+    setNonEncounterCards(cards: readonly NonEncounterCardState[]) {
+        this.nonEncounterCards.clear();
+        this.nonEncounterCards.push(...cards);
+    }
+
+    /** Forget the running card generation timer, so the next update starts a fresh one from the current time. */
+    resetCardGeneration() {
+        this.cardGeneration = null;
+    }
 
     updateCardGeneration() {
         let currentTime = this.getGameState().currentTime;
@@ -132,5 +159,10 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         }
 
         this.addCardToHand(new CardState(this.getCardId(), cardType));
+    }
+
+    override cleanupAfterEncounter() {
+        this.pendingDrawChoice.clear();
+        super.cleanupAfterEncounter();
     }
 }

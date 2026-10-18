@@ -24,7 +24,7 @@ export const GameUI = () => {
         setConnectionState
     );
 
-    const [room, crewId, shipId, serverState, timeProvider] = useRoomConnection(serverAddress, setConnectionState);
+    const [room, crewId, shipId, serverState, timeProvider, devEncounters] = useRoomConnection(serverAddress, setConnectionState);
 
     const disconnect = useCallback(() => {
         setServerType(undefined);
@@ -40,11 +40,12 @@ export const GameUI = () => {
     }, [room]);
 
     if (connectionState === 'connected' && serverState !== 'paused') {
-        if (serverState === 'active') {
+        // The viewscreen also covers 'ended', where it shows the outcome.
+        if (serverState === 'active' || serverState === 'ended') {
             if (room && shipId && timeProvider) {
                 // Add dev tools to the viewscreen only if enabled at build time.
                 const children = import.meta.env.VITE_DEV_TOOLS && (
-                    <DevTools room={room} />
+                    <DevTools room={room} encounters={devEncounters} />
                 );
 
                 return (
@@ -68,13 +69,18 @@ export const GameUI = () => {
         } else if (serverState === 'setup') {
             if (serverAddress && room && crewId && serverType) {
                 return (
-                    <GameLobby
-                        serverAddress={serverAddress}
-                        room={room}
-                        crewId={crewId}
-                        allowMultipleCrews={allowMultipleCrews}
-                        disconnect={disconnect}
-                    />
+                    <>
+                        <GameLobby
+                            serverAddress={serverAddress}
+                            room={room}
+                            crewId={crewId}
+                            allowMultipleCrews={allowMultipleCrews}
+                            disconnect={disconnect}
+                        />
+                        {import.meta.env.VITE_DEV_TOOLS && (
+                            <DevTools room={room} encounters={devEncounters} inLobby />
+                        )}
+                    </>
                 );
             } else {
                 console.warn(

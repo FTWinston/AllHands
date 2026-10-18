@@ -21,8 +21,9 @@ export function CardDropTarget<C extends ElementType = 'div'>(props: Props<C>) {
 
     const { id, className, targetType, canAcceptCard, render, disabled, children, couldDropClassName, droppingClassName, ref, ...otherProps } = props;
 
+    // Priority cards can't be discarded ('any'), only played.
     const matchesActiveCard = disabled !== true && activeCard
-        && (activeCard.isDamaged ? targetType === 'any' : (targetType === activeCard.targetType || targetType === 'any'))
+        && (activeCard.isDamaged ? targetType === 'any' : (targetType === activeCard.targetType || (targetType === 'any' && !activeCard.isPriority)))
         && (canAcceptCard === undefined || canAcceptCard(activeCard));
 
     const { setNodeRef, isOver } = useDroppable({

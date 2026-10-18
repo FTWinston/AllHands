@@ -8,19 +8,32 @@ import { IdProvider } from 'src/types/IdProvider';
 import { FactionRegistry } from '../classes/FactionRegistry';
 import { GameStatus } from '../types/GameStatus';
 import { CrewState } from './CrewState';
+import { EncounterSummaryState } from './EncounterSummaryState';
 import { FactionState } from './FactionState';
 import { GameObject } from './GameObject';
-import type { GameRules } from '../classes/GameRules';
+import { SectorMapState } from './SectorMapState';
+import { SectorMessageState } from './SectorMessageState';
+import type { Campaign } from '../campaign/Campaign';
+import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
 
 export class GameState extends Schema {
     @type('string') gameStatus: GameStatus = 'setup';
+    /** Null until the campaign starts. */
+    @type('string') phase: GamePhase | null = null;
+    @type('string') outcome: GameOutcome | null = null;
+    /** The current sector's graph and position (no node details); null before the first sector starts. */
+    @type(SectorMapState) map: SectorMapState | null = null;
+    /** The sector intro/outro message awaiting tactical's dismissal; null when none. */
+    @type(SectorMessageState) message: SectorMessageState | null = null;
+    /** Server-only. Summary of the running encounter; null outside the encounter phase. */
+    encounter: EncounterSummaryState | null = null;
     @view() @type({ map: GameObject }) objects = new MapSchema<GameObject>();
     @view() @type({ map: CrewState }) crews = new MapSchema<CrewState>();
     @view() @type({ map: FactionState }) factions = new MapSchema<FactionState>();
     public readonly random: IRandom;
     public readonly factionRegistry = new FactionRegistry(this.factions);
     public playerFaction: string | null = null;
-    public rules: GameRules | null = null;
+    public campaign: Campaign | null = null;
 
     /** The current scaled game time, in milliseconds. Use this instead of clock.currentTime for all game logic. */
     public currentTime: number;
@@ -81,7 +94,7 @@ export class GameState extends Schema {
 
         this.idPool.releaseId(object.id);
 
-        this.rules?.onObjectRemoved(object);
+        this.campaign?.onObjectRemoved(object);
     }
 
     /**
@@ -92,6 +105,11 @@ export class GameState extends Schema {
         return this.clock.setTimeout(callback, delay / this.timeScale);
     }
 
+    /** Ship systems (card draws, timers) only run during an encounter; game time itself always advances. */
+    public get isSimulatingSystems(): boolean {
+        return !this.campaign || this.campaign.isInEncounter;
+    }
+
     public tick(deltaTime: number) {
         const scaledDelta = deltaTime * this.timeScale;
         this.currentTime += scaledDelta;
@@ -100,7 +118,7 @@ export class GameState extends Schema {
             object.tick(scaledDelta, this.currentTime);
         }
 
-        this.rules?.tick(scaledDelta);
+        this.campaign?.tick(scaledDelta);
     }
 
     /**

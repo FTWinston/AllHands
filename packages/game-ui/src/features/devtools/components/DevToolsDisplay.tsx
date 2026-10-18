@@ -11,6 +11,8 @@ import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefin
 import { getSystemEffectDefinition } from 'common-ui/utils/getUiSystemEffectDefinition';
 import { FC, useState } from 'react';
 import styles from './DevToolsDisplay.module.css';
+import { EncounterSelector } from './EncounterSelector';
+import type { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
 
 type Props = {
     isOpen: boolean;
@@ -20,40 +22,28 @@ type Props = {
     addCard: (system: CrewRoleName, cardId: string) => void;
     adjustTimeScale: (timeScale: number) => void;
     serverTimeScale: number;
+    encounters: readonly DevEncounterInfo[];
+    loadEncounter: (encounterId: string) => void;
+    /** In the lobby there are no ships yet, so only the encounter selector is offered. */
+    inLobby?: boolean;
 };
 
 export const DevToolsDisplay: FC<Props> = (props) => {
     const [system, setSystem] = useState<ShipSystem>('hull');
     const [timeScale, setTimeScale] = useState(props.serverTimeScale);
 
-    return (
-        <Dialog
-            isOpen={props.isOpen}
-            setOpen={props.setOpen}
-            title="Dev tools"
-            prompt="These tools let you modify the state of your ship and its systems."
-            className={styles.root}
-        >
-            <h3>Time Scale</h3>
-            <div className={styles.timeScaleControl}>
-                <input
-                    type="range"
-                    min={minTimeScale}
-                    max={maxTimeScale}
-                    step="0.05"
-                    value={timeScale}
-                    onChange={(e) => {
-                        const value = parseFloat(e.target.value);
-                        setTimeScale(value);
-                        props.adjustTimeScale(value);
-                    }}
-                />
-                <span>
-                    {Math.round(timeScale * 100) / 100}
-                    ×
-                </span>
-            </div>
+    const encounterSelector = (
+        <EncounterSelector
+            encounters={props.encounters}
+            loadEncounter={(encounterId) => {
+                props.loadEncounter(encounterId);
+                props.setOpen(false);
+            }}
+        />
+    );
 
+    const shipTools = (
+        <>
             <h3>System</h3>
             <RadioGroup
                 value={system}
@@ -100,6 +90,48 @@ export const DevToolsDisplay: FC<Props> = (props) => {
                     ) },
                 ]}
             />
+        </>
+    );
+
+    return (
+        <Dialog
+            isOpen={props.isOpen}
+            setOpen={props.setOpen}
+            title="Dev tools"
+            prompt={props.inLobby
+                ? 'Load a single encounter to skip the lobby and start the game.'
+                : 'These tools let you modify the state of your ship and its systems, or jump to an encounter.'}
+            className={styles.root}
+        >
+            <h3>Time Scale</h3>
+            <div className={styles.timeScaleControl}>
+                <input
+                    type="range"
+                    min={minTimeScale}
+                    max={maxTimeScale}
+                    step="0.05"
+                    value={timeScale}
+                    onChange={(e) => {
+                        const value = parseFloat(e.target.value);
+                        setTimeScale(value);
+                        props.adjustTimeScale(value);
+                    }}
+                />
+                <span>
+                    {Math.round(timeScale * 100) / 100}
+                    ×
+                </span>
+            </div>
+
+            {props.inLobby ? encounterSelector : (
+                <Tabs
+                    defaultTabId="ship"
+                    tabs={[
+                        { id: 'ship', label: 'Ship', content: shipTools },
+                        { id: 'encounters', label: 'Encounters', content: encounterSelector },
+                    ]}
+                />
+            )}
         </Dialog>
     );
 };
