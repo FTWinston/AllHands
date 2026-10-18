@@ -564,7 +564,7 @@ function loadCardDefinitions() {
             },
         },
         auxPower: {
-            aiEvaluator: powerBoostEvaluator('auxPower', 30),
+            aiEvaluator: powerBoostEvaluator('auxPower', 30, 'auxPower'),
             play: (_gameState, _ship, system) => {
                 return system.addEffect('auxPower');
             },
@@ -788,7 +788,7 @@ function loadCardDefinitions() {
             },
         },
         overcharge: {
-            aiEvaluator: powerBoostEvaluator('overcharge', 35),
+            aiEvaluator: powerBoostEvaluator('overcharge', 35, 'overcharge'),
             play: (_gameState, _ship, system) => {
                 return system.addEffect('overcharge');
             },

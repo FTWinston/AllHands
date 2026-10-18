@@ -29,6 +29,9 @@ export abstract class Officer {
         return [];
     }
 
+    /** Called every tick, for follow-up actions that shouldn't wait for the next think. */
+    update(_currentTime: number): void {}
+
     think(blackboard: Blackboard, currentTime: number): void {
         const skill = this.config.skill;
         const random = this.gameState.random;
@@ -82,6 +85,10 @@ export abstract class Officer {
                 return; // Everything below the threshold isn't worth acting on: wait.
             }
 
+            if (candidate.cost > system.maxPowerLevel) {
+                continue; // No amount of extra power makes this affordable, so don't ask for any.
+            }
+
             if (candidate.cost > system.powerLevel) {
                 // Worth playing but unaffordable: signal demand to the engineer, try the next candidate.
                 // Always refresh the expiry while the need persists, so a steady demand doesn't
@@ -128,9 +135,6 @@ export abstract class Officer {
                 break;
             case 'chargeWeaponSlot':
                 this.ship.tacticalState.chargeWeaponSlot(action.cardId, action.slotId);
-                break;
-            case 'cancelManeuver':
-                this.ship.helmState.cancelActiveManeuver();
                 break;
         }
     }

@@ -1,3 +1,4 @@
+import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import type { AiGoalInfo, AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import type { Position } from 'common-data/features/space/types/Position';
 import type { IRandom } from 'common-data/types/IRandom';
@@ -5,47 +6,60 @@ import type { IRandom } from 'common-data/types/IRandom';
 export type EnemyRole = 'scout' | 'fighter' | 'heavy' | 'flagship';
 
 const shieldCards = (count: number) => Array<'hullChargeShields'>(count).fill('hullChargeShields');
-const reactorCards = (sets: number) => Array(sets).fill(['reactorPowerHull', 'reactorPowerHelm', 'reactorPowerTactical', 'reactorPowerEngineer', 'reactorPowerScience', 'reactorPowerReactor']).flat() as AiShipSetupInfo['reactor']['cards'];
+type ReactorCards = AiShipSetupInfo['reactor']['cards'];
+
+/**
+ * Each reactor card gives its system one level of baseline power (and makes it draw cards more often),
+ * so a role's strengths come from the `extra` cards on top of the basic sets.
+ */
+const reactorCards = (sets: number, ...extra: ReactorCards) => [
+    ...Array(sets).fill(['reactorPowerHull', 'reactorPowerHelm', 'reactorPowerTactical', 'reactorPowerEngineer', 'reactorPowerScience', 'reactorPowerReactor']).flat(),
+    ...extra,
+] as ReactorCards;
+
+/** Systems aren't capped below the usual maximum: their power comes from the reactor deck. */
+const system = <T extends string>(cards: T[], initialHandSize = 1) => ({ cards, maxPowerLevel: MAX_POWER_LEVEL, initialHandSize });
 
 /** The original "An Enemy" ship from the old default scenario; all other roles are tweaks of it. */
 const fighterTemplate: Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal'> = {
     appearance: 'chevron',
     skill: 1,
-    hull: { cards: shieldCards(12), maxPowerLevel: 3, initialHandSize: 0 },
-    reactor: { cards: reactorCards(2), maxPowerLevel: 5, initialHandSize: 0 },
-    helm: { cards: ['slowAndSteady', 'zigZag', 'strafe', 'slowAndSteady'], maxPowerLevel: 3, initialHandSize: 1 },
-    science: { cards: ['passiveScan', 'passiveScan', 'passiveScan', 'passiveScan', 'passiveScan'], maxPowerLevel: 2, initialHandSize: 1 },
-    tactical: { numSlots: 1, cards: ['photonTorpedo', 'lowYield', 'fullSpread'], maxPowerLevel: 2, initialHandSize: 1 },
-    engineer: { cards: ['auxPower', 'auxPower', 'distributePower'], maxPowerLevel: 2, initialHandSize: 1 },
+    hull: system(shieldCards(12), 0),
+    // Loading a torpedo takes 3 tactical power.
+    reactor: system(reactorCards(2, 'reactorPowerTactical'), 0),
+    helm: system(['slowAndSteady', 'zigZag', 'strafe', 'slowAndSteady']),
+    science: system(['passiveScan', 'passiveScan', 'passiveScan', 'passiveScan', 'passiveScan']),
+    tactical: { ...system(['photonTorpedo', 'lowYield', 'fullSpread']), numSlots: 1 },
+    engineer: system(['auxPower', 'auxPower', 'distributePower']),
 };
 
 const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal'>> = {
     scout: {
         ...fighterTemplate,
         appearance: 'interceptor',
-        hull: { cards: shieldCards(6), maxPowerLevel: 2, initialHandSize: 0 },
-        helm: { cards: ['zigZag', 'strafe', 'zigZag', 'slowAndSteady'], maxPowerLevel: 4, initialHandSize: 1 },
-        tactical: { numSlots: 1, cards: ['lowYield', 'lowYield', 'photonTorpedo'], maxPowerLevel: 2, initialHandSize: 1 },
+        hull: system(shieldCards(6), 0),
+        reactor: system(reactorCards(2, 'reactorPowerTactical', 'reactorPowerHelm'), 0),
+        helm: system(['zigZag', 'strafe', 'zigZag', 'slowAndSteady']),
+        tactical: { ...system(['lowYield', 'lowYield', 'photonTorpedo']), numSlots: 1 },
         fleeThreshold: 0.4,
     },
     fighter: fighterTemplate,
     heavy: {
         ...fighterTemplate,
         appearance: 'spaceship',
-        hull: { cards: shieldCards(16), maxPowerLevel: 4, initialHandSize: 0 },
-        tactical: { numSlots: 2, cards: ['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield'], maxPowerLevel: 3, initialHandSize: 1 },
-        engineer: { cards: ['auxPower', 'auxPower', 'distributePower', 'auxPower'], maxPowerLevel: 3, initialHandSize: 1 },
+        hull: system(shieldCards(16), 0),
+        reactor: system(reactorCards(2, 'reactorPowerTactical', 'reactorPowerHull', 'reactorPowerEngineer'), 0),
+        tactical: { ...system(['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield']), numSlots: 2 },
+        engineer: system(['auxPower', 'auxPower', 'distributePower', 'auxPower']),
         fleeThreshold: 0,
     },
     flagship: {
         ...fighterTemplate,
         appearance: 'apollo',
-        hull: { cards: shieldCards(24), maxPowerLevel: 5, initialHandSize: 0 },
-        reactor: { cards: reactorCards(3), maxPowerLevel: 5, initialHandSize: 0 },
-        helm: { cards: ['slowAndSteady', 'zigZag', 'strafe', 'slowAndSteady'], maxPowerLevel: 3, initialHandSize: 1 },
-        science: { cards: ['passiveScan', 'passiveScan', 'passiveScan', 'passiveScan', 'passiveScan'], maxPowerLevel: 3, initialHandSize: 1 },
-        tactical: { numSlots: 3, cards: ['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield', 'fullSpread'], maxPowerLevel: 4, initialHandSize: 1 },
-        engineer: { cards: ['auxPower', 'auxPower', 'distributePower', 'auxPower', 'distributePower'], maxPowerLevel: 4, initialHandSize: 1 },
+        hull: system(shieldCards(24), 0),
+        reactor: system(reactorCards(3, 'reactorPowerTactical', 'reactorPowerHull'), 0),
+        tactical: { ...system(['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield', 'fullSpread']), numSlots: 3 },
+        engineer: system(['auxPower', 'auxPower', 'distributePower', 'auxPower', 'distributePower']),
         fleeThreshold: 0,
     },
 };

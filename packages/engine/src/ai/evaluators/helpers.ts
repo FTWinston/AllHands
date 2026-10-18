@@ -80,18 +80,3 @@ export function priorityFor(system: ShipSystem, config: ResolvedAiConfig): numbe
     }
     return config.priorities[system];
 }
-
-/** Widest firing arc among loaded weapon slots, or null when nothing is loaded. */
-export function bestWeaponArc(slots: ArraySchema<WeaponSlotState>): number | null {
-    let best: number | null = null;
-    for (const slot of slots) {
-        if (!slot.card) {
-            continue;
-        }
-        const arc = slot.getParameter('firingArc');
-        if (best === null || arc > best) {
-            best = arc;
-        }
-    }
-    return best;
-}

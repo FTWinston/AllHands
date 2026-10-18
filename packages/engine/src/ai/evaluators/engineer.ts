@@ -1,9 +1,10 @@
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
+import { NonLeveledSystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { CandidatePlay, CardEvaluator, EvaluationContext } from '../types';
 import { priorityFor } from './helpers';
 
-/** Unmet demand on a system: how far its power sits below the highest active request. */
+/** Unmet demand on a system: how far its power sits below the highest active request, which can't exceed its max power. */
 export function powerDeficit(system: ShipSystem, ctx: EvaluationContext): number {
     const request = ctx.blackboard.powerRequests.get(system);
     if (!request) {
@@ -13,20 +14,21 @@ export function powerDeficit(system: ShipSystem, ctx: EvaluationContext): number
     if (!tile) {
         return 0;
     }
-    return Math.max(0, request.desiredLevel - tile.power);
+    return Math.max(0, Math.min(request.desiredLevel, tile.systemState.maxPowerLevel) - tile.power);
 }
 
 /**
  * Power-boost cards share one shape: candidates only exist where demand exists.
  * No demand -> no candidates -> the card waits in hand. That is the reserve behaviour.
+ * A card whose `effect` doesn't stack gives nothing to a system that already has that effect.
  */
-export function powerBoostEvaluator(cardType: CardType, scorePerDeficit: number): CardEvaluator {
+export function powerBoostEvaluator(cardType: CardType, scorePerDeficit: number, effect?: NonLeveledSystemEffectType): CardEvaluator {
     return (card, ctx) => {
         const cost = card.getParameter('cost');
         const out: CandidatePlay[] = [];
         for (const tile of ctx.ship.engineerState.systems) {
             const deficit = powerDeficit(tile.system, ctx);
-            if (deficit <= 0) {
+            if (deficit <= 0 || (effect && tile.hasEffect(effect))) {
                 continue;
             }
             out.push({

@@ -86,6 +86,15 @@ describe('Officer.think', () => {
         expect(bb.powerRequests.get('science')).toEqual({ desiredLevel: 5, expires: 5000 });
     });
 
+    it('does not request power that the system can never reach', () => {
+        const { ship, officer, bb } = createWorld(fixedRandom());
+        ship.scienceState.maxPowerLevel = 4;
+        stubEvaluator(90, 5);
+        officer.think(bb, 0);
+        expect(officer.executed).toHaveLength(0);
+        expect(bb.powerRequests.has('science')).toBe(false);
+    });
+
     it('refreshes the power request expiry on every think while the need persists', () => {
         const { officer, bb } = createWorld(fixedRandom());
         stubEvaluator(90, 5); // science power is 3

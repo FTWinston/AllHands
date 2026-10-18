@@ -93,7 +93,8 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     private readonly detectionRange = 100;
     private readonly detectionRangeSq = this.detectionRange ** 2;
     private readonly detectionInterval = 200;
-    private detectionTimer = 0;
+    // Detect surroundings on the first tick, so a ship spawned mid-encounter (e.g. an AI ship) knows what's around it straight away.
+    private detectionTimer = this.detectionInterval;
 
     public tick(deltaTime: number, currentTime: number) {
         super.tick(deltaTime, currentTime);

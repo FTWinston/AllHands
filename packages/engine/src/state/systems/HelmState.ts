@@ -25,14 +25,15 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
                 this.discardActiveManeuver();
             } else if (this.cancellingManeuver || this.powerLevel < this.activeManeuver.power) {
                 // End the current maneuver early by slowing to a stop, reaching where we would be in 0.25s over 0.75s instead.
-                const endPosition = this.getShip().getPosition(currentTime + 0.25);
+                // Keyframe times are in milliseconds. Start from a "now" keyframe, so the slowdown begins from where the ship currently is.
+                const ship = this.getShip();
+                const currentPosition = ship.getPosition(currentTime);
+                const endPosition = ship.getPosition(currentTime + 250);
 
-                this.getShip().setMotion(new MotionKeyframe(
-                    currentTime + 0.75,
-                    endPosition.x,
-                    endPosition.y,
-                    endPosition.angle
-                ));
+                ship.setMotion(
+                    new MotionKeyframe(currentTime, currentPosition.x, currentPosition.y, currentPosition.angle),
+                    new MotionKeyframe(currentTime + 750, endPosition.x, endPosition.y, endPosition.angle)
+                );
 
                 this.discardActiveManeuver();
             }

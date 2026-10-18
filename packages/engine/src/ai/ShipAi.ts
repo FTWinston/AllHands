@@ -41,9 +41,10 @@ export class ShipAi {
         ];
 
         // Stagger start times so multiple AI ships (and roles) don't all think on the same frame.
-        this.nextCommanderTime = stableHash(ship.id) % COMMANDER_INTERVAL;
+        const now = gameState.currentTime;
+        this.nextCommanderTime = now + stableHash(ship.id) % COMMANDER_INTERVAL;
         for (const officer of this.officers) {
-            this.nextOfficerTime.set(officer, stableHash(ship.id + officer.role) % OFFICER_INTERVAL);
+            this.nextOfficerTime.set(officer, now + stableHash(ship.id + officer.role) % OFFICER_INTERVAL);
         }
     }
 
@@ -58,6 +59,12 @@ export class ShipAi {
         }
 
         for (const officer of this.officers) {
+            try {
+                officer.update(currentTime);
+            } catch (error) {
+                console.error(`AI ${officer.role} officer error:`, error);
+            }
+
             if (currentTime >= (this.nextOfficerTime.get(officer) ?? 0)) {
                 this.nextOfficerTime.set(officer, currentTime + OFFICER_INTERVAL);
                 try {

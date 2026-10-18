@@ -16,13 +16,14 @@ function createAiShip() {
 
 describe('ShipAi scheduling', () => {
     it('runs the commander on its interval and officers on theirs', () => {
-        const { ship } = createAiShip();
+        const { state, ship } = createAiShip();
+        const start = state.currentTime;
         const commanderSpy = vi.spyOn(ship.ai.commander, 'update');
         const officerSpies = ship.ai.officers.map(o => vi.spyOn(o, 'think'));
 
         // Tick through 4 officer intervals in 100ms steps.
         for (let t = 0; t <= OFFICER_INTERVAL * 4; t += 100) {
-            ship.tick(100, t);
+            ship.tick(100, start + t);
         }
 
         const expectedCommanderRuns = Math.floor((OFFICER_INTERVAL * 4) / COMMANDER_INTERVAL);
@@ -46,7 +47,9 @@ describe('ShipAi scheduling', () => {
     });
 
     it('staggers officers so they do not all think on the same tick', () => {
-        const { ship } = createAiShip();
+        // Game time doesn't start at 0 (it's seeded from the clock), so stagger offsets must be relative to it.
+        const { state, ship } = createAiShip();
+        const start = state.currentTime;
         const firstThinkTimes = new Map<string, number>();
         for (const officer of ship.ai.officers) {
             vi.spyOn(officer, 'think').mockImplementation((_bb, currentTime) => {
@@ -56,7 +59,7 @@ describe('ShipAi scheduling', () => {
             });
         }
         for (let t = 0; t <= OFFICER_INTERVAL * 2; t += 100) {
-            ship.tick(100, t);
+            ship.tick(100, start + t);
         }
         const distinct = new Set(firstThinkTimes.values());
         expect(distinct.size).toBeGreaterThan(1);

@@ -48,6 +48,26 @@ describe('EngineerOfficer', () => {
         expect(playSpy).toHaveBeenCalledWith(expect.any(Number), 'auxPower', 'system', 'tactical');
     });
 
+    it('does not boost a system that is already at its max power', () => {
+        const { ship, officer, bb } = createWorld(['auxPower']);
+        const tacticalTile = ship.engineerState.systems.find(t => t.system === 'tactical')!;
+        ship.tacticalState.maxPowerLevel = tacticalTile.power;
+        bb.powerRequests.set('tactical', { desiredLevel: tacticalTile.power + 2, expires: 10_000 });
+        const playSpy = vi.spyOn(ship.engineerState, 'playCard');
+        officer.think(bb, 0);
+        expect(playSpy).not.toHaveBeenCalled();
+    });
+
+    it('does not play auxPower onto a system that already has it, as it does not stack', () => {
+        const { ship, officer, bb } = createWorld(['auxPower']);
+        const tacticalTile = ship.engineerState.systems.find(t => t.system === 'tactical')!;
+        tacticalTile.addEffect('auxPower');
+        bb.powerRequests.set('tactical', { desiredLevel: tacticalTile.power + 2, expires: 10_000 });
+        const playSpy = vi.spyOn(ship.engineerState, 'playCard');
+        officer.think(bb, 0);
+        expect(playSpy).not.toHaveBeenCalled();
+    });
+
     it('holds distributePower when there is no demand', () => {
         const { ship, officer, bb } = createWorld(['distributePower']);
         const playSpy = vi.spyOn(ship.engineerState, 'playCard');

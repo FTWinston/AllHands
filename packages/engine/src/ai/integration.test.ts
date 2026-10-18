@@ -3,7 +3,7 @@ import { IRandom } from 'common-data/types/IRandom';
 import { AiShip } from 'src/state/AiShip';
 import { GameState } from 'src/state/GameState';
 import { PlayerShip } from 'src/state/PlayerShip';
-import { shipSetup, setupGameRoom } from 'src/testUtils';
+import { seededRandom, shipSetup, setupGameRoom, startCampaign } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
 
 const FIVE_MINUTES = 5 * 60 * 1000;
@@ -94,5 +94,35 @@ describe('AI ship integration', () => {
         run(state, FIVE_MINUTES, () => totalHealth(dummy) < before);
         expect(totalHealth(dummy)).toBeLessThan(before);
         // (Same set-B substitution applies if charging is stubbed.)
+    });
+
+    it('enemies from a real combat encounter close in, keep maneuvering, and damage the player', () => {
+        // Unlike the hand-built battles above, this uses the real enemy templates, spawning and campaign flow.
+        const state = rooms.createState(seededRandom(7));
+        const { campaign, ships: [player] } = startCampaign(state);
+        campaign.devLoadEncounter('skirmish');
+
+        const enemies = [...state.objects.values()].filter((o): o is AiShip => o instanceof AiShip);
+        expect(enemies.length).toBeGreaterThan(0);
+
+        const before = totalHealth(player);
+        const startPositions = enemies.map(enemy => enemy.getPosition(state.currentTime));
+        const ticksUnderWay = new Map(enemies.map(enemy => [enemy, 0]));
+        for (let t = 0; t < 60_000; t += TICK) {
+            for (const enemy of enemies) {
+                if (enemy.helmState.activeManeuver !== null) {
+                    ticksUnderWay.set(enemy, ticksUnderWay.get(enemy)! + 1);
+                }
+            }
+            state.tick(TICK);
+        }
+
+        enemies.forEach((enemy, index) => {
+            const end = enemy.getPosition(state.currentTime);
+            expect(Math.hypot(end.x - startPositions[index].x, end.y - startPositions[index].y)).toBeGreaterThan(3);
+            // Under way for most of the fight, rather than sitting still.
+            expect(ticksUnderWay.get(enemy)! * TICK).toBeGreaterThan(30_000);
+        });
+        expect(totalHealth(player)).toBeLessThan(before);
     });
 });
