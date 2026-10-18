@@ -1,4 +1,4 @@
-import { RouteIcon } from '../components/CampaignCardIcon';
+import { RouteIcon } from '../components/RouteIcon';
 import type { CardDescription } from '../types/UICardDefinition';
 import type { RouteCardInfo } from 'common-data/features/cards/types/RouteCardInfo';
 

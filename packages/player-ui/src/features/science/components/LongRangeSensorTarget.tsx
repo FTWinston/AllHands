@@ -1,7 +1,7 @@
 import { SectorDestinationInfo } from 'common-data/features/sectors/types/SectorDestinationInfo';
 import { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
-import { RouteIcon } from 'common-ui/features/cards/components/CampaignCardIcon';
+import { RouteIcon } from 'common-ui/features/cards/components/RouteIcon';
 import { getDestinationDetails } from 'common-ui/features/sectors/utils/getDestinationDetails';
 import { getNodeKindLabel } from 'common-ui/features/sectors/utils/sectorLabels';
 import { classNames } from 'common-ui/utils/classNames';

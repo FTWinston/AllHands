@@ -1,5 +1,5 @@
-import { FC, SVGProps } from 'react';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { FC, SVGProps } from 'react';
 
 const common: SVGProps<SVGSVGElement> = {
     xmlns: 'http://www.w3.org/2000/svg',
@@ -12,12 +12,6 @@ const common: SVGProps<SVGSVGElement> = {
     strokeLinecap: 'round',
     strokeLinejoin: 'round',
 };
-
-export const WarpAwayIcon: FC = () => (
-    <svg {...common}>
-        <path d="M12 14 32 32 12 50M32 14 52 32 32 50" />
-    </svg>
-);
 
 export const RouteIcon: FC<{ nodeKind: SectorNodeKind }> = ({ nodeKind }) => {
     switch (nodeKind) {

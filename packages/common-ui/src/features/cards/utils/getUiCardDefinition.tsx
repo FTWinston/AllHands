@@ -1,6 +1,6 @@
 import { CardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
+import { WarpAwayIcon } from '../../../icons/cards/WarpAway';
 import { default as ExampleIcon } from '../../../icons/exampleIcon.svg?react';
-import { WarpAwayIcon } from '../components/CampaignCardIcon';
 import { Parameter } from '../components/Parameter';
 import { Trait } from '../components/Trait';
 import { CardDescription, UICardDefinition } from '../types/UICardDefinition';
