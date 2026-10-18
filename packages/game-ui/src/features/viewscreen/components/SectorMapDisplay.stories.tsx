@@ -3,14 +3,20 @@ import { SectorMapDisplay as Component } from './SectorMapDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { SectorMapInfo, SectorMapNodeInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 
+/** Positions a node on the map's grid of 7 rows. */
+const at = (x: number, row: number) => ({ x, y: row / 6 });
+
 const nodes: SectorMapNodeInfo[] = [
-    { id: 'n0a', kind: 'combat', name: 'Skirmish', x: 0, y: 0.25, next: ['n1a', 'n1b'] },
-    { id: 'n0b', kind: 'combat', name: 'Ambush', x: 0, y: 0.75, next: ['n1b'] },
-    { id: 'n1a', kind: 'repair', name: 'Repair Station', x: 0.33, y: 0.15, next: ['n2a'] },
-    { id: 'n1b', kind: 'combat', name: 'Hold the Line', x: 0.33, y: 0.7, next: ['n2a', 'n2b'] },
-    { id: 'n2a', kind: 'combat', name: 'Assault', x: 0.66, y: 0.3, next: ['boss'] },
-    { id: 'n2b', kind: 'repair', name: 'Repair Station', x: 0.66, y: 0.85, next: ['boss'] },
-    { id: 'boss', kind: 'boss', name: 'Placeholder Boss A', x: 1, y: 0.5, next: [] },
+    { id: 'start', kind: 'repair', name: 'Waypoint Station', ...at(0, 3), next: ['n1a', 'n1b', 'n1c'] },
+    { id: 'n1a', kind: 'combat', name: 'Skirmish', ...at(0.25, 0), next: ['n2a'] },
+    { id: 'n1b', kind: 'combat', name: 'Ambush', ...at(0.25, 3), next: ['n2a', 'n2b'] },
+    { id: 'n1c', kind: 'combat', name: 'Survive', ...at(0.25, 5), next: ['n2b'] },
+    { id: 'n2a', kind: 'repair', name: 'Repair Station', ...at(0.5, 1), next: ['n3a', 'n3b'] },
+    { id: 'n2b', kind: 'combat', name: 'Hold the Line', ...at(0.5, 4), next: ['n3b', 'n3c'] },
+    { id: 'n3a', kind: 'combat', name: 'Assault', ...at(0.75, 0), next: ['boss'] },
+    { id: 'n3b', kind: 'combat', name: 'Escort', ...at(0.75, 2), next: ['boss'] },
+    { id: 'n3c', kind: 'repair', name: 'Repair Station', ...at(0.75, 6), next: ['boss'] },
+    { id: 'boss', kind: 'boss', name: 'Placeholder Boss A', ...at(1, 3), next: [] },
 ];
 
 const baseMap: SectorMapInfo = {
@@ -18,9 +24,9 @@ const baseMap: SectorMapInfo = {
     sectorIndex: 0,
     sectorCount: 3,
     nodes,
-    currentNodeId: null,
-    visitedNodeIds: [],
-    availableNodeIds: ['n0a', 'n0b'],
+    currentNodeId: 'start',
+    visitedNodeIds: ['start'],
+    availableNodeIds: ['n1a', 'n1b', 'n1c'],
 };
 
 const meta: Meta<typeof Component> = {
@@ -50,9 +56,9 @@ export const MidSector: Story = {
         map: {
             ...baseMap,
             sectorIndex: 1,
-            currentNodeId: 'n1b',
-            visitedNodeIds: ['n0b', 'n1b'],
-            availableNodeIds: ['n2a', 'n2b'],
+            currentNodeId: 'n2b',
+            visitedNodeIds: ['start', 'n1b', 'n2b'],
+            availableNodeIds: ['n3b', 'n3c'],
         },
     },
 };
@@ -62,8 +68,8 @@ export const BossAvailable: Story = {
         map: {
             ...baseMap,
             sectorIndex: 2,
-            currentNodeId: 'n2b',
-            visitedNodeIds: ['n0a', 'n1b', 'n2b'],
+            currentNodeId: 'n3c',
+            visitedNodeIds: ['start', 'n1c', 'n2b', 'n3c'],
             availableNodeIds: ['boss'],
         },
     },

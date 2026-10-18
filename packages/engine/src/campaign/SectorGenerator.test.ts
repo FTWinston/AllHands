@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { hasEncounter } from '../encounters/EncounterRegistry';
 import { seededRandom } from '../testUtils';
-import { generateSector, sectorLayerCount } from './SectorGenerator';
+import { generateSector, maxRouteChoices, sectorLayerCount, sectorRowCount } from './SectorGenerator';
 import { sectorThemes } from './sectorThemes';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
 
@@ -15,7 +15,7 @@ function enumeratePaths(sector: SectorInfo): string[][] {
         return node.next.length === 0 ? [[id]] : node.next.flatMap(next => walk(next).map(path => [id, ...path]));
     };
 
-    return sector.startNodeIds.flatMap(walk);
+    return walk(sector.startNodeId);
 }
 
 describe.each(sectorThemes.map(theme => [theme.id, theme] as const))('generateSector (%s)', (_name, theme) => {
@@ -39,6 +39,8 @@ describe.each(sectorThemes.map(theme => [theme.id, theme] as const))('generateSe
             expect(node.x).toBeLessThanOrEqual(1);
             expect(node.y).toBeGreaterThanOrEqual(0);
             expect(node.y).toBeLessThanOrEqual(1);
+            const row = node.y * (sectorRowCount - 1);
+            expect(row).toBeCloseTo(Math.round(row));
             expect(hasEncounter(node.encounterId)).toBe(true);
         }
 
@@ -51,12 +53,13 @@ describe.each(sectorThemes.map(theme => [theme.id, theme] as const))('generateSe
         for (const node of sector.nodes) {
             if (node.id !== sector.bossNodeId) {
                 expect(node.next.length).toBeGreaterThan(0);
+                expect(node.next.length).toBeLessThanOrEqual(maxRouteChoices);
             }
         }
 
-        // No orphans: everything is reachable from a start node, and only start nodes have no inbound edge.
-        const reachable = new Set<string>(sector.startNodeIds);
-        const queue = [...sector.startNodeIds];
+        // No orphans: everything is reachable from the start node, and only the start node has no inbound edge.
+        const reachable = new Set<string>([sector.startNodeId]);
+        const queue = [sector.startNodeId];
         while (queue.length > 0) {
             for (const next of nodes.get(queue.pop()!)!.next) {
                 if (!reachable.has(next)) {
@@ -70,11 +73,56 @@ describe.each(sectorThemes.map(theme => [theme.id, theme] as const))('generateSe
 
         const hasInbound = new Set(sector.nodes.flatMap(node => [...node.next]));
         for (const node of sector.nodes) {
-            expect(hasInbound.has(node.id) || sector.startNodeIds.includes(node.id)).toBe(true);
+            expect(hasInbound.has(node.id)).toBe(node.id !== sector.startNodeId);
         }
 
-        for (const start of sector.startNodeIds) {
-            expect(nodes.get(start)!.x).toBe(0);
+        // The start is a repair station, alone in the first column, as the boss is in the last.
+        const start = nodes.get(sector.startNodeId)!;
+        expect(start.kind).toBe('repair');
+        expect(start.x).toBe(0);
+        expect(sector.nodes.filter(node => node.x === 0)).toEqual([start]);
+    });
+
+    it.each(seeds)('seed %i puts each column on distinct rows, with no crossing links', (seed) => {
+        const sector = generateSector(seededRandom(seed), theme);
+        const nodes = new Map(sector.nodes.map(node => [node.id, node]));
+
+        for (let layer = 0; layer < sectorLayerCount; layer++) {
+            const column = sector.nodes.filter(node => node.x === layer / (sectorLayerCount - 1));
+            expect(new Set(column.map(node => node.y)).size).toBe(column.length);
+        }
+
+        const links = sector.nodes.flatMap(node => [...node.next].map(next => ({ x: node.x, y1: node.y, y2: nodes.get(next)!.y })));
+        for (const a of links) {
+            for (const b of links) {
+                if (a.x === b.x && a.y1 < b.y1) {
+                    expect(a.y2).toBeLessThanOrEqual(b.y2);
+                }
+            }
+        }
+    });
+
+    it.each(seeds)('seed %i lines nodes up with the middle of their inputs', (seed) => {
+        const sector = generateSector(seededRandom(seed), theme);
+        const inputs = new Map(sector.nodes.map(node => [node.id, sector.nodes.filter(other => other.next.includes(node.id))]));
+
+        /** Level with the middle one of an odd number of rows, or between the middle two of an even number. */
+        const expectAmongMiddle = (y: number, linked: SectorInfo['nodes']) => {
+            const sorted = linked.map(node => node.y).sort((a, b) => a - b);
+            expect(y).toBeGreaterThanOrEqual(sorted[Math.floor((sorted.length - 1) / 2)]);
+            expect(y).toBeLessThanOrEqual(sorted[Math.ceil((sorted.length - 1) / 2)]);
+        };
+
+        for (const node of sector.nodes) {
+            const nodeInputs = inputs.get(node.id)!;
+
+            // A node branching off from a single input can't always be level with it; its input sits among its branches instead.
+            if (nodeInputs.length > 1 || (nodeInputs.length === 1 && nodeInputs[0].next.length === 1)) {
+                expectAmongMiddle(node.y, nodeInputs);
+            }
+            if (node.next.length > 1) {
+                expectAmongMiddle(node.y, sector.nodes.filter(other => node.next.includes(other.id)));
+            }
         }
     });
 
@@ -90,13 +138,23 @@ describe.each(sectorThemes.map(theme => [theme.id, theme] as const))('generateSe
             expect(path.at(-1)).toBe(sector.bossNodeId);
 
             const kinds = path.map(id => nodes.get(id)!.kind);
-            expect(kinds.filter(kind => kind === 'repair')).toHaveLength(2);
+            expect(kinds.filter(kind => kind === 'repair')).toHaveLength(3);
+            expect(kinds[0]).toBe('repair');
             expect(kinds.at(-2)).toBe('repair');
 
             // The other repair node sits roughly halfway.
-            const middleRepair = kinds.indexOf('repair');
+            const middleRepair = kinds.indexOf('repair', 1);
             expect(Math.abs(middleRepair - (path.length - 1) / 2)).toBeLessThanOrEqual(1);
+
+            // Three encounters before each repair stop.
+            expect(kinds.slice(1, middleRepair)).toEqual(['combat', 'combat', 'combat']);
+            expect(kinds.slice(middleRepair + 1, -2)).toEqual(['combat', 'combat', 'combat']);
         }
+
+        // A single mid repair node is enough to put one on every path, unless the routes after it need more than one node could offer.
+        const midRepairs = new Set(paths.map(path => path[4]));
+        const afterMidRepairs = new Set(paths.map(path => path[5]));
+        expect(midRepairs.size).toBe(Math.ceil(afterMidRepairs.size / maxRouteChoices));
 
         // The graph is bigger than any one path, so there are real choices.
         expect(sector.nodes.length).toBeGreaterThan(sectorLayerCount + 2);

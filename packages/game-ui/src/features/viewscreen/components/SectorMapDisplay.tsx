@@ -1,6 +1,6 @@
 import { getNodeKindLabel } from 'common-ui/features/sectors/utils/sectorLabels';
 import { FC } from 'react';
-import { layoutSectorMap, MapNodeStatus } from '../utils/layoutSectorMap';
+import { getEdgePath, layoutSectorMap, MapEdgeLayout, MapEdgeStatus, MapNodeStatus } from '../utils/layoutSectorMap';
 import styles from './SectorMapDisplay.module.css';
 import type { SectorMapInfo, SectorMapNodeInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
@@ -9,9 +9,22 @@ type Props = {
     map: SectorMapInfo;
 };
 
-const WIDTH = 1000;
-const HEIGHT = 560;
-const PADDING = 90;
+const WIDTH = 1600;
+const HEIGHT = 720;
+const PADDING = 80;
+
+const ARROW_LENGTH = 14;
+const ARROW_WIDTH = 14;
+/** Space between an arrowhead's tip and the node it points at, and between a node and the edges leaving it. */
+const EDGE_GAP = 4;
+const CORNER_RADIUS = 16;
+
+/** Edges that matter more are drawn over those that overlap them. */
+const edgeDrawOrder: Record<MapEdgeStatus, number> = {
+    unreachable: 0,
+    travelled: 1,
+    available: 2,
+};
 
 const statusLabels: Record<MapNodeStatus, string> = {
     current: 'current position',
@@ -21,8 +34,22 @@ const statusLabels: Record<MapNodeStatus, string> = {
 };
 
 function getRadius(kind: SectorNodeKind) {
-    return kind === 'boss' ? 38 : 28;
+    return kind === 'boss' ? 32 : 24;
 }
+
+const Edge: FC<{ edge: MapEdgeLayout; fromKind: SectorNodeKind; toKind: SectorNodeKind }> = ({ edge, fromKind, toKind }) => {
+    const startX = edge.x1 + getRadius(fromKind) + EDGE_GAP;
+    const tipX = edge.x2 - getRadius(toKind) - EDGE_GAP;
+    const baseX = tipX - ARROW_LENGTH;
+
+    // Every edge ends heading right, so converging edges' arrowheads coincide.
+    return (
+        <g className={styles[`edge_${edge.status}`]}>
+            <path className={styles.edgeLine} d={getEdgePath(edge, startX, baseX + 2, CORNER_RADIUS)} />
+            <polygon className={styles.edgeArrow} points={`${tipX},${edge.y2} ${baseX},${edge.y2 - ARROW_WIDTH / 2} ${baseX},${edge.y2 + ARROW_WIDTH / 2}`} />
+        </g>
+    );
+};
 
 const NodeGlyph: FC<{ kind: SectorNodeKind; status: MapNodeStatus; radius: number }> = ({ kind, status, radius }) => {
     const inner = radius * 0.5;
@@ -79,6 +106,8 @@ function describeNode(node: SectorMapNodeInfo, status: MapNodeStatus): string {
 
 export const SectorMapDisplay: FC<Props> = ({ map }) => {
     const layout = layoutSectorMap(map, WIDTH, HEIGHT, PADDING);
+    const kinds = new Map(layout.nodes.map(({ node }) => [node.id, node.kind]));
+    const edges = [...layout.edges].sort((a, b) => edgeDrawOrder[a.status] - edgeDrawOrder[b.status]);
 
     return (
         <section className={styles.root} aria-label={`Sector map: ${map.sectorName}`}>
@@ -91,15 +120,8 @@ export const SectorMapDisplay: FC<Props> = ({ map }) => {
 
             <div className={styles.body}>
                 <svg className={styles.graph} viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="group" aria-label="Route graph">
-                    {layout.edges.map(edge => (
-                        <line
-                            key={edge.id}
-                            className={`${styles.edge} ${styles[`edge_${edge.status}`]}`}
-                            x1={edge.x1}
-                            y1={edge.y1}
-                            x2={edge.x2}
-                            y2={edge.y2}
-                        />
+                    {edges.map(edge => (
+                        <Edge key={edge.id} edge={edge} fromKind={kinds.get(edge.fromId)!} toKind={kinds.get(edge.toId)!} />
                     ))}
 
                     {layout.nodes.map(({ node, status, x, y }) => {
@@ -117,7 +139,7 @@ export const SectorMapDisplay: FC<Props> = ({ map }) => {
                                 <title>{describeNode(node, status)}</title>
                                 <NodeGlyph kind={node.kind} status={status} radius={radius} />
                                 {showLabel && (
-                                    <text className={`${styles.nodeLabel} ${styles[status]}`} y={radius + 34} textAnchor="middle">
+                                    <text className={`${styles.nodeLabel} ${styles[status]}`} y={radius + 28} textAnchor="middle">
                                         {node.name}
                                     </text>
                                 )}

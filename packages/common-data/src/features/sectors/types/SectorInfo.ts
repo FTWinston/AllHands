@@ -8,6 +8,7 @@ export interface SectorInfo {
     /** Shown when every player ship is lost in this sector. */
     defeatMessage: string;
     nodes: SectorNodeInfo[];
-    startNodeIds: string[];
+    /** The repair station each sector starts at. */
+    startNodeId: string;
     bossNodeId: string;
 }

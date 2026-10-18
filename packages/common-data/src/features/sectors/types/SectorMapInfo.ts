@@ -6,7 +6,7 @@ export interface SectorMapNodeInfo {
     id: string;
     kind: SectorNodeKind;
     name: string;
-    /** Normalised 0..1 layout position; x runs start to boss. */
+    /** Normalised 0..1 layout position; x runs start to boss, and y is one of a fixed set of evenly spaced rows. */
     x: number;
     y: number;
     /** Ids of the nodes reachable from this one. */
@@ -20,8 +20,8 @@ export interface SectorMapInfo {
     sectorIndex: number;
     sectorCount: number;
     nodes: IArray<SectorMapNodeInfo>;
-    /** Null until the first node is chosen. */
-    currentNodeId: string | null;
+    /** Starts at the sector's start node. */
+    currentNodeId: string;
     visitedNodeIds: IArray<string>;
     /** Nodes selectable from the current position. */
     availableNodeIds: IArray<string>;

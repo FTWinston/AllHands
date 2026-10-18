@@ -41,23 +41,32 @@
     max-width: none;
 }
 
-.edge {
+.edgeLine {
+    fill: none;
+    stroke: var(--edge-color);
     stroke-width: 4;
     stroke-linecap: round;
 }
 
+.edgeArrow {
+    fill: var(--edge-color);
+}
+
 .edge_travelled {
-    stroke: var(--primary-mid);
+    --edge-color: var(--primary-mid);
 }
 
 .edge_available {
-    stroke: var(--grey-lightest);
+    --edge-color: var(--grey-lightest);
+}
+
+.edge_available .edgeLine {
     stroke-dasharray: 10 8;
 }
 
 .edge_unreachable {
-    stroke: var(--grey-dark);
-    stroke-opacity: 0.6;
+    --edge-color: var(--grey-dark);
+    opacity: 0.6;
 }
 
 .node {
@@ -125,7 +134,7 @@
 }
 
 .nodeLabel {
-    font-size: 22px;
+    font-size: 20px;
     fill: var(--grey-light);
     pointer-events: none;
 }

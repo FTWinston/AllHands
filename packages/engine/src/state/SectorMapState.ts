@@ -17,23 +17,25 @@ export class SectorMapState extends Schema implements SectorMapInfo {
         this.sectorCount = sectorCount;
         this.nodes.push(...sector.nodes.map(node => new SectorMapNodeState(node)));
         this.fullNodes = sector.nodes;
-        this.startNodeIds = [...sector.startNodeIds];
+        this.startNodeId = sector.startNodeId;
         this.bossNodeId = sector.bossNodeId;
-        this.setAvailableNodes(this.startNodeIds);
+        this.currentNodeId = this.startNodeId;
+        this.moveTo(this.startNodeId);
     }
 
     @type('string') readonly sectorName: string;
     @type('number') readonly sectorIndex: number;
     @type('number') readonly sectorCount: number;
     @type([SectorMapNodeState]) readonly nodes = new ArraySchema<SectorMapNodeState>();
-    @type('string') currentNodeId: string | null = null;
+    /** The sector starts with the ship already at its start node. */
+    @type('string') currentNodeId: string;
     @type(['string']) readonly visitedNodeIds = new ArraySchema<string>();
     @type(['string']) readonly availableNodeIds = new ArraySchema<string>();
 
     /** Server-only: the full node data, including environment, faction and objective. */
     private readonly fullNodes: readonly SectorNodeInfo[];
     readonly sectorId: string;
-    readonly startNodeIds: readonly string[];
+    readonly startNodeId: string;
     readonly bossNodeId: string;
 
     getNode(nodeId: string): SectorNodeInfo | undefined {

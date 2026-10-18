@@ -66,8 +66,9 @@ describe('Campaign phase flow', () => {
         expect(state.message).toMatchObject({ kind: 'intro', title: sectorThemes[0].name });
         expect(state.map!.sectorIndex).toBe(0);
         expect(state.map!.sectorCount).toBe(3);
-        expect(state.map!.currentNodeId).toBeNull();
-        expect([...state.map!.availableNodeIds]).toEqual([...state.map!.startNodeIds]);
+        expect(state.map!.currentNodeId).toBe(state.map!.startNodeId);
+        expect([...state.map!.visitedNodeIds]).toEqual([state.map!.startNodeId]);
+        expect([...state.map!.availableNodeIds]).toEqual([...state.map!.getNode(state.map!.startNodeId)!.next]);
         expect(state.encounter).toBeNull();
         expect(campaign.isInEncounter).toBe(false);
     });
@@ -124,7 +125,7 @@ describe('Campaign phase flow', () => {
         expect(campaign.selectRoute(ships[0], unavailable.id)).toBe(false);
         expect(campaign.selectRoute(ships[0], 'nope')).toBe(false);
         expect(state.phase).toBe('map');
-        expect(state.map!.currentNodeId).toBeNull();
+        expect(state.map!.currentNodeId).toBe(state.map!.startNodeId);
     });
 
     it('stops ship systems on the map, and starts them again in the encounter', () => {
@@ -184,7 +185,7 @@ describe('Campaign phase flow', () => {
 
         expect(state.phase).toBe('encounter');
         expect(state.map!.currentNodeId).toBe(nodeId);
-        expect([...state.map!.visitedNodeIds]).toEqual([nodeId]);
+        expect([...state.map!.visitedNodeIds]).toEqual([state.map!.startNodeId, nodeId]);
         expect([...state.map!.availableNodeIds]).toEqual([...node.next]);
         expect(state.encounter).toMatchObject({ encounterId: node.encounterId, name: node.name, objectiveMet: false });
 

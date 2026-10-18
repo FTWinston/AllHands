@@ -20,6 +20,8 @@ export interface MapEdgeLayout {
     y1: number;
     x2: number;
     y2: number;
+    /** Edges leave their source horizontally, turn vertically at this x, then enter their target horizontally. The same for every edge between two columns. */
+    bendX: number;
 }
 
 export interface SectorMapLayout {
@@ -31,7 +33,37 @@ function clamp01(value: number): number {
     return Math.min(1, Math.max(0, value));
 }
 
-/** Maps the normalised node positions into a `width` x `height` box inset by `padding`, and classifies nodes and edges. */
+/**
+ * How far across the gap between two columns every edge turns, as a fraction of its width.
+ * A little left of centre, leaving room for the arrowheads.
+ */
+const bendFraction = 0.45;
+
+/**
+ * An SVG path for an edge, running horizontally from `startX` to the edge's bend, vertically to the target's row, then horizontally to `endX`,
+ * with corners rounded to `cornerRadius` where there's room.
+ */
+export function getEdgePath(edge: Pick<MapEdgeLayout, 'y1' | 'y2' | 'bendX'>, startX: number, endX: number, cornerRadius: number): string {
+    const { y1, y2, bendX } = edge;
+    if (y1 === y2) {
+        return `M${startX} ${y1}H${endX}`;
+    }
+
+    const direction = Math.sign(y2 - y1);
+    const radius = Math.max(0, Math.min(cornerRadius, Math.abs(y2 - y1) / 2, bendX - startX, endX - bendX));
+
+    // Turning down from heading right is clockwise, and turning back to the right is then anticlockwise; heading up is the reverse.
+    const firstSweep = direction > 0 ? 1 : 0;
+    const secondSweep = 1 - firstSweep;
+
+    return `M${startX} ${y1}H${bendX - radius}`
+        + `A${radius} ${radius} 0 0 ${firstSweep} ${bendX} ${y1 + direction * radius}`
+        + `V${y2 - direction * radius}`
+        + `A${radius} ${radius} 0 0 ${secondSweep} ${bendX + radius} ${y2}`
+        + `H${endX}`;
+}
+
+/** Maps the normalised node positions into a `width` x `height` box inset by `padding`, routes edges between them, and classifies nodes and edges. */
 export function layoutSectorMap(
     map: Pick<SectorMapInfo, 'nodes' | 'currentNodeId' | 'visitedNodeIds' | 'availableNodeIds'>,
     width: number,
@@ -81,7 +113,7 @@ export function layoutSectorMap(
                 status = 'available';
             }
 
-            edges.push({ id, fromId: from.node.id, toId, status, x1: from.x, y1: from.y, x2: to.x, y2: to.y });
+            edges.push({ id, fromId: from.node.id, toId, status, x1: from.x, y1: from.y, x2: to.x, y2: to.y, bendX: from.x + bendFraction * (to.x - from.x) });
         }
     }
 
