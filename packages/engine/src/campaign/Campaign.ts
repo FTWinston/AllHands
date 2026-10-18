@@ -55,6 +55,11 @@ export class Campaign {
         }
 
         this.enterSector(0);
+
+        // Ships are created before the campaign exists, so they started card generation timers that must stop until the first encounter.
+        for (const ship of getPlayerShips(this.state)) {
+            ship.updateCardGeneration();
+        }
     }
 
     tick(deltaTime: number): void {

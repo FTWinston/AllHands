@@ -215,31 +215,46 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     }
 
     /**
-     * Update the card generation timers displayed for each crew system.
+     * Update the card generation timers displayed for each crew system. No cards are drawn outside an encounter, so there are no timers then.
      */
     updateCardGeneration() {
-        this.helmState.updateCardGeneration();
-        this.scienceState.updateCardGeneration();
-        this.tacticalState.updateCardGeneration();
-        this.engineerState.updateCardGeneration();
+        if (this.gameState.isSimulatingSystems) {
+            this.updateCrewCardGeneration();
+        } else {
+            this.clearCrewCardGeneration();
+        }
     }
 
     /** Start card draws and generation timers over, at the beginning of an encounter. */
     startEncounter() {
         this.detectionTimer = 0;
         this.reactorState.resetCardGeneration();
-        this.helmState.resetCardGeneration();
-        this.scienceState.resetCardGeneration();
-        this.tacticalState.resetCardGeneration();
-        this.engineerState.resetCardGeneration();
+        this.clearCrewCardGeneration();
         for (const system of this.systems.values()) {
             system.dealInitialHand();
         }
 
-        this.updateCardGeneration();
+        // Unconditional, as this runs just before the campaign enters the encounter phase.
+        this.updateCrewCardGeneration();
+    }
+
+    private updateCrewCardGeneration() {
+        this.helmState.updateCardGeneration();
+        this.scienceState.updateCardGeneration();
+        this.tacticalState.updateCardGeneration();
+        this.engineerState.updateCardGeneration();
+    }
+
+    private clearCrewCardGeneration() {
+        this.helmState.resetCardGeneration();
+        this.scienceState.resetCardGeneration();
+        this.tacticalState.resetCardGeneration();
+        this.engineerState.resetCardGeneration();
     }
 
     cleanupAfterEncounter() {
+        this.clearCrewCardGeneration();
+
         for (const system of this.systems.values()) {
             system.cleanupAfterEncounter();
         }

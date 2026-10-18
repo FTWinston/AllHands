@@ -153,6 +153,27 @@ describe('Campaign phase flow', () => {
         expect(ship.helmState.hand.length).toBeGreaterThan(0);
     });
 
+    it('only runs crew card generation timers during an encounter', () => {
+        const { state, campaign, ships } = createCampaign();
+        const [ship] = ships;
+        const crewSystems = [ship.helmState, ship.scienceState, ship.tacticalState, ship.engineerState];
+        const timers = () => crewSystems.map(system => system.cardGeneration);
+
+        expect(timers()).toEqual([null, null, null, null]);
+        campaign.dismissMessage();
+        state.tick(5000);
+        expect(timers()).toEqual([null, null, null, null]);
+
+        campaign.selectRoute(ship, state.map!.availableNodeIds[0]);
+        expect(timers().some(timer => timer !== null)).toBe(true);
+
+        completeEncounter(state);
+        campaign.warpAway(ship);
+        expect(state.phase).toBe('map');
+        expect(timers()).toEqual([null, null, null, null]);
+        expect(ship.engineerState.systems.some(tile => tile.generating)).toBe(false);
+    });
+
     it('selecting a route starts the encounter and narrows the next choices', () => {
         const { state, campaign, ships } = createCampaign();
         campaign.dismissMessage();
