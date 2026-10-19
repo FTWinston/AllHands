@@ -21,6 +21,8 @@ export type Props = {
     engineerState: SystemState;
     numUnassigned: number;
     isFull: boolean;
+    /** Seconds until the game starts, once every role is claimed; 0 when not counting down. */
+    startCountdown: number;
 };
 
 export const GameLobbyDisplay: FC<Props> = (props) => {
@@ -103,6 +105,20 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                             {numUnassigned === 1 ? '' : 's'}
                             .
                         </p>
+                    )}
+                    {props.startCountdown > 0 && (
+                        <div className={styles.countdown} role="timer" aria-live="polite">
+                            <span className={styles.countdownValue}>{props.startCountdown}</span>
+                            <p>
+                                Every role is claimed, so the game is about to start.
+                                {' '}
+                                To stop it, press
+                                {' '}
+                                <strong>Change role</strong>
+                                {' '}
+                                on any phone.
+                            </p>
+                        </div>
                     )}
                 </div>
             </div>

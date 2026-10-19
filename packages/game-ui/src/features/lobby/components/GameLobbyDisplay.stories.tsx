@@ -22,6 +22,7 @@ const meta: Meta<typeof GameLobbyDisplay> = {
             ip: '192.168.1.100',
             port: 23552,
         },
+        startCountdown: 0,
     },
 };
 
@@ -63,6 +64,7 @@ export const SingleCrewFullyOccupied: Story = {
         scienceState: 'occupied',
         engineerState: 'occupied',
         isFull: true,
+        startCountdown: 3,
     },
 };
 
@@ -102,5 +104,6 @@ export const MultipleCrewFullyOccupied: Story = {
         engineerState: 'occupied',
         numUnassigned: 0,
         isFull: true,
+        startCountdown: 3,
     },
 };

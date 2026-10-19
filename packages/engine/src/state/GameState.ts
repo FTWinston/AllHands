@@ -18,6 +18,8 @@ import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/
 
 export class GameState extends Schema {
     @type('string') gameStatus: GameStatus = 'setup';
+    /** Whole seconds until the game starts, once every role is claimed during setup; 0 when not counting down. */
+    @type('number') startCountdown = 0;
     /** Null until the campaign starts. */
     @type('string') phase: GamePhase | null = null;
     @type('string') outcome: GameOutcome | null = null;

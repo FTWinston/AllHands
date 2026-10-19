@@ -1,3 +1,4 @@
+import { useRoomState } from '@colyseus/react';
 import { getStateCallbacks, Room } from '@colyseus/sdk';
 import { type ServerAddress } from 'common-data/types/ServerAddress';
 import { FC, useEffect, useState } from 'react';
@@ -14,6 +15,8 @@ type Props = {
 
 export const GameLobby: FC<Props> = (props) => {
     const { serverAddress, allowMultipleCrews, room, crewId, disconnect } = props;
+
+    const startCountdown = useRoomState(room, state => state.startCountdown) ?? 0;
 
     const [helmState, setHelmState] = useState<SystemState>('unoccupied');
     const [tacticalState, setTacticalState] = useState<SystemState>('unoccupied');
@@ -106,6 +109,7 @@ export const GameLobby: FC<Props> = (props) => {
             engineerState={engineerState}
             numUnassigned={numUnassigned}
             isFull={isFull}
+            startCountdown={startCountdown}
         />
     );
 };
