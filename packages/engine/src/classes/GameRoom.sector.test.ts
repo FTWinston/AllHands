@@ -31,7 +31,7 @@ async function send(room: GameRoom, client: TestClient, type: string, payload?: 
     await new Promise(resolve => setTimeout(resolve, 10));
 }
 
-/** A ship client plus one crew client per role, all ready, so the campaign has started. */
+/** A ship client plus one crew client per role, so the campaign has started. */
 async function startGame() {
     const room = rooms.getRoom();
 
@@ -45,10 +45,6 @@ async function startGame() {
         await send(room, clients[role], 'role', roleIds[role]);
     }
 
-    for (const role of roles) {
-        await send(room, clients[role], 'ready', true);
-    }
-
     expect(room.state.gameStatus).toBe('active');
     const ship = room.state.crews.get(crewId)!.ship!;
 
@@ -56,7 +52,7 @@ async function startGame() {
 }
 
 describe('GameRoom campaign messages', () => {
-    it('starts the campaign in the sector intro once the crew is ready', async () => {
+    it('starts the campaign in the sector intro once every role is claimed', async () => {
         const { state } = await startGame();
 
         expect(state.phase).toBe('sectorIntro');

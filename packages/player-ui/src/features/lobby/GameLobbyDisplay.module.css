@@ -12,14 +12,3 @@
     min-height: 3em;
     margin-bottom: 1em;
 }
-
-.readyToggle {
-    width: 12em;
-}
-
-.footer {
-    display: flex;
-    justify-content: center;
-    gap: 2em;
-    margin-top: 1.5em;
-}

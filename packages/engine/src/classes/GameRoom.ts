@@ -107,6 +107,10 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 console.warn(`Role ${role} is already taken on crew ${crew.crewId}`);
                 return;
             }
+
+            if (role !== '') {
+                this.checkIfAllRolesClaimed();
+            }
         });
 
         this.onMessage('pause', () => {
@@ -122,34 +126,6 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 this.startOrResume();
             } else {
                 console.warn('Cannot resume: game is not paused');
-            }
-        });
-
-        this.onMessage('ready', (client, ready: boolean) => {
-            console.log(`Ready message from ${client.sessionId}: ${ready}`);
-
-            const crewId = client.userData?.crewId;
-            if (!crewId) {
-                console.error('Client has no crew ID assigned');
-                return;
-            }
-
-            if (this.state.gameStatus === 'active') {
-                console.error('Cannot update ready status while game is active');
-                return;
-            }
-
-            const crew = this.state.crews.get(crewId);
-
-            if (!crew) {
-                console.error(`Crew ${crewId} not found`);
-                return;
-            }
-
-            crew.crewReady.set(client.sessionId, ready);
-
-            if (ready) {
-                this.checkIfEveryoneIsReady();
             }
         });
 
@@ -710,18 +686,20 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         console.log('room disposing...');
     }
 
-    checkIfEveryoneIsReady() {
+    /** The game starts as soon as every role on every crew has been claimed. */
+    checkIfAllRolesClaimed() {
+        if (this.state.gameStatus !== 'setup') {
+            return;
+        }
+
         for (const crew of this.state.crews.values()) {
-            if (!crew.isReady()) {
+            if (!crew.allRolesClaimed()) {
                 return;
             }
         }
 
-        if (this.state.gameStatus === 'setup') {
-            console.log('All crew members are ready!');
-            this.populateScenario();
-        }
-
+        console.log('All roles are claimed!');
+        this.populateScenario();
         this.startOrResume();
     }
 

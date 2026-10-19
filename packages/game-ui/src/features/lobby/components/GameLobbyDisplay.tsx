@@ -8,7 +8,7 @@ import styles from './GameLobbyDisplay.module.css';
 import { LobbyRole } from './LobbyRole';
 import type { ServerAddress } from 'common-data/types/ServerAddress';
 
-export type SystemState = 'unoccupied' | 'occupied' | 'ready';
+export type SystemState = 'unoccupied' | 'occupied';
 
 export type Props = {
     serverAddress: ServerAddress;

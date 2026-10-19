@@ -91,10 +91,7 @@ for (let i = 0; i < TOTAL_PLAYERS; i++) {
         await page.mouse.move(x, 100, { steps: 20 });
         await page.mouse.up();
 
-        // Click the last button (the "Ready" button).
-        await page.locator('button').last().click();
-
-        console.log(`✅ Player ${i + 1} ready!`);
+        console.log(`✅ Player ${i + 1} claimed a role!`);
     } catch (error) {
         console.error(`❌ Error setting up player ${i + 1}:`, error);
     }

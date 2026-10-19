@@ -10,13 +10,12 @@ import styles from './RoleSlot.module.css';
 
 type Props = {
     role: CrewRole | null;
-    canRelease: boolean;
     onRelease: () => void;
     isOccupied: (role: CrewRole) => boolean;
 };
 
 /** Holds the card for the system this player has claimed, or invites them to play one. */
-export const RoleSlot: FC<Props> = ({ role, canRelease, onRelease, isOccupied }) => {
+export const RoleSlot: FC<Props> = ({ role, onRelease, isOccupied }) => {
     const activeCard = useActiveCard();
 
     const system = lobbyCards.find(card => card.id === role)?.system;
@@ -39,7 +38,7 @@ export const RoleSlot: FC<Props> = ({ role, canRelease, onRelease, isOccupied })
         <div className={styles.slot}>
             <CardDisplay {...getLobbyCardDefinition(system)} className={styles.card} slotted={true} />
 
-            <Button onClick={onRelease} disabled={!canRelease} className={styles.release}>
+            <Button onClick={onRelease} className={styles.release}>
                 Change role
             </Button>
         </div>

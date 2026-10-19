@@ -3,7 +3,7 @@ import { FC, JSX } from 'react';
 
 import styles from './LobbyRole.module.css';
 
-export type SystemState = 'unoccupied' | 'occupied' | 'ready';
+export type SystemState = 'unoccupied' | 'occupied';
 
 export type Props = {
     icon: JSX.Element;
