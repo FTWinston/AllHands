@@ -110,13 +110,12 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                         <div className={styles.countdown} role="timer" aria-live="polite">
                             <span className={styles.countdownValue}>{props.startCountdown}</span>
                             <p>
-                                Every role is claimed, so the game is about to start.
-                                {' '}
+                                The game is about to start.
+                                <br/>
                                 To stop it, press
                                 {' '}
                                 <strong>Change role</strong>
-                                {' '}
-                                on any phone.
+                                .
                             </p>
                         </div>
                     )}
