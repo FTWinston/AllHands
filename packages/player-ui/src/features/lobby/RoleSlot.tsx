@@ -12,22 +12,23 @@ type Props = {
     role: CrewRole | null;
     canRelease: boolean;
     onRelease: () => void;
+    isOccupied: (role: CrewRole) => boolean;
 };
 
 /** Holds the card for the system this player has claimed, or invites them to play one. */
-export const RoleSlot: FC<Props> = ({ role, canRelease, onRelease }) => {
+export const RoleSlot: FC<Props> = ({ role, canRelease, onRelease, isOccupied }) => {
     const activeCard = useActiveCard();
 
     const system = lobbyCards.find(card => card.id === role)?.system;
 
     if (!system) {
-        const awaitingCard = activeCard !== null && !activeCard.isDamaged;
+        const awaitingCard = activeCard !== null && !isOccupied(activeCard.id as CrewRole);
 
         return (
             <div className={styles.slot}>
                 <CardBase className={classNames(styles.card, styles.emptySlot, awaitingCard ? styles.awaitingCard : null)}>
                     <div className={styles.emptyLabel}>
-                        {awaitingCard ? 'Drop to claim this system' : 'Drag a card up here'}
+                        {awaitingCard ? 'Drop to claim this system' : 'Drag a card here'}
                     </div>
                 </CardBase>
             </div>
@@ -39,7 +40,7 @@ export const RoleSlot: FC<Props> = ({ role, canRelease, onRelease }) => {
             <CardDisplay {...getLobbyCardDefinition(system)} className={styles.card} slotted={true} />
 
             <Button onClick={onRelease} disabled={!canRelease} className={styles.release}>
-                Release
+                Change role
             </Button>
         </div>
     );

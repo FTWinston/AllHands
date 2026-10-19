@@ -18,11 +18,10 @@ type Props = {
 const getCardId = (card: LobbyCard) => card.id;
 
 const damagedTraits = { damaged: ExtraTraitType.Normal };
-const unplayableTraits = { unplayable: ExtraTraitType.Normal };
 
 /**
  * Lays out the lobby's system cards the same way as a hand of cards.
- * Systems occupied by someone else are shown as damaged, and the rest are unplayable while this player holds a role.
+ * Systems occupied by someone else cost more power than is available, and the rest are shown as damaged while this player holds a role.
  */
 export const LobbyHand: FC<Props> = ({ cards, isOccupied, hasRole }) => {
     const { knownItems, currentItemIds: inHandCardIds, removingItemIds: removingCardIds } = useArrayChanges(cards, getCardId);
@@ -44,8 +43,8 @@ export const LobbyHand: FC<Props> = ({ cards, isOccupied, hasRole }) => {
                     id={card.id}
                     // Not a card definition, so `definition` is what is displayed; the type only identifies the card while it is dragged.
                     type={card.system as CardType}
-                    definition={getLobbyCardDefinition(card.system)}
-                    extraTraits={isOccupied(card.id) ? damagedTraits : hasRole ? unplayableTraits : undefined}
+                    definition={getLobbyCardDefinition(card.system, isOccupied(card.id))}
+                    extraTraits={hasRole ? damagedTraits : undefined}
                     availablePower={0}
                     index={index}
                     className={classNames(

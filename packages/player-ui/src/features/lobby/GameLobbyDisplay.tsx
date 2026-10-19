@@ -52,7 +52,12 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
     return (
         <Screen padded className={styles.screen}>
             <DragCardProvider onCardDropped={cardId => onRoleChange(cardId as CrewRole)}>
-                <CardDropTarget id="noTarget" targetType="no-target" disabled={role !== null} />
+                <CardDropTarget
+                    id="noTarget"
+                    targetType="no-target"
+                    disabled={role !== null}
+                    canAcceptCard={card => !isOccupied(card.id as CrewRole)}
+                />
 
                 <h1 className={styles.title}>Choose your role</h1>
                 {crewId !== soloCrewIdentifier && (
@@ -66,11 +71,11 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
 
                 <p className={styles.instructions}>
                     {role === null
-                        ? 'Drag a card up from your hand to claim that system. Damaged cards have already been claimed.'
+                        ? 'Drag a card from your hand to claim a role.'
                         : 'When every system is claimed and everyone is ready, the game will start.'}
                 </p>
 
-                <RoleSlot role={role} canRelease={!isReady} onRelease={() => onRoleChange('')} />
+                <RoleSlot role={role} canRelease={!isReady} onRelease={() => onRoleChange('')} isOccupied={isOccupied} />
 
                 <div className={styles.footer}>
                     <ToggleButton

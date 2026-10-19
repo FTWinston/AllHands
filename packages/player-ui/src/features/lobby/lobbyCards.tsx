@@ -23,12 +23,15 @@ const cardText: Record<CrewRoleName, { name: string; description: string }> = {
     engineer: { name: 'Engineer', description: 'Manage power and repair damaged systems.' },
 };
 
-/** Lobby cards are not card definitions, so what they show is built from the system they claim. */
-export function getLobbyCardDefinition(system: CrewRoleName): UICardDefinition {
+/**
+ * Lobby cards are not card definitions, so what they show is built from the system they claim.
+ * A system occupied by another player costs 1, more power than the lobby ever has, so it shows as unplayable.
+ */
+export function getLobbyCardDefinition(system: CrewRoleName, occupied = false): UICardDefinition {
     return {
         targetType: 'no-target',
         system,
-        parameters: { cost: 0 },
+        parameters: { cost: occupied ? 1 : 0 },
         // Prevents a drop effect, which can only show card definitions.
         traits: ['priority'],
         ...cardText[system],
