@@ -711,18 +711,34 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
     }
 
     checkIfEveryoneIsReady() {
+        if (!this.isEveryoneReady()) {
+            return;
+        }
+
+        if (this.state.gameStatus !== 'setup') {
+            this.startOrResume();
+            return;
+        }
+
+        console.log('All crew members are ready!');
+
+        // Fade the lobby out before starting. If anyone stops being ready meanwhile, the lobby just fades back in.
+        this.state.changeScene('start', () => {
+            if (this.state.gameStatus === 'setup' && this.isEveryoneReady()) {
+                this.populateScenario();
+                this.startOrResume();
+            }
+        });
+    }
+
+    private isEveryoneReady() {
         for (const crew of this.state.crews.values()) {
             if (!crew.isReady()) {
-                return;
+                return false;
             }
         }
 
-        if (this.state.gameStatus === 'setup') {
-            console.log('All crew members are ready!');
-            this.populateScenario();
-        }
-
-        this.startOrResume();
+        return true;
     }
 
     populateScenario() {

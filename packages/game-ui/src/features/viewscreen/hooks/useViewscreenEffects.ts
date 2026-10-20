@@ -1,12 +1,9 @@
-import { SystemHealthChange } from 'common-data/features/ships/types/SystemHealthChange';
+import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { sounds } from 'common-ui/features/sound/sounds';
 import { RefObject, useEffect, useRef } from 'react';
 import type { Room } from '@colyseus/sdk';
 import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
-
-/** A single hit damages the hull and the targeted system separately, so damage arriving within this window counts as one hit. */
-const hitWindowMs = 50;
 
 /**
  * Play the viewscreen's sound effects: weapons fire, explosions, our ship being hit (which also shakes the element in shakeRef),
@@ -29,30 +26,12 @@ export function useViewscreenEffects(room: Room, shipId: string, phase: GamePhas
         }
     }), [room, shipId]);
 
-    useEffect(() => {
-        let pendingDamage = 0;
-        let timeout: ReturnType<typeof setTimeout> | undefined;
-
-        const unsubscribe = room.onMessage<SystemHealthChange>('systemHealth', ({ change }) => {
-            if (change >= 0) {
-                return;
-            }
-
-            pendingDamage -= change;
-
-            timeout ??= setTimeout(() => {
-                sounds.shipHit(pendingDamage);
-                shake(shakeRef.current, pendingDamage);
-                pendingDamage = 0;
-                timeout = undefined;
-            }, hitWindowMs);
-        });
-
-        return () => {
-            unsubscribe();
-            clearTimeout(timeout);
-        };
-    }, [room, shakeRef]);
+    useEffect(() => room.onMessage<ShipHit>('shipHit', ({ damage }) => {
+        if (damage > 0) {
+            sounds.shipHit(damage);
+            shake(shakeRef.current, damage);
+        }
+    }), [room, shakeRef]);
 
     usePhaseSounds(phase);
 
@@ -79,8 +58,6 @@ function usePhaseSounds(phase: GamePhase | null) {
 
         if (phase === 'map') {
             sounds.mapShown();
-        } else if (phase === 'encounter' && previous === 'map') {
-            sounds.warp();
         } else if (phase === 'sectorIntro' || phase === 'sectorOutro') {
             sounds.messageReceived();
         }

@@ -1,8 +1,8 @@
 import { entity, type, view } from '@colyseus/schema';
 import { UntargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ownShipClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole } from 'common-data/features/ships/types/CrewRole';
+import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
-import { SystemHealthChange } from 'common-data/features/ships/types/SystemHealthChange';
 import { Damage } from 'common-data/features/space/types/Damage';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { distanceSq } from 'common-data/features/space/utils/vectors';
@@ -170,6 +170,9 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
         const remainingAmount = this.hullState.damageShields(damage);
 
+        // Before applying the damage, as that could destroy the ship.
+        this.wasHit({ damage: remainingAmount });
+
         let targetSystemDamage: number;
 
         if (damage.targetSystem === 'hull') {
@@ -198,8 +201,8 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         }
     }
 
-    /** Called whenever one of this ship's systems is damaged or repaired. */
-    systemHealthChanged(_change: SystemHealthChange) { }
+    /** Called whenever this ship is hit, just before the damage is applied. */
+    protected wasHit(_hit: ShipHit) { }
 
     override destroy() {
         // Broadcast explosion effect before removal.

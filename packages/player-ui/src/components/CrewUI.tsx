@@ -2,6 +2,7 @@ import { Snapshot, useRoomState } from '@colyseus/react';
 import { Room } from '@colyseus/sdk';
 import { CrewRole, CrewRoleName, ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { ScreenFade } from 'common-ui/components/ScreenFade';
 import { FC } from 'react';
 import { SystemDamageOverlay } from '../features/damage/SystemDamageOverlay';
 import { Engineer } from '../features/engineer/Engineer';
@@ -38,10 +39,14 @@ export const CrewUI: FC<Props> = (props) => {
     const systemState = (objects?.[props.shipId] as unknown as Snapshot<ShipInfo> | undefined)?.[`${system}State`];
     const damage = systemState?.maxHealth ? 1 - systemState.health / systemState.maxHealth : 0;
 
+    const sceneChange = useRoomState(props.room, state => state.sceneChange);
+
     return (
         <>
             <Station room={props.room} shipId={props.shipId} />
-            <SystemDamageOverlay room={props.room} system={system} damage={damage} />
+            <SystemDamageOverlay damage={damage} />
+            {/* The header is the same either side of travelling, so it stays visible. */}
+            <ScreenFade covered={!!sceneChange} fadeInOnMount keepAbove="[data-crew-header]" />
         </>
     );
 };

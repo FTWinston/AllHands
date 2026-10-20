@@ -124,9 +124,12 @@ export class Campaign {
             return false;
         }
 
-        map.moveTo(nodeId);
-        this.startEncounter(node);
-        return true;
+        return this.state.changeScene('travel', () => {
+            if (!this.isEnded) {
+                map.moveTo(nodeId);
+                this.startEncounter(node);
+            }
+        });
     }
 
     /** Helm plays the Warp Away card, ending the completed encounter. */
@@ -139,13 +142,20 @@ export class Campaign {
 
         if (this.playerShipsInEncounter.size === 0) {
             const node = this.encounter!.node;
-            this.teardownEncounter();
 
-            if (!this.state.map || node.id === this.state.map.bossNodeId) {
-                this.enterOutro();
-            } else {
-                this.showMap();
-            }
+            this.state.changeScene('travel', () => {
+                if (this.isEnded) {
+                    return;
+                }
+
+                this.teardownEncounter();
+
+                if (!this.state.map || node.id === this.state.map.bossNodeId) {
+                    this.enterOutro();
+                } else {
+                    this.showMap();
+                }
+            });
         }
 
         return true;

@@ -1,5 +1,7 @@
+import { useRoomState } from '@colyseus/react';
 import { getStateCallbacks, Room } from '@colyseus/sdk';
 import { CrewRole } from 'common-data/features/ships/types/CrewRole';
+import { ScreenFade } from 'common-ui/components/ScreenFade';
 import { sounds } from 'common-ui/features/sound/sounds';
 import { useState, useEffect, useRef, FC } from 'react';
 import { enterFullscreen, exitFullscreen } from '../../utils/fullscreen';
@@ -54,27 +56,32 @@ export const GameLobby: FC<Props> = (props) => {
 
     useRoleCountSounds([helmOccupied, tacticalOccupied, scienceOccupied, engineerOccupied].filter(Boolean).length);
 
+    const sceneChange = useRoomState(room, state => state.sceneChange);
+
     return (
-        <GameLobbyDisplay
-            crewId={crewId}
-            role={role}
-            ready={ready}
-            helmOccupied={helmOccupied}
-            tacticalOccupied={tacticalOccupied}
-            scienceOccupied={scienceOccupied}
-            engineerOccupied={engineerOccupied}
-            onRoleChange={(newRole) => {
-                room.send('role', newRole);
-            }}
-            onReadyChange={(newReady) => {
-                room.send('ready', newReady);
-                if (newReady) {
-                    enterFullscreen();
-                } else {
-                    exitFullscreen();
-                }
-            }}
-        />
+        <>
+            <GameLobbyDisplay
+                crewId={crewId}
+                role={role}
+                ready={ready}
+                helmOccupied={helmOccupied}
+                tacticalOccupied={tacticalOccupied}
+                scienceOccupied={scienceOccupied}
+                engineerOccupied={engineerOccupied}
+                onRoleChange={(newRole) => {
+                    room.send('role', newRole);
+                }}
+                onReadyChange={(newReady) => {
+                    room.send('ready', newReady);
+                    if (newReady) {
+                        enterFullscreen();
+                    } else {
+                        exitFullscreen();
+                    }
+                }}
+            />
+            <ScreenFade covered={sceneChange === 'start'} />
+        </>
     );
 };
 

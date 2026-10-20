@@ -1,7 +1,7 @@
 import { ClientArray } from '@colyseus/core';
 import { Schema, type, view, MapSchema } from '@colyseus/schema';
 import { CrewRole, ownHelmClientRole, ownScienceClientRole as scienceClientRole, ownTacticalClientRole, ownEngineerClientRole, ownShipClientRole, otherShipClientRole, otherHelmClientRole, otherTacticalClientRole, otherScienceClientRole } from 'common-data/features/ships/types/CrewRole';
-import { SystemHealthChange } from 'common-data/features/ships/types/SystemHealthChange';
+import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
@@ -279,9 +279,9 @@ export class CrewState extends Schema {
         this.sendToAllClients('ship', { shipId });
     }
 
-    /** Tell every client on this crew that one of their ship's systems was damaged or repaired. */
-    sendSystemHealthChange(change: SystemHealthChange) {
-        this.sendToAllClients('systemHealth', change);
+    /** Tell every client on this crew that their ship has been hit. */
+    sendShipHit(hit: ShipHit) {
+        this.sendToAllClients('shipHit', hit);
     }
 
     private sendToAllClients(type: string, message: unknown) {

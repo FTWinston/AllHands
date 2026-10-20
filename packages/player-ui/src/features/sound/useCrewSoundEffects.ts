@@ -1,6 +1,6 @@
 import { Snapshot, useRoomState } from '@colyseus/react';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
-import { SystemHealthChange } from 'common-data/features/ships/types/SystemHealthChange';
+import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { CrewSystemInfo, GameObjectInfo, HelmSystemInfo, ScienceSystemInfo, ShipInfo, TacticalSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { sounds } from 'common-ui/features/sound/sounds';
 import { HumIntensity, useHum } from 'common-ui/features/sound/useHum';
@@ -34,18 +34,36 @@ export function useCrewSoundEffects(room: Room<unknown, GameState>, shipId: stri
     useChangeSound(ownSystem === 'tactical' ? countReadyWeapons(systemState as Snapshot<TacticalSystemInfo>) : 0, inEncounter, sounds.weaponReady);
     useChangeSound(ownSystem === 'helm' ? (systemState as Snapshot<HelmSystemInfo> | undefined)?.activeManeuver?.startTime ?? 0 : 0, inEncounter, sounds.maneuver);
 
-    useEffect(() => room.onMessage<SystemHealthChange>('systemHealth', ({ system, change }) => {
-        if (system === ownSystem) {
-            if (change < 0) {
-                sounds.systemDamaged();
-                vibrate(vibrations.ownSystemDamaged);
-            } else {
-                sounds.systemRepaired();
-            }
-        } else if (system === 'hull' && change < 0) {
+    useHealthSounds(systemState?.health);
+
+    // Every hit shakes the whole ship. (The hit message arrives before the state patch with any damage to this system,
+    // so that system's stronger vibration replaces this one.)
+    useEffect(() => room.onMessage<ShipHit>('shipHit', ({ damage }) => {
+        if (damage > 0) {
             vibrate(vibrations.shipHit);
         }
-    }), [room, ownSystem]);
+    }), [room]);
+}
+
+/** Crunch and vibrate when this station's system is damaged, and chime when it's repaired. */
+function useHealthSounds(health: number | undefined) {
+    const previousHealth = useRef(health);
+
+    useEffect(() => {
+        const previous = previousHealth.current;
+        previousHealth.current = health;
+
+        if (previous === undefined || health === undefined) {
+            return;
+        }
+
+        if (health < previous) {
+            sounds.systemDamaged();
+            vibrate(vibrations.ownSystemDamaged);
+        } else if (health > previous) {
+            sounds.systemRepaired();
+        }
+    }, [health]);
 }
 
 function getHumIntensity(powerLevel: number): HumIntensity {

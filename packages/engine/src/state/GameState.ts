@@ -15,6 +15,7 @@ import { SectorMapState } from './SectorMapState';
 import { SectorMessageState } from './SectorMessageState';
 import type { Campaign } from '../campaign/Campaign';
 import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
+import type { SceneChange } from 'common-data/features/sectors/types/SceneChange';
 
 export class GameState extends Schema {
     @type('string') gameStatus: GameStatus = 'setup';
@@ -25,6 +26,10 @@ export class GameState extends Schema {
     @type(SectorMapState) map: SectorMapState | null = null;
     /** The sector intro/outro message awaiting tactical's dismissal; null when none. */
     @type(SectorMessageState) message: SectorMessageState | null = null;
+    /** Set while every screen fades to black ahead of a scene change (see `changeScene`); null otherwise. */
+    @type('string') sceneChange: SceneChange | null = null;
+    /** Server-only. How long screens get to fade to black before the scene changes. Zero changes it straight away, e.g. in tests. */
+    sceneChangeDelay = 1100;
     /** Server-only. Summary of the running encounter; null outside the encounter phase. */
     encounter: EncounterSummaryState | null = null;
     @view() @type({ map: GameObject }) objects = new MapSchema<GameObject>();
@@ -103,6 +108,28 @@ export class GameState extends Schema {
      */
     public setTimeout(callback: () => void, delay: number) {
         return this.clock.setTimeout(callback, delay / this.timeScale);
+    }
+
+    /**
+     * Fade every screen to black, then make the change once they are. Screens fade back in once `sceneChange` clears.
+     * Returns false, doing nothing, if a scene change is already under way.
+     */
+    public changeScene(kind: SceneChange, change: () => void): boolean {
+        if (this.sceneChange) {
+            return false;
+        }
+
+        if (this.sceneChangeDelay <= 0) {
+            change();
+            return true;
+        }
+
+        this.sceneChange = kind;
+        this.setTimeout(() => {
+            this.sceneChange = null;
+            change();
+        }, this.sceneChangeDelay);
+        return true;
     }
 
     /** Ship systems (card draws, timers) only run during an encounter; game time itself always advances. */

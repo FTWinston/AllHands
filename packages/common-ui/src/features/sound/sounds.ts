@@ -135,7 +135,7 @@ export const sounds = {
         playTone({ frequency: 1500, delay: 0.6, duration: 0.08, volume: 0.15 });
     },
 
-    /** Setting off from the map for the chosen destination: a rising warp whoosh. */
+    /** Warping between the map and an encounter, as the screen fades out: a rising whoosh. */
     warp() {
         playNoise({ filterType: 'bandpass', filterFrequency: 150, endFilterFrequency: 4000, duration: 1.4, volume: 0.6 });
         playTone({ frequency: 80, endFrequency: 900, duration: 1.3, volume: 0.15 });

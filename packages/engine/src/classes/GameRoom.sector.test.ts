@@ -157,3 +157,32 @@ describe('GameRoom campaign messages', () => {
         });
     }
 });
+
+describe('GameRoom game start', () => {
+    it('fades the lobby out before starting the game', async () => {
+        const room = rooms.getRoom();
+        room.state.sceneChangeDelay = 20;
+
+        await connect(room, { type: 'ship' });
+        const [crewId] = [...room.state.crews.keys()];
+
+        const roles: RoleName[] = ['helm', 'tactical', 'science', 'engineer'];
+        const clients = {} as Record<RoleName, TestClient>;
+        for (const role of roles) {
+            clients[role] = await connect(room, { type: 'crew', crewId });
+            await send(room, clients[role], 'role', roleIds[role]);
+        }
+        for (const role of roles) {
+            await send(room, clients[role], 'ready', true);
+        }
+
+        expect(room.state.sceneChange).toBe('start');
+        expect(room.state.gameStatus).toBe('setup');
+
+        await new Promise(resolve => setTimeout(resolve, 40));
+        room.clock.tick();
+
+        expect(room.state.sceneChange).toBeNull();
+        expect(room.state.gameStatus).toBe('active');
+    });
+});

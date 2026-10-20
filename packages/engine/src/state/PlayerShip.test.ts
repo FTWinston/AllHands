@@ -1,4 +1,4 @@
-import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { UntargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect, vi } from 'vitest';
@@ -7,12 +7,11 @@ import { PlayerShip } from './PlayerShip';
 
 const rooms = setupGameRoom();
 
-const cards: CardType[] = ['exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget'];
+const cards: UntargetedCardType[] = ['exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget'];
 const baseSetup = shipSetup(undefined);
 const setup: PlayerShipSetupInfo = {
     ...baseSetup,
-    helm: { ...baseSetup.helm, cards },
-    science: { ...baseSetup.science, cards },
+    hull: { ...baseSetup.hull, cards: [...cards, ...cards] },
     tactical: { ...baseSetup.tactical, cards },
 };
 
@@ -21,46 +20,28 @@ function createShipWithCrew() {
     const ship = new PlayerShip(gameState, setup);
     gameState.add(ship);
 
-    const sendSystemHealthChange = vi.fn();
-    ship.crew = { sendSystemHealthChange } as unknown as CrewState;
+    const sendShipHit = vi.fn();
+    ship.crew = { sendShipHit } as unknown as CrewState;
 
-    return { ship, sendSystemHealthChange };
+    return { ship, sendShipHit };
 }
 
-describe('PlayerShip system health changes', () => {
-    it('tells the crew when a system is damaged', () => {
-        const { ship, sendSystemHealthChange } = createShipWithCrew();
+describe('PlayerShip hits', () => {
+    it('tells the crew how much damage got through the shields', () => {
+        const { ship, sendShipHit } = createShipWithCrew();
 
-        ship.tacticalState.adjustHealth(-2);
+        ship.damage({ amount: 3, traits: [], targetSystem: 'tactical' });
 
-        expect(sendSystemHealthChange).toHaveBeenCalledExactlyOnceWith({ system: 'tactical', change: -2 });
+        expect(sendShipHit).toHaveBeenCalledExactlyOnceWith({ damage: 3 });
     });
 
-    it('tells the crew when a system is repaired', () => {
-        const { ship, sendSystemHealthChange } = createShipWithCrew();
-        ship.helmState.adjustHealth(-3);
-        sendSystemHealthChange.mockClear();
+    it('syncs the damage taken as system health', () => {
+        const { ship } = createShipWithCrew();
 
-        ship.helmState.adjustHealth(2);
+        ship.damage({ amount: 3, traits: [], targetSystem: 'tactical' });
 
-        expect(sendSystemHealthChange).toHaveBeenCalledExactlyOnceWith({ system: 'helm', change: 2 });
-    });
-
-    it('only reports the health that actually changed', () => {
-        const { ship, sendSystemHealthChange } = createShipWithCrew();
-        ship.scienceState.adjustHealth(-1);
-        sendSystemHealthChange.mockClear();
-
-        ship.scienceState.adjustHealth(5);
-
-        expect(sendSystemHealthChange).toHaveBeenCalledExactlyOnceWith({ system: 'science', change: 1 });
-    });
-
-    it('says nothing when there is nothing to repair', () => {
-        const { ship, sendSystemHealthChange } = createShipWithCrew();
-
-        ship.engineerState.adjustHealth(3);
-
-        expect(sendSystemHealthChange).not.toHaveBeenCalled();
+        // 60% of 3, rounded up, goes to the targeted system, and the rest to the hull.
+        expect(ship.tacticalState.health).toBe(ship.tacticalState.maxHealth - 2);
+        expect(ship.hullState.health).toBe(ship.hullState.maxHealth - 1);
     });
 });

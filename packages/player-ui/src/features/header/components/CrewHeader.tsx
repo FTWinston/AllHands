@@ -22,7 +22,7 @@ type Props = {
 
 export const CrewHeader: FC<Props> = (props) => {
     return (
-        <div className={styles.crewHeader}>
+        <div className={styles.crewHeader} data-crew-header>
             <div className={styles.title}>
                 <Menu.Root>
                     <Menu.Trigger

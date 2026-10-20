@@ -1,6 +1,6 @@
 import { entity, type, view } from '@colyseus/schema';
 import { ownShipClientRole } from 'common-data/features/ships/types/CrewRole';
-import { SystemHealthChange } from 'common-data/features/ships/types/SystemHealthChange';
+import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CrewState } from './CrewState';
 import { GameObject } from './GameObject';
@@ -34,8 +34,8 @@ export class PlayerShip extends Ship {
         this.crew?.removeObjectFromViews(object);
     }
 
-    override systemHealthChanged(change: SystemHealthChange) {
-        this.crew?.sendSystemHealthChange(change);
+    protected override wasHit(hit: ShipHit) {
+        this.crew?.sendShipHit(hit);
     }
 
     destroy() {
