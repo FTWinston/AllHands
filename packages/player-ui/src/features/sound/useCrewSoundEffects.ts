@@ -5,30 +5,21 @@ import { CrewSystemInfo, GameObjectInfo, ShipInfo } from 'common-data/features/s
 import { sounds } from 'common-ui/features/sound/sounds';
 import { HumIntensity, useHum } from 'common-ui/features/sound/useHum';
 import { vibrate, vibrations } from 'common-ui/features/sound/vibrate';
-import { FC, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import type { Room } from '@colyseus/sdk';
 import type { GameState } from 'engine/state/GameState';
 
-type Props = {
-    room: Room<unknown, GameState>;
-    shipId: string;
-    system: CrewRoleName;
-};
-
 /**
- * Plays the sounds and vibrations for a crew station: drawing cards, system damage and repair, and the hum of a highly powered system.
+ * Play the sounds and vibrations for a crew station: drawing cards, system damage and repair, and the hum of a highly powered system.
  * (Playing a card makes its sound as it's dropped, in DragCardProvider.)
- * Renders nothing, and is kept separate from the station display so it doesn't cause that to re-render.
  */
-export const CrewSoundEffects: FC<Props> = (props) => {
-    const { system: ownSystem } = props;
-
-    const objects = useRoomState(props.room, state => state.objects) as Record<string, Snapshot<GameObjectInfo>>;
-    const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo> | undefined;
+export function useCrewSoundEffects(room: Room<unknown, GameState>, shipId: string, ownSystem: CrewRoleName) {
+    const objects = useRoomState(room, state => state.objects) as Record<string, Snapshot<GameObjectInfo>>;
+    const localShip = objects?.[shipId] as unknown as Snapshot<ShipInfo> | undefined;
     const systemState = localShip?.[`${ownSystem}State`] as Snapshot<CrewSystemInfo> | undefined;
 
-    const phase = useRoomState(props.room, state => state.phase);
-    const gameStatus = useRoomState(props.room, state => state.gameStatus);
+    const phase = useRoomState(room, state => state.phase);
+    const gameStatus = useRoomState(room, state => state.gameStatus);
     const inEncounter = phase === 'encounter' && gameStatus === 'active';
 
     useDrawSound(systemState?.hand);
@@ -36,7 +27,7 @@ export const CrewSoundEffects: FC<Props> = (props) => {
     const powerLevel = systemState?.powerLevel ?? 0;
     useHum(inEncounter ? getHumIntensity(powerLevel) : 0);
 
-    useEffect(() => props.room.onMessage<SystemHealthChange>('systemHealth', ({ system, change }) => {
+    useEffect(() => room.onMessage<SystemHealthChange>('systemHealth', ({ system, change }) => {
         if (system === ownSystem) {
             if (change < 0) {
                 sounds.systemDamaged();
@@ -47,10 +38,8 @@ export const CrewSoundEffects: FC<Props> = (props) => {
         } else if (system === 'hull' && change < 0) {
             vibrate(vibrations.shipHit);
         }
-    }), [props.room, ownSystem]);
-
-    return null;
-};
+    }), [room, ownSystem]);
+}
 
 function getHumIntensity(powerLevel: number): HumIntensity {
     if (powerLevel >= 5) {

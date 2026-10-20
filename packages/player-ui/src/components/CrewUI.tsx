@@ -4,7 +4,7 @@ import { FC } from 'react';
 import { Engineer } from '../features/engineer/Engineer';
 import { Helm } from '../features/helm/Helm';
 import { Science } from '../features/science/Science';
-import { CrewSoundEffects } from '../features/sound/CrewSoundEffects';
+import { useCrewSoundEffects } from '../features/sound/useCrewSoundEffects';
 import { Tactical } from '../features/tactical/Tactical';
 import type { GameState } from 'engine/state/GameState';
 
@@ -27,19 +27,9 @@ const stations: Record<CrewRole, { system: CrewRoleName; Station: FC<StationProp
 };
 
 export const CrewUI: FC<Props> = (props) => {
-    const station = stations[props.role];
+    const { system, Station } = stations[props.role];
 
-    if (!station) {
-        console.warn('unexpected role', props.role);
-        return null;
-    }
+    useCrewSoundEffects(props.room, props.shipId, system);
 
-    const { system, Station } = station;
-
-    return (
-        <>
-            <Station room={props.room} shipId={props.shipId} />
-            <CrewSoundEffects room={props.room} shipId={props.shipId} system={system} />
-        </>
-    );
+    return <Station room={props.room} shipId={props.shipId} />;
 };
