@@ -20,7 +20,7 @@ export const ToggleButton: FC<Props> = ({ children, pressed, onPressedChanged, .
                 {...props}
                 className={classNames(styles.toggle, state.pressed ? styles.pressed : styles.unpressed, props.className)}
                 children={children}
-                endIcon={state.pressed ? '✅' : <span className={styles.inactiveEndIcon}>☑️</span>}
+                endIcon={state.pressed ? '✅' : <span className={styles.inactiveEndIcon}>⬜</span>}
             />
         )}
     />
