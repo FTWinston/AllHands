@@ -2,6 +2,7 @@ import { entity, type, view } from '@colyseus/schema';
 import { UntargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ownShipClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
+import { SystemHealthChange } from 'common-data/features/ships/types/SystemHealthChange';
 import { Damage } from 'common-data/features/space/types/Damage';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { distanceSq } from 'common-data/features/space/utils/vectors';
@@ -196,6 +197,9 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             applyWeaponTrait(trait, this, targetSystem);
         }
     }
+
+    /** Called whenever one of this ship's systems is damaged or repaired. */
+    systemHealthChanged(_change: SystemHealthChange) { }
 
     override destroy() {
         // Broadcast explosion effect before removal.

@@ -3,9 +3,10 @@ import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer } from 'comm
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
-import { FC, PropsWithChildren } from 'react';
+import { FC, PropsWithChildren, useRef } from 'react';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import { ViewscreenPhaseDisplay } from './components/ViewscreenPhaseDisplay';
+import { useViewscreenEffects } from './hooks/useViewscreenEffects';
 import type { Room } from '@colyseus/sdk';
 import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { SectorMapInfo } from 'common-data/features/sectors/types/SectorMapInfo';
@@ -32,6 +33,9 @@ export const Viewscreen: FC<Props> = (props) => {
     // Snapshots are plain objects, so the shared info interfaces describe them.
     const map = (useRoomState(props.room, state => state.map) ?? null) as unknown as SectorMapInfo | null;
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
+
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    useViewscreenEffects(props.room, props.shipId, phase, canvasRef);
 
     if (isEnded || phase !== 'encounter') {
         return (
@@ -61,6 +65,7 @@ export const Viewscreen: FC<Props> = (props) => {
             objects={objects}
             viewer={viewer}
             weaponEffectsRef={weaponEffectsRef}
+            canvasRef={canvasRef}
             showMenu={props.showMenu}
         >
             {props.children}

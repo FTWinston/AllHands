@@ -42,3 +42,13 @@ export const getRole: (name: CrewRoleName) => CrewRole = (name: CrewRoleName) =>
         default: throw new Error(`Invalid crew role name: ${name}`);
     }
 };
+
+export const getRoleName: (role: CrewRole) => CrewRoleName = (role: CrewRole) => {
+    switch (role) {
+        case ownHelmClientRole: return 'helm';
+        case ownScienceClientRole: return 'science';
+        case ownTacticalClientRole: return 'tactical';
+        case ownEngineerClientRole: return 'engineer';
+        default: throw new Error(`Invalid crew role: ${role}`);
+    }
+};

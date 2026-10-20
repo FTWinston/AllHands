@@ -1,6 +1,7 @@
 import { ClientArray } from '@colyseus/core';
 import { Schema, type, view, MapSchema } from '@colyseus/schema';
 import { CrewRole, ownHelmClientRole, ownScienceClientRole as scienceClientRole, ownTacticalClientRole, ownEngineerClientRole, ownShipClientRole, otherShipClientRole, otherHelmClientRole, otherTacticalClientRole, otherScienceClientRole } from 'common-data/features/ships/types/CrewRole';
+import { SystemHealthChange } from 'common-data/features/ships/types/SystemHealthChange';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
@@ -275,6 +276,19 @@ export class CrewState extends Schema {
 
     /** Send a 'ship' message with the given ship ID to all clients on this crew. */
     private sendShipMessage(shipId: string | null) {
+        this.sendToAllClients('ship', { shipId });
+    }
+
+    /** Tell every client on this crew that one of their ship's systems was damaged or repaired. */
+    sendSystemHealthChange(change: SystemHealthChange) {
+        this.sendToAllClients('systemHealth', change);
+    }
+
+    private sendToAllClients(type: string, message: unknown) {
+        if (!this.clients) {
+            return;
+        }
+
         const clientIds = [
             this.shipClientId,
             this.helmClientId,
@@ -286,7 +300,7 @@ export class CrewState extends Schema {
         for (const clientId of clientIds) {
             if (clientId) {
                 const client = this.clients.getById(clientId);
-                client?.send('ship', { shipId });
+                client?.send(type, message);
             }
         }
     }

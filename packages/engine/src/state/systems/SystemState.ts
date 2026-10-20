@@ -330,11 +330,17 @@ export abstract class SystemState extends Schema implements SystemInfo {
      */
     adjustHealth(adjustment: number) {
         const amount = Math.round(adjustment);
+        const previousHealth = this.health;
 
         if (amount < 0) {
             this.damageCards(-amount);
         } else if (amount > 0) {
             this.repairCards(amount);
+        }
+
+        const change = this.health - previousHealth;
+        if (change !== 0) {
+            this._ship.systemHealthChanged({ system: this.system, change });
         }
     }
 

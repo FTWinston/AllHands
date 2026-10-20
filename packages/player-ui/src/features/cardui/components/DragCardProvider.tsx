@@ -1,6 +1,7 @@
 import { DndContext, DragEndEvent, DragMoveEvent, DragOverEvent, DragStartEvent, useSensor, PointerSensor, useSensors, pointerWithin, CollisionDetection, getClientRect } from '@dnd-kit/core';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { sounds } from 'common-ui/features/sound/sounds';
 import { createContext, useState, useContext, PropsWithChildren, useRef, useCallback } from 'react';
 import { CardDropEffect, DroppedCardEffect } from './CardDropEffect';
 import { DragArrow } from './DragArrow';
@@ -162,7 +163,10 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
     const handleDragEnd = (event: DragEndEvent) => {
         if (event.over?.id && activeCard) {
             if (activeCard.isAlternateDrag) {
-                onAlternateDrop?.(String(event.over.id));
+                if (onAlternateDrop) {
+                    sounds.cardPlayed();
+                    onAlternateDrop(String(event.over.id));
+                }
             } else {
                 // Recalculate allowed using the latest activeCard and drop target type.
                 const cardId = activeCard.id;
@@ -175,6 +179,12 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
                         && (dropData.canAcceptCard === undefined || dropData.canAcceptCard(activeCard));
 
                     if (allowed) {
+                        if (targetType === 'any') {
+                            sounds.cardDiscarded();
+                        } else {
+                            sounds.cardPlayed();
+                        }
+
                         onCardDropped(cardId, activeCard.cardType, targetType, String(event.over.id));
 
                         if (activeCard && dragPosition && targetType !== 'weapon-slot' && !activeCard.isPriority) {

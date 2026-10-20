@@ -4,6 +4,7 @@ import { FC } from 'react';
 import { Engineer } from '../features/engineer/Engineer';
 import { Helm } from '../features/helm/Helm';
 import { Science } from '../features/science/Science';
+import { CrewSoundEffects } from '../features/sound/CrewSoundEffects';
 import { Tactical } from '../features/tactical/Tactical';
 import type { GameState } from 'engine/state/GameState';
 
@@ -13,7 +14,14 @@ type Props = {
     room: Room<unknown, GameState>;
 };
 
-export const CrewUI: FC<Props> = (props) => {
+export const CrewUI: FC<Props> = props => (
+    <>
+        <CrewStation {...props} />
+        <CrewSoundEffects {...props} />
+    </>
+);
+
+const CrewStation: FC<Props> = (props) => {
     const { role, room } = props;
 
     switch (role) {
