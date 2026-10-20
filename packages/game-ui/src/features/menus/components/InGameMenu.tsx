@@ -21,7 +21,7 @@ export const InGameMenu: FC<Props> = (props) => {
                 />
 
                 <MenuItem
-                    text={soundEnabled ? 'Sound effects: on' : 'Sound effects: off'}
+                    text={`Sound effects ${soundEnabled ? '✅' : '⬜'}`}
                     onClick={toggleSoundEnabled}
                 />
 
