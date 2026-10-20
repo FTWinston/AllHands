@@ -1,5 +1,5 @@
 import { Snapshot, useRoomState } from '@colyseus/react';
-import { CrewRole, getRoleName } from 'common-data/features/ships/types/CrewRole';
+import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { SystemHealthChange } from 'common-data/features/ships/types/SystemHealthChange';
 import { CrewSystemInfo, GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { sounds } from 'common-ui/features/sound/sounds';
@@ -12,7 +12,7 @@ import type { GameState } from 'engine/state/GameState';
 type Props = {
     room: Room<unknown, GameState>;
     shipId: string;
-    role: CrewRole;
+    system: CrewRoleName;
 };
 
 /**
@@ -21,11 +21,11 @@ type Props = {
  * Renders nothing, and is kept separate from the station display so it doesn't cause that to re-render.
  */
 export const CrewSoundEffects: FC<Props> = (props) => {
-    const roleName = getRoleName(props.role);
+    const { system: ownSystem } = props;
 
     const objects = useRoomState(props.room, state => state.objects) as Record<string, Snapshot<GameObjectInfo>>;
     const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo> | undefined;
-    const systemState = localShip?.[`${roleName}State`] as Snapshot<CrewSystemInfo> | undefined;
+    const systemState = localShip?.[`${ownSystem}State`] as Snapshot<CrewSystemInfo> | undefined;
 
     const phase = useRoomState(props.room, state => state.phase);
     const gameStatus = useRoomState(props.room, state => state.gameStatus);
@@ -37,7 +37,7 @@ export const CrewSoundEffects: FC<Props> = (props) => {
     useHum(inEncounter ? getHumIntensity(powerLevel) : 0);
 
     useEffect(() => props.room.onMessage<SystemHealthChange>('systemHealth', ({ system, change }) => {
-        if (system === roleName) {
+        if (system === ownSystem) {
             if (change < 0) {
                 sounds.systemDamaged();
                 vibrate(vibrations.ownSystemDamaged);
@@ -47,7 +47,7 @@ export const CrewSoundEffects: FC<Props> = (props) => {
         } else if (system === 'hull' && change < 0) {
             vibrate(vibrations.shipHit);
         }
-    }), [props.room, roleName]);
+    }), [props.room, ownSystem]);
 
     return null;
 };

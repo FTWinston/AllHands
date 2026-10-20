@@ -1,5 +1,5 @@
 import { Room } from '@colyseus/sdk';
-import { CrewRole, ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { CrewRole, CrewRoleName, ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { FC } from 'react';
 import { Engineer } from '../features/engineer/Engineer';
 import { Helm } from '../features/helm/Helm';
@@ -14,46 +14,32 @@ type Props = {
     room: Room<unknown, GameState>;
 };
 
-export const CrewUI: FC<Props> = props => (
-    <>
-        <CrewStation {...props} />
-        <CrewSoundEffects {...props} />
-    </>
-);
+type StationProps = {
+    room: Room<unknown, GameState>;
+    shipId: string;
+};
 
-const CrewStation: FC<Props> = (props) => {
-    const { role, room } = props;
+const stations: Record<CrewRole, { system: CrewRoleName; Station: FC<StationProps> }> = {
+    [ownHelmClientRole]: { system: 'helm', Station: Helm },
+    [ownTacticalClientRole]: { system: 'tactical', Station: Tactical },
+    [ownScienceClientRole]: { system: 'science', Station: Science },
+    [ownEngineerClientRole]: { system: 'engineer', Station: Engineer },
+};
 
-    switch (role) {
-        case ownHelmClientRole:
-            return (
-                <Helm
-                    room={room}
-                    shipId={props.shipId}
-                />
-            );
-        case ownTacticalClientRole:
-            return (
-                <Tactical
-                    room={room}
-                    shipId={props.shipId}
-                />
-            );
-        case ownScienceClientRole:
-            return (
-                <Science
-                    room={room}
-                    shipId={props.shipId}
-                />
-            );
-        case ownEngineerClientRole:
-            return (
-                <Engineer
-                    room={room}
-                    shipId={props.shipId}
-                />
-            );
-        default:
-            console.warn('unexpected role', role);
+export const CrewUI: FC<Props> = (props) => {
+    const station = stations[props.role];
+
+    if (!station) {
+        console.warn('unexpected role', props.role);
+        return null;
     }
+
+    const { system, Station } = station;
+
+    return (
+        <>
+            <Station room={props.room} shipId={props.shipId} />
+            <CrewSoundEffects room={props.room} shipId={props.shipId} system={system} />
+        </>
+    );
 };
