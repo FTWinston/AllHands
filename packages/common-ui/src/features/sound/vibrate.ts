@@ -6,6 +6,10 @@ export const vibrations = {
     ownSystemDamaged: [150, 60, 250],
     /** The ship has taken a hit somewhere. */
     shipHit: [60],
+    /** You start dragging a card. */
+    cardPickedUp: [10],
+    /** You drop a card on a target. */
+    cardDropped: [15],
 };
 
 /**

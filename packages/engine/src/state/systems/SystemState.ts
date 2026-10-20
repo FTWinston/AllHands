@@ -48,7 +48,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
             ...cards.slice(setup.initialHandSize)
         );
 
-        this._health = this.maxHealth = this.initializeCardPool(cards);
+        this.health = this.maxHealth = this.initializeCardPool(cards);
     }
 
     private readonly initialHandSize: number;
@@ -213,13 +213,8 @@ export abstract class SystemState extends Schema implements SystemInfo {
     @type('uint8') readonly powerLevel: number;
     maxPowerLevel: number;
 
-    private _health: number;
-
-    get health(): number {
-        return this._health;
-    }
-
-    readonly maxHealth: number;
+    @type('uint8') readonly health: number;
+    @type('uint8') readonly maxHealth: number;
 
     /**
      * Any attacks targeting this system will have their chance to hit modified by this percentage.
@@ -318,7 +313,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
      * Recompute health from the damage queue, and propagate the change to the linked engineer system.
      */
     private syncHealth() {
-        this._health = this.damageQueue.length;
+        (this as { health: number }).health = this.damageQueue.length;
         this.linkedEngineerSystemTile.setHealthFromSystem(this);
 
         this.updateDamagedCardEffect();

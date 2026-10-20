@@ -1,9 +1,11 @@
 import { useRoomState } from '@colyseus/react';
-import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
+import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { useWakeLock } from 'common-ui/hooks/useWakeLock';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { FC, PropsWithChildren, useRef } from 'react';
+import { LowHullWarning } from './components/LowHullWarning';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import { ViewscreenPhaseDisplay } from './components/ViewscreenPhaseDisplay';
 import { useViewscreenEffects } from './hooks/useViewscreenEffects';
@@ -35,7 +37,10 @@ export const Viewscreen: FC<Props> = (props) => {
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    useViewscreenEffects(props.room, props.shipId, phase, canvasRef);
+    useViewscreenEffects(props.room, props.shipId, phase, isEnded ? outcome : null, canvasRef);
+    useWakeLock();
+
+    const hull = (localShip as ShipInfo | undefined)?.hullState;
 
     if (isEnded || phase !== 'encounter') {
         return (
@@ -69,6 +74,7 @@ export const Viewscreen: FC<Props> = (props) => {
             showMenu={props.showMenu}
         >
             {props.children}
+            {hull && <LowHullWarning health={hull.health} maxHealth={hull.maxHealth} />}
         </ViewscreenDisplay>
     );
 };

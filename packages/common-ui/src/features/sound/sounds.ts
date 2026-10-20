@@ -19,6 +19,74 @@ export const sounds = {
         playTone({ type: 'triangle', frequency: 700, endFrequency: 440, duration: 0.1, volume: 0.2 });
     },
 
+    /** A card can't go where you dropped it: a low double buzz. */
+    refused() {
+        playTone({ type: 'square', frequency: 180, duration: 0.08, volume: 0.15 });
+        playTone({ type: 'square', frequency: 150, delay: 0.1, duration: 0.12, volume: 0.15 });
+    },
+
+    /** Your system gains power: a short rising sweep. */
+    powerUp() {
+        playTone({ type: 'triangle', frequency: 300, endFrequency: 900, duration: 0.25, volume: 0.2 });
+    },
+
+    /** Your system loses power: a short falling sweep. */
+    powerDown() {
+        playTone({ type: 'triangle', frequency: 800, endFrequency: 200, duration: 0.3, volume: 0.2 });
+    },
+
+    /** Science completes a scan: a sonar ping with a fading echo. */
+    scanComplete() {
+        playTone({ frequency: 1800, duration: 0.6, volume: 0.25 });
+        playTone({ frequency: 1800, delay: 0.35, duration: 0.5, volume: 0.07 });
+    },
+
+    /** A tactical weapon is charged and ready to fire: two bright notes. */
+    weaponReady() {
+        playTone({ type: 'triangle', frequency: 1047, duration: 0.08, volume: 0.25 });
+        playTone({ type: 'triangle', frequency: 2093, delay: 0.08, duration: 0.18, volume: 0.25 });
+    },
+
+    /** Helm starts a manoeuvre: a short thruster whoosh. */
+    maneuver() {
+        playNoise({ filterType: 'bandpass', filterFrequency: 400, endFilterFrequency: 1800, duration: 0.5, volume: 0.4 });
+    },
+
+    /** Someone takes a role in the lobby. */
+    roleClaimed() {
+        playTone({ frequency: 990, duration: 0.07, volume: 0.2 });
+        playTone({ frequency: 1320, delay: 0.07, duration: 0.1, volume: 0.2 });
+    },
+
+    /** Someone gives up a role in the lobby. */
+    roleReleased() {
+        playTone({ frequency: 1320, duration: 0.07, volume: 0.15 });
+        playTone({ frequency: 990, delay: 0.07, duration: 0.1, volume: 0.15 });
+    },
+
+    /** The game starts: a bright major chord. */
+    gameStarted() {
+        for (const frequency of [523, 659, 784, 1047]) {
+            playTone({ type: 'triangle', frequency, duration: 0.9, volume: 0.15 });
+        }
+    },
+
+    /** The game is won: a rising fanfare. */
+    victory() {
+        const notes = [523, 659, 784, 1047];
+        notes.forEach((frequency, i) => {
+            playTone({ type: 'triangle', frequency, delay: i * 0.15, duration: i === notes.length - 1 ? 1.2 : 0.2, volume: 0.25 });
+        });
+    },
+
+    /** The game is lost: a slow falling minor phrase. */
+    defeat() {
+        const notes = [392, 311, 262, 196];
+        notes.forEach((frequency, i) => {
+            playTone({ type: 'sawtooth', frequency, delay: i * 0.35, duration: i === notes.length - 1 ? 1.5 : 0.4, volume: 0.12 });
+        });
+    },
+
     /** Your system takes damage: a downward electrical crunch. */
     systemDamaged() {
         playTone({ type: 'sawtooth', frequency: 220, endFrequency: 55, duration: 0.4, volume: 0.35 });

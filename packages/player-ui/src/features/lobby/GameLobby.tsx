@@ -1,6 +1,7 @@
 import { getStateCallbacks, Room } from '@colyseus/sdk';
 import { CrewRole } from 'common-data/features/ships/types/CrewRole';
-import { useState, useEffect, FC } from 'react';
+import { sounds } from 'common-ui/features/sound/sounds';
+import { useState, useEffect, useRef, FC } from 'react';
 import { enterFullscreen, exitFullscreen } from '../../utils/fullscreen';
 import { GameLobbyDisplay } from './GameLobbyDisplay';
 import type { GameState } from 'engine/state/GameState';
@@ -51,6 +52,8 @@ export const GameLobby: FC<Props> = (props) => {
         };
     }, [room, crewId]);
 
+    useRoleCountSounds([helmOccupied, tacticalOccupied, scienceOccupied, engineerOccupied].filter(Boolean).length);
+
     return (
         <GameLobbyDisplay
             crewId={crewId}
@@ -74,3 +77,17 @@ export const GameLobby: FC<Props> = (props) => {
         />
     );
 };
+
+/** Blip up whenever someone takes a role, and down when someone gives one up. */
+function useRoleCountSounds(occupiedCount: number) {
+    const previousCount = useRef(occupiedCount);
+
+    useEffect(() => {
+        if (occupiedCount > previousCount.current) {
+            sounds.roleClaimed();
+        } else if (occupiedCount < previousCount.current) {
+            sounds.roleReleased();
+        }
+        previousCount.current = occupiedCount;
+    }, [occupiedCount]);
+}

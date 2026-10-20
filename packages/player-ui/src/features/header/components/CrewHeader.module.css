@@ -4,9 +4,16 @@
     align-items: center;
     background-color: var(--primary-darkest);
     border-bottom: solid var(--primary-mid) 2px;
+    transition: background-color 1s, border-color 1s;
     font-size: 1em;
     gap: 1em;
     padding: 0.25em 1em 0.25em 0.25em;
+}
+
+/* Set by SystemDamageOverlay while this station's system is badly damaged, with --system-damage going from 0 up to 1 when wrecked. */
+:global(body[data-system-damaged]) .crewHeader {
+    background-color: color-mix(in oklch, var(--danger-darkest), var(--danger-dark) calc(var(--system-damage) * 100%));
+    border-bottom-color: var(--danger-mid);
 }
 
 button.menuButton {

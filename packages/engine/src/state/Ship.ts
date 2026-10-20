@@ -74,7 +74,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         return this.nextCardId++;
     }
 
-    hullState: HullState;
+    @view(ownShipClientRole) @type(HullState) hullState: HullState;
     reactorState: ReactorState;
     @view(ownHelmClientRole) @type(HelmState) helmState: HelmState;
     @view(ownShipClientRole | ownScienceClientRole) @type(ScienceState) scienceState: ScienceState;

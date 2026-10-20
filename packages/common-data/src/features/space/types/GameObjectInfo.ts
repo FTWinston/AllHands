@@ -46,6 +46,9 @@ export interface GameObjectInfo {
 
 export interface SystemInfo {
     powerLevel: number;
+    /** How many of this system's cards are undamaged. */
+    health: number;
+    maxHealth: number;
 }
 
 export interface CrewSystemInfo extends SystemInfo {
@@ -169,6 +172,7 @@ export interface EngineerSystemInfo extends CrewSystemInfo {
 }
 
 export interface ShipInfo extends GameObjectInfo {
+    hullState: SystemInfo;
     helmState: HelmSystemInfo;
     scienceState: ScienceSystemInfo;
     tacticalState: TacticalSystemInfo;

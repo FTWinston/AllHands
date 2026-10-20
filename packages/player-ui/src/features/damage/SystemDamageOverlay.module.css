@@ -1,0 +1,40 @@
+.interference,
+.flash {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.interference {
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 2px,
+        rgb(0 0 0 / 0.5) 2px,
+        rgb(0 0 0 / 0.5) 4px
+    );
+    animation: flicker 3s steps(1) infinite;
+    transition: opacity 1s;
+}
+
+.flash {
+    opacity: 0;
+    background: radial-gradient(ellipse at center, transparent 30%, var(--danger-mid) 100%);
+}
+
+@keyframes flicker {
+    0%, 100% { transform: translateY(0); filter: none; }
+    37% { transform: translateY(1px); }
+    38% { transform: translateY(-2px); filter: brightness(1.8); }
+    39% { transform: translateY(0); filter: none; }
+    81% { transform: translateY(2px); }
+    82% { transform: translateY(0); filter: brightness(1.5); }
+    83% { filter: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .interference {
+        animation: none;
+    }
+}

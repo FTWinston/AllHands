@@ -1,7 +1,7 @@
 import { Snapshot, useRoomState } from '@colyseus/react';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { SystemHealthChange } from 'common-data/features/ships/types/SystemHealthChange';
-import { CrewSystemInfo, GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { CrewSystemInfo, GameObjectInfo, HelmSystemInfo, ScienceSystemInfo, ShipInfo, TacticalSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { sounds } from 'common-ui/features/sound/sounds';
 import { HumIntensity, useHum } from 'common-ui/features/sound/useHum';
 import { vibrate, vibrations } from 'common-ui/features/sound/vibrate';
@@ -10,7 +10,8 @@ import type { Room } from '@colyseus/sdk';
 import type { GameState } from 'engine/state/GameState';
 
 /**
- * Play the sounds and vibrations for a crew station: drawing cards, system damage and repair, and the hum of a highly powered system.
+ * Play the sounds and vibrations for a crew station: drawing cards, system damage and repair, power changes, the hum of a highly powered system,
+ * and things particular to each station.
  * (Playing a card makes its sound as it's dropped, in DragCardProvider.)
  */
 export function useCrewSoundEffects(room: Room<unknown, GameState>, shipId: string, ownSystem: CrewRoleName) {
@@ -26,6 +27,12 @@ export function useCrewSoundEffects(room: Room<unknown, GameState>, shipId: stri
 
     const powerLevel = systemState?.powerLevel ?? 0;
     useHum(inEncounter ? getHumIntensity(powerLevel) : 0);
+    useChangeSound(powerLevel, inEncounter, sounds.powerUp, sounds.powerDown);
+
+    // Only one of these will apply, but hooks can't be called conditionally.
+    useChangeSound(ownSystem === 'science' ? countScans(systemState as Snapshot<ScienceSystemInfo>) : 0, inEncounter, sounds.scanComplete);
+    useChangeSound(ownSystem === 'tactical' ? countReadyWeapons(systemState as Snapshot<TacticalSystemInfo>) : 0, inEncounter, sounds.weaponReady);
+    useChangeSound(ownSystem === 'helm' ? (systemState as Snapshot<HelmSystemInfo> | undefined)?.activeManeuver?.startTime ?? 0 : 0, inEncounter, sounds.maneuver);
 
     useEffect(() => room.onMessage<SystemHealthChange>('systemHealth', ({ system, change }) => {
         if (system === ownSystem) {
@@ -49,6 +56,41 @@ function getHumIntensity(powerLevel: number): HumIntensity {
         return 1;
     }
     return 0;
+}
+
+/** How many of the scanned ship's systems are being watched, plus whether a vulnerability has been identified. */
+function countScans(science: Snapshot<ScienceSystemInfo> | undefined) {
+    if (!science) {
+        return 0;
+    }
+
+    return [science.scannedHelm, science.scannedTactical, science.scannedScience, science.scannedEngineer, science.identifiedVulnerability]
+        .filter(scan => scan)
+        .length;
+}
+
+function countReadyWeapons(tactical: Snapshot<TacticalSystemInfo> | undefined) {
+    return tactical?.slots.filter(slot => slot.hasBeenFullyCharged).length ?? 0;
+}
+
+/** Play a sound whenever a value goes up (or down), while enabled. */
+function useChangeSound(value: number, enabled: boolean, onIncrease: () => void, onDecrease?: () => void) {
+    const previousValue = useRef(value);
+
+    useEffect(() => {
+        const previous = previousValue.current;
+        previousValue.current = value;
+
+        if (!enabled) {
+            return;
+        }
+
+        if (value > previous) {
+            onIncrease();
+        } else if (value < previous) {
+            onDecrease?.();
+        }
+    }, [value, enabled, onIncrease, onDecrease]);
 }
 
 /** Beep once whenever any card arrives in the hand, but not for the cards already there when first shown. */

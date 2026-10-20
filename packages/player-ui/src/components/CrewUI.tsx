@@ -1,6 +1,9 @@
+import { Snapshot, useRoomState } from '@colyseus/react';
 import { Room } from '@colyseus/sdk';
 import { CrewRole, CrewRoleName, ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { FC } from 'react';
+import { SystemDamageOverlay } from '../features/damage/SystemDamageOverlay';
 import { Engineer } from '../features/engineer/Engineer';
 import { Helm } from '../features/helm/Helm';
 import { Science } from '../features/science/Science';
@@ -31,5 +34,14 @@ export const CrewUI: FC<Props> = (props) => {
 
     useCrewSoundEffects(props.room, props.shipId, system);
 
-    return <Station room={props.room} shipId={props.shipId} />;
+    const objects = useRoomState(props.room, state => state.objects) as Record<string, Snapshot<GameObjectInfo>>;
+    const systemState = (objects?.[props.shipId] as unknown as Snapshot<ShipInfo> | undefined)?.[`${system}State`];
+    const damage = systemState?.maxHealth ? 1 - systemState.health / systemState.maxHealth : 0;
+
+    return (
+        <>
+            <Station room={props.room} shipId={props.shipId} />
+            <SystemDamageOverlay room={props.room} system={system} damage={damage} />
+        </>
+    );
 };

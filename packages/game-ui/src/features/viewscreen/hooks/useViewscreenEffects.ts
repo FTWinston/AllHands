@@ -3,16 +3,16 @@ import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { sounds } from 'common-ui/features/sound/sounds';
 import { RefObject, useEffect, useRef } from 'react';
 import type { Room } from '@colyseus/sdk';
-import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
+import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
 
 /** A single hit damages the hull and the targeted system separately, so damage arriving within this window counts as one hit. */
 const hitWindowMs = 50;
 
 /**
  * Play the viewscreen's sound effects: weapons fire, explosions, our ship being hit (which also shakes the element in shakeRef),
- * and moving around the sector map.
+ * moving around the sector map, and the end of the game. The outcome should be null until the game has ended.
  */
-export function useViewscreenEffects(room: Room, shipId: string, phase: GamePhase | null, shakeRef: RefObject<HTMLElement | null>) {
+export function useViewscreenEffects(room: Room, shipId: string, phase: GamePhase | null, outcome: GameOutcome | null, shakeRef: RefObject<HTMLElement | null>) {
     useEffect(() => room.onMessage<WeaponEffect>('weaponEffect', (effect) => {
         const isOwnShip = effect.sourceId === shipId;
 
@@ -55,6 +55,14 @@ export function useViewscreenEffects(room: Room, shipId: string, phase: GamePhas
     }, [room, shakeRef]);
 
     usePhaseSounds(phase);
+
+    useEffect(() => {
+        if (outcome === 'victory') {
+            sounds.victory();
+        } else if (outcome === 'defeat') {
+            sounds.defeat();
+        }
+    }, [outcome]);
 }
 
 function usePhaseSounds(phase: GamePhase | null) {
