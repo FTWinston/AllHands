@@ -311,3 +311,46 @@ describe('Campaign phase flow', () => {
         expect(state.outcome).toBe('defeat');
     });
 });
+
+describe('Campaign scene changes', () => {
+    /** Wait out a short scene change delay, then let the room's clock run the scheduled change. */
+    async function finishSceneChange() {
+        await new Promise(resolve => setTimeout(resolve, 40));
+        rooms.getClock().tick();
+    }
+
+    it('fades out before travelling from the map to an encounter, ignoring further routes meanwhile', async () => {
+        const { state, campaign, ships: [ship] } = createCampaign();
+        campaign.dismissMessage();
+        state.sceneChangeDelay = 20;
+
+        const [first, second] = state.map!.availableNodeIds;
+        expect(campaign.selectRoute(ship, first)).toBe(true);
+        expect(state.sceneChange).toBe('travel');
+        expect(state.phase).toBe('map');
+        expect(campaign.selectRoute(ship, second ?? first)).toBe(false);
+
+        await finishSceneChange();
+
+        expect(state.sceneChange).toBeNull();
+        expect(state.phase).toBe('encounter');
+        expect(state.map!.currentNodeId).toBe(first);
+    });
+
+    it('fades out before warping away from a completed encounter', async () => {
+        const { state, campaign, ships: [ship] } = createCampaign();
+        campaign.dismissMessage();
+        campaign.selectRoute(ship, state.map!.availableNodeIds[0]);
+        completeEncounter(state);
+        state.sceneChangeDelay = 20;
+
+        expect(campaign.warpAway(ship)).toBe(true);
+        expect(state.sceneChange).toBe('travel');
+        expect(state.phase).toBe('encounter');
+
+        await finishSceneChange();
+
+        expect(state.sceneChange).toBeNull();
+        expect(state.phase).toBe('map');
+    });
+});

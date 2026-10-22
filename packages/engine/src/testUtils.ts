@@ -50,6 +50,8 @@ export function setupGameRoom() {
         await colyseus.cleanup();
         room = await colyseus.createRoom<GameRoom>(roomIdentifier);
         room.setSimulationInterval();
+        // Change scenes straight away, rather than waiting for screens to fade. Tests of the fading itself can set this back.
+        room.state.sceneChangeDelay = 0;
     });
 
     return {

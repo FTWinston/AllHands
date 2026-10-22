@@ -1,5 +1,6 @@
 import { entity, type, view } from '@colyseus/schema';
 import { ownShipClientRole } from 'common-data/features/ships/types/CrewRole';
+import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CrewState } from './CrewState';
 import { GameObject } from './GameObject';
@@ -31,6 +32,10 @@ export class PlayerShip extends Ship {
         super.removeObjectVisibility(objectId, object);
 
         this.crew?.removeObjectFromViews(object);
+    }
+
+    protected override wasHit(hit: ShipHit) {
+        this.crew?.sendShipHit(hit);
     }
 
     destroy() {

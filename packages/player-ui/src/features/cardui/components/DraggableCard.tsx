@@ -45,7 +45,7 @@ export const DraggableCard: FC<Props> = (props) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: props.elementId ?? props.id.toString(),
         disabled: isUnplayable,
-        data: { id: props.id, targetType, cardType: props.type, isDamaged, isPriority },
+        data: { id: props.id, targetType, cardType: props.type, isDamaged, isPriority, isUnaffordable: !props.slotted && props.availablePower < resolvedCost },
     });
 
     const dragDisplayMode = useDragDisplayMode();

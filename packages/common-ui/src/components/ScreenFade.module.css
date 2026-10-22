@@ -1,0 +1,16 @@
+/* The server waits for the delay plus the fade out (see GameState.sceneChangeDelay) before changing the scene. */
+.fade {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    background-color: black;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 600ms ease-in-out;
+}
+
+.covered {
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 400ms;
+}

@@ -1,6 +1,7 @@
 import { entity, type, view } from '@colyseus/schema';
 import { UntargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ownShipClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole } from 'common-data/features/ships/types/CrewRole';
+import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { Damage } from 'common-data/features/space/types/Damage';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
@@ -73,7 +74,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         return this.nextCardId++;
     }
 
-    hullState: HullState;
+    @view(ownShipClientRole) @type(HullState) hullState: HullState;
     reactorState: ReactorState;
     @view(ownHelmClientRole) @type(HelmState) helmState: HelmState;
     @view(ownShipClientRole | ownScienceClientRole) @type(ScienceState) scienceState: ScienceState;
@@ -169,6 +170,9 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
         const remainingAmount = this.hullState.damageShields(damage);
 
+        // Before applying the damage, as that could destroy the ship.
+        this.wasHit({ damage: remainingAmount });
+
         let targetSystemDamage: number;
 
         if (damage.targetSystem === 'hull') {
@@ -196,6 +200,9 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             applyWeaponTrait(trait, this, targetSystem);
         }
     }
+
+    /** Called whenever this ship is hit, just before the damage is applied. */
+    protected wasHit(_hit: ShipHit) { }
 
     override destroy() {
         // Broadcast explosion effect before removal.

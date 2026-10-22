@@ -9,7 +9,7 @@ import { drawWeaponArcs, ENEMY_WEAPON_ARC_COLORS, OWN_WEAPON_ARC_COLORS } from '
 import { drawWeaponEffects } from 'common-ui/features/spacemap/utils/drawWeaponEffects';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
-import { FC, RefObject, PropsWithChildren, useCallback, useRef } from 'react';
+import { FC, Ref, RefObject, PropsWithChildren, useCallback } from 'react';
 import styles from './ViewscreenDisplay.module.css';
 import { ViewscreenMenuButton } from './ViewscreenMenuButton';
 import type { Snapshot } from '@colyseus/react';
@@ -20,11 +20,11 @@ type Props = PropsWithChildren<{
     viewer: RelationshipViewer;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
     showMenu: () => void;
+    /** The space map canvas, e.g. to shake it when the ship is hit. */
+    canvasRef?: Ref<HTMLCanvasElement>;
 }>;
 
 export const ViewscreenDisplay: FC<Props> = (props) => {
-    const canvas = useRef<HTMLCanvasElement>(null);
-
     useAnimationFrame();
 
     const timeProvider = useTimeProvider();
@@ -79,7 +79,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
                 viewer={props.viewer}
                 cellRadius={cellRadius}
                 gridColor="grey"
-                ref={canvas}
+                ref={props.canvasRef}
                 drawExtraForeground={drawExtraForeground}
                 drawExtraBackground={drawExtraBackground}
             />

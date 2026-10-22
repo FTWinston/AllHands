@@ -705,10 +705,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             return;
         }
 
-        const crews = [...this.state.crews.values()];
-        const allRolesClaimed = crews.length > 0 && crews.every(crew => crew.allRolesClaimed());
-
-        if (!allRolesClaimed) {
+        if (!this.allRolesClaimed()) {
             this.cancelStartCountdown();
         } else if (this.startCountdownRemaining === null) {
             console.log('All roles are claimed, starting countdown');
@@ -740,8 +737,19 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         }
 
         this.cancelStartCountdown();
-        this.populateScenario();
-        this.startOrResume();
+
+        // Fade the lobby out before starting. If a role is released meanwhile, the lobby just fades back in.
+        this.state.changeScene('start', () => {
+            if (this.state.gameStatus === 'setup' && this.allRolesClaimed()) {
+                this.populateScenario();
+                this.startOrResume();
+            }
+        });
+    }
+
+    private allRolesClaimed() {
+        const crews = [...this.state.crews.values()];
+        return crews.length > 0 && crews.every(crew => crew.allRolesClaimed());
     }
 
     populateScenario() {

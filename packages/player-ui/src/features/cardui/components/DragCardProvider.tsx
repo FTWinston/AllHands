@@ -1,6 +1,8 @@
 import { DndContext, DragEndEvent, DragMoveEvent, DragOverEvent, DragStartEvent, useSensor, PointerSensor, useSensors, pointerWithin, CollisionDetection, getClientRect } from '@dnd-kit/core';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { sounds } from 'common-ui/features/sound/sounds';
+import { vibrate, vibrations } from 'common-ui/features/sound/vibrate';
 import { createContext, useState, useContext, PropsWithChildren, useRef, useCallback } from 'react';
 import { CardDropEffect, DroppedCardEffect } from './CardDropEffect';
 import { DragArrow } from './DragArrow';
@@ -12,6 +14,8 @@ export type ActiveCardInfo = {
     isAlternateDrag?: boolean;
     isDamaged?: boolean;
     isPriority?: boolean;
+    /** Whether there isn't enough power to play this card. */
+    isUnaffordable?: boolean;
 };
 
 type DragPosition = {
@@ -113,7 +117,9 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
                 isAlternateDrag: data.isAlternateDrag,
                 isDamaged: data.isDamaged,
                 isPriority: data.isPriority,
+                isUnaffordable: data.isUnaffordable,
             });
+            vibrate(vibrations.cardPickedUp);
         }
 
         const pointerEvent = event.activatorEvent as PointerEvent;
@@ -162,7 +168,10 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
     const handleDragEnd = (event: DragEndEvent) => {
         if (event.over?.id && activeCard) {
             if (activeCard.isAlternateDrag) {
-                onAlternateDrop?.(String(event.over.id));
+                if (onAlternateDrop) {
+                    sounds.cardPlayed();
+                    onAlternateDrop(String(event.over.id));
+                }
             } else {
                 // Recalculate allowed using the latest activeCard and drop target type.
                 const cardId = activeCard.id;
@@ -175,6 +184,16 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
                         && (dropData.canAcceptCard === undefined || dropData.canAcceptCard(activeCard));
 
                     if (allowed) {
+                        if (targetType === 'any') {
+                            sounds.cardDiscarded();
+                        } else if (activeCard.isDamaged || activeCard.isUnaffordable) {
+                            // The server will refuse this, so say so straight away.
+                            sounds.refused();
+                        } else {
+                            sounds.cardPlayed();
+                        }
+                        vibrate(vibrations.cardDropped);
+
                         onCardDropped(cardId, activeCard.cardType, targetType, String(event.over.id));
 
                         if (activeCard && dragPosition && targetType !== 'weapon-slot' && !activeCard.isPriority) {
@@ -185,6 +204,9 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
                                 y: dragPosition.currentY,
                             });
                         }
+                    } else if (targetType === activeCard.targetType) {
+                        // The right kind of target, but it won't take this card.
+                        sounds.refused();
                     }
                 }
             }

@@ -56,18 +56,21 @@
     color: var(--grey-lightest);
 }
 
-.fullscreenItem {
+.fullscreenItem,
+.toggleItem {
     position: relative;
 }
 
-.fullscreenItem::after {
-    content: '☑️';
+.fullscreenItem::after,
+.toggleItem::after {
+    content: '⬜';
     position: absolute;
     right: 0.667em;
 }
 
 :fullscreen .fullscreenItem::after,
-:-webkit-full-screen .fullscreenItem::after {
+:-webkit-full-screen .fullscreenItem::after,
+.toggleItem[data-checked]::after {
     content: '✅'
 }
 

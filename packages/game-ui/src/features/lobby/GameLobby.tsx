@@ -1,6 +1,7 @@
 import { useRoomState } from '@colyseus/react';
 import { getStateCallbacks, Room } from '@colyseus/sdk';
 import { type ServerAddress } from 'common-data/types/ServerAddress';
+import { ScreenFade } from 'common-ui/components/ScreenFade';
 import { FC, useEffect, useState } from 'react';
 import { GameLobbyDisplay, type SystemState } from './components/GameLobbyDisplay';
 import type { GameState } from 'engine/state/GameState';
@@ -97,19 +98,24 @@ export const GameLobby: FC<Props> = (props) => {
 
     // TODO: show a message about starting when all roles are claimed, across all ships (if allowMultipleCrews is true).
 
+    const sceneChange = useRoomState(room, state => state.sceneChange);
+
     return (
-        <GameLobbyDisplay
-            serverAddress={serverAddress}
-            crewId={crewId}
-            allowMultipleCrews={allowMultipleCrews}
-            disconnect={disconnect}
-            helmState={helmState}
-            tacticalState={tacticalState}
-            scienceState={scienceState}
-            engineerState={engineerState}
-            numUnassigned={numUnassigned}
-            isFull={isFull}
-            startCountdown={startCountdown}
-        />
+        <>
+            <GameLobbyDisplay
+                serverAddress={serverAddress}
+                crewId={crewId}
+                allowMultipleCrews={allowMultipleCrews}
+                disconnect={disconnect}
+                helmState={helmState}
+                tacticalState={tacticalState}
+                scienceState={scienceState}
+                engineerState={engineerState}
+                numUnassigned={numUnassigned}
+                isFull={isFull}
+                startCountdown={startCountdown}
+            />
+            <ScreenFade covered={sceneChange === 'start'} />
+        </>
     );
 };

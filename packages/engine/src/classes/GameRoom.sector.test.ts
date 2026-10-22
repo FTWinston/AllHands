@@ -207,3 +207,21 @@ describe('GameRoom campaign messages', () => {
         });
     }
 });
+
+describe('GameRoom game start', () => {
+    it('fades the lobby out once the start countdown ends, before starting the game', async () => {
+        const { room } = await claimAllRoles();
+        room.state.sceneChangeDelay = 20;
+
+        room.tickStartCountdown(startCountdownDuration);
+
+        expect(room.state.sceneChange).toBe('start');
+        expect(room.state.gameStatus).toBe('setup');
+
+        await new Promise(resolve => setTimeout(resolve, 40));
+        room.clock.tick();
+
+        expect(room.state.sceneChange).toBeNull();
+        expect(room.state.gameStatus).toBe('active');
+    });
+});
