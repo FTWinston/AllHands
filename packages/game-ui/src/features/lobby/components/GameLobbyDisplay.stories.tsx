@@ -22,6 +22,7 @@ const meta: Meta<typeof GameLobbyDisplay> = {
             ip: '192.168.1.100',
             port: 23552,
         },
+        startCountdown: 0,
     },
 };
 
@@ -45,7 +46,7 @@ export const SingleCrewPartiallyOccupied: Story = {
     args: {
         crewId: soloCrewIdentifier,
         allowMultipleCrews: false,
-        helmState: 'ready',
+        helmState: 'occupied',
         tacticalState: 'occupied',
         scienceState: 'unoccupied',
         engineerState: 'unoccupied',
@@ -54,15 +55,16 @@ export const SingleCrewPartiallyOccupied: Story = {
     },
 };
 
-export const SingleCrewReady: Story = {
+export const SingleCrewFullyOccupied: Story = {
     args: {
         crewId: soloCrewIdentifier,
         allowMultipleCrews: false,
-        helmState: 'ready',
-        tacticalState: 'ready',
-        scienceState: 'ready',
-        engineerState: 'ready',
+        helmState: 'occupied',
+        tacticalState: 'occupied',
+        scienceState: 'occupied',
+        engineerState: 'occupied',
         isFull: true,
+        startCountdown: 3,
     },
 };
 
@@ -83,7 +85,7 @@ export const MultipleCrewPartiallyOccupied: Story = {
     args: {
         crewId: 'ABC',
         allowMultipleCrews: true,
-        helmState: 'ready',
+        helmState: 'occupied',
         tacticalState: 'unoccupied',
         scienceState: 'occupied',
         engineerState: 'unoccupied',
@@ -92,15 +94,16 @@ export const MultipleCrewPartiallyOccupied: Story = {
     },
 };
 
-export const MultipleCrewReady: Story = {
+export const MultipleCrewFullyOccupied: Story = {
     args: {
         crewId: 'ABC',
         allowMultipleCrews: true,
-        helmState: 'ready',
-        tacticalState: 'ready',
-        scienceState: 'ready',
-        engineerState: 'ready',
+        helmState: 'occupied',
+        tacticalState: 'occupied',
+        scienceState: 'occupied',
+        engineerState: 'occupied',
         numUnassigned: 0,
         isFull: true,
+        startCountdown: 3,
     },
 };

@@ -1,3 +1,4 @@
+import { useRoomState } from '@colyseus/react';
 import { getStateCallbacks, Room } from '@colyseus/sdk';
 import { type ServerAddress } from 'common-data/types/ServerAddress';
 import { FC, useEffect, useState } from 'react';
@@ -14,6 +15,8 @@ type Props = {
 
 export const GameLobby: FC<Props> = (props) => {
     const { serverAddress, allowMultipleCrews, room, crewId, disconnect } = props;
+
+    const startCountdown = useRoomState(room, state => state.startCountdown) ?? 0;
 
     const [helmState, setHelmState] = useState<SystemState>('unoccupied');
     const [tacticalState, setTacticalState] = useState<SystemState>('unoccupied');
@@ -33,15 +36,17 @@ export const GameLobby: FC<Props> = (props) => {
             return;
         }
 
-        setHelmState(crew.helmClientId === '' ? 'unoccupied' : crew.crewReady.get(crew.helmClientId) ? 'ready' : 'occupied');
-        setTacticalState(crew.tacticalClientId === '' ? 'unoccupied' : crew.crewReady.get(crew.tacticalClientId) ? 'ready' : 'occupied');
-        setscienceState(crew.scienceClientId === '' ? 'unoccupied' : crew.crewReady.get(crew.scienceClientId) ? 'ready' : 'occupied');
-        setEngineerState(crew.engineerClientId === '' ? 'unoccupied' : crew.crewReady.get(crew.engineerClientId) ? 'ready' : 'occupied');
+        const getState = (clientId: string): SystemState => clientId === '' ? 'unoccupied' : 'occupied';
+
+        setHelmState(getState(crew.helmClientId));
+        setTacticalState(getState(crew.tacticalClientId));
+        setscienceState(getState(crew.scienceClientId));
+        setEngineerState(getState(crew.engineerClientId));
 
         const callbacks = getStateCallbacks(room);
 
         const updateCounts = () => {
-            let numUnassigned = crew.crewReady.size;
+            let numUnassigned = crew.crewClientIds.length;
             if (crew.helmClientId) {
                 numUnassigned -= 1;
             }
@@ -54,58 +59,43 @@ export const GameLobby: FC<Props> = (props) => {
             if (crew.engineerClientId) {
                 numUnassigned -= 1;
             }
-            setIsFull(crew.crewReady.size >= 4);
+            setIsFull(crew.crewClientIds.length >= 4);
             setNumUnassigned(numUnassigned);
         };
 
-        // Listen for changes to the crew ready state, so that the state of each role can be updated,
-        // and the number of unassigned crew is kept up to date.
-        const readyStateChanged = (ready: boolean, clientID: string) => {
-            updateCounts();
-
-            if (clientID === crew.helmClientId) {
-                setHelmState(ready ? 'ready' : 'occupied');
-            }
-            if (clientID === crew.tacticalClientId) {
-                setTacticalState(ready ? 'ready' : 'occupied');
-            }
-            if (clientID === crew.scienceClientId) {
-                setscienceState(ready ? 'ready' : 'occupied');
-            }
-            if (clientID === crew.engineerClientId) {
-                setEngineerState(ready ? 'ready' : 'occupied');
-            }
-        };
-        const unbindAddCallback = callbacks(crew).crewReady.onAdd(readyStateChanged);
-        const unbindRemoveCallback = callbacks(crew).crewReady.onRemove(readyStateChanged);
-        /* const unbindChangeCallback = */callbacks(crew).crewReady.onChange(readyStateChanged);
+        // Keep the number of unassigned crew up to date as crew members join and leave.
+        const unbindAddCallback = callbacks(crew).crewClientIds.onAdd(updateCounts);
+        const unbindRemoveCallback = callbacks(crew).crewClientIds.onRemove(updateCounts);
 
         // Also listen for changes to the role assignments.
-        callbacks(crew).listen('helmClientId', (newClientId) => {
-            setHelmState(newClientId === '' ? 'unoccupied' : crew.crewReady.get(newClientId) ? 'ready' : 'occupied');
+        const unbindHelmCallback = callbacks(crew).listen('helmClientId', (newClientId) => {
+            setHelmState(getState(newClientId));
             updateCounts();
         });
-        callbacks(crew).listen('tacticalClientId', (newClientId) => {
-            setTacticalState(newClientId === '' ? 'unoccupied' : crew.crewReady.get(newClientId) ? 'ready' : 'occupied');
+        const unbindTacticalCallback = callbacks(crew).listen('tacticalClientId', (newClientId) => {
+            setTacticalState(getState(newClientId));
             updateCounts();
         });
-        callbacks(crew).listen('scienceClientId', (newClientId) => {
-            setscienceState(newClientId === '' ? 'unoccupied' : crew.crewReady.get(newClientId) ? 'ready' : 'occupied');
+        const unbindScienceCallback = callbacks(crew).listen('scienceClientId', (newClientId) => {
+            setscienceState(getState(newClientId));
             updateCounts();
         });
-        callbacks(crew).listen('engineerClientId', (newClientId) => {
-            setEngineerState(newClientId === '' ? 'unoccupied' : crew.crewReady.get(newClientId) ? 'ready' : 'occupied');
+        const unbindEngineerCallback = callbacks(crew).listen('engineerClientId', (newClientId) => {
+            setEngineerState(getState(newClientId));
             updateCounts();
         });
 
         return () => {
             unbindAddCallback();
             unbindRemoveCallback();
-            // unbindChangeCallback();
+            unbindHelmCallback();
+            unbindTacticalCallback();
+            unbindScienceCallback();
+            unbindEngineerCallback();
         };
     }, [room, crewId]);
 
-    // TODO: show a message about starting when all roles are ready, across all ships (if allowMultipleCrews is true).
+    // TODO: show a message about starting when all roles are claimed, across all ships (if allowMultipleCrews is true).
 
     return (
         <GameLobbyDisplay
@@ -119,6 +109,7 @@ export const GameLobby: FC<Props> = (props) => {
             engineerState={engineerState}
             numUnassigned={numUnassigned}
             isFull={isFull}
+            startCountdown={startCountdown}
         />
     );
 };

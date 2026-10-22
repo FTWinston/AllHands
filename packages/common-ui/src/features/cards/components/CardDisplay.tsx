@@ -21,14 +21,17 @@ type Props = UICardDefinition & {
     sufficientPower?: boolean;
     modifiers?: CardParametersBase;
     extraTraits?: Partial<Record<CardTrait, ExtraTraitType>>;
+    /** When false, extra traits still affect how the card looks, but aren't listed in its description or trait descriptions. */
+    listExtraTraits?: boolean;
     showTraitDescriptions?: boolean;
 };
 
 export const CardDisplay: FC<Props> = (props) => {
     const isDamaged = props.extraTraits?.['damaged'] !== undefined || props.extraTraits?.['critical'] !== undefined;
+    const listedExtraTraits = props.listExtraTraits === false ? undefined : props.extraTraits;
 
-    const descriptionContent = useCardDescription(props);
-    const traitDescriptions = useCardTraitDescriptions(props.showTraitDescriptions, props.traits, props.extraTraits);
+    const descriptionContent = useCardDescription(props, listedExtraTraits);
+    const traitDescriptions = useCardTraitDescriptions(props.showTraitDescriptions, props.traits, listedExtraTraits);
 
     return (
         <CardParametersContext.Provider value={{ parameters: props.parameters, modifiers: props.modifiers }}>
@@ -60,7 +63,7 @@ export const CardDisplay: FC<Props> = (props) => {
     );
 };
 
-function useCardDescription(props: Props) {
+function useCardDescription(props: Props, extraTraits: Props['extraTraits']) {
     // Memoized so that re-renders which don't change the description or extraTraits
     // (e.g. focus/highlight state changes) don't hand RestrictedHeightText a new
     // children reference, which would otherwise re-trigger its font-size measurement.
@@ -89,8 +92,8 @@ function useCardDescription(props: Props) {
                 </>
             )}
 
-            {props.extraTraits && (
-                Object.entries(props.extraTraits).map(([trait, traitType]) => {
+            {extraTraits && (
+                Object.entries(extraTraits).map(([trait, traitType]) => {
                     return /* trait === 'damaged' || trait === 'critical' ? null : */ (
                         <Fragment key={trait}>
                             {' '}
@@ -104,7 +107,7 @@ function useCardDescription(props: Props) {
             )}
         </>
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    ), [props.description, props.extraTraits, props.parameters, props.modifiers, props.targetType]);
+    ), [props.description, extraTraits, props.parameters, props.modifiers, props.targetType]);
 }
 
 function useCardTraitDescriptions(

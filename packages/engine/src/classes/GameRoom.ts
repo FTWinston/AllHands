@@ -34,9 +34,14 @@ interface JoinOptions {
 
 type ClientData = Required<JoinOptions>;
 
+/** How long the game waits to start once every role is claimed, in milliseconds, so anyone can still change role. */
+export const startCountdownDuration = 5000;
+
 export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
     private idGenerator = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 3);
     private allowMultipleCrews = false;
+    /** Milliseconds left until the game starts, or null when not counting down. */
+    private startCountdownRemaining: number | null = null;
 
     getCrewId() {
         if (!this.allowMultipleCrews) {
@@ -107,6 +112,8 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 console.warn(`Role ${role} is already taken on crew ${crew.crewId}`);
                 return;
             }
+
+            this.updateStartCountdown();
         });
 
         this.onMessage('pause', () => {
@@ -122,34 +129,6 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 this.startOrResume();
             } else {
                 console.warn('Cannot resume: game is not paused');
-            }
-        });
-
-        this.onMessage('ready', (client, ready: boolean) => {
-            console.log(`Ready message from ${client.sessionId}: ${ready}`);
-
-            const crewId = client.userData?.crewId;
-            if (!crewId) {
-                console.error('Client has no crew ID assigned');
-                return;
-            }
-
-            if (this.state.gameStatus === 'active') {
-                console.error('Cannot update ready status while game is active');
-                return;
-            }
-
-            const crew = this.state.crews.get(crewId);
-
-            if (!crew) {
-                console.error(`Crew ${crewId} not found`);
-                return;
-            }
-
-            crew.crewReady.set(client.sessionId, ready);
-
-            if (ready) {
-                this.checkIfEveryoneIsReady();
             }
         });
 
@@ -445,6 +424,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
             if (this.state.gameStatus === 'setup') {
                 // Skip the lobby: create the ships and start the game, then replace the first sector intro.
+                this.cancelStartCountdown();
                 this.populateScenario();
                 this.startOrResume();
             }
@@ -597,6 +577,9 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             crewId = this.getCrewId();
             crew = new CrewState(this.clients, client.sessionId, crewId);
             this.state.crews.set(crewId, crew);
+
+            // A new crew has no roles claimed yet.
+            this.updateStartCountdown();
         }
 
         // Tag client so leave logic knows what to do.
@@ -703,6 +686,9 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 // If the crew has no members and no owner, remove it.
                 this.state.crews.delete(crew.crewId);
             }
+
+            // A role may have been freed up.
+            this.updateStartCountdown();
         }
     }
 
@@ -710,18 +696,51 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         console.log('room disposing...');
     }
 
-    checkIfEveryoneIsReady() {
-        for (const crew of this.state.crews.values()) {
-            if (!crew.isReady()) {
-                return;
-            }
+    /**
+     * Once every role on every crew has been claimed, count down to starting the game.
+     * If any role is released (or a new crew appears) before it ends, the countdown is cancelled.
+     */
+    updateStartCountdown() {
+        if (this.state.gameStatus !== 'setup') {
+            return;
         }
 
-        if (this.state.gameStatus === 'setup') {
-            console.log('All crew members are ready!');
-            this.populateScenario();
+        const crews = [...this.state.crews.values()];
+        const allRolesClaimed = crews.length > 0 && crews.every(crew => crew.allRolesClaimed());
+
+        if (!allRolesClaimed) {
+            this.cancelStartCountdown();
+        } else if (this.startCountdownRemaining === null) {
+            console.log('All roles are claimed, starting countdown');
+            this.startCountdownRemaining = startCountdownDuration;
+            this.state.startCountdown = Math.ceil(startCountdownDuration / 1000);
+        }
+    }
+
+    cancelStartCountdown() {
+        if (this.startCountdownRemaining !== null) {
+            console.log('Start countdown cancelled');
         }
 
+        this.startCountdownRemaining = null;
+        this.state.startCountdown = 0;
+    }
+
+    /** The countdown runs in real time, rather than scaled game time. */
+    tickStartCountdown(deltaTime: number) {
+        if (this.startCountdownRemaining === null) {
+            return;
+        }
+
+        this.startCountdownRemaining -= deltaTime;
+
+        if (this.startCountdownRemaining > 0) {
+            this.state.startCountdown = Math.ceil(this.startCountdownRemaining / 1000);
+            return;
+        }
+
+        this.cancelStartCountdown();
+        this.populateScenario();
         this.startOrResume();
     }
 
@@ -766,6 +785,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
     }
 
     update(deltaTime: number) {
+        this.tickStartCountdown(deltaTime);
         this.state.tick(deltaTime);
     }
 }

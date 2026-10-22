@@ -1,5 +1,5 @@
 import { ClientArray } from '@colyseus/core';
-import { Schema, type, view, MapSchema } from '@colyseus/schema';
+import { Schema, type, view, ArraySchema } from '@colyseus/schema';
 import { CrewRole, ownHelmClientRole, ownScienceClientRole as scienceClientRole, ownTacticalClientRole, ownEngineerClientRole, ownShipClientRole, otherShipClientRole, otherHelmClientRole, otherTacticalClientRole, otherScienceClientRole } from 'common-data/features/ships/types/CrewRole';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { GameObject } from './GameObject';
@@ -48,25 +48,28 @@ export class CrewState extends Schema {
     @view() @type('string') scienceClientId: string = '';
     @view() @type('string') engineerClientId: string = '';
 
-    @view() @type({ map: 'boolean' }) crewReady = new MapSchema<boolean>(); // Map of crew member client IDs to ready status
+    @view() @type(['string']) crewClientIds = new ArraySchema<string>(); // Client IDs of crew members, whether or not they have a role
 
     tryAdd(crewClientId: string): boolean {
-        if (this.crewReady.size >= 4) {
+        if (this.crewClientIds.length >= 4) {
             return false;
         }
 
-        this.crewReady.set(crewClientId, false);
+        this.crewClientIds.push(crewClientId);
         return true;
     }
 
     remove(crewClientId: string): void {
-        this.crewReady.delete(crewClientId);
+        const index = this.crewClientIds.indexOf(crewClientId);
+        if (index !== -1) {
+            this.crewClientIds.splice(index, 1);
+        }
         this.unassignRole(crewClientId);
         this.shipViewRoles.delete(crewClientId);
     }
 
     isUnused() {
-        return this.crewReady.size === 0 && this.shipClientId === '';
+        return this.crewClientIds.length === 0 && this.shipClientId === '';
     }
 
     /**
@@ -131,22 +134,8 @@ export class CrewState extends Schema {
         }
     }
 
-    isReady(): boolean {
-        if (!this.helmClientId || !this.tacticalClientId || !this.scienceClientId || !this.engineerClientId) {
-            return false;
-        }
-
-        if (this.crewReady.size < 4) {
-            return false;
-        }
-
-        for (const ready of this.crewReady.values()) {
-            if (!ready) {
-                return false;
-            }
-        }
-
-        return true;
+    allRolesClaimed(): boolean {
+        return !!this.helmClientId && !!this.tacticalClientId && !!this.scienceClientId && !!this.engineerClientId;
     }
 
     /**
