@@ -4,6 +4,7 @@ import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { ScreenFade } from 'common-ui/components/ScreenFade';
 import { sounds } from 'common-ui/features/sound/sounds';
+import { useBridgeChatter } from 'common-ui/features/sound/useBridgeChatter';
 import { useWakeLock } from 'common-ui/hooks/useWakeLock';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { FC, PropsWithChildren, useEffect, useRef } from 'react';
@@ -59,6 +60,7 @@ const ViewscreenScene: FC<Props> = (props) => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     useViewscreenEffects(props.room, props.shipId, phase, isEnded ? outcome : null, canvasRef);
+    useBridgeChatter(!isEnded && phase !== null);
     useWakeLock();
 
     const hull = (localShip as ShipInfo | undefined)?.hullState;
