@@ -30,13 +30,8 @@
   align-items: center;
 }
 
-.role.ready::after {
-  content: '✅';
-}
-
 .role.occupied::after {
-  content: '⬜';
-  opacity: 0.333;
+  content: '✅';
 }
 
 .icon {

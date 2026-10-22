@@ -1,17 +1,14 @@
-.readyToggle {
-    width: 12em;
+.screen {
+    align-items: center;
+    background: radial-gradient(ellipse at 50% 100%, var(--primary-dark) 0%, var(--primary-darkest) 55%, var(--primary-darkest-muted) 100%);
 }
 
-.roleList {
-    margin: 1em 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1em;
+.title {
+    margin-bottom: 0;
 }
 
-.footer {
-    display: flex;
-    justify-content: center;
-    gap: 2em;
-    margin-top: 2em;
+.instructions {
+    text-align: center;
+    min-height: 3em;
+    margin-bottom: 1em;
 }

@@ -8,7 +8,7 @@ import styles from './GameLobbyDisplay.module.css';
 import { LobbyRole } from './LobbyRole';
 import type { ServerAddress } from 'common-data/types/ServerAddress';
 
-export type SystemState = 'unoccupied' | 'occupied' | 'ready';
+export type SystemState = 'unoccupied' | 'occupied';
 
 export type Props = {
     serverAddress: ServerAddress;
@@ -21,6 +21,8 @@ export type Props = {
     engineerState: SystemState;
     numUnassigned: number;
     isFull: boolean;
+    /** Seconds until the game starts, once every role is claimed; 0 when not counting down. */
+    startCountdown: number;
 };
 
 export const GameLobbyDisplay: FC<Props> = (props) => {
@@ -103,6 +105,19 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                             {numUnassigned === 1 ? '' : 's'}
                             .
                         </p>
+                    )}
+                    {props.startCountdown > 0 && (
+                        <div className={styles.countdown} role="timer" aria-live="polite">
+                            <span className={styles.countdownValue}>{props.startCountdown}</span>
+                            <p>
+                                The game is about to start.
+                                <br/>
+                                To stop it, press
+                                {' '}
+                                <strong>Change role</strong>
+                                .
+                            </p>
+                        </div>
                     )}
                 </div>
             </div>

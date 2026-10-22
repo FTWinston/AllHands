@@ -12,7 +12,7 @@ export const PlayerUI = () => {
     const [connectionState, setConnectionState]
         = useState<ConnectionState>('connecting');
 
-    const [room, crewId, shipId, role, ready, serverState, timeProvider] = useRoomConnection(setConnectionState);
+    const [room, crewId, shipId, role, serverState, timeProvider] = useRoomConnection(setConnectionState);
 
     useWakeLock();
     useGameStartSound(serverState);
@@ -43,7 +43,6 @@ export const PlayerUI = () => {
                         room={room}
                         crewId={crewId}
                         role={role}
-                        ready={ready}
                     />
                 );
             } else {

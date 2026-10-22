@@ -25,7 +25,7 @@ type Props = {
     modifiers?: CardParametersBase;
     extraTraits?: Partial<Record<CardTrait, ExtraTraitType>>;
     type: CardType;
-    /** For cards that are not card definitions, which have no definition to look up by `type`. */
+    /** For cards that are not card definitions, which have no definition to look up by `type`. These don't list their extra traits. */
     definition?: UICardDefinition;
 };
 
@@ -87,6 +87,7 @@ export const DraggableCard: FC<Props> = (props) => {
                 sufficientPower={props.slotted ? undefined : props.availablePower >= resolvedCost}
                 modifiers={props.modifiers}
                 extraTraits={props.extraTraits}
+                listExtraTraits={props.definition === undefined}
                 showTraitDescriptions={isFocused && !isBeingDragged}
             />
         </div>

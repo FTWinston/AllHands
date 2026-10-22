@@ -1,0 +1,4 @@
+/* Scale with the window, so the menu fills it whichever dimension is the limit. */
+.screen {
+    font-size: min(2.4vw, 3.6vh);
+}

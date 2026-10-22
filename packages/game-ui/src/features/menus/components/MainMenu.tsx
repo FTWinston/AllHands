@@ -1,6 +1,7 @@
 import { Screen } from 'common-ui/components/Screen';
 
 import { FC } from 'react';
+import styles from './MainMenu.module.css';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
 
@@ -13,7 +14,7 @@ type Props = {
 
 export const MainMenu: FC<Props> = (props) => {
     return (
-        <Screen centered padded>
+        <Screen centered padded className={styles.screen}>
             <Menu title="All Hands">
                 <MenuItem
                     text="Start single-crew game"

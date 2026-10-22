@@ -12,11 +12,10 @@ type Props = {
     room: Room<unknown, GameState>;
     crewId: string;
     role: CrewRole | null;
-    ready: boolean;
 };
 
 export const GameLobby: FC<Props> = (props) => {
-    const { room, crewId, role, ready } = props;
+    const { room, crewId, role } = props;
 
     const [helmOccupied, setHelmOccupied] = useState(false);
     const [tacticalOccupied, setTacticalOccupied] = useState(false);
@@ -63,17 +62,13 @@ export const GameLobby: FC<Props> = (props) => {
             <GameLobbyDisplay
                 crewId={crewId}
                 role={role}
-                ready={ready}
                 helmOccupied={helmOccupied}
                 tacticalOccupied={tacticalOccupied}
                 scienceOccupied={scienceOccupied}
                 engineerOccupied={engineerOccupied}
                 onRoleChange={(newRole) => {
                     room.send('role', newRole);
-                }}
-                onReadyChange={(newReady) => {
-                    room.send('ready', newReady);
-                    if (newReady) {
+                    if (newRole !== '') {
                         enterFullscreen();
                     } else {
                         exitFullscreen();

@@ -17,7 +17,6 @@ export function useRoomConnection(
     const timeSynchronizer = useRef<TimeSynchronizer | null>(null);
     const [crewId] = useState<string>(() => new URLSearchParams(window.location.search).get('crew') ?? soloCrewIdentifier);
     const [role, setRole] = useState<CrewRole | null>(null);
-    const [ready, setReady] = useState(false);
 
     const gameStatus = useRoomState(connectedRoom ?? emptyRoom, state => state.gameStatus) ?? 'setup';
 
@@ -66,8 +65,8 @@ export function useRoomConnection(
                         return;
                     }
 
-                    // Update role and ready based on server state.
-                    const updateRoleAndReady = () => {
+                    // Update role based on server state.
+                    const updateRole = () => {
                         if (!joinedRoom) {
                             return;
                         }
@@ -83,13 +82,12 @@ export function useRoomConnection(
                         } else {
                             setRole(null);
                         }
-                        setReady(crew.crewReady.get(joinedRoom.sessionId) ?? false);
                     };
-                    updateRoleAndReady();
+                    updateRole();
 
-                    // Do this again when roles or ready states change.
+                    // Do this again when roles change.
                     const callbacks = getStateCallbacks(joinedRoom);
-                    callbacks(crew).onChange(updateRoleAndReady);
+                    callbacks(crew).onChange(updateRole);
 
                     setConnectionState('connected');
                 });
@@ -114,5 +112,5 @@ export function useRoomConnection(
         };
     }, [setConnectionState, crewId]);
 
-    return [connectedRoom, crewId, shipId, role, ready, gameStatus, timeSynchronizer.current] as const;
+    return [connectedRoom, crewId, shipId, role, gameStatus, timeSynchronizer.current] as const;
 }

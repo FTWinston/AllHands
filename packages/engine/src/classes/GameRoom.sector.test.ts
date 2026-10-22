@@ -3,7 +3,7 @@ import { DEV_TOOLS_ENABLED } from 'src/generated/devtools';
 import { setupGameRoom } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
-import type { GameRoom } from './GameRoom';
+import { startCountdownDuration, type GameRoom } from './GameRoom';
 import type { ColyseusTestServer } from '@colyseus/testing';
 
 const rooms = setupGameRoom();
@@ -31,23 +31,29 @@ async function send(room: GameRoom, client: TestClient, type: string, payload?: 
     await new Promise(resolve => setTimeout(resolve, 10));
 }
 
-/** A ship client plus one crew client per role, all ready, so the campaign has started. */
-async function startGame() {
+const roles: RoleName[] = ['helm', 'tactical', 'science', 'engineer'];
+
+/** A ship client plus one crew client per role, with every role claimed, so the start countdown is running. */
+async function claimAllRoles() {
     const room = rooms.getRoom();
 
     const shipClient = await connect(room, { type: 'ship' });
     const [crewId] = [...room.state.crews.keys()];
 
-    const roles: RoleName[] = ['helm', 'tactical', 'science', 'engineer'];
     const clients = {} as Record<RoleName, TestClient>;
     for (const role of roles) {
         clients[role] = await connect(room, { type: 'crew', crewId });
         await send(room, clients[role], 'role', roleIds[role]);
     }
 
-    for (const role of roles) {
-        await send(room, clients[role], 'ready', true);
-    }
+    return { room, crewId, shipClient, clients };
+}
+
+/** A ship client plus one crew client per role, so the campaign has started. */
+async function startGame() {
+    const { room, crewId, shipClient, clients } = await claimAllRoles();
+
+    room.tickStartCountdown(startCountdownDuration);
 
     expect(room.state.gameStatus).toBe('active');
     const ship = room.state.crews.get(crewId)!.ship!;
@@ -55,8 +61,52 @@ async function startGame() {
     return { room, state: room.state, ship, shipClient, clients };
 }
 
+describe('GameRoom start countdown', () => {
+    it('counts down once every role is claimed, rather than starting straight away', async () => {
+        const { room } = await claimAllRoles();
+
+        expect(room.state.gameStatus).toBe('setup');
+        expect(room.state.startCountdown).toBe(5);
+
+        room.tickStartCountdown(1500);
+        expect(room.state.startCountdown).toBe(4);
+        expect(room.state.gameStatus).toBe('setup');
+
+        room.tickStartCountdown(startCountdownDuration - 1500);
+        expect(room.state.gameStatus).toBe('active');
+        expect(room.state.startCountdown).toBe(0);
+    });
+
+    it('cancels the countdown when a role is released', async () => {
+        const { room, clients } = await claimAllRoles();
+
+        room.tickStartCountdown(3000);
+        await send(room, clients.science, 'role', '');
+
+        expect(room.state.startCountdown).toBe(0);
+        room.tickStartCountdown(startCountdownDuration);
+        expect(room.state.gameStatus).toBe('setup');
+
+        // Claiming it again restarts the countdown from the beginning.
+        await send(room, clients.science, 'role', roleIds.science);
+        expect(room.state.startCountdown).toBe(5);
+    });
+
+    it('cancels the countdown when a crew member leaves', async () => {
+        const { room, clients } = await claimAllRoles();
+
+        await clients.helm.leave();
+        // Let the server-side leave handler run before the test inspects state.
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        expect(room.state.startCountdown).toBe(0);
+        room.tickStartCountdown(startCountdownDuration);
+        expect(room.state.gameStatus).toBe('setup');
+    });
+});
+
 describe('GameRoom campaign messages', () => {
-    it('starts the campaign in the sector intro once the crew is ready', async () => {
+    it('starts the campaign in the sector intro once every role is claimed', async () => {
         const { state } = await startGame();
 
         expect(state.phase).toBe('sectorIntro');
@@ -159,22 +209,11 @@ describe('GameRoom campaign messages', () => {
 });
 
 describe('GameRoom game start', () => {
-    it('fades the lobby out before starting the game', async () => {
-        const room = rooms.getRoom();
+    it('fades the lobby out once the start countdown ends, before starting the game', async () => {
+        const { room } = await claimAllRoles();
         room.state.sceneChangeDelay = 20;
 
-        await connect(room, { type: 'ship' });
-        const [crewId] = [...room.state.crews.keys()];
-
-        const roles: RoleName[] = ['helm', 'tactical', 'science', 'engineer'];
-        const clients = {} as Record<RoleName, TestClient>;
-        for (const role of roles) {
-            clients[role] = await connect(room, { type: 'crew', crewId });
-            await send(room, clients[role], 'role', roleIds[role]);
-        }
-        for (const role of roles) {
-            await send(room, clients[role], 'ready', true);
-        }
+        room.tickStartCountdown(startCountdownDuration);
 
         expect(room.state.sceneChange).toBe('start');
         expect(room.state.gameStatus).toBe('setup');
