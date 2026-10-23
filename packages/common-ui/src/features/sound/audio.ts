@@ -28,17 +28,25 @@ function unlock() {
 
 /**
  * Everything plays through a gentle low-pass filter and a short, dark echo, like an old console speaker in a metal room,
- * which takes the digital edge off the oscillators.
+ * which takes the digital edge off the oscillators. A compressor lets explosions hit hard without clipping,
+ * ducking anything quieter that's playing at the time.
  */
 function createOutput(context: AudioContext) {
     const output = context.createGain();
     output.gain.value = 0.5;
 
+    const compressor = context.createDynamicsCompressor();
+    compressor.threshold.value = -12;
+    compressor.knee.value = 12;
+    compressor.ratio.value = 4;
+    compressor.attack.value = 0.005;
+    compressor.release.value = 0.25;
+
     const speaker = context.createBiquadFilter();
     speaker.type = 'lowpass';
     speaker.frequency.value = 6000;
     speaker.Q.value = 0.5;
-    output.connect(speaker).connect(context.destination);
+    output.connect(compressor).connect(speaker).connect(context.destination);
 
     const echo = context.createDelay(1);
     echo.delayTime.value = 0.11;

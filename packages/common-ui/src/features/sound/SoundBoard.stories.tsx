@@ -6,7 +6,7 @@ import { HumIntensity, useHum } from './useHum';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 /** Every sound in the game, to audition them side by side. */
-const SoundBoard: FC = () => {
+const Component: FC = () => {
     const [humIntensity, setHumIntensity] = useState<HumIntensity>(0);
     const [chatter, setChatter] = useState(false);
     useHum(humIntensity);
@@ -39,10 +39,10 @@ const SoundBoard: FC = () => {
 
 const meta = {
     title: 'common-ui/features/sound/Sound Board',
-    component: SoundBoard,
-} satisfies Meta<typeof SoundBoard>;
+    component: Component,
+} satisfies Meta<typeof Component>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const AllSounds: Story = {};
+export const SoundBoard: Story = {};
