@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import { playwright } from '@vitest/browser-playwright';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import viteConfig from './vite.config.storybook';
 
@@ -30,7 +31,7 @@ export default defineConfig({
                         enabled: true,
                         headless: true,
                         instances: [{ browser: 'chromium' }],
-                        provider: 'playwright',
+                        provider: playwright(),
                     },
                 },
             },

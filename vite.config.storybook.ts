@@ -1,9 +1,6 @@
 import { defineConfig } from 'vite';
 import { baseViteConfig } from './vite.config.base';
 import * as path from 'path';
-import * as fs from 'fs';
-import { pathToFileURL } from 'url';
-import { CanonicalizeContext } from 'sass';
 
 /*
  * A custom resolver to handle 'src' alias based on the package context, for imports starting with "src" in typescript files.
