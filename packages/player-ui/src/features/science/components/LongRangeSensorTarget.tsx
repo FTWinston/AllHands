@@ -17,9 +17,9 @@ const kindPalettes: Record<SectorNodeKind, string> = {
     combat: colorPalettes.danger,
     repair: colorPalettes.good,
     navigationBeacon: colorPalettes.energy,
-    weaponsDealer: colorPalettes.energy,
-    engineeringOutpost: colorPalettes.energy,
-    scienceStation: colorPalettes.energy,
+    armsDealer: colorPalettes.energy,
+    salvageYard: colorPalettes.energy,
+    researchOutpost: colorPalettes.energy,
     boss: colorPalettes.primary,
 };
 

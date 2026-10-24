@@ -536,7 +536,7 @@ describe('Campaign shop stations', () => {
     }
 
     it('opens a shop of cards for its own crew member only, on arrival', () => {
-        const { ships: [ship] } = createAtShop('weaponsDealer');
+        const { ships: [ship] } = createAtShop('armsDealer');
 
         expect([ship.helmState, ship.scienceState, ship.tacticalState, ship.engineerState].map(system => system.shopOpen)).toEqual([false, false, true, false]);
         expect(ship.hasOpenShop).toBe(true);
@@ -602,7 +602,7 @@ describe('Campaign shop stations', () => {
     });
 
     it('closes for good, discarding unsold cards', () => {
-        const { campaign, ships: [ship] } = createAtShop('engineeringOutpost', 100);
+        const { campaign, ships: [ship] } = createAtShop('salvageYard', 100);
         const engineer = ship.engineerState;
         const cardId = engineer.shopCards[0].id;
 
@@ -618,7 +618,7 @@ describe('Campaign shop stations', () => {
     });
 
     it('clears the shop on leaving, even if it was never closed', () => {
-        const { state, campaign, ships: [ship] } = createAtShop('scienceStation', 100);
+        const { state, campaign, ships: [ship] } = createAtShop('researchOutpost', 100);
 
         expect(campaign.warpAway(ship)).toBe(true);
         expect(state.phase).toBe('map');

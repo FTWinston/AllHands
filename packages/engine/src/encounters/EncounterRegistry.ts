@@ -29,9 +29,9 @@ const definitions: readonly EncounterDefinition[] = [
     { id: 'survive', name: 'Hold Out', kind: 'combat', objective: { type: 'survive', durationMs: defaultSurviveDurationMs }, defaultEnvironment: 'asteroidField', defaultFactionId: 'factionA', create: (state, node) => new SurviveEncounter(state, node) },
     { id: 'repairStation', name: 'Repair Station', kind: 'repair', create: (state, node) => new StationEncounter(state, node) },
     { id: 'navigationBeacon', name: 'Navigation Beacon', kind: 'navigationBeacon', create: (state, node) => new StationEncounter(state, node) },
-    { id: 'weaponsDealer', name: 'Weapons Dealer', kind: 'weaponsDealer', create: (state, node) => new StationEncounter(state, node) },
-    { id: 'engineeringOutpost', name: 'Engineering Outpost', kind: 'engineeringOutpost', create: (state, node) => new StationEncounter(state, node) },
-    { id: 'scienceStation', name: 'Science Station', kind: 'scienceStation', create: (state, node) => new StationEncounter(state, node) },
+    { id: 'armsDealer', name: 'Arms Dealer', kind: 'armsDealer', create: (state, node) => new StationEncounter(state, node) },
+    { id: 'salvageYard', name: 'Salvage Yard', kind: 'salvageYard', create: (state, node) => new StationEncounter(state, node) },
+    { id: 'researchOutpost', name: 'Research Outpost', kind: 'researchOutpost', create: (state, node) => new StationEncounter(state, node) },
     { id: 'bossA', name: 'Placeholder Boss A', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'asteroidField', defaultFactionId: 'factionA', create: (state, node) => new BossAEncounter(state, node) },
     { id: 'bossB', name: 'Placeholder Boss B', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'nebula', defaultFactionId: 'factionB', create: (state, node) => new BossBEncounter(state, node) },
     { id: 'bossC', name: 'Placeholder Boss C', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'deepSpace', defaultFactionId: 'factionC', create: (state, node) => new BossCEncounter(state, node) },
@@ -95,7 +95,7 @@ export function getDevEncounterList(): DevEncounterInfo[] {
 export const stationEncounterIds: Readonly<Record<StationKind, EncounterId>> = {
     repair: 'repairStation',
     navigationBeacon: 'navigationBeacon',
-    weaponsDealer: 'weaponsDealer',
-    engineeringOutpost: 'engineeringOutpost',
-    scienceStation: 'scienceStation',
+    armsDealer: 'armsDealer',
+    salvageYard: 'salvageYard',
+    researchOutpost: 'researchOutpost',
 };

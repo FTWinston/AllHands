@@ -70,7 +70,7 @@ const StationMark: FC<{ kind: StationKind; inner: number }> = ({ kind, inner }) 
         case 'navigationBeacon':
             // A compass needle.
             return <path className={styles.mark} d={`M0 ${-inner * 1.1}L${inner * 0.55} 0L0 ${inner * 1.1}L${-inner * 0.55} 0Z`} />;
-        case 'weaponsDealer':
+        case 'armsDealer':
             // A crosshair.
             return (
                 <>
@@ -78,7 +78,7 @@ const StationMark: FC<{ kind: StationKind; inner: number }> = ({ kind, inner }) 
                     <path className={styles.mark} d={`M0 ${-inner * 1.2}V${-inner * 0.6}M0 ${inner * 0.6}V${inner * 1.2}M${-inner * 1.2} 0H${-inner * 0.6}M${inner * 0.6} 0H${inner * 1.2}`} />
                 </>
             );
-        case 'engineeringOutpost':
+        case 'salvageYard':
             // A hexagonal nut.
             return (
                 <polygon
@@ -89,7 +89,7 @@ const StationMark: FC<{ kind: StationKind; inner: number }> = ({ kind, inner }) 
                     }).join(' ')}
                 />
             );
-        case 'scienceStation':
+        case 'researchOutpost':
             // An atom.
             return (
                 <>

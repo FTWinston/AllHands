@@ -87,9 +87,9 @@
 
 /* Shop stations. */
 .glyph.navigationBeacon,
-.glyph.weaponsDealer,
-.glyph.engineeringOutpost,
-.glyph.scienceStation {
+.glyph.armsDealer,
+.glyph.salvageYard,
+.glyph.researchOutpost {
     --kind-color: var(--energy-light);
 }
 

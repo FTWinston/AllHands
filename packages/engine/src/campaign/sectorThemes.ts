@@ -35,9 +35,9 @@ export const sectorThemes: readonly SectorTheme[] = [
         stationNames: {
             repair: ['Repair Station 1-1', 'Repair Station 1-2', 'Repair Station 1-3', 'Repair Station 1-4'],
             navigationBeacon: ['Beacon 1-1', 'Beacon 1-2'],
-            weaponsDealer: ['Arms Dealer 1-1', 'Arms Dealer 1-2'],
-            engineeringOutpost: ['Outpost 1-1', 'Outpost 1-2'],
-            scienceStation: ['Science Station 1-1', 'Science Station 1-2'],
+            armsDealer: ['Arms Dealer 1-1', 'Arms Dealer 1-2'],
+            salvageYard: ['Salvage Yard 1-1', 'Salvage Yard 1-2'],
+            researchOutpost: ['Research Outpost 1-1', 'Research Outpost 1-2'],
         },
     },
     {
@@ -56,9 +56,9 @@ export const sectorThemes: readonly SectorTheme[] = [
         stationNames: {
             repair: ['Repair Station 2-1', 'Repair Station 2-2', 'Repair Station 2-3', 'Repair Station 2-4'],
             navigationBeacon: ['Beacon 2-1', 'Beacon 2-2'],
-            weaponsDealer: ['Arms Dealer 2-1', 'Arms Dealer 2-2'],
-            engineeringOutpost: ['Outpost 2-1', 'Outpost 2-2'],
-            scienceStation: ['Science Station 2-1', 'Science Station 2-2'],
+            armsDealer: ['Arms Dealer 2-1', 'Arms Dealer 2-2'],
+            salvageYard: ['Salvage Yard 2-1', 'Salvage Yard 2-2'],
+            researchOutpost: ['Research Outpost 2-1', 'Research Outpost 2-2'],
         },
     },
     {
@@ -77,9 +77,9 @@ export const sectorThemes: readonly SectorTheme[] = [
         stationNames: {
             repair: ['Repair Station 3-1', 'Repair Station 3-2', 'Repair Station 3-3', 'Repair Station 3-4'],
             navigationBeacon: ['Beacon 3-1', 'Beacon 3-2'],
-            weaponsDealer: ['Arms Dealer 3-1', 'Arms Dealer 3-2'],
-            engineeringOutpost: ['Outpost 3-1', 'Outpost 3-2'],
-            scienceStation: ['Science Station 3-1', 'Science Station 3-2'],
+            armsDealer: ['Arms Dealer 3-1', 'Arms Dealer 3-2'],
+            salvageYard: ['Salvage Yard 3-1', 'Salvage Yard 3-2'],
+            researchOutpost: ['Research Outpost 3-1', 'Research Outpost 3-2'],
         },
     },
 ];
