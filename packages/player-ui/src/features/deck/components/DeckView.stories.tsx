@@ -4,11 +4,12 @@ import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
 import { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { DeckView as Component } from './DeckView';
+import type { Snapshot } from '@colyseus/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const tacticalCards: CardType[] = ['phaserStrip', 'exampleEnemyTarget', 'exampleNoTarget', 'phaserCannon', 'phaserStrip', 'photonTorpedo', 'lowYield', 'highYield', 'fullSpread', 'weaponOvercharge', 'subCritical', 'rapidFire'];
 
-function createDeck(types: CardType[]): CardInstance[] {
+function createDeck(types: CardType[]): Snapshot<CardInstance>[] {
     return types.map((type, index) => ({ id: index + 1, type }));
 }
 
@@ -75,7 +76,7 @@ export const Browsing: Story = {
         // The view is portalled out of the story's canvas.
         const page = within(canvasElement.ownerDocument.body);
         await expect(await page.findByText('My deck')).toBeInTheDocument();
-        await expect(page.getByLabelText('Position 12')).toBeInTheDocument();
+        await expect(page.getByText('#12')).toBeInTheDocument();
         await expect(page.queryAllByRole('button', { name: /Sell/ })).toHaveLength(0);
         await expect(page.queryByLabelText(/Antimatter/)).not.toBeInTheDocument();
     },

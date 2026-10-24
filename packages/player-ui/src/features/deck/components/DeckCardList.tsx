@@ -124,7 +124,8 @@ const DeckCardItem: FC<ItemProps> = ({ card, index, canMove, onSell, sellPrice, 
             ref={setDropRef}
             className={classNames(styles.item, isOver && !isDragging ? styles.dropTarget : null)}
         >
-            <div className={styles.position} aria-label={`Position ${index + 1}`}>
+            <div className={styles.position}>
+                #
                 {index + 1}
             </div>
 

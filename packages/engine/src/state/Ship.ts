@@ -18,7 +18,6 @@ import { ReactorState } from './systems/ReactorState';
 import { ScienceState } from './systems/science/ScienceState';
 import { SystemState } from './systems/SystemState';
 import { TacticalState } from './systems/tactical/TacticalState';
-import type { CrewSystemState } from './systems/CrewSystemState';
 
 @entity
 export abstract class Ship extends MobileObject implements ShipInfo {
@@ -90,11 +89,6 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             throw new Error(`Ship does not have system ${system}`);
         }
         return systemState;
-    }
-
-    /** The systems that each belong to a crew member, and so have a deck that crew member can view. */
-    public get crewSystems(): readonly CrewSystemState[] {
-        return [this.helmState, this.scienceState, this.tacticalState, this.engineerState];
     }
 
     private readonly detectionRange = 100;

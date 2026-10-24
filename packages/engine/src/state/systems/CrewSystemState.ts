@@ -36,9 +36,6 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
      */
     @type([NonEncounterCardState]) nonEncounterCards = new ArraySchema<NonEncounterCardState>();
 
-    /** Set by the campaign: opened on arriving at a station, then toggled by the crew member's `setDeckViewOpen` messages. Cleared on leaving. */
-    @type('boolean') deckViewOpen = false;
-
     override readonly maxHandSize = 5;
 
     removeCard(cardId: number): boolean {
@@ -166,7 +163,6 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
     override cleanupAfterEncounter() {
         this.pendingDrawChoice.clear();
-        this.deckViewOpen = false;
         super.cleanupAfterEncounter();
     }
 }

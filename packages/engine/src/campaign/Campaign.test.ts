@@ -435,17 +435,16 @@ describe('Campaign stations', () => {
     it('starts with every deck complete, before the first encounter', () => {
         const { ships: [ship] } = createCampaign();
 
-        for (const system of ship.crewSystems) {
+        for (const system of [ship.helmState, ship.scienceState, ship.tacticalState, ship.engineerState]) {
             expect(system.hand.length).toBe(0);
         }
         expect(ship.helmState.deck.length).toBe(playerShipSetup.helm.cards.length);
         expect(ship.tacticalState.deck.length).toBe(playerShipSetup.tactical.cards.length);
     });
 
-    it('opens every crew deck view on arrival, without dealing hands or simulating systems', () => {
+    it('does not deal hands or simulate systems at a station', () => {
         const { state, ships: [ship] } = createAtStation();
 
-        expect(ship.crewSystems.map(system => system.deckViewOpen)).toEqual([true, true, true, true]);
         expect(ship.tacticalState.deck.length).toBe(playerShipSetup.tactical.cards.length);
         expect(ship.tacticalState.cardGeneration).toBeNull();
         expect(state.isSimulatingSystems).toBe(false);
@@ -454,31 +453,12 @@ describe('Campaign stations', () => {
         expect(ship.helmState.hand.map(card => card.type)).toEqual(['warpAway']);
     });
 
-    it('lets crew close and reopen their deck view, only at a station', () => {
-        const { state, campaign, ships: [ship] } = createAtStation();
-
-        expect(campaign.setDeckViewOpen(ship, ship.helmState, false)).toBe(true);
-        expect(ship.helmState.deckViewOpen).toBe(false);
-        expect(ship.tacticalState.deckViewOpen).toBe(true);
-
-        expect(campaign.setDeckViewOpen(ship, ship.helmState, true)).toBe(true);
-        expect(ship.helmState.deckViewOpen).toBe(true);
-
-        expect(campaign.warpAway(ship)).toBe(true);
-        expect(state.phase).toBe('map');
-        expect(ship.crewSystems.map(system => system.deckViewOpen)).toEqual([false, false, false, false]);
-        expect(campaign.setDeckViewOpen(ship, ship.helmState, true)).toBe(false);
-        expect(ship.helmState.deckViewOpen).toBe(false);
-    });
-
-    it('does not open deck views in a combat encounter', () => {
-        const { campaign, ships: [ship] } = createCampaign();
+    it('is not at a station during a combat encounter', () => {
+        const { campaign } = createCampaign();
         campaign.dismissMessage();
         campaign.devLoadEncounter('skirmish');
 
         expect(campaign.isAtStation).toBe(false);
-        expect(ship.crewSystems.map(system => system.deckViewOpen)).toEqual([false, false, false, false]);
-        expect(campaign.setDeckViewOpen(ship, ship.helmState, true)).toBe(false);
     });
 
     it('re-orders deck cards at a station, keeping the order for later encounters', () => {

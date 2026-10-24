@@ -174,19 +174,6 @@ export class Campaign {
         return true;
     }
 
-    /**
-     * A crew member opens or closes their deck view at a station. It opens automatically on arrival.
-     * This is the hook point for anything that must wait until a crew member has finished with their deck (e.g. helm warping away).
-     */
-    setDeckViewOpen(_ship: PlayerShip, system: CrewSystemState, open: boolean): boolean {
-        if (!this.isAtStation) {
-            return false;
-        }
-
-        system.deckViewOpen = open;
-        return true;
-    }
-
     /** A crew member moves one of their deck cards to a new position, at a station. */
     moveDeckCard(_ship: PlayerShip, system: CrewSystemState, cardId: number, toIndex: number): boolean {
         if (!this.isAtStation) {
@@ -279,11 +266,7 @@ export class Campaign {
             ship.helmState.setNonEncounterCards([]);
             ship.scienceState.setDestinations([]);
 
-            if (atStation) {
-                for (const system of ship.crewSystems) {
-                    system.deckViewOpen = true;
-                }
-            } else {
+            if (!atStation) {
                 ship.startEncounter();
             }
             ship.setMotion(new MotionKeyframe(
