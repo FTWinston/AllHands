@@ -5,11 +5,12 @@ import { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { ShopPanel } from '../../shop/components/ShopPanel';
 import { DeckView as Component } from './DeckView';
+import type { Snapshot } from '@colyseus/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const tacticalCards: CardType[] = ['phaserStrip', 'exampleEnemyTarget', 'exampleNoTarget', 'phaserCannon', 'phaserStrip', 'photonTorpedo', 'lowYield', 'highYield', 'fullSpread', 'weaponOvercharge', 'subCritical', 'rapidFire'];
 
-function createDeck(types: CardType[]): CardInstance[] {
+function createDeck(types: CardType[]): Snapshot<CardInstance>[] {
     return types.map((type, index) => ({ id: index + 1, type }));
 }
 

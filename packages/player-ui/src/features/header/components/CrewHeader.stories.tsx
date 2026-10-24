@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { DragCardProvider } from 'src/features/cardui/components/DragCardProvider';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { CrewHeader as Component } from './CrewHeader';
+import type { Snapshot } from '@colyseus/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const cardTypes: CardType[] = ['slowAndSteady', 'zigZag', 'strafe', 'faceTarget', 'exampleNoTarget', 'sweep', 'sweep', 'slowAndSteady', 'zigZag', 'slowAndSteady'];
-const cards: CardInstance[] = cardTypes.map((type, index) => ({ id: index + 1, type }));
+const cards: Snapshot<CardInstance>[] = cardTypes.map((type, index) => ({ id: index + 1, type }));
 
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Crew Header',
