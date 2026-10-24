@@ -25,8 +25,8 @@ const nodeKindLabels: Record<SectorNodeKind, string> = {
 const shopLabels: Record<CrewRoleName, string> = {
     helm: 'Helm cards',
     science: 'Science cards',
-    tactical: 'Weapon & tactical cards',
-    engineer: 'Engineering cards',
+    tactical: 'Tactical cards',
+    engineer: 'Engineer cards',
 };
 
 /** Placeholder names, until the factions are written. */
