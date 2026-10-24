@@ -4,7 +4,7 @@ import type { SectorNodeInfo } from 'src/features/sectors/types/SectorNodeInfo';
 export const antimatterRewards = {
     combat: 10,
     elite: 30,
-    boss: 30,
+    boss: 50,
 } as const;
 
 /** How much antimatter completing the encounter at the given node awards each player ship. */
