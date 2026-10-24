@@ -45,3 +45,31 @@ describe('PlayerShip hits', () => {
         expect(ship.hullState.health).toBe(ship.hullState.maxHealth - 1);
     });
 });
+
+describe('PlayerShip antimatter', () => {
+    it('starts with none, and can be added to', () => {
+        const { ship } = createShipWithCrew();
+        expect(ship.antimatter).toBe(0);
+
+        ship.addAntimatter(10);
+        ship.addAntimatter(30);
+        ship.addAntimatter(-5);
+
+        expect(ship.antimatter).toBe(40);
+    });
+
+    it('only spends antimatter the ship has', () => {
+        const { ship } = createShipWithCrew();
+        ship.addAntimatter(30);
+
+        expect(ship.trySpendAntimatter(20)).toBe(true);
+        expect(ship.antimatter).toBe(10);
+
+        expect(ship.trySpendAntimatter(20)).toBe(false);
+        expect(ship.trySpendAntimatter(-5)).toBe(false);
+        expect(ship.antimatter).toBe(10);
+
+        expect(ship.trySpendAntimatter(10)).toBe(true);
+        expect(ship.antimatter).toBe(0);
+    });
+});

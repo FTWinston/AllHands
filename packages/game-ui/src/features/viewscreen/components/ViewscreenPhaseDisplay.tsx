@@ -1,5 +1,6 @@
 import { Screen } from 'common-ui/components/Screen';
 import { FC, PropsWithChildren } from 'react';
+import { AntimatterDisplay } from './AntimatterDisplay';
 import { GameEndedDisplay } from './GameEndedDisplay';
 import { SectorMapDisplay } from './SectorMapDisplay';
 import { SectorMessageDisplay } from './SectorMessageDisplay';
@@ -16,15 +17,22 @@ type Props = PropsWithChildren<{
     outcome: GameOutcome | null;
     map: SectorMapInfo | null;
     message: SectorMessageInfo | null;
+    /** The ship's antimatter, shown alongside the sector map. Omitted when unknown. */
+    antimatter?: number;
     showMenu: () => void;
 }>;
 
-export const ViewscreenPhaseDisplay: FC<Props> = ({ phase, isEnded, outcome, map, message, showMenu, children }) => {
+export const ViewscreenPhaseDisplay: FC<Props> = ({ phase, isEnded, outcome, map, message, antimatter, showMenu, children }) => {
     let content;
     if (isEnded) {
         content = <GameEndedDisplay outcome={outcome} message={message} />;
     } else if (phase === 'map' && map) {
-        content = <SectorMapDisplay map={map} />;
+        content = (
+            <>
+                <SectorMapDisplay map={map} />
+                {antimatter !== undefined && <AntimatterDisplay antimatter={antimatter} />}
+            </>
+        );
     } else if ((phase === 'sectorIntro' || phase === 'sectorOutro') && message) {
         content = <SectorMessageDisplay message={message} />;
     } else {

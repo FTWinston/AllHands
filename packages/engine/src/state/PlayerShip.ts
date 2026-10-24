@@ -1,7 +1,7 @@
 import { entity, type, view } from '@colyseus/schema';
-import { ownShipClientRole } from 'common-data/features/ships/types/CrewRole';
+import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownShipClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
-import { PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { PlayerShipInfo, PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CrewState } from './CrewState';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
@@ -9,7 +9,7 @@ import { Ship } from './Ship';
 import { ViewState } from './systems/ViewState';
 
 @entity
-export class PlayerShip extends Ship {
+export class PlayerShip extends Ship implements PlayerShipInfo {
     constructor(gameState: GameState, setup: PlayerShipSetupInfo) {
         super(gameState, {
             ...setup,
@@ -21,6 +21,26 @@ export class PlayerShip extends Ship {
     crew: CrewState | null = null;
 
     @view(ownShipClientRole) @type(ViewState) readonly viewState: ViewState = new ViewState();
+
+    /** Earned by completing encounters, and spent at stations. */
+    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
+    @type('number') antimatter = 0;
+
+    addAntimatter(amount: number) {
+        if (amount > 0) {
+            this.antimatter += amount;
+        }
+    }
+
+    /** Spends the given amount of antimatter if the ship has that much, returning whether it did. */
+    trySpendAntimatter(amount: number): boolean {
+        if (amount < 0 || amount > this.antimatter) {
+            return false;
+        }
+
+        this.antimatter -= amount;
+        return true;
+    }
 
     protected addKnownObject(objectId: string, object: GameObject) {
         super.addKnownObject(objectId, object);
