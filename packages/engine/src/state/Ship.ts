@@ -1,5 +1,5 @@
 import { entity, type, view } from '@colyseus/schema';
-import { UntargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { CardType, UntargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ownShipClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole, CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
@@ -73,6 +73,14 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
     getCardId() {
         return this.nextCardId++;
+    }
+
+    /**
+     * Record that this ship's crew has seen cards of these types: in their deck or hand, or offered in a shop.
+     * Only player ships keep track of this (see `PlayerShip.seenCardTypes`); it does nothing for anyone else.
+     */
+    markCardTypesSeen(_types: Iterable<CardType>) {
+        // Only player ships track seen cards.
     }
 
     @view(ownShipClientRole) @type(HullState) hullState: HullState;

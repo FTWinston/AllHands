@@ -9,6 +9,7 @@ import { useBridgeChatter } from 'common-ui/features/sound/useBridgeChatter';
 import { useWakeLock } from 'common-ui/hooks/useWakeLock';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { FC, PropsWithChildren, useEffect, useRef } from 'react';
+import { addKnownCardTypes } from '../knownCards/knownCardStorage';
 import { AntimatterDisplay } from './components/AntimatterDisplay';
 import { LowHullWarning } from './components/LowHullWarning';
 import { StationBanner } from './components/StationBanner';
@@ -72,6 +73,14 @@ const ViewscreenScene: FC<Props> = (props) => {
 
     const hull = (localShip as ShipInfo | undefined)?.hullState;
     const antimatter = (localShip as PlayerShipInfo | undefined)?.antimatter;
+
+    // Whatever the crew sees this game becomes known on this device, for the known cards compendium.
+    const seenCardTypes = (localShip as PlayerShipInfo | undefined)?.seenCardTypes;
+    useEffect(() => {
+        if (seenCardTypes) {
+            addKnownCardTypes(seenCardTypes);
+        }
+    }, [seenCardTypes]);
 
     if (isEnded || phase !== 'encounter') {
         return (

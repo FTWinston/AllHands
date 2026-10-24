@@ -66,6 +66,11 @@ export const Selector: Story = {
         const backButton = canvas.getByText('Go back');
         await user.click(backButton);
 
+        // View the known cards, then go back
+        await user.click(canvas.getByText('Known cards'));
+        await expect(canvas.getByRole('heading', { name: 'Known cards' })).toBeInTheDocument();
+        await user.click(canvas.getByRole('button', { name: 'Back' }));
+
         // Click quit button
         const quitButton = canvas.getByText('Quit');
         await user.click(quitButton);

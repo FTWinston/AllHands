@@ -83,6 +83,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
         const cardDefinition = getCardDefinition(card.type);
         cardDefinition.draw?.(this._gameState, this._ship, card);
 
+        this._ship.markCardTypesSeen([card.type]);
         this.cardAddedToHand.triggerListeners(card);
     }
 
@@ -435,6 +436,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
     /** Permanently add a card to the bottom of the deck and to the card pool (unless it's expendable), raising the system's max health. */
     addDeckCard(card: CardState) {
         this.deck.push(card);
+        this._ship.markCardTypesSeen([card.type]);
 
         if (card.hasTrait('expendable') || this.cardPool.has(card)) {
             return;

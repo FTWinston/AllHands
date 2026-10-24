@@ -9,6 +9,7 @@ type Props = {
     hostSingleCrewServer: () => void;
     hostMultiCrewServer: () => void;
     joinMultiCrewServer: () => void;
+    showKnownCards: () => void;
     quit: () => void;
 };
 
@@ -29,6 +30,11 @@ export const MainMenu: FC<Props> = (props) => {
                 <MenuItem
                     text="Join multi-crew game"
                     onClick={props.joinMultiCrewServer}
+                />
+
+                <MenuItem
+                    text="Known cards"
+                    onClick={props.showKnownCards}
                 />
 
                 <MenuItem

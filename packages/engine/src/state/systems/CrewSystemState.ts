@@ -52,6 +52,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         this.shopCards.clear();
         this.shopCards.push(...cards);
         this.shopOpen = true;
+        this.getShip().markCardTypesSeen(cards.map(card => card.type));
     }
 
     /** Closes this crew member's shop for good, discarding any unsold cards. Returns false if it wasn't open. */
