@@ -99,7 +99,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
     /** Whether any crew member's shop is open, at a shop station. */
     public get hasOpenShop(): boolean {
-        return [this.helmState, this.scienceState, this.tacticalState, this.engineerState].some(system => system.shopOpen);
+        return helmState.shopOpen || this.scienceState.shopOpen || this.tacticalState.shopOpen || this.engineerState.shopOpen;
     }
 
     private readonly detectionRange = 100;
