@@ -69,10 +69,8 @@ export class Campaign {
 
         this.enterSector(0);
 
-        // Ships are created before the campaign exists, so they dealt hands and started card generation timers.
-        // Return those cards to the deck, so it is complete in the deck view, and stop the timers until the first encounter.
+        // Ships are created before the campaign exists, so they started card generation timers that must stop until the first encounter.
         for (const ship of getPlayerShips(this.state)) {
-            ship.cleanupAfterEncounter();
             ship.updateCardGeneration();
         }
     }
