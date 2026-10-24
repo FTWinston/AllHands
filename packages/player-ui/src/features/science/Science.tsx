@@ -1,10 +1,10 @@
 import { Snapshot, useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, PlayerShipInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, PlayerShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useCallback } from 'react';
 import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
-import { useDeckView } from '../deck/useDeckView';
+import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { LongRangeSensorList } from './components/LongRangeSensorList';
@@ -21,11 +21,11 @@ type Props = {
 export const Science = (props: Props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, Snapshot<GameObjectInfo>>;
     const factions = useRoomState(props.room, state => state.factions) as Record<string, { relations: FactionRelationshipMap }>;
-    const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo>;
+    const localShip = objects?.[props.shipId] as unknown as Snapshot<PlayerShipInfo>;
     const targets = useStableOrderedTargets(objects, localShip);
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
-    const deckView = useDeckView(props.room, localShip?.scienceState, (localShip as Snapshot<PlayerShipInfo> | undefined)?.antimatter ?? 0);
+    const deckView = useDeckView(props.room, localShip?.scienceState, localShip?.antimatter ?? 0);
 
     const pause = useCallback(() => {
         props.room.send('pause');

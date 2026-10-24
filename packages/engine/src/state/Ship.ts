@@ -100,11 +100,6 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         return systemState;
     }
 
-    /** The systems that each belong to a crew member, and so have a deck that crew member can view. */
-    public get crewSystems(): readonly CrewSystemState[] {
-        return [this.helmState, this.scienceState, this.tacticalState, this.engineerState];
-    }
-
     /** The system belonging to the given crew member. */
     public getCrewSystem(role: CrewRoleName): CrewSystemState {
         return this.getSystem(role) as CrewSystemState;
@@ -112,7 +107,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
     /** Whether any crew member's shop is open, at a shop station. */
     public get hasOpenShop(): boolean {
-        return this.crewSystems.some(system => system.shopOpen);
+        return [this.helmState, this.scienceState, this.tacticalState, this.engineerState].some(system => system.shopOpen);
     }
 
     private readonly detectionRange = 100;

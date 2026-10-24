@@ -2,10 +2,10 @@ import { Button } from 'common-ui/components/Button';
 import { Card } from 'common-ui/features/cards/components/Card';
 import { FC } from 'react';
 import styles from './ShopPanel.module.css';
-import type { ShopControl } from '../ShopControl';
+import type { ShopModel } from '../types/ShopModel';
 
 /** A station's shop, shown beside the crew member's deck: cards to buy for antimatter, which go to the bottom of the deck. */
-export const ShopPanel: FC<ShopControl> = ({ title, cards, price, antimatter, buyCard, closeShop }) => {
+export const ShopPanel: FC<ShopModel> = ({ title, cards, price, antimatter, buyCard, closeShop }) => {
     const canAfford = antimatter >= price;
 
     return (
