@@ -50,5 +50,5 @@ export const WaitingForShopper: Story = {
 };
 
 export const WaitingForHelm: Story = {
-    args: { kind: 'repair', name: 'Repair Station 1-1', departure: getStationDepartureNote('helmDeckView', null, null) },
+    args: { kind: 'repair', name: 'Repair Station 1-1', departure: getStationDepartureNote('ready', null, null) },
 };

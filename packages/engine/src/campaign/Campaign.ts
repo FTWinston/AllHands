@@ -148,7 +148,7 @@ export class Campaign {
 
     /**
      * Helm plays the Warp Away card, ending the completed encounter.
-     * At a station, helm only gets the card once nobody is shopping, and can't play it until they close their deck view (see `getStationDepartureStatus`).
+     * At a station, helm only gets the card once nobody is shopping (see `getStationDepartureStatus`), and the server enforces that too.
      */
     warpAway(ship: Ship): boolean {
         if (!this.isInEncounter || !this.state.encounter?.objectiveMet || !(ship instanceof PlayerShip) || !this.playerShipsInEncounter.has(ship)) {
@@ -179,20 +179,6 @@ export class Campaign {
             });
         }
 
-        return true;
-    }
-
-    /**
-     * A crew member opens or closes their deck view at a station. It opens automatically on arrival.
-     * Helm can't warp away while theirs is open, as it covers their hand.
-     */
-    setDeckViewOpen(ship: PlayerShip, system: CrewSystemState, open: boolean): boolean {
-        if (!this.isAtStation) {
-            return false;
-        }
-
-        system.deckViewOpen = open;
-        this.updateStationDeparture(ship);
         return true;
     }
 
@@ -315,11 +301,7 @@ export class Campaign {
             ship.helmState.setNonEncounterCards([]);
             ship.scienceState.setDestinations([]);
 
-            if (atStation) {
-                for (const system of ship.crewSystems) {
-                    system.deckViewOpen = true;
-                }
-            } else {
+            if (!atStation) {
                 ship.startEncounter();
             }
             ship.setMotion(new MotionKeyframe(

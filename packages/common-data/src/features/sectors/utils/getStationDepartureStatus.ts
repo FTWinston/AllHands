@@ -5,9 +5,5 @@ import type { StationDepartureStatus } from '../types/StationDepartureStatus';
 export function getStationDepartureStatus(ship: Pick<ShipInfo, 'helmState' | 'scienceState' | 'tacticalState' | 'engineerState'>): StationDepartureStatus {
     const crewSystems = [ship.helmState, ship.scienceState, ship.tacticalState, ship.engineerState];
 
-    if (crewSystems.some(system => system.shopOpen)) {
-        return 'shopping';
-    }
-
-    return ship.helmState.deckViewOpen ? 'helmDeckView' : 'ready';
+    return crewSystems.some(system => system.shopOpen) ? 'shopping' : 'ready';
 }

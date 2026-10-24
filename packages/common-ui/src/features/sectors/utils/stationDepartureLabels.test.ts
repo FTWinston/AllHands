@@ -14,10 +14,9 @@ describe('getStationDepartureNote', () => {
         expect(getStationDepartureNote('shopping', 'helm', null)).toBe('Waiting for Helm to finish shopping.');
     });
 
-    it('tells helm to close their deck view, then play Warp Away', () => {
-        expect(getStationDepartureNote('helmDeckView', null, 'helm')).toMatch(/Close your deck/);
-        expect(getStationDepartureNote('helmDeckView', 'science', null)).toMatch(/Waiting for Helm/);
-        expect(getStationDepartureNote('ready', null, 'helm')).toMatch(/Play Warp Away/);
+    it('tells helm to play Warp Away once nobody is shopping, and everyone else that they are waiting on helm', () => {
+        expect(getStationDepartureNote('ready', null, 'helm')).toBe('Play Warp Away to leave the station.');
+        expect(getStationDepartureNote('ready', 'science', null)).toBe('Waiting for Helm to warp away.');
         expect(getStationDepartureNote('ready', null, 'engineer')).toBe('Waiting for Helm to warp away.');
     });
 

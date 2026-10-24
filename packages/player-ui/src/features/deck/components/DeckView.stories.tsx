@@ -78,7 +78,7 @@ export const Browsing: Story = {
         // The view is portalled out of the story's canvas.
         const page = within(canvasElement.ownerDocument.body);
         await expect(await page.findByText('My deck')).toBeInTheDocument();
-        await expect(page.getByLabelText('Position 12')).toBeInTheDocument();
+        await expect(page.getByText('#12')).toBeInTheDocument();
         await expect(page.queryAllByRole('button', { name: /Sell/ })).toHaveLength(0);
         await expect(page.queryByLabelText(/Antimatter/)).not.toBeInTheDocument();
     },
@@ -171,11 +171,11 @@ export const AtStationReadyToLeave: Story = {
         atStation: true,
         crew: 'helm',
         cards: createDeck(['slowAndSteady', 'zigZag', 'strafe', 'faceTarget', 'exampleNoTarget', 'sweep', 'sweep', 'slowAndSteady', 'zigZag', 'slowAndSteady', 'strafe']),
-        notice: getStationDepartureNote('helmDeckView', null, 'helm'),
+        notice: getStationDepartureNote('ready', null, 'helm'),
     },
     play: async ({ canvasElement, args }) => {
         const page = within(canvasElement.ownerDocument.body);
-        await expect(await page.findByText(/Close your deck to play Warp Away/)).toBeInTheDocument();
+        await expect(await page.findByText('Play Warp Away to leave the station.')).toBeInTheDocument();
 
         await userEvent.click(page.getByRole('button', { name: 'Close' }));
         await expect(args.setOpen).toHaveBeenCalledWith(false);

@@ -60,8 +60,6 @@ export interface CrewSystemInfo extends SystemInfo {
     pendingDrawChoice: IArray<CardInstance>;
     /** Shown instead of the system's display while outside an encounter; empty during one (see `NonEncounterCardInfo`). */
     nonEncounterCards: IArray<NonEncounterCardInfo>;
-    /** Whether this crew member's deck view is open at a station: opened on arrival, then closed (or reopened) by the crew member. Always false away from a station. */
-    deckViewOpen: boolean;
     /** Cards on sale to this crew member at a shop station for their role (see `getShopRole`), each for `shopCardPrice`. Empty elsewhere. */
     shopCards: IArray<CardInstance>;
     /**

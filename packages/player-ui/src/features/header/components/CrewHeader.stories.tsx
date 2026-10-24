@@ -68,7 +68,7 @@ export const OutsideEncounter: Story = {
 
         await userEvent.click(button);
         await expect(await page.findByText('My deck')).toBeInTheDocument();
-        await expect(page.getByLabelText('Position 10')).toBeInTheDocument();
+        await expect(page.getByText('#10')).toBeInTheDocument();
 
         // It stays open, rather than treating the click that opened it as an outside press.
         await new Promise(resolve => setTimeout(resolve, 300));

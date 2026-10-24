@@ -26,10 +26,6 @@ export function getStationDepartureNote(status: StationDepartureStatus | null | 
                 ? `Waiting for ${shopper} to finish shopping, before you can warp away.`
                 : `Waiting for ${shopper} to finish shopping.`;
         }
-        case 'helmDeckView':
-            return viewer === 'helm'
-                ? 'Close your deck to play Warp Away and leave the station.'
-                : 'Waiting for Helm to close their deck and warp away.';
         case 'ready':
             return viewer === 'helm'
                 ? 'Play Warp Away to leave the station.'

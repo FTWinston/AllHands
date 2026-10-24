@@ -105,15 +105,13 @@ export function startCampaign(state: GameState, shipCount = 1, themes: readonly 
     return { campaign, ships };
 }
 
-/** At a station, does what the ship's crew must before helm can warp away: closes any open shop, then helm's deck view. */
-export function finishAtStation(campaign: Campaign, ship: PlayerShip) {
-    for (const system of ship.crewSystems) {
+/** At a shop station, closes the ship's open shop, so that helm gets the Warp Away card. */
+export function closeShops(campaign: Campaign, ship: PlayerShip) {
+    for (const system of [ship.helmState, ship.scienceState, ship.tacticalState, ship.engineerState]) {
         if (system.shopOpen) {
             campaign.closeShop(ship, system);
         }
     }
-
-    campaign.setDeckViewOpen(ship, ship.helmState, false);
 }
 
 const minimalSystemSetup: NonCrewSystemSetupInfo = {

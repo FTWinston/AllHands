@@ -355,22 +355,6 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             }
         });
 
-        this.onMessage('setDeckViewOpen', (client, message: { open: boolean }) => {
-            if (this.state.gameStatus !== 'active' || typeof message?.open !== 'boolean') {
-                return;
-            }
-
-            const [ship, clientRole] = this.getShipForClient(client);
-            if (!ship) {
-                console.error('No ship found for client');
-                return;
-            }
-
-            if (!this.state.campaign?.setDeckViewOpen(ship, this.getSystemState(ship, clientRole), message.open)) {
-                console.warn(`Rejected deck view change from ${client.sessionId}: not at a station`);
-            }
-        });
-
         this.onMessage('moveDeckCard', (client, message: { cardId: number; toIndex: number }) => {
             if (this.state.gameStatus !== 'active' || !Number.isInteger(message?.cardId) || !Number.isInteger(message?.toIndex)) {
                 return;
