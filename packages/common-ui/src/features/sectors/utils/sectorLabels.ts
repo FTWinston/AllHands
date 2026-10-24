@@ -15,9 +15,9 @@ const nodeKindLabels: Record<SectorNodeKind, string> = {
     combat: 'Combat',
     repair: 'Repair station',
     navigationBeacon: 'Navigation beacon',
-    weaponsDealer: 'Weapons dealer',
-    engineeringOutpost: 'Engineering outpost',
-    scienceStation: 'Science station',
+    armsDealer: 'Arms dealer',
+    salvageYard: 'Salvage yard',
+    researchOutpost: 'Research outpost',
     boss: 'Boss',
 };
 

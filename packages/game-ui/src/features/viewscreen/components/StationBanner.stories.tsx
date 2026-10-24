@@ -28,14 +28,14 @@ export const NavigationBeacon: Story = {
     args: { kind: 'navigationBeacon', name: 'Beacon 1-1' },
 };
 
-export const WeaponsDealer: Story = {
-    args: { kind: 'weaponsDealer', name: 'Arms Dealer 1-1' },
+export const ArmsDealer: Story = {
+    args: { kind: 'armsDealer', name: 'Arms Dealer 1-1' },
 };
 
-export const EngineeringOutpost: Story = {
-    args: { kind: 'engineeringOutpost', name: 'Outpost 1-1' },
+export const SalvageYard: Story = {
+    args: { kind: 'salvageYard', name: 'Salvage Yard 1-1' },
 };
 
-export const ScienceStation: Story = {
-    args: { kind: 'scienceStation', name: 'Science Station 1-1' },
+export const ResearchOutpost: Story = {
+    args: { kind: 'researchOutpost', name: 'Research Outpost 1-1' },
 };

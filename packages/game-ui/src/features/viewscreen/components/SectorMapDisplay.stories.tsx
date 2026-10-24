@@ -11,11 +11,11 @@ const nodes: SectorMapNodeInfo[] = [
     { id: 'n1a', kind: 'combat', name: 'Skirmish', ...at(0.25, 0), next: ['n2a'] },
     { id: 'n1b', kind: 'combat', name: 'Ambush', ...at(0.25, 3), next: ['n2a', 'n2b'] },
     { id: 'n1c', kind: 'combat', name: 'Survive', ...at(0.25, 5), next: ['n2b'] },
-    { id: 'n2a', kind: 'weaponsDealer', name: 'Arms Dealer', ...at(0.5, 1), next: ['n3a', 'n3b'] },
+    { id: 'n2a', kind: 'armsDealer', name: 'Arms Dealer', ...at(0.5, 1), next: ['n3a', 'n3b'] },
     { id: 'n2b', kind: 'combat', name: 'Hold the Line', ...at(0.5, 4), elite: true, next: ['n3b', 'n3c'] },
     { id: 'n3a', kind: 'combat', name: 'Assault', ...at(0.75, 0), next: ['boss'] },
     { id: 'n3b', kind: 'combat', name: 'Escort', ...at(0.75, 2), elite: true, next: ['boss'] },
-    { id: 'n3c', kind: 'scienceStation', name: 'Science Station', ...at(0.75, 6), next: ['boss'] },
+    { id: 'n3c', kind: 'researchOutpost', name: 'Research Outpost', ...at(0.75, 6), next: ['boss'] },
     { id: 'boss', kind: 'boss', name: 'Placeholder Boss A', ...at(1, 3), next: [] },
 ];
 
