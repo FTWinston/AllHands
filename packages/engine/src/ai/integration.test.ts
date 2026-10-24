@@ -98,7 +98,6 @@ describe('AI ship integration', () => {
 
     it('enemies from a real combat encounter close in, keep maneuvering, and damage the player', () => {
         // Unlike the hand-built battles above, this uses the real enemy templates, spawning and campaign flow.
-        // This is sensitive to the seed: with some, an enemy barely moves or rarely maneuvers. Changing how sectors are generated changes what this seed gives.
         const state = rooms.createState(seededRandom(1));
         const { campaign, ships: [player] } = startCampaign(state);
         campaign.devLoadEncounter('skirmish');
