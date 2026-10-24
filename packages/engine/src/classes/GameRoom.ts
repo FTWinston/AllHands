@@ -354,6 +354,54 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 console.warn(`Failed to play non-encounter card ${card.id} for ${clientRole} of ship ${ship.id}`);
             }
         });
+
+        this.onMessage('setDeckViewOpen', (client, message: { open: boolean }) => {
+            if (this.state.gameStatus !== 'active' || typeof message?.open !== 'boolean') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (!this.state.campaign?.setDeckViewOpen(ship, this.getSystemState(ship, clientRole), message.open)) {
+                console.warn(`Rejected deck view change from ${client.sessionId}: not at a station`);
+            }
+        });
+
+        this.onMessage('moveDeckCard', (client, message: { cardId: number; toIndex: number }) => {
+            if (this.state.gameStatus !== 'active' || !Number.isInteger(message?.cardId) || !Number.isInteger(message?.toIndex)) {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (!this.state.campaign?.moveDeckCard(ship, this.getSystemState(ship, clientRole), message.cardId, message.toIndex)) {
+                console.warn(`Rejected moving deck card ${message.cardId} to ${message.toIndex} for ${clientRole} of ship ${ship.id}`);
+            }
+        });
+
+        this.onMessage('sellDeckCard', (client, message: { cardId: number }) => {
+            if (this.state.gameStatus !== 'active' || !Number.isInteger(message?.cardId)) {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (!this.state.campaign?.sellDeckCard(ship, this.getSystemState(ship, clientRole), message.cardId)) {
+                console.warn(`Rejected selling deck card ${message.cardId} for ${clientRole} of ship ${ship.id}`);
+            }
+        });
     }
 
     private registerDevCommandHandlers() {

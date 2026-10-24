@@ -1,4 +1,4 @@
-import { antimatterRewards, getAntimatterReward } from 'common-data/features/ships/utils/antimatter';
+import { antimatterRewards, cardSellPrice, getAntimatterReward, minDeckSize } from 'common-data/features/ships/utils/antimatter';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
@@ -419,5 +419,126 @@ describe('getAntimatterReward', () => {
         expect(getAntimatterReward({ kind: 'combat', elite: true })).toBe(30);
         expect(getAntimatterReward({ kind: 'boss' })).toBe(30);
         expect(getAntimatterReward({ kind: 'repair' })).toBe(0);
+    });
+});
+
+describe('Campaign stations', () => {
+    /** Starts a campaign at a repair station. */
+    function createAtStation(shipCount = 1) {
+        const created = createCampaign(shipCount);
+        created.campaign.dismissMessage();
+        expect(created.campaign.devLoadEncounter('repairStation')).toBe(true);
+        expect(created.campaign.isAtStation).toBe(true);
+        return created;
+    }
+
+    it('starts with every deck complete, before the first encounter', () => {
+        const { ships: [ship] } = createCampaign();
+
+        for (const system of ship.crewSystems) {
+            expect(system.hand.length).toBe(0);
+        }
+        expect(ship.helmState.deck.length).toBe(playerShipSetup.helm.cards.length);
+        expect(ship.tacticalState.deck.length).toBe(playerShipSetup.tactical.cards.length);
+    });
+
+    it('opens every crew deck view on arrival, without dealing hands or simulating systems', () => {
+        const { state, ships: [ship] } = createAtStation();
+
+        expect(ship.crewSystems.map(system => system.deckViewOpen)).toEqual([true, true, true, true]);
+        expect(ship.tacticalState.deck.length).toBe(playerShipSetup.tactical.cards.length);
+        expect(ship.tacticalState.cardGeneration).toBeNull();
+        expect(state.isSimulatingSystems).toBe(false);
+
+        // Helm only holds the Warp Away card.
+        expect(ship.helmState.hand.map(card => card.type)).toEqual(['warpAway']);
+    });
+
+    it('lets crew close and reopen their deck view, only at a station', () => {
+        const { state, campaign, ships: [ship] } = createAtStation();
+
+        expect(campaign.setDeckViewOpen(ship, ship.helmState, false)).toBe(true);
+        expect(ship.helmState.deckViewOpen).toBe(false);
+        expect(ship.tacticalState.deckViewOpen).toBe(true);
+
+        expect(campaign.setDeckViewOpen(ship, ship.helmState, true)).toBe(true);
+        expect(ship.helmState.deckViewOpen).toBe(true);
+
+        expect(campaign.warpAway(ship)).toBe(true);
+        expect(state.phase).toBe('map');
+        expect(ship.crewSystems.map(system => system.deckViewOpen)).toEqual([false, false, false, false]);
+        expect(campaign.setDeckViewOpen(ship, ship.helmState, true)).toBe(false);
+        expect(ship.helmState.deckViewOpen).toBe(false);
+    });
+
+    it('does not open deck views in a combat encounter', () => {
+        const { campaign, ships: [ship] } = createCampaign();
+        campaign.dismissMessage();
+        campaign.devLoadEncounter('skirmish');
+
+        expect(campaign.isAtStation).toBe(false);
+        expect(ship.crewSystems.map(system => system.deckViewOpen)).toEqual([false, false, false, false]);
+        expect(campaign.setDeckViewOpen(ship, ship.helmState, true)).toBe(false);
+    });
+
+    it('re-orders deck cards at a station, keeping the order for later encounters', () => {
+        const { campaign, ships: [ship] } = createAtStation();
+        const deck = ship.helmState.deck;
+        const lastCard = deck[deck.length - 1];
+
+        expect(campaign.moveDeckCard(ship, ship.helmState, lastCard.id, 0)).toBe(true);
+        expect(deck[0]).toBe(lastCard);
+        const order = handIds(deck);
+
+        campaign.warpAway(ship);
+        expect(handIds(ship.helmState.deck)).toEqual(order);
+
+        // The first card in the deck is dealt first.
+        campaign.devLoadEncounter('skirmish');
+        expect(ship.helmState.hand[0]).toBe(lastCard);
+    });
+
+    it('rejects re-ordering outside a station', () => {
+        const { campaign, ships: [ship] } = createCampaign();
+        const deck = ship.helmState.deck;
+        const order = handIds(deck);
+
+        expect(campaign.moveDeckCard(ship, ship.helmState, deck[deck.length - 1].id, 0)).toBe(false);
+        expect(handIds(deck)).toEqual(order);
+    });
+
+    it('sells deck cards at a station for antimatter', () => {
+        const { campaign, ships: [ship] } = createAtStation();
+        const deck = ship.tacticalState.deck;
+        const card = deck[3];
+
+        expect(campaign.sellDeckCard(ship, ship.tacticalState, card.id)).toBe(true);
+
+        expect(deck.includes(card)).toBe(false);
+        expect(deck.length).toBe(playerShipSetup.tactical.cards.length - 1);
+        expect(ship.antimatter).toBe(cardSellPrice);
+    });
+
+    it('stops selling once the deck reaches the minimum size', () => {
+        const { campaign, ships: [ship] } = createAtStation();
+        const deck = ship.tacticalState.deck;
+
+        while (deck.length > minDeckSize) {
+            expect(campaign.sellDeckCard(ship, ship.tacticalState, deck[0].id)).toBe(true);
+        }
+
+        expect(campaign.sellDeckCard(ship, ship.tacticalState, deck[0].id)).toBe(false);
+        expect(deck.length).toBe(minDeckSize);
+        expect(ship.antimatter).toBe((playerShipSetup.tactical.cards.length - minDeckSize) * cardSellPrice);
+    });
+
+    it('rejects selling cards that are not in the deck, or away from a station', () => {
+        const { campaign, ships: [ship] } = createAtStation();
+
+        expect(campaign.sellDeckCard(ship, ship.tacticalState, 9999)).toBe(false);
+
+        campaign.warpAway(ship);
+        expect(campaign.sellDeckCard(ship, ship.tacticalState, ship.tacticalState.deck[0].id)).toBe(false);
+        expect(ship.antimatter).toBe(0);
     });
 });

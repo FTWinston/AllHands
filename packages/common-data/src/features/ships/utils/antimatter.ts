@@ -18,3 +18,14 @@ export function getAntimatterReward(node: Pick<SectorNodeInfo, 'kind' | 'elite'>
             return 0;
     }
 }
+
+/** Antimatter received for selling a card from a crew member's deck at a station. */
+export const cardSellPrice = 10;
+
+/** Selling a card isn't allowed if it would leave a crew member's deck with fewer cards than this. */
+export const minDeckSize = 10;
+
+/** Whether a card can be sold from a deck of the given size without taking it below `minDeckSize`. */
+export function canSellFromDeck(deckSize: number): boolean {
+    return deckSize > minDeckSize;
+}

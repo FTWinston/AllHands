@@ -1,9 +1,10 @@
 import { Snapshot, useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, ShipInfo, TacticalSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, PlayerShipInfo, ShipInfo, TacticalSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useCallback } from 'react';
 import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
+import { useDeckView } from '../deck/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { SectorMessagePrompt } from './components/SectorMessagePrompt';
@@ -24,6 +25,7 @@ export const Tactical = (props: Props) => {
     const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo>;
     const targets = useStableOrderedTargets(objects, localShip);
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
+    const deckView = useDeckView(props.room, localShip?.tacticalState, (localShip as Snapshot<PlayerShipInfo> | undefined)?.antimatter ?? 0);
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
 
     const dismissMessage = useCallback(() => {
@@ -59,6 +61,7 @@ export const Tactical = (props: Props) => {
                 onPause={pause}
                 power={tacticalState.powerLevel}
                 deckSize={tacticalState.deck.length}
+                deckView={deckView}
                 cardGeneration={tacticalState.cardGeneration}
             >
                 {(phase === 'sectorIntro' || phase === 'sectorOutro') && (
@@ -85,6 +88,7 @@ export const Tactical = (props: Props) => {
             onPause={pause}
             power={tacticalState.powerLevel}
             deckSize={tacticalState.deck.length}
+            deckView={deckView}
             playCard={playCard}
             cardGeneration={tacticalState.cardGeneration}
             viewer={viewer}

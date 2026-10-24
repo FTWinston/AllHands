@@ -1,4 +1,5 @@
-import { getAntimatterReward } from 'common-data/features/ships/utils/antimatter';
+import { isStationKind } from 'common-data/features/sectors/utils/isStationKind';
+import { canSellFromDeck, cardSellPrice, getAntimatterReward } from 'common-data/features/ships/utils/antimatter';
 import { getPlayerShips } from 'src/utils/shipQueries';
 import { createEncounter, getDefaultNode, hasEncounter } from '../encounters/EncounterRegistry';
 import { CardState } from '../state/CardState';
@@ -15,6 +16,7 @@ import { sectorThemes, type SectorTheme } from './sectorThemes';
 import type { Encounter } from '../encounters/Encounter';
 import type { GameObject } from '../state/GameObject';
 import type { GameState } from '../state/GameState';
+import type { CrewSystemState } from '../state/systems/CrewSystemState';
 import type { GameOutcome } from 'common-data/features/sectors/types/GamePhase';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
 import type { EncounterId, SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
@@ -40,9 +42,19 @@ export class Campaign {
         return this.encounter;
     }
 
-    /** Ships only simulate their systems while this is true. */
+    /** In the encounter phase (stations included) of a game that has not ended. */
     get isInEncounter(): boolean {
         return this.state.phase === 'encounter' && !this.isEnded;
+    }
+
+    /** At a station, an "encounter" whose objective is met on arrival. Crew can view, re-order and sell from their decks here. */
+    get isAtStation(): boolean {
+        return this.isInEncounter && isStationKind(this.state.encounterKind);
+    }
+
+    /** Ships only simulate their systems while this is true: in an encounter, other than at a station. */
+    get isSimulatingSystems(): boolean {
+        return this.isInEncounter && !this.isAtStation;
     }
 
     private get isEnded(): boolean {
@@ -57,8 +69,10 @@ export class Campaign {
 
         this.enterSector(0);
 
-        // Ships are created before the campaign exists, so they started card generation timers that must stop until the first encounter.
+        // Ships are created before the campaign exists, so they dealt hands and started card generation timers.
+        // Return those cards to the deck, so it is complete in the deck view, and stop the timers until the first encounter.
         for (const ship of getPlayerShips(this.state)) {
+            ship.cleanupAfterEncounter();
             ship.updateCardGeneration();
         }
     }
@@ -162,6 +176,42 @@ export class Campaign {
         return true;
     }
 
+    /**
+     * A crew member opens or closes their deck view at a station. It opens automatically on arrival.
+     * This is the hook point for anything that must wait until a crew member has finished with their deck (e.g. helm warping away).
+     */
+    setDeckViewOpen(_ship: PlayerShip, system: CrewSystemState, open: boolean): boolean {
+        if (!this.isAtStation) {
+            return false;
+        }
+
+        system.deckViewOpen = open;
+        return true;
+    }
+
+    /** A crew member moves one of their deck cards to a new position, at a station. */
+    moveDeckCard(_ship: PlayerShip, system: CrewSystemState, cardId: number, toIndex: number): boolean {
+        if (!this.isAtStation) {
+            return false;
+        }
+
+        return system.moveDeckCard(cardId, toIndex);
+    }
+
+    /** A crew member sells one of their deck cards for antimatter, at a station, unless that would leave their deck too small. */
+    sellDeckCard(ship: PlayerShip, system: CrewSystemState, cardId: number): boolean {
+        if (!this.isAtStation || !canSellFromDeck(system.deck.length)) {
+            return false;
+        }
+
+        if (!system.removeDeckCard(cardId)) {
+            return false;
+        }
+
+        ship.addAntimatter(cardSellPrice);
+        return true;
+    }
+
     /** Dev tools: abandon whatever is running and start the given encounter standalone with repaired ships. */
     devLoadEncounter(encounterId: EncounterId): boolean {
         if (this.state.phase === null || this.isEnded || !hasEncounter(encounterId)) {
@@ -224,10 +274,20 @@ export class Campaign {
     }
 
     private startEncounter(node: SectorNodeInfo): void {
+        // Nothing is simulated at a station, so hands aren't dealt: every card stays in the deck, for the deck view.
+        const atStation = isStationKind(node.kind);
+
         for (const ship of getPlayerShips(this.state)) {
             ship.helmState.setNonEncounterCards([]);
             ship.scienceState.setDestinations([]);
-            ship.startEncounter();
+
+            if (atStation) {
+                for (const system of ship.crewSystems) {
+                    system.deckViewOpen = true;
+                }
+            } else {
+                ship.startEncounter();
+            }
             ship.setMotion(new MotionKeyframe(
                 this.state.currentTime,
                 playerShipSetup.position.x,

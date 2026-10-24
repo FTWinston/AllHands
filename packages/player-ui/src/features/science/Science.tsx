@@ -1,9 +1,10 @@
 import { Snapshot, useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, PlayerShipInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useCallback } from 'react';
 import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
+import { useDeckView } from '../deck/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { LongRangeSensorList } from './components/LongRangeSensorList';
@@ -24,6 +25,7 @@ export const Science = (props: Props) => {
     const targets = useStableOrderedTargets(objects, localShip);
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
+    const deckView = useDeckView(props.room, localShip?.scienceState, (localShip as Snapshot<PlayerShipInfo> | undefined)?.antimatter ?? 0);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -72,6 +74,7 @@ export const Science = (props: Props) => {
                 onPause={pause}
                 power={scienceState.powerLevel}
                 deckSize={scienceState.deck.length}
+                deckView={deckView}
                 cardGeneration={scienceState.cardGeneration}
             >
                 {phase === 'map' && <LongRangeSensorList destinations={scienceState.destinations} />}
@@ -104,6 +107,7 @@ export const Science = (props: Props) => {
             onPause={pause}
             power={scienceState.powerLevel}
             deckSize={scienceState.deck.length}
+            deckView={deckView}
             playCard={playCard}
             cardGeneration={scienceState.cardGeneration}
             viewer={viewer}

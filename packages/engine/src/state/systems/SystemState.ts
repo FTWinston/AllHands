@@ -405,6 +405,99 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }
 
     /**
+     * Move a deck card to the given position in the deck, e.g. when re-ordering it at a station.
+     * The card pool follows the same order, so it persists when the deck is restored after an encounter.
+     * Returns false if the card isn't in the deck or the position is out of range.
+     */
+    moveDeckCard(cardId: number, toIndex: number): boolean {
+        const fromIndex = this.deck.findIndex(card => card.id === cardId);
+        if (fromIndex === -1 || !Number.isInteger(toIndex) || toIndex < 0 || toIndex >= this.deck.length) {
+            return false;
+        }
+
+        if (fromIndex !== toIndex) {
+            const [card] = this.deck.splice(fromIndex, 1);
+            this.deck.splice(toIndex, 0, card);
+            this.reorderCardPoolFromDeck();
+        }
+
+        return true;
+    }
+
+    /**
+     * Permanently remove a card from the deck and the card pool, e.g. when selling it at a station. This lowers the system's max health.
+     * Returns the removed card, or null if it isn't in the deck.
+     */
+    removeDeckCard(cardId: number): CardState | null {
+        const index = this.deck.findIndex(card => card.id === cardId);
+        if (index === -1) {
+            return null;
+        }
+
+        const [card] = this.deck.splice(index, 1);
+        this.removeFromCardPool(card);
+        return card;
+    }
+
+    /** Permanently add a card to the bottom of the deck and to the card pool (unless it's expendable), raising the system's max health. */
+    addDeckCard(card: CardState) {
+        this.deck.push(card);
+
+        if (card.hasTrait('expendable') || this.cardPool.has(card)) {
+            return;
+        }
+
+        this.cardPool.add(card);
+        this.reorderCardPoolFromDeck();
+
+        if (card.isDamaged) {
+            this.repairQueue.push(card);
+        } else {
+            this.insertUnslotted(card);
+        }
+
+        (this as { maxHealth: number }).maxHealth = this.cardPool.size;
+        this.syncHealth();
+    }
+
+    private removeFromCardPool(card: CardState) {
+        if (!this.cardPool.delete(card)) {
+            return;
+        }
+
+        this.slottedCards.delete(card);
+
+        const damageIndex = this.damageQueue.indexOf(card);
+        if (damageIndex !== -1) {
+            this.damageQueue.splice(damageIndex, 1);
+            if (damageIndex < this.lastUnslottedIndex) {
+                this.lastUnslottedIndex--;
+            }
+        }
+
+        const repairIndex = this.repairQueue.indexOf(card);
+        if (repairIndex !== -1) {
+            this.repairQueue.splice(repairIndex, 1);
+        }
+
+        (this as { maxHealth: number }).maxHealth = this.cardPool.size;
+        this.syncHealth();
+    }
+
+    /** Order the card pool to match the deck, with any pool cards that aren't in the deck (e.g. in the hand) left at the end. */
+    private reorderCardPoolFromDeck() {
+        const ordered = [
+            ...this.deck.filter(card => this.cardPool.has(card)),
+            ...[...this.cardPool].filter(card => !this.deck.includes(card)),
+        ];
+
+        this.cardPool.clear();
+        for (const card of ordered) {
+            this.cardPool.add(card);
+        }
+    }
+
+    /**
      * Fully repair this system: repair all damaged and critically damaged cards,
      * rebuilding the damage queue and the repair queue in the process.
      */

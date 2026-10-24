@@ -1,8 +1,9 @@
 import { Snapshot, useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, PlayerShipInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useCallback } from 'react';
+import { useDeckView } from '../deck/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { EngineerDisplay } from './components/EngineerDisplay';
@@ -20,6 +21,7 @@ export const Engineer = (props: Props) => {
     const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo>;
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
+    const deckView = useDeckView(props.room, localShip?.engineerState, (localShip as Snapshot<PlayerShipInfo> | undefined)?.antimatter ?? 0);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -55,6 +57,7 @@ export const Engineer = (props: Props) => {
                 onPause={pause}
                 power={engineerState.powerLevel}
                 deckSize={engineerState.deck.length}
+                deckView={deckView}
                 cardGeneration={engineerState.cardGeneration}
             />
         );
@@ -71,6 +74,7 @@ export const Engineer = (props: Props) => {
             onPause={pause}
             power={engineerState.powerLevel}
             deckSize={engineerState.deck.length}
+            deckView={deckView}
             playCard={playCard}
             cardGeneration={engineerState.cardGeneration}
             pendingDrawChoice={engineerState.pendingDrawChoice}

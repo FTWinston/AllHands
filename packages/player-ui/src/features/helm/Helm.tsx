@@ -1,9 +1,10 @@
 import { Snapshot, useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, PlayerShipInfo, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { useCallback } from 'react';
+import { useDeckView } from '../deck/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { HelmDisplay } from './components/HelmDisplay';
@@ -23,6 +24,7 @@ export const Helm = (props: Props) => {
     const weaponEffectsRef = useWeaponEffects(props.room);
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
+    const deckView = useDeckView(props.room, localShip?.helmState, (localShip as Snapshot<PlayerShipInfo> | undefined)?.antimatter ?? 0);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -65,6 +67,7 @@ export const Helm = (props: Props) => {
                 onPause={pause}
                 power={helmState.powerLevel}
                 deckSize={helmState.deck.length}
+                deckView={deckView}
                 cardGeneration={helmState.cardGeneration}
             />
         );
@@ -86,6 +89,7 @@ export const Helm = (props: Props) => {
             viewer={viewer}
             power={helmState.powerLevel}
             deckSize={helmState.deck.length}
+            deckView={deckView}
             playCard={playCard}
             cardGeneration={helmState.cardGeneration}
             cancelManeuver={cancelManeuver}

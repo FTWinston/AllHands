@@ -1,0 +1,59 @@
+.deck {
+    /* Fit three cards (11.6em wide, with their borders) across narrow screens. */
+    font-size: clamp(0.4em, calc((100vw - 4rem) / 37), 1em);
+}
+
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    justify-content: center;
+    gap: 1.5em 1em;
+}
+
+.item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.5em;
+    border-radius: 2em;
+    corner-shape: squircle;
+    outline: solid transparent 0.2em;
+    transition: outline-color 0.15s, background-color 0.15s;
+}
+
+.dropTarget {
+    outline-color: var(--primary-light);
+    background-color: var(--primary-darkest);
+}
+
+.position {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--primary-light);
+}
+
+.card {
+    transition: opacity 0.15s;
+}
+
+.movable {
+    cursor: grab;
+    touch-action: manipulation;
+}
+
+.dragging {
+    opacity: 0.3;
+}
+
+.draggingCard {
+    cursor: grabbing;
+    box-shadow: 0 0.5em 2em black;
+}
+
+button.sell {
+    font-size: 1.25em;
+}

@@ -4,8 +4,11 @@ import { Cooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';
 import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
 import { SystemIcon } from 'common-ui/icons/systems';
+import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
+import { DeckView } from 'src/features/deck/components/DeckView';
+import { DeckViewControl } from 'src/features/deck/DeckViewControl';
 import { default as DrawIcon } from '../assets/card-draw.svg?react';
 import { default as PowerIcon } from '../assets/power.svg?react';
 import styles from './CrewHeader.module.css';
@@ -18,6 +21,8 @@ type Props = {
     power: number;
     deckSize: number;
     cardGeneration?: Cooldown | null;
+    /** Outside an encounter, the deck indicator becomes a button that opens this "my deck" view. During one, it is a discard target. */
+    deckView?: DeckViewControl | null;
 };
 
 export const CrewHeader: FC<Props> = (props) => {
@@ -57,20 +62,37 @@ export const CrewHeader: FC<Props> = (props) => {
                     )}
                 />
 
-                <CardDropTarget id="discard" targetType="any" className={styles.deckIndicator}>
-                    <NumberIndicator
-                        value={props.deckSize}
-                        icon={DrawIcon}
-                        name="Deck"
-                        description={(
-                            <>
-                                Drag cards here to return them to the bottom of your deck.
-                            </>
-                        )}
-                        generation={props.cardGeneration}
-                    />
-                </CardDropTarget>
+                {props.deckView
+                    ? (
+                        <Button
+                            className={classNames(styles.deckButton, props.deckView.isOpen ? styles.deckButtonPressed : null)}
+                            aria-pressed={props.deckView.isOpen}
+                            title="My deck"
+                            aria-label={`My deck: ${props.deckSize} cards`}
+                            onClick={() => props.deckView!.setOpen(!props.deckView!.isOpen)}
+                        >
+                            <DrawIcon className={styles.deckButtonIcon} />
+                            <span className={styles.deckButtonValue}>{props.deckSize}</span>
+                        </Button>
+                    )
+                    : (
+                        <CardDropTarget id="discard" targetType="any" className={styles.deckIndicator}>
+                            <NumberIndicator
+                                value={props.deckSize}
+                                icon={DrawIcon}
+                                name="Deck"
+                                description={(
+                                    <>
+                                        Drag cards here to return them to the bottom of your deck.
+                                    </>
+                                )}
+                                generation={props.cardGeneration}
+                            />
+                        </CardDropTarget>
+                    )}
             </div>
+
+            {props.deckView && <DeckView crew={props.crew} {...props.deckView} />}
         </div>
     );
 };

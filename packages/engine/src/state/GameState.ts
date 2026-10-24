@@ -137,9 +137,9 @@ export class GameState extends Schema {
         return true;
     }
 
-    /** Ship systems (card draws, timers) only run during an encounter; game time itself always advances. */
+    /** Ship systems (card draws, timers) only run during an encounter (not at a station); game time itself always advances. */
     public get isSimulatingSystems(): boolean {
-        return !this.campaign || this.campaign.isInEncounter;
+        return !this.campaign || this.campaign.isSimulatingSystems;
     }
 
     public tick(deltaTime: number) {
