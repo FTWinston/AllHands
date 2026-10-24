@@ -14,6 +14,8 @@ export type DeckViewControl = {
     antimatter: number;
     moveCard: (cardId: number, toIndex: number) => void;
     sellCard: (cardId: number) => void;
+    /** At a station, what this crew member should know about leaving it (see `getStationDepartureNote`). */
+    notice?: string | null;
     /** Shown beside the deck, e.g. a station's shop. */
     aside?: ReactNode;
 };

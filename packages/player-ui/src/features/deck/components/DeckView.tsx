@@ -32,6 +32,8 @@ export const DeckView: FC<Props> = props => (
                     <BaseDialog.Close render={<Button className={styles.close}>Close</Button>} />
                 </header>
 
+                {props.notice && <p className={styles.notice} role="status">{props.notice}</p>}
+
                 <div className={styles.body}>
                     <DeckPanel
                         cards={props.cards}

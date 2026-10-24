@@ -105,6 +105,17 @@ export function startCampaign(state: GameState, shipCount = 1, themes: readonly 
     return { campaign, ships };
 }
 
+/** At a station, does what the ship's crew must before helm can warp away: closes any open shop, then helm's deck view. */
+export function finishAtStation(campaign: Campaign, ship: PlayerShip) {
+    for (const system of ship.crewSystems) {
+        if (system.shopOpen) {
+            campaign.closeShop(ship, system);
+        }
+    }
+
+    campaign.setDeckViewOpen(ship, ship.helmState, false);
+}
+
 const minimalSystemSetup: NonCrewSystemSetupInfo = {
     cards: ['exampleNoTarget'],
     maxPowerLevel: 5,

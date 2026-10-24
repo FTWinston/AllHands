@@ -24,7 +24,7 @@ export const Helm = (props: Props) => {
     const weaponEffectsRef = useWeaponEffects(props.room);
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
-    const deckView = useDeckView(props.room, localShip?.helmState, (localShip as Snapshot<PlayerShipInfo> | undefined)?.antimatter ?? 0);
+    const deckView = useDeckView(props.room, 'helm', localShip as Snapshot<PlayerShipInfo> | undefined);
 
     const pause = useCallback(() => {
         props.room.send('pause');

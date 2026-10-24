@@ -1,4 +1,6 @@
 import { Screen } from 'common-ui/components/Screen';
+import { getStationDepartureNote } from 'common-ui/features/sectors/utils/stationDepartureLabels';
+import { expect, within } from 'storybook/test';
 import { StationBanner as Component } from './StationBanner';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -38,4 +40,15 @@ export const EngineeringOutpost: Story = {
 
 export const ScienceStation: Story = {
     args: { kind: 'scienceStation', name: 'Science Station 1-1' },
+};
+
+export const WaitingForShopper: Story = {
+    args: { kind: 'weaponsDealer', name: 'Arms Dealer 1-1', departure: getStationDepartureNote('shopping', 'tactical', null) },
+    play: async ({ canvasElement }) => {
+        await expect(within(canvasElement).getByText('Waiting for Tactical to finish shopping.')).toBeInTheDocument();
+    },
+};
+
+export const WaitingForHelm: Story = {
+    args: { kind: 'repair', name: 'Repair Station 1-1', departure: getStationDepartureNote('helmDeckView', null, null) },
 };

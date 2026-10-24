@@ -21,7 +21,7 @@ export const Engineer = (props: Props) => {
     const localShip = objects?.[props.shipId] as unknown as Snapshot<ShipInfo>;
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
-    const deckView = useDeckView(props.room, localShip?.engineerState, (localShip as Snapshot<PlayerShipInfo> | undefined)?.antimatter ?? 0);
+    const deckView = useDeckView(props.room, 'engineer', localShip as Snapshot<PlayerShipInfo> | undefined);
 
     const pause = useCallback(() => {
         props.room.send('pause');

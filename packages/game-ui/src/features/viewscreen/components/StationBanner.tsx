@@ -6,10 +6,12 @@ import type { StationKind } from 'common-data/features/sectors/types/SectorNodeI
 type Props = {
     kind: StationKind;
     name: string;
+    /** Who the crew are waiting on before they can leave (see `getStationDepartureNote`). */
+    departure?: string | null;
 };
 
-/** Which station the ship is docked at, what kind it is, and what (if anything) it sells. Shown at the top of the viewscreen. */
-export const StationBanner: FC<Props> = ({ kind, name }) => {
+/** Which station the ship is docked at, what kind it is, what (if anything) it sells, and what's holding up departure. Shown at the top of the viewscreen. */
+export const StationBanner: FC<Props> = ({ kind, name, departure }) => {
     const shop = getShopLabel(kind);
 
     return (
@@ -19,6 +21,7 @@ export const StationBanner: FC<Props> = ({ kind, name }) => {
             <span className={styles.services}>
                 {shop ? `Full repairs, and ${shop.toLowerCase()} for sale` : 'Full repairs'}
             </span>
+            {departure && <span className={styles.departure}>{departure}</span>}
         </div>
     );
 };

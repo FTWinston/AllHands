@@ -1,4 +1,4 @@
-import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
+import { finishAtStation, seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
 import { createEncounter, getDefaultNode, getDevEncounterList, getEncounterIds, stationEncounterIds } from './EncounterRegistry';
@@ -51,6 +51,10 @@ describe('devLoadEncounter', () => {
         if (Object.values(stationEncounterIds).includes(encounterId)) {
             expect(hostiles).toHaveLength(0);
             expect(state.encounter!.objectiveMet).toBe(true);
+
+            // At a shop station, helm only gets the Warp Away card once the shop is closed.
+            expect(hasWarpCard(ships[0])).toBe(encounterId === 'repairStation');
+            finishAtStation(campaign, ships[0]);
             expect(hasWarpCard(ships[0])).toBe(true);
         } else {
             expect(hostiles.length).toBeGreaterThan(0);
