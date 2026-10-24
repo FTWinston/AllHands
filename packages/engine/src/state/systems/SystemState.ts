@@ -38,15 +38,8 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         this.initialHandSize = setup.initialHandSize;
 
-        // The first initialHandSize cards go straight into the hand.
-        this.hand = new ArraySchema<CardState>(
-            ...cards.slice(0, setup.initialHandSize)
-        );
-
-        // All remaining cards form the deck.
-        this.deck = new ArraySchema<CardState>(
-            ...cards.slice(setup.initialHandSize)
-        );
+        // Every card starts in the deck. Hands are only dealt when an encounter starts (see `dealInitialHand`).
+        this.deck = new ArraySchema<CardState>(...cards);
 
         this.health = this.maxHealth = this.initializeCardPool(cards);
     }

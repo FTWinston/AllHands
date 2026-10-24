@@ -244,12 +244,17 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this.detectionTimer = 0;
         this.reactorState.resetCardGeneration();
         this.clearCrewCardGeneration();
-        for (const system of this.systems.values()) {
-            system.dealInitialHand();
-        }
+        this.dealInitialHands();
 
         // Unconditional, as this runs just before the campaign enters the encounter phase.
         this.updateCrewCardGeneration();
+    }
+
+    /** Draw each system's initial hand from its deck. Ships hold no cards in hand until this is called, e.g. by `startEncounter`. */
+    dealInitialHands() {
+        for (const system of this.systems.values()) {
+            system.dealInitialHand();
+        }
     }
 
     private updateCrewCardGeneration() {

@@ -2,6 +2,7 @@ import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { setupGameRoom, shipSetup } from 'src/testUtils';
 import { describe, expect, it } from 'vitest';
+import { AiShip } from '../AiShip';
 import { CardState } from '../CardState';
 import { PlayerShip } from '../PlayerShip';
 
@@ -139,5 +140,34 @@ describe('SystemState addDeckCard', () => {
 
         ship.cleanupAfterEncounter();
         expect(deckTypes(system.deck)).toEqual(cards);
+    });
+});
+
+describe('Initial hands', () => {
+    it('are not dealt to player ships until an encounter starts', () => {
+        const gameState = rooms.createState();
+        const baseSetup = shipSetup(undefined);
+        const ship = new PlayerShip(gameState, { ...baseSetup, tactical: { ...baseSetup.tactical, cards, initialHandSize: 2 } });
+
+        expect(ship.tacticalState.hand.length).toBe(0);
+        expect(deckTypes(ship.tacticalState.deck)).toEqual(cards);
+
+        ship.startEncounter();
+
+        expect(deckTypes(ship.tacticalState.hand)).toEqual(cards.slice(0, 2));
+        expect(deckTypes(ship.tacticalState.deck)).toEqual(cards.slice(2));
+    });
+
+    it('are dealt to AI ships as they are created, as they only exist within an encounter', () => {
+        const gameState = rooms.createState();
+        const baseSetup = shipSetup('raiders');
+        const ship = new AiShip(gameState, {
+            ...baseSetup,
+            tactical: { ...baseSetup.tactical, cards, initialHandSize: 2 },
+            goal: { type: 'search-and-destroy' },
+            skill: 1,
+        });
+
+        expect(deckTypes(ship.tacticalState.hand)).toEqual(cards.slice(0, 2));
     });
 });
