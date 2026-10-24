@@ -75,6 +75,52 @@ export const BossAvailable: Story = {
     },
 };
 
+/** Positions a node of a full-size sector, in one of its 10 layers and 7 rows. */
+const cell = (layer: number, row: number, elite = false) => ({ x: layer / 9, y: row / 6, elite });
+
+/** A full-size sector like those the engine generates: shop stations sit on parallel branches, so most routes pass two or three, but there are more to pick from. */
+const fullSectorNodes: SectorMapNodeInfo[] = [
+    { id: '0', kind: 'repair', name: 'Waypoint Station', ...cell(0, 3), next: ['1a', '1b'] },
+    { id: '1a', kind: 'combat', name: 'Skirmish', ...cell(1, 2), next: ['2a', '2b'] },
+    { id: '1b', kind: 'combat', name: 'Ambush', ...cell(1, 3), next: ['2c'] },
+    { id: '2a', kind: 'scienceStation', name: 'Science Station', ...cell(2, 1), next: ['3a', '3b'] },
+    { id: '2b', kind: 'navigationBeacon', name: 'Beacon', ...cell(2, 2), next: ['3b', '3c'] },
+    { id: '2c', kind: 'combat', name: 'Hold the Line', ...cell(2, 3, true), next: ['3c', '3d'] },
+    { id: '3a', kind: 'combat', name: 'Survive', ...cell(3, 1), next: ['4a', '4b'] },
+    { id: '3b', kind: 'combat', name: 'Assault', ...cell(3, 2), next: ['4b', '4c'] },
+    { id: '3c', kind: 'combat', name: 'Escort', ...cell(3, 3), next: ['4c', '4d', '4e'] },
+    { id: '3d', kind: 'navigationBeacon', name: 'Relay Beacon', ...cell(3, 4), next: ['4e'] },
+    { id: '4a', kind: 'navigationBeacon', name: 'Lighthouse', ...cell(4, 0), next: ['5a'] },
+    { id: '4b', kind: 'engineeringOutpost', name: 'Engineering Outpost', ...cell(4, 1), next: ['5a', '5b'] },
+    { id: '4c', kind: 'weaponsDealer', name: 'Arms Dealer', ...cell(4, 2), next: ['5b', '5c'] },
+    { id: '4d', kind: 'scienceStation', name: 'Observatory', ...cell(4, 3), next: ['5c'] },
+    { id: '4e', kind: 'combat', name: 'Gauntlet', ...cell(4, 4, true), next: ['5d'] },
+    { id: '5a', kind: 'combat', name: 'Blockade', ...cell(5, 1, true), next: ['6a'] },
+    { id: '5b', kind: 'combat', name: 'Patrol', ...cell(5, 2), next: ['6a', '6b'] },
+    { id: '5c', kind: 'combat', name: 'Raid', ...cell(5, 3, true), next: ['6b'] },
+    { id: '5d', kind: 'combat', name: 'Pursuit', ...cell(5, 4), next: ['6c'] },
+    { id: '6a', kind: 'weaponsDealer', name: 'Armoury', ...cell(6, 2), next: ['7a'] },
+    { id: '6b', kind: 'engineeringOutpost', name: 'Shipyard', ...cell(6, 3), next: ['7b'] },
+    { id: '6c', kind: 'engineeringOutpost', name: 'Salvage Yard', ...cell(6, 4), next: ['7c'] },
+    { id: '7a', kind: 'combat', name: 'Interception', ...cell(7, 2), next: ['8'] },
+    { id: '7b', kind: 'combat', name: 'Crossfire', ...cell(7, 3), next: ['8'] },
+    { id: '7c', kind: 'combat', name: 'Last Stand', ...cell(7, 4), next: ['8'] },
+    { id: '8', kind: 'repair', name: 'Forward Repair Station', ...cell(8, 3), next: ['9'] },
+    { id: '9', kind: 'boss', name: 'Placeholder Boss A', ...cell(9, 3), next: [] },
+];
+
+export const FullSector: Story = {
+    args: {
+        map: {
+            ...baseMap,
+            nodes: fullSectorNodes,
+            currentNodeId: '0',
+            visitedNodeIds: ['0'],
+            availableNodeIds: ['1a', '1b'],
+        },
+    },
+};
+
 export const Interactive: Story = {
     args: { map: baseMap },
     render: (args) => {
