@@ -8,7 +8,7 @@ import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { DeckView } from 'src/features/deck/components/DeckView';
-import { DeckViewControl } from 'src/features/deck/DeckViewControl';
+import { DeckViewModel } from 'src/features/deck/types/DeckViewModel';
 import { default as DrawIcon } from '../assets/card-draw.svg?react';
 import { default as PowerIcon } from '../assets/power.svg?react';
 import styles from './CrewHeader.module.css';
@@ -22,7 +22,7 @@ type Props = {
     deckSize: number;
     cardGeneration?: Cooldown | null;
     /** Outside an encounter, the deck indicator becomes a button that opens this "my deck" view. During one, it is a discard target. */
-    deckView?: DeckViewControl | null;
+    deckView?: DeckViewModel | null;
 };
 
 export const CrewHeader: FC<Props> = (props) => {

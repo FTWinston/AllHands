@@ -2,8 +2,8 @@ import type { Snapshot } from '@colyseus/react';
 import type { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import type { ReactNode } from 'react';
 
-/** Everything the header needs to show a crew member's "my deck" view, outside of an encounter (see `useDeckView`). */
-export type DeckViewControl = {
+/** Everything needed to show a crew member's "my deck" view, outside of an encounter (see `useDeckView`). */
+export type DeckViewModel = {
     /** The crew member's deck, in draw order. */
     cards: Snapshot<CardInstance[]>;
     isOpen: boolean;
