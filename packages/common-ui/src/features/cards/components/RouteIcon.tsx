@@ -37,20 +37,20 @@ export const RouteIcon: FC<{ nodeKind: SectorNodeKind }> = ({ nodeKind }) => {
                     <path d="M20 10a17 17 0 0 0 0 24M44 10a17 17 0 0 1 0 24" />
                 </svg>
             );
-        case 'weaponsDealer':
+        case 'armsDealer':
             return (
                 <svg {...common}>
                     <path d="M12 12 44 44M52 12 20 44M38 50l12-12M14 38l12 12" />
                 </svg>
             );
-        case 'engineeringOutpost':
+        case 'salvageYard':
             return (
                 <svg {...common}>
                     <circle cx="32" cy="32" r="12" />
                     <path d="M32 8v10M32 46v10M8 32h10M46 32h10M15 15l7 7M42 42l7 7M49 15l-7 7M22 42l-7 7" />
                 </svg>
             );
-        case 'scienceStation':
+        case 'researchOutpost':
             return (
                 <svg {...common}>
                     <ellipse cx="32" cy="32" rx="26" ry="10" transform="rotate(45 32 32)" />

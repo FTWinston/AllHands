@@ -90,9 +90,9 @@ export const SoldOut: Story = {
     },
 };
 
-export const WeaponsDealer: Story = {
+export const ArmsDealer: Story = {
     args: {
-        title: 'Weapons dealer',
+        title: 'Arms dealer',
         cards: [
             { id: 201, type: 'photonicCannon' },
             { id: 202, type: 'quantumTorpedo' },
