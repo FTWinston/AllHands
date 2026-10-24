@@ -1,10 +1,11 @@
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
+import { getStationDepartureNote } from 'common-ui/features/sectors/utils/stationDepartureLabels';
 import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { useMemo, useState } from 'react';
-import { fn } from 'storybook/test';
+import { expect, fn, within } from 'storybook/test';
 import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
 import { HelmDisplay as Component } from './HelmDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -111,5 +112,26 @@ export const UI: Story = {
         ],
         objects: {},
         power: 5,
+    },
+};
+
+export const AtStationWaitingForShopper: Story = {
+    args: {
+        cards: [],
+        objects: {},
+        power: 5,
+        notice: getStationDepartureNote('shopping', 'tactical', 'helm'),
+    },
+    play: async ({ canvasElement }) => {
+        await expect(await within(canvasElement).findByText('Waiting for Tactical to finish shopping, before you can warp away.')).toBeInTheDocument();
+    },
+};
+
+export const AtStationReadyToLeave: Story = {
+    args: {
+        cards: [{ id: 1, type: 'warpAway' }],
+        objects: {},
+        power: 5,
+        notice: getStationDepartureNote('ready', null, 'helm'),
     },
 };

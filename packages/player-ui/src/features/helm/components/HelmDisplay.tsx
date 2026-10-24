@@ -13,6 +13,7 @@ import { ComponentProps, RefObject } from 'react';
 import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
+import styles from './HelmDisplay.module.css';
 import { HelmSpaceMap } from './HelmSpaceMap';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
@@ -26,10 +27,12 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     weaponEffectsRef: RefObject<WeaponEffect[]>;
     pendingDrawChoice: Snapshot<CardInstance[]>;
     resolveDrawChoice: (cardId: number) => void;
+    /** At a station, what's holding up departure (see `getStationDepartureNote`), e.g. while another crew member is still shopping. */
+    notice?: string | null;
 };
 
 export const HelmDisplay = (props: Props) => {
-    const { cards, playCard, center, objects, viewer, activeManeuver, cancelManeuver, weaponEffectsRef, pendingDrawChoice, resolveDrawChoice, ...headerProps } = props;
+    const { cards, playCard, center, objects, viewer, activeManeuver, cancelManeuver, weaponEffectsRef, pendingDrawChoice, resolveDrawChoice, notice, ...headerProps } = props;
 
     useRootClassName(crewStyles.helm);
 
@@ -46,6 +49,8 @@ export const HelmDisplay = (props: Props) => {
                     crew="helm"
                     {...headerProps}
                 />
+
+                {notice && <p className={styles.notice} role="status">{notice}</p>}
 
                 <HelmSpaceMap
                     center={center}

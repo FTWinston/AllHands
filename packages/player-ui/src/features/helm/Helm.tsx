@@ -97,6 +97,7 @@ export const Helm = (props: Props) => {
             weaponEffectsRef={weaponEffectsRef}
             pendingDrawChoice={helmState.pendingDrawChoice}
             resolveDrawChoice={resolveDrawChoice}
+            notice={deckView?.notice}
         />
     );
 };
