@@ -179,7 +179,7 @@ describe('GameRoom campaign messages', () => {
         expect(ship.helmState.hand.some(card => card.type === 'warpAway')).toBe(false);
     });
 
-    it('each crew member can close, re-order and sell from only their own deck at a station', async () => {
+    it('each crew member can re-order and sell from only their own deck at a station', async () => {
         const { room, state, ship, clients } = await startGame();
         await send(room, clients.tactical, 'dismissMessage');
 
@@ -189,11 +189,6 @@ describe('GameRoom campaign messages', () => {
         expect(ship.helmState.deck.map(card => card.id)).toEqual(helmOrder);
 
         expect(state.campaign!.devLoadEncounter('repairStation')).toBe(true);
-        expect(ship.helmState.deckViewOpen).toBe(true);
-
-        await send(room, clients.helm, 'setDeckViewOpen', { open: false });
-        expect(ship.helmState.deckViewOpen).toBe(false);
-        expect(ship.tacticalState.deckViewOpen).toBe(true);
 
         await send(room, clients.helm, 'moveDeckCard', { cardId: helmOrder[1], toIndex: 0 });
         expect(ship.helmState.deck.map(card => card.id)).toEqual([helmOrder[1], helmOrder[0], ...helmOrder.slice(2)]);

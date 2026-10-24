@@ -77,7 +77,7 @@ export const Browsing: Story = {
         // The view is portalled out of the story's canvas.
         const page = within(canvasElement.ownerDocument.body);
         await expect(await page.findByText('My deck')).toBeInTheDocument();
-        await expect(page.getByLabelText('Position 12')).toBeInTheDocument();
+        await expect(page.getByText('#12')).toBeInTheDocument();
         await expect(page.queryAllByRole('button', { name: /Sell/ })).toHaveLength(0);
         await expect(page.queryByLabelText(/Antimatter/)).not.toBeInTheDocument();
     },
