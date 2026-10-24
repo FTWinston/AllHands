@@ -20,7 +20,7 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
         });
 
         // The crew can look through their decks whenever they're not in an encounter, so every card they start with counts as seen.
-        for (const system of this.crewSystems) {
+        for (const system of [this.helmState, this.scienceState, this.tacticalState, this.engineerState]) {
             this.markCardTypesSeen(system.deck.map(card => card.type));
         }
     }

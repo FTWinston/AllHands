@@ -1,5 +1,4 @@
 import { isKnowableCardType } from 'common-data/features/cards/utils/getKnowableCardTypes';
-import { useSyncExternalStore } from 'react';
 import type { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 
 const storageKey = 'allhands.knownCardTypes';
@@ -67,13 +66,10 @@ export function addKnownCardTypes(types: Iterable<string>): boolean {
     return true;
 }
 
-function subscribe(listener: () => void) {
+/** Be told whenever more card types become known. Returns a function to stop listening. */
+export function subscribeToKnownCardTypes(listener: () => void) {
     listeners.add(listener);
     return () => {
         listeners.delete(listener);
     };
-}
-
-export function useKnownCardTypes(): ReadonlySet<CardType> {
-    return useSyncExternalStore(subscribe, getKnownCardTypes);
 }

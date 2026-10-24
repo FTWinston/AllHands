@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { KnownCardsDisplay } from './components/KnownCardsDisplay';
-import { useKnownCardTypes } from './knownCardStorage';
+import { useKnownCardTypes } from './hooks/useKnownCardTypes';
 
 type Props = {
     back: () => void;

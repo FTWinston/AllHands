@@ -9,7 +9,7 @@ import { useBridgeChatter } from 'common-ui/features/sound/useBridgeChatter';
 import { useWakeLock } from 'common-ui/hooks/useWakeLock';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { FC, PropsWithChildren, useEffect, useRef } from 'react';
-import { addKnownCardTypes } from '../knownCards/knownCardStorage';
+import { addKnownCardTypes } from '../knownCards/utils/knownCardStorage';
 import { AntimatterDisplay } from './components/AntimatterDisplay';
 import { LowHullWarning } from './components/LowHullWarning';
 import { StationBanner } from './components/StationBanner';
