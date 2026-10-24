@@ -1,4 +1,5 @@
 import { useRoomState } from '@colyseus/react';
+import { isStationKind } from 'common-data/features/sectors/utils/isStationKind';
 import { FactionRelationshipMap, GameObjectInfo, PlayerShipInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
@@ -10,6 +11,7 @@ import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { FC, PropsWithChildren, useEffect, useRef } from 'react';
 import { AntimatterDisplay } from './components/AntimatterDisplay';
 import { LowHullWarning } from './components/LowHullWarning';
+import { StationBanner } from './components/StationBanner';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import { ViewscreenPhaseDisplay } from './components/ViewscreenPhaseDisplay';
 import { useViewscreenEffects } from './hooks/useViewscreenEffects';
@@ -66,6 +68,7 @@ const ViewscreenScene: FC<Props> = (props) => {
     useWakeLock();
 
     const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
+    const encounterName = useRoomState(props.room, state => state.encounter?.name);
 
     const hull = (localShip as ShipInfo | undefined)?.hullState;
     const antimatter = (localShip as PlayerShipInfo | undefined)?.antimatter;
@@ -104,7 +107,12 @@ const ViewscreenScene: FC<Props> = (props) => {
         >
             {props.children}
             {hull && <LowHullWarning health={hull.health} maxHealth={hull.maxHealth} />}
-            {encounterKind === 'repair' && antimatter !== undefined && <AntimatterDisplay antimatter={antimatter} />}
+            {isStationKind(encounterKind) && (
+                <>
+                    <StationBanner kind={encounterKind} name={encounterName ?? ''} />
+                    {antimatter !== undefined && <AntimatterDisplay antimatter={antimatter} />}
+                </>
+            )}
         </ViewscreenDisplay>
     );
 };

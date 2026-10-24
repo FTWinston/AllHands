@@ -1,8 +1,8 @@
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
-import { createEncounter, getDefaultNode, getDevEncounterList, getEncounterIds } from './EncounterRegistry';
-import { RepairStationEncounter } from './RepairStationEncounter';
+import { createEncounter, getDefaultNode, getDevEncounterList, getEncounterIds, stationEncounterIds } from './EncounterRegistry';
+import { StationEncounter } from './StationEncounter';
 import { defaultSurviveDurationMs } from './SurviveEncounter';
 import type { Ship } from 'src/state/Ship';
 
@@ -32,7 +32,7 @@ function totalMaxHealth(ship: Ship) {
 describe('encounter registry', () => {
     it('registers the expected encounters', () => {
         expect(getEncounterIds().sort()).toEqual([
-            'ambush', 'assault', 'bossA', 'bossB', 'bossC', 'escort', 'repairStation', 'skirmish', 'survive',
+            'ambush', 'assault', 'bossA', 'bossB', 'bossC', 'engineeringOutpost', 'escort', 'navigationBeacon', 'repairStation', 'scienceStation', 'skirmish', 'survive', 'weaponsDealer',
         ]);
         expect(getDevEncounterList().map(info => info.id)).toEqual(getEncounterIds());
     });
@@ -48,7 +48,7 @@ describe('devLoadEncounter', () => {
         expect(campaign.isInEncounter).toBe(true);
 
         const hostiles = getHostileShips(state);
-        if (encounterId === 'repairStation') {
+        if (Object.values(stationEncounterIds).includes(encounterId)) {
             expect(hostiles).toHaveLength(0);
             expect(state.encounter!.objectiveMet).toBe(true);
             expect(hasWarpCard(ships[0])).toBe(true);
@@ -173,8 +173,8 @@ describe('objectives', () => {
     });
 });
 
-describe('RepairStationEncounter', () => {
-    it('fully repairs every player ship when it starts', () => {
+describe('StationEncounter', () => {
+    it.each(Object.values(stationEncounterIds))('%s fully repairs every player ship when it starts', (encounterId) => {
         const { state, ships } = createCampaign(2);
 
         for (const ship of ships) {
@@ -187,7 +187,7 @@ describe('RepairStationEncounter', () => {
             expect(totalHealth(ship)).toBeLessThan(totalMaxHealth(ship));
         }
 
-        new RepairStationEncounter(state, getDefaultNode('repairStation')).start();
+        new StationEncounter(state, getDefaultNode(encounterId)).start();
 
         for (const ship of ships) {
             expect(totalHealth(ship)).toBe(totalMaxHealth(ship));
@@ -196,7 +196,7 @@ describe('RepairStationEncounter', () => {
 
     it('has no objective and is complete once started', () => {
         const { state } = createCampaign();
-        const encounter = new RepairStationEncounter(state, getDefaultNode('repairStation'));
+        const encounter = new StationEncounter(state, getDefaultNode('repairStation'));
         let completions = 0;
         encounter.onComplete.addListener('test', () => completions++);
 

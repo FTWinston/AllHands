@@ -39,7 +39,42 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     /** Set by the campaign: opened on arriving at a station, then toggled by the crew member's `setDeckViewOpen` messages. Cleared on leaving. */
     @type('boolean') deckViewOpen = false;
 
+    /** Cards on sale to this crew member, at a shop station for their role. Stocked on arrival; bought cards are removed. Cleared on leaving. */
+    @type([CardState]) shopCards = new ArraySchema<CardState>();
+
+    /** Set by `openShop` on arriving at a shop station for this crew member's role, and cleared when they close it. It can't be reopened. */
+    @type('boolean') shopOpen = false;
+
     override readonly maxHandSize = 5;
+
+    /** Opens this crew member's shop, offering the given cards. */
+    openShop(cards: readonly CardState[]) {
+        this.shopCards.clear();
+        this.shopCards.push(...cards);
+        this.shopOpen = true;
+    }
+
+    /** Closes this crew member's shop for good, discarding any unsold cards. Returns false if it wasn't open. */
+    closeShop(): boolean {
+        if (!this.shopOpen) {
+            return false;
+        }
+
+        this.shopOpen = false;
+        this.shopCards.clear();
+        return true;
+    }
+
+    /** Removes a card from the open shop, returning it, or null if the shop is closed or doesn't offer that card. Doesn't add it to the deck. */
+    takeShopCard(cardId: number): CardState | null {
+        const index = this.shopOpen ? this.shopCards.findIndex(card => card.id === cardId) : -1;
+        if (index === -1) {
+            return null;
+        }
+
+        const [card] = this.shopCards.splice(index, 1);
+        return card;
+    }
 
     removeCard(cardId: number): boolean {
         const index = this.hand.findIndex(card => card.id === cardId);
@@ -167,6 +202,8 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     override cleanupAfterEncounter() {
         this.pendingDrawChoice.clear();
         this.deckViewOpen = false;
+        this.shopCards.clear();
+        this.shopOpen = false;
         super.cleanupAfterEncounter();
     }
 }

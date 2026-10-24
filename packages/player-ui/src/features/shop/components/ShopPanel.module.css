@@ -1,0 +1,72 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+    min-width: 0;
+    padding: 1em;
+    border: solid var(--energy-mid) 2px;
+    border-radius: 1em;
+    background-color: var(--grey-darkest);
+}
+
+.title {
+    margin: 0;
+    font-size: 1.5em;
+    font-weight: 500;
+    color: var(--energy-light);
+}
+
+.instructions {
+    margin: 0;
+    text-align: center;
+    color: var(--grey-light);
+}
+
+.blocked {
+    display: block;
+    margin-top: 0.25em;
+    color: var(--danger-light);
+}
+
+.list {
+    /* Match the deck's card size, so three fit across narrow screens. */
+    font-size: clamp(0.4em, calc((100vw - 4rem) / 37), 1em);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    justify-content: center;
+    gap: 1.5em 1em;
+}
+
+.item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.5em;
+}
+
+button.buy {
+    font-size: 1.25em;
+}
+
+.soldOut {
+    margin: 0;
+    color: var(--grey-light);
+    font-style: italic;
+}
+
+.footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25em;
+}
+
+.hint {
+    font-size: 0.8em;
+    color: var(--grey-light);
+}

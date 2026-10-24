@@ -29,3 +29,6 @@ export const minDeckSize = 10;
 export function canSellFromDeck(deckSize: number): boolean {
     return deckSize > minDeckSize;
 }
+
+/** Antimatter spent to buy a card from a shop station. */
+export const shopCardPrice = 20;

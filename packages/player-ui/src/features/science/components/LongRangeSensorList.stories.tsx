@@ -25,6 +25,7 @@ export const Destinations: Story = {
             { id: 'n1a', kind: 'combat', name: 'Ember Belt', environment: 'asteroidField', factionId: 'factionA', objective: { type: 'destroyAll' } },
             { id: 'n1b', kind: 'combat', name: 'Hold the Line', environment: 'nebula', factionId: 'factionB', objective: { type: 'survive', durationMs: 90000 } },
             { id: 'n1c', kind: 'repair', name: 'Repair Station' },
+            { id: 'n1d', kind: 'engineeringOutpost', name: 'Outpost 1-1' },
             { id: 'boss', kind: 'boss', name: 'Placeholder Boss A', environment: 'gasGiant', factionId: 'factionA', objective: { type: 'boss' } },
         ],
     },

@@ -1,5 +1,5 @@
 import { isStationKind } from 'common-data/features/sectors/utils/isStationKind';
-import { canSellFromDeck, cardSellPrice, getAntimatterReward } from 'common-data/features/ships/utils/antimatter';
+import { canSellFromDeck, cardSellPrice, getAntimatterReward, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { getPlayerShips } from 'src/utils/shipQueries';
 import { createEncounter, getDefaultNode, hasEncounter } from '../encounters/EncounterRegistry';
 import { CardState } from '../state/CardState';
@@ -210,6 +210,28 @@ export class Campaign {
 
         ship.addAntimatter(cardSellPrice);
         return true;
+    }
+
+    /** A crew member buys a card from their open shop, at a shop station for their role. It goes to the bottom of their deck. */
+    buyShopCard(ship: PlayerShip, system: CrewSystemState, cardId: number): boolean {
+        if (!this.isAtStation || !system.shopOpen || !system.shopCards.some(card => card.id === cardId) || !ship.trySpendAntimatter(shopCardPrice)) {
+            return false;
+        }
+
+        system.addDeckCard(system.takeShopCard(cardId)!);
+        return true;
+    }
+
+    /**
+     * A crew member closes their shop, at a shop station for their role. Once closed, it can't be reopened.
+     * This is the hook point for anything that must wait until the shop is closed (e.g. giving helm the Warp Away card): see `Ship.hasOpenShop`.
+     */
+    closeShop(_ship: PlayerShip, system: CrewSystemState): boolean {
+        if (!this.isAtStation) {
+            return false;
+        }
+
+        return system.closeShop();
     }
 
     /** Dev tools: abandon whatever is running and start the given encounter standalone with repaired ships. */

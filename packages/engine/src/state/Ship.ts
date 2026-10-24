@@ -1,6 +1,6 @@
 import { entity, type, view } from '@colyseus/schema';
 import { UntargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { ownShipClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole } from 'common-data/features/ships/types/CrewRole';
+import { ownShipClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole, CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { Damage } from 'common-data/features/space/types/Damage';
@@ -95,6 +95,16 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     /** The systems that each belong to a crew member, and so have a deck that crew member can view. */
     public get crewSystems(): readonly CrewSystemState[] {
         return [this.helmState, this.scienceState, this.tacticalState, this.engineerState];
+    }
+
+    /** The system belonging to the given crew member. */
+    public getCrewSystem(role: CrewRoleName): CrewSystemState {
+        return this.getSystem(role) as CrewSystemState;
+    }
+
+    /** Whether any crew member's shop is open, at a shop station. */
+    public get hasOpenShop(): boolean {
+        return this.crewSystems.some(system => system.shopOpen);
     }
 
     private readonly detectionRange = 100;

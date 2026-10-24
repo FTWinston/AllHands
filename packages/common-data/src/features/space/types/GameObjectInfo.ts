@@ -61,6 +61,13 @@ export interface CrewSystemInfo extends SystemInfo {
     nonEncounterCards: IArray<NonEncounterCardInfo>;
     /** Whether this crew member's deck view is open at a station: opened on arrival, then closed (or reopened) by the crew member. Always false away from a station. */
     deckViewOpen: boolean;
+    /** Cards on sale to this crew member at a shop station for their role (see `getShopRole`), each for `shopCardPrice`. Empty elsewhere. */
+    shopCards: IArray<CardInstance>;
+    /**
+     * Whether this crew member's shop is open: set on arriving at a shop station for their role, until they close it, after which it can't reopen.
+     * Always false elsewhere.
+     */
+    shopOpen: boolean;
 }
 
 export interface HelmSystemInfo extends CrewSystemInfo {

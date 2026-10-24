@@ -27,4 +27,10 @@ describe('getDestinationDetails', () => {
     it('omits missing details', () => {
         expect(getDestinationDetails(repairStation)).toEqual([]);
     });
+
+    it('lists what a shop station sells', () => {
+        expect(getDestinationDetails({ id: 'n3', kind: 'navigationBeacon', name: 'Beacon' })).toEqual([
+            { label: 'Sells', value: 'Helm cards' },
+        ]);
+    });
 });

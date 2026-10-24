@@ -1,6 +1,8 @@
+import { getShopRole } from 'common-data/features/sectors/utils/isStationKind';
 import type { EnvironmentType } from 'common-data/features/sectors/types/EnvironmentType';
 import type { ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 
 const environmentLabels: Record<EnvironmentType, string> = {
     deepSpace: 'Deep space',
@@ -12,7 +14,19 @@ const environmentLabels: Record<EnvironmentType, string> = {
 const nodeKindLabels: Record<SectorNodeKind, string> = {
     combat: 'Combat',
     repair: 'Repair station',
+    navigationBeacon: 'Navigation beacon',
+    weaponsDealer: 'Weapons dealer',
+    engineeringOutpost: 'Engineering outpost',
+    scienceStation: 'Science station',
     boss: 'Boss',
+};
+
+/** What each kind of shop station sells. */
+const shopLabels: Record<CrewRoleName, string> = {
+    helm: 'Helm cards',
+    science: 'Science cards',
+    tactical: 'Weapon & tactical cards',
+    engineer: 'Engineering cards',
 };
 
 /** Placeholder names, until the factions are written. */
@@ -57,4 +71,10 @@ function formatDuration(durationMs: number): string {
     const remainder = seconds % 60;
     const minutesText = `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
     return remainder === 0 ? minutesText : `${minutesText} ${remainder} seconds`;
+}
+
+/** What a shop station sells (e.g. "Helm cards"), or null for any other kind of node. */
+export function getShopLabel(kind: SectorNodeKind): string | null {
+    const role = getShopRole(kind);
+    return role ? shopLabels[role] : null;
 }
