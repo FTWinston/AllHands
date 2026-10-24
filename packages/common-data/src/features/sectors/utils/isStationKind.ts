@@ -4,9 +4,9 @@ import type { SectorNodeKind, ShopStationKind, StationKind } from '../types/Sect
 /** Which crew member each kind of shop station sells cards to. */
 export const shopStationRoles: Readonly<Record<ShopStationKind, CrewRoleName>> = {
     navigationBeacon: 'helm',
-    weaponsDealer: 'tactical',
-    engineeringOutpost: 'engineer',
-    scienceStation: 'science',
+    armsDealer: 'tactical',
+    salvageYard: 'engineer',
+    researchOutpost: 'science',
 };
 
 export const shopStationKinds = Object.keys(shopStationRoles) as ShopStationKind[];

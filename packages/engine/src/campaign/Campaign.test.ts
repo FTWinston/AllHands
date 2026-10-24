@@ -554,7 +554,7 @@ describe('Campaign shop stations', () => {
     }
 
     it('opens a shop of cards for its own crew member only, on arrival', () => {
-        const { ships: [ship] } = createAtShop('weaponsDealer');
+        const { ships: [ship] } = createAtShop('armsDealer');
 
         expect([ship.helmState, ship.scienceState, ship.tacticalState, ship.engineerState].map(system => system.shopOpen)).toEqual([false, false, true, false]);
         expect(ship.hasOpenShop).toBe(true);
@@ -620,7 +620,7 @@ describe('Campaign shop stations', () => {
     });
 
     it('closes for good, discarding unsold cards', () => {
-        const { campaign, ships: [ship] } = createAtShop('engineeringOutpost', 100);
+        const { campaign, ships: [ship] } = createAtShop('salvageYard', 100);
         const engineer = ship.engineerState;
         const cardId = engineer.shopCards[0].id;
 
@@ -636,7 +636,7 @@ describe('Campaign shop stations', () => {
     });
 
     it('clears the shop and departure status if the station is left while it is open (e.g. by dev tools)', () => {
-        const { state, campaign, ships: [ship] } = createAtShop('scienceStation', 100);
+        const { state, campaign, ships: [ship] } = createAtShop('researchOutpost', 100);
 
         expect(campaign.devLoadEncounter('skirmish')).toBe(true);
         expect(state.encounterKind).toBe('combat');
@@ -648,7 +648,7 @@ describe('Campaign shop stations', () => {
 });
 
 describe('Campaign station departure', () => {
-    function createAtShop(encounterId: 'navigationBeacon' | 'weaponsDealer' | 'engineeringOutpost' | 'scienceStation', shipCount = 1) {
+    function createAtShop(encounterId: 'navigationBeacon' | 'armsDealer' | 'salvageYard' | 'researchOutpost', shipCount = 1) {
         const created = createCampaign(shipCount);
         created.campaign.dismissMessage();
         expect(created.campaign.devLoadEncounter(encounterId)).toBe(true);
@@ -658,7 +658,7 @@ describe('Campaign station departure', () => {
     const hasWarpCard = (ship: PlayerShip) => ship.helmState.hand.some(card => card.type === 'warpAway');
 
     it('only gives helm Warp Away once the shopping crew member closes their shop', () => {
-        const { state, campaign, ships: [ship] } = createAtShop('weaponsDealer');
+        const { state, campaign, ships: [ship] } = createAtShop('armsDealer');
 
         expect(state.encounter!.objectiveMet).toBe(true);
         expect(hasWarpCard(ship)).toBe(false);
@@ -702,7 +702,7 @@ describe('Campaign station departure', () => {
     });
 
     it('gives each helm the card when their own ship\'s shop closes, and lets that ship leave', () => {
-        const { state, campaign, ships: [first, second] } = createAtShop('scienceStation', 2);
+        const { state, campaign, ships: [first, second] } = createAtShop('researchOutpost', 2);
 
         campaign.closeShop(second, second.scienceState);
         expect(hasWarpCard(first)).toBe(false);
