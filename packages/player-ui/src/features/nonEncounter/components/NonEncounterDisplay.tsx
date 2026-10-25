@@ -16,7 +16,7 @@ import { NonEncounterHand } from './NonEncounterHand';
 import type { ShopModel } from '../../shop/types/ShopModel';
 import type { Snapshot } from '@colyseus/react';
 
-type Props = Omit<ComponentProps<typeof CrewHeader>, 'power'> & {
+type Props = ComponentProps<typeof CrewHeader> & {
     /** Cards to offer instead of the crew's usual display; none for crew that only wait on the sector map. */
     cards?: Snapshot<NonEncounterCardInfo[]>;
     playCard?: (cardId: number) => void;

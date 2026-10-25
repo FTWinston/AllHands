@@ -60,6 +60,7 @@ export const Engineer = (props: Props) => {
                 crew="engineer"
                 shop={shop}
                 onPause={pause}
+                power={phase === 'encounter' ? undefined : engineerState.powerLevel}
                 deckSize={engineerState.deck.length}
                 deckView={deckView}
                 cardGeneration={engineerState.cardGeneration}

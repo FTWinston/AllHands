@@ -77,6 +77,7 @@ export const Science = (props: Props) => {
                 crew="science"
                 shop={shop}
                 onPause={pause}
+                power={phase === 'encounter' ? undefined : scienceState.powerLevel}
                 deckSize={scienceState.deck.length}
                 deckView={deckView}
                 cardGeneration={scienceState.cardGeneration}

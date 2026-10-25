@@ -18,7 +18,7 @@ import { NumberIndicator } from './NumberIndicator';
 type Props = {
     crew: CrewRoleName;
     onPause: () => void;
-    /** Omitted outside an encounter, where no cards cost power. */
+    /** Omitted at a station, where no cards are played. Elsewhere, it shows e.g. reactor damage lowering a system's baseline power. */
     power?: number;
     deckSize: number;
     cardGeneration?: Cooldown | null;

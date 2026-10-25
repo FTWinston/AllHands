@@ -64,6 +64,7 @@ export const Tactical = (props: Props) => {
                 crew="tactical"
                 shop={shop}
                 onPause={pause}
+                power={phase === 'encounter' ? undefined : tacticalState.powerLevel}
                 deckSize={tacticalState.deck.length}
                 deckView={deckView}
                 cardGeneration={tacticalState.cardGeneration}
