@@ -1,0 +1,18 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    min-width: 0;
+}
+
+.instructions {
+    margin: 0;
+    text-align: center;
+    color: var(--grey-light);
+}
+
+.blocked {
+    display: block;
+    margin-top: 0.25em;
+    color: var(--danger-light);
+}

@@ -11,6 +11,9 @@ export class AiShip extends Ship {
     constructor(gameState: GameState, setup: AiShipSetupInfo) {
         super(gameState, setup);
         this.ai = new ShipAi(this, gameState, setup);
+
+        // AI ships only exist within an encounter, so they join it with their hands dealt.
+        this.dealInitialHands();
     }
 
     public override tick(deltaTime: number, currentTime: number): void {

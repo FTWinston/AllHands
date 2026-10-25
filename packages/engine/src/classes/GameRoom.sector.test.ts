@@ -1,4 +1,5 @@
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
 import { DEV_TOOLS_ENABLED } from 'src/generated/devtools';
 import { setupGameRoom } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
@@ -176,6 +177,35 @@ describe('GameRoom campaign messages', () => {
         await send(room, clients.helm, 'playCard', { cardId: warpCard.id, cardType: 'warpAway', targetType: 'no-target', targetId: '' });
         expect(state.phase).toBe('map');
         expect(ship.helmState.hand.some(card => card.type === 'warpAway')).toBe(false);
+    });
+
+    it('each crew member can re-order and sell from only their own deck at a station', async () => {
+        const { room, state, ship, clients } = await startGame();
+        await send(room, clients.tactical, 'dismissMessage');
+
+        // Not at a station yet, so ignored.
+        const helmOrder = ship.helmState.deck.map(card => card.id);
+        await send(room, clients.helm, 'moveDeckCard', { cardId: helmOrder[1], toIndex: 0 });
+        expect(ship.helmState.deck.map(card => card.id)).toEqual(helmOrder);
+
+        expect(state.campaign!.devLoadEncounter('repairStation')).toBe(true);
+
+        await send(room, clients.helm, 'moveDeckCard', { cardId: helmOrder[1], toIndex: 0 });
+        expect(ship.helmState.deck.map(card => card.id)).toEqual([helmOrder[1], helmOrder[0], ...helmOrder.slice(2)]);
+
+        // Tactical can't sell helm's card, but can sell its own.
+        const tacticalCount = ship.tacticalState.deck.length;
+        await send(room, clients.tactical, 'sellDeckCard', { cardId: ship.helmState.deck[0].id });
+        expect(ship.antimatter).toBe(0);
+
+        await send(room, clients.tactical, 'sellDeckCard', { cardId: ship.tacticalState.deck[0].id });
+        expect(ship.tacticalState.deck.length).toBe(tacticalCount - 1);
+        expect(ship.antimatter).toBe(cardSellPrice);
+
+        // Helm's deck is already at the minimum size.
+        await send(room, clients.helm, 'sellDeckCard', { cardId: ship.helmState.deck[0].id });
+        expect(ship.helmState.deck.length).toBe(helmOrder.length);
+        expect(ship.antimatter).toBe(cardSellPrice);
     });
 
     if (DEV_TOOLS_ENABLED) {

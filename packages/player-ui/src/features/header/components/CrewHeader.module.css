@@ -59,3 +59,32 @@ button.menuButton {
     corner-shape: squircle;
     border-radius: 1em;
 }
+button.deckButton {
+    gap: 0.25em;
+    padding: 0.25em 0.75em 0.25em 0.5em;
+    background-color: transparent;
+    box-shadow: var(--primary-mid) 0px 0px 0px 1px inset;
+}
+
+button.deckButton > span {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+}
+
+button.deckButtonPressed {
+    background-color: var(--primary-mid);
+}
+
+.deckButtonIcon {
+    width: 2em;
+    height: 2em;
+    flex-shrink: 0;
+    color: var(--color-light);
+}
+
+.deckButtonValue {
+    font-weight: bold;
+    color: var(--grey-lightest);
+    min-width: 1.25em;
+}

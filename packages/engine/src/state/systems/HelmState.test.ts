@@ -10,6 +10,7 @@ function createMovingShip() {
     setup.helm = { ...setup.helm, cards: ['slowAndSteady'], initialHandSize: 1 };
     const ship = new PlayerShip(state, setup);
     state.add(ship);
+    ship.startEncounter();
 
     // Already facing +x, so this moves straight there without rotating first.
     const card = ship.helmState.hand[0];
