@@ -13,6 +13,8 @@ const meta: Meta<typeof Component> = {
         addEffect: fn(),
         adjustTimeScale: fn(),
         serverTimeScale: 1,
+        autoWin: false,
+        setAutoWin: fn(),
         loadEncounter: fn(),
         encounters: [
             { id: 'skirmish', name: 'Skirmish', kind: 'combat', environment: 'deepSpace', factionId: 'factionA', objective: { type: 'destroyAll' } },
