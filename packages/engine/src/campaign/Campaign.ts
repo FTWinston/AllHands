@@ -295,7 +295,11 @@ export class Campaign {
             this.awardAntimatter();
             this.offerWarpAway();
         });
-        this.encounter.start();
+        if (this.state.devAutoWin) {
+            this.encounter.startComplete();
+        } else {
+            this.encounter.start();
+        }
         summary.objectiveEndTime = this.encounter.objectiveEndTime;
     }
 
