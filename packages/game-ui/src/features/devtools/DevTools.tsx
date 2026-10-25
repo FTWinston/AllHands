@@ -32,6 +32,13 @@ export const DevTools: FC<Props> = ({ room, encounters, inLobby }) => {
         room?.send('adjustTimeScale', { timeScale });
     }, [room]);
 
+    const [serverAutoWin, setServerAutoWin] = useState(false);
+
+    const setAutoWin = useCallback((enabled: boolean) => {
+        room?.send('devAutoWin', { enabled });
+        setServerAutoWin(enabled);
+    }, [room]);
+
     const loadEncounter = useCallback((encounterId: EncounterId) => {
         room?.send('devLoadEncounter', { encounterId });
     }, [room]);
@@ -40,8 +47,9 @@ export const DevTools: FC<Props> = ({ room, encounters, inLobby }) => {
     const [serverTimeScale, setServerTimeScale] = useState(1);
 
     useEffect(() => {
-        const unsubscribe = room.onMessage<{ timeScale: number }>('pong', (message) => {
+        const unsubscribe = room.onMessage<{ timeScale: number; devAutoWin: boolean }>('pong', (message) => {
             setServerTimeScale(message.timeScale);
+            setServerAutoWin(message.devAutoWin);
         });
         return unsubscribe;
     }, [room]);
@@ -70,6 +78,8 @@ export const DevTools: FC<Props> = ({ room, encounters, inLobby }) => {
                     adjustHealth={adjustHealth}
                     adjustTimeScale={adjustTimeScale}
                     serverTimeScale={serverTimeScale}
+                    autoWin={serverAutoWin}
+                    setAutoWin={setAutoWin}
                     encounters={encounters}
                     loadEncounter={loadEncounter}
                     inLobby={inLobby}

@@ -248,7 +248,11 @@ export class Campaign {
 
         // Subscribe before starting, as an encounter may complete immediately.
         this.encounter.onComplete.addListener('campaign', () => this.offerWarpAway());
-        this.encounter.start();
+        if (this.state.devAutoWin) {
+            this.encounter.startComplete();
+        } else {
+            this.encounter.start();
+        }
         summary.objectiveEndTime = this.encounter.objectiveEndTime;
     }
 
