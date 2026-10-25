@@ -1,10 +1,9 @@
 import { useRoomState } from '@colyseus/react';
-import { getShopRole, isStationKind } from 'common-data/features/sectors/utils/isStationKind';
+import { isStationKind } from 'common-data/features/sectors/utils/isStationKind';
 import { FactionRelationshipMap, GameObjectInfo, PlayerShipInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { ScreenFade } from 'common-ui/components/ScreenFade';
-import { getStationDepartureLabel } from 'common-ui/features/sectors/utils/stationDepartureLabels';
 import { sounds } from 'common-ui/features/sound/sounds';
 import { useBridgeChatter } from 'common-ui/features/sound/useBridgeChatter';
 import { useWakeLock } from 'common-ui/hooks/useWakeLock';
@@ -73,7 +72,6 @@ const ViewscreenScene: FC<Props> = (props) => {
 
     const hull = (localShip as ShipInfo | undefined)?.hullState;
     const antimatter = (localShip as PlayerShipInfo | undefined)?.antimatter;
-    const departure = getStationDepartureLabel(getShopRole(encounterKind), (localShip as PlayerShipInfo | undefined)?.isShopping ?? false);
 
     if (isEnded || phase !== 'encounter') {
         return (
@@ -111,7 +109,7 @@ const ViewscreenScene: FC<Props> = (props) => {
             {hull && <LowHullWarning health={hull.health} maxHealth={hull.maxHealth} />}
             {isStationKind(encounterKind) && (
                 <>
-                    <StationBanner kind={encounterKind} name={encounterName ?? ''} departure={departure} />
+                    <StationBanner kind={encounterKind} name={encounterName ?? ''} />
                     {antimatter !== undefined && <AntimatterDisplay antimatter={antimatter} />}
                 </>
             )}

@@ -12,6 +12,8 @@ type Props = PropsWithChildren<{
     headerStart?: ReactNode;
     /** Shown after the title, before the close button. */
     headerEnd?: ReactNode;
+    /** Applied to the header, which holds the title and close button. */
+    headerClassName?: string;
     /** Applied to the scrolling area beneath the header, which holds the children. */
     bodyClassName?: string;
 }>;
@@ -22,7 +24,7 @@ export const FullScreenDialog: FC<Props> = props => (
     <BaseDialog.Root open={props.isOpen} onOpenChange={props.setOpen} disablePointerDismissal>
         <BaseDialog.Portal>
             <BaseDialog.Popup className={styles.popup}>
-                <header className={styles.header}>
+                <header className={classNames(styles.header, props.headerClassName)}>
                     {props.headerStart}
 
                     <BaseDialog.Title className={styles.title}>{props.title}</BaseDialog.Title>

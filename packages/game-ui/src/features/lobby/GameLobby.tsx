@@ -2,7 +2,8 @@ import { useRoomState } from '@colyseus/react';
 import { getStateCallbacks, Room } from '@colyseus/sdk';
 import { type ServerAddress } from 'common-data/types/ServerAddress';
 import { ScreenFade } from 'common-ui/components/ScreenFade';
-import { FC, useEffect, useState } from 'react';
+import { sounds } from 'common-ui/features/sound/sounds';
+import { FC, useEffect, useRef, useState } from 'react';
 import { GameLobbyDisplay, type SystemState } from './components/GameLobbyDisplay';
 import type { GameState } from 'engine/state/GameState';
 
@@ -18,6 +19,7 @@ export const GameLobby: FC<Props> = (props) => {
     const { serverAddress, allowMultipleCrews, room, crewId, disconnect } = props;
 
     const startCountdown = useRoomState(room, state => state.startCountdown) ?? 0;
+    useCountdownStartSound(startCountdown);
 
     const [helmState, setHelmState] = useState<SystemState>('unoccupied');
     const [tacticalState, setTacticalState] = useState<SystemState>('unoccupied');
@@ -119,3 +121,15 @@ export const GameLobby: FC<Props> = (props) => {
         </>
     );
 };
+
+/** Sound the alert when the countdown to the game starting begins, i.e. once every role is claimed. */
+function useCountdownStartSound(startCountdown: number) {
+    const previousCountdown = useRef(startCountdown);
+
+    useEffect(() => {
+        if (previousCountdown.current === 0 && startCountdown > 0) {
+            sounds.countdownStarted();
+        }
+        previousCountdown.current = startCountdown;
+    }, [startCountdown]);
+}

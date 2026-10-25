@@ -1,3 +1,10 @@
+/* Spaced like the crew header this covers, so its menu button stays in place. */
+header.header {
+    padding: 0.25em 1em 0.25em 0.25em;
+    box-sizing: content-box;
+    min-height: 2.5em;
+}
+
 .icon {
     width: 2em;
     height: 2em;
@@ -6,15 +13,14 @@
 
 .antimatter {
     display: flex;
-    align-items: baseline;
-    gap: 0.5em;
+    align-items: center;
+    gap: 0.25em;
 }
 
-.antimatterLabel {
-    font-size: 0.8em;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--grey-light);
+.antimatterIcon {
+    width: 2em;
+    height: 2em;
+    color: var(--energy-light);
 }
 
 .antimatterAmount {

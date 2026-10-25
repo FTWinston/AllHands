@@ -1,4 +1,5 @@
 import { isStationKind, stationKinds } from 'common-data/features/sectors/utils/isStationKind';
+import { routeIconSize, StationIconShapes } from 'common-ui/features/cards/components/RouteIcon';
 import { getNodeKindLabel } from 'common-ui/features/sectors/utils/sectorLabels';
 import { FC } from 'react';
 import { getEdgePath, layoutSectorMap, MapEdgeLayout, MapEdgeStatus, MapNodeStatus } from '../utils/layoutSectorMap';
@@ -61,45 +62,18 @@ function getSpikedPoints(radius: number, spikes: number) {
     }).join(' ');
 }
 
-/** Every station is a rounded square, marked to show what kind of station it is. */
-const StationMark: FC<{ kind: StationKind; inner: number }> = ({ kind, inner }) => {
-    switch (kind) {
-        case 'repair':
-            // A plus.
-            return <path className={styles.mark} d={`M0 ${-inner}V${inner}M${-inner} 0H${inner}`} />;
-        case 'navigationBeacon':
-            // A compass needle.
-            return <path className={styles.mark} d={`M0 ${-inner * 1.1}L${inner * 0.55} 0L0 ${inner * 1.1}L${-inner * 0.55} 0Z`} />;
-        case 'armsDealer':
-            // A crosshair.
-            return (
-                <>
-                    <circle className={styles.mark} r={inner * 0.6} />
-                    <path className={styles.mark} d={`M0 ${-inner * 1.2}V${-inner * 0.6}M0 ${inner * 0.6}V${inner * 1.2}M${-inner * 1.2} 0H${-inner * 0.6}M${inner * 0.6} 0H${inner * 1.2}`} />
-                </>
-            );
-        case 'salvageYard':
-            // A hexagonal nut.
-            return (
-                <polygon
-                    className={styles.mark}
-                    points={Array.from({ length: 6 }, (_, i) => {
-                        const angle = (Math.PI / 3) * i;
-                        return `${Math.cos(angle) * inner},${Math.sin(angle) * inner}`;
-                    }).join(' ')}
-                />
-            );
-        case 'researchOutpost':
-            // An atom.
-            return (
-                <>
-                    <ellipse className={styles.mark} rx={inner * 1.1} ry={inner * 0.4} transform="rotate(45)" />
-                    <ellipse className={styles.mark} rx={inner * 1.1} ry={inner * 0.4} transform="rotate(-45)" />
-                </>
-            );
-        default:
-            throw new Error(`Station kind not found: ${kind satisfies never}`);
-    }
+/** How much of the width of a station's square its icon takes up. */
+const STATION_ICON_FILL = 0.85;
+
+/** Every station is a rounded square, holding the same icon as the helm's route card for it. */
+const StationMark: FC<{ kind: StationKind; radius: number }> = ({ kind, radius }) => {
+    const scale = (radius * 2 * STATION_ICON_FILL) / routeIconSize;
+
+    return (
+        <g className={styles.stationIcon} transform={`scale(${scale}) translate(${-routeIconSize / 2} ${-routeIconSize / 2})`}>
+            <StationIconShapes kind={kind} />
+        </g>
+    );
 };
 
 const NodeGlyph: FC<{ kind: SectorNodeKind; elite?: boolean; status: MapNodeStatus; radius: number }> = ({ kind, elite, status, radius }) => {
@@ -121,7 +95,7 @@ const NodeGlyph: FC<{ kind: SectorNodeKind; elite?: boolean; status: MapNodeStat
             {isStationKind(kind) && (
                 <>
                     <rect className={styles.shape} x={-radius} y={-radius} width={radius * 2} height={radius * 2} rx={radius * 0.3} />
-                    <StationMark kind={kind} inner={inner} />
+                    <StationMark kind={kind} radius={radius} />
                 </>
             )}
             {kind === 'boss' && (

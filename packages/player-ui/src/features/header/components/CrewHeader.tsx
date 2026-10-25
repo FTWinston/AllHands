@@ -1,8 +1,7 @@
-import { Menu } from '@base-ui/react/menu';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { Cooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';
-import { default as MenuIcon } from 'common-ui/icons/hamburger-menu.svg?react';
+import { default as AntimatterIcon } from 'common-ui/icons/antimatter.svg?react';
 import { SystemIcon } from 'common-ui/icons/systems';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
@@ -21,6 +20,8 @@ type Props = {
     /** Omitted at a station, where no cards are played. Elsewhere, it shows e.g. reactor damage lowering a system's baseline power. */
     power?: number;
     deckSize: number;
+    /** The ship's antimatter, shown at a shop station for this crew member. */
+    antimatter?: number;
     cardGeneration?: Cooldown | null;
     /** Outside an encounter, the deck indicator becomes a button that opens this "my deck" view. During one, it is a discard target. */
     deckView?: DeckViewModel | null;
@@ -30,16 +31,7 @@ export const CrewHeader: FC<Props> = (props) => {
     return (
         <div className={styles.crewHeader} data-crew-header>
             <div className={styles.title}>
-                <Menu.Root>
-                    <Menu.Trigger
-                        render={(
-                            <Button className={styles.menuButton} title="Menu">
-                                <MenuIcon className={styles.menuButtonIcon} />
-                            </Button>
-                        )}
-                    />
-                    <CrewMenu onPause={props.onPause} />
-                </Menu.Root>
+                <CrewMenu onPause={props.onPause} />
 
                 <SystemIcon system={props.crew} className={styles.titleIcon} />
                 <div className={styles.titleText}>
@@ -60,6 +52,23 @@ export const CrewHeader: FC<Props> = (props) => {
                                 <PowerIcon />
                                 {' '}
                                 is not consumed by playing cards, and is controlled by the Engineer.
+                            </>
+                        )}
+                    />
+                )}
+
+                {props.antimatter !== undefined && (
+                    <NumberIndicator
+                        value={props.antimatter}
+                        icon={AntimatterIcon}
+                        name="Antimatter"
+                        description={(
+                            <>
+                                Antimatter
+                                {' '}
+                                <AntimatterIcon />
+                                {' '}
+                                is shared by the whole crew. It is gained by winning battles and selling cards, and spent on cards at stations.
                             </>
                         )}
                     />
@@ -95,7 +104,7 @@ export const CrewHeader: FC<Props> = (props) => {
                     )}
             </div>
 
-            {props.deckView && <DeckView crew={props.crew} {...props.deckView} />}
+            {props.deckView && <DeckView crew={props.crew} menu={<CrewMenu onPause={props.onPause} />} {...props.deckView} />}
         </div>
     );
 };

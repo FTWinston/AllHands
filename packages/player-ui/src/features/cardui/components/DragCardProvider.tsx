@@ -1,6 +1,7 @@
 import { DndContext, DragEndEvent, DragMoveEvent, DragOverEvent, DragStartEvent, useSensor, PointerSensor, useSensors, pointerWithin, CollisionDetection, getClientRect } from '@dnd-kit/core';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { UICardDefinition } from 'common-ui/features/cards/types/UICardDefinition';
 import { sounds } from 'common-ui/features/sound/sounds';
 import { vibrate, vibrations } from 'common-ui/features/sound/vibrate';
 import { createContext, useState, useContext, PropsWithChildren, useRef, useCallback } from 'react';
@@ -16,6 +17,8 @@ export type ActiveCardInfo = {
     isPriority?: boolean;
     /** Whether there isn't enough power to play this card. */
     isUnaffordable?: boolean;
+    /** For cards that are not card definitions, what they show. */
+    definition?: UICardDefinition;
 };
 
 type DragPosition = {
@@ -41,18 +44,23 @@ function getDragDisplayMode(activeCard: ActiveCardInfo | null): DragDisplayMode 
     }
 }
 
+type DroppedCard = Pick<ActiveCardInfo, 'id' | 'cardType'>;
+
 type DragContextValue = {
     activeCard: ActiveCardInfo | null;
+    /** A card that was just played, which stays hidden while its drop effect shows, rather than returning to the hand until the server removes it. */
+    droppedCard: DroppedCard | null;
     overTargetId: string | null;
     dragDisplayMode: DragDisplayMode;
 };
 
-export const ActiveCardContext = createContext<DragContextValue>({ activeCard: null, overTargetId: null, dragDisplayMode: 'none' });
+export const ActiveCardContext = createContext<DragContextValue>({ activeCard: null, droppedCard: null, overTargetId: null, dragDisplayMode: 'none' });
 
 export const useActiveCard = () => useContext(ActiveCardContext).activeCard;
 export const useIsOverValidTarget = () => useContext(ActiveCardContext).overTargetId !== null;
 export const useOverTargetId = () => useContext(ActiveCardContext).overTargetId;
 export const useDragDisplayMode = () => useContext(ActiveCardContext).dragDisplayMode;
+export const useDroppedCard = () => useContext(ActiveCardContext).droppedCard;
 
 // Custom collision detection that respects overflow:hidden clipping on the immediate parent container.
 // This prevents drop targets clipped by overflow:hidden (e.g. hex cells at the edge of the map)
@@ -94,15 +102,18 @@ const clearFocus = () => {
 type Props = PropsWithChildren<{
     onCardDropped: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     onAlternateDrop?: (targetId: string) => void;
+    /** Skips briefly showing played cards where they were dropped, e.g. where they are shown in a slot instead. */
+    noDropEffect?: boolean;
 }>;
 
-export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: Props) => {
+export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop, noDropEffect }: Props) => {
     const [activeCard, setActiveCard] = useState<ActiveCardInfo | null>(null);
     const [overTargetId, setOverTargetId] = useState<string | null>(null);
     const [isOverDisabledTarget, setIsOverDisabledTarget] = useState(false);
     const [overTargetCenter, setOverTargetCenter] = useState<{ x: number; y: number } | null>(null);
     const [dragPosition, setDragPosition] = useState<DragPosition | null>(null);
     const [droppedCardEffect, setDroppedCardEffect] = useState<DroppedCardEffect | null>(null);
+    const [droppedCard, setDroppedCard] = useState<DroppedCard | null>(null);
 
     // Store the initial pointer position so we can compute current pointer = initialPointer + delta
     const initialPointerRef = useRef({ x: 0, y: 0 });
@@ -118,6 +129,7 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
                 isDamaged: data.isDamaged,
                 isPriority: data.isPriority,
                 isUnaffordable: data.isUnaffordable,
+                definition: data.definition,
             });
             vibrate(vibrations.cardPickedUp);
         }
@@ -196,13 +208,18 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
 
                         onCardDropped(cardId, activeCard.cardType, targetType, String(event.over.id));
 
-                        if (activeCard && dragPosition && targetType !== 'weapon-slot' && !activeCard.isPriority) {
+                        if (activeCard && dragPosition && targetType !== 'weapon-slot' && !noDropEffect) {
                             setDroppedCardEffect({
                                 id: activeCard.id,
                                 cardType: activeCard.cardType,
+                                definition: activeCard.definition,
                                 x: dragPosition.currentX,
                                 y: dragPosition.currentY,
                             });
+
+                            // A card the server will refuse is left to return to the hand.
+                            const isRefused = targetType !== 'any' && (activeCard.isDamaged || activeCard.isUnaffordable);
+                            setDroppedCard(isRefused ? null : { id: activeCard.id, cardType: activeCard.cardType });
                         }
                     } else if (targetType === activeCard.targetType) {
                         // The right kind of target, but it won't take this card.
@@ -255,7 +272,7 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
             onDragEnd={handleDragEnd}
             onDragCancel={handleDragCancel}
         >
-            <ActiveCardContext.Provider value={{ activeCard, overTargetId, dragDisplayMode: getDragDisplayMode(activeCard) }}>
+            <ActiveCardContext.Provider value={{ activeCard, droppedCard, overTargetId, dragDisplayMode: getDragDisplayMode(activeCard) }}>
                 {children}
                 {activeCard && dragPosition && getDragDisplayMode(activeCard) === 'arrow' && (
                     <DragArrow
@@ -270,7 +287,10 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop }: P
                     <CardDropEffect
                         key={droppedCardEffect.id}
                         effect={droppedCardEffect}
-                        onComplete={() => setDroppedCardEffect(null)}
+                        onComplete={() => {
+                            setDroppedCardEffect(null);
+                            setDroppedCard(null);
+                        }}
                     />
                 )}
             </ActiveCardContext.Provider>

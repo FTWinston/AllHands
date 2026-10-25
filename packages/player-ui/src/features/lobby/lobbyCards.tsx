@@ -32,8 +32,6 @@ export function getLobbyCardDefinition(system: CrewRoleName, occupied = false): 
         targetType: 'no-target',
         system,
         parameters: { cost: occupied ? 1 : 0 },
-        // Prevents a drop effect, which can only show card definitions.
-        traits: ['priority'],
         ...cardText[system],
         image: <SystemIcon system={system} className={styles.image} />,
     };

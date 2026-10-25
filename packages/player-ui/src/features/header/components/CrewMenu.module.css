@@ -10,6 +10,21 @@
     border-top-right-radius: 1em;
 }
 
+button.menuButton {
+    padding: 0.25em 0.5em;
+}
+
+.menuButtonIcon {
+    width: 1.5em;
+    height: 1.5em;
+}
+
+/* Above full-screen dialogs, such as the deck view. */
+.backdrop,
+.positioner {
+    z-index: 20;
+}
+
 .backdrop {
     background-color: black;
     opacity: 0.2;

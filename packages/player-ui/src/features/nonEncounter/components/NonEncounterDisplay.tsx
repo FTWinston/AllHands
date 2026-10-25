@@ -51,7 +51,7 @@ export const NonEncounterDisplay = (props: Props) => {
             <DragCardProvider onCardDropped={dropCard}>
                 <CardDropTarget id="noTarget" targetType="no-target" />
 
-                <CrewHeader {...headerProps} />
+                <CrewHeader {...headerProps} antimatter={shop?.antimatter} />
 
                 {shop && (
                     <div className={styles.shop}>

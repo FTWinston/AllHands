@@ -105,13 +105,6 @@ export function startCampaign(state: GameState, shipCount = 1, themes: readonly 
     return { campaign, ships };
 }
 
-/** At a shop station, closes the ship's shop, so that helm gets the Warp Away card. Does nothing elsewhere. */
-export function closeShops(campaign: Campaign, ship: PlayerShip) {
-    if (campaign.shopRole) {
-        campaign.closeShop(ship, ship.getCrewSystem(campaign.shopRole));
-    }
-}
-
 const minimalSystemSetup: NonCrewSystemSetupInfo = {
     cards: ['exampleNoTarget'],
     maxPowerLevel: 5,

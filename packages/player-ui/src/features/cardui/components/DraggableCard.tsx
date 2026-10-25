@@ -10,7 +10,7 @@ import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefin
 import { resolveParameter } from 'common-ui/types/resolveParameters';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC, useState } from 'react';
-import { useActiveCard, useDragDisplayMode, useIsOverValidTarget } from './DragCardProvider';
+import { useActiveCard, useDragDisplayMode, useDroppedCard, useIsOverValidTarget } from './DragCardProvider';
 import styles from './DraggableCard.module.css';
 
 type Props = {
@@ -45,11 +45,13 @@ export const DraggableCard: FC<Props> = (props) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: props.elementId ?? props.id.toString(),
         disabled: isUnplayable,
-        data: { id: props.id, targetType, cardType: props.type, isDamaged, isPriority, isUnaffordable: !props.slotted && props.availablePower < resolvedCost },
+        data: { id: props.id, targetType, cardType: props.type, isDamaged, isPriority, isUnaffordable: !props.slotted && props.availablePower < resolvedCost, definition: props.definition },
     });
 
     const dragDisplayMode = useDragDisplayMode();
     const isBeingDragged = activeCard?.id === props.id && activeCard.cardType === props.type;
+    const droppedCard = useDroppedCard();
+    const isDropped = droppedCard?.id === props.id && droppedCard.cardType === props.type;
     const canDrop = isBeingDragged && isOverValidTarget;
     const followCursor = isBeingDragged && dragDisplayMode === 'card';
 
@@ -60,7 +62,7 @@ export const DraggableCard: FC<Props> = (props) => {
             ref={setNodeRef}
             className={classNames(
                 styles.card,
-                isBeingDragged ? styles.dragging : null,
+                isBeingDragged || isDropped ? styles.dragging : null,
                 followCursor ? styles.followCursor : null,
                 styles[`card--${targetType}`],
                 canDrop ? styles.canDrop : null,

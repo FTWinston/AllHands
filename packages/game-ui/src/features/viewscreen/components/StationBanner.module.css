@@ -33,9 +33,3 @@
     font-size: 0.8em;
     color: var(--grey-light);
 }
-
-.departure {
-    margin-top: 0.2em;
-    font-size: 0.9em;
-    color: var(--energy-light);
-}

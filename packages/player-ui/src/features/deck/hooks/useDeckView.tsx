@@ -21,7 +21,8 @@ export function useDeckView(room: Room<unknown, GameState>, crew: CrewRoleName, 
 
     const atStation = phase === 'encounter' && isStationKind(encounterKind);
     const available = isOutsideEncounter(phase, encounterKind);
-    const openOnArrival = atStation && getShopRole(encounterKind) !== crew;
+    const hasShop = atStation && getShopRole(encounterKind) === crew;
+    const openOnArrival = atStation && !hasShop;
 
     const [isOpen, setOpen] = useState(openOnArrival);
 
@@ -53,7 +54,7 @@ export function useDeckView(room: Room<unknown, GameState>, crew: CrewRoleName, 
         isOpen,
         setOpen,
         atStation,
-        antimatter,
+        antimatter: hasShop ? antimatter : null,
         moveCard,
         sellCard,
     };

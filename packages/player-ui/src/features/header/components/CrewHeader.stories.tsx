@@ -55,14 +55,14 @@ export const AtStation: Story = {
                     isOpen,
                     setOpen,
                     atStation: false,
-                    antimatter: 0,
+                    antimatter: null,
                     moveCard: fn(),
                     sellCard: fn(),
                 }}
             />
         );
     },
-    play: async ({ canvasElement }) => {
+    play: async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
         const page = within(canvasElement.ownerDocument.body);
 
@@ -81,7 +81,24 @@ export const AtStation: Story = {
         await expect(button).toHaveAttribute('aria-pressed', 'true');
         await expect(page.getByRole('dialog')).toBeInTheDocument();
 
+        // The crew menu can still be used, from the deck view's own header.
+        await userEvent.click(within(page.getByRole('dialog')).getByRole('button', { name: 'Menu' }));
+        await userEvent.click(await page.findByRole('menuitem', { name: 'Pause game' }));
+        await expect(args.onPause).toHaveBeenCalled();
+
         await userEvent.click(page.getByRole('button', { name: 'Close' }));
         await expect(button).toHaveAttribute('aria-pressed', 'false');
+    },
+};
+
+/** At a shop station, the crew member with the shop sees the ship's antimatter. */
+export const Shopping: Story = {
+    args: {
+        power: undefined,
+        antimatter: 40,
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText('40')).toBeInTheDocument();
     },
 };

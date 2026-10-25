@@ -10,10 +10,5 @@ export type ShopModel = {
     price: number;
     /** The ship's antimatter. */
     antimatter: number;
-    /** When closed, only a button to reopen the shop is shown. */
-    isOpen: boolean;
     buyCard: (cardId: number) => void;
-    openShop: () => void;
-    /** Closes the shop, telling the server. It can be reopened while at the station. */
-    closeShop: () => void;
 };

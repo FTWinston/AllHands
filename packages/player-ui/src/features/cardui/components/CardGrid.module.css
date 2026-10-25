@@ -1,0 +1,64 @@
+/*
+ * A grid of cards three across, shrunk to fit narrow screens, which zoom to full size when hovered or focused, like a focused card in a hand.
+ * Put .scale on an element containing the .grid, the .grid's items as .item, and each card's focusable wrapper as .card.
+ */
+
+/* Registered, so it's computed on .scale as a number, rather than its ems being resolved against each card's smaller font. */
+@property --card-scale {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 1;
+}
+
+.scale {
+    /* Fit three cards (11.6em wide, with their borders) across narrow screens. */
+    --card-scale: clamp(0.4, tan(atan2(100vw - 4rem, 37em)), 1);
+}
+
+.grid {
+    font-size: calc(1em * var(--card-scale));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    justify-content: center;
+    gap: 1.5em 1em;
+}
+
+.item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.5em;
+}
+
+/* Grow away from the screen's edges. */
+.item:nth-child(3n + 1) {
+    --zoom-origin-x: left;
+}
+
+.item:nth-child(3n) {
+    --zoom-origin-x: right;
+}
+
+.item:nth-child(-n + 3) {
+    --zoom-origin-y: top;
+}
+
+.card {
+    position: relative;
+    transition: opacity 0.15s, transform 0.2s ease-in-out;
+    transform-origin: var(--zoom-origin-x, center) var(--zoom-origin-y, center);
+
+    &:focus {
+        outline: none;
+    }
+}
+
+.grid:not(.noZoom) .card:is(:hover, :focus) {
+    z-index: 1;
+    transform: scale(calc(1 / var(--card-scale)));
+}

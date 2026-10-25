@@ -16,15 +16,6 @@
     border-bottom-color: var(--danger-mid);
 }
 
-button.menuButton {
-    padding: 0.25em 0.5em;
-}
-
-.menuButtonIcon {
-    width: 1.5em;
-    height: 1.5em;
-}
-
 .title {
     display: flex;
     gap: 0.75em;

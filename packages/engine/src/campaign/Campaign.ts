@@ -154,10 +154,7 @@ export class Campaign {
         });
     }
 
-    /**
-     * Helm plays the Warp Away card, leaving the completed encounter. It ends once every player ship has warped away or been destroyed.
-     * At a shop station, helm only gets the card once the shop has been closed (see `closeShop`).
-     */
+    /** Helm plays the Warp Away card, leaving the completed encounter. It ends once every player ship has warped away or been destroyed. */
     warpAway(ship: Ship): boolean {
         if (!this.isInEncounter || !this.state.encounter?.objectiveMet || !(ship instanceof PlayerShip) || !this.playerShipsInEncounter.has(ship)) {
             return false;
@@ -221,21 +218,6 @@ export class Campaign {
         }
 
         system.addDeckCard(system.takeShopCard(cardId)!);
-        return true;
-    }
-
-    /**
-     * A crew member closes their shop, at a shop station for their role. Its cards are kept: whether it's open is only known to their client,
-     * which can reopen it, so this can happen more than once per station.
-     * Each close offers that ship's helm the Warp Away card, which they only ever hold one of.
-     */
-    closeShop(ship: PlayerShip, system: CrewSystemState): boolean {
-        if (this.shopRole !== system.system) {
-            return false;
-        }
-
-        ship.isShopping = false;
-        this.offerWarpAway(ship);
         return true;
     }
 
@@ -354,10 +336,7 @@ export class Campaign {
         }
     }
 
-    /**
-     * Once the objective is met, every helm gets an expendable Warp Away card in its hand.
-     * Stations are complete on arrival, but at a shop station each ship's helm instead gets it once that ship's shop is closed (see `closeShop`).
-     */
+    /** Once the objective is met, every helm gets an expendable Warp Away card in its hand. Stations are complete on arrival. */
     private completeObjective(): void {
         if (!this.state.encounter || this.state.encounter.objectiveMet) {
             return;
@@ -366,11 +345,7 @@ export class Campaign {
         this.state.encounter.objectiveMet = true;
 
         for (const ship of this.playerShipsInEncounter) {
-            if (this.shopRole) {
-                ship.isShopping = true;
-            } else {
-                this.offerWarpAway(ship);
-            }
+            this.offerWarpAway(ship);
         }
     }
 

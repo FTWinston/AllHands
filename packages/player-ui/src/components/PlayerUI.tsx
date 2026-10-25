@@ -1,9 +1,8 @@
 import { type ConnectionState } from 'common-data/types/ConnectionState';
 import { Screen } from 'common-ui/components/Screen';
 import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
-import { sounds } from 'common-ui/features/sound/sounds';
 import { useWakeLock } from 'common-ui/hooks/useWakeLock';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { GameLobby } from '../features/lobby/GameLobby';
 import { useRoomConnection } from '../hooks/useRoomConnection';
 import { CrewUI } from './CrewUI';
@@ -15,7 +14,6 @@ export const PlayerUI = () => {
     const [room, crewId, shipId, role, serverState, timeProvider] = useRoomConnection(setConnectionState);
 
     useWakeLock();
-    useGameStartSound(serverState);
 
     if (connectionState === 'connected') {
         if (serverState === 'active') {
@@ -64,15 +62,3 @@ export const PlayerUI = () => {
     // Whether connectionState is "connecting" or one of the expected/required props is missing, show "connecting" screen.
     return <Screen centered>connecting...</Screen>;
 };
-
-/** Play a chord when the game goes from the lobby to actually playing. */
-function useGameStartSound(serverState: string | null | undefined) {
-    const previousState = useRef(serverState);
-
-    useEffect(() => {
-        if (previousState.current === 'setup' && serverState === 'active') {
-            sounds.gameStarted();
-        }
-        previousState.current = serverState;
-    }, [serverState]);
-}

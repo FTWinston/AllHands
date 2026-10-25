@@ -1,6 +1,8 @@
 import { CrewRole, ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { Screen } from 'common-ui/components/Screen';
+import crewStyles from 'common-ui/CrewColors.module.css';
+import { classNames } from 'common-ui/utils/classNames';
 import { FC, useMemo } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { DragCardProvider } from 'src/features/cardui/components/DragCardProvider';
@@ -42,9 +44,13 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
     // The card for this player's own role is in the slot, rather than their hand.
     const handCards = useMemo(() => lobbyCards.filter(card => card.id !== role), [role]);
 
+    // Once claimed, the screen takes on that system's colours.
+    const system = lobbyCards.find(card => card.id === role)?.system;
+
     return (
-        <Screen padded className={styles.screen}>
-            <DragCardProvider onCardDropped={cardId => onRoleChange(cardId as CrewRole)}>
+        <Screen padded className={classNames(styles.screen, system ? crewStyles[system] : null)}>
+            {/* Played cards are shown in the role slot. */}
+            <DragCardProvider onCardDropped={cardId => onRoleChange(cardId as CrewRole)} noDropEffect>
                 <CardDropTarget
                     id="noTarget"
                     targetType="no-target"

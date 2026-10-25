@@ -41,10 +41,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
     override readonly maxHandSize = 5;
 
-    /**
-     * Stocks this crew member's shop with the given cards, replacing any already on offer.
-     * Whether the shop is open is only known to their client, which can close and reopen it while at the station.
-     */
+    /** Stocks this crew member's shop with the given cards, replacing any already on offer. */
     stockShop(cards: readonly CardState[]) {
         this.shopCards.clear();
         this.shopCards.push(...cards);

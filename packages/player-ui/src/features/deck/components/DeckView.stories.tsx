@@ -23,7 +23,7 @@ const meta: Meta<typeof Component> = {
         crew: 'tactical',
         isOpen: true,
         atStation: false,
-        antimatter: 20,
+        antimatter: null,
         cards: createDeck(tacticalCards),
         setOpen: fn(),
         moveCard: fn(),
@@ -59,7 +59,7 @@ const meta: Meta<typeof Component> = {
                     }}
                     sellCard={(cardId) => {
                         setCards(cards => cards.filter(card => card.id !== cardId));
-                        setAntimatter(antimatter => antimatter + cardSellPrice);
+                        setAntimatter(antimatter => antimatter === null ? null : antimatter + cardSellPrice);
                         args.sellCard(cardId);
                     }}
                 />
@@ -82,6 +82,7 @@ export const Browsing: Story = {
     },
 };
 
+/** Antimatter isn't shown to crew without a shop at this station. Selling a card asks for confirmation first. */
 export const AtStation: Story = {
     args: {
         atStation: true,
@@ -90,8 +91,31 @@ export const AtStation: Story = {
         const page = within(canvasElement.ownerDocument.body);
         const sellButtons = await page.findAllByRole('button', { name: /Sell/ });
         await expect(sellButtons).toHaveLength(12);
+        await expect(page.queryByLabelText(/Antimatter:/)).not.toBeInTheDocument();
 
         await userEvent.click(sellButtons[0]);
+        await expect(await page.findByText(/Sell .* for 10 antimatter\?/)).toBeInTheDocument();
+        await userEvent.click(page.getByRole('button', { name: 'Cancel' }));
+        await expect(args.sellCard).not.toHaveBeenCalled();
+
+        await userEvent.click(sellButtons[1]);
+        await userEvent.click(await page.findByRole('button', { name: 'OK' }));
+        await expect(args.sellCard).toHaveBeenCalledWith(2);
+    },
+};
+
+/** The crew member with a shop at this station sees the ship's antimatter here, as the view covers their header. */
+export const AtStationWithShop: Story = {
+    args: {
+        atStation: true,
+        antimatter: 20,
+    },
+    play: async ({ canvasElement, args }) => {
+        const page = within(canvasElement.ownerDocument.body);
+        await expect(await page.findByLabelText('Antimatter: 20')).toBeInTheDocument();
+
+        await userEvent.click((await page.findAllByRole('button', { name: /Sell/ }))[0]);
+        await userEvent.click(await page.findByRole('button', { name: 'OK' }));
         await expect(args.sellCard).toHaveBeenCalledWith(1);
         await expect(await page.findByLabelText(`Antimatter: ${20 + cardSellPrice}`)).toBeInTheDocument();
     },
