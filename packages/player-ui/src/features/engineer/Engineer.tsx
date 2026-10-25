@@ -6,9 +6,11 @@ import { useCallback } from 'react';
 import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
+import { useShop } from '../shop/hooks/useShop';
 import { EngineerDisplay } from './components/EngineerDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
+import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = {
@@ -21,7 +23,9 @@ export const Engineer = (props: Props) => {
     const localShip = objects?.[props.shipId] as unknown as Snapshot<PlayerShipInfo>;
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
+    const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
     const deckView = useDeckView(props.room, 'engineer', localShip?.engineerState, localShip?.antimatter ?? 0);
+    const shop = useShop(props.room, 'engineer', localShip?.engineerState, localShip?.antimatter ?? 0);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -50,12 +54,13 @@ export const Engineer = (props: Props) => {
 
     const engineerState = localShip.engineerState;
 
-    if (isOutsideEncounter(phase)) {
+    if (isOutsideEncounter(phase, encounterKind)) {
         return (
             <NonEncounterDisplay
                 crew="engineer"
+                shop={shop}
                 onPause={pause}
-                power={engineerState.powerLevel}
+                power={phase === 'encounter' ? undefined : engineerState.powerLevel}
                 deckSize={engineerState.deck.length}
                 deckView={deckView}
                 cardGeneration={engineerState.cardGeneration}

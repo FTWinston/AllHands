@@ -1,4 +1,6 @@
 import { Screen } from 'common-ui/components/Screen';
+import { getStationDepartureLabel } from 'common-ui/features/sectors/utils/stationDepartureLabels';
+import { expect, within } from 'storybook/test';
 import { StationBanner as Component } from './StationBanner';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -38,4 +40,15 @@ export const SalvageYard: Story = {
 
 export const ResearchOutpost: Story = {
     args: { kind: 'researchOutpost', name: 'Research Outpost 1-1' },
+};
+
+export const Shopping: Story = {
+    args: { kind: 'armsDealer', name: 'Arms Dealer 1-1', departure: getStationDepartureLabel('tactical', true) },
+    play: async ({ canvasElement }) => {
+        await expect(within(canvasElement).getByText('Tactical is shopping')).toBeInTheDocument();
+    },
+};
+
+export const ReadyToDepart: Story = {
+    args: { kind: 'repair', name: 'Repair Station 1-1', departure: getStationDepartureLabel(null, false) },
 };

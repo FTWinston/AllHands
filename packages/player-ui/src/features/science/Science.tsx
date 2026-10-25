@@ -7,10 +7,12 @@ import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
 import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
+import { useShop } from '../shop/hooks/useShop';
 import { LongRangeSensorList } from './components/LongRangeSensorList';
 import { ScienceDisplay } from './components/ScienceDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
+import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = {
@@ -25,7 +27,9 @@ export const Science = (props: Props) => {
     const targets = useStableOrderedTargets(objects, localShip);
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
+    const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
     const deckView = useDeckView(props.room, 'science', localShip?.scienceState, localShip?.antimatter ?? 0);
+    const shop = useShop(props.room, 'science', localShip?.scienceState, localShip?.antimatter ?? 0);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -67,12 +71,13 @@ export const Science = (props: Props) => {
     const scienceState = localShip.scienceState;
 
     // Outside an encounter, long range sensors show what the next destinations hold, instead of the usual display.
-    if (isOutsideEncounter(phase)) {
+    if (isOutsideEncounter(phase, encounterKind)) {
         return (
             <NonEncounterDisplay
                 crew="science"
+                shop={shop}
                 onPause={pause}
-                power={scienceState.powerLevel}
+                power={phase === 'encounter' ? undefined : scienceState.powerLevel}
                 deckSize={scienceState.deck.length}
                 deckView={deckView}
                 cardGeneration={scienceState.cardGeneration}

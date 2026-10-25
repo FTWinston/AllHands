@@ -18,7 +18,8 @@ import { NumberIndicator } from './NumberIndicator';
 type Props = {
     crew: CrewRoleName;
     onPause: () => void;
-    power: number;
+    /** Omitted at a station, where no cards are played. Elsewhere, it shows e.g. reactor damage lowering a system's baseline power. */
+    power?: number;
     deckSize: number;
     cardGeneration?: Cooldown | null;
     /** Outside an encounter, the deck indicator becomes a button that opens this "my deck" view. During one, it is a discard target. */
@@ -47,20 +48,22 @@ export const CrewHeader: FC<Props> = (props) => {
             </div>
 
             <div className={styles.indicators}>
-                <NumberIndicator
-                    value={props.power}
-                    icon={PowerIcon}
-                    name="Power"
-                    description={(
-                        <>
-                            You can play cards whose cost is not higher than this value. Power
-                            {' '}
-                            <PowerIcon />
-                            {' '}
-                            is not consumed by playing cards, and is controlled by the Engineer.
-                        </>
-                    )}
-                />
+                {props.power !== undefined && (
+                    <NumberIndicator
+                        value={props.power}
+                        icon={PowerIcon}
+                        name="Power"
+                        description={(
+                            <>
+                                You can play cards whose cost is not higher than this value. Power
+                                {' '}
+                                <PowerIcon />
+                                {' '}
+                                is not consumed by playing cards, and is controlled by the Engineer.
+                            </>
+                        )}
+                    />
+                )}
 
                 {props.deckView
                     ? (
