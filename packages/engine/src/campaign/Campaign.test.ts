@@ -1,3 +1,4 @@
+import { antimatterRewards, getAntimatterReward } from 'common-data/features/ships/utils/antimatter';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
@@ -370,5 +371,71 @@ describe('Campaign scene changes', () => {
 
         expect(state.sceneChange).toBeNull();
         expect(state.phase).toBe('map');
+    });
+});
+
+describe('Campaign antimatter rewards', () => {
+    it('starts every player ship with no antimatter', () => {
+        const { ships } = createCampaign(2);
+
+        expect(ships.map(ship => ship.antimatter)).toEqual([0, 0]);
+    });
+
+    it.each([
+        ['skirmish', antimatterRewards.combat],
+        ['survive', antimatterRewards.combat],
+        ['bossA', antimatterRewards.boss],
+        ['repairStation', 0],
+    ])('awards each ship the right amount for completing %s, once', (encounterId, reward) => {
+        const { state, campaign, ships } = createCampaign(2);
+        campaign.dismissMessage();
+        expect(campaign.devLoadEncounter(encounterId)).toBe(true);
+
+        expect(ships.map(ship => ship.antimatter)).toEqual([0, 0]);
+        completeEncounter(state);
+        expect(ships.map(ship => ship.antimatter)).toEqual([reward, reward]);
+
+        // Nothing more on leaving.
+        for (const ship of ships) {
+            campaign.warpAway(ship);
+        }
+
+        expect(ships.map(ship => ship.antimatter)).toEqual([reward, reward]);
+    });
+
+    it('awards more for elite encounters, accumulating across a sector', () => {
+        const { state, campaign, ships: [ship] } = createCampaign();
+        campaign.dismissMessage();
+        let expected = 0;
+        let elitesVisited = 0;
+
+        while (state.phase === 'map') {
+            // Prefer an elite route where one is offered, so the elite reward is covered.
+            const nodeId = state.map!.availableNodeIds.find(id => state.map!.getNode(id)!.elite === true) ?? state.map!.availableNodeIds[0];
+            const node = state.map!.getNode(nodeId)!;
+            campaign.selectRoute(ship, nodeId);
+            expect(state.encounterKind).toBe(node.kind);
+
+            completeEncounter(state);
+            expected += getAntimatterReward(node);
+            elitesVisited += node.elite ? 1 : 0;
+            expect(ship.antimatter).toBe(expected);
+
+            campaign.warpAway(ship);
+            expect(state.encounterKind).toBeNull();
+        }
+
+        expect(elitesVisited).toBeGreaterThan(0);
+        expect(expected).toBeGreaterThan(antimatterRewards.boss);
+    });
+});
+
+describe('getAntimatterReward', () => {
+    it('awards 10 for combat, 30 for elite combat, 50 for bosses, and nothing for repair stations', () => {
+        expect(getAntimatterReward({ kind: 'combat' })).toBe(10);
+        expect(getAntimatterReward({ kind: 'combat', elite: false })).toBe(10);
+        expect(getAntimatterReward({ kind: 'combat', elite: true })).toBe(30);
+        expect(getAntimatterReward({ kind: 'boss' })).toBe(50);
+        expect(getAntimatterReward({ kind: 'repair' })).toBe(0);
     });
 });

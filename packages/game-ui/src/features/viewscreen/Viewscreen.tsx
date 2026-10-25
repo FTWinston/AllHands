@@ -1,5 +1,5 @@
 import { useRoomState } from '@colyseus/react';
-import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { FactionRelationshipMap, GameObjectInfo, PlayerShipInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { ScreenFade } from 'common-ui/components/ScreenFade';
@@ -8,6 +8,7 @@ import { useBridgeChatter } from 'common-ui/features/sound/useBridgeChatter';
 import { useWakeLock } from 'common-ui/hooks/useWakeLock';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { FC, PropsWithChildren, useEffect, useRef } from 'react';
+import { AntimatterDisplay } from './components/AntimatterDisplay';
 import { LowHullWarning } from './components/LowHullWarning';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import { ViewscreenPhaseDisplay } from './components/ViewscreenPhaseDisplay';
@@ -16,6 +17,7 @@ import type { Room } from '@colyseus/sdk';
 import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { SectorMapInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMessageInfo';
+import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = PropsWithChildren<{
@@ -63,7 +65,10 @@ const ViewscreenScene: FC<Props> = (props) => {
     useBridgeChatter(!isEnded && phase !== null);
     useWakeLock();
 
+    const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
+
     const hull = (localShip as ShipInfo | undefined)?.hullState;
+    const antimatter = (localShip as PlayerShipInfo | undefined)?.antimatter;
 
     if (isEnded || phase !== 'encounter') {
         return (
@@ -73,6 +78,7 @@ const ViewscreenScene: FC<Props> = (props) => {
                 outcome={outcome}
                 map={map}
                 message={message}
+                antimatter={antimatter}
                 showMenu={props.showMenu}
             >
                 {props.children}
@@ -98,6 +104,7 @@ const ViewscreenScene: FC<Props> = (props) => {
         >
             {props.children}
             {hull && <LowHullWarning health={hull.health} maxHealth={hull.maxHealth} />}
+            {encounterKind === 'repair' && antimatter !== undefined && <AntimatterDisplay antimatter={antimatter} />}
         </ViewscreenDisplay>
     );
 };

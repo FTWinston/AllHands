@@ -179,6 +179,11 @@ export interface ShipInfo extends GameObjectInfo {
     engineerState: EngineerSystemInfo;
 }
 
+export interface PlayerShipInfo extends ShipInfo {
+    /** The ship's currency, earned by completing encounters (see `antimatterRewards`). Only synced to the ship's own crew and game client. */
+    antimatter: number;
+}
+
 export interface SystemSetupInfo {
     cards: CardType[];
     initialHandSize: number;

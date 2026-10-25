@@ -16,6 +16,7 @@ import { SectorMessageState } from './SectorMessageState';
 import type { Campaign } from '../campaign/Campaign';
 import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { SceneChange } from 'common-data/features/sectors/types/SceneChange';
+import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 
 export class GameState extends Schema {
     @type('string') gameStatus: GameStatus = 'setup';
@@ -32,6 +33,8 @@ export class GameState extends Schema {
     @type('string') sceneChange: SceneChange | null = null;
     /** Server-only. How long screens get to fade to black before the scene changes. Zero changes it straight away, e.g. in tests. */
     sceneChangeDelay = 1100;
+    /** The kind of node whose encounter is running, e.g. so the viewscreen can tell a repair station apart; null outside the encounter phase. */
+    @type('string') encounterKind: SectorNodeKind | null = null;
     /** Server-only. Summary of the running encounter; null outside the encounter phase. */
     encounter: EncounterSummaryState | null = null;
     @view() @type({ map: GameObject }) objects = new MapSchema<GameObject>();

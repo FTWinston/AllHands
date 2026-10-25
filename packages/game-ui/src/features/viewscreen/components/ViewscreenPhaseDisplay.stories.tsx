@@ -48,3 +48,24 @@ export const Victory: Story = {
 export const Defeat: Story = {
     args: { phase: 'encounter', isEnded: true, outcome: 'defeat', message: { kind: 'defeat', title: 'Placeholder Sector 1', text: 'Placeholder defeat message for sector 1.' } },
 };
+
+export const SectorMapWithAntimatter: Story = {
+    args: {
+        phase: 'map',
+        antimatter: 40,
+        map: {
+            sectorName: 'The Frontier',
+            sectorIndex: 0,
+            sectorCount: 3,
+            nodes: [
+                { id: 'start', kind: 'repair', name: 'Waypoint Station', x: 0, y: 0.5, elite: false, next: ['a', 'b'] },
+                { id: 'a', kind: 'combat', name: 'Skirmish', x: 0.5, y: 0, elite: false, next: ['boss'] },
+                { id: 'b', kind: 'combat', name: 'Ambush', x: 0.5, y: 1, elite: true, next: ['boss'] },
+                { id: 'boss', kind: 'boss', name: 'Placeholder Boss A', x: 1, y: 0.5, elite: false, next: [] },
+            ],
+            currentNodeId: 'start',
+            visitedNodeIds: ['start'],
+            availableNodeIds: ['a', 'b'],
+        },
+    },
+};

@@ -1,3 +1,4 @@
+import { getAntimatterReward } from 'common-data/features/ships/utils/antimatter';
 import { getPlayerShips } from 'src/utils/shipQueries';
 import { createEncounter, getDefaultNode, hasEncounter } from '../encounters/EncounterRegistry';
 import { CardState } from '../state/CardState';
@@ -198,6 +199,7 @@ export class Campaign {
     private finish(outcome: GameOutcome): void {
         this.encounter = null;
         this.state.encounter = null;
+        this.state.encounterKind = null;
         this.state.message = outcome === 'defeat' && this.sector
             ? new SectorMessageState({ kind: 'defeat', title: this.sector.name, text: this.sector.defeatMessage })
             : null;
@@ -245,15 +247,28 @@ export class Campaign {
         summary.factionId = encounterNode.factionId;
         summary.objective = encounterNode.objective ? encounterNode.objective : undefined;
         this.state.encounter = summary;
+        this.state.encounterKind = encounterNode.kind;
 
         // Subscribe before starting, as an encounter may complete immediately.
-        this.encounter.onComplete.addListener('campaign', () => this.offerWarpAway());
+        this.encounter.onComplete.addListener('campaign', () => {
+            this.awardAntimatter();
+            this.offerWarpAway();
+        });
         if (this.state.devAutoWin) {
             this.encounter.startComplete();
         } else {
             this.encounter.start();
         }
         summary.objectiveEndTime = this.encounter.objectiveEndTime;
+    }
+
+    /** Each player ship still in the completed encounter earns antimatter, according to the kind of node it was (see `antimatterRewards`). */
+    private awardAntimatter(): void {
+        const reward = this.encounter ? getAntimatterReward(this.encounter.node) : 0;
+
+        for (const ship of this.playerShipsInEncounter) {
+            ship.addAntimatter(reward);
+        }
     }
 
     /** Once the objective is met, every helm gets an expendable Warp Away card in its hand. */
@@ -275,6 +290,7 @@ export class Campaign {
         this.playerShipsInEncounter.clear();
         this.encounter = null;
         this.state.encounter = null;
+        this.state.encounterKind = null;
 
         this.tearingDown = true;
         try {
