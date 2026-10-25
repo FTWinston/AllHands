@@ -565,6 +565,19 @@ describe('Campaign shop stations', () => {
         }
     });
 
+    it('still stocks the shop and repairs the ship when dev auto win is on', () => {
+        const { state, campaign, ships: [ship] } = createCampaign();
+        state.devAutoWin = true;
+        campaign.dismissMessage();
+        ship.hullState.adjustHealth(-2);
+
+        expect(campaign.devLoadEncounter('armsDealer')).toBe(true);
+
+        expect(ship.tacticalState.shopCards.length).toBe(shopCardCount);
+        expect(ship.hullState.health).toBe(ship.hullState.maxHealth);
+        expect(state.encounter!.objectiveMet).toBe(true);
+    });
+
     it('stocks no shop at a repair station', () => {
         const created = createCampaign();
         created.campaign.dismissMessage();
