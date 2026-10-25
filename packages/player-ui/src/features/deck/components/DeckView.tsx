@@ -25,8 +25,6 @@ export const DeckView: FC<Props> = props => (
         )}
         bodyClassName={styles.body}
     >
-        {props.notice && <p className={styles.notice} role="status">{props.notice}</p>}
-
         <DeckPanel
             cards={props.cards}
             atStation={props.atStation}

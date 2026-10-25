@@ -4,7 +4,7 @@ import { FactionRelationshipMap, GameObjectInfo, PlayerShipInfo, RelationshipVie
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { ScreenFade } from 'common-ui/components/ScreenFade';
-import { getStationDepartureNote } from 'common-ui/features/sectors/utils/stationDepartureLabels';
+import { getStationDepartureLabel } from 'common-ui/features/sectors/utils/stationDepartureLabels';
 import { sounds } from 'common-ui/features/sound/sounds';
 import { useBridgeChatter } from 'common-ui/features/sound/useBridgeChatter';
 import { useWakeLock } from 'common-ui/hooks/useWakeLock';
@@ -70,10 +70,11 @@ const ViewscreenScene: FC<Props> = (props) => {
 
     const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
     const encounterName = useRoomState(props.room, state => state.encounter?.name);
+    const objectiveMet = useRoomState(props.room, state => state.encounter?.objectiveMet) ?? false;
 
     const hull = (localShip as ShipInfo | undefined)?.hullState;
     const antimatter = (localShip as PlayerShipInfo | undefined)?.antimatter;
-    const departure = getStationDepartureNote((localShip as PlayerShipInfo | undefined)?.stationDeparture, getShopRole(encounterKind), null);
+    const departure = getStationDepartureLabel(getShopRole(encounterKind), objectiveMet);
 
     if (isEnded || phase !== 'encounter') {
         return (

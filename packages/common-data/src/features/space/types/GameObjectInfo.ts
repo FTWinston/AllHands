@@ -3,7 +3,6 @@ import { CardInstance } from 'src/features/cards/types/CardInstance';
 import { NonEncounterCardInfo } from 'src/features/cards/types/NonEncounterCardInfo';
 import { CardType, EnemyTargetedCardType, UntargetedCardType } from 'src/features/cards/utils/cardDefinitions';
 import { SectorDestinationInfo } from 'src/features/sectors/types/SectorDestinationInfo';
-import { StationDepartureStatus } from 'src/features/sectors/types/StationDepartureStatus';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'src/features/ships/types/SystemEffectDefinition';
 import { CardCooldown, Cooldown } from 'src/types/Cooldown';
@@ -188,11 +187,6 @@ export interface ShipInfo extends GameObjectInfo {
 export interface PlayerShipInfo extends ShipInfo {
     /** The ship's currency, earned by completing encounters (see `antimatterRewards`). Only synced to the ship's own crew and game client. */
     antimatter: number;
-    /**
-     * At a station, what the crew must still do before helm can warp away. Null away from a station.
-     * Synced to all of the ship's crew and its game client, as they can't all see helm's hand.
-     */
-    stationDeparture: StationDepartureStatus | null;
 }
 
 export interface SystemSetupInfo {

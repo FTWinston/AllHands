@@ -24,7 +24,7 @@ export const Helm = (props: Props) => {
     const weaponEffectsRef = useWeaponEffects(props.room);
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
-    const deckView = useDeckView(props.room, 'helm', localShip);
+    const deckView = useDeckView(props.room, 'helm', localShip?.helmState, localShip?.antimatter ?? 0);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -97,7 +97,6 @@ export const Helm = (props: Props) => {
             weaponEffectsRef={weaponEffectsRef}
             pendingDrawChoice={helmState.pendingDrawChoice}
             resolveDrawChoice={resolveDrawChoice}
-            notice={deckView?.notice}
         />
     );
 };

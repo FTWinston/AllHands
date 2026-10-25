@@ -1,7 +1,6 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { cardSellPrice, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
-import { getStationDepartureNote } from 'common-ui/features/sectors/utils/stationDepartureLabels';
 import { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { ShopPanel } from '../../shop/components/ShopPanel';
@@ -133,7 +132,6 @@ export const AtShopStation: Story = {
         crew: 'helm',
         antimatter: 40,
         cards: createDeck(['slowAndSteady', 'zigZag', 'strafe', 'faceTarget', 'exampleNoTarget', 'sweep', 'sweep', 'slowAndSteady', 'zigZag', 'slowAndSteady', 'strafe']),
-        notice: getStationDepartureNote('shopping', 'helm', 'helm'),
         aside: (
             <ShopPanel
                 title="Navigation beacon"
@@ -151,35 +149,5 @@ export const AtShopStation: Story = {
         const page = within(canvasElement.ownerDocument.body);
         await expect(await page.findByRole('region', { name: 'Shop' })).toBeInTheDocument();
         await expect(page.getAllByRole('button', { name: /Buy/ })).toHaveLength(3);
-        await expect(page.getByText(/to get the Warp Away card/)).toBeInTheDocument();
-    },
-};
-
-export const AtShopStationWaitingForShopper: Story = {
-    args: {
-        atStation: true,
-        crew: 'helm',
-        cards: createDeck(['slowAndSteady', 'zigZag', 'strafe', 'faceTarget', 'exampleNoTarget', 'sweep', 'sweep', 'slowAndSteady', 'zigZag', 'slowAndSteady', 'strafe']),
-        notice: getStationDepartureNote('shopping', 'tactical', 'helm'),
-    },
-    play: async ({ canvasElement }) => {
-        const page = within(canvasElement.ownerDocument.body);
-        await expect(await page.findByText('Waiting for Tactical to finish shopping, before you can warp away.')).toBeInTheDocument();
-    },
-};
-
-export const AtStationReadyToLeave: Story = {
-    args: {
-        atStation: true,
-        crew: 'helm',
-        cards: createDeck(['slowAndSteady', 'zigZag', 'strafe', 'faceTarget', 'exampleNoTarget', 'sweep', 'sweep', 'slowAndSteady', 'zigZag', 'slowAndSteady', 'strafe']),
-        notice: getStationDepartureNote('ready', null, 'helm'),
-    },
-    play: async ({ canvasElement, args }) => {
-        const page = within(canvasElement.ownerDocument.body);
-        await expect(await page.findByText('Play Warp Away to leave the station.')).toBeInTheDocument();
-
-        await userEvent.click(page.getByRole('button', { name: 'Close' }));
-        await expect(args.setOpen).toHaveBeenCalledWith(false);
     },
 };

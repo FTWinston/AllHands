@@ -31,15 +31,3 @@
     align-items: flex-start;
     gap: 2em;
 }
-
-/* A full-width row above the deck. */
-.notice {
-    flex-basis: 100%;
-    margin: 0;
-    padding: 0.5em 1em;
-    background-color: var(--primary-dark);
-    border: solid var(--primary-mid) 1px;
-    border-radius: 0.25em;
-    color: var(--primary-lightest);
-    text-align: center;
-}

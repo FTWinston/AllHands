@@ -25,7 +25,7 @@ export const Tactical = (props: Props) => {
     const localShip = objects?.[props.shipId] as unknown as Snapshot<PlayerShipInfo>;
     const targets = useStableOrderedTargets(objects, localShip);
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
-    const deckView = useDeckView(props.room, 'tactical', localShip);
+    const deckView = useDeckView(props.room, 'tactical', localShip?.tacticalState, localShip?.antimatter ?? 0);
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
 
     const dismissMessage = useCallback(() => {

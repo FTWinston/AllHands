@@ -50,11 +50,12 @@ describe('devLoadEncounter', () => {
         const hostiles = getHostileShips(state);
         if (Object.values(stationEncounterIds).includes(encounterId)) {
             expect(hostiles).toHaveLength(0);
-            expect(state.encounter!.objectiveMet).toBe(true);
 
-            // At a shop station, helm only gets the Warp Away card once the shop is closed.
+            // A shop station only completes, giving helm the Warp Away card, once the shop is closed.
+            expect(state.encounter!.objectiveMet).toBe(encounterId === 'repairStation');
             expect(hasWarpCard(ships[0])).toBe(encounterId === 'repairStation');
             closeShops(campaign, ships[0]);
+            expect(state.encounter!.objectiveMet).toBe(true);
             expect(hasWarpCard(ships[0])).toBe(true);
         } else {
             expect(hostiles.length).toBeGreaterThan(0);

@@ -1,5 +1,4 @@
 import { entity, type, view } from '@colyseus/schema';
-import { StationDepartureStatus } from 'common-data/features/sectors/types/StationDepartureStatus';
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownShipClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { PlayerShipInfo, PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
@@ -27,10 +26,6 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
     @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
     @type('number') antimatter = 0;
 
-    /** At a station, what the crew must still do before helm can warp away. Kept up to date by the campaign; cleared on leaving. */
-    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
-    @type('string') stationDeparture: StationDepartureStatus | null = null;
-
     addAntimatter(amount: number) {
         if (amount > 0) {
             this.antimatter += amount;
@@ -45,11 +40,6 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
 
         this.antimatter -= amount;
         return true;
-    }
-
-    override cleanupAfterEncounter() {
-        this.stationDeparture = null;
-        super.cleanupAfterEncounter();
     }
 
     protected addKnownObject(objectId: string, object: GameObject) {

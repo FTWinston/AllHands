@@ -6,11 +6,11 @@ import type { StationKind } from 'common-data/features/sectors/types/SectorNodeI
 type Props = {
     kind: StationKind;
     name: string;
-    /** Who the crew are waiting on before they can leave (see `getStationDepartureNote`). */
+    /** Whether the crew can leave yet, e.g. "Tactical is shopping" (see `getStationDepartureLabel`). */
     departure?: string | null;
 };
 
-/** Which station the ship is docked at, what kind it is, what (if anything) it sells, and what's holding up departure. Shown at the top of the viewscreen. */
+/** Which station the ship is docked at, what kind it is, what (if anything) it sells, and whether the crew can leave yet. Shown at the top of the viewscreen. */
 export const StationBanner: FC<Props> = ({ kind, name, departure }) => {
     const shop = getShopLabel(kind);
 
