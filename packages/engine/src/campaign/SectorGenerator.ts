@@ -1,9 +1,9 @@
-import { stationKinds } from 'common-data/features/sectors/utils/isStationKind';
+import { shopStationKinds, stationKinds } from 'common-data/features/sectors/utils/isStationKind';
 import { getEncounterDefinition, stationEncounterIds } from '../encounters/EncounterRegistry';
 import type { SectorTheme } from './sectorThemes';
 import type { ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
-import type { EncounterId, SectorNodeInfo, StationKind } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { EncounterId, SectorNodeInfo, ShopStationKind, StationKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { IRandom } from 'common-data/types/IRandom';
 
 /** A node's place in the graph, before what it holds is decided. */
@@ -13,7 +13,22 @@ interface NodeSlot {
     next: string[];
 }
 
-type NodeRole = 'start' | 'combat' | 'elite' | 'repair' | 'boss';
+/** Each kind of station is a role of its own: the map shows which kind it is, so routes past different kinds offer different things. */
+type NodeRole = 'start' | 'combat' | 'elite' | 'boss' | StationKind;
+
+/** What a regular encounter can be changed into: an elite, or a mid-sector shop station. */
+type OptionalRole = 'elite' | ShopStationKind;
+
+const stationRoles: ReadonlySet<NodeRole | undefined> = new Set(stationKinds);
+const shopRoles: ReadonlySet<NodeRole | undefined> = new Set(shopStationKinds);
+
+function isStationRole(role: NodeRole | undefined): role is StationKind {
+    return stationRoles.has(role);
+}
+
+function isShopRole(role: NodeRole | undefined): role is ShopStationKind {
+    return shopRoles.has(role);
+}
 
 /** Layers 0..9; every path visits one node per layer, from the start repair station in layer 0 to the boss in layer 9. */
 export const sectorLayerCount = 10;
@@ -21,15 +36,22 @@ const startLayer = 0;
 const preBossRepairLayer = sectorLayerCount - 2;
 const bossLayer = sectorLayerCount - 1;
 
-/** Mid-sector repair stations go somewhere in these layers, and routes can bypass them. More may be added to make choices meaningful. */
-export const midRepairLayers = { first: 3, last: 5 } as const;
-const initialMidRepairCount = 2;
-export const maxMidRepairCount = 3;
-
 interface Range {
     min: number;
     max: number;
 }
+
+/**
+ * Mid-sector stations are all shops (every station repairs), in these layers, so none is next to the start or pre-boss repair stations.
+ * No two stations are ever back to back, so no route can visit more than three. They're placed on parallel branches until, where possible,
+ * every route visits `minShopStationsPerRoute`, so there are many more on the map than on any one route: the choice is which to visit.
+ * More may be added to make choices meaningful.
+ */
+export const midStationLayers = { first: startLayer + 2, last: preBossRepairLayer - 2 } as const;
+export const minShopStationsPerRoute = 2;
+/** Once every route has its share, this many more are placed, so some routes visit a third. */
+const extraShopStationCount: Range = { min: 0, max: 2 };
+export const maxMidStationCount = 10;
 
 interface EliteLimits {
     /** How many elites are placed at first. */
@@ -86,14 +108,16 @@ const misalignmentCost = 10_000;
 const offCentreCost = 1_000;
 /** How many graphs `generateSector` makes, keeping the one that offers the most real choices. */
 const graphAttempts = 10;
+/** How much a graph's score drops if every route has too few shop stations: as much as this many choices of route are worth. */
+const fewShopsPenalty = 10;
 
 /** Up to this much random cost is added to each possible arrangement of a layer, to vary between equally good layouts. */
 const arrangementJitter = 0.5;
 
 /**
  * Builds a layered, branching DAG with no crossing links: every node leads onward, every node can be reached from the start repair station,
- * and every path ends with a repair station then the single boss node. Optional repair stations and elite encounters are scattered in between,
- * and every choice of route offers something the others don't.
+ * and every path ends with a repair station then the single boss node. Shop stations sit on parallel branches in between, so most routes visit two or three
+ * but the map offers more to choose from, with elite encounters scattered among them. Every choice of route offers something the others don't.
  */
 export function generateSector(random: IRandom, theme: SectorTheme, sectorIndex: number): SectorInfo {
     // Removing meaningless choices can leave few real ones, so make several graphs and keep the one with the most.
@@ -130,7 +154,7 @@ interface SectorGraph {
     roles: Map<string, NodeRole>;
 }
 
-/** Links up layers of nodes, places the repair stations and elites, then makes sure every choice of route makes a difference. */
+/** Links up layers of nodes, places the stations and elites, then makes sure every choice of route makes a difference. */
 function generateGraph(random: IRandom, theme: SectorTheme, eliteLimits: EliteLimits): SectorGraph {
     const maxElites = pickInRange(random, eliteLimits.max);
 
@@ -146,11 +170,37 @@ function generateGraph(random: IRandom, theme: SectorTheme, eliteLimits: EliteLi
     return { layers: resolveMeaninglessChoices(random, layers, roles, maxElites), roles };
 }
 
-/** How many nodes offer a choice of route, with a choice right from the start counting for more than any number later. */
-function scoreChoices({ layers }: SectorGraph): number {
+/**
+ * How many nodes offer a choice of route, with a choice right from the start counting for more than any number later,
+ * less a penalty for the share of routes that visit fewer than `minShopStationsPerRoute` shop stations.
+ */
+function scoreChoices({ layers, roles }: SectorGraph): number {
     const choiceCount = layers.flat().filter(slot => slot.next.length > 1).length;
     const startHasChoice = layers[startLayer][0].next.length > 1;
-    return choiceCount + (startHasChoice ? sectorLayerCount * maxLayerSize : 0);
+    return choiceCount + (startHasChoice ? sectorLayerCount * maxLayerSize : 0) - fewShopsPenalty * getShareOfRoutesWithFewShops(layers, roles);
+}
+
+/** The share of routes from the start to the boss that visit fewer than `minShopStationsPerRoute` shop stations. */
+function getShareOfRoutesWithFewShops(layers: NodeSlot[][], roles: Map<string, NodeRole>): number {
+    // For each node, how many routes from it to the boss pass each number of shop stations, from none up to the minimum (or more).
+    const routeCounts = new Map<string, number[]>();
+    for (const slot of layers.flat().reverse()) {
+        const counts = new Array<number>(minShopStationsPerRoute + 1).fill(0);
+        const shift = isShopRole(roles.get(slot.id)) ? 1 : 0;
+        if (slot.next.length === 0) {
+            counts[shift] = 1;
+        }
+
+        for (const next of slot.next) {
+            routeCounts.get(next)!.forEach((count, shops) => counts[Math.min(shops + shift, minShopStationsPerRoute)] += count);
+        }
+
+        routeCounts.set(slot.id, counts);
+    }
+
+    const counts = routeCounts.get(layers[startLayer][0].id)!;
+    const total = counts.reduce((sum, count) => sum + count, 0);
+    return (total - counts[minShopStationsPerRoute]) / total;
 }
 
 function getLayerSize(random: IRandom, layer: number): number {
@@ -163,84 +213,166 @@ function getLayerSize(random: IRandom, layer: number): number {
     return 2 + random.getInt(maxSize - 1);
 }
 
-/** Fixes the start, pre-boss repair and boss nodes, then scatters mid-sector repair stations and elite encounters among the rest. */
+/** Fixes the start, pre-boss repair and boss nodes, then places mid-sector shop stations and scatters elite encounters among the rest. */
 function assignRoles(random: IRandom, layers: NodeSlot[][], eliteCount: number): Map<string, NodeRole> {
     const roles = new Map<string, NodeRole>(layers.flat().map(slot => [slot.id, 'combat']));
     roles.set(layers[startLayer][0].id, 'start');
     roles.set(layers[preBossRepairLayer][0].id, 'repair');
     roles.set(layers[bossLayer][0].id, 'boss');
 
-    const place = (role: 'repair' | 'elite', count: number) => {
-        const pool = layers.flat();
-        for (let placed = 0; placed < count && pool.length > 0;) {
-            const slot = random.delete(pool);
-            if (canTakeRole(layers, roles, slot, role, eliteCount)) {
-                roles.set(slot.id, role);
-                placed++;
-            }
-        }
-    };
+    placeShopStations(random, layers, roles);
 
-    place('repair', initialMidRepairCount);
-    place('elite', eliteCount);
+    const pool = layers.flat();
+    for (let placed = 0; placed < eliteCount && pool.length > 0;) {
+        const slot = random.delete(pool);
+        if (canTakeRole(layers, roles, slot, 'elite', eliteCount)) {
+            roles.set(slot.id, 'elite');
+            placed++;
+        }
+    }
 
     return roles;
 }
 
 /**
- * Whether a regular encounter could become a repair station or elite. Each must be in the layers allowed for it, within its limit,
- * and not linked to another of its kind, so no two can be visited back to back. Repair stations must also leave some route that avoids them all.
+ * Puts shop stations on whichever routes visit fewest, until every route visits `minShopStationsPerRoute` or no more can be placed on those
+ * that don't, then adds a few more anywhere they fit. Filling in the routes that have fewest spreads stations across parallel branches,
+ * rather than piling them onto routes that already have some.
  */
-function canTakeRole(layers: NodeSlot[][], roles: Map<string, NodeRole>, slot: NodeSlot, role: 'repair' | 'elite', maxElites: number): boolean {
+function placeShopStations(random: IRandom, layers: NodeSlot[][], roles: Map<string, NodeRole>) {
+    const placeOne = (canPlace: (fewest: number) => boolean) => {
+        const fewestByNode = getFewestShopStations(layers, roles);
+        const candidates = layers.flat()
+            .filter(slot => canPlace(fewestByNode.get(slot.id)!) && canTakeRole(layers, roles, slot, 'station', 0));
+        if (candidates.length === 0) {
+            return false;
+        }
+
+        const fewest = Math.min(...candidates.map(slot => fewestByNode.get(slot.id)!));
+        const slot = random.pick(candidates.filter(candidate => fewestByNode.get(candidate.id) === fewest));
+        roles.set(slot.id, pickShopStationKind(random, layers, roles, slot));
+        return true;
+    };
+
+    while (placeOne(fewest => fewest < minShopStationsPerRoute)) {
+        // Keep going until every route has enough, or no more fit.
+    }
+
+    for (let extra = pickInRange(random, extraShopStationCount); extra > 0; extra--) {
+        if (!placeOne(() => true)) {
+            break;
+        }
+    }
+}
+
+/** For each node, the fewest shop stations visited by any route through it. */
+function getFewestShopStations(layers: NodeSlot[][], roles: Map<string, NodeRole>): Map<string, number> {
+    const shopCount = (slot: NodeSlot) => (isShopRole(roles.get(slot.id)) ? 1 : 0);
+
+    // The fewest on the way to each node, including it.
+    const before = new Map<string, number>([[layers[startLayer][0].id, 0]]);
+    for (const slot of layers.flat()) {
+        const count = before.get(slot.id)! + shopCount(slot);
+        before.set(slot.id, count);
+        for (const id of slot.next) {
+            before.set(id, Math.min(before.get(id) ?? Infinity, count));
+        }
+    }
+
+    // The fewest from each node on to the boss, including it.
+    const after = new Map<string, number>();
+    for (const slot of layers.flat().reverse()) {
+        const onward = slot.next.length === 0 ? 0 : Math.min(...slot.next.map(id => after.get(id)!));
+        after.set(slot.id, onward + shopCount(slot));
+    }
+
+    return new Map(layers.flat().map(slot => [slot.id, before.get(slot.id)! + after.get(slot.id)! - shopCount(slot)]));
+}
+
+/**
+ * Picks which kind of shop a node should be, preferring one that no station on the same route already is,
+ * then one that no other station in its layer that shares a link with it is, so the choice between them is between different shops,
+ * then whichever the sector has fewest of.
+ */
+function pickShopStationKind(random: IRandom, layers: NodeSlot[][], roles: Map<string, NodeRole>, slot: NodeSlot): ShopStationKind {
+    const slots = layers.flat();
+
+    // Every node a route through this one also passes: those it leads to, and those that lead to it.
+    const onSameRoute = new Set(getReachable(new Map(slots.map(other => [other.id, other])), slot.id));
+    for (const other of [...slots].reverse().filter(other => other.layer < slot.layer)) {
+        if (other.next.some(id => onSameRoute.has(id))) {
+            onSameRoute.add(other.id);
+        }
+    }
+    onSameRoute.delete(slot.id);
+
+    const previous = layers[slot.layer - 1].filter(other => other.next.includes(slot.id));
+    const sharesLink = (other: NodeSlot) => other !== slot && other.layer === slot.layer
+        && (previous.some(from => from.next.includes(other.id)) || other.next.some(id => slot.next.includes(id)));
+    const alongside = slots.filter(sharesLink);
+
+    const sameRoute = slots.filter(other => onSameRoute.has(other.id));
+
+    const getCost = (kind: ShopStationKind) => {
+        const count = (among: NodeSlot[]) => among.filter(other => roles.get(other.id) === kind).length;
+        return 100 * count(sameRoute) + 10 * count(alongside) + count(slots);
+    };
+
+    const costs = shopStationKinds.map(getCost);
+    const cheapest = Math.min(...costs);
+    return random.pick(shopStationKinds.filter((_, index) => costs[index] === cheapest));
+}
+
+/**
+ * Whether a regular encounter could become a mid-sector station or an elite. Each must be in the layers allowed for it, within its limit,
+ * and not linked to another of its kind, so no two stations (of any kind) or elites can be visited back to back.
+ */
+function canTakeRole(layers: NodeSlot[][], roles: Map<string, NodeRole>, slot: NodeSlot, role: 'station' | 'elite', maxElites: number): boolean {
     if (roles.get(slot.id) !== 'combat') {
         return false;
     }
 
-    const isRepair = role === 'repair';
-    const [firstLayer, lastLayer] = isRepair ? [midRepairLayers.first, midRepairLayers.last] : [startLayer + 2, preBossRepairLayer - 1];
+    const isStation = role === 'station';
+    const [firstLayer, lastLayer] = isStation ? [midStationLayers.first, midStationLayers.last] : [startLayer + 2, preBossRepairLayer - 1];
     if (slot.layer < firstLayer || slot.layer > lastLayer) {
         return false;
     }
 
-    const nodes = layers.flat();
-    const sameRole = nodes.filter(other => roles.get(other.id) === role && other.layer > startLayer && other.layer < preBossRepairLayer);
-    if (sameRole.length >= (isRepair ? maxMidRepairCount : maxElites)) {
+    const hasRole = (id: string) => (isStation ? isShopRole(roles.get(id)) : roles.get(id) === 'elite');
+    if (slot.next.some(hasRole) || layers[slot.layer - 1].some(other => other.next.includes(slot.id) && hasRole(other.id))) {
         return false;
     }
 
-    if (sameRole.some(other => other.next.includes(slot.id) || slot.next.includes(other.id))) {
-        return false;
-    }
-
-    return !isRepair || reachesBossAvoiding(layers, new Set([...sameRole, slot].map(other => other.id)));
-}
-
-/** Whether some route from the start to the boss avoids every one of the given nodes. */
-function reachesBossAvoiding(layers: NodeSlot[][], avoidIds: Set<string>): boolean {
-    const slots = new Map(layers.flat().map(slot => [slot.id, slot]));
-    const reached = new Map<string, boolean>();
-    const reachesBoss = (slot: NodeSlot): boolean => {
-        if (!reached.has(slot.id)) {
-            reached.set(slot.id, slot.layer === bossLayer || slot.next.some(id => !avoidIds.has(id) && reachesBoss(slots.get(id)!)));
+    let count = 0;
+    for (const slots of layers) {
+        for (const other of slots) {
+            if (hasRole(other.id)) {
+                count++;
+            }
         }
+    }
 
-        return reached.get(slot.id)!;
-    };
-
-    return reachesBoss(layers[startLayer][0]);
+    return count < (isStation ? maxMidStationCount : maxElites);
 }
 
-/** How the map shows each role, as one letter each. Only what the map shows can make one route different from another. */
+/**
+ * How the map shows each role, as one letter each. Only what the map shows can make one route different from another,
+ * and it shows which kind each station is, so passing a different kind of shop is a different route.
+ */
 const roleSymbols: Record<NodeRole, string> = {
     start: 'r',
     repair: 'r',
+    navigationBeacon: 'n',
+    armsDealer: 'w',
+    salvageYard: 'g',
+    researchOutpost: 's',
     combat: 'c',
     elite: 'e',
     boss: 'b',
 };
 
 /**
- * Each node's possible futures: the sequences of regular encounters, elites and repair stations the map shows on the way from it to the boss.
+ * Each node's possible futures: the sequences of regular encounters, elites and each kind of station the map shows on the way from it to the boss.
  */
 function getFutures(layers: NodeSlot[][], roles: Map<string, NodeRole>): Map<string, Set<string>> {
     const futures = new Map<string, Set<string>>();
@@ -305,13 +437,15 @@ function resolveMeaninglessChoices(random: IRandom, layers: NodeSlot[][], roles:
 
         const retypes = [...getReachable(slots, dominatedId)]
             .filter(id => !alsoReachedByOther.has(id))
-            .flatMap(id => (['elite', 'repair'] as const).map(role => ({ slot: slots.get(id)!, role })));
+            .flatMap(id => (['elite', 'station'] as const).map(role => ({ slot: slots.get(id)!, role })));
         random.shuffle(retypes);
 
-        const improved = retypes.some(({ slot, role }) => {
-            if (!canTakeRole(layers, roles, slot, role, maxElites)) {
+        const improved = retypes.some(({ slot, role: retype }) => {
+            if (!canTakeRole(layers, roles, slot, retype, maxElites)) {
                 return false;
             }
+
+            const role: OptionalRole = retype === 'station' ? pickShopStationKind(random, layers, roles, slot) : 'elite';
 
             roles.set(slot.id, role);
             const remaining = findDominatedChoices(layers, roles);
@@ -356,9 +490,8 @@ function createNode(random: IRandom, theme: SectorTheme, names: NamePicker, slot
         };
     }
 
-    if (role === 'start' || role === 'repair') {
-        // The start and pre-boss stations just repair. Others may be any kind of station, shops included.
-        const kind: StationKind = role === 'repair' && slot.layer !== preBossRepairLayer ? random.pick(stationKinds) : 'repair';
+    if (role === 'start' || isStationRole(role)) {
+        const kind: StationKind = role === 'start' ? 'repair' : role;
         const definition = getEncounterDefinition(stationEncounterIds[kind]);
         return {
             ...base,

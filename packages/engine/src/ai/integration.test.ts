@@ -98,7 +98,7 @@ describe('AI ship integration', () => {
 
     it('enemies from a real combat encounter close in, keep maneuvering, and damage the player', () => {
         // Unlike the hand-built battles above, this uses the real enemy templates, spawning and campaign flow.
-        const state = rooms.createState(seededRandom(7));
+        const state = rooms.createState(seededRandom(1));
         const { campaign, ships: [player] } = startCampaign(state);
         campaign.devLoadEncounter('skirmish');
 
