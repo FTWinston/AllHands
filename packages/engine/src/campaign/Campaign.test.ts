@@ -415,11 +415,11 @@ describe('Campaign antimatter rewards', () => {
 });
 
 describe('getAntimatterReward', () => {
-    it('awards 10 for combat, 30 for elite combat and bosses, and nothing for repair stations', () => {
+    it('awards 10 for combat, 30 for elite combat, 50 for bosses, and nothing for repair stations', () => {
         expect(getAntimatterReward({ kind: 'combat' })).toBe(10);
         expect(getAntimatterReward({ kind: 'combat', elite: false })).toBe(10);
         expect(getAntimatterReward({ kind: 'combat', elite: true })).toBe(30);
-        expect(getAntimatterReward({ kind: 'boss' })).toBe(30);
+        expect(getAntimatterReward({ kind: 'boss' })).toBe(50);
         expect(getAntimatterReward({ kind: 'repair' })).toBe(0);
     });
 });
