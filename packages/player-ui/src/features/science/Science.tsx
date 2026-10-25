@@ -28,7 +28,7 @@ export const Science = (props: Props) => {
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
     const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
-    const deckView = useDeckView(props.room, 'science', localShip?.scienceState, localShip?.antimatter ?? 0);
+    const deckView = useDeckView(props.room, 'science', localShip?.scienceState);
     const shop = useShop(props.room, 'science', localShip?.scienceState, localShip?.antimatter ?? 0);
 
     const pause = useCallback(() => {

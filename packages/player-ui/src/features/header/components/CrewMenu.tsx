@@ -11,7 +11,7 @@ type Props = {
     onPause: () => void;
 };
 
-/** The crew header's menu button, also shown in the deck view's header, which covers it. */
+/** The crew header's menu button. */
 export const CrewMenu: FC<Props> = (props) => {
     const soundEnabled = useSoundEnabled();
 

@@ -1,11 +1,11 @@
+import { Button } from 'common-ui/components/Button';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
-import { Button } from './Button';
 import { FullScreenDialog as Component } from './FullScreenDialog';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = {
-    title: 'common-ui/components/Full Screen Dialog',
+    title: 'player-ui/Full Screen Dialog',
     component: Component,
     parameters: {
         layout: 'fullscreen',

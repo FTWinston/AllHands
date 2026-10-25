@@ -1,7 +1,7 @@
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
+import { Button } from 'common-ui/components/Button';
+import { classNames } from 'common-ui/utils/classNames';
 import { FC, PropsWithChildren, ReactNode } from 'react';
-import { classNames } from '../utils/classNames';
-import { Button } from './Button';
 import styles from './FullScreenDialog.module.css';
 
 type Props = PropsWithChildren<{
@@ -18,10 +18,13 @@ type Props = PropsWithChildren<{
     bodyClassName?: string;
 }>;
 
-/** A modal covering the whole screen, with a header holding its title and a close button, and a vertically scrolling body. */
+/**
+ * A dialog covering the screen below the crew header, with its own header holding its title and a close button, and a vertically scrolling body.
+ * It isn't modal, so the crew header stays usable, e.g. to toggle this dialog with a button there.
+ */
 export const FullScreenDialog: FC<Props> = props => (
-    // There's no "outside" to press, but a button that opens this would otherwise count as one, closing it straight away.
-    <BaseDialog.Root open={props.isOpen} onOpenChange={props.setOpen} disablePointerDismissal>
+    // Presses outside shouldn't close it: a button that opens it would otherwise count as one, closing it straight away.
+    <BaseDialog.Root open={props.isOpen} onOpenChange={props.setOpen} modal={false} disablePointerDismissal>
         <BaseDialog.Portal>
             <BaseDialog.Popup className={styles.popup}>
                 <header className={classNames(styles.header, props.headerClassName)}>

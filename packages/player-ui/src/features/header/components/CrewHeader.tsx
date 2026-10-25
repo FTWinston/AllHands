@@ -104,7 +104,7 @@ export const CrewHeader: FC<Props> = (props) => {
                     )}
             </div>
 
-            {props.deckView && <DeckView crew={props.crew} menu={<CrewMenu onPause={props.onPause} />} {...props.deckView} />}
+            {props.deckView && <DeckView {...props.deckView} />}
         </div>
     );
 };

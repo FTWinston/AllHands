@@ -9,8 +9,6 @@ export type DeckViewModel = {
     setOpen: (open: boolean) => void;
     /** At a station, cards can be re-ordered and sold, and the view opens automatically on arrival. */
     atStation: boolean;
-    /** The ship's antimatter, shown to the crew member with a shop at this station, as the view covers their header; null for everyone else. */
-    antimatter: number | null;
     moveCard: (cardId: number, toIndex: number) => void;
     sellCard: (cardId: number) => void;
 };

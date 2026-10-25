@@ -55,7 +55,6 @@ export const AtStation: Story = {
                     isOpen,
                     setOpen,
                     atStation: false,
-                    antimatter: null,
                     moveCard: fn(),
                     sellCard: fn(),
                 }}
@@ -81,12 +80,18 @@ export const AtStation: Story = {
         await expect(button).toHaveAttribute('aria-pressed', 'true');
         await expect(page.getByRole('dialog')).toBeInTheDocument();
 
-        // The crew menu can still be used, from the deck view's own header.
-        await userEvent.click(within(page.getByRole('dialog')).getByRole('button', { name: 'Menu' }));
+        // The header isn't covered, so its menu can still be used, without closing the deck view.
+        await userEvent.click(canvas.getByRole('button', { name: 'Menu' }));
         await userEvent.click(await page.findByRole('menuitem', { name: 'Pause game' }));
         await expect(args.onPause).toHaveBeenCalled();
+        await expect(page.getByRole('dialog')).toBeInTheDocument();
 
-        await userEvent.click(page.getByRole('button', { name: 'Close' }));
+        // The same button closes it again, as does the deck view's own close button.
+        await userEvent.click(button);
+        await expect(button).toHaveAttribute('aria-pressed', 'false');
+
+        await userEvent.click(button);
+        await userEvent.click(await page.findByRole('button', { name: 'Close' }));
         await expect(button).toHaveAttribute('aria-pressed', 'false');
     },
 };

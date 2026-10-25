@@ -15,7 +15,7 @@ import type { GameState } from 'engine/state/GameState';
  * Whether it's open is only known to this client. It opens automatically on arriving at a station, and closes on leaving.
  * It doesn't open automatically at a shop station for this crew member's role, as they see their shop first.
  */
-export function useDeckView(room: Room<unknown, GameState>, crew: CrewRoleName, system: Snapshot<CrewSystemInfo> | undefined, antimatter: number): DeckViewModel | null {
+export function useDeckView(room: Room<unknown, GameState>, crew: CrewRoleName, system: Snapshot<CrewSystemInfo> | undefined): DeckViewModel | null {
     const phase = (useRoomState(room, state => state.phase) ?? null) as GamePhase | null;
     const encounterKind = (useRoomState(room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
 
@@ -54,7 +54,6 @@ export function useDeckView(room: Room<unknown, GameState>, crew: CrewRoleName, 
         isOpen,
         setOpen,
         atStation,
-        antimatter: hasShop ? antimatter : null,
         moveCard,
         sellCard,
     };

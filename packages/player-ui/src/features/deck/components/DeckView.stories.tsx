@@ -1,6 +1,5 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
 import { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { DeckView as Component } from './DeckView';
@@ -20,10 +19,8 @@ const meta: Meta<typeof Component> = {
         layout: 'fullscreen',
     },
     args: {
-        crew: 'tactical',
         isOpen: true,
         atStation: false,
-        antimatter: null,
         cards: createDeck(tacticalCards),
         setOpen: fn(),
         moveCard: fn(),
@@ -32,7 +29,6 @@ const meta: Meta<typeof Component> = {
     render: (args) => {
         // Act out what the server would do, so the deck can be tried out.
         const [cards, setCards] = useState(args.cards);
-        const [antimatter, setAntimatter] = useState(args.antimatter);
         const [isOpen, setOpen] = useState(args.isOpen);
 
         return (
@@ -42,7 +38,6 @@ const meta: Meta<typeof Component> = {
                 <Component
                     {...args}
                     cards={cards}
-                    antimatter={antimatter}
                     isOpen={isOpen}
                     setOpen={(open) => {
                         setOpen(open);
@@ -59,7 +54,6 @@ const meta: Meta<typeof Component> = {
                     }}
                     sellCard={(cardId) => {
                         setCards(cards => cards.filter(card => card.id !== cardId));
-                        setAntimatter(antimatter => antimatter === null ? null : antimatter + cardSellPrice);
                         args.sellCard(cardId);
                     }}
                 />
@@ -78,11 +72,10 @@ export const Browsing: Story = {
         await expect(await page.findByText('My deck')).toBeInTheDocument();
         await expect(page.getByText('#12')).toBeInTheDocument();
         await expect(page.queryAllByRole('button', { name: /Sell/ })).toHaveLength(0);
-        await expect(page.queryByLabelText(/Antimatter/)).not.toBeInTheDocument();
     },
 };
 
-/** Antimatter isn't shown to crew without a shop at this station. Selling a card asks for confirmation first. */
+/** Selling a card asks for confirmation first. */
 export const AtStation: Story = {
     args: {
         atStation: true,
@@ -91,7 +84,6 @@ export const AtStation: Story = {
         const page = within(canvasElement.ownerDocument.body);
         const sellButtons = await page.findAllByRole('button', { name: /Sell/ });
         await expect(sellButtons).toHaveLength(12);
-        await expect(page.queryByLabelText(/Antimatter:/)).not.toBeInTheDocument();
 
         await userEvent.click(sellButtons[0]);
         await expect(await page.findByText(/Sell .* for 10 antimatter\?/)).toBeInTheDocument();
@@ -101,23 +93,6 @@ export const AtStation: Story = {
         await userEvent.click(sellButtons[1]);
         await userEvent.click(await page.findByRole('button', { name: 'OK' }));
         await expect(args.sellCard).toHaveBeenCalledWith(2);
-    },
-};
-
-/** The crew member with a shop at this station sees the ship's antimatter here, as the view covers their header. */
-export const AtStationWithShop: Story = {
-    args: {
-        atStation: true,
-        antimatter: 20,
-    },
-    play: async ({ canvasElement, args }) => {
-        const page = within(canvasElement.ownerDocument.body);
-        await expect(await page.findByLabelText('Antimatter: 20')).toBeInTheDocument();
-
-        await userEvent.click((await page.findAllByRole('button', { name: /Sell/ }))[0]);
-        await userEvent.click(await page.findByRole('button', { name: 'OK' }));
-        await expect(args.sellCard).toHaveBeenCalledWith(1);
-        await expect(await page.findByLabelText(`Antimatter: ${20 + cardSellPrice}`)).toBeInTheDocument();
     },
 };
 

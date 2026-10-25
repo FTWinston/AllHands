@@ -28,7 +28,7 @@ export const Tactical = (props: Props) => {
     const targets = useStableOrderedTargets(objects, localShip);
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
     const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
-    const deckView = useDeckView(props.room, 'tactical', localShip?.tacticalState, localShip?.antimatter ?? 0);
+    const deckView = useDeckView(props.room, 'tactical', localShip?.tacticalState);
     const shop = useShop(props.room, 'tactical', localShip?.tacticalState, localShip?.antimatter ?? 0);
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
 
