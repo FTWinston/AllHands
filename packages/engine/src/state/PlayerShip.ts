@@ -26,6 +26,9 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
     @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
     @type('number') antimatter = 0;
 
+    /** At a shop station, until its shop is closed, which gives helm the Warp Away card. Cleared on leaving. */
+    @view(ownShipClientRole) @type('boolean') isShopping = false;
+
     addAntimatter(amount: number) {
         if (amount > 0) {
             this.antimatter += amount;
@@ -40,6 +43,11 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
 
         this.antimatter -= amount;
         return true;
+    }
+
+    override cleanupAfterEncounter() {
+        this.isShopping = false;
+        super.cleanupAfterEncounter();
     }
 
     protected addKnownObject(objectId: string, object: GameObject) {

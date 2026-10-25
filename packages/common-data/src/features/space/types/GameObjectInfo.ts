@@ -187,6 +187,8 @@ export interface ShipInfo extends GameObjectInfo {
 export interface PlayerShipInfo extends ShipInfo {
     /** The ship's currency, earned by completing encounters (see `antimatterRewards`). Only synced to the ship's own crew and game client. */
     antimatter: number;
+    /** At a shop station, until its shop is closed, which gives helm the Warp Away card. Only synced to the ship's own game client. */
+    isShopping: boolean;
 }
 
 export interface SystemSetupInfo {

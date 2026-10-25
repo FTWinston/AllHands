@@ -8,11 +8,11 @@ const crewRoleLabels: Record<CrewRoleName, string> = {
 };
 
 /**
- * Whether the crew can leave the station yet, for the viewscreen. A shop station's encounter only completes,
- * giving helm the Warp Away card, once its crew member first closes their shop.
+ * Whether the ship can leave the station yet, for the viewscreen.
+ * At a shop station, helm only gets the Warp Away card once the shop's crew member closes it (see `PlayerShipInfo.isShopping`).
  */
-export function getStationDepartureLabel(shopRole: CrewRoleName | null, objectiveMet: boolean): string {
-    return objectiveMet || !shopRole
-        ? 'Ready to depart'
-        : `${crewRoleLabels[shopRole]} is shopping`;
+export function getStationDepartureLabel(shopRole: CrewRoleName | null, isShopping: boolean): string {
+    return isShopping && shopRole
+        ? `${crewRoleLabels[shopRole]} is shopping`
+        : 'Ready to depart';
 }

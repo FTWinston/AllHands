@@ -70,11 +70,10 @@ const ViewscreenScene: FC<Props> = (props) => {
 
     const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
     const encounterName = useRoomState(props.room, state => state.encounter?.name);
-    const objectiveMet = useRoomState(props.room, state => state.encounter?.objectiveMet) ?? false;
 
     const hull = (localShip as ShipInfo | undefined)?.hullState;
     const antimatter = (localShip as PlayerShipInfo | undefined)?.antimatter;
-    const departure = getStationDepartureLabel(getShopRole(encounterKind), objectiveMet);
+    const departure = getStationDepartureLabel(getShopRole(encounterKind), (localShip as PlayerShipInfo | undefined)?.isShopping ?? false);
 
     if (isEnded || phase !== 'encounter') {
         return (

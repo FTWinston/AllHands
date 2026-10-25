@@ -43,12 +43,12 @@ export const ResearchOutpost: Story = {
 };
 
 export const Shopping: Story = {
-    args: { kind: 'armsDealer', name: 'Arms Dealer 1-1', departure: getStationDepartureLabel('tactical', false) },
+    args: { kind: 'armsDealer', name: 'Arms Dealer 1-1', departure: getStationDepartureLabel('tactical', true) },
     play: async ({ canvasElement }) => {
         await expect(within(canvasElement).getByText('Tactical is shopping')).toBeInTheDocument();
     },
 };
 
 export const ReadyToDepart: Story = {
-    args: { kind: 'repair', name: 'Repair Station 1-1', departure: getStationDepartureLabel(null, true) },
+    args: { kind: 'repair', name: 'Repair Station 1-1', departure: getStationDepartureLabel(null, false) },
 };

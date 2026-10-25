@@ -2,7 +2,6 @@ import { getShopRole, isStationKind } from 'common-data/features/sectors/utils/i
 import { canSellFromDeck, cardSellPrice, getAntimatterReward, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { getPlayerShips } from 'src/utils/shipQueries';
 import { createEncounter, getDefaultNode, hasEncounter } from '../encounters/EncounterRegistry';
-import { StationEncounter } from '../encounters/StationEncounter';
 import { CardState } from '../state/CardState';
 import { EncounterSummaryState } from '../state/EncounterSummaryState';
 import { MotionKeyframe } from '../state/MotionKeyframe';
@@ -98,6 +97,9 @@ export class Campaign {
         if (object instanceof PlayerShip) {
             if (getPlayerShips(this.state).length === 0) {
                 this.finish('defeat');
+            } else if (this.playerShipsInEncounter.delete(object)) {
+                // The rest may have already warped away.
+                this.leaveIfAllDeparted();
             }
 
             return;
@@ -153,8 +155,8 @@ export class Campaign {
     }
 
     /**
-     * Helm plays the Warp Away card, ending the completed encounter.
-     * A shop station only completes, giving helm the card, once the shop has been closed (see `closeShop`).
+     * Helm plays the Warp Away card, leaving the completed encounter. It ends once every player ship has warped away or been destroyed.
+     * At a shop station, helm only gets the card once the shop has been closed (see `closeShop`).
      */
     warpAway(ship: Ship): boolean {
         if (!this.isInEncounter || !this.state.encounter?.objectiveMet || !(ship instanceof PlayerShip) || !this.playerShipsInEncounter.has(ship)) {
@@ -162,26 +164,31 @@ export class Campaign {
         }
 
         this.playerShipsInEncounter.delete(ship);
+        this.leaveIfAllDeparted();
+        return true;
+    }
 
-        if (this.playerShipsInEncounter.size === 0) {
-            const node = this.encounter!.node;
-
-            this.state.changeScene('travel', () => {
-                if (this.isEnded) {
-                    return;
-                }
-
-                this.teardownEncounter();
-
-                if (!this.state.map || node.id === this.state.map.bossNodeId) {
-                    this.enterOutro();
-                } else {
-                    this.showMap();
-                }
-            });
+    /** Ends the completed encounter once no player ship remains in it, moving on to the map, or the outro after the boss. */
+    private leaveIfAllDeparted(): void {
+        if (this.playerShipsInEncounter.size > 0 || !this.isInEncounter || !this.state.encounter?.objectiveMet) {
+            return;
         }
 
-        return true;
+        const node = this.encounter!.node;
+
+        this.state.changeScene('travel', () => {
+            if (this.isEnded) {
+                return;
+            }
+
+            this.teardownEncounter();
+
+            if (!this.state.map || node.id === this.state.map.bossNodeId) {
+                this.enterOutro();
+            } else {
+                this.showMap();
+            }
+        });
     }
 
     /** A crew member moves one of their deck cards to a new position, at a station. */
@@ -220,14 +227,14 @@ export class Campaign {
     /**
      * A crew member closes their shop, at a shop station for their role. Its cards are kept: whether it's open is only known to their client,
      * which can reopen it, so this can happen more than once per station.
-     * The first close completes the station, giving every helm the Warp Away card. Later closes offer it again, but helm only ever holds one.
+     * Each close offers that ship's helm the Warp Away card, which they only ever hold one of.
      */
     closeShop(ship: PlayerShip, system: CrewSystemState): boolean {
-        if (this.shopRole !== system.system || !(this.encounter instanceof StationEncounter)) {
+        if (this.shopRole !== system.system) {
             return false;
         }
 
-        this.encounter.shopClosed();
+        ship.isShopping = false;
         this.offerWarpAway(ship);
         return true;
     }
@@ -345,7 +352,7 @@ export class Campaign {
 
     /**
      * Once the objective is met, every helm gets an expendable Warp Away card in its hand.
-     * A shop station's objective is met once its shop is first closed (see `closeShop`).
+     * Stations are complete on arrival, but at a shop station each ship's helm instead gets it once that ship's shop is closed (see `closeShop`).
      */
     private completeObjective(): void {
         if (!this.state.encounter || this.state.encounter.objectiveMet) {
@@ -355,7 +362,11 @@ export class Campaign {
         this.state.encounter.objectiveMet = true;
 
         for (const ship of this.playerShipsInEncounter) {
-            this.offerWarpAway(ship);
+            if (this.shopRole) {
+                ship.isShopping = true;
+            } else {
+                this.offerWarpAway(ship);
+            }
         }
     }
 

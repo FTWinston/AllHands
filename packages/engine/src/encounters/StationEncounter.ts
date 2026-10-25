@@ -6,9 +6,8 @@ import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNo
 import type { GameState } from 'src/state/GameState';
 
 /**
- * No hostiles and no objective: fully repairs every player ship on arrival. A repair station is complete straight away.
- * A shop station also stocks a shop for the crew member of its role (see `getShopRole`) on every player ship,
- * and is only complete once that crew member first closes their shop (see `shopClosed`).
+ * No hostiles and no objective: fully repairs every player ship on arrival, and is complete straight away.
+ * A shop station also stocks a shop for the crew member of its role (see `getShopRole`) on every player ship.
  */
 export class StationEncounter extends Encounter {
     constructor(state: GameState, node: SectorNodeInfo) {
@@ -29,14 +28,6 @@ export class StationEncounter extends Encounter {
 
     override start(): void {
         super.start();
-
-        if (!getShopRole(this.node.kind)) {
-            this.complete();
-        }
-    }
-
-    /** A shop's crew member has closed it, completing a shop station. Does nothing if it's already complete. */
-    shopClosed(): void {
         this.complete();
     }
 }
