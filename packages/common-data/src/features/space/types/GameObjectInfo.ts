@@ -59,13 +59,11 @@ export interface CrewSystemInfo extends SystemInfo {
     pendingDrawChoice: IArray<CardInstance>;
     /** Shown instead of the system's display while outside an encounter; empty during one (see `NonEncounterCardInfo`). */
     nonEncounterCards: IArray<NonEncounterCardInfo>;
-    /** Cards on sale to this crew member at a shop station for their role (see `getShopRole`), each for `shopCardPrice`. Empty elsewhere. */
-    shopCards: IArray<CardInstance>;
     /**
-     * Whether this crew member's shop is open: set on arriving at a shop station for their role, until they close it, after which it can't reopen.
-     * Always false elsewhere.
+     * Cards on sale to this crew member at a shop station for their role (see `getShopRole`), each for `shopCardPrice`. Empty elsewhere.
+     * Whether the shop is open is only known to their client: they can close it and reopen it while at the station.
      */
-    shopOpen: boolean;
+    shopCards: IArray<CardInstance>;
 }
 
 export interface HelmSystemInfo extends CrewSystemInfo {

@@ -1,4 +1,4 @@
-import { isStationKind } from 'common-data/features/sectors/utils/isStationKind';
+import { getShopRole, isStationKind } from 'common-data/features/sectors/utils/isStationKind';
 import { canSellFromDeck, cardSellPrice, getAntimatterReward, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { getPlayerShips } from 'src/utils/shipQueries';
 import { createEncounter, getDefaultNode, hasEncounter } from '../encounters/EncounterRegistry';
@@ -20,6 +20,7 @@ import type { CrewSystemState } from '../state/systems/CrewSystemState';
 import type { GameOutcome } from 'common-data/features/sectors/types/GamePhase';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
 import type { EncounterId, SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 
 /**
  * Drives the game flow: sector intro -> map -> encounter -> (warp away) -> map ... -> boss -> sector outro -> next sector,
@@ -50,6 +51,11 @@ export class Campaign {
     /** At a station, an "encounter" whose objective is met on arrival. Crew can view, re-order and sell from their decks here. */
     get isAtStation(): boolean {
         return this.isInEncounter && isStationKind(this.state.encounterKind);
+    }
+
+    /** The crew member whose shop is here, at a shop station, or null anywhere else. */
+    get shopRole(): CrewRoleName | null {
+        return this.isAtStation ? getShopRole(this.state.encounterKind) : null;
     }
 
     /** Ships only simulate their systems while this is true: in an encounter, other than at a station. */
@@ -197,9 +203,9 @@ export class Campaign {
         return true;
     }
 
-    /** A crew member buys a card from their open shop, at a shop station for their role. It goes to the bottom of their deck. */
+    /** A crew member buys a card from their shop, at a shop station for their role. It goes to the bottom of their deck. */
     buyShopCard(ship: PlayerShip, system: CrewSystemState, cardId: number): boolean {
-        if (!this.isAtStation || !system.shopOpen || !system.shopCards.some(card => card.id === cardId) || !ship.trySpendAntimatter(shopCardPrice)) {
+        if (this.shopRole !== system.system || !system.shopCards.some(card => card.id === cardId) || !ship.trySpendAntimatter(shopCardPrice)) {
             return false;
         }
 
@@ -208,15 +214,12 @@ export class Campaign {
     }
 
     /**
-     * A crew member closes their shop, at a shop station for their role. Once closed, it can't be reopened.
-     * This is the hook point for anything that must wait until the shop is closed (e.g. giving helm the Warp Away card): see `Ship.hasOpenShop`.
+     * A crew member closes their shop, at a shop station for their role. Its cards are kept: whether it's open is only known to their client,
+     * which can reopen it, so this can happen more than once per station.
+     * This is the hook point for anything that must wait until the shop is closed (e.g. giving helm the Warp Away card).
      */
     closeShop(_ship: PlayerShip, system: CrewSystemState): boolean {
-        if (!this.isAtStation) {
-            return false;
-        }
-
-        return system.closeShop();
+        return this.shopRole === system.system;
     }
 
     /** Dev tools: abandon whatever is running and start the given encounter standalone with repaired ships. */

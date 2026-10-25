@@ -120,7 +120,7 @@ describe('PlayerShip seen card types', () => {
     it('sees every card offered in a shop', () => {
         const ship = createShipWithDecks();
 
-        ship.tacticalState.openShop([
+        ship.tacticalState.stockShop([
             new CardState(ship.getCardId(), 'phaserStrip'),
             new CardState(ship.getCardId(), 'photonTorpedo'),
         ]);

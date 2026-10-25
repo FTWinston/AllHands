@@ -4,9 +4,21 @@ import { FC } from 'react';
 import styles from './ShopPanel.module.css';
 import type { ShopModel } from '../types/ShopModel';
 
-/** A station's shop, shown beside the crew member's deck: cards to buy for antimatter, which go to the bottom of the deck. */
-export const ShopPanel: FC<ShopModel> = ({ title, cards, price, antimatter, buyCard, closeShop }) => {
+/**
+ * A station's shop, shown beside the crew member's deck: cards to buy for antimatter, which go to the bottom of the deck.
+ * Once closed, only a button to reopen it is shown.
+ */
+export const ShopPanel: FC<ShopModel> = ({ title, cards, price, antimatter, isOpen, buyCard, openShop, closeShop }) => {
     const canAfford = antimatter >= price;
+
+    if (!isOpen) {
+        return (
+            <section className={styles.panel} aria-label="Shop">
+                <h2 className={styles.title}>{title}</h2>
+                <Button onClick={openShop}>Open shop</Button>
+            </section>
+        );
+    }
 
     return (
         <section className={styles.panel} aria-label="Shop">
@@ -46,7 +58,6 @@ export const ShopPanel: FC<ShopModel> = ({ title, cards, price, antimatter, buyC
 
             <div className={styles.footer}>
                 <Button onClick={closeShop}>Close shop</Button>
-                <span className={styles.hint}>Once closed, the shop can&apos;t be reopened.</span>
             </div>
         </section>
     );
