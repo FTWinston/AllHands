@@ -304,6 +304,7 @@ describe('Campaign phase flow', () => {
             expect(state.encounter!.objectiveMet).toBe(true);
             expect(state.encounter!.objectiveEndTime).toBe(0);
             expect([...state.objects.values()].every(object => object instanceof PlayerShip)).toBe(true);
+            closeShops(campaign, ship);
             expect(ship.helmState.hand.some(card => card.type === 'warpAway')).toBe(true);
             expect(campaign.warpAway(ship)).toBe(true);
         }
