@@ -13,6 +13,7 @@ import { DeflectorDisplay } from './DeflectorDisplay';
 import { ScienceTargetList } from './ScienceTargetList';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
+    power: number;
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cards: Snapshot<CardInstance[]>;
     targets: Snapshot<GameObjectInfo[]>;

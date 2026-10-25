@@ -12,6 +12,7 @@ import { SystemInfo } from './System';
 import { SystemList } from './SystemList';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
+    power: number;
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     repair: (system: string) => void;
     cards: Snapshot<CardInstance[]>;

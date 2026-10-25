@@ -10,7 +10,7 @@ type Props = DeckViewModel & {
     crew: CrewRoleName;
 };
 
-/** A full-screen modal showing a crew member's deck, in order. At a station, cards can be re-ordered and sold, and `aside` (e.g. a shop) shows alongside. */
+/** A full-screen modal showing a crew member's deck, in order. At a station, cards can be re-ordered and sold. */
 export const DeckView: FC<Props> = props => (
     <FullScreenDialog
         title="My deck"
@@ -31,7 +31,5 @@ export const DeckView: FC<Props> = props => (
             moveCard={props.moveCard}
             sellCard={props.sellCard}
         />
-
-        {props.aside}
     </FullScreenDialog>
 );

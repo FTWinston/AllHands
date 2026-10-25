@@ -39,8 +39,11 @@ export const InEncounter: Story = {
     },
 };
 
-/** The deck indicator is a toggle button for the "my deck" view. */
+/** The deck indicator is a toggle button for the "my deck" view. Power isn't shown, as no cards cost anything here. */
 export const OutsideEncounter: Story = {
+    args: {
+        power: undefined,
+    },
     render: (args) => {
         const [isOpen, setOpen] = useState(false);
 
@@ -62,6 +65,9 @@ export const OutsideEncounter: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         const page = within(canvasElement.ownerDocument.body);
+
+        // The meta's power of 3 isn't shown.
+        await expect(canvas.queryByText('3')).not.toBeInTheDocument();
 
         const button = canvas.getByRole('button', { name: /My deck/ });
         await expect(button).toHaveAttribute('aria-pressed', 'false');

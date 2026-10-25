@@ -16,6 +16,7 @@ import { CrewHeader } from '../../header';
 import { HelmSpaceMap } from './HelmSpaceMap';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
+    power: number;
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cards: Snapshot<CardInstance[]>;
     center: ReadonlyKeyframes<Position>;
