@@ -81,6 +81,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 clientSendTime: message.clientSendTime,
                 serverTime: this.state.currentTime,
                 timeScale: this.state.timeScale,
+                devAutoWin: this.state.devAutoWin,
             });
         });
 
@@ -409,6 +410,11 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             const timeScale = Math.max(minTimeScale, Math.min(maxTimeScale, message.timeScale));
             this.state.timeScale = timeScale;
             console.log(`[dev] ${client.sessionId} adjustTimeScale to ${timeScale}`);
+        });
+
+        this.onMessage('devAutoWin', (client, message: { enabled: boolean }) => {
+            this.state.devAutoWin = message?.enabled === true;
+            console.log(`[dev] ${client.sessionId} devAutoWin ${this.state.devAutoWin ? 'on' : 'off'}`);
         });
 
         this.onMessage('devLoadEncounter', (client, message: { encounterId: EncounterId }) => {
