@@ -1,6 +1,6 @@
 import { isShopStationKind, isStationKind, shopStationKinds } from 'common-data/features/sectors/utils/isStationKind';
 import { describe, expect, it } from 'vitest';
-import { hasEncounter, stationEncounterIds } from '../encounters/EncounterRegistry';
+import { getEncounterDefinition, hasEncounter, stationEncounterIds } from '../encounters/EncounterRegistry';
 import { seededRandom } from '../testUtils';
 import { generateSector, getMaxEliteCount, maxMidStationCount, maxRouteChoices, midStationLayers, minShopStationsPerRoute, sectorLayerCount, sectorRowCount } from './SectorGenerator';
 import { sectorThemes } from './sectorThemes';
@@ -217,7 +217,6 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
                 expect(node.objective).toBeUndefined();
                 expect(node.factionId).toBeUndefined();
                 expect(node.encounterId).toBe(stationEncounterIds[node.kind]);
-                expect(theme.stationNames[node.kind]).toContain(node.name);
             } else {
                 expect(node.environment).toBeDefined();
                 expect(node.factionId).toBe(theme.factionId);
@@ -231,6 +230,26 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
                 expect((node.objective as { durationMs: number }).durationMs).toBeGreaterThan(0);
             } else if (node.kind === 'combat') {
                 expect(node.objective).toEqual({ type: 'destroyAll' });
+            }
+        }
+    });
+
+    it.each(seeds)('seed %i names each node after its kind and grid reference', (seed) => {
+        const sector = getSector(seed, sectorIndex);
+        const getLayer = (node: SectorInfo['nodes'][number]) => Math.round(node.x * (sectorLayerCount - 1));
+
+        for (const node of sector.nodes) {
+            const layer = getLayer(node);
+            const above = sector.nodes.filter(other => getLayer(other) === layer && other.y < node.y);
+            const gridReference = `${'ABCDEFGHIJ'[layer]}${above.length + 1}`;
+
+            expect(node.gridReference).toBe(gridReference);
+            if (node.kind === 'boss') {
+                expect(node.name).toBe(getEncounterDefinition(theme.bossEncounterId).name);
+            } else if (node.kind === 'combat') {
+                expect(node.name).toBe(`Encounter ${gridReference}`);
+            } else {
+                expect(node.name).toBe(`${getEncounterDefinition(node.encounterId).name} ${gridReference}`);
             }
         }
     });

@@ -167,7 +167,7 @@ export const SectorMapDisplay: FC<Props> = ({ map }) => {
                                 <NodeGlyph kind={node.kind} elite={node.elite} status={status} radius={radius} />
                                 {showLabel && (
                                     <text className={`${styles.nodeLabel} ${styles[status]}`} y={radius + 28} textAnchor="middle">
-                                        {node.name}
+                                        {node.gridReference}
                                     </text>
                                 )}
                             </g>

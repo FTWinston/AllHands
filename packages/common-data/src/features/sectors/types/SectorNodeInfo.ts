@@ -18,6 +18,8 @@ export interface SectorNodeInfo {
     kind: SectorNodeKind;
     encounterId: EncounterId;
     name: string;
+    /** Short label for the map: a letter for the column, then a number counting down that column's nodes, e.g. A1, B1, C3. */
+    gridReference: string;
     /** Absent for stations. */
     environment?: EnvironmentType;
     /** References `FactionConfig.id`. Absent for nodes without hostiles. */

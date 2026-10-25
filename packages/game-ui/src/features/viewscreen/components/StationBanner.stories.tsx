@@ -21,21 +21,21 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const RepairStation: Story = {
-    args: { kind: 'repair', name: 'Repair Station 1-1' },
+    args: { kind: 'repair', name: 'Repair Station A4' },
 };
 
 export const NavigationBeacon: Story = {
-    args: { kind: 'navigationBeacon', name: 'Beacon 1-1' },
+    args: { kind: 'navigationBeacon', name: 'Navigation Beacon C3' },
 };
 
 export const ArmsDealer: Story = {
-    args: { kind: 'armsDealer', name: 'Arms Dealer 1-1' },
+    args: { kind: 'armsDealer', name: 'Arms Dealer D6' },
 };
 
 export const SalvageYard: Story = {
-    args: { kind: 'salvageYard', name: 'Salvage Yard 1-1' },
+    args: { kind: 'salvageYard', name: 'Salvage Yard E1' },
 };
 
 export const ResearchOutpost: Story = {
-    args: { kind: 'researchOutpost', name: 'Research Outpost 1-1' },
+    args: { kind: 'researchOutpost', name: 'Research Outpost F4' },
 };

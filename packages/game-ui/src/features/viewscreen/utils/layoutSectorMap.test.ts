@@ -3,7 +3,7 @@ import { getEdgePath, layoutSectorMap } from './layoutSectorMap';
 import type { SectorMapNodeInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 
 function node(id: string, x: number, y: number, next: string[], kind: SectorMapNodeInfo['kind'] = 'combat'): SectorMapNodeInfo {
-    return { id, kind, name: id, elite: false, x, y, next };
+    return { id, kind, name: id, gridReference: id, elite: false, x, y, next };
 }
 
 const nodes = [

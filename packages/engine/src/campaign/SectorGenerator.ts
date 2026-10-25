@@ -131,10 +131,9 @@ export function generateSector(random: IRandom, theme: SectorTheme, sectorIndex:
 
     const { layers, roles } = best!;
     const rows = arrangeRows(random, layers);
-    const names = createNamePicker(random, theme);
 
     const nodes = layers.flatMap((slots, layer) =>
-        slots.map((slot, index) => createNode(random, theme, names, slot, roles.get(slot.id)!, rows[layer][index]))
+        slots.map((slot, index) => createNode(random, theme, slot, roles.get(slot.id)!, rows[layer][index], index))
     );
 
     return {
@@ -469,9 +468,12 @@ function resolveMeaninglessChoices(random: IRandom, layers: NodeSlot[][], roles:
     return layers;
 }
 
-function createNode(random: IRandom, theme: SectorTheme, names: NamePicker, slot: NodeSlot, role: NodeRole, row: number): SectorNodeInfo {
+/** `indexInLayer` counts from the top of the layer, as its slots are in row order. */
+function createNode(random: IRandom, theme: SectorTheme, slot: NodeSlot, role: NodeRole, row: number, indexInLayer: number): SectorNodeInfo {
+    const gridReference = getGridReference(slot.layer, indexInLayer);
     const base = {
         id: slot.id,
+        gridReference,
         x: slot.layer / (sectorLayerCount - 1),
         y: row / (sectorRowCount - 1),
         next: slot.next,
@@ -497,7 +499,7 @@ function createNode(random: IRandom, theme: SectorTheme, names: NamePicker, slot
             ...base,
             kind,
             encounterId: definition.id,
-            name: names.pickStation(kind),
+            name: `${definition.name} ${gridReference}`,
         };
     }
 
@@ -508,7 +510,7 @@ function createNode(random: IRandom, theme: SectorTheme, names: NamePicker, slot
         ...base,
         kind: 'combat',
         encounterId,
-        name: names.pickLocation(),
+        name: `Encounter ${gridReference}`,
         environment: random.pick(theme.environments),
         factionId: theme.factionId,
         objective: createObjective(random, definition.objective),
@@ -668,28 +670,7 @@ function arrangeRows(random: IRandom, layers: NodeSlot[][]): number[][] {
     return rows;
 }
 
-interface NamePicker {
-    pickLocation(): string;
-    pickStation(kind: StationKind): string;
-}
-
-/** Picks names without repeats while any remain. */
-function createNamePicker(random: IRandom, theme: SectorTheme): NamePicker {
-    const pickFrom = (names: readonly string[]) => {
-        let pool = [...names];
-        return () => {
-            if (pool.length === 0) {
-                pool = [...names];
-            }
-
-            return random.delete(pool);
-        };
-    };
-
-    const stationPickers = Object.fromEntries(stationKinds.map(kind => [kind, pickFrom(theme.stationNames[kind])])) as Record<StationKind, () => string>;
-
-    return {
-        pickLocation: pickFrom(theme.locationNames),
-        pickStation: (kind: StationKind) => stationPickers[kind](),
-    };
+/** Where a node sits on the map, like a chart reference: a letter for its layer (A is the start) then a number counting down that layer's nodes from 1. */
+function getGridReference(layer: number, indexInLayer: number): string {
+    return `${String.fromCharCode(65 + layer)}${indexInLayer + 1}`;
 }

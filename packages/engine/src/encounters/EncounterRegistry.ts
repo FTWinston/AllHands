@@ -68,6 +68,7 @@ export function getDefaultNode(id: EncounterId): SectorNodeInfo {
         kind: definition.kind,
         encounterId: id,
         name: definition.name,
+        gridReference: 'A1',
         environment: definition.defaultEnvironment,
         factionId: definition.defaultFactionId,
         objective: definition.objective,
