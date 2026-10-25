@@ -7,6 +7,7 @@ import { Button } from 'common-ui/components/Button';
 import { Dialog } from 'common-ui/components/Dialog';
 import { RadioGroup } from 'common-ui/components/RadioGroup';
 import { Tabs } from 'common-ui/components/Tabs';
+import { ToggleButton } from 'common-ui/components/ToggleButton';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { getSystemEffectDefinition } from 'common-ui/utils/getUiSystemEffectDefinition';
 import { FC, useState } from 'react';
@@ -22,6 +23,9 @@ type Props = {
     addCard: (system: CrewRoleName, cardId: string) => void;
     adjustTimeScale: (timeScale: number) => void;
     serverTimeScale: number;
+    /** When on, each encounter starts with its objective already met. */
+    autoWin: boolean;
+    setAutoWin: (enabled: boolean) => void;
     encounters: readonly DevEncounterInfo[];
     loadEncounter: (encounterId: string) => void;
     /** In the lobby there are no ships yet, so only the encounter selector is offered. */
@@ -122,6 +126,14 @@ export const DevToolsDisplay: FC<Props> = (props) => {
                     ×
                 </span>
             </div>
+
+            <ToggleButton
+                className={styles.autoWin}
+                pressed={props.autoWin}
+                onPressedChanged={props.setAutoWin}
+            >
+                Auto win encounters
+            </ToggleButton>
 
             {props.inLobby ? encounterSelector : (
                 <Tabs
