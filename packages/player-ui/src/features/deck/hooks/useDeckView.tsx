@@ -8,15 +8,16 @@ import type { DeckViewModel } from '../types/DeckViewModel';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import type { CrewSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import type { GameState } from 'engine/state/GameState';
 
 /**
  * Controls a crew member's "my deck" view. Returns null during an encounter, where the header's deck indicator is a discard target instead.
  * Whether it's open is only known to this client. It opens automatically on arriving at a station, and closes on leaving.
- * At a shop station for this crew member's role, their shop shows alongside the deck until they close it.
+ * At a shop station for this crew member's role, their shop shows alongside the deck.
  */
-export function useDeckView(room: Room<unknown, GameState>, system: Snapshot<CrewSystemInfo> | undefined, antimatter: number): DeckViewModel | null {
+export function useDeckView(room: Room<unknown, GameState>, crew: CrewRoleName, system: Snapshot<CrewSystemInfo> | undefined, antimatter: number): DeckViewModel | null {
     const phase = (useRoomState(room, state => state.phase) ?? null) as GamePhase | null;
     const encounterKind = (useRoomState(room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
 
@@ -24,7 +25,7 @@ export function useDeckView(room: Room<unknown, GameState>, system: Snapshot<Cre
     const available = atStation || isOutsideEncounter(phase);
 
     const [isOpen, setOpen] = useState(atStation);
-    const shop = useShop(room, system, antimatter);
+    const shop = useShop(room, crew, system, antimatter);
 
     // Open on arriving at a station, and close on leaving it, or on starting an encounter.
     useEffect(() => {

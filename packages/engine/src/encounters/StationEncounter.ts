@@ -7,7 +7,7 @@ import type { GameState } from 'src/state/GameState';
 
 /**
  * No hostiles and no objective: fully repairs every player ship on arrival, and is complete straight away.
- * A shop station also opens a shop for the crew member of its role (see `getShopRole`) on every player ship.
+ * A shop station also stocks a shop for the crew member of its role (see `getShopRole`) on every player ship.
  */
 export class StationEncounter extends Encounter {
     constructor(state: GameState, node: SectorNodeInfo) {
@@ -21,7 +21,7 @@ export class StationEncounter extends Encounter {
             ship.fullyRepair();
 
             if (shopRole) {
-                ship.getCrewSystem(shopRole).openShop(createShopCards(this.state.random, ship, shopRole));
+                ship.getCrewSystem(shopRole).stockShop(createShopCards(this.state.random, ship, shopRole));
             }
         }
     }
