@@ -1,6 +1,6 @@
 import { entity, type, view } from '@colyseus/schema';
 import { UntargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { ownShipClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole } from 'common-data/features/ships/types/CrewRole';
+import { ownShipClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole, CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { Damage } from 'common-data/features/space/types/Damage';
@@ -18,6 +18,7 @@ import { ReactorState } from './systems/ReactorState';
 import { ScienceState } from './systems/science/ScienceState';
 import { SystemState } from './systems/SystemState';
 import { TacticalState } from './systems/tactical/TacticalState';
+import type { CrewSystemState } from './systems/CrewSystemState';
 
 @entity
 export abstract class Ship extends MobileObject implements ShipInfo {
@@ -89,6 +90,11 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             throw new Error(`Ship does not have system ${system}`);
         }
         return systemState;
+    }
+
+    /** The system belonging to the given crew member. */
+    public getCrewSystem(role: CrewRoleName): CrewSystemState {
+        return this.getSystem(role) as CrewSystemState;
     }
 
     private readonly detectionRange = 100;

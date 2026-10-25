@@ -16,6 +16,10 @@ type Props = SectorDestinationInfo & {
 const kindPalettes: Record<SectorNodeKind, string> = {
     combat: colorPalettes.danger,
     repair: colorPalettes.good,
+    navigationBeacon: colorPalettes.energy,
+    armsDealer: colorPalettes.energy,
+    salvageYard: colorPalettes.energy,
+    researchOutpost: colorPalettes.energy,
     boss: colorPalettes.primary,
 };
 

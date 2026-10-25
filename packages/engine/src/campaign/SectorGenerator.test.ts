@@ -1,5 +1,6 @@
+import { isStationKind, shopStationKinds } from 'common-data/features/sectors/utils/isStationKind';
 import { describe, expect, it } from 'vitest';
-import { hasEncounter } from '../encounters/EncounterRegistry';
+import { hasEncounter, stationEncounterIds } from '../encounters/EncounterRegistry';
 import { seededRandom } from '../testUtils';
 import { generateSector, getMaxEliteCount, maxMidRepairCount, maxRouteChoices, midRepairLayers, sectorLayerCount, sectorRowCount } from './SectorGenerator';
 import { sectorThemes } from './sectorThemes';
@@ -152,7 +153,7 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
         const paths = enumeratePaths(sector);
         const layerOf = (id: string) => Math.round(nodes.get(id)!.x * (sectorLayerCount - 1));
 
-        const midRepairs = sector.nodes.filter(node => node.kind === 'repair' && layerOf(node.id) > 0 && layerOf(node.id) < sectorLayerCount - 2);
+        const midRepairs = sector.nodes.filter(node => isStationKind(node.kind) && layerOf(node.id) > 0 && layerOf(node.id) < sectorLayerCount - 2);
         const elites = sector.nodes.filter(node => node.elite);
 
         expect(midRepairs.length).toBeGreaterThan(0);
@@ -183,7 +184,7 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
 
         for (const path of paths) {
             const kinds = path.map(id => nodes.get(id)!.kind);
-            expect(kinds.some((kind, index) => kind === 'repair' && kinds[index + 1] === 'repair')).toBe(false);
+            expect(kinds.some((kind, index) => isStationKind(kind) && isStationKind(kinds[index + 1]))).toBe(false);
         }
     });
 
@@ -193,10 +194,11 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
         for (const node of sector.nodes) {
             expect(node.name.length).toBeGreaterThan(0);
 
-            if (node.kind === 'repair') {
+            if (isStationKind(node.kind)) {
                 expect(node.objective).toBeUndefined();
                 expect(node.factionId).toBeUndefined();
-                expect(node.encounterId).toBe('repairStation');
+                expect(node.encounterId).toBe(stationEncounterIds[node.kind]);
+                expect(theme.stationNames[node.kind]).toContain(node.name);
             } else {
                 expect(node.environment).toBeDefined();
                 expect(node.factionId).toBe(theme.factionId);
@@ -237,10 +239,29 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
         const visitsBoth = seeds.some((seed) => {
             const sector = generateSector(seededRandom(seed), theme, sectorIndex);
             const nodes = new Map(sector.nodes.map(node => [node.id, node]));
-            return enumeratePaths(sector).some(path => path.slice(1, -2).filter(id => nodes.get(id)!.kind === 'repair').length === 2);
+            return enumeratePaths(sector).some(path => path.slice(1, -2).filter(id => isStationKind(nodes.get(id)!.kind)).length === 2);
         });
 
         expect(visitsBoth).toBe(true);
+    });
+
+    it('keeps the start and pre-boss stations as repair stations, while mid-sector stations can be any kind, shops included', () => {
+        const midKinds = new Set<string>();
+
+        for (const seed of seeds) {
+            const sector = generateSector(seededRandom(seed), theme, sectorIndex);
+
+            for (const node of sector.nodes.filter(node => isStationKind(node.kind))) {
+                const layer = Math.round(node.x * (sectorLayerCount - 1));
+                if (layer === 0 || layer === sectorLayerCount - 2) {
+                    expect(node.kind).toBe('repair');
+                } else {
+                    midKinds.add(node.kind);
+                }
+            }
+        }
+
+        expect(shopStationKinds.some(kind => midKinds.has(kind))).toBe(true);
     });
 
     it('is deterministic for a seed and varies between seeds', () => {

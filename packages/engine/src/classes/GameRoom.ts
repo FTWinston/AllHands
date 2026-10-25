@@ -387,6 +387,38 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 console.warn(`Rejected selling deck card ${message.cardId} for ${clientRole} of ship ${ship.id}`);
             }
         });
+
+        this.onMessage('buyShopCard', (client, message: { cardId: number }) => {
+            if (this.state.gameStatus !== 'active' || !Number.isInteger(message?.cardId)) {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (!this.state.campaign?.buyShopCard(ship, this.getSystemState(ship, clientRole), message.cardId)) {
+                console.warn(`Rejected buying shop card ${message.cardId} for ${clientRole} of ship ${ship.id}`);
+            }
+        });
+
+        this.onMessage('closeShop', (client) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (!this.state.campaign?.closeShop(ship, this.getSystemState(ship, clientRole))) {
+                console.warn(`Rejected closing the shop for ${clientRole} of ship ${ship.id}`);
+            }
+        });
     }
 
     private registerDevCommandHandlers() {

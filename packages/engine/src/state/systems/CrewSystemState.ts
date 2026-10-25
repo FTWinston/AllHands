@@ -36,7 +36,30 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
      */
     @type([NonEncounterCardState]) nonEncounterCards = new ArraySchema<NonEncounterCardState>();
 
+    /** Cards on sale to this crew member, at a shop station for their role. Stocked on arrival; bought cards are removed. Cleared on leaving. */
+    @type([CardState]) shopCards = new ArraySchema<CardState>();
+
     override readonly maxHandSize = 5;
+
+    /**
+     * Stocks this crew member's shop with the given cards, replacing any already on offer.
+     * Whether the shop is open is only known to their client, which can close and reopen it while at the station.
+     */
+    stockShop(cards: readonly CardState[]) {
+        this.shopCards.clear();
+        this.shopCards.push(...cards);
+    }
+
+    /** Removes a card from the shop, returning it, or null if the shop doesn't offer that card. Doesn't add it to the deck. */
+    takeShopCard(cardId: number): CardState | null {
+        const index = this.shopCards.findIndex(card => card.id === cardId);
+        if (index === -1) {
+            return null;
+        }
+
+        const [card] = this.shopCards.splice(index, 1);
+        return card;
+    }
 
     removeCard(cardId: number): boolean {
         const index = this.hand.findIndex(card => card.id === cardId);
@@ -163,6 +186,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
 
     override cleanupAfterEncounter() {
         this.pendingDrawChoice.clear();
+        this.shopCards.clear();
         super.cleanupAfterEncounter();
     }
 }

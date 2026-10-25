@@ -85,6 +85,14 @@
     --kind-color: var(--good-light);
 }
 
+/* Shop stations. */
+.glyph.navigationBeacon,
+.glyph.armsDealer,
+.glyph.salvageYard,
+.glyph.researchOutpost {
+    --kind-color: var(--energy-light);
+}
+
 .glyph.boss {
     --kind-color: var(--primary-light);
 }

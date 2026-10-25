@@ -1,8 +1,9 @@
-import { getEncounterDefinition } from '../encounters/EncounterRegistry';
+import { stationKinds } from 'common-data/features/sectors/utils/isStationKind';
+import { getEncounterDefinition, stationEncounterIds } from '../encounters/EncounterRegistry';
 import type { SectorTheme } from './sectorThemes';
 import type { ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
-import type { EncounterId, SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { EncounterId, SectorNodeInfo, StationKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { IRandom } from 'common-data/types/IRandom';
 
 /** A node's place in the graph, before what it holds is decided. */
@@ -356,12 +357,14 @@ function createNode(random: IRandom, theme: SectorTheme, names: NamePicker, slot
     }
 
     if (role === 'start' || role === 'repair') {
-        const definition = getEncounterDefinition('repairStation');
+        // The start and pre-boss stations just repair. Others may be any kind of station, shops included.
+        const kind: StationKind = role === 'repair' && slot.layer !== preBossRepairLayer ? random.pick(stationKinds) : 'repair';
+        const definition = getEncounterDefinition(stationEncounterIds[kind]);
         return {
             ...base,
-            kind: 'repair',
+            kind,
             encounterId: definition.id,
-            name: names.pickStation(),
+            name: names.pickStation(kind),
         };
     }
 
@@ -534,7 +537,7 @@ function arrangeRows(random: IRandom, layers: NodeSlot[][]): number[][] {
 
 interface NamePicker {
     pickLocation(): string;
-    pickStation(): string;
+    pickStation(kind: StationKind): string;
 }
 
 /** Picks names without repeats while any remain. */
@@ -550,8 +553,10 @@ function createNamePicker(random: IRandom, theme: SectorTheme): NamePicker {
         };
     };
 
+    const stationPickers = Object.fromEntries(stationKinds.map(kind => [kind, pickFrom(theme.stationNames[kind])])) as Record<StationKind, () => string>;
+
     return {
         pickLocation: pickFrom(theme.locationNames),
-        pickStation: pickFrom(theme.stationNames),
+        pickStation: (kind: StationKind) => stationPickers[kind](),
     };
 }

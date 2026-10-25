@@ -1,12 +1,12 @@
 import { BossAEncounter, BossBEncounter, BossCEncounter } from './bosses';
 import { AmbushEncounter, AssaultEncounter, EscortEncounter, SkirmishEncounter } from './CombatEncounter';
-import { RepairStationEncounter } from './RepairStationEncounter';
+import { StationEncounter } from './StationEncounter';
 import { defaultSurviveDurationMs, SurviveEncounter } from './SurviveEncounter';
 import type { Encounter } from './Encounter';
 import type { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
 import type { EnvironmentType } from 'common-data/features/sectors/types/EnvironmentType';
 import type { ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
-import type { EncounterId, SectorNodeInfo, SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { EncounterId, SectorNodeInfo, SectorNodeKind, StationKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameState } from 'src/state/GameState';
 
 export interface EncounterDefinition {
@@ -27,7 +27,11 @@ const definitions: readonly EncounterDefinition[] = [
     { id: 'assault', name: 'Assault', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'nebula', defaultFactionId: 'factionB', create: (state, node) => new AssaultEncounter(state, node) },
     { id: 'escort', name: 'Escorted Cruiser', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'gasGiant', defaultFactionId: 'factionC', create: (state, node) => new EscortEncounter(state, node) },
     { id: 'survive', name: 'Hold Out', kind: 'combat', objective: { type: 'survive', durationMs: defaultSurviveDurationMs }, defaultEnvironment: 'asteroidField', defaultFactionId: 'factionA', create: (state, node) => new SurviveEncounter(state, node) },
-    { id: 'repairStation', name: 'Repair Station', kind: 'repair', create: (state, node) => new RepairStationEncounter(state, node) },
+    { id: 'repairStation', name: 'Repair Station', kind: 'repair', create: (state, node) => new StationEncounter(state, node) },
+    { id: 'navigationBeacon', name: 'Navigation Beacon', kind: 'navigationBeacon', create: (state, node) => new StationEncounter(state, node) },
+    { id: 'armsDealer', name: 'Arms Dealer', kind: 'armsDealer', create: (state, node) => new StationEncounter(state, node) },
+    { id: 'salvageYard', name: 'Salvage Yard', kind: 'salvageYard', create: (state, node) => new StationEncounter(state, node) },
+    { id: 'researchOutpost', name: 'Research Outpost', kind: 'researchOutpost', create: (state, node) => new StationEncounter(state, node) },
     { id: 'bossA', name: 'Placeholder Boss A', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'asteroidField', defaultFactionId: 'factionA', create: (state, node) => new BossAEncounter(state, node) },
     { id: 'bossB', name: 'Placeholder Boss B', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'nebula', defaultFactionId: 'factionB', create: (state, node) => new BossBEncounter(state, node) },
     { id: 'bossC', name: 'Placeholder Boss C', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'deepSpace', defaultFactionId: 'factionC', create: (state, node) => new BossCEncounter(state, node) },
@@ -86,3 +90,12 @@ export function getDevEncounterList(): DevEncounterInfo[] {
         };
     });
 }
+
+/** The encounter for each kind of station. */
+export const stationEncounterIds: Readonly<Record<StationKind, EncounterId>> = {
+    repair: 'repairStation',
+    navigationBeacon: 'navigationBeacon',
+    armsDealer: 'armsDealer',
+    salvageYard: 'salvageYard',
+    researchOutpost: 'researchOutpost',
+};

@@ -1,9 +1,10 @@
+import { isStationKind, stationKinds } from 'common-data/features/sectors/utils/isStationKind';
 import { getNodeKindLabel } from 'common-ui/features/sectors/utils/sectorLabels';
 import { FC } from 'react';
 import { getEdgePath, layoutSectorMap, MapEdgeLayout, MapEdgeStatus, MapNodeStatus } from '../utils/layoutSectorMap';
 import styles from './SectorMapDisplay.module.css';
 import type { SectorMapInfo, SectorMapNodeInfo } from 'common-data/features/sectors/types/SectorMapInfo';
-import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { SectorNodeKind, StationKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 
 type Props = {
     map: SectorMapInfo;
@@ -60,6 +61,47 @@ function getSpikedPoints(radius: number, spikes: number) {
     }).join(' ');
 }
 
+/** Every station is a rounded square, marked to show what kind of station it is. */
+const StationMark: FC<{ kind: StationKind; inner: number }> = ({ kind, inner }) => {
+    switch (kind) {
+        case 'repair':
+            // A plus.
+            return <path className={styles.mark} d={`M0 ${-inner}V${inner}M${-inner} 0H${inner}`} />;
+        case 'navigationBeacon':
+            // A compass needle.
+            return <path className={styles.mark} d={`M0 ${-inner * 1.1}L${inner * 0.55} 0L0 ${inner * 1.1}L${-inner * 0.55} 0Z`} />;
+        case 'armsDealer':
+            // A crosshair.
+            return (
+                <>
+                    <circle className={styles.mark} r={inner * 0.6} />
+                    <path className={styles.mark} d={`M0 ${-inner * 1.2}V${-inner * 0.6}M0 ${inner * 0.6}V${inner * 1.2}M${-inner * 1.2} 0H${-inner * 0.6}M${inner * 0.6} 0H${inner * 1.2}`} />
+                </>
+            );
+        case 'salvageYard':
+            // A hexagonal nut.
+            return (
+                <polygon
+                    className={styles.mark}
+                    points={Array.from({ length: 6 }, (_, i) => {
+                        const angle = (Math.PI / 3) * i;
+                        return `${Math.cos(angle) * inner},${Math.sin(angle) * inner}`;
+                    }).join(' ')}
+                />
+            );
+        case 'researchOutpost':
+            // An atom.
+            return (
+                <>
+                    <ellipse className={styles.mark} rx={inner * 1.1} ry={inner * 0.4} transform="rotate(45)" />
+                    <ellipse className={styles.mark} rx={inner * 1.1} ry={inner * 0.4} transform="rotate(-45)" />
+                </>
+            );
+        default:
+            throw new Error(`Station kind not found: ${kind satisfies never}`);
+    }
+};
+
 const NodeGlyph: FC<{ kind: SectorNodeKind; elite?: boolean; status: MapNodeStatus; radius: number }> = ({ kind, elite, status, radius }) => {
     const inner = radius * 0.5;
 
@@ -76,10 +118,10 @@ const NodeGlyph: FC<{ kind: SectorNodeKind; elite?: boolean; status: MapNodeStat
                     <path className={styles.mark} d={`M${-inner} ${-inner}L${inner} ${inner}M${inner} ${-inner}L${-inner} ${inner}`} />
                 </>
             )}
-            {kind === 'repair' && (
+            {isStationKind(kind) && (
                 <>
                     <rect className={styles.shape} x={-radius} y={-radius} width={radius * 2} height={radius * 2} rx={radius * 0.3} />
-                    <path className={styles.mark} d={`M0 ${-inner}V${inner}M${-inner} 0H${inner}`} />
+                    <StationMark kind={kind} inner={inner} />
                 </>
             )}
             {kind === 'boss' && (
@@ -169,10 +211,12 @@ export const SectorMapDisplay: FC<Props> = ({ map }) => {
                     <LegendGlyph kind="combat" elite status="unreachable" />
                     Elite combat
                 </li>
-                <li>
-                    <LegendGlyph kind="repair" status="unreachable" />
-                    Repair station
-                </li>
+                {stationKinds.map(kind => (
+                    <li key={kind}>
+                        <LegendGlyph kind={kind} status="unreachable" />
+                        {getNodeKindLabel(kind)}
+                    </li>
+                ))}
                 <li>
                     <LegendGlyph kind="boss" status="unreachable" />
                     Boss

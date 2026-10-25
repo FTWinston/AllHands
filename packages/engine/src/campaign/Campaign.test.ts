@@ -1,10 +1,12 @@
-import { antimatterRewards, cardSellPrice, getAntimatterReward, minDeckSize } from 'common-data/features/ships/utils/antimatter';
+import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
+import { antimatterRewards, cardSellPrice, getAntimatterReward, minDeckSize, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
 import { playerShipSetup } from './playerShipSetup';
 import { sectorThemes } from './sectorThemes';
+import { shopCardCount } from './stationShop';
 import type { GameState } from 'src/state/GameState';
 
 const rooms = setupGameRoom();
@@ -538,5 +540,125 @@ describe('Campaign stations', () => {
         campaign.warpAway(ship);
         expect(campaign.sellDeckCard(ship, ship.tacticalState, ship.tacticalState.deck[0].id)).toBe(false);
         expect(ship.antimatter).toBe(0);
+    });
+});
+
+describe('Campaign shop stations', () => {
+    function createAtShop(encounterId = 'navigationBeacon', antimatter = 0) {
+        const created = createCampaign();
+        created.campaign.dismissMessage();
+        expect(created.campaign.devLoadEncounter(encounterId)).toBe(true);
+        expect(created.campaign.isAtStation).toBe(true);
+        created.ships[0].addAntimatter(antimatter);
+        return created;
+    }
+
+    it('stocks a shop of cards for its own crew member only, on arrival', () => {
+        const { ships: [ship] } = createAtShop('armsDealer');
+
+        expect(ship.tacticalState.shopCards.length).toBe(shopCardCount);
+        for (const card of ship.tacticalState.shopCards) {
+            expect(getShopCardTypes('tactical')).toContain(card.type);
+        }
+        for (const system of [ship.helmState, ship.scienceState, ship.engineerState]) {
+            expect(system.shopCards.length).toBe(0);
+        }
+    });
+
+    it('still stocks the shop and repairs the ship when dev auto win is on', () => {
+        const { state, campaign, ships: [ship] } = createCampaign();
+        state.devAutoWin = true;
+        campaign.dismissMessage();
+        ship.hullState.adjustHealth(-2);
+
+        expect(campaign.devLoadEncounter('armsDealer')).toBe(true);
+
+        expect(ship.tacticalState.shopCards.length).toBe(shopCardCount);
+        expect(ship.hullState.health).toBe(ship.hullState.maxHealth);
+        expect(state.encounter!.objectiveMet).toBe(true);
+    });
+
+    it('stocks no shop at a repair station', () => {
+        const created = createCampaign();
+        created.campaign.dismissMessage();
+        created.campaign.devLoadEncounter('repairStation');
+        const [ship] = created.ships;
+
+        expect([ship.helmState, ship.scienceState, ship.tacticalState, ship.engineerState].every(system => system.shopCards.length === 0)).toBe(true);
+    });
+
+    it('sells a card for antimatter, adding it to the bottom of the deck', () => {
+        const { campaign, ships: [ship] } = createAtShop('navigationBeacon', 50);
+        const helm = ship.helmState;
+        const card = helm.shopCards[1];
+        const deckSize = helm.deck.length;
+        const maxHealth = helm.maxHealth;
+
+        expect(campaign.buyShopCard(ship, helm, card.id)).toBe(true);
+
+        expect(ship.antimatter).toBe(50 - shopCardPrice);
+        expect(helm.deck.length).toBe(deckSize + 1);
+        expect(helm.deck[helm.deck.length - 1]).toBe(card);
+        expect(helm.maxHealth).toBe(maxHealth + 1);
+        expect(helm.shopCards.includes(card)).toBe(false);
+        expect(helm.shopCards.length).toBe(shopCardCount - 1);
+
+        // The bought card stays in the deck after leaving.
+        campaign.closeShop(ship, helm);
+        campaign.warpAway(ship);
+        expect(helm.deck.includes(card)).toBe(true);
+    });
+
+    it('rejects buying without enough antimatter', () => {
+        const { campaign, ships: [ship] } = createAtShop('navigationBeacon', shopCardPrice - 1);
+        const helm = ship.helmState;
+        const deckSize = helm.deck.length;
+
+        expect(campaign.buyShopCard(ship, helm, helm.shopCards[0].id)).toBe(false);
+
+        expect(ship.antimatter).toBe(shopCardPrice - 1);
+        expect(helm.deck.length).toBe(deckSize);
+        expect(helm.shopCards.length).toBe(shopCardCount);
+    });
+
+    it('rejects buying cards the crew member\'s shop does not offer', () => {
+        const { campaign, ships: [ship] } = createAtShop('navigationBeacon', 100);
+
+        expect(campaign.buyShopCard(ship, ship.helmState, 9999)).toBe(false);
+        expect(campaign.buyShopCard(ship, ship.tacticalState, ship.helmState.shopCards[0].id)).toBe(false);
+        expect(ship.antimatter).toBe(100);
+    });
+
+    it('only lets the shop\'s own crew member close it, keeping its cards so it can be reopened', () => {
+        const { campaign, ships: [ship] } = createAtShop('salvageYard', 100);
+        const engineer = ship.engineerState;
+        const cardId = engineer.shopCards[0].id;
+
+        expect(campaign.closeShop(ship, ship.helmState)).toBe(false);
+        expect(campaign.closeShop(ship, engineer)).toBe(true);
+        expect(engineer.shopCards.length).toBe(shopCardCount);
+
+        // Reopening is client-only, and the shop can be closed again.
+        expect(campaign.buyShopCard(ship, engineer, cardId)).toBe(true);
+        expect(ship.antimatter).toBe(100 - shopCardPrice);
+        expect(campaign.closeShop(ship, engineer)).toBe(true);
+    });
+
+    it('rejects closing a shop away from a shop station', () => {
+        const created = createCampaign();
+        created.campaign.dismissMessage();
+        created.campaign.devLoadEncounter('repairStation');
+        const [ship] = created.ships;
+
+        expect(created.campaign.closeShop(ship, ship.helmState)).toBe(false);
+    });
+
+    it('clears the shop on leaving', () => {
+        const { state, campaign, ships: [ship] } = createAtShop('researchOutpost', 100);
+
+        expect(campaign.warpAway(ship)).toBe(true);
+        expect(state.phase).toBe('map');
+        expect(ship.scienceState.shopCards.length).toBe(0);
+        expect(campaign.buyShopCard(ship, ship.scienceState, 1)).toBe(false);
     });
 });

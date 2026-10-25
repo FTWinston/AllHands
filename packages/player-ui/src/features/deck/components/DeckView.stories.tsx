@@ -1,8 +1,9 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
+import { cardSellPrice, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
+import { ShopPanel } from '../../shop/components/ShopPanel';
 import { DeckView as Component } from './DeckView';
 import type { Snapshot } from '@colyseus/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -122,5 +123,31 @@ export const AtStationWithAside: Story = {
                 Something else at the station, e.g. a shop.
             </section>
         ),
+    },
+};
+
+export const AtShopStation: Story = {
+    args: {
+        atStation: true,
+        crew: 'helm',
+        antimatter: 40,
+        cards: createDeck(['slowAndSteady', 'zigZag', 'strafe', 'faceTarget', 'exampleNoTarget', 'sweep', 'sweep', 'slowAndSteady', 'zigZag', 'slowAndSteady', 'strafe']),
+        aside: (
+            <ShopPanel
+                title="Navigation beacon"
+                cards={[{ id: 101, type: 'fullReverse' }, { id: 102, type: 'strafe' }, { id: 103, type: 'sweep' }]}
+                price={shopCardPrice}
+                antimatter={40}
+                isOpen
+                buyCard={fn()}
+                openShop={fn()}
+                closeShop={fn()}
+            />
+        ),
+    },
+    play: async ({ canvasElement }) => {
+        const page = within(canvasElement.ownerDocument.body);
+        await expect(await page.findByRole('region', { name: 'Shop' })).toBeInTheDocument();
+        await expect(page.getAllByRole('button', { name: /Buy/ })).toHaveLength(3);
     },
 };

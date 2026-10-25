@@ -25,7 +25,7 @@ export const Science = (props: Props) => {
     const targets = useStableOrderedTargets(objects, localShip);
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
-    const deckView = useDeckView(props.room, localShip?.scienceState, localShip?.antimatter ?? 0);
+    const deckView = useDeckView(props.room, 'science', localShip?.scienceState, localShip?.antimatter ?? 0);
 
     const pause = useCallback(() => {
         props.room.send('pause');

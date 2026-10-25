@@ -1,3 +1,4 @@
+import { stationKinds } from 'common-data/features/sectors/utils/isStationKind';
 import { Button } from 'common-ui/components/Button';
 import { getNodeKindLabel } from 'common-ui/features/sectors/utils/sectorLabels';
 import { FC } from 'react';
@@ -11,7 +12,7 @@ type Props = {
     loadEncounter: (encounterId: string) => void;
 };
 
-const kindOrder: SectorNodeKind[] = ['combat', 'repair', 'boss'];
+const kindOrder: SectorNodeKind[] = ['combat', ...stationKinds, 'boss'];
 
 export const EncounterSelector: FC<Props> = ({ encounters, loadEncounter }) => {
     if (encounters.length === 0) {
