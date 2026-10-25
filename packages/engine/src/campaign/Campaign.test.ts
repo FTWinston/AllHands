@@ -293,6 +293,24 @@ describe('Campaign phase flow', () => {
         expect(campaign.dismissMessage()).toBe(false);
     });
 
+    it('starts every encounter already complete, with nothing spawned, when dev auto win is on', () => {
+        const { state, campaign, ships } = createCampaign();
+        const [ship] = ships;
+        state.devAutoWin = true;
+        campaign.dismissMessage();
+
+        while (state.phase === 'map') {
+            expect(campaign.selectRoute(ship, state.map!.availableNodeIds[0])).toBe(true);
+            expect(state.encounter!.objectiveMet).toBe(true);
+            expect(state.encounter!.objectiveEndTime).toBe(0);
+            expect([...state.objects.values()].every(object => object instanceof PlayerShip)).toBe(true);
+            expect(ship.helmState.hand.some(card => card.type === 'warpAway')).toBe(true);
+            expect(campaign.warpAway(ship)).toBe(true);
+        }
+
+        expect(state.phase).toBe('sectorOutro');
+    });
+
     it('is defeated when the last player ship is destroyed', () => {
         const { state, campaign, ships } = createCampaign();
         campaign.dismissMessage();
@@ -562,6 +580,19 @@ describe('Campaign shop stations', () => {
         for (const system of [ship.helmState, ship.scienceState, ship.engineerState]) {
             expect(system.shopCards.length).toBe(0);
         }
+    });
+
+    it('still stocks the shop and repairs the ship when dev auto win is on', () => {
+        const { state, campaign, ships: [ship] } = createCampaign();
+        state.devAutoWin = true;
+        campaign.dismissMessage();
+        ship.hullState.adjustHealth(-2);
+
+        expect(campaign.devLoadEncounter('armsDealer')).toBe(true);
+
+        expect(ship.tacticalState.shopCards.length).toBe(shopCardCount);
+        expect(ship.hullState.health).toBe(ship.hullState.maxHealth);
+        expect(state.encounter!.objectiveMet).toBe(true);
     });
 
     it('stocks no shop at a repair station', () => {

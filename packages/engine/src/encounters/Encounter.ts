@@ -38,6 +38,11 @@ export abstract class Encounter {
         this.populate();
     }
 
+    /** Dev tools: starts the encounter as though its objective had already been met, without spawning anything. */
+    startComplete(): void {
+        this.complete();
+    }
+
     tick(_deltaTime: number): void {}
 
     onObjectRemoved(_object: GameObject): void {}

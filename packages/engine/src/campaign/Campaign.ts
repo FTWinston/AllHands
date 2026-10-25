@@ -337,7 +337,11 @@ export class Campaign {
             this.awardAntimatter();
             this.completeObjective();
         });
-        this.encounter.start();
+        if (this.state.devAutoWin) {
+            this.encounter.startComplete();
+        } else {
+            this.encounter.start();
+        }
         summary.objectiveEndTime = this.encounter.objectiveEndTime;
     }
 
