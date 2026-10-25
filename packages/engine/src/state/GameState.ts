@@ -51,6 +51,9 @@ export class GameState extends Schema {
     /** Multiplier applied to all time-dependent logic. A value of 2 makes everything run twice as fast. */
     public timeScale: number;
 
+    /** Dev tools: when set, each encounter starts with its objective already met and nothing spawned. */
+    public devAutoWin = false;
+
     constructor(private readonly idPool: IdProvider, private readonly clock: ClockTimer, timeScale: number = 1, random?: IRandom) {
         super();
         this.random = random ?? new Random(Math.random);

@@ -12,6 +12,10 @@
     flex: 1;
 }
 
+.autoWin {
+    margin: 0.5em 0;
+}
+
 .actionHeader {
   margin-top: 1em;
 }

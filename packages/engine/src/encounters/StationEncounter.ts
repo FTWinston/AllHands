@@ -30,4 +30,9 @@ export class StationEncounter extends Encounter {
         super.start();
         this.complete();
     }
+
+    /** Dev auto win: a station is complete on arrival anyway, and still repairs ships and stocks its shop. */
+    override startComplete(): void {
+        this.start();
+    }
 }
