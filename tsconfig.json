@@ -12,6 +12,12 @@
       "path": "./packages/engine"
     },
     {
+      "path": "./packages/player-ui"
+    },
+    {
+      "path": "./packages/game-ui"
+    },
+    {
       "path": "./packages/game-app"
     }
   ]
