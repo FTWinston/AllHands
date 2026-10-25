@@ -105,12 +105,10 @@ export function startCampaign(state: GameState, shipCount = 1, themes: readonly 
     return { campaign, ships };
 }
 
-/** At a shop station, closes the ship's open shop, so that helm gets the Warp Away card. */
+/** At a shop station, closes the ship's shop, so that helm gets the Warp Away card. Does nothing elsewhere. */
 export function closeShops(campaign: Campaign, ship: PlayerShip) {
-    for (const system of [ship.helmState, ship.scienceState, ship.tacticalState, ship.engineerState]) {
-        if (system.shopOpen) {
-            campaign.closeShop(ship, system);
-        }
+    if (campaign.shopRole) {
+        campaign.closeShop(ship, ship.getCrewSystem(campaign.shopRole));
     }
 }
 

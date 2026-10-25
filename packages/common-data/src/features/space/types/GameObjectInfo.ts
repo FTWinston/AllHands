@@ -60,13 +60,11 @@ export interface CrewSystemInfo extends SystemInfo {
     pendingDrawChoice: IArray<CardInstance>;
     /** Shown instead of the system's display while outside an encounter; empty during one (see `NonEncounterCardInfo`). */
     nonEncounterCards: IArray<NonEncounterCardInfo>;
-    /** Cards on sale to this crew member at a shop station for their role (see `getShopRole`), each for `shopCardPrice`. Empty elsewhere. */
-    shopCards: IArray<CardInstance>;
     /**
-     * Whether this crew member's shop is open: set on arriving at a shop station for their role, until they close it, after which it can't reopen.
-     * Always false elsewhere.
+     * Cards on sale to this crew member at a shop station for their role (see `getShopRole`), each for `shopCardPrice`. Empty elsewhere.
+     * Whether the shop is open is only known to their client: they can close it and reopen it while at the station.
      */
-    shopOpen: boolean;
+    shopCards: IArray<CardInstance>;
 }
 
 export interface HelmSystemInfo extends CrewSystemInfo {
@@ -191,8 +189,8 @@ export interface PlayerShipInfo extends ShipInfo {
     /** The ship's currency, earned by completing encounters (see `antimatterRewards`). Only synced to the ship's own crew and game client. */
     antimatter: number;
     /**
-     * At a station, what the crew must still do before helm can warp away (see `getStationDepartureStatus`). Null away from a station.
-     * Synced to all of the ship's crew and its game client, as they can't all see the crew systems it depends on.
+     * At a station, what the crew must still do before helm can warp away. Null away from a station.
+     * Synced to all of the ship's crew and its game client, as they can't all see helm's hand.
      */
     stationDeparture: StationDepartureStatus | null;
 }

@@ -140,7 +140,9 @@ export const AtShopStation: Story = {
                 cards={[{ id: 101, type: 'fullReverse' }, { id: 102, type: 'strafe' }, { id: 103, type: 'sweep' }]}
                 price={shopCardPrice}
                 antimatter={40}
+                isOpen
                 buyCard={fn()}
+                openShop={fn()}
                 closeShop={fn()}
             />
         ),

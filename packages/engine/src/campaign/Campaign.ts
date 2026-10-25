@@ -1,5 +1,4 @@
-import { getStationDepartureStatus } from 'common-data/features/sectors/utils/getStationDepartureStatus';
-import { isStationKind } from 'common-data/features/sectors/utils/isStationKind';
+import { getShopRole, isStationKind } from 'common-data/features/sectors/utils/isStationKind';
 import { canSellFromDeck, cardSellPrice, getAntimatterReward, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { getPlayerShips } from 'src/utils/shipQueries';
 import { createEncounter, getDefaultNode, hasEncounter } from '../encounters/EncounterRegistry';
@@ -21,6 +20,7 @@ import type { CrewSystemState } from '../state/systems/CrewSystemState';
 import type { GameOutcome } from 'common-data/features/sectors/types/GamePhase';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
 import type { EncounterId, SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 
 /**
  * Drives the game flow: sector intro -> map -> encounter -> (warp away) -> map ... -> boss -> sector outro -> next sector,
@@ -51,6 +51,11 @@ export class Campaign {
     /** At a station, an "encounter" whose objective is met on arrival. Crew can view, re-order and sell from their decks here. */
     get isAtStation(): boolean {
         return this.isInEncounter && isStationKind(this.state.encounterKind);
+    }
+
+    /** The crew member whose shop is here, at a shop station, or null anywhere else. */
+    get shopRole(): CrewRoleName | null {
+        return this.isAtStation ? getShopRole(this.state.encounterKind) : null;
     }
 
     /** Ships only simulate their systems while this is true: in an encounter, other than at a station. */
@@ -148,14 +153,10 @@ export class Campaign {
 
     /**
      * Helm plays the Warp Away card, ending the completed encounter.
-     * At a station, helm only gets the card once nobody is shopping (see `getStationDepartureStatus`), and the server enforces that too.
+     * At a shop station, helm only gets the card once the shop has been closed (see `closeShop`).
      */
     warpAway(ship: Ship): boolean {
         if (!this.isInEncounter || !this.state.encounter?.objectiveMet || !(ship instanceof PlayerShip) || !this.playerShipsInEncounter.has(ship)) {
-            return false;
-        }
-
-        if (this.isAtStation && getStationDepartureStatus(ship) !== 'ready') {
             return false;
         }
 
@@ -205,9 +206,9 @@ export class Campaign {
         return true;
     }
 
-    /** A crew member buys a card from their open shop, at a shop station for their role. It goes to the bottom of their deck. */
+    /** A crew member buys a card from their shop, at a shop station for their role. It goes to the bottom of their deck. */
     buyShopCard(ship: PlayerShip, system: CrewSystemState, cardId: number): boolean {
-        if (!this.isAtStation || !system.shopOpen || !system.shopCards.some(card => card.id === cardId) || !ship.trySpendAntimatter(shopCardPrice)) {
+        if (this.shopRole !== system.system || !system.shopCards.some(card => card.id === cardId) || !ship.trySpendAntimatter(shopCardPrice)) {
             return false;
         }
 
@@ -216,19 +217,16 @@ export class Campaign {
     }
 
     /**
-     * A crew member closes their shop, at a shop station for their role. Once closed, it can't be reopened.
-     * Helm only gets the Warp Away card once their ship has no open shop.
+     * A crew member closes their shop, at a shop station for their role. Its cards are kept: whether it's open is only known to their client,
+     * which can reopen it, so this can happen more than once per station.
+     * Each close offers helm the Warp Away card, which they only ever hold one of.
      */
     closeShop(ship: PlayerShip, system: CrewSystemState): boolean {
-        if (!this.isAtStation || !system.closeShop()) {
+        if (this.shopRole !== system.system) {
             return false;
         }
 
-        if (!ship.hasOpenShop) {
-            this.offerWarpAway(ship);
-        }
-
-        this.updateStationDeparture(ship);
+        this.offerWarpAway(ship);
         return true;
     }
 
@@ -355,26 +353,30 @@ export class Campaign {
         this.state.encounter.objectiveMet = true;
 
         for (const ship of this.playerShipsInEncounter) {
-            if (!ship.hasOpenShop) {
+            if (this.shopRole) {
+                ship.stationDeparture = 'shopping';
+            } else {
                 this.offerWarpAway(ship);
             }
-
-            this.updateStationDeparture(ship);
         }
     }
 
-    /** Gives the ship's helm an expendable Warp Away card, if the objective is met and they don't already have one. */
+    /**
+     * Gives the ship's helm an expendable Warp Away card, if the objective is met and they don't already have one.
+     * At a station, this also marks the ship as ready to leave (see `PlayerShip.stationDeparture`).
+     */
     private offerWarpAway(ship: PlayerShip): void {
-        if (!this.state.encounter?.objectiveMet || !this.playerShipsInEncounter.has(ship) || ship.helmState.hand.some(card => card.type === 'warpAway')) {
+        if (!this.state.encounter?.objectiveMet || !this.playerShipsInEncounter.has(ship)) {
             return;
         }
 
-        ship.helmState.addCardToHand(new CardState(ship.getCardId(), 'warpAway'));
-    }
+        if (this.isAtStation) {
+            ship.stationDeparture = 'ready';
+        }
 
-    /** Syncs what the ship's crew must still do before leaving the station, for every crew member and the game client to show. */
-    private updateStationDeparture(ship: PlayerShip): void {
-        ship.stationDeparture = this.isAtStation ? getStationDepartureStatus(ship) : null;
+        if (!ship.helmState.hand.some(card => card.type === 'warpAway')) {
+            ship.helmState.addCardToHand(new CardState(ship.getCardId(), 'warpAway'));
+        }
     }
 
     /** Ends the running encounter: removes the warp cards and every non-player object, and resets the player ships' card state. */

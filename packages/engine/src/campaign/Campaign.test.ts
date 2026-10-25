@@ -422,11 +422,11 @@ describe('Campaign antimatter rewards', () => {
 });
 
 describe('getAntimatterReward', () => {
-    it('awards 10 for combat, 30 for elite combat and bosses, and nothing for repair stations', () => {
+    it('awards 10 for combat, 30 for elite combat, 50 for bosses, and nothing for repair stations', () => {
         expect(getAntimatterReward({ kind: 'combat' })).toBe(10);
         expect(getAntimatterReward({ kind: 'combat', elite: false })).toBe(10);
         expect(getAntimatterReward({ kind: 'combat', elite: true })).toBe(30);
-        expect(getAntimatterReward({ kind: 'boss' })).toBe(30);
+        expect(getAntimatterReward({ kind: 'boss' })).toBe(50);
         expect(getAntimatterReward({ kind: 'repair' })).toBe(0);
     });
 });
@@ -553,11 +553,9 @@ describe('Campaign shop stations', () => {
         return created;
     }
 
-    it('opens a shop of cards for its own crew member only, on arrival', () => {
+    it('stocks a shop of cards for its own crew member only, on arrival', () => {
         const { ships: [ship] } = createAtShop('armsDealer');
 
-        expect([ship.helmState, ship.scienceState, ship.tacticalState, ship.engineerState].map(system => system.shopOpen)).toEqual([false, false, true, false]);
-        expect(ship.hasOpenShop).toBe(true);
         expect(ship.tacticalState.shopCards.length).toBe(shopCardCount);
         for (const card of ship.tacticalState.shopCards) {
             expect(getShopCardTypes('tactical')).toContain(card.type);
@@ -567,13 +565,12 @@ describe('Campaign shop stations', () => {
         }
     });
 
-    it('opens no shop at a repair station', () => {
+    it('stocks no shop at a repair station', () => {
         const created = createCampaign();
         created.campaign.dismissMessage();
         created.campaign.devLoadEncounter('repairStation');
         const [ship] = created.ships;
 
-        expect(ship.hasOpenShop).toBe(false);
         expect([ship.helmState, ship.scienceState, ship.tacticalState, ship.engineerState].every(system => system.shopCards.length === 0)).toBe(true);
     });
 
@@ -619,28 +616,35 @@ describe('Campaign shop stations', () => {
         expect(ship.antimatter).toBe(100);
     });
 
-    it('closes for good, discarding unsold cards', () => {
+    it('only lets the shop\'s own crew member close it, keeping its cards so it can be reopened', () => {
         const { campaign, ships: [ship] } = createAtShop('salvageYard', 100);
         const engineer = ship.engineerState;
         const cardId = engineer.shopCards[0].id;
 
         expect(campaign.closeShop(ship, ship.helmState)).toBe(false);
         expect(campaign.closeShop(ship, engineer)).toBe(true);
+        expect(engineer.shopCards.length).toBe(shopCardCount);
 
-        expect(engineer.shopOpen).toBe(false);
-        expect(engineer.shopCards.length).toBe(0);
-        expect(ship.hasOpenShop).toBe(false);
-        expect(campaign.closeShop(ship, engineer)).toBe(false);
-        expect(campaign.buyShopCard(ship, engineer, cardId)).toBe(false);
-        expect(ship.antimatter).toBe(100);
+        // Reopening is client-only, and the shop can be closed again.
+        expect(campaign.buyShopCard(ship, engineer, cardId)).toBe(true);
+        expect(ship.antimatter).toBe(100 - shopCardPrice);
+        expect(campaign.closeShop(ship, engineer)).toBe(true);
     });
 
-    it('clears the shop and departure status if the station is left while it is open (e.g. by dev tools)', () => {
+    it('rejects closing a shop away from a shop station', () => {
+        const created = createCampaign();
+        created.campaign.dismissMessage();
+        created.campaign.devLoadEncounter('repairStation');
+        const [ship] = created.ships;
+
+        expect(created.campaign.closeShop(ship, ship.helmState)).toBe(false);
+    });
+
+    it('clears the shop and departure status if the station is left before the shop is closed (e.g. by dev tools)', () => {
         const { state, campaign, ships: [ship] } = createAtShop('researchOutpost', 100);
 
         expect(campaign.devLoadEncounter('skirmish')).toBe(true);
         expect(state.encounterKind).toBe('combat');
-        expect(ship.scienceState.shopOpen).toBe(false);
         expect(ship.scienceState.shopCards.length).toBe(0);
         expect(ship.stationDeparture).toBeNull();
         expect(campaign.buyShopCard(ship, ship.scienceState, 1)).toBe(false);
@@ -663,8 +667,6 @@ describe('Campaign station departure', () => {
         expect(state.encounter!.objectiveMet).toBe(true);
         expect(hasWarpCard(ship)).toBe(false);
         expect(ship.stationDeparture).toBe('shopping');
-        expect(campaign.warpAway(ship)).toBe(false);
-        expect(state.phase).toBe('encounter');
 
         expect(campaign.closeShop(ship, ship.tacticalState)).toBe(true);
         expect(ship.helmState.hand.map(card => card.type)).toEqual(['warpAway']);
@@ -680,7 +682,7 @@ describe('Campaign station departure', () => {
         const { state, campaign, ships: [ship] } = createAtShop('navigationBeacon');
         const helm = ship.helmState;
 
-        expect(helm.shopOpen).toBe(true);
+        expect(helm.shopCards.length).toBe(shopCardCount);
         expect(helm.hand.length).toBe(0);
         expect(ship.stationDeparture).toBe('shopping');
 
@@ -692,13 +694,23 @@ describe('Campaign station departure', () => {
         expect(state.phase).toBe('map');
     });
 
-    it('only gives the card once, however often the shop is closed', () => {
+    it('only gives the card once, however often the shop is reopened and closed', () => {
         const { campaign, ships: [ship] } = createAtShop('navigationBeacon');
 
         campaign.closeShop(ship, ship.helmState);
         campaign.closeShop(ship, ship.helmState);
 
         expect(ship.helmState.hand.map(card => card.type)).toEqual(['warpAway']);
+        expect(ship.stationDeparture).toBe('ready');
+    });
+
+    it('gives the card at a repair station on arrival', () => {
+        const { campaign, ships: [ship] } = createCampaign();
+        campaign.dismissMessage();
+        campaign.devLoadEncounter('repairStation');
+
+        expect(hasWarpCard(ship)).toBe(true);
+        expect(ship.stationDeparture).toBe('ready');
     });
 
     it('gives each helm the card when their own ship\'s shop closes, and lets that ship leave', () => {
@@ -711,7 +723,6 @@ describe('Campaign station departure', () => {
         expect(second.stationDeparture).toBe('ready');
 
         expect(campaign.warpAway(second)).toBe(true);
-        expect(campaign.warpAway(first)).toBe(false);
         expect(state.phase).toBe('encounter');
 
         campaign.closeShop(first, first.scienceState);

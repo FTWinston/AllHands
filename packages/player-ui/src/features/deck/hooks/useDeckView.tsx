@@ -16,7 +16,7 @@ import type { GameState } from 'engine/state/GameState';
 /**
  * Controls a crew member's "my deck" view. Returns null during an encounter, where the header's deck indicator is a discard target instead.
  * Whether it's open is only known to this client. It opens automatically on arriving at a station, and closes on leaving.
- * At a shop station for this crew member's role, their shop shows alongside the deck until they close it.
+ * At a shop station for this crew member's role, their shop shows alongside the deck.
  * At a station, it also notes what's holding up departure, e.g. who the crew are waiting on to finish shopping.
  */
 export function useDeckView(room: Room<unknown, GameState>, crew: CrewRoleName, ship: Snapshot<PlayerShipInfo> | undefined): DeckViewModel | null {
@@ -29,7 +29,7 @@ export function useDeckView(room: Room<unknown, GameState>, crew: CrewRoleName, 
     const available = atStation || isOutsideEncounter(phase);
 
     const [isOpen, setOpen] = useState(atStation);
-    const shop = useShop(room, system, antimatter);
+    const shop = useShop(room, crew, system, antimatter);
 
     // Open on arriving at a station, and close on leaving it, or on starting an encounter.
     useEffect(() => {
