@@ -1,3 +1,5 @@
+@value headerHeight from '../sizes.module.css';
+
 .crewHeader {
     display: flex;
     justify-content: space-between;
@@ -8,21 +10,15 @@
     font-size: 1em;
     gap: 1em;
     padding: 0.25em 1em 0.25em 0.25em;
+    box-sizing: border-box;
+    height: headerHeight;
+    flex-shrink: 0;
 }
 
 /* Set by SystemDamageOverlay while this station's system is badly damaged, with --system-damage going from 0 up to 1 when wrecked. */
 :global(body[data-system-damaged]) .crewHeader {
     background-color: color-mix(in oklch, var(--danger-darkest), var(--danger-dark) calc(var(--system-damage) * 100%));
     border-bottom-color: var(--danger-mid);
-}
-
-button.menuButton {
-    padding: 0.25em 0.5em;
-}
-
-.menuButtonIcon {
-    width: 1.5em;
-    height: 1.5em;
 }
 
 .title {
@@ -59,9 +55,11 @@ button.menuButton {
     corner-shape: squircle;
     border-radius: 1em;
 }
+
+/* As tall as the deck indicator it replaces. */
 button.deckButton {
     gap: 0.25em;
-    padding: 0.25em 0.75em 0.25em 0.5em;
+    padding: 0.125em 0.75em 0.125em 0.5em;
     background-color: transparent;
     box-shadow: var(--primary-mid) 0px 0px 0px 1px inset;
 }

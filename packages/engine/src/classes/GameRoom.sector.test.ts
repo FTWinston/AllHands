@@ -3,7 +3,7 @@ import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
 import { DEV_TOOLS_ENABLED } from 'src/generated/devtools';
 import { setupGameRoom } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { startCountdownDuration, type GameRoom } from './GameRoom';
 import type { ColyseusTestServer } from '@colyseus/testing';
 
@@ -192,6 +192,14 @@ describe('GameRoom campaign messages', () => {
 
         await send(room, clients.helm, 'moveDeckCard', { cardId: helmOrder[1], toIndex: 0 });
         expect(ship.helmState.deck.map(card => card.id)).toEqual([helmOrder[1], helmOrder[0], ...helmOrder.slice(2)]);
+
+        // Moving a card later in the deck too, and helm's client sees the same order as the server.
+        await send(room, clients.helm, 'moveDeckCard', { cardId: helmOrder[1], toIndex: 3 });
+        expect(ship.helmState.deck.map(card => card.id)).toEqual([helmOrder[0], helmOrder[2], helmOrder[3], helmOrder[1], ...helmOrder.slice(4)]);
+        await vi.waitFor(() => {
+            const clientShip = (clients.helm.state as typeof state).objects.get(ship.id) as typeof ship;
+            expect(clientShip.helmState.deck.map(card => card.id)).toEqual(ship.helmState.deck.map(card => card.id));
+        });
 
         // Tactical can't sell helm's card, but can sell its own.
         const tacticalCount = ship.tacticalState.deck.length;

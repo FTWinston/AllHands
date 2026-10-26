@@ -73,8 +73,16 @@ export const sounds = {
         playTone({ frequency: 1310, endFrequency: 620, duration: 0.15, volume: 0.12 });
     },
 
-    /** The game starts: the ship powering up, its computers coming online, then the bosun's whistle calls all hands. */
-    gameStarted() {
+    /** Every role is claimed and the countdown to the game starting begins: two alert whoops, then the computers chattering into readiness. */
+    countdownStarted() {
+        for (const delay of [0, 0.45]) {
+            playTone({ type: 'square', frequency: 420, endFrequency: 1150, delay, duration: 0.35, volume: 0.08, ring: 55 });
+        }
+        playChatter({ count: 8, delay: 0.95, step: 0.05, volume: 0.08 });
+    },
+
+    /** A sector message comes in: the ship powering up, its computers coming online, then the bosun's whistle calls all hands. */
+    messageReceived() {
         playTone({ type: 'triangle', frequency: 60, endFrequency: 240, attack: 0.4, duration: 1.5, volume: 0.25, warble: { rate: 6, cents: 15 } });
         playNoise({ filterType: 'bandpass', filterFrequency: 200, endFilterFrequency: 1200, envelope: 'gate', attack: 0.6, duration: 1.2, volume: 0.12 });
         const chatter = { count: 20, delay: 0.8, step: 0.06 };
@@ -163,11 +171,6 @@ export const sounds = {
         playTone({ frequency: 2400, endFrequency: 280, delay: 1.3, duration: 0.3, volume: 0.45, envelope: 'decay' });
         playTone({ type: 'triangle', frequency: 1200, endFrequency: 140, delay: 1.3, duration: 0.3, volume: 0.3, envelope: 'decay' });
         playNoise({ filterFrequency: 4000, endFilterFrequency: 300, delay: 1.3, duration: 0.25, volume: 0.35 });
-    },
-
-    /** A sector message comes in: a quick bosun's whistle, as before a shipwide announcement. */
-    messageReceived() {
-        bosunsWhistle(0, 0.6, 0.12);
     },
 
     /** Background computer chatter, played now and then while the bridge is busy. */

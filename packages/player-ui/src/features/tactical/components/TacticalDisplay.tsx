@@ -16,6 +16,7 @@ import { TacticalTargetList } from './TacticalTargetList';
 import { WeaponSlots } from './WeaponSlots';
 
 type Props = PropsWithChildren<Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
+    power: number;
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     cards: Snapshot<CardInstance[]>;
     slots: Snapshot<WeaponSlotInfo[]>;

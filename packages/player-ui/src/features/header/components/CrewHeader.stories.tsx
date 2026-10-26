@@ -39,8 +39,11 @@ export const InEncounter: Story = {
     },
 };
 
-/** The deck indicator is a toggle button for the "my deck" view. */
-export const OutsideEncounter: Story = {
+/** The deck indicator is a toggle button for the "my deck" view. Power isn't shown at a station, as no cards are played there. */
+export const AtStation: Story = {
+    args: {
+        power: undefined,
+    },
     render: (args) => {
         const [isOpen, setOpen] = useState(false);
 
@@ -52,16 +55,18 @@ export const OutsideEncounter: Story = {
                     isOpen,
                     setOpen,
                     atStation: false,
-                    antimatter: 0,
                     moveCard: fn(),
                     sellCard: fn(),
                 }}
             />
         );
     },
-    play: async ({ canvasElement }) => {
+    play: async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
         const page = within(canvasElement.ownerDocument.body);
+
+        // The meta's power of 3 isn't shown.
+        await expect(canvas.queryByText('3')).not.toBeInTheDocument();
 
         const button = canvas.getByRole('button', { name: /My deck/ });
         await expect(button).toHaveAttribute('aria-pressed', 'false');
@@ -75,7 +80,30 @@ export const OutsideEncounter: Story = {
         await expect(button).toHaveAttribute('aria-pressed', 'true');
         await expect(page.getByRole('dialog')).toBeInTheDocument();
 
-        await userEvent.click(page.getByRole('button', { name: 'Close' }));
+        // The header isn't covered, so its menu can still be used, without closing the deck view.
+        await userEvent.click(canvas.getByRole('button', { name: 'Menu' }));
+        await userEvent.click(await page.findByRole('menuitem', { name: 'Pause game' }));
+        await expect(args.onPause).toHaveBeenCalled();
+        await expect(page.getByRole('dialog')).toBeInTheDocument();
+
+        // The same button closes it again, as does the deck view's own close button.
+        await userEvent.click(button);
         await expect(button).toHaveAttribute('aria-pressed', 'false');
+
+        await userEvent.click(button);
+        await userEvent.click(await page.findByRole('button', { name: 'Close' }));
+        await expect(button).toHaveAttribute('aria-pressed', 'false');
+    },
+};
+
+/** At a shop station, the crew member with the shop sees the ship's antimatter. */
+export const Shopping: Story = {
+    args: {
+        power: undefined,
+        antimatter: 40,
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText('40')).toBeInTheDocument();
     },
 };

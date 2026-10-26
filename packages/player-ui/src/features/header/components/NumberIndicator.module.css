@@ -19,7 +19,7 @@
 .value {
     font-weight: bold;
     color: var(--grey-lightest);
-    width: 1.25em;
+    min-width: 1.25em;
 }
 
 .icon {

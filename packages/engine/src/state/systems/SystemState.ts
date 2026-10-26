@@ -410,8 +410,15 @@ export abstract class SystemState extends Schema implements SystemInfo {
         }
 
         if (fromIndex !== toIndex) {
-            const [card] = this.deck.splice(fromIndex, 1);
-            this.deck.splice(toIndex, 0, card);
+            const order = [...this.deck];
+            const [card] = order.splice(fromIndex, 1);
+            order.splice(toIndex, 0, card);
+
+            // Splicing a card back into the ArraySchema isn't synced to clients correctly, so refill it instead.
+            // Once https://github.com/colyseus/schema/issues/246 is fixed, this can splice the card out and back in again.
+            this.deck.clear();
+            this.deck.push(...order);
+
             this.reorderCardPoolFromDeck();
         }
 

@@ -9,6 +9,7 @@ export class SectorMapNodeState extends Schema implements SectorMapNodeInfo {
         this.id = info.id;
         this.kind = info.kind;
         this.name = info.name;
+        this.gridReference = info.gridReference;
         this.elite = info.elite ?? false;
         this.x = info.x;
         this.y = info.y;
@@ -18,6 +19,7 @@ export class SectorMapNodeState extends Schema implements SectorMapNodeInfo {
     @type('string') readonly id: string;
     @type('string') readonly kind: SectorNodeKind;
     @type('string') readonly name: string;
+    @type('string') readonly gridReference: string;
     @type('boolean') readonly elite: boolean;
     @type('number') readonly x: number;
     @type('number') readonly y: number;

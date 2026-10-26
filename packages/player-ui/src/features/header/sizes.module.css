@@ -1,0 +1,4 @@
+/* Values only: importing a @value from a file copies all of its rules into the importer. */
+
+/* The crew header's fixed height, including its 2px bottom border. Full-screen dialogs sit just beneath it. */
+@value headerHeight: calc(2.75em + 2px);

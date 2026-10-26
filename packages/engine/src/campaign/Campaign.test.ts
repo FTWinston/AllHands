@@ -473,6 +473,16 @@ describe('Campaign stations', () => {
         expect(ship.helmState.hand.map(card => card.type)).toEqual(['warpAway']);
     });
 
+    it('gives helm Warp Away on arriving at a repair station, ready to leave straight away', () => {
+        const { state, campaign, ships: [ship] } = createAtStation();
+
+        expect(state.encounter!.objectiveMet).toBe(true);
+        expect(ship.helmState.hand.map(card => card.type)).toEqual(['warpAway']);
+
+        expect(campaign.warpAway(ship)).toBe(true);
+        expect(state.phase).toBe('map');
+    });
+
     it('is not at a station during a combat encounter', () => {
         const { campaign } = createCampaign();
         campaign.dismissMessage();
@@ -490,7 +500,7 @@ describe('Campaign stations', () => {
         expect(deck[0]).toBe(lastCard);
         const order = handIds(deck);
 
-        campaign.warpAway(ship);
+        expect(campaign.warpAway(ship)).toBe(true);
         expect(handIds(ship.helmState.deck)).toEqual(order);
 
         // The first card in the deck is dealt first.
@@ -537,7 +547,7 @@ describe('Campaign stations', () => {
 
         expect(campaign.sellDeckCard(ship, ship.tacticalState, 9999)).toBe(false);
 
-        campaign.warpAway(ship);
+        expect(campaign.warpAway(ship)).toBe(true);
         expect(campaign.sellDeckCard(ship, ship.tacticalState, ship.tacticalState.deck[0].id)).toBe(false);
         expect(ship.antimatter).toBe(0);
     });
@@ -604,8 +614,7 @@ describe('Campaign shop stations', () => {
         expect(helm.shopCards.length).toBe(shopCardCount - 1);
 
         // The bought card stays in the deck after leaving.
-        campaign.closeShop(ship, helm);
-        campaign.warpAway(ship);
+        expect(campaign.warpAway(ship)).toBe(true);
         expect(helm.deck.includes(card)).toBe(true);
     });
 
@@ -629,36 +638,81 @@ describe('Campaign shop stations', () => {
         expect(ship.antimatter).toBe(100);
     });
 
-    it('only lets the shop\'s own crew member close it, keeping its cards so it can be reopened', () => {
-        const { campaign, ships: [ship] } = createAtShop('salvageYard', 100);
-        const engineer = ship.engineerState;
-        const cardId = engineer.shopCards[0].id;
-
-        expect(campaign.closeShop(ship, ship.helmState)).toBe(false);
-        expect(campaign.closeShop(ship, engineer)).toBe(true);
-        expect(engineer.shopCards.length).toBe(shopCardCount);
-
-        // Reopening is client-only, and the shop can be closed again.
-        expect(campaign.buyShopCard(ship, engineer, cardId)).toBe(true);
-        expect(ship.antimatter).toBe(100 - shopCardPrice);
-        expect(campaign.closeShop(ship, engineer)).toBe(true);
-    });
-
-    it('rejects closing a shop away from a shop station', () => {
-        const created = createCampaign();
-        created.campaign.dismissMessage();
-        created.campaign.devLoadEncounter('repairStation');
-        const [ship] = created.ships;
-
-        expect(created.campaign.closeShop(ship, ship.helmState)).toBe(false);
-    });
-
-    it('clears the shop on leaving', () => {
+    it('clears the shop on leaving the station without warping away (e.g. by dev tools)', () => {
         const { state, campaign, ships: [ship] } = createAtShop('researchOutpost', 100);
+
+        expect(campaign.devLoadEncounter('skirmish')).toBe(true);
+        expect(state.encounterKind).toBe('combat');
+        expect(ship.scienceState.shopCards.length).toBe(0);
+        expect(campaign.buyShopCard(ship, ship.scienceState, 1)).toBe(false);
+    });
+});
+
+describe('Campaign station departure', () => {
+    function createAtShop(encounterId: 'navigationBeacon' | 'armsDealer' | 'salvageYard' | 'researchOutpost', shipCount = 1) {
+        const created = createCampaign(shipCount);
+        created.campaign.dismissMessage();
+        expect(created.campaign.devLoadEncounter(encounterId)).toBe(true);
+        return created;
+    }
+
+    const hasWarpCard = (ship: PlayerShip) => ship.helmState.hand.some(card => card.type === 'warpAway');
+
+    it('gives helm Warp Away on arrival at a shop station, alongside the shop', () => {
+        const { state, campaign, ships: [ship] } = createAtShop('navigationBeacon');
+        const helm = ship.helmState;
+
+        expect(state.encounter!.objectiveMet).toBe(true);
+        expect(helm.shopCards.length).toBe(shopCardCount);
+        expect(helm.hand.map(card => card.type)).toEqual(['warpAway']);
 
         expect(campaign.warpAway(ship)).toBe(true);
         expect(state.phase).toBe('map');
-        expect(ship.scienceState.shopCards.length).toBe(0);
-        expect(campaign.buyShopCard(ship, ship.scienceState, 1)).toBe(false);
+        expect(hasWarpCard(ship)).toBe(false);
+    });
+
+    it('gives the card at a repair station on arrival', () => {
+        const { state, campaign, ships: [ship] } = createCampaign();
+        campaign.dismissMessage();
+        campaign.devLoadEncounter('repairStation');
+
+        expect(state.encounter!.objectiveMet).toBe(true);
+        expect(hasWarpCard(ship)).toBe(true);
+    });
+
+    it('gives every helm the card, and only ends once every ship has left', () => {
+        const { state, campaign, ships: [first, second] } = createAtShop('researchOutpost', 2);
+
+        expect(hasWarpCard(first)).toBe(true);
+        expect(hasWarpCard(second)).toBe(true);
+
+        expect(campaign.warpAway(second)).toBe(true);
+        expect(state.phase).toBe('encounter');
+
+        expect(campaign.warpAway(first)).toBe(true);
+        expect(state.phase).toBe('map');
+    });
+
+    it('ends once the remaining ships have warped away, if another was destroyed', () => {
+        const { state, campaign, ships: [first, second] } = createCampaign(2);
+        campaign.dismissMessage();
+        campaign.devLoadEncounter('skirmish');
+
+        completeEncounter(state);
+        expect(campaign.warpAway(first)).toBe(true);
+        expect(state.phase).toBe('encounter');
+
+        second.destroy();
+        expect(state.phase).toBe('map');
+    });
+
+    it('leaves combat encounters unchanged: Warp Away once the objective is met', () => {
+        const { state, campaign, ships: [ship] } = createCampaign();
+        campaign.dismissMessage();
+        campaign.devLoadEncounter('skirmish');
+
+        completeEncounter(state);
+        expect(hasWarpCard(ship)).toBe(true);
+        expect(campaign.warpAway(ship)).toBe(true);
     });
 });

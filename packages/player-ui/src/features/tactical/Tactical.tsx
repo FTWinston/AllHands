@@ -7,11 +7,13 @@ import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
 import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
+import { useShop } from '../shop/hooks/useShop';
 import { SectorMessagePrompt } from './components/SectorMessagePrompt';
 import { TacticalDisplay } from './components/TacticalDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMessageInfo';
+import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = {
@@ -25,7 +27,9 @@ export const Tactical = (props: Props) => {
     const localShip = objects?.[props.shipId] as unknown as Snapshot<PlayerShipInfo>;
     const targets = useStableOrderedTargets(objects, localShip);
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
-    const deckView = useDeckView(props.room, 'tactical', localShip?.tacticalState, localShip?.antimatter ?? 0);
+    const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
+    const deckView = useDeckView(props.room, 'tactical', localShip?.tacticalState);
+    const shop = useShop(props.room, 'tactical', localShip?.tacticalState, localShip?.antimatter ?? 0);
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
 
     const dismissMessage = useCallback(() => {
@@ -54,12 +58,13 @@ export const Tactical = (props: Props) => {
 
     const tacticalState = localShip.tacticalState as unknown as Snapshot<TacticalSystemInfo>;
 
-    if (isOutsideEncounter(phase)) {
+    if (isOutsideEncounter(phase, encounterKind)) {
         return (
             <NonEncounterDisplay
                 crew="tactical"
+                shop={shop}
                 onPause={pause}
-                power={tacticalState.powerLevel}
+                power={phase === 'encounter' ? undefined : tacticalState.powerLevel}
                 deckSize={tacticalState.deck.length}
                 deckView={deckView}
                 cardGeneration={tacticalState.cardGeneration}

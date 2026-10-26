@@ -97,6 +97,9 @@ export class Campaign {
         if (object instanceof PlayerShip) {
             if (getPlayerShips(this.state).length === 0) {
                 this.finish('defeat');
+            } else if (this.playerShipsInEncounter.delete(object)) {
+                // The rest may have already warped away.
+                this.leaveIfAllDeparted();
             }
 
             return;
@@ -151,33 +154,38 @@ export class Campaign {
         });
     }
 
-    /** Helm plays the Warp Away card, ending the completed encounter. */
+    /** Helm plays the Warp Away card, leaving the completed encounter. It ends once every player ship has warped away or been destroyed. */
     warpAway(ship: Ship): boolean {
         if (!this.isInEncounter || !this.state.encounter?.objectiveMet || !(ship instanceof PlayerShip) || !this.playerShipsInEncounter.has(ship)) {
             return false;
         }
 
         this.playerShipsInEncounter.delete(ship);
+        this.leaveIfAllDeparted();
+        return true;
+    }
 
-        if (this.playerShipsInEncounter.size === 0) {
-            const node = this.encounter!.node;
-
-            this.state.changeScene('travel', () => {
-                if (this.isEnded) {
-                    return;
-                }
-
-                this.teardownEncounter();
-
-                if (!this.state.map || node.id === this.state.map.bossNodeId) {
-                    this.enterOutro();
-                } else {
-                    this.showMap();
-                }
-            });
+    /** Ends the completed encounter once no player ship remains in it, moving on to the map, or the outro after the boss. */
+    private leaveIfAllDeparted(): void {
+        if (this.playerShipsInEncounter.size > 0 || !this.isInEncounter || !this.state.encounter?.objectiveMet) {
+            return;
         }
 
-        return true;
+        const node = this.encounter!.node;
+
+        this.state.changeScene('travel', () => {
+            if (this.isEnded) {
+                return;
+            }
+
+            this.teardownEncounter();
+
+            if (!this.state.map || node.id === this.state.map.bossNodeId) {
+                this.enterOutro();
+            } else {
+                this.showMap();
+            }
+        });
     }
 
     /** A crew member moves one of their deck cards to a new position, at a station. */
@@ -211,15 +219,6 @@ export class Campaign {
 
         system.addDeckCard(system.takeShopCard(cardId)!);
         return true;
-    }
-
-    /**
-     * A crew member closes their shop, at a shop station for their role. Its cards are kept: whether it's open is only known to their client,
-     * which can reopen it, so this can happen more than once per station.
-     * This is the hook point for anything that must wait until the shop is closed (e.g. giving helm the Warp Away card).
-     */
-    closeShop(_ship: PlayerShip, system: CrewSystemState): boolean {
-        return this.shopRole === system.system;
     }
 
     /** Dev tools: abandon whatever is running and start the given encounter standalone with repaired ships. */
@@ -318,7 +317,7 @@ export class Campaign {
         // Subscribe before starting, as an encounter may complete immediately.
         this.encounter.onComplete.addListener('campaign', () => {
             this.awardAntimatter();
-            this.offerWarpAway();
+            this.completeObjective();
         });
         if (this.state.devAutoWin) {
             this.encounter.startComplete();
@@ -337,8 +336,8 @@ export class Campaign {
         }
     }
 
-    /** Once the objective is met, every helm gets an expendable Warp Away card in its hand. */
-    private offerWarpAway(): void {
+    /** Once the objective is met, every helm gets an expendable Warp Away card in its hand. Stations are complete on arrival. */
+    private completeObjective(): void {
         if (!this.state.encounter || this.state.encounter.objectiveMet) {
             return;
         }
@@ -346,9 +345,17 @@ export class Campaign {
         this.state.encounter.objectiveMet = true;
 
         for (const ship of this.playerShipsInEncounter) {
-            const card = new CardState(ship.getCardId(), 'warpAway');
-            ship.helmState.addCardToHand(card);
+            this.offerWarpAway(ship);
         }
+    }
+
+    /** Gives the ship's helm an expendable Warp Away card, if the objective is met and they don't already have one. */
+    private offerWarpAway(ship: PlayerShip): void {
+        if (!this.state.encounter?.objectiveMet || !this.playerShipsInEncounter.has(ship) || ship.helmState.hand.some(card => card.type === 'warpAway')) {
+            return;
+        }
+
+        ship.helmState.addCardToHand(new CardState(ship.getCardId(), 'warpAway'));
     }
 
     /** Ends the running encounter: removes the warp cards and every non-player object, and resets the player ships' card state. */

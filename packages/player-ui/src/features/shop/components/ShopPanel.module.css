@@ -29,26 +29,6 @@
     color: var(--danger-light);
 }
 
-.list {
-    /* Match the deck's card size, so three fit across narrow screens. */
-    font-size: clamp(0.4em, calc((100vw - 4rem) / 37), 1em);
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    justify-content: center;
-    gap: 1.5em 1em;
-}
-
-.item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5em;
-    padding: 0.5em;
-}
-
 button.buy {
     font-size: 1.25em;
 }
@@ -57,16 +37,4 @@ button.buy {
     margin: 0;
     color: var(--grey-light);
     font-style: italic;
-}
-
-.footer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25em;
-}
-
-.hint {
-    font-size: 0.8em;
-    color: var(--grey-light);
 }

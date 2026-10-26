@@ -1,9 +1,7 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { cardSellPrice, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import { ShopPanel } from '../../shop/components/ShopPanel';
 import { DeckView as Component } from './DeckView';
 import type { Snapshot } from '@colyseus/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -21,10 +19,8 @@ const meta: Meta<typeof Component> = {
         layout: 'fullscreen',
     },
     args: {
-        crew: 'tactical',
         isOpen: true,
         atStation: false,
-        antimatter: 20,
         cards: createDeck(tacticalCards),
         setOpen: fn(),
         moveCard: fn(),
@@ -33,7 +29,6 @@ const meta: Meta<typeof Component> = {
     render: (args) => {
         // Act out what the server would do, so the deck can be tried out.
         const [cards, setCards] = useState(args.cards);
-        const [antimatter, setAntimatter] = useState(args.antimatter);
         const [isOpen, setOpen] = useState(args.isOpen);
 
         return (
@@ -43,7 +38,6 @@ const meta: Meta<typeof Component> = {
                 <Component
                     {...args}
                     cards={cards}
-                    antimatter={antimatter}
                     isOpen={isOpen}
                     setOpen={(open) => {
                         setOpen(open);
@@ -60,7 +54,6 @@ const meta: Meta<typeof Component> = {
                     }}
                     sellCard={(cardId) => {
                         setCards(cards => cards.filter(card => card.id !== cardId));
-                        setAntimatter(antimatter => antimatter + cardSellPrice);
                         args.sellCard(cardId);
                     }}
                 />
@@ -79,10 +72,10 @@ export const Browsing: Story = {
         await expect(await page.findByText('My deck')).toBeInTheDocument();
         await expect(page.getByText('#12')).toBeInTheDocument();
         await expect(page.queryAllByRole('button', { name: /Sell/ })).toHaveLength(0);
-        await expect(page.queryByLabelText(/Antimatter/)).not.toBeInTheDocument();
     },
 };
 
+/** Selling a card asks for confirmation first. */
 export const AtStation: Story = {
     args: {
         atStation: true,
@@ -93,8 +86,13 @@ export const AtStation: Story = {
         await expect(sellButtons).toHaveLength(12);
 
         await userEvent.click(sellButtons[0]);
-        await expect(args.sellCard).toHaveBeenCalledWith(1);
-        await expect(await page.findByLabelText(`Antimatter: ${20 + cardSellPrice}`)).toBeInTheDocument();
+        await expect(await page.findByText(/Sell .* for 10 antimatter\?/)).toBeInTheDocument();
+        await userEvent.click(page.getByRole('button', { name: 'Cancel' }));
+        await expect(args.sellCard).not.toHaveBeenCalled();
+
+        await userEvent.click(sellButtons[1]);
+        await userEvent.click(await page.findByRole('button', { name: 'OK' }));
+        await expect(args.sellCard).toHaveBeenCalledWith(2);
     },
 };
 
@@ -110,44 +108,5 @@ export const AtStationMinimumDeck: Story = {
         for (const button of page.getAllByRole('button', { name: /Sell/ })) {
             await expect(button).toBeDisabled();
         }
-    },
-};
-
-export const AtStationWithAside: Story = {
-    args: {
-        atStation: true,
-        crew: 'helm',
-        cards: createDeck(['slowAndSteady', 'zigZag', 'strafe', 'faceTarget', 'exampleNoTarget', 'sweep', 'sweep', 'slowAndSteady', 'zigZag', 'slowAndSteady', 'strafe']),
-        aside: (
-            <section style={{ width: '20em', padding: '1em', border: '1px dashed var(--primary-mid)' }}>
-                Something else at the station, e.g. a shop.
-            </section>
-        ),
-    },
-};
-
-export const AtShopStation: Story = {
-    args: {
-        atStation: true,
-        crew: 'helm',
-        antimatter: 40,
-        cards: createDeck(['slowAndSteady', 'zigZag', 'strafe', 'faceTarget', 'exampleNoTarget', 'sweep', 'sweep', 'slowAndSteady', 'zigZag', 'slowAndSteady', 'strafe']),
-        aside: (
-            <ShopPanel
-                title="Navigation beacon"
-                cards={[{ id: 101, type: 'fullReverse' }, { id: 102, type: 'strafe' }, { id: 103, type: 'sweep' }]}
-                price={shopCardPrice}
-                antimatter={40}
-                isOpen
-                buyCard={fn()}
-                openShop={fn()}
-                closeShop={fn()}
-            />
-        ),
-    },
-    play: async ({ canvasElement }) => {
-        const page = within(canvasElement.ownerDocument.body);
-        await expect(await page.findByRole('region', { name: 'Shop' })).toBeInTheDocument();
-        await expect(page.getAllByRole('button', { name: /Buy/ })).toHaveLength(3);
     },
 };

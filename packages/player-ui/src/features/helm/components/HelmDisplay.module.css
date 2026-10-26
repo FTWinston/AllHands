@@ -1,0 +1,8 @@
+.notice {
+    margin: 0;
+    padding: 0.5em 1em;
+    background-color: var(--primary-dark);
+    border-bottom: solid var(--primary-mid) 1px;
+    color: var(--primary-lightest);
+    text-align: center;
+}

@@ -7,9 +7,11 @@ import { useCallback } from 'react';
 import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
+import { useShop } from '../shop/hooks/useShop';
 import { HelmDisplay } from './components/HelmDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
+import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = {
@@ -24,7 +26,9 @@ export const Helm = (props: Props) => {
     const weaponEffectsRef = useWeaponEffects(props.room);
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
-    const deckView = useDeckView(props.room, 'helm', localShip?.helmState, localShip?.antimatter ?? 0);
+    const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
+    const deckView = useDeckView(props.room, 'helm', localShip?.helmState);
+    const shop = useShop(props.room, 'helm', localShip?.helmState, localShip?.antimatter ?? 0);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -57,15 +61,18 @@ export const Helm = (props: Props) => {
 
     const helmState = localShip.helmState;
 
-    // Outside an encounter, these cards are offered instead of the usual display.
-    if (isOutsideEncounter(phase) || helmState.nonEncounterCards.length > 0) {
+    // Outside an encounter, these cards are offered instead of the usual display. At a station, helm's hand only ever holds the Warp Away card.
+    if (isOutsideEncounter(phase, encounterKind) || helmState.nonEncounterCards.length > 0) {
         return (
             <NonEncounterDisplay
                 crew="helm"
                 cards={helmState.nonEncounterCards}
                 playCard={playNonEncounterCard}
+                hand={helmState.hand}
+                playHandCard={playCard}
+                shop={shop}
                 onPause={pause}
-                power={helmState.powerLevel}
+                power={phase === 'encounter' ? undefined : helmState.powerLevel}
                 deckSize={helmState.deck.length}
                 deckView={deckView}
                 cardGeneration={helmState.cardGeneration}
