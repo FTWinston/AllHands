@@ -3,6 +3,7 @@ import { Room, Client } from '@colyseus/sdk';
 import { roomIdentifier } from 'common-data/utils/constants';
 import { TimeSynchronizer } from 'common-ui/classes/TimeSynchronizer';
 import { useEffect, useRef, useState } from 'react';
+import { getKnownCardTypes } from '../features/cardCompendium/utils/knownCardStorage';
 import type { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
 import type { ConnectionState } from 'common-data/types/ConnectionState';
 import type { ServerAddress } from 'common-data/types/ServerAddress';
@@ -37,7 +38,8 @@ export function useRoomConnection(
         let joinedRoom: Room<unknown, GameState> | undefined;
 
         client
-            .joinOrCreate<GameState>(roomIdentifier, { type: 'ship' })
+            // Cards known from earlier games count as seen by the crew from the start.
+            .joinOrCreate<GameState>(roomIdentifier, { type: 'ship', knownCardTypes: [...getKnownCardTypes()] })
             .then((joiningRoom) => {
                 joinedRoom = joiningRoom;
                 setConnectedRoom(joiningRoom);

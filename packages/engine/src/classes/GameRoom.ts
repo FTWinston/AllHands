@@ -2,6 +2,7 @@ import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { isKnowableCardType } from 'common-data/features/cards/utils/getKnowableCardTypes';
 import { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
 import { EncounterId } from 'common-data/features/sectors/types/SectorNodeInfo';
 import { ownEngineerClientRole, getRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, type CrewRole, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
@@ -30,9 +31,11 @@ import type { ServerConfig } from 'common-data/types/ServerConfig';
 interface JoinOptions {
     type?: 'ship' | 'crew';
     crewId?: string;
+    /** From a ship client: the card types it knows from earlier games. */
+    knownCardTypes?: unknown;
 }
 
-type ClientData = Required<JoinOptions>;
+type ClientData = Required<Pick<JoinOptions, 'type' | 'crewId'>>;
 
 /** How long the game waits to start once every role is claimed, in milliseconds, so anyone can still change role. */
 export const startCountdownDuration = 5000;
@@ -593,7 +596,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
     onJoin(client: Client<{ userData: ClientData }>, options: JoinOptions) {
         if (options.type === 'ship') {
-            this.onShipJoin(client, options.crewId);
+            this.onShipJoin(client, options.crewId, options.knownCardTypes);
         } else if (options.type === 'crew' && options.crewId) {
             this.onCrewJoin(client, options.crewId);
         } else {
@@ -601,7 +604,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         }
     }
 
-    private onShipJoin(client: Client<{ userData: ClientData }>, existingCrewId?: string) {
+    private onShipJoin(client: Client<{ userData: ClientData }>, existingCrewId?: string, knownCardTypes?: unknown) {
         console.log(`${client.sessionId} ship joined`);
 
         // Allow reclaiming an existing crew, if present and un-owned.
@@ -635,6 +638,12 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             // A new crew has no roles claimed yet.
             this.updateStartCountdown();
         }
+
+        // Ignore anything that isn't a card type that can be known, as this comes from the client.
+        crew.knownCardTypes = Array.isArray(knownCardTypes)
+            ? knownCardTypes.filter((type): type is CardType => typeof type === 'string' && isKnowableCardType(type))
+            : [];
+        crew.ship?.markCardTypesSeen(crew.knownCardTypes);
 
         // Tag client so leave logic knows what to do.
         client.userData = {
@@ -817,7 +826,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
         // Create a player ship for each crew.
         for (const crew of this.state.crews.values()) {
-            const ship = new PlayerShip(this.state, playerShipSetup);
+            const ship = new PlayerShip(this.state, playerShipSetup, crew.knownCardTypes);
             this.state.add(ship);
             crew.setShip(ship);
         }

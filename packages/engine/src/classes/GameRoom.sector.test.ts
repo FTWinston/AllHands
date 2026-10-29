@@ -35,10 +35,10 @@ async function send(room: GameRoom, client: TestClient, type: string, payload?: 
 const roles: RoleName[] = ['helm', 'tactical', 'science', 'engineer'];
 
 /** A ship client plus one crew client per role, with every role claimed, so the start countdown is running. */
-async function claimAllRoles() {
+async function claimAllRoles(shipOptions: object = {}) {
     const room = rooms.getRoom();
 
-    const shipClient = await connect(room, { type: 'ship' });
+    const shipClient = await connect(room, { type: 'ship', ...shipOptions });
     const [crewId] = [...room.state.crews.keys()];
 
     const clients = {} as Record<RoleName, TestClient>;
@@ -51,8 +51,8 @@ async function claimAllRoles() {
 }
 
 /** A ship client plus one crew client per role, so the campaign has started. */
-async function startGame() {
-    const { room, crewId, shipClient, clients } = await claimAllRoles();
+async function startGame(shipOptions: object = {}) {
+    const { room, crewId, shipClient, clients } = await claimAllRoles(shipOptions);
 
     room.tickStartCountdown(startCountdownDuration);
 
@@ -261,5 +261,20 @@ describe('GameRoom game start', () => {
 
         expect(room.state.sceneChange).toBeNull();
         expect(room.state.gameStatus).toBe('active');
+    });
+
+    it('counts the card types the ship client already knows as seen, ignoring anything that cannot be known', async () => {
+        const { ship } = await startGame({ knownCardTypes: ['purge', 'warpAway', 'notACard', 7, 'zigZag'] });
+
+        expect(ship.seenCardTypes).toContain('purge');
+        expect(ship.seenCardTypes).toContain('zigZag');
+        expect(ship.seenCardTypes).not.toContain('warpAway');
+        expect(ship.seenCardTypes).not.toContain('notACard');
+    });
+
+    it('ignores known card types sent as anything other than a list', async () => {
+        const { ship } = await startGame({ knownCardTypes: 'purge' });
+
+        expect(ship.seenCardTypes).not.toContain('purge');
     });
 });

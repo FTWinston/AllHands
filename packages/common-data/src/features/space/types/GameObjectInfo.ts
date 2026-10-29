@@ -185,7 +185,10 @@ export interface PlayerShipInfo extends ShipInfo {
     /** The ship's currency, earned by completing encounters (see `antimatterRewards`). Only synced to the ship's own crew and game client. */
     antimatter: number;
 
-    /** Non-expendable card types the crew has seen this game, which the game client adds to its known cards. Only synced to the ship's game client. */
+    /**
+     * Non-expendable card types the crew has seen, starting with those its game client knew from earlier games.
+     * The game client adds new ones to its known cards. Only synced to the ship's game client.
+     */
     seenCardTypes: IArray<CardType>;
 }
 
