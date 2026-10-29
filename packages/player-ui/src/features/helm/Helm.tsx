@@ -28,7 +28,7 @@ export const Helm = (props: Props) => {
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
     const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
-    const deckView = useDeckView(props.room, 'helm', localShip?.helmState);
+    const deckView = useDeckView(props.room, localShip?.helmState);
     const shop = useShop(props.room, 'helm', localShip?.helmState, localShip?.antimatter ?? 0);
     const orders = useOrders(props.room, 'helm', localShip?.helmState, localShip);
 

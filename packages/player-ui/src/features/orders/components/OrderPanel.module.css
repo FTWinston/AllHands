@@ -27,4 +27,5 @@
 .spec {
     flex-shrink: 0;
     font-size: 0.4em;
+    color: var(--grey-lightest);
 }

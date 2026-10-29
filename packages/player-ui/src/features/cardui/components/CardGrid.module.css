@@ -50,6 +50,8 @@
 
 .card {
     position: relative;
+    /* Cards take their name and art colour from here: at full brightness, like the deck view, rather than dimmed like an unhovered card in a hand. */
+    color: var(--grey-lightest);
     transition: opacity 0.15s, transform 0.2s ease-in-out;
     transform-origin: var(--zoom-origin-x, center) var(--zoom-origin-y, center);
 

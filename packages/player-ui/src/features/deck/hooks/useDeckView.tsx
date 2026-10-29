@@ -6,25 +6,25 @@ import type { DeckViewModel } from '../types/DeckViewModel';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
-import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import type { CrewSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import type { GameState } from 'engine/state/GameState';
 
 /**
  * Controls a crew member's "my deck" view. Returns null during an encounter, where the header's deck indicator is a discard target instead.
  * Whether it's open is only known to this client. It opens automatically on arriving at a station, and closes on leaving.
- * It doesn't open automatically at a shop station for this crew member's role, or while they have a work order delivery, as they see those first.
+ * It only opens automatically at a station without a shop, so that the shop, or the work order panel at another crew member's shop, is seen first.
+ * Nor does it open while they have a work order delivery to choose from.
  * Once a delivered card is taken, it opens to show the deck with that card added.
  */
-export function useDeckView(room: Room<unknown, GameState>, crew: CrewRoleName, system: Snapshot<CrewSystemInfo> | undefined): DeckViewModel | null {
+export function useDeckView(room: Room<unknown, GameState>, system: Snapshot<CrewSystemInfo> | undefined): DeckViewModel | null {
     const phase = (useRoomState(room, state => state.phase) ?? null) as GamePhase | null;
     const encounterKind = (useRoomState(room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
 
     const atStation = phase === 'encounter' && isStationKind(encounterKind);
     const available = isOutsideEncounter(phase, encounterKind);
-    const hasShop = atStation && getShopRole(encounterKind) === crew;
+    const atShopStation = atStation && getShopRole(encounterKind) !== null;
     const hasDelivery = (system?.deliveryCards?.length ?? 0) > 0;
-    const openOnArrival = atStation && !hasShop && !hasDelivery;
+    const openOnArrival = atStation && !atShopStation && !hasDelivery;
 
     const [isOpen, setOpen] = useState(openOnArrival);
 
