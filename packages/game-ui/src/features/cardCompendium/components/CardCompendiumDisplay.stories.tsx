@@ -1,11 +1,11 @@
 import { knowableCardTypes, knowableCardTypesByRole } from 'common-data/features/cards/utils/getKnowableCardTypes';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import { KnownCardsDisplay as Component } from './KnownCardsDisplay';
+import { CardCompendiumDisplay as Component } from './CardCompendiumDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 
 const meta = {
-    title: 'game-ui/Known Cards',
+    title: 'game-ui/Card Compendium',
     component: Component,
     parameters: {
         layout: 'fullscreen',

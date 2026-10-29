@@ -4,7 +4,7 @@ import { Screen } from 'common-ui/components/Screen';
 import { Card } from 'common-ui/features/cards/components/Card';
 import { CardBack } from 'common-ui/features/cards/components/CardBack';
 import { FC } from 'react';
-import styles from './KnownCardsDisplay.module.css';
+import styles from './CardCompendiumDisplay.module.css';
 import type { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 
@@ -31,11 +31,11 @@ function countKnown(types: Iterable<CardType>, known: ReadonlySet<CardType>) {
 }
 
 /** Every card type that can be known, grouped by crew member. Ones not yet seen on this device are shown face down, so there's a sense of how many are left to find. */
-export const KnownCardsDisplay: FC<Props> = ({ known, back }) => {
+export const CardCompendiumDisplay: FC<Props> = ({ known, back }) => {
     return (
         <Screen padded className={styles.screen}>
             <header className={styles.header}>
-                <h1 className={styles.title}>Known cards</h1>
+                <h1 className={styles.title}>Card compendium</h1>
                 <span className={styles.count}>{`${countKnown(knowableCardTypes, known)} / ${knowableCardTypes.size}`}</span>
                 <Button onClick={back}>Back</Button>
             </header>

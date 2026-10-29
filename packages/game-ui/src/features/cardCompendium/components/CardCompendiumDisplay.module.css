@@ -55,7 +55,8 @@
     font-size: 0.6em;
     list-style: none;
     margin: 0;
-    padding: 0;
+    /* Room for each card's cost, which pokes out past its top left corner, so the scrolling content doesn't clip it. */
+    padding: 1em 0 0 1em;
     display: flex;
     flex-wrap: wrap;
     gap: 1em;

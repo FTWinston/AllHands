@@ -15,7 +15,7 @@ const meta = {
         hostSingleCrewServer: fn(),
         hostMultiCrewServer: fn(),
         joinMultiCrewServer: fn(),
-        showKnownCards: fn(),
+        showCardCompendium: fn(),
         quit: fn(),
     },
 } satisfies Meta<typeof Component>;
