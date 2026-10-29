@@ -4,8 +4,11 @@ import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/
 import { EngineerSystemTileInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { InterceptableAction } from 'src/classes/InterceptableAction';
 import { getSystemEffectDefinition } from 'src/effects/getEngineSystemEffectDefinition';
+import { CardState } from 'src/state/CardState';
 import { CooldownState } from 'src/state/CooldownState';
+import { CrewSystemState } from '../CrewSystemState';
 import { SystemState } from '../SystemState';
+import { mirrorCards } from './mirrorCards';
 import { SystemEffect } from './SystemEffect';
 
 export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo {
@@ -16,6 +19,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         this.health = systemState.health;
         this.maxHealth = systemState.maxHealth;
         systemState.linkEngineerSystem(this);
+        this.mirrorSystemCards();
     }
 
     @type('string') system: ShipSystem;
@@ -23,6 +27,22 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
     @type('number') readonly health: number;
     @type('number') readonly maxHealth: number;
     @type([SystemEffect]) effects = new ArraySchema<SystemEffect>();
+
+    // Copies of the system's own cards, so the engineer can see every system's cards. Kept up to date by mirrorSystemCards.
+    // (The system's arrays can't simply be shared: cards first added under another crew member's state aren't then encoded for the engineer's view.)
+    @type([CardState]) readonly hand = new ArraySchema<CardState>();
+    @type([CardState]) readonly deck = new ArraySchema<CardState>();
+    @type([CardState]) readonly pendingDrawChoice = new ArraySchema<CardState>();
+
+    /** Update the copies of the system's hand, deck and pending draw choice to match the system itself. */
+    mirrorSystemCards() {
+        mirrorCards(this.systemState.hand, this.hand);
+        mirrorCards(this.systemState.deck, this.deck);
+
+        if (this.systemState instanceof CrewSystemState) {
+            mirrorCards(this.systemState.pendingDrawChoice, this.pendingDrawChoice);
+        }
+    }
 
     @type('boolean') generating = false;
 

@@ -165,6 +165,12 @@ export interface EngineerSystemTileInfo {
     maxHealth: number;
     effects: IArray<SystemEffectInstance>;
     generating: boolean;
+    /** The system's own hand, so the engineer can see it. Hull and reactor cards only pass through their hand as they're played. */
+    hand: IArray<CardInstance>;
+    /** The system's own deck, in draw order. */
+    deck: IArray<CardInstance>;
+    /** The system's own pending draw choice. Always empty for hull and reactor. */
+    pendingDrawChoice: IArray<CardInstance>;
 }
 
 export interface EngineerSystemInfo extends CrewSystemInfo {

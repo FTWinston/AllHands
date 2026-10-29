@@ -13,14 +13,20 @@ import type { Snapshot } from '@colyseus/react';
 
 type Props = {
     /** In draw order. */
-    cards: Snapshot<CardInstance[]>;
+    'cards': Snapshot<CardInstance[]>;
     /** When provided, cards can be dragged to a new position. */
-    onMoveCard?: (cardId: number, toIndex: number) => void;
+    'onMoveCard'?: (cardId: number, toIndex: number) => void;
     /** When provided, each card has a button to sell it for `sellPrice`, once confirmed. */
-    onSellCard?: (cardId: number) => void;
-    sellPrice?: number;
+    'onSellCard'?: (cardId: number) => void;
+    'sellPrice'?: number;
     /** Selling is disabled while this is set. */
-    sellDisabled?: boolean;
+    'sellDisabled'?: boolean;
+    /** Whether to number each card by its position. Defaults to true. */
+    'showPositions'?: boolean;
+    /** Whether to mark cards that have extra traits, beyond those of their card type. */
+    'highlightExtraTraits'?: boolean;
+    /** Defaults to "Deck". */
+    'aria-label'?: string;
 };
 
 type PendingMove = {
@@ -90,12 +96,14 @@ export const DeckCardList: FC<Props> = (props) => {
             onDragCancel={() => setDraggingCard(null)}
         >
             <div className={cardGridStyles.scale}>
-                <ol className={classNames(cardGridStyles.grid, draggingCard ? cardGridStyles.noZoom : null)} aria-label="Deck">
+                <ol className={classNames(cardGridStyles.grid, draggingCard ? cardGridStyles.noZoom : null)} aria-label={props['aria-label'] ?? 'Deck'}>
                     {displayedCards.map((card, index) => (
                         <DeckCardItem
                             key={card.id}
                             card={card}
                             index={index}
+                            showPosition={props.showPositions ?? true}
+                            highlightExtraTraits={props.highlightExtraTraits ?? false}
                             canMove={!!onMoveCard}
                             // Dropping either side of the card being dragged would leave it where it is.
                             isMoveTarget={draggingIndex !== -1 && index !== draggingIndex && index !== draggingIndex + 1}
@@ -146,6 +154,8 @@ export const DeckCardList: FC<Props> = (props) => {
 type ItemProps = {
     card: Snapshot<CardInstance>;
     index: number;
+    showPosition: boolean;
+    highlightExtraTraits: boolean;
     canMove: boolean;
     /** Whether dropping the card being dragged here would move it. */
     isMoveTarget: boolean;
@@ -154,25 +164,28 @@ type ItemProps = {
     sellDisabled?: boolean;
 };
 
-const DeckCardItem: FC<ItemProps> = ({ card, index, canMove, isMoveTarget, onSell, sellPrice, sellDisabled }) => {
+const DeckCardItem: FC<ItemProps> = ({ card, index, showPosition, highlightExtraTraits, canMove, isMoveTarget, onSell, sellPrice, sellDisabled }) => {
     const { setNodeRef: setDropRef, isOver } = useDroppable({ id: `${slotPrefix}${index}`, disabled: !canMove });
     const { setNodeRef: setDragRef, attributes, listeners, isDragging } = useDraggable({ id: card.id, disabled: !canMove });
 
     const [isFocused, setIsFocused] = useState(false);
+    const hasExtraTraits = highlightExtraTraits && Object.keys(card.extraTraits ?? {}).length > 0;
 
     return (
         <li
             ref={setDropRef}
             className={classNames(cardGridStyles.item, isOver && isMoveTarget ? styles.dropTarget : null)}
         >
-            <div className={styles.position}>
-                #
-                {index + 1}
-            </div>
+            {showPosition && (
+                <div className={styles.position}>
+                    #
+                    {index + 1}
+                </div>
+            )}
 
             <div
                 ref={setDragRef}
-                className={classNames(cardGridStyles.card, canMove ? styles.movable : null, isDragging ? styles.dragging : null)}
+                className={classNames(cardGridStyles.card, canMove ? styles.movable : null, isDragging ? styles.dragging : null, hasExtraTraits ? styles.extraTraits : null)}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 // Focusable even when not movable, so it can be tapped to zoom in.

@@ -18,18 +18,30 @@ export type SystemInfo = {
     effects?: IArray<SystemEffectInstance>;
 };
 
-type Props = SystemInfo;
+type Props = SystemInfo & {
+    /** Opens a view of all of this system's cards. */
+    onViewCards: () => void;
+};
 
 export const System = (props: Props) => {
     return (
         <div className={styles.system}>
             <h2 className={styles.name}>
-                <SystemIcon
-                    system={props.system}
-                    className={styles.image}
-                />
+                {/* The whole name is the button, as narrow tiles have no room for one beside it. */}
+                <button
+                    type="button"
+                    className={styles.nameButton}
+                    onClick={props.onViewCards}
+                    aria-label={`View ${props.system} cards`}
+                    title={`View ${props.system} cards`}
+                >
+                    <SystemIcon
+                        system={props.system}
+                        className={styles.image}
+                    />
 
-                {props.system}
+                    {props.system}
+                </button>
             </h2>
 
             <CardDrawIconIcon className={classNames(styles.generating, props.generating ? styles.currentlyGenerating : undefined)} />
