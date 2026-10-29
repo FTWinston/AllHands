@@ -51,3 +51,8 @@
 button.sell {
     font-size: 1.25em;
 }
+
+/* Makes cards with unusual traits stand out when scanning the grid. Drop shadows follow the card's shape. */
+.extraTraits {
+    filter: drop-shadow(0 0 0.4em var(--energy-light)) drop-shadow(0 0 0.15em var(--energy-light));
+}

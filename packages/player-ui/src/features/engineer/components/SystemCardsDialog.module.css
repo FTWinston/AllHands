@@ -1,0 +1,38 @@
+.icon {
+    height: 1.5em;
+    width: 1.5em;
+    flex-shrink: 0;
+    color: var(--primary-light);
+}
+
+.body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+    min-width: 0;
+}
+
+/* Separates the deck from the hand above it. */
+.section + .section {
+    border-top: solid var(--primary-mid) 2px;
+    padding-top: 1.5em;
+}
+
+.heading {
+    margin: 0;
+    text-align: center;
+    font-size: 1.25em;
+    color: var(--primary-light);
+}
+
+.note {
+    margin: 0;
+    text-align: center;
+    color: var(--grey-light);
+}

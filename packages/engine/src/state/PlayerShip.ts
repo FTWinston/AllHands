@@ -27,6 +27,16 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
 
     crew: CrewState | null = null;
 
+    public override tick(deltaTime: number, currentTime: number) {
+        super.tick(deltaTime, currentTime);
+
+        // Mirroring every system's cards for the engineer is done once per tick, rather than everywhere cards change.
+        // AI ships have no engineer to see them, so don't bother.
+        if (this.gameState.isSimulatingSystems) {
+            this.engineerState.mirrorSystemCards();
+        }
+    }
+
     @view(ownShipClientRole) @type(ViewState) readonly viewState: ViewState = new ViewState();
 
     /** Earned by completing encounters, and spent at stations. */

@@ -1,3 +1,4 @@
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
 import { DEV_TOOLS_ENABLED } from 'src/generated/devtools';
@@ -5,7 +6,9 @@ import { setupGameRoom } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it, vi } from 'vitest';
 import { startCountdownDuration, type GameRoom } from './GameRoom';
+import type { IArray } from '@colyseus/react';
 import type { ColyseusTestServer } from '@colyseus/testing';
+import type { PlayerShip } from 'src/state/PlayerShip';
 
 const rooms = setupGameRoom();
 
@@ -244,6 +247,74 @@ describe('GameRoom campaign messages', () => {
             expect(room.state.encounter?.encounterId).toBeUndefined();
         });
     }
+});
+
+describe('GameRoom engineer system cards', () => {
+    /** Start the game and enter the first encounter, where hands are dealt. */
+    async function startEncounter() {
+        const game = await startGame();
+        await send(game.room, game.clients.tactical, 'dismissMessage');
+        await send(game.room, game.clients.helm, 'playNonEncounterCard', { cardId: game.ship.helmState.nonEncounterCards[0].id });
+        expect(game.state.phase).toBe('encounter');
+        // Tile copies of each system's cards are updated as the ship ticks.
+        game.ship.tick(0, game.state.currentTime);
+        return game;
+    }
+
+    function getClientShip(client: TestClient, ship: { id: string }) {
+        return (client.state as GameRoom['state']).objects.get(ship.id) as PlayerShip;
+    }
+
+    const cardIds = (cards: IArray<{ id: number }>) => cards.map(card => card.id);
+
+    it('engineer sees every system\'s hand and deck through its tiles, without seeing other systems\' state', async () => {
+        const { ship, clients } = await startEncounter();
+
+        await vi.waitFor(() => {
+            const engineerShip = getClientShip(clients.engineer, ship);
+            for (const tile of ship.engineerState.systems) {
+                const clientTile = engineerShip.engineerState.systems.find(t => t.system === tile.system)!;
+                expect(cardIds(clientTile.hand)).toEqual(cardIds(tile.hand));
+                expect(cardIds(clientTile.deck)).toEqual(cardIds(tile.deck));
+            }
+            expect(engineerShip.helmState).toBeUndefined();
+            expect(engineerShip.tacticalState).toBeUndefined();
+        });
+
+        // Helm's own view of its cards is unaffected.
+        await vi.waitFor(() => {
+            const helmShip = getClientShip(clients.helm, ship);
+            expect(cardIds(helmShip.helmState.hand)).toEqual(cardIds(ship.helmState.hand));
+            expect(cardIds(helmShip.helmState.deck)).toEqual(cardIds(ship.helmState.deck));
+        });
+    });
+
+    it('engineer sees changes to other systems\' cards, including extra traits and draw choices', async () => {
+        const { state, ship, clients } = await startEncounter();
+
+        ship.helmState.discard();
+        ship.helmState.deck[2].addTrait('expendable', ExtraTraitType.Normal);
+        ship.scienceState.presentDrawChoice();
+        ship.tick(0, state.currentTime);
+
+        await vi.waitFor(() => {
+            const engineerShip = getClientShip(clients.engineer, ship);
+            const helmTile = engineerShip.engineerState.systems.find(t => t.system === 'helm')!;
+            expect(cardIds(helmTile.hand)).toEqual(cardIds(ship.helmState.hand));
+            expect(cardIds(helmTile.deck)).toEqual(cardIds(ship.helmState.deck));
+            expect(helmTile.deck[2].extraTraits.get('expendable')).toBe(ExtraTraitType.Normal);
+
+            const scienceTile = engineerShip.engineerState.systems.find(t => t.system === 'science')!;
+            expect(scienceTile.pendingDrawChoice.length).toBeGreaterThan(0);
+            expect(cardIds(scienceTile.pendingDrawChoice)).toEqual(cardIds(ship.scienceState.pendingDrawChoice));
+        });
+
+        await vi.waitFor(() => {
+            const helmShip = getClientShip(clients.helm, ship);
+            expect(cardIds(helmShip.helmState.deck)).toEqual(cardIds(ship.helmState.deck));
+            expect(helmShip.helmState.deck[2].extraTraits.get('expendable')).toBe(ExtraTraitType.Normal);
+        });
+    });
 });
 
 describe('GameRoom game start', () => {
