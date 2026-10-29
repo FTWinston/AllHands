@@ -1,10 +1,12 @@
 import { getShopRole, isStationKind } from 'common-data/features/sectors/utils/isStationKind';
-import { canSellFromDeck, cardSellPrice, getAntimatterReward, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
+import { canSellFromDeck, cardSellPrice, getAntimatterReward, getOrderPrice, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { getPlayerShips } from 'src/utils/shipQueries';
+import { getSynergyCardTypes } from '../cards/cardSynergies';
 import { createEncounter, getDefaultNode, hasEncounter } from '../encounters/EncounterRegistry';
 import { CardState } from '../state/CardState';
 import { EncounterSummaryState } from '../state/EncounterSummaryState';
 import { MotionKeyframe } from '../state/MotionKeyframe';
+import { OrderPreviewCardState } from '../state/OrderPreviewCardState';
 import { PlayerShip } from '../state/PlayerShip';
 import { SectorMapState } from '../state/SectorMapState';
 import { SectorMessageState } from '../state/SectorMessageState';
@@ -13,6 +15,7 @@ import { createRouteCards } from './campaignCards';
 import { playerShipSetup } from './playerShipSetup';
 import { generateSector } from './SectorGenerator';
 import { sectorThemes, type SectorTheme } from './sectorThemes';
+import { canOrderFor } from './workOrders';
 import type { Encounter } from '../encounters/Encounter';
 import type { GameObject } from '../state/GameObject';
 import type { GameState } from '../state/GameState';
@@ -21,6 +24,8 @@ import type { GameOutcome } from 'common-data/features/sectors/types/GamePhase';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
 import type { EncounterId, SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
+
+const crewRoles: readonly CrewRoleName[] = ['helm', 'tactical', 'science', 'engineer'];
 
 /**
  * Drives the game flow: sector intro -> map -> encounter -> (warp away) -> map ... -> boss -> sector outro -> next sector,
@@ -221,6 +226,62 @@ export class Campaign {
         return true;
     }
 
+    /**
+     * A crew member looks at what a work order for one of their deck cards could deliver, before placing it.
+     * Only allowed where they could place it: at a shop station for another crew member.
+     */
+    previewOrder(ship: PlayerShip, system: CrewSystemState, specCardId: number): boolean {
+        const spec = this.findOrderSpec(system, specCardId);
+        if (!spec) {
+            return false;
+        }
+
+        const owned = new Set(system.deck.map(card => card.type));
+        const seen = new Set(ship.seenCardTypes);
+        system.setOrderPreview(specCardId, getSynergyCardTypes(spec.type).map(type => new OrderPreviewCardState(seen.has(type) ? type : null, owned.has(type))));
+        return true;
+    }
+
+    /**
+     * A crew member pays to place a work order for one of their deck cards, at a shop station for another crew member.
+     * The spec card stays in their deck, and they choose one of the matching cards delivered at the next station (see `StationEncounter`).
+     * Each crew member can only have one pending order, and each order from the same ship costs more than the last (see `getOrderPrice`).
+     */
+    placeOrder(ship: PlayerShip, system: CrewSystemState, specCardId: number): boolean {
+        const spec = this.findOrderSpec(system, specCardId);
+        if (!spec || system.pendingOrder !== null || !canOrderFor(spec.type) || !ship.trySpendAntimatter(getOrderPrice(ship.ordersPlaced))) {
+            return false;
+        }
+
+        ship.ordersPlaced++;
+        system.placeOrder(spec.type);
+        return true;
+    }
+
+    /** A deck card that the crew member could place a work order for here, or null if they can't place orders, or it isn't in their deck. */
+    private findOrderSpec(system: CrewSystemState, specCardId: number): CardState | null {
+        if (this.shopRole === null || this.shopRole === system.system) {
+            return null;
+        }
+
+        return system.deck.find(card => card.id === specCardId) ?? null;
+    }
+
+    /** A crew member takes one of the cards delivered by their work order, for free, at a station. It goes to the bottom of their deck, and the rest are discarded. */
+    takeDelivery(_ship: PlayerShip, system: CrewSystemState, cardId: number): boolean {
+        if (!this.isAtStation) {
+            return false;
+        }
+
+        const card = system.takeDeliveryCard(cardId);
+        if (!card) {
+            return false;
+        }
+
+        system.addDeckCard(card);
+        return true;
+    }
+
     /** Dev tools: abandon whatever is running and start the given encounter standalone with repaired ships. */
     devLoadEncounter(encounterId: EncounterId): boolean {
         if (this.state.phase === null || this.isEnded || !hasEncounter(encounterId)) {
@@ -264,6 +325,12 @@ export class Campaign {
             : null;
         this.state.outcome = outcome;
         this.state.gameStatus = 'ended';
+
+        for (const ship of getPlayerShips(this.state)) {
+            for (const role of crewRoles) {
+                ship.getCrewSystem(role).pendingOrder = null;
+            }
+        }
     }
 
     /**

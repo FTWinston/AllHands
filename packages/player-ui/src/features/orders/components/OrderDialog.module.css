@@ -1,0 +1,38 @@
+.body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+}
+
+.instructions {
+    margin: 0;
+    text-align: center;
+    color: var(--grey-light);
+}
+
+.blocked {
+    display: block;
+    margin-top: 0.25em;
+    color: var(--danger-light);
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1em;
+}
+
+.unknown {
+    opacity: 0.6;
+}
+
+.label {
+    color: var(--grey-light);
+}
+
+.owned {
+    color: var(--grey-mid);
+    font-style: italic;
+}

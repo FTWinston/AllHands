@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
+import { useOrders } from '../orders/hooks/useOrders';
 import { useShop } from '../shop/hooks/useShop';
 import { HelmDisplay } from './components/HelmDisplay';
 import type { Room } from '@colyseus/sdk';
@@ -29,6 +30,7 @@ export const Helm = (props: Props) => {
     const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
     const deckView = useDeckView(props.room, 'helm', localShip?.helmState);
     const shop = useShop(props.room, 'helm', localShip?.helmState, localShip?.antimatter ?? 0);
+    const orders = useOrders(props.room, 'helm', localShip?.helmState, localShip);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -71,6 +73,7 @@ export const Helm = (props: Props) => {
                 hand={helmState.hand}
                 playHandCard={playCard}
                 shop={shop}
+                orders={orders}
                 onPause={pause}
                 power={phase === 'encounter' ? undefined : helmState.powerLevel}
                 deckSize={helmState.deck.length}

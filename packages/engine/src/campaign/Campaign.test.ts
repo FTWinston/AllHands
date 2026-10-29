@@ -1,12 +1,14 @@
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
-import { antimatterRewards, cardSellPrice, getAntimatterReward, minDeckSize, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
+import { antimatterRewards, baseOrderPrice, cardSellPrice, getAntimatterReward, getOrderPrice, minDeckSize, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
+import { getSynergyCardTypes } from '../cards/cardSynergies';
 import { playerShipSetup } from './playerShipSetup';
 import { sectorThemes } from './sectorThemes';
 import { shopCardCount } from './stationShop';
+import { deliveryCardCount } from './workOrders';
 import type { GameState } from 'src/state/GameState';
 
 const rooms = setupGameRoom();
@@ -714,5 +716,202 @@ describe('Campaign station departure', () => {
         completeEncounter(state);
         expect(hasWarpCard(ship)).toBe(true);
         expect(campaign.warpAway(ship)).toBe(true);
+    });
+});
+
+describe('getOrderPrice', () => {
+    it('starts at the base price, rising by half again with each order, to a multiple of 5', () => {
+        expect(getOrderPrice(0)).toBe(baseOrderPrice);
+        expect([0, 1, 2, 3].map(getOrderPrice)).toEqual([45, 70, 100, 150]);
+    });
+});
+
+describe('Campaign work orders', () => {
+    function createAtShop(encounterId: 'navigationBeacon' | 'armsDealer' | 'repairStation' = 'navigationBeacon', antimatter = 500) {
+        const created = createCampaign();
+        created.campaign.dismissMessage();
+        expect(created.campaign.devLoadEncounter(encounterId)).toBe(true);
+        const [ship] = created.ships;
+        ship.addAntimatter(antimatter);
+        return { ...created, ship, tactical: ship.tacticalState };
+    }
+
+    function deckCard(system: { deck: Iterable<{ id: number; type: string }> }, type: string) {
+        return [...system.deck].find(card => card.type === type)!;
+    }
+
+    it('lets crew members order for deck cards with matches, at another crew member\'s shop', () => {
+        const { ship, tactical } = createAtShop();
+
+        expect([...tactical.orderableCardIds]).toContain(deckCard(tactical, 'photonTorpedo').id);
+        expect([...tactical.orderableCardIds]).not.toContain(deckCard(tactical, 'exampleEnemyTarget').id);
+
+        // There's no ordering at your own shop.
+        expect(ship.helmState.orderableCardIds.length).toBe(0);
+    });
+
+    it('takes the price upfront and keeps the spec card in the deck', () => {
+        const { campaign, ship, tactical } = createAtShop();
+        const spec = deckCard(tactical, 'photonTorpedo');
+        const deckSize = tactical.deck.length;
+
+        expect(campaign.placeOrder(ship, tactical, spec.id)).toBe(true);
+
+        expect(ship.antimatter).toBe(500 - baseOrderPrice);
+        expect(ship.ordersPlaced).toBe(1);
+        expect(tactical.pendingOrder).toBe('photonTorpedo');
+        expect(tactical.deck.length).toBe(deckSize);
+        expect(tactical.deck.some(card => card.id === spec.id)).toBe(true);
+    });
+
+    it('refuses an order at your own shop, or away from a shop', () => {
+        for (const encounterId of ['armsDealer', 'repairStation'] as const) {
+            const { campaign, ship, tactical } = createAtShop(encounterId);
+
+            expect(campaign.placeOrder(ship, tactical, deckCard(tactical, 'photonTorpedo').id)).toBe(false);
+            expect(tactical.orderableCardIds.length).toBe(0);
+            expect(ship.antimatter).toBe(500);
+        }
+    });
+
+    it('refuses an order without enough antimatter', () => {
+        const { campaign, ship, tactical } = createAtShop('navigationBeacon', baseOrderPrice - 1);
+
+        expect(campaign.placeOrder(ship, tactical, deckCard(tactical, 'photonTorpedo').id)).toBe(false);
+        expect(tactical.pendingOrder).toBeNull();
+        expect(ship.antimatter).toBe(baseOrderPrice - 1);
+    });
+
+    it('refuses an order for a card with no matches, or one that isn\'t in the deck', () => {
+        const { campaign, ship, tactical } = createAtShop();
+
+        expect(campaign.placeOrder(ship, tactical, deckCard(tactical, 'exampleEnemyTarget').id)).toBe(false);
+        expect(campaign.placeOrder(ship, tactical, 9999)).toBe(false);
+        expect(campaign.placeOrder(ship, tactical, ship.helmState.deck[0].id)).toBe(false);
+        expect(ship.antimatter).toBe(500);
+    });
+
+    it('refuses a second order while one is pending', () => {
+        const { campaign, ship, tactical } = createAtShop();
+
+        expect(campaign.placeOrder(ship, tactical, deckCard(tactical, 'photonTorpedo').id)).toBe(true);
+        expect(campaign.placeOrder(ship, tactical, deckCard(tactical, 'phaserCannon').id)).toBe(false);
+        expect(ship.antimatter).toBe(500 - baseOrderPrice);
+    });
+
+    it('delivers at the next station rather than the one where it was placed, and the next order costs more', () => {
+        const { campaign, ship, tactical } = createAtShop();
+
+        expect(campaign.placeOrder(ship, tactical, deckCard(tactical, 'photonTorpedo').id)).toBe(true);
+        expect(tactical.deliveryCards.length).toBe(0);
+
+        expect(campaign.devLoadEncounter('researchOutpost')).toBe(true);
+
+        expect(tactical.pendingOrder).toBeNull();
+        expect(tactical.deliveryCards.length).toBe(deliveryCardCount);
+        for (const card of tactical.deliveryCards) {
+            expect(getSynergyCardTypes('photonTorpedo')).toContain(card.type);
+            expect(ship.seenCardTypes).toContain(card.type);
+        }
+
+        expect(campaign.placeOrder(ship, tactical, deckCard(tactical, 'phaserCannon').id)).toBe(true);
+        expect(ship.antimatter).toBe(500 - getOrderPrice(0) - getOrderPrice(1));
+    });
+
+    it('carries a pending order through a combat encounter, delivering at any kind of station', () => {
+        const { state, campaign, ship, tactical } = createAtShop();
+        expect(campaign.placeOrder(ship, tactical, deckCard(tactical, 'photonTorpedo').id)).toBe(true);
+
+        expect(campaign.devLoadEncounter('skirmish')).toBe(true);
+        expect(state.encounterKind).toBe('combat');
+        expect(tactical.pendingOrder).toBe('photonTorpedo');
+
+        expect(campaign.devLoadEncounter('repairStation')).toBe(true);
+        expect(tactical.deliveryCards.length).toBe(deliveryCardCount);
+    });
+
+    it('puts the chosen delivered card at the bottom of the deck for free, and discards the other two', () => {
+        const { campaign, ship, tactical } = createAtShop();
+        expect(campaign.placeOrder(ship, tactical, deckCard(tactical, 'photonTorpedo').id)).toBe(true);
+        expect(campaign.devLoadEncounter('repairStation')).toBe(true);
+
+        const [, chosen, other] = tactical.deliveryCards;
+        const antimatter = ship.antimatter;
+        const deckSize = tactical.deck.length;
+
+        expect(campaign.takeDelivery(ship, tactical, chosen.id)).toBe(true);
+
+        expect(tactical.deck.length).toBe(deckSize + 1);
+        expect(tactical.deck[tactical.deck.length - 1]).toBe(chosen);
+        expect(tactical.deliveryCards.length).toBe(0);
+        expect(ship.antimatter).toBe(antimatter);
+
+        expect(campaign.takeDelivery(ship, tactical, other.id)).toBe(false);
+        expect(tactical.deck.includes(other)).toBe(false);
+    });
+
+    it('loses an uncollected delivery, and its order, on leaving the station', () => {
+        const { campaign, ship, tactical } = createAtShop();
+        expect(campaign.placeOrder(ship, tactical, deckCard(tactical, 'photonTorpedo').id)).toBe(true);
+        expect(campaign.devLoadEncounter('repairStation')).toBe(true);
+        const [delivered] = tactical.deliveryCards;
+
+        expect(campaign.warpAway(ship)).toBe(true);
+
+        expect(tactical.deliveryCards.length).toBe(0);
+        expect(tactical.pendingOrder).toBeNull();
+        expect(campaign.takeDelivery(ship, tactical, delivered.id)).toBe(false);
+    });
+
+    it('updates the orderable cards as the deck changes', () => {
+        const { campaign, ship, tactical } = createAtShop();
+        const torpedo = deckCard(tactical, 'photonTorpedo');
+
+        expect(campaign.sellDeckCard(ship, tactical, torpedo.id)).toBe(true);
+
+        expect([...tactical.orderableCardIds]).not.toContain(torpedo.id);
+    });
+
+    it('previews what an order could deliver, marking owned cards and hiding unseen ones', () => {
+        const { campaign, ship, tactical } = createAtShop();
+        const spec = deckCard(tactical, 'photonTorpedo');
+        ship.markCardTypesSeen(['extendedRange']);
+
+        expect(campaign.previewOrder(ship, tactical, spec.id)).toBe(true);
+
+        expect(tactical.orderPreviewCardId).toBe(spec.id);
+        const preview = tactical.orderPreview.map(card => ({ type: card.type, owned: card.owned }));
+        expect(preview).toHaveLength(getSynergyCardTypes('photonTorpedo').length);
+        expect(preview).toContainEqual({ type: 'lowYield', owned: true });
+        expect(preview).toContainEqual({ type: 'extendedRange', owned: false });
+        expect(preview).toContainEqual({ type: null, owned: false });
+
+        expect(campaign.placeOrder(ship, tactical, spec.id)).toBe(true);
+        expect(tactical.orderPreview.length).toBe(0);
+    });
+
+    it('refuses a preview where an order couldn\'t be placed', () => {
+        const { campaign, ship, tactical } = createAtShop('armsDealer');
+
+        expect(campaign.previewOrder(ship, tactical, deckCard(tactical, 'photonTorpedo').id)).toBe(false);
+    });
+
+    it('clears pending orders when the game ends', () => {
+        const { state, campaign, ships: [ship] } = createCampaign();
+
+        for (let sector = 0; sector < sectorThemes.length; sector++) {
+            playSector(state, ship);
+
+            if (sector < sectorThemes.length - 1) {
+                expect(campaign.dismissMessage()).toBe(true);
+            }
+        }
+
+        // As if an order were placed at the last station before the final boss.
+        ship.tacticalState.placeOrder('photonTorpedo');
+        expect(campaign.dismissMessage()).toBe(true);
+
+        expect(state.outcome).toBe('victory');
+        expect(ship.tacticalState.pendingOrder).toBeNull();
     });
 });

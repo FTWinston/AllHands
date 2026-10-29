@@ -7,6 +7,7 @@ import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
 import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
+import { useOrders } from '../orders/hooks/useOrders';
 import { useShop } from '../shop/hooks/useShop';
 import { LongRangeSensorList } from './components/LongRangeSensorList';
 import { ScienceDisplay } from './components/ScienceDisplay';
@@ -30,6 +31,7 @@ export const Science = (props: Props) => {
     const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
     const deckView = useDeckView(props.room, 'science', localShip?.scienceState);
     const shop = useShop(props.room, 'science', localShip?.scienceState, localShip?.antimatter ?? 0);
+    const orders = useOrders(props.room, 'science', localShip?.scienceState, localShip);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -76,6 +78,7 @@ export const Science = (props: Props) => {
             <NonEncounterDisplay
                 crew="science"
                 shop={shop}
+                orders={orders}
                 onPause={pause}
                 power={phase === 'encounter' ? undefined : scienceState.powerLevel}
                 deckSize={scienceState.deck.length}

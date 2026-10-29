@@ -1,0 +1,4 @@
+/* Stands out from a shop, as it's free but time-limited. */
+.panel {
+    border-color: var(--good-mid);
+}

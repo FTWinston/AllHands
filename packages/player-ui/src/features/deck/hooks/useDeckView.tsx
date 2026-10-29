@@ -13,7 +13,8 @@ import type { GameState } from 'engine/state/GameState';
 /**
  * Controls a crew member's "my deck" view. Returns null during an encounter, where the header's deck indicator is a discard target instead.
  * Whether it's open is only known to this client. It opens automatically on arriving at a station, and closes on leaving.
- * It doesn't open automatically at a shop station for this crew member's role, as they see their shop first.
+ * It doesn't open automatically at a shop station for this crew member's role, or while they have a work order delivery, as they see those first.
+ * Once a delivered card is taken, it opens to show the deck with that card added.
  */
 export function useDeckView(room: Room<unknown, GameState>, crew: CrewRoleName, system: Snapshot<CrewSystemInfo> | undefined): DeckViewModel | null {
     const phase = (useRoomState(room, state => state.phase) ?? null) as GamePhase | null;
@@ -22,7 +23,8 @@ export function useDeckView(room: Room<unknown, GameState>, crew: CrewRoleName, 
     const atStation = phase === 'encounter' && isStationKind(encounterKind);
     const available = isOutsideEncounter(phase, encounterKind);
     const hasShop = atStation && getShopRole(encounterKind) === crew;
-    const openOnArrival = atStation && !hasShop;
+    const hasDelivery = (system?.deliveryCards?.length ?? 0) > 0;
+    const openOnArrival = atStation && !hasShop && !hasDelivery;
 
     const [isOpen, setOpen] = useState(openOnArrival);
 

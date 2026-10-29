@@ -33,6 +33,10 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
     @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
     @type('number') antimatter = 0;
 
+    /** How many work orders this ship's crew has placed this game. Each one raises the price of the next (see `getOrderPrice`). */
+    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
+    @type('number') ordersPlaced = 0;
+
     /**
      * The non-expendable card types this ship's crew has seen this game, in the order they were first seen.
      * The game client adds these to its record of known cards, which persists across games.

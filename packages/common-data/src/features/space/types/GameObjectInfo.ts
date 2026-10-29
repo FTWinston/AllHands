@@ -1,6 +1,7 @@
 import { IArray, IMap } from '@colyseus/react';
 import { CardInstance } from 'src/features/cards/types/CardInstance';
 import { NonEncounterCardInfo } from 'src/features/cards/types/NonEncounterCardInfo';
+import { OrderPreviewCardInfo } from 'src/features/cards/types/OrderPreviewCardInfo';
 import { CardType, EnemyTargetedCardType, UntargetedCardType } from 'src/features/cards/utils/cardDefinitions';
 import { SectorDestinationInfo } from 'src/features/sectors/types/SectorDestinationInfo';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
@@ -61,6 +62,16 @@ export interface CrewSystemInfo extends SystemInfo {
     nonEncounterCards: IArray<NonEncounterCardInfo>;
     /** Cards on sale to this crew member at a shop station for their role (see `getShopRole`), each for `shopCardPrice`. Empty elsewhere. */
     shopCards: IArray<CardInstance>;
+    /** The type of the deck card this crew member placed a work order for, which is delivered at the next station. Null when there's none. */
+    pendingOrder: CardType | null;
+    /** Ids of the deck cards this crew member could place a work order for, at a shop station for another crew member. Empty elsewhere. */
+    orderableCardIds: IArray<number>;
+    /** The deck card whose possible work order deliveries are in `orderPreview`, or null when nothing has been previewed. */
+    orderPreviewCardId: number | null;
+    /** The cards that a work order for `orderPreviewCardId` could deliver. */
+    orderPreview: IArray<OrderPreviewCardInfo>;
+    /** Cards delivered by this crew member's work order, to choose one of for free. Lost on leaving the station. Empty when there's no delivery. */
+    deliveryCards: IArray<CardInstance>;
 }
 
 export interface HelmSystemInfo extends CrewSystemInfo {
@@ -184,6 +195,9 @@ export interface ShipInfo extends GameObjectInfo {
 export interface PlayerShipInfo extends ShipInfo {
     /** The ship's currency, earned by completing encounters (see `antimatterRewards`). Only synced to the ship's own crew and game client. */
     antimatter: number;
+
+    /** How many work orders the ship's crew has placed this game, which raises the price of the next (see `getOrderPrice`). Synced like `antimatter`. */
+    ordersPlaced: number;
 
     /** Non-expendable card types the crew has seen this game, which the game client adds to its known cards. Only synced to the ship's game client. */
     seenCardTypes: IArray<CardType>;
