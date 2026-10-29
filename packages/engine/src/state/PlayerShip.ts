@@ -12,12 +12,15 @@ import { ViewState } from './systems/ViewState';
 
 @entity
 export class PlayerShip extends Ship implements PlayerShipInfo {
-    constructor(gameState: GameState, setup: PlayerShipSetupInfo) {
+    /** `knownCardTypes` are those the crew has seen in earlier games (see `seenCardTypes`), which count as seen from the start. */
+    constructor(gameState: GameState, setup: PlayerShipSetupInfo, knownCardTypes: Iterable<CardType> = []) {
         super(gameState, {
             ...setup,
             appearance: 'chevron',
             faction: gameState.playerFaction ?? undefined,
         });
+
+        this.markCardTypesSeen(knownCardTypes);
 
         // The crew can look through their decks whenever they're not in an encounter, so every card they start with counts as seen.
         for (const system of [this.helmState, this.scienceState, this.tacticalState, this.engineerState]) {
@@ -34,8 +37,8 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
     @type('number') antimatter = 0;
 
     /**
-     * The non-expendable card types this ship's crew has seen this game, in the order they were first seen.
-     * The game client adds these to its record of known cards, which persists across games.
+     * The non-expendable card types this ship's crew has seen, in the order they were first seen.
+     * This starts with the cards its game client already knew from earlier games, and that client adds any new ones to its record of known cards.
      */
     @view(ownShipClientRole)
     @type(['string']) readonly seenCardTypes = new ArraySchema<CardType>();
