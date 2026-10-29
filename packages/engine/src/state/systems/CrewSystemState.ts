@@ -45,6 +45,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     stockShop(cards: readonly CardState[]) {
         this.shopCards.clear();
         this.shopCards.push(...cards);
+        this.getShip().markCardTypesSeen(cards.map(card => card.type));
     }
 
     /** Removes a card from the shop, returning it, or null if the shop doesn't offer that card. Doesn't add it to the deck. */

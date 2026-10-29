@@ -1,5 +1,6 @@
 import { ServerAddress } from 'common-data/types/ServerAddress';
 import { FC, useState } from 'react';
+import { CardCompendium } from '../cardCompendium/CardCompendium';
 import { InGameMenu } from './components/InGameMenu';
 import { JoinMenu } from './components/JoinMenu';
 import { MainMenu } from './components/MainMenu';
@@ -16,6 +17,7 @@ type Props = {
 
 export const MenuSelector: FC<Props> = (props) => {
     const [joining, setJoining] = useState(false);
+    const [viewingCardCompendium, setViewingCardCompendium] = useState(false);
 
     if (props.isConnectedToGame) {
         return (
@@ -35,11 +37,16 @@ export const MenuSelector: FC<Props> = (props) => {
         );
     }
 
+    if (viewingCardCompendium) {
+        return <CardCompendium back={() => setViewingCardCompendium(false)} />;
+    }
+
     return (
         <MainMenu
             hostSingleCrewServer={props.hostSingleCrewServer}
             hostMultiCrewServer={props.hostMultiCrewServer}
             joinMultiCrewServer={() => setJoining(true)}
+            showCardCompendium={() => setViewingCardCompendium(true)}
             quit={props.quit}
         />
     );
