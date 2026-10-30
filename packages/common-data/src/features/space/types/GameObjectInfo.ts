@@ -199,7 +199,10 @@ export interface PlayerShipInfo extends ShipInfo {
     /** How many work orders the ship's crew has placed this game, which raises the price of the next (see `getOrderPrice`). Synced like `antimatter`. */
     ordersPlaced: number;
 
-    /** Non-expendable card types the crew has seen this game, which the game client adds to its known cards. Only synced to the ship's game client. */
+    /**
+     * Non-expendable card types the crew has seen, starting with those its game client knew from earlier games.
+     * The game client adds new ones to its known cards. Only synced to the ship's game client.
+     */
     seenCardTypes: IArray<CardType>;
 }
 

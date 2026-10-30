@@ -1,5 +1,6 @@
 import { ClientArray } from '@colyseus/core';
 import { Schema, type, view, ArraySchema } from '@colyseus/schema';
+import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { CrewRole, ownHelmClientRole, ownScienceClientRole as scienceClientRole, ownTacticalClientRole, ownEngineerClientRole, ownShipClientRole, otherShipClientRole, otherHelmClientRole, otherTacticalClientRole, otherScienceClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
@@ -43,6 +44,9 @@ export class CrewState extends Schema {
     @type('string') shipId: string | null = null;
 
     shipClientId: string; // sessionId of the ship client
+
+    /** Card types the ship client already knew when it joined, from earlier games on that device. Seen by this crew's ship from the start. */
+    knownCardTypes: CardType[] = [];
 
     @view() @type('string') helmClientId: string = '';
     @view() @type('string') tacticalClientId: string = '';
