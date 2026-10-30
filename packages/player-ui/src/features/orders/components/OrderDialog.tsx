@@ -76,7 +76,6 @@ export const OrderDialog: FC<Props> = (props) => {
                                                     ? <ShopCard card={{ id: index, type: card.type }} />
                                                     : <CardBack system={props.crew} className={styles.unknown} />}
 
-                                                {/* An unknown design's type arrives as undefined rather than null, so check for either. */}
                                                 <span className={classNames(styles.label, card.owned ? styles.owned : null)}>
                                                     {!card.type ? 'Unknown design' : card.owned ? 'In your deck' : 'New'}
                                                 </span>

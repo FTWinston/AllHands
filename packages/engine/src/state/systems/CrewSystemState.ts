@@ -10,7 +10,6 @@ import { CardState } from '../CardState';
 import { CooldownState } from '../CooldownState';
 import { GameState } from '../GameState';
 import { NonEncounterCardState } from '../NonEncounterCardState';
-import { OrderPreviewCardState } from '../OrderPreviewCardState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
@@ -50,11 +49,6 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     /** Ids of the deck cards this crew member could place a work order for, while they can place orders. */
     @type(['number']) orderableCardIds = new ArraySchema<number>();
 
-    @type('number') orderPreviewCardId: number | null = null;
-
-    /** What a work order for `orderPreviewCardId` could deliver. */
-    @type([OrderPreviewCardState]) orderPreview = new ArraySchema<OrderPreviewCardState>();
-
     /** Cards delivered by this crew member's work order, to choose one of. Cleared once one is taken, or on leaving the station. */
     @type([CardState]) deliveryCards = new ArraySchema<CardState>();
 
@@ -92,22 +86,9 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         }
     }
 
-    /** Shows what a work order for the given deck card could deliver, replacing any previous preview. */
-    setOrderPreview(cardId: number, cards: readonly OrderPreviewCardState[]) {
-        this.orderPreviewCardId = cardId;
-        this.orderPreview.clear();
-        this.orderPreview.push(...cards);
-    }
-
-    private clearOrderPreview() {
-        this.orderPreviewCardId = null;
-        this.orderPreview.clear();
-    }
-
     /** Places a work order for the given card type, to be delivered at the next station. */
     placeOrder(type: CardType) {
         this.pendingOrder = type;
-        this.clearOrderPreview();
     }
 
     /** Offers the cards delivered by this crew member's work order, which is then no longer pending. */
@@ -270,7 +251,6 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         // A pending order carries over to the next station, but an uncollected delivery is lost.
         this.canPlaceOrders = false;
         this.orderableCardIds.clear();
-        this.clearOrderPreview();
         this.deliveryCards.clear();
 
         super.cleanupAfterEncounter();

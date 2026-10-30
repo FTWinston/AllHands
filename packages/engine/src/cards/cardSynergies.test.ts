@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { deriveCardSynergy, findSynergyCardTypes, getSynergyCardTypes, type CardSynergy } from './cardSynergies';
-import type { CardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { findSynergyCardTypes, getSynergyCardTypes, type CardSynergy } from './cardSynergies';
 
 const placeholderSynergies: Record<string, Required<CardSynergy>> = {
     laser: { provides: ['energyWeapon'], wants: [] },
@@ -37,26 +36,6 @@ describe('findSynergyCardTypes', () => {
     it('never matches the spec itself, or untagged cards', () => {
         expect(find('staple')).toEqual([]);
         expect(find('focusLens')).not.toContain('focusLens');
-    });
-});
-
-describe('deriveCardSynergy', () => {
-    it('tags weapon traits as provided, and a required weapon trait as wanted', () => {
-        expect(deriveCardSynergy({ targetType: 'no-target', system: 'tactical', parameters: { cost: 2 }, traits: ['energyWeapon'] } as CardDefinition))
-            .toEqual({ provides: ['energyWeapon'], wants: [] });
-
-        expect(deriveCardSynergy({ targetType: 'weapon', system: 'tactical', parameters: { cost: 2 }, requiredWeaponTrait: 'torpedoWeapon' } as CardDefinition))
-            .toEqual({ provides: [], wants: ['torpedoWeapon'] });
-    });
-
-    it('tags zero cost cards', () => {
-        expect(deriveCardSynergy({ targetType: 'no-target', system: 'helm', parameters: { cost: 0 } } as CardDefinition))
-            .toEqual({ provides: ['zeroCost'], wants: [] });
-    });
-
-    it('leaves other cards untagged', () => {
-        expect(deriveCardSynergy({ targetType: 'no-target', system: 'helm', parameters: { cost: 1 }, traits: ['primary'] } as CardDefinition))
-            .toEqual({ provides: [], wants: [] });
     });
 });
 

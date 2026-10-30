@@ -1,13 +1,11 @@
 import { getShopRole, isStationKind } from 'common-data/features/sectors/utils/isStationKind';
+import { crewRoleNames } from 'common-data/features/ships/types/CrewRole';
 import { getPlayerShips } from 'src/utils/shipQueries';
 import { createShopCards } from '../campaign/stationShop';
 import { createDeliveryCards } from '../campaign/workOrders';
 import { Encounter } from './Encounter';
 import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
-import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import type { GameState } from 'src/state/GameState';
-
-const crewRoles: readonly CrewRoleName[] = ['helm', 'tactical', 'science', 'engineer'];
 
 /**
  * No hostiles and no objective: fully repairs every player ship on arrival, and is complete straight away.
@@ -25,7 +23,7 @@ export class StationEncounter extends Encounter {
         for (const ship of getPlayerShips(this.state)) {
             ship.fullyRepair();
 
-            for (const role of crewRoles) {
+            for (const role of crewRoleNames) {
                 const system = ship.getCrewSystem(role);
 
                 if (system.pendingOrder) {

@@ -418,7 +418,10 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 return;
             }
 
-            if (!this.state.campaign?.previewOrder(ship, this.getSystemState(ship, clientRole), message.cardId)) {
+            const preview = this.state.campaign?.previewOrder(ship, this.getSystemState(ship, clientRole), message.cardId);
+            if (preview) {
+                client.send('orderPreview', preview);
+            } else {
                 console.warn(`Rejected previewing an order for deck card ${message.cardId} for ${clientRole} of ship ${ship.id}`);
             }
         });

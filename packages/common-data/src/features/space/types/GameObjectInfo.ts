@@ -1,7 +1,6 @@
 import { IArray, IMap } from '@colyseus/react';
 import { CardInstance } from 'src/features/cards/types/CardInstance';
 import { NonEncounterCardInfo } from 'src/features/cards/types/NonEncounterCardInfo';
-import { OrderPreviewCardInfo } from 'src/features/cards/types/OrderPreviewCardInfo';
 import { CardType, EnemyTargetedCardType, UntargetedCardType } from 'src/features/cards/utils/cardDefinitions';
 import { SectorDestinationInfo } from 'src/features/sectors/types/SectorDestinationInfo';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
@@ -66,10 +65,6 @@ export interface CrewSystemInfo extends SystemInfo {
     pendingOrder: CardType | null;
     /** Ids of the deck cards this crew member could place a work order for, at a shop station for another crew member. Empty elsewhere. */
     orderableCardIds: IArray<number>;
-    /** The deck card whose possible work order deliveries are in `orderPreview`, or null when nothing has been previewed. */
-    orderPreviewCardId: number | null;
-    /** The cards that a work order for `orderPreviewCardId` could deliver. */
-    orderPreview: IArray<OrderPreviewCardInfo>;
     /** Cards delivered by this crew member's work order, to choose one of for free. Lost on leaving the station. Empty when there's no delivery. */
     deliveryCards: IArray<CardInstance>;
 }

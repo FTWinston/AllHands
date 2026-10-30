@@ -1,6 +1,6 @@
 import type { Snapshot } from '@colyseus/react';
 import type { CardInstance } from 'common-data/features/cards/types/CardInstance';
-import type { OrderPreviewCardInfo } from 'common-data/features/cards/types/OrderPreviewCardInfo';
+import type { OrderPreviewCard } from 'common-data/features/cards/types/OrderPreview';
 import type { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 
@@ -21,7 +21,7 @@ export type OrdersModel = {
     pendingOrder: CardType | null;
     /** The deck card whose possible deliveries are in `preview`, or null if none has been previewed. */
     previewCardId: number | null;
-    preview: Snapshot<OrderPreviewCardInfo[]>;
+    preview: readonly OrderPreviewCard[];
     /** Cards delivered by a work order, to choose one of. */
     deliveryCards: Snapshot<CardInstance[]>;
     previewOrder: (cardId: number) => void;

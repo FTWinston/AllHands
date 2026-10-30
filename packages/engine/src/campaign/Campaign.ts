@@ -1,4 +1,5 @@
 import { getShopRole, isStationKind } from 'common-data/features/sectors/utils/isStationKind';
+import { crewRoleNames, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { canSellFromDeck, cardSellPrice, getAntimatterReward, getOrderPrice, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { getPlayerShips } from 'src/utils/shipQueries';
 import { getSynergyCardTypes } from '../cards/cardSynergies';
@@ -6,7 +7,6 @@ import { createEncounter, getDefaultNode, hasEncounter } from '../encounters/Enc
 import { CardState } from '../state/CardState';
 import { EncounterSummaryState } from '../state/EncounterSummaryState';
 import { MotionKeyframe } from '../state/MotionKeyframe';
-import { OrderPreviewCardState } from '../state/OrderPreviewCardState';
 import { PlayerShip } from '../state/PlayerShip';
 import { SectorMapState } from '../state/SectorMapState';
 import { SectorMessageState } from '../state/SectorMessageState';
@@ -20,12 +20,10 @@ import type { Encounter } from '../encounters/Encounter';
 import type { GameObject } from '../state/GameObject';
 import type { GameState } from '../state/GameState';
 import type { CrewSystemState } from '../state/systems/CrewSystemState';
+import type { OrderPreview } from 'common-data/features/cards/types/OrderPreview';
 import type { GameOutcome } from 'common-data/features/sectors/types/GamePhase';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
 import type { EncounterId, SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
-import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
-
-const crewRoles: readonly CrewRoleName[] = ['helm', 'tactical', 'science', 'engineer'];
 
 /**
  * Drives the game flow: sector intro -> map -> encounter -> (warp away) -> map ... -> boss -> sector outro -> next sector,
@@ -228,18 +226,21 @@ export class Campaign {
 
     /**
      * A crew member looks at what a work order for one of their deck cards could deliver, before placing it.
-     * Only allowed where they could place it: at a shop station for another crew member.
+     * Only allowed where they could place it: at a shop station for another crew member. Returns null otherwise.
      */
-    previewOrder(ship: PlayerShip, system: CrewSystemState, specCardId: number): boolean {
+    previewOrder(ship: PlayerShip, system: CrewSystemState, specCardId: number): OrderPreview | null {
         const spec = this.findOrderSpec(system, specCardId);
         if (!spec) {
-            return false;
+            return null;
         }
 
         const owned = new Set(system.deck.map(card => card.type));
         const seen = new Set(ship.seenCardTypes);
-        system.setOrderPreview(specCardId, getSynergyCardTypes(spec.type).map(type => new OrderPreviewCardState(seen.has(type) ? type : null, owned.has(type))));
-        return true;
+
+        return {
+            specCardId,
+            cards: getSynergyCardTypes(spec.type).map(type => ({ type: seen.has(type) ? type : null, owned: owned.has(type) })),
+        };
     }
 
     /**
@@ -327,7 +328,7 @@ export class Campaign {
         this.state.gameStatus = 'ended';
 
         for (const ship of getPlayerShips(this.state)) {
-            for (const role of crewRoles) {
+            for (const role of crewRoleNames) {
                 ship.getCrewSystem(role).pendingOrder = null;
             }
         }

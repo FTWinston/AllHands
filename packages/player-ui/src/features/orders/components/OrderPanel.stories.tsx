@@ -1,5 +1,5 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
-import { OrderPreviewCardInfo } from 'common-data/features/cards/types/OrderPreviewCardInfo';
+import { OrderPreviewCard } from 'common-data/features/cards/types/OrderPreview';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
@@ -15,7 +15,7 @@ const deckCards: Snapshot<CardInstance>[] = tacticalCards.map((type, index) => (
 const orderableCardIds = deckCards.filter(card => card.type !== 'exampleEnemyTarget').map(card => card.id);
 
 /** What the server would preview for any card: some owned, some new, and one the crew hasn't come across. */
-const preview: Snapshot<OrderPreviewCardInfo>[] = [
+const preview: OrderPreviewCard[] = [
     { type: 'lowYield', owned: true },
     { type: 'highYield', owned: true },
     { type: 'extendedRange', owned: false },

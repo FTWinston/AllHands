@@ -1,10 +1,11 @@
 import { useRoomState, type Snapshot } from '@colyseus/react';
 import { getShopRole } from 'common-data/features/sectors/utils/isStationKind';
 import { getOrderPrice } from 'common-data/features/ships/utils/antimatter';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { isOutsideEncounter } from '../../nonEncounter/isOutsideEncounter';
 import type { OrdersModel } from '../types/OrdersModel';
 import type { Room } from '@colyseus/sdk';
+import type { OrderPreview } from 'common-data/features/cards/types/OrderPreview';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
@@ -17,7 +18,12 @@ export function useOrders(room: Room<unknown, GameState>, crew: CrewRoleName, sy
     const encounterKind = (useRoomState(room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
     const shopRole = phase === 'encounter' ? getShopRole(encounterKind) : null;
 
+    // A preview is only sent to the crew member who asks for it, so it isn't part of the room state.
+    const [preview, setPreview] = useState<OrderPreview | null>(null);
+    useEffect(() => room.onMessage<OrderPreview>('orderPreview', setPreview), [room]);
+
     const previewOrder = useCallback((cardId: number) => {
+        setPreview(null);
         room.send('previewOrder', { cardId });
     }, [room]);
 
@@ -41,8 +47,8 @@ export function useOrders(room: Room<unknown, GameState>, crew: CrewRoleName, sy
         deckCards: system.deck,
         orderableCardIds: system.orderableCardIds ?? [],
         pendingOrder: system.pendingOrder ?? null,
-        previewCardId: system.orderPreviewCardId ?? null,
-        preview: system.orderPreview ?? [],
+        previewCardId: preview?.specCardId ?? null,
+        preview: preview?.cards ?? [],
         deliveryCards: system.deliveryCards ?? [],
         previewOrder,
         placeOrder,

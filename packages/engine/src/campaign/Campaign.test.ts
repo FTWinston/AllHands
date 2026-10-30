@@ -877,23 +877,19 @@ describe('Campaign work orders', () => {
         const spec = deckCard(tactical, 'photonTorpedo');
         ship.markCardTypesSeen(['extendedRange']);
 
-        expect(campaign.previewOrder(ship, tactical, spec.id)).toBe(true);
+        const preview = campaign.previewOrder(ship, tactical, spec.id);
 
-        expect(tactical.orderPreviewCardId).toBe(spec.id);
-        const preview = tactical.orderPreview.map(card => ({ type: card.type, owned: card.owned }));
-        expect(preview).toHaveLength(getSynergyCardTypes('photonTorpedo').length);
-        expect(preview).toContainEqual({ type: 'lowYield', owned: true });
-        expect(preview).toContainEqual({ type: 'extendedRange', owned: false });
-        expect(preview).toContainEqual({ type: null, owned: false });
-
-        expect(campaign.placeOrder(ship, tactical, spec.id)).toBe(true);
-        expect(tactical.orderPreview.length).toBe(0);
+        expect(preview?.specCardId).toBe(spec.id);
+        expect(preview?.cards).toHaveLength(getSynergyCardTypes('photonTorpedo').length);
+        expect(preview?.cards).toContainEqual({ type: 'lowYield', owned: true });
+        expect(preview?.cards).toContainEqual({ type: 'extendedRange', owned: false });
+        expect(preview?.cards).toContainEqual({ type: null, owned: false });
     });
 
     it('refuses a preview where an order couldn\'t be placed', () => {
         const { campaign, ship, tactical } = createAtShop('armsDealer');
 
-        expect(campaign.previewOrder(ship, tactical, deckCard(tactical, 'photonTorpedo').id)).toBe(false);
+        expect(campaign.previewOrder(ship, tactical, deckCard(tactical, 'photonTorpedo').id)).toBeNull();
     });
 
     it('clears pending orders when the game ends', () => {
