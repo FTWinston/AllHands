@@ -26,6 +26,29 @@
     gap: 1.5em 1em;
 }
 
+/* Centres a last row of one or two cards, e.g. a shop's fourth and fifth. Each card spans two of six columns, so a last row can start half a card in. */
+.centred {
+    grid-template-columns: repeat(6, auto);
+
+    & > .item {
+        grid-column: span 2;
+    }
+
+    & > .item:nth-child(3n + 1):nth-last-child(2) {
+        grid-column: 2 / span 2;
+    }
+
+    & > .item:nth-child(3n + 1):last-child {
+        grid-column: 3 / span 2;
+        --zoom-origin-x: center;
+    }
+
+    /* Moved in from the right edge, but still too close to it to grow from the centre. */
+    & > .item:nth-child(3n + 2):last-child {
+        --zoom-origin-x: right;
+    }
+}
+
 .item {
     position: relative;
     display: flex;

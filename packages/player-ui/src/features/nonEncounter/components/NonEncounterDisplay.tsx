@@ -60,9 +60,11 @@ export const NonEncounterDisplay = (props: Props) => {
 
                 <CrewHeader {...headerProps} antimatter={orders?.antimatter ?? shop?.antimatter} />
 
-                {(shop || hasDelivery) && (
+                {(shop || hasDelivery || showOrderPanel) && (
                     <div className={styles.shop}>
                         {hasDelivery && <DeliveryPanel cards={orders.deliveryCards} takeDelivery={orders.takeDelivery} />}
+                        {/* A crew member can place a work order only at another crew member's shop, so this never shows alongside their own. */}
+                        {showOrderPanel && <OrderPanel {...orders} />}
                         {shop && <ShopPanel {...shop} />}
                     </div>
                 )}
@@ -73,13 +75,6 @@ export const NonEncounterDisplay = (props: Props) => {
                 <CardHand cards={hand} availablePower={0} />
 
                 {children}
-
-                {/* Between science's long range sensors and helm's route cards. */}
-                {showOrderPanel && (
-                    <div className={styles.orders}>
-                        <OrderPanel {...orders} />
-                    </div>
-                )}
             </DragCardProvider>
         </Screen>
     );

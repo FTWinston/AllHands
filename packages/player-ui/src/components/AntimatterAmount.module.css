@@ -1,0 +1,11 @@
+.amount {
+    white-space: nowrap;
+}
+
+.icon {
+    display: inline;
+    height: 1em;
+    width: 1em;
+    margin-left: 0.15em;
+    vertical-align: -0.15em;
+}

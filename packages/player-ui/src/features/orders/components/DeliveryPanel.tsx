@@ -26,7 +26,7 @@ export const DeliveryPanel: FC<Props> = ({ cards, takeDelivery }) => (
             <strong className={shopStyles.blocked}>Choose a card before your ship leaves, or your delivery will be lost.</strong>
         </p>
 
-        <ul className={cardGridStyles.grid} aria-label="Delivered cards">
+        <ul className={classNames(cardGridStyles.grid, cardGridStyles.centred)} aria-label="Delivered cards">
             {cards.map(card => (
                 <li key={card.id} className={cardGridStyles.item}>
                     <ShopCard card={card} />

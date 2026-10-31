@@ -25,7 +25,6 @@ export const AtShopStation: Story = {
         hand: [{ id: 201, type: 'warpAway' }],
         playHandCard: fn(),
         shop: {
-            title: 'Navigation beacon',
             cards: [{ id: 101, type: 'fullReverse' }, { id: 102, type: 'strafe' }, { id: 103, type: 'sweep' }],
             price: shopCardPrice,
             antimatter: 40,
@@ -34,7 +33,7 @@ export const AtShopStation: Story = {
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
-        await expect(canvas.getByRole('region', { name: 'Shop' })).toBeInTheDocument();
+        await expect(canvas.getByRole('region', { name: 'Buy cards' })).toBeInTheDocument();
         await expect(canvas.getAllByRole('button', { name: /Buy/ })).toHaveLength(3);
         await expect(await canvas.findByText('Warp Away')).toBeInTheDocument();
     },
@@ -65,10 +64,12 @@ export const OrderingElsewhere: Story = {
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
+        // The dialog is rendered in a portal, outside the canvas.
+        const page = within(canvasElement.ownerDocument.body);
         await expect(canvas.getByText('30')).toBeInTheDocument();
-        await expect(canvas.getByText(/You need 15 more antimatter/)).toBeInTheDocument();
+        await expect(canvas.getByRole('region', { name: 'Order a card' })).toHaveTextContent(/You need 15 more/);
 
         await userEvent.click(canvas.getByRole('button', { name: /Place order/ }));
-        await expect(await canvas.findByRole('heading', { name: 'Work order' })).toBeInTheDocument();
+        await expect(await page.findByRole('dialog', { name: 'Order a card' })).toBeInTheDocument();
     },
 };

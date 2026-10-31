@@ -1,7 +1,6 @@
 import { useRoomState, type Snapshot } from '@colyseus/react';
 import { getShopRole } from 'common-data/features/sectors/utils/isStationKind';
 import { shopCardPrice } from 'common-data/features/ships/utils/antimatter';
-import { getNodeKindLabel } from 'common-ui/features/sectors/utils/sectorLabels';
 import { useCallback } from 'react';
 import type { ShopModel } from '../types/ShopModel';
 import type { Room } from '@colyseus/sdk';
@@ -19,12 +18,11 @@ export function useShop(room: Room<unknown, GameState>, crew: CrewRoleName, syst
         room.send('buyShopCard', { cardId });
     }, [room]);
 
-    if (!available || !system || !encounterKind) {
+    if (!available || !system) {
         return null;
     }
 
     return {
-        title: getNodeKindLabel(encounterKind),
         cards: system.shopCards,
         price: shopCardPrice,
         antimatter,

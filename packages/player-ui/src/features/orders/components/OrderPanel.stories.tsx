@@ -106,13 +106,15 @@ export const Unaffordable: Story = {
         const page = within(canvasElement.ownerDocument.body);
 
         // The panel still shows, so its cards can be looked at.
-        await expect(canvas.getByText(/You need 15 more antimatter/)).toBeInTheDocument();
+        const panel = canvas.getByRole('region', { name: 'Order a card' });
+        await expect(panel).toHaveTextContent(/You need 15 more/);
+        await expect(within(panel).getByRole('img', { name: 'antimatter' })).toBeInTheDocument();
 
         await userEvent.click(canvas.getByRole('button', { name: /Place order/ }));
         await userEvent.click(page.getAllByRole('button', { name: 'Choose' })[0]);
 
         await expect(page.getByRole('button', { name: /Order for/ })).toBeDisabled();
-        await expect(page.getByText(/You need 45 antimatter/)).toBeInTheDocument();
+        await expect(page.getByRole('dialog', { name: 'Order a card' })).toHaveTextContent(/You need 45 to place a work order/);
     },
 };
 

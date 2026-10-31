@@ -18,7 +18,6 @@ const meta: Meta<typeof Component> = {
     title: 'player-ui/Shop Panel',
     component: Component,
     args: {
-        title: 'Navigation beacon',
         cards: helmCards,
         price: shopCardPrice,
         antimatter: 50,
@@ -90,7 +89,6 @@ export const SoldOut: Story = {
 
 export const ArmsDealer: Story = {
     args: {
-        title: 'Arms dealer',
         cards: [
             { id: 201, type: 'photonicCannon' },
             { id: 202, type: 'quantumTorpedo' },

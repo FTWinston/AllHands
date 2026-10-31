@@ -4,6 +4,7 @@ import { CardBack } from 'common-ui/features/cards/components/CardBack';
 import { default as AntimatterIcon } from 'common-ui/icons/antimatter.svg?react';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC, useState } from 'react';
+import { AntimatterAmount } from 'src/components/AntimatterAmount';
 import { FullScreenDialog } from 'src/components/FullScreenDialog';
 import cardGridStyles from 'src/features/cardui/components/CardGrid.module.css';
 import { ShopCard } from 'src/features/shop/components/ShopCard';
@@ -37,14 +38,18 @@ export const OrderDialog: FC<Props> = (props) => {
     };
 
     return (
-        <FullScreenDialog title="Work order" isOpen={props.isOpen} setOpen={setOpen} bodyClassName={styles.body}>
+        <FullScreenDialog title="Order a card" isOpen={props.isOpen} setOpen={setOpen} bodyClassName={styles.body}>
             <p className={styles.instructions}>
                 {spec
                     ? 'You\'ll choose one of three of these at the next station. Cards you don\'t have come first.'
                     : 'Choose a card to order more that work well with it. It stays in your deck.'}
                 {!canAfford && (
                     <strong className={styles.blocked}>
-                        {`You need ${props.price} antimatter to place an order.`}
+                        You need
+                        {' '}
+                        <AntimatterAmount amount={props.price} />
+                        {' '}
+                        to place a work order.
                     </strong>
                 )}
             </p>
@@ -69,7 +74,7 @@ export const OrderDialog: FC<Props> = (props) => {
                         <div className={cardGridStyles.scale}>
                             {props.previewCardId === spec.id
                                 ? (
-                                    <ul className={cardGridStyles.grid} aria-label="Possible deliveries">
+                                    <ul className={classNames(cardGridStyles.grid, cardGridStyles.centred)} aria-label="Possible deliveries">
                                         {props.preview.map((card, index) => (
                                             <li key={card.type ?? `unknown${index}`} className={cardGridStyles.item}>
                                                 {card.type
