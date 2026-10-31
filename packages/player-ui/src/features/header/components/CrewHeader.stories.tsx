@@ -73,9 +73,7 @@ export const AtStation: Story = {
 
         await userEvent.click(button);
 
-        // Its title is shown in the crew header, rather than in a header of its own.
-        await expect(await canvas.findByRole('heading', { name: 'My deck' })).toBeInTheDocument();
-        await expect(canvas.getByText(args.crew)).not.toBeVisible();
+        await expect(await page.findByRole('heading', { name: 'My deck' })).toBeInTheDocument();
         await expect(page.getByText('#10')).toBeInTheDocument();
 
         // It stays open, rather than treating the click that opened it as an outside press.
@@ -89,12 +87,9 @@ export const AtStation: Story = {
         await expect(args.onPause).toHaveBeenCalled();
         await expect(page.getByRole('dialog')).toBeInTheDocument();
 
-        // The same button closes it again, as does the deck view's own close button.
+        // The same button closes it again, as the deck view has no close button of its own.
+        await expect(page.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument();
         await userEvent.click(button);
-        await expect(button).toHaveAttribute('aria-pressed', 'false');
-
-        await userEvent.click(button);
-        await userEvent.click(await page.findByRole('button', { name: 'Close' }));
         await expect(button).toHaveAttribute('aria-pressed', 'false');
     },
 };

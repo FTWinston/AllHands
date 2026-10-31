@@ -83,7 +83,23 @@
     }
 }
 
-.grid:not(.noZoom) .card:is(:hover, :focus) {
+/* Within, so it stays zoomed in while its .action is pressed. */
+.grid:not(.noZoom) .card:is(:hover, :focus-within) {
     z-index: 1;
     transform: scale(calc(1 / var(--card-scale)));
+}
+
+/* Just beneath a card, zooming with it, and only while it's focused. */
+.action {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    padding-top: 0.5em;
+
+    .card:not(:focus-within) > & {
+        display: none;
+    }
 }

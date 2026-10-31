@@ -23,11 +23,12 @@
     font-size: 1.25em;
 }
 
-/* A small copy of the card the order was placed for. */
+/* A small copy of the card the order was placed for, in a grid of its own so that it zooms in like other offered cards. It grows away from the screen's top left corner. */
 .spec {
+    --card-scale: 0.4;
+    --zoom-origin-x: left;
+    --zoom-origin-y: top;
     flex-shrink: 0;
-    font-size: 0.4em;
-    color: var(--grey-lightest);
 }
 
 /* Laid out like a shop, but with only text and a button, so kept narrow enough to read. */

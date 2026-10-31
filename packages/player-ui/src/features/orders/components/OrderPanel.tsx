@@ -1,9 +1,10 @@
 import { Button } from 'common-ui/components/Button';
-import { Card } from 'common-ui/features/cards/components/Card';
 import { default as AntimatterIcon } from 'common-ui/icons/antimatter.svg?react';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC, useState } from 'react';
 import { AntimatterAmount } from 'src/components/AntimatterAmount';
+import cardGridStyles from 'src/features/cardui/components/CardGrid.module.css';
+import { ShopCard } from 'src/features/shop/components/ShopCard';
 import shopStyles from 'src/features/shop/components/ShopPanel.module.css';
 import { OrderDialog } from './OrderDialog';
 import styles from './OrderPanel.module.css';
@@ -19,8 +20,8 @@ export const OrderPanel: FC<OrdersModel> = (props) => {
     if (props.pendingOrder) {
         return (
             <section className={styles.panel} aria-label="Pending work order">
-                <div className={styles.spec}>
-                    <Card type={props.pendingOrder} />
+                <div className={classNames(cardGridStyles.grid, styles.spec)}>
+                    <ShopCard card={{ id: 0, type: props.pendingOrder }} />
                 </div>
 
                 <p className={styles.text}>

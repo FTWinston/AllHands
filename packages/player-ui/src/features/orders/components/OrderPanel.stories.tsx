@@ -82,13 +82,14 @@ export const PlaceOrder: Story = {
 
         await userEvent.click(canvas.getByRole('button', { name: /Place order/ }));
 
-        const choose = page.getAllByRole('button', { name: 'Choose' });
-        await expect(choose).toHaveLength(orderableCardIds.length);
-        await expect(page.getByRole('button', { name: 'No matches' })).toBeDisabled();
+        // A card's Choose button only shows once it's focused.
+        await expect(page.queryByRole('button', { name: 'Choose' })).not.toBeInTheDocument();
+        await expect(page.getByText('No matches')).toBeInTheDocument();
 
-        await userEvent.click(choose[2]);
+        await userEvent.click(page.getByText('Photon Torpedo'));
+        await userEvent.click(page.getByRole('button', { name: 'Choose' }));
         await expect(args.previewOrder).toHaveBeenCalledWith(4);
-        await expect(page.getAllByText('Unknown design')).toHaveLength(2);
+        await expect(page.getAllByText('Unknown card')).toHaveLength(2);
         await expect(page.getAllByText('In your deck')).toHaveLength(2);
 
         await userEvent.click(page.getByRole('button', { name: /Order for/ }));
@@ -111,7 +112,8 @@ export const Unaffordable: Story = {
         await expect(within(panel).getByRole('img', { name: 'antimatter' })).toBeInTheDocument();
 
         await userEvent.click(canvas.getByRole('button', { name: /Place order/ }));
-        await userEvent.click(page.getAllByRole('button', { name: 'Choose' })[0]);
+        await userEvent.click(page.getByText('Phaser Strip'));
+        await userEvent.click(page.getByRole('button', { name: 'Choose' }));
 
         await expect(page.getByRole('button', { name: /Order for/ })).toBeDisabled();
         await expect(page.getByRole('dialog', { name: 'Order a card' })).toHaveTextContent(/You need 45 to place a work order/);

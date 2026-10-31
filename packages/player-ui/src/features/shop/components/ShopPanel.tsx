@@ -1,4 +1,5 @@
 import { Button } from 'common-ui/components/Button';
+import { getNodeKindLabel, getShopLabel } from 'common-ui/features/sectors/utils/sectorLabels';
 import { default as AntimatterIcon } from 'common-ui/icons/antimatter.svg?react';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
@@ -11,7 +12,7 @@ import type { ShopModel } from '../types/ShopModel';
  * A station's shop, shown on the crew member's display throughout their stay: cards to buy for antimatter, which go to the bottom of their deck.
  * The ship's antimatter is shown in the crew header.
  */
-export const ShopPanel: FC<ShopModel> = ({ cards, price, antimatter, buyCard }) => {
+export const ShopPanel: FC<ShopModel> = ({ stationKind, cards, price, antimatter, buyCard }) => {
     const canAfford = antimatter >= price;
 
     return (
@@ -19,7 +20,7 @@ export const ShopPanel: FC<ShopModel> = ({ cards, price, antimatter, buyCard }) 
             <h2 className={styles.title}>Buy cards</h2>
 
             <p className={styles.instructions}>
-                Bought cards go to the bottom of your deck.
+                {`${getShopLabel(stationKind)} are available to buy at this ${getNodeKindLabel(stationKind).toLowerCase()}. Bought cards go to the bottom of your deck.`}
                 {!canAfford && cards.length > 0 && (
                     <strong className={styles.blocked}>You don&apos;t have enough antimatter to buy any.</strong>
                 )}

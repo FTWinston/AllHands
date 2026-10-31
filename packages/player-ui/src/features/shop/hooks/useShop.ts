@@ -18,11 +18,12 @@ export function useShop(room: Room<unknown, GameState>, crew: CrewRoleName, syst
         room.send('buyShopCard', { cardId });
     }, [room]);
 
-    if (!available || !system) {
+    if (!available || !system || !encounterKind) {
         return null;
     }
 
     return {
+        stationKind: encounterKind,
         cards: system.shopCards,
         price: shopCardPrice,
         antimatter,

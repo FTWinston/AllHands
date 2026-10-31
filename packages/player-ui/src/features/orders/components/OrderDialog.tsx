@@ -18,7 +18,7 @@ type Props = OrdersModel & {
 
 /**
  * Places a work order: first pick a deck card to be the order's spec, then see every card the order could deliver before paying for it.
- * Cards with nothing to match them can't be picked. Possible deliveries the crew hasn't come across yet are shown as unknown designs.
+ * Cards with nothing to match them can't be picked. Possible deliveries the crew hasn't come across yet are shown as unknown cards.
  */
 export const OrderDialog: FC<Props> = (props) => {
     const [specCardId, setSpecCardId] = useState<number | null>(null);
@@ -82,7 +82,7 @@ export const OrderDialog: FC<Props> = (props) => {
                                                     : <CardBack system={props.crew} className={styles.unknown} />}
 
                                                 <span className={classNames(styles.label, card.owned ? styles.owned : null)}>
-                                                    {!card.type ? 'Unknown design' : card.owned ? 'In your deck' : 'New'}
+                                                    {!card.type ? 'Unknown card' : card.owned ? 'In your deck' : 'New'}
                                                 </span>
                                             </li>
                                         ))}
@@ -100,16 +100,15 @@ export const OrderDialog: FC<Props> = (props) => {
 
                                 return (
                                     <li key={card.id} className={cardGridStyles.item}>
+                                        {/* Its button only shows once it's focused, as it would otherwise be covered by the zoomed-in card. */}
                                         {orderable
-                                            ? <ShopCard card={card} />
-                                            : <Card type={card.type} modifiers={card.modifiers} extraTraits={card.extraTraits} disabled />}
-
-                                        <Button
-                                            disabled={!orderable}
-                                            onClick={() => pickSpec(card.id)}
-                                        >
-                                            {orderable ? 'Choose' : 'No matches'}
-                                        </Button>
+                                            ? <ShopCard card={card} action={<Button palette="good" onClick={() => pickSpec(card.id)}>Choose</Button>} />
+                                            : (
+                                                <>
+                                                    <Card type={card.type} modifiers={card.modifiers} extraTraits={card.extraTraits} disabled />
+                                                    <span className={styles.label}>No matches</span>
+                                                </>
+                                            )}
                                     </li>
                                 );
                             })}

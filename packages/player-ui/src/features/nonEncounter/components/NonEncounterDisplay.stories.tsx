@@ -25,6 +25,7 @@ export const AtShopStation: Story = {
         hand: [{ id: 201, type: 'warpAway' }],
         playHandCard: fn(),
         shop: {
+            stationKind: 'navigationBeacon',
             cards: [{ id: 101, type: 'fullReverse' }, { id: 102, type: 'strafe' }, { id: 103, type: 'sweep' }],
             price: shopCardPrice,
             antimatter: 40,
@@ -34,6 +35,7 @@ export const AtShopStation: Story = {
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         await expect(canvas.getByRole('region', { name: 'Buy cards' })).toBeInTheDocument();
+        await expect(canvas.getByText(/Helm cards are available to buy at this navigation beacon\./)).toBeInTheDocument();
         await expect(canvas.getAllByRole('button', { name: /Buy/ })).toHaveLength(3);
         await expect(await canvas.findByText('Warp Away')).toBeInTheDocument();
     },

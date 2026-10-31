@@ -5,7 +5,6 @@ import { default as AntimatterIcon } from 'common-ui/icons/antimatter.svg?react'
 import { SystemIcon } from 'common-ui/icons/systems';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
-import { dialogHeaderSlotAttribute } from 'src/components/FullScreenDialog';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { DeckView } from 'src/features/deck/components/DeckView';
 import { DeckViewModel } from 'src/features/deck/types/DeckViewModel';
@@ -39,9 +38,6 @@ export const CrewHeader: FC<Props> = (props) => {
                     {props.crew}
                 </div>
             </div>
-
-            {/* An open full-screen dialog shows its title and close button here, in place of the crew name. */}
-            <div className={styles.dialogHeader} {...{ [dialogHeaderSlotAttribute]: true }} />
 
             <div className={styles.indicators}>
                 {props.power !== undefined && (
