@@ -22,18 +22,15 @@ export const DeliveryPanel: FC<Props> = ({ cards, takeDelivery }) => (
         <h2 className={shopStyles.title}>Work order delivery</h2>
 
         <p className={shopStyles.instructions}>
-            Take one card for free. It goes to the bottom of your deck.
+            Choose one card to take for free. It goes to the bottom of your deck.
             <strong className={shopStyles.blocked}>Choose a card before your ship leaves, or your delivery will be lost.</strong>
         </p>
 
         <ul className={classNames(cardGridStyles.grid, cardGridStyles.centred)} aria-label="Delivered cards">
             {cards.map(card => (
                 <li key={card.id} className={cardGridStyles.item}>
-                    <ShopCard card={card} />
-
-                    <Button className={shopStyles.buy} palette="good" onClick={() => takeDelivery(card.id)}>
-                        Take
-                    </Button>
+                    {/* Its button only shows once it's focused, as it would otherwise be covered by the zoomed-in card. */}
+                    <ShopCard card={card} action={<Button palette="good" onClick={() => takeDelivery(card.id)}>Take</Button>} />
                 </li>
             ))}
         </ul>

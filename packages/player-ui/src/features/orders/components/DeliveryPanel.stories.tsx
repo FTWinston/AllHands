@@ -45,10 +45,12 @@ export const ChooseOne: Story = {
         const canvas = within(canvasElement);
         await expect(canvas.getByText(/your delivery will be lost/)).toBeInTheDocument();
 
-        const buttons = canvas.getAllByRole('button', { name: 'Take' });
-        await expect(buttons).toHaveLength(3);
+        await expect(canvas.getAllByRole('listitem')).toHaveLength(3);
+        // A card's Take button only shows once it's focused.
+        await expect(canvas.queryByRole('button', { name: 'Take' })).not.toBeInTheDocument();
 
-        await userEvent.click(buttons[1]);
+        await userEvent.click(canvas.getByText('Projectile Manoeuvrability'));
+        await userEvent.click(canvas.getByRole('button', { name: 'Take' }));
         await expect(args.takeDelivery).toHaveBeenCalledWith(302);
     },
 };

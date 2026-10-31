@@ -20,7 +20,7 @@ export const ShopPanel: FC<ShopModel> = ({ stationKind, cards, price, antimatter
             <h2 className={styles.title}>Buy cards</h2>
 
             <p className={styles.instructions}>
-                {`${getShopLabel(stationKind)} are available to buy at this ${getNodeKindLabel(stationKind).toLowerCase()}. Bought cards go to the bottom of your deck.`}
+                {`${getShopLabel(stationKind)} are available to buy at this ${getNodeKindLabel(stationKind).toLowerCase()}. Choose a card to buy it. Bought cards go to the bottom of your deck.`}
                 {!canAfford && cards.length > 0 && (
                     <strong className={styles.blocked}>You don&apos;t have enough antimatter to buy any.</strong>
                 )}
@@ -31,18 +31,21 @@ export const ShopPanel: FC<ShopModel> = ({ stationKind, cards, price, antimatter
                     <ul className={classNames(cardGridStyles.grid, cardGridStyles.centred)} aria-label="Cards for sale">
                         {cards.map(card => (
                             <li key={card.id} className={cardGridStyles.item}>
-                                <ShopCard card={card} />
-
-                                <Button
-                                    className={styles.buy}
-                                    palette="good"
-                                    disabled={!canAfford}
-                                    onClick={() => buyCard(card.id)}
-                                    aria-label={`Buy for ${price} antimatter`}
-                                    endIcon={<AntimatterIcon />}
-                                >
-                                    {`Buy ${price}`}
-                                </Button>
+                                {/* Its button only shows once it's focused, as it would otherwise be covered by the zoomed-in card. */}
+                                <ShopCard
+                                    card={card}
+                                    action={(
+                                        <Button
+                                            palette="good"
+                                            disabled={!canAfford}
+                                            onClick={() => buyCard(card.id)}
+                                            aria-label={`Buy for ${price} antimatter`}
+                                            endIcon={<AntimatterIcon />}
+                                        >
+                                            {`Buy ${price}`}
+                                        </Button>
+                                    )}
+                                />
                             </li>
                         ))}
                     </ul>

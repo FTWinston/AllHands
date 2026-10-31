@@ -36,7 +36,7 @@ export const AtShopStation: Story = {
         const canvas = within(canvasElement);
         await expect(canvas.getByRole('region', { name: 'Buy cards' })).toBeInTheDocument();
         await expect(canvas.getByText(/Helm cards are available to buy at this navigation beacon\./)).toBeInTheDocument();
-        await expect(canvas.getAllByRole('button', { name: /Buy/ })).toHaveLength(3);
+        await expect(within(canvas.getByRole('list', { name: 'Cards for sale' })).getAllByRole('listitem')).toHaveLength(3);
         await expect(await canvas.findByText('Warp Away')).toBeInTheDocument();
     },
 };

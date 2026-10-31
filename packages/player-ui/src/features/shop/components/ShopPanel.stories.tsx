@@ -50,18 +50,19 @@ type Story = StoryObj<typeof meta>;
 export const Affordable: Story = {
     play: async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
-        const buttons = canvas.getAllByRole('button', { name: /Buy/ });
-        await expect(buttons).toHaveLength(5);
+        // A card's Buy button only shows once it's focused.
+        await expect(canvas.queryByRole('button', { name: /Buy/ })).not.toBeInTheDocument();
 
-        await userEvent.click(buttons[0]);
+        await userEvent.click(canvas.getByText('Full Reverse'));
+        await userEvent.click(canvas.getByRole('button', { name: /Buy/ }));
         await expect(args.buyCard).toHaveBeenCalledWith(101);
-        await expect(canvas.getAllByRole('button', { name: /Buy/ })).toHaveLength(4);
+        await expect(canvas.getAllByRole('listitem')).toHaveLength(4);
 
         // 50 - 20 leaves enough for one more, but not two.
-        await userEvent.click(canvas.getAllByRole('button', { name: /Buy/ })[0]);
-        for (const button of canvas.getAllByRole('button', { name: /Buy/ })) {
-            await expect(button).toBeDisabled();
-        }
+        await userEvent.click(canvas.getByText('Strafe'));
+        await userEvent.click(canvas.getByRole('button', { name: /Buy/ }));
+        await userEvent.click(canvas.getByText('Sweep'));
+        await expect(canvas.getByRole('button', { name: /Buy/ })).toBeDisabled();
         await expect(canvas.getByText(/enough antimatter/)).toBeInTheDocument();
     },
 };
@@ -72,9 +73,8 @@ export const Unaffordable: Story = {
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
-        for (const button of canvas.getAllByRole('button', { name: /Buy/ })) {
-            await expect(button).toBeDisabled();
-        }
+        await userEvent.click(canvas.getByText('Zig-zag'));
+        await expect(canvas.getByRole('button', { name: /Buy/ })).toBeDisabled();
     },
 };
 
