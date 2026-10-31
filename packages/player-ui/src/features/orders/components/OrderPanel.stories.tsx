@@ -105,6 +105,9 @@ export const Unaffordable: Story = {
         const canvas = within(canvasElement);
         const page = within(canvasElement.ownerDocument.body);
 
+        // The panel still shows, so its cards can be looked at.
+        await expect(canvas.getByText(/You need 15 more antimatter/)).toBeInTheDocument();
+
         await userEvent.click(canvas.getByRole('button', { name: /Place order/ }));
         await userEvent.click(page.getAllByRole('button', { name: 'Choose' })[0]);
 

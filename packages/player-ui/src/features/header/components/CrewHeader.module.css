@@ -45,6 +45,29 @@
     }
 }
 
+/* Its children are laid out as part of the header, so that a dialog's close button can go at the end. */
+.dialogHeader {
+    display: contents;
+}
+
+/*
+ * While a dialog is open, its title replaces the crew name and icon, and everything is closer together to make room for it.
+ * Its close button is at the end, as far from the edge as the menu button is from the other.
+ */
+.crewHeader:has(> .dialogHeader:not(:empty)) {
+    gap: 0.5em;
+    padding-right: 0.25em;
+
+    .titleText,
+    .titleIcon {
+        display: none;
+    }
+
+    .indicators {
+        gap: 0.5em;
+    }
+}
+
 .indicators {
     display: flex;
     gap: 1em;

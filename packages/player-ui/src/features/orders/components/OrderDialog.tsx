@@ -37,7 +37,7 @@ export const OrderDialog: FC<Props> = (props) => {
     };
 
     return (
-        <FullScreenDialog title="Place a work order" isOpen={props.isOpen} setOpen={setOpen} bodyClassName={styles.body}>
+        <FullScreenDialog title="Work order" isOpen={props.isOpen} setOpen={setOpen} bodyClassName={styles.body}>
             <p className={styles.instructions}>
                 {spec
                     ? 'You\'ll choose one of three of these at the next station. Cards you don\'t have come first.'

@@ -29,3 +29,9 @@
     font-size: 0.4em;
     color: var(--grey-lightest);
 }
+
+.blocked {
+    display: block;
+    margin-top: 0.25em;
+    color: var(--danger-light);
+}

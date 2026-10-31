@@ -5,6 +5,7 @@ import { default as AntimatterIcon } from 'common-ui/icons/antimatter.svg?react'
 import { SystemIcon } from 'common-ui/icons/systems';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
+import { dialogHeaderSlotAttribute } from 'src/components/FullScreenDialog';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { DeckView } from 'src/features/deck/components/DeckView';
 import { DeckViewModel } from 'src/features/deck/types/DeckViewModel';
@@ -20,7 +21,7 @@ type Props = {
     /** Omitted at a station, where no cards are played. Elsewhere, it shows e.g. reactor damage lowering a system's baseline power. */
     power?: number;
     deckSize: number;
-    /** The ship's antimatter, shown at a shop station for this crew member. */
+    /** The ship's antimatter, shown to every crew member outside of an encounter. */
     antimatter?: number;
     cardGeneration?: Cooldown | null;
     /** Outside an encounter, the deck indicator becomes a button that opens this "my deck" view. During one, it is a discard target. */
@@ -38,6 +39,9 @@ export const CrewHeader: FC<Props> = (props) => {
                     {props.crew}
                 </div>
             </div>
+
+            {/* An open full-screen dialog shows its title and close button here, in place of the crew name. */}
+            <div className={styles.dialogHeader} {...{ [dialogHeaderSlotAttribute]: true }} />
 
             <div className={styles.indicators}>
                 {props.power !== undefined && (

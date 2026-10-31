@@ -1,5 +1,5 @@
 import { shopCardPrice } from 'common-data/features/ships/utils/antimatter';
-import { expect, fn, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { NonEncounterDisplay as Component } from './NonEncounterDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -37,5 +37,38 @@ export const AtShopStation: Story = {
         await expect(canvas.getByRole('region', { name: 'Shop' })).toBeInTheDocument();
         await expect(canvas.getAllByRole('button', { name: /Buy/ })).toHaveLength(3);
         await expect(await canvas.findByText('Warp Away')).toBeInTheDocument();
+    },
+};
+
+/**
+ * At a shop station for another crew member, tactical can place a work order. The panel shows even when the ship can't afford one,
+ * so its cards can still be looked at. The order dialog's title and close button are shown in the crew header.
+ */
+export const OrderingElsewhere: Story = {
+    args: {
+        crew: 'tactical',
+        orders: {
+            crew: 'tactical',
+            canOrder: true,
+            price: 45,
+            antimatter: 30,
+            deckCards: [{ id: 1, type: 'photonTorpedo' }, { id: 2, type: 'phaserStrip' }],
+            orderableCardIds: [1, 2],
+            pendingOrder: null,
+            previewCardId: null,
+            preview: [],
+            deliveryCards: [],
+            previewOrder: fn(),
+            placeOrder: fn(),
+            takeDelivery: fn(),
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await expect(canvas.getByText('30')).toBeInTheDocument();
+        await expect(canvas.getByText(/You need 15 more antimatter/)).toBeInTheDocument();
+
+        await userEvent.click(canvas.getByRole('button', { name: /Place order/ }));
+        await expect(await canvas.findByRole('heading', { name: 'Work order' })).toBeInTheDocument();
     },
 };
