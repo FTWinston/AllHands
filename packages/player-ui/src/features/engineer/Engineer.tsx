@@ -6,6 +6,7 @@ import { useCallback } from 'react';
 import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
+import { useOrders } from '../orders/hooks/useOrders';
 import { useShop } from '../shop/hooks/useShop';
 import { EngineerDisplay } from './components/EngineerDisplay';
 import type { Room } from '@colyseus/sdk';
@@ -24,8 +25,9 @@ export const Engineer = (props: Props) => {
 
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
     const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
-    const deckView = useDeckView(props.room, 'engineer', localShip?.engineerState);
+    const deckView = useDeckView(props.room, localShip?.engineerState);
     const shop = useShop(props.room, 'engineer', localShip?.engineerState, localShip?.antimatter ?? 0);
+    const orders = useOrders(props.room, 'engineer', localShip?.engineerState, localShip);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -59,6 +61,7 @@ export const Engineer = (props: Props) => {
             <NonEncounterDisplay
                 crew="engineer"
                 shop={shop}
+                orders={orders}
                 onPause={pause}
                 power={phase === 'encounter' ? undefined : engineerState.powerLevel}
                 deckSize={engineerState.deck.length}

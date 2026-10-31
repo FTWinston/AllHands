@@ -17,6 +17,7 @@
     }
 }
 
+/* Only used when there's no crew header to show the title and close button in. */
 .header {
     display: flex;
     align-items: center;
@@ -29,10 +30,25 @@
 .title {
     margin: 0;
     flex-grow: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 1.5em;
+    font-size: 1.25em;
+    line-height: 1em;
     font-weight: 500;
     color: var(--primary-light);
+}
+
+/* In the crew header, this comes after its indicators. As tall as its menu button. */
+button.close {
+    order: 1;
+    padding: 0.25em;
+}
+
+.closeIcon {
+    width: 1.5em;
+    height: 1.5em;
 }
 
 .body {

@@ -72,7 +72,10 @@ export const AtStation: Story = {
         await expect(button).toHaveAttribute('aria-pressed', 'false');
 
         await userEvent.click(button);
-        await expect(await page.findByText('My deck')).toBeInTheDocument();
+
+        // Its title is shown in the crew header, rather than in a header of its own.
+        await expect(await canvas.findByRole('heading', { name: 'My deck' })).toBeInTheDocument();
+        await expect(canvas.getByText(args.crew)).not.toBeVisible();
         await expect(page.getByText('#10')).toBeInTheDocument();
 
         // It stays open, rather than treating the click that opened it as an outside press.
@@ -96,7 +99,7 @@ export const AtStation: Story = {
     },
 };
 
-/** At a shop station, the crew member with the shop sees the ship's antimatter. */
+/** Outside of an encounter, every crew member sees the ship's antimatter. */
 export const Shopping: Story = {
     args: {
         power: undefined,

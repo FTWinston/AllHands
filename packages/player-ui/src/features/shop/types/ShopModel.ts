@@ -3,8 +3,6 @@ import type { CardInstance } from 'common-data/features/cards/types/CardInstance
 
 /** Everything needed to show a crew member's shop, at a shop station for their role (see `useShop`). */
 export type ShopModel = {
-    /** The kind of station, e.g. "Navigation beacon". */
-    title: string;
     cards: Snapshot<CardInstance[]>;
     /** Antimatter spent to buy each card. */
     price: number;

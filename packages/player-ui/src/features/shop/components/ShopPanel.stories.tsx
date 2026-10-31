@@ -10,13 +10,14 @@ const helmCards: Snapshot<CardInstance>[] = [
     { id: 101, type: 'fullReverse' },
     { id: 102, type: 'strafe' },
     { id: 103, type: 'sweep' },
+    { id: 104, type: 'zigZag' },
+    { id: 105, type: 'faceTarget' },
 ];
 
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Shop Panel',
     component: Component,
     args: {
-        title: 'Navigation beacon',
         cards: helmCards,
         price: shopCardPrice,
         antimatter: 50,
@@ -49,11 +50,11 @@ export const Affordable: Story = {
     play: async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
         const buttons = canvas.getAllByRole('button', { name: /Buy/ });
-        await expect(buttons).toHaveLength(3);
+        await expect(buttons).toHaveLength(5);
 
         await userEvent.click(buttons[0]);
         await expect(args.buyCard).toHaveBeenCalledWith(101);
-        await expect(canvas.getAllByRole('button', { name: /Buy/ })).toHaveLength(2);
+        await expect(canvas.getAllByRole('button', { name: /Buy/ })).toHaveLength(4);
 
         // 50 - 20 leaves enough for one more, but not two.
         await userEvent.click(canvas.getAllByRole('button', { name: /Buy/ })[0]);
@@ -88,11 +89,12 @@ export const SoldOut: Story = {
 
 export const ArmsDealer: Story = {
     args: {
-        title: 'Arms dealer',
         cards: [
             { id: 201, type: 'photonicCannon' },
             { id: 202, type: 'quantumTorpedo' },
             { id: 203, type: 'extendedRange' },
+            { id: 204, type: 'highIntensity' },
+            { id: 205, type: 'flare' },
         ],
     },
 };

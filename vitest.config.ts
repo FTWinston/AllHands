@@ -13,8 +13,19 @@ export default defineConfig({
                 test: {
                     name: 'unit',
                     include: ['packages/*/src/**/*.test.{js,ts,jsx,tsx}'],
+                    exclude: ['packages/*/src/**/*.data.test.ts'],
                     environment: 'node',
                     // Colyseus calls process.send(), which breaks vitest's child-process (forks) pool.
+                    pool: 'threads',
+                },
+            },
+            {
+                // Checks on the game's data (e.g. card synergy tags), which can fail while that data is a work in progress, so aren't run on CI.
+                ...viteConfig,
+                test: {
+                    name: 'data',
+                    include: ['packages/*/src/**/*.data.test.ts'],
+                    environment: 'node',
                     pool: 'threads',
                 },
             },

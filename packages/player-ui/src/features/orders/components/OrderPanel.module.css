@@ -1,0 +1,36 @@
+.panel {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    max-width: 30em;
+    margin: 0 auto;
+    padding: 0.75em 1em;
+    border: solid var(--energy-mid) 2px;
+    border-radius: 1em;
+    background-color: var(--grey-darkest);
+}
+
+.text {
+    margin: 0;
+    flex-grow: 1;
+    color: var(--grey-light);
+}
+
+.heading {
+    display: block;
+    color: var(--energy-light);
+    font-weight: 500;
+    font-size: 1.25em;
+}
+
+/* A small copy of the card the order was placed for. */
+.spec {
+    flex-shrink: 0;
+    font-size: 0.4em;
+    color: var(--grey-lightest);
+}
+
+/* Laid out like a shop, but with only text and a button, so kept narrow enough to read. */
+.order {
+    max-width: 30em;
+}

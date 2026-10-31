@@ -216,6 +216,23 @@ describe('GameRoom campaign messages', () => {
         expect(ship.antimatter).toBe(cardSellPrice);
     });
 
+    it('sends an order preview only to the crew member who asked for it', async () => {
+        const { room, state, ship, clients } = await startGame();
+        await send(room, clients.tactical, 'dismissMessage');
+        expect(state.campaign!.devLoadEncounter('navigationBeacon')).toBe(true);
+
+        const tacticalPreviews: unknown[] = [];
+        const helmPreviews: unknown[] = [];
+        clients.tactical.onMessage('orderPreview', preview => tacticalPreviews.push(preview));
+        clients.helm.onMessage('orderPreview', preview => helmPreviews.push(preview));
+
+        const spec = ship.tacticalState.deck.find(card => card.type === 'photonTorpedo')!;
+        await send(room, clients.tactical, 'previewOrder', { cardId: spec.id });
+
+        await vi.waitFor(() => expect(tacticalPreviews).toEqual([expect.objectContaining({ specCardId: spec.id })]));
+        expect(helmPreviews).toEqual([]);
+    });
+
     if (DEV_TOOLS_ENABLED) {
         it('dev client can start any encounter from the lobby', async () => {
             const room = rooms.getRoom();

@@ -7,6 +7,7 @@ import { useStableOrderedTargets } from 'src/hooks/useStableOrderedTargets';
 import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
+import { useOrders } from '../orders/hooks/useOrders';
 import { useShop } from '../shop/hooks/useShop';
 import { SectorMessagePrompt } from './components/SectorMessagePrompt';
 import { TacticalDisplay } from './components/TacticalDisplay';
@@ -28,8 +29,9 @@ export const Tactical = (props: Props) => {
     const targets = useStableOrderedTargets(objects, localShip);
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
     const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
-    const deckView = useDeckView(props.room, 'tactical', localShip?.tacticalState);
+    const deckView = useDeckView(props.room, localShip?.tacticalState);
     const shop = useShop(props.room, 'tactical', localShip?.tacticalState, localShip?.antimatter ?? 0);
+    const orders = useOrders(props.room, 'tactical', localShip?.tacticalState, localShip);
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
 
     const dismissMessage = useCallback(() => {
@@ -63,6 +65,7 @@ export const Tactical = (props: Props) => {
             <NonEncounterDisplay
                 crew="tactical"
                 shop={shop}
+                orders={orders}
                 onPause={pause}
                 power={phase === 'encounter' ? undefined : tacticalState.powerLevel}
                 deckSize={tacticalState.deck.length}

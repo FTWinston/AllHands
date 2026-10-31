@@ -406,6 +406,57 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 console.warn(`Rejected buying shop card ${message.cardId} for ${clientRole} of ship ${ship.id}`);
             }
         });
+
+        this.onMessage('previewOrder', (client, message: { cardId: number }) => {
+            if (this.state.gameStatus !== 'active' || !Number.isInteger(message?.cardId)) {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            const preview = this.state.campaign?.previewOrder(ship, this.getSystemState(ship, clientRole), message.cardId);
+            if (preview) {
+                client.send('orderPreview', preview);
+            } else {
+                console.warn(`Rejected previewing an order for deck card ${message.cardId} for ${clientRole} of ship ${ship.id}`);
+            }
+        });
+
+        this.onMessage('placeOrder', (client, message: { cardId: number }) => {
+            if (this.state.gameStatus !== 'active' || !Number.isInteger(message?.cardId)) {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (!this.state.campaign?.placeOrder(ship, this.getSystemState(ship, clientRole), message.cardId)) {
+                console.warn(`Rejected placing an order for deck card ${message.cardId} for ${clientRole} of ship ${ship.id}`);
+            }
+        });
+
+        this.onMessage('takeDelivery', (client, message: { cardId: number }) => {
+            if (this.state.gameStatus !== 'active' || !Number.isInteger(message?.cardId)) {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (!this.state.campaign?.takeDelivery(ship, this.getSystemState(ship, clientRole), message.cardId)) {
+                console.warn(`Rejected taking delivered card ${message.cardId} for ${clientRole} of ship ${ship.id}`);
+            }
+        });
     }
 
     private registerDevCommandHandlers() {

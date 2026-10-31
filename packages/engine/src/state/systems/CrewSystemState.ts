@@ -5,6 +5,7 @@ import { SystemSetupInfo, CrewSystemInfo } from 'common-data/features/space/type
 import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { InterceptableAction } from 'src/classes/InterceptableAction';
+import { canOrderFor } from '../../campaign/workOrders';
 import { CardState } from '../CardState';
 import { CooldownState } from '../CooldownState';
 import { GameState } from '../GameState';
@@ -39,6 +40,18 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     /** Cards on sale to this crew member, at a shop station for their role. Stocked on arrival; bought cards are removed. Cleared on leaving. */
     @type([CardState]) shopCards = new ArraySchema<CardState>();
 
+    /** The type of the deck card this crew member placed a work order for. Delivered at the next station, or cleared when the game ends. */
+    @type('string') pendingOrder: CardType | null = null;
+
+    /** Whether this crew member can place a work order here, at a shop station for another crew member. While so, `orderableCardIds` follows the deck. */
+    private canPlaceOrders = false;
+
+    /** Ids of the deck cards this crew member could place a work order for, while they can place orders. */
+    @type(['number']) orderableCardIds = new ArraySchema<number>();
+
+    /** Cards delivered by this crew member's work order, to choose one of. Cleared once one is taken, or on leaving the station. */
+    @type([CardState]) deliveryCards = new ArraySchema<CardState>();
+
     override readonly maxHandSize = 5;
 
     /** Stocks this crew member's shop with the given cards, replacing any already on offer. */
@@ -56,6 +69,55 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         }
 
         const [card] = this.shopCards.splice(index, 1);
+        return card;
+    }
+
+    /** Lets this crew member place work orders for their deck cards, until leaving the station. */
+    openOrders() {
+        this.canPlaceOrders = true;
+        this.updateOrderableCards();
+    }
+
+    private updateOrderableCards() {
+        this.orderableCardIds.clear();
+
+        if (this.canPlaceOrders) {
+            this.orderableCardIds.push(...this.deck.filter(card => canOrderFor(card.type)).map(card => card.id));
+        }
+    }
+
+    /** Places a work order for the given card type, to be delivered at the next station. */
+    placeOrder(type: CardType) {
+        this.pendingOrder = type;
+    }
+
+    /** Offers the cards delivered by this crew member's work order, which is then no longer pending. */
+    deliverOrder(cards: readonly CardState[]) {
+        this.pendingOrder = null;
+        this.deliveryCards.clear();
+        this.deliveryCards.push(...cards);
+        this.getShip().markCardTypesSeen(cards.map(card => card.type));
+    }
+
+    /** Removes a delivered card, returning it, and discards the rest of the delivery. Returns null if the delivery doesn't include that card. Doesn't add it to the deck. */
+    takeDeliveryCard(cardId: number): CardState | null {
+        const card = this.deliveryCards.find(card => card.id === cardId) ?? null;
+
+        if (card) {
+            this.deliveryCards.clear();
+        }
+
+        return card;
+    }
+
+    override addDeckCard(card: CardState) {
+        super.addDeckCard(card);
+        this.updateOrderableCards();
+    }
+
+    override removeDeckCard(cardId: number): CardState | null {
+        const card = super.removeDeckCard(cardId);
+        this.updateOrderableCards();
         return card;
     }
 
@@ -185,6 +247,12 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     override cleanupAfterEncounter() {
         this.pendingDrawChoice.clear();
         this.shopCards.clear();
+
+        // A pending order carries over to the next station, but an uncollected delivery is lost.
+        this.canPlaceOrders = false;
+        this.orderableCardIds.clear();
+        this.deliveryCards.clear();
+
         super.cleanupAfterEncounter();
     }
 }
