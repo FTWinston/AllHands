@@ -4,7 +4,7 @@ import { Button } from 'common-ui/components/Button';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
 import cardGridStyles from 'src/features/cardui/components/CardGrid.module.css';
-import { ShopCard } from 'src/features/shop/components/ShopCard';
+import { GridCard } from 'src/features/cardui/components/GridCard';
 import shopStyles from 'src/features/shop/components/ShopPanel.module.css';
 import styles from './DeliveryPanel.module.css';
 
@@ -30,7 +30,7 @@ export const DeliveryPanel: FC<Props> = ({ cards, takeDelivery }) => (
             {cards.map(card => (
                 <li key={card.id} className={cardGridStyles.item}>
                     {/* Its button only shows once it's focused, as it would otherwise be covered by the zoomed-in card. */}
-                    <ShopCard card={card} action={<Button palette="good" onClick={() => takeDelivery(card.id)}>Take</Button>} />
+                    <GridCard card={card} action={<Button palette="good" onClick={() => takeDelivery(card.id)}>Take</Button>} />
                 </li>
             ))}
         </ul>

@@ -4,7 +4,7 @@ import { default as AntimatterIcon } from 'common-ui/icons/antimatter.svg?react'
 import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
 import cardGridStyles from 'src/features/cardui/components/CardGrid.module.css';
-import { ShopCard } from './ShopCard';
+import { GridCard } from 'src/features/cardui/components/GridCard';
 import styles from './ShopPanel.module.css';
 import type { ShopModel } from '../types/ShopModel';
 
@@ -32,7 +32,7 @@ export const ShopPanel: FC<ShopModel> = ({ stationKind, cards, price, antimatter
                         {cards.map(card => (
                             <li key={card.id} className={cardGridStyles.item}>
                                 {/* Its button only shows once it's focused, as it would otherwise be covered by the zoomed-in card. */}
-                                <ShopCard
+                                <GridCard
                                     card={card}
                                     action={(
                                         <Button

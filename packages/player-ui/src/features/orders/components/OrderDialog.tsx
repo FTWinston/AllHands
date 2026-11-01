@@ -6,7 +6,7 @@ import { FC, useState } from 'react';
 import { AntimatterAmount } from 'src/components/AntimatterAmount';
 import { FullScreenDialog } from 'src/components/FullScreenDialog';
 import cardGridStyles from 'src/features/cardui/components/CardGrid.module.css';
-import { ShopCard } from 'src/features/shop/components/ShopCard';
+import { GridCard } from 'src/features/cardui/components/GridCard';
 import styles from './OrderDialog.module.css';
 import type { OrdersModel } from '../types/OrdersModel';
 
@@ -77,7 +77,7 @@ export const OrderDialog: FC<Props> = (props) => {
                                         {props.preview.map((card, index) => (
                                             <li key={card.type ?? `unknown${index}`} className={cardGridStyles.item}>
                                                 {card.type
-                                                    ? <ShopCard card={{ id: index, type: card.type }} />
+                                                    ? <GridCard card={{ id: index, type: card.type }} />
                                                     : <CardBack system={props.crew} className={styles.unknown} />}
 
                                                 <span className={classNames(styles.label, card.owned ? styles.owned : null)}>
@@ -100,7 +100,7 @@ export const OrderDialog: FC<Props> = (props) => {
                                 return (
                                     <li key={card.id} className={cardGridStyles.item}>
                                         {/* Its button only shows once it's focused, as it would otherwise be covered by the zoomed-in card. */}
-                                        <ShopCard
+                                        <GridCard
                                             card={card}
                                             disabled={!orderable}
                                             action={orderable ? <Button palette="good" onClick={() => pickSpec(card.id)}>Choose</Button> : undefined}

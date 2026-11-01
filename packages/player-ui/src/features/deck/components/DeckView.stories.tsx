@@ -71,7 +71,7 @@ export const Browsing: Story = {
         const page = within(canvasElement.ownerDocument.body);
         await expect(await page.findByText('My deck')).toBeInTheDocument();
         await expect(page.getByText('#12')).toBeInTheDocument();
-        await expect(page.queryAllByRole('button', { name: /Sell/ })).toHaveLength(0);
+        await expect(page.queryAllByRole('button', { name: 'Sell for 10 antimatter' })).toHaveLength(0);
     },
 };
 
@@ -82,15 +82,17 @@ export const AtStation: Story = {
     },
     play: async ({ canvasElement, args }) => {
         const page = within(canvasElement.ownerDocument.body);
-        const sellButtons = await page.findAllByRole('button', { name: /Sell/ });
-        await expect(sellButtons).toHaveLength(12);
+        // A card's Sell button only shows once it's focused.
+        await userEvent.click(await page.findByText('Phaser Cannon'));
+        await expect(page.getAllByRole('button', { name: 'Sell for 10 antimatter' })).toHaveLength(1);
 
-        await userEvent.click(sellButtons[0]);
-        await expect(await page.findByText(/Sell .* for 10 antimatter\?/)).toBeInTheDocument();
+        await userEvent.click(page.getByRole('button', { name: 'Sell for 10 antimatter' }));
+        await expect(await page.findByText('Sell Phaser Cannon for 10 antimatter? It will be removed from your deck.')).toBeInTheDocument();
         await userEvent.click(page.getByRole('button', { name: 'Cancel' }));
         await expect(args.sellCard).not.toHaveBeenCalled();
 
-        await userEvent.click(sellButtons[1]);
+        await userEvent.click(page.getByText('Example Enemy Target'));
+        await userEvent.click(page.getByRole('button', { name: 'Sell for 10 antimatter' }));
         await userEvent.click(await page.findByRole('button', { name: 'OK' }));
         await expect(args.sellCard).toHaveBeenCalledWith(2);
     },
@@ -105,8 +107,7 @@ export const AtStationMinimumDeck: Story = {
         const page = within(canvasElement.ownerDocument.body);
         await expect(await page.findByText(/your deck can't have fewer than 10 cards/)).toBeInTheDocument();
 
-        for (const button of page.getAllByRole('button', { name: /Sell/ })) {
-            await expect(button).toBeDisabled();
-        }
+        await userEvent.click(page.getByText('Phaser Cannon'));
+        await expect(page.getByRole('button', { name: 'Sell for 10 antimatter' })).toBeDisabled();
     },
 };

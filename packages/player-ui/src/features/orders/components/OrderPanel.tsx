@@ -4,7 +4,7 @@ import { classNames } from 'common-ui/utils/classNames';
 import { FC, useState } from 'react';
 import { AntimatterAmount } from 'src/components/AntimatterAmount';
 import cardGridStyles from 'src/features/cardui/components/CardGrid.module.css';
-import { ShopCard } from 'src/features/shop/components/ShopCard';
+import { GridCard } from 'src/features/cardui/components/GridCard';
 import shopStyles from 'src/features/shop/components/ShopPanel.module.css';
 import { OrderDialog } from './OrderDialog';
 import styles from './OrderPanel.module.css';
@@ -21,7 +21,7 @@ export const OrderPanel: FC<OrdersModel> = (props) => {
         return (
             <section className={styles.panel} aria-label="Pending work order">
                 <div className={classNames(cardGridStyles.grid, styles.spec)}>
-                    <ShopCard card={{ id: 0, type: props.pendingOrder }} />
+                    <GridCard card={{ id: 0, type: props.pendingOrder }} />
                 </div>
 
                 <p className={styles.text}>
