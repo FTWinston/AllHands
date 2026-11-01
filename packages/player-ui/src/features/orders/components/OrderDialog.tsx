@@ -1,5 +1,4 @@
 import { Button } from 'common-ui/components/Button';
-import { Card } from 'common-ui/features/cards/components/Card';
 import { CardBack } from 'common-ui/features/cards/components/CardBack';
 import { default as AntimatterIcon } from 'common-ui/icons/antimatter.svg?react';
 import { classNames } from 'common-ui/utils/classNames';
@@ -101,14 +100,13 @@ export const OrderDialog: FC<Props> = (props) => {
                                 return (
                                     <li key={card.id} className={cardGridStyles.item}>
                                         {/* Its button only shows once it's focused, as it would otherwise be covered by the zoomed-in card. */}
-                                        {orderable
-                                            ? <ShopCard card={card} action={<Button palette="good" onClick={() => pickSpec(card.id)}>Choose</Button>} />
-                                            : (
-                                                <>
-                                                    <Card type={card.type} modifiers={card.modifiers} extraTraits={card.extraTraits} disabled />
-                                                    <span className={styles.label}>No matches</span>
-                                                </>
-                                            )}
+                                        <ShopCard
+                                            card={card}
+                                            disabled={!orderable}
+                                            action={orderable ? <Button palette="good" onClick={() => pickSpec(card.id)}>Choose</Button> : undefined}
+                                        />
+
+                                        {!orderable && <span className={styles.label}>No matches</span>}
                                     </li>
                                 );
                             })}

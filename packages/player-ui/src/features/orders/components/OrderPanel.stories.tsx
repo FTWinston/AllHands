@@ -86,6 +86,11 @@ export const PlaceOrder: Story = {
         await expect(page.queryByRole('button', { name: 'Choose' })).not.toBeInTheDocument();
         await expect(page.getByText('No matches')).toBeInTheDocument();
 
+        // A card without matches can still be focused to read it, but not chosen.
+        await userEvent.click(page.getByText('Example Enemy Target'));
+        await expect(page.getByText('Example Enemy Target').closest('[tabindex]')).toHaveFocus();
+        await expect(page.queryByRole('button', { name: 'Choose' })).not.toBeInTheDocument();
+
         await userEvent.click(page.getByText('Photon Torpedo'));
         await userEvent.click(page.getByRole('button', { name: 'Choose' }));
         await expect(args.previewOrder).toHaveBeenCalledWith(4);

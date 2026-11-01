@@ -89,15 +89,17 @@
     transform: scale(calc(1 / var(--card-scale)));
 }
 
-/* Just beneath a card, zooming with it, and only while it's focused. */
+/* Just beneath a card, zooming with it, and only while it's focused. Its background fades out at the edges, to hide whatever it overlaps without a hard edge. */
 .action {
     position: absolute;
     top: 100%;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: center;
-    padding-top: 0.5em;
+    left: 50%;
+    translate: -50%;
+    width: max-content;
+    padding: 0.5em 1em;
+    border-radius: 1em;
+    background-color: var(--grey-darkest);
+    box-shadow: 0 0 1em 0.75em var(--grey-darkest);
 
     .card:not(:focus-within) > & {
         display: none;

@@ -8,10 +8,12 @@ type Props = {
     card: Snapshot<CardInstance>;
     /** Shown beneath the card only while it's focused, and so zoomed in, e.g. a button to choose it. */
     action?: ReactNode;
+    /** Greyed out, e.g. as it can't be chosen. It can still be focused, to zoom in and read it. */
+    disabled?: boolean;
 };
 
 /** A card on offer (e.g. for sale, or delivered by a work order) in a card grid, which zooms in when hovered or focused. */
-export const ShopCard: FC<Props> = ({ card, action }) => {
+export const ShopCard: FC<Props> = ({ card, action, disabled }) => {
     const [isFocused, setIsFocused] = useState(false);
 
     return (
@@ -28,6 +30,7 @@ export const ShopCard: FC<Props> = ({ card, action }) => {
                 modifiers={card.modifiers}
                 extraTraits={card.extraTraits}
                 showTraitDescriptions={isFocused}
+                disabled={disabled}
             />
 
             {action && <div className={cardGridStyles.action}>{action}</div>}
