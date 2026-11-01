@@ -59,7 +59,8 @@ export const NonEncounterDisplay = (props: Props) => {
             <DragCardProvider onCardDropped={dropCard}>
                 <CardDropTarget id="noTarget" targetType="no-target" />
 
-                <CrewHeader {...headerProps} antimatter={orders?.antimatter ?? shop?.antimatter} />
+                {/* Antimatter is only spent at a station. Elsewhere, it's shown on the main viewscreen. */}
+                <CrewHeader {...headerProps} antimatter={headerProps.deckView?.atStation ? orders?.antimatter ?? shop?.antimatter : undefined} />
 
                 {(shop || hasDelivery || showOrderPanel) && (
                     <div className={styles.shop}>

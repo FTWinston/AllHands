@@ -94,7 +94,7 @@ export const AtStation: Story = {
     },
 };
 
-/** Outside of an encounter, every crew member sees the ship's antimatter. */
+/** At a station, every crew member sees the ship's antimatter. */
 export const Shopping: Story = {
     args: {
         power: undefined,

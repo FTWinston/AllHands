@@ -94,6 +94,9 @@ export const PlaceOrder: Story = {
         await userEvent.click(page.getByText('Photon Torpedo'));
         await userEvent.click(page.getByRole('button', { name: 'Choose' }));
         await expect(args.previewOrder).toHaveBeenCalledWith(4);
+        // The chosen card is shown, now outside the deck's grid.
+        await expect(page.queryByRole('list', { name: 'Deck' })).not.toBeInTheDocument();
+        await expect(page.getByText('Photon Torpedo')).toBeVisible();
         await expect(page.getAllByText('Unknown card')).toHaveLength(2);
         await expect(page.getAllByText('In your deck')).toHaveLength(2);
 

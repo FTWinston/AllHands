@@ -17,6 +17,11 @@
     color: var(--danger-light);
 }
 
+/* Cards take their name and art colour from here, as in a card grid. */
+.spec {
+    color: var(--grey-lightest);
+}
+
 .actions {
     display: flex;
     flex-wrap: wrap;

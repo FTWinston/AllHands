@@ -1,4 +1,5 @@
 import { Button } from 'common-ui/components/Button';
+import { Card } from 'common-ui/features/cards/components/Card';
 import { CardBack } from 'common-ui/features/cards/components/CardBack';
 import { default as AntimatterIcon } from 'common-ui/icons/antimatter.svg?react';
 import { classNames } from 'common-ui/utils/classNames';
@@ -56,8 +57,13 @@ export const OrderDialog: FC<Props> = (props) => {
             {spec
                 ? (
                     <>
+                        {/* At full size, as when zoomed in to choose it. */}
+                        <div className={styles.spec}>
+                            <Card type={spec.type} modifiers={spec.modifiers} extraTraits={spec.extraTraits} />
+                        </div>
+
                         <div className={styles.actions}>
-                            <Button onClick={() => setSpecCardId(null)}>Go back</Button>
+                            <Button onClick={() => setSpecCardId(null)}>Change card</Button>
 
                             <Button
                                 palette="good"

@@ -2,6 +2,36 @@ import { shopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { NonEncounterDisplay as Component } from './NonEncounterDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { DeckViewModel } from 'src/features/deck/types/DeckViewModel';
+import type { OrdersModel } from 'src/features/orders/types/OrdersModel';
+
+function createDeckView(atStation: boolean): DeckViewModel {
+    return {
+        cards: [{ id: 1, type: 'photonTorpedo' }, { id: 2, type: 'phaserStrip' }],
+        isOpen: false,
+        setOpen: fn(),
+        atStation,
+        moveCard: fn(),
+        sellCard: fn(),
+    };
+}
+
+/** Tactical's work orders, with too little antimatter to place one. */
+const tacticalOrders = {
+    crew: 'tactical',
+    canOrder: true,
+    price: 45,
+    antimatter: 30,
+    deckCards: [{ id: 1, type: 'photonTorpedo' }, { id: 2, type: 'phaserStrip' }],
+    orderableCardIds: [1, 2],
+    pendingOrder: null,
+    previewCardId: null,
+    preview: [],
+    deliveryCards: [],
+    previewOrder: fn(),
+    placeOrder: fn(),
+    takeDelivery: fn(),
+} satisfies OrdersModel;
 
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Non-Encounter Display',
@@ -24,6 +54,7 @@ export const AtShopStation: Story = {
     args: {
         hand: [{ id: 201, type: 'warpAway' }],
         playHandCard: fn(),
+        deckView: createDeckView(true),
         shop: {
             stationKind: 'navigationBeacon',
             cards: [{ id: 101, type: 'fullReverse' }, { id: 102, type: 'strafe' }, { id: 103, type: 'sweep' }],
@@ -43,26 +74,13 @@ export const AtShopStation: Story = {
 
 /**
  * At a shop station for another crew member, tactical can place a work order. The panel shows even when the ship can't afford one,
- * so its cards can still be looked at. The order dialog's title and close button are shown in the crew header.
+ * so its cards can still be looked at.
  */
 export const OrderingElsewhere: Story = {
     args: {
         crew: 'tactical',
-        orders: {
-            crew: 'tactical',
-            canOrder: true,
-            price: 45,
-            antimatter: 30,
-            deckCards: [{ id: 1, type: 'photonTorpedo' }, { id: 2, type: 'phaserStrip' }],
-            orderableCardIds: [1, 2],
-            pendingOrder: null,
-            previewCardId: null,
-            preview: [],
-            deliveryCards: [],
-            previewOrder: fn(),
-            placeOrder: fn(),
-            takeDelivery: fn(),
-        },
+        orders: tacticalOrders,
+        deckView: createDeckView(true),
     },
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
@@ -73,5 +91,19 @@ export const OrderingElsewhere: Story = {
 
         await userEvent.click(canvas.getByRole('button', { name: /Place order/ }));
         await expect(await page.findByRole('dialog', { name: 'Order a card' })).toBeInTheDocument();
+    },
+};
+
+/** Away from a station, the ship's antimatter isn't shown, as it can't be spent. It's on the main viewscreen instead. */
+export const AwayFromStation: Story = {
+    args: {
+        crew: 'tactical',
+        orders: { ...tacticalOrders, canOrder: false },
+        deckView: createDeckView(false),
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await expect(canvas.getByRole('button', { name: /My deck/ })).toBeInTheDocument();
+        await expect(canvas.queryByText('30')).not.toBeInTheDocument();
     },
 };

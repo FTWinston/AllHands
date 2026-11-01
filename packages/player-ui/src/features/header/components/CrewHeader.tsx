@@ -20,7 +20,7 @@ type Props = {
     /** Omitted outside an encounter, where no cards are played and antimatter is shown instead. During one, it shows e.g. reactor damage lowering a system's baseline power. */
     power?: number;
     deckSize: number;
-    /** The ship's antimatter, shown to every crew member outside of an encounter. */
+    /** The ship's antimatter, shown to every crew member at a station, where it's spent. */
     antimatter?: number;
     cardGeneration?: Cooldown | null;
     /** Outside an encounter, the deck indicator becomes a button that opens this "my deck" view. During one, it is a discard target. */
