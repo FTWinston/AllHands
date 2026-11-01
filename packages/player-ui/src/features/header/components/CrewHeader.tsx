@@ -17,7 +17,7 @@ import { NumberIndicator } from './NumberIndicator';
 type Props = {
     crew: CrewRoleName;
     onPause: () => void;
-    /** Omitted at a station, where no cards are played. Elsewhere, it shows e.g. reactor damage lowering a system's baseline power. */
+    /** Omitted outside an encounter, where no cards are played and antimatter is shown instead. During one, it shows e.g. reactor damage lowering a system's baseline power. */
     power?: number;
     deckSize: number;
     /** The ship's antimatter, shown to every crew member outside of an encounter. */

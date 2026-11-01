@@ -19,7 +19,8 @@ import type { OrdersModel } from '../../orders/types/OrdersModel';
 import type { ShopModel } from '../../shop/types/ShopModel';
 import type { Snapshot } from '@colyseus/react';
 
-type Props = ComponentProps<typeof CrewHeader> & {
+/** Power isn't shown, as it only matters during an encounter, so the header shows antimatter instead. */
+type Props = Omit<ComponentProps<typeof CrewHeader>, 'power'> & {
     /** Cards to offer instead of the crew's usual display; none for crew that only wait on the sector map. */
     cards?: Snapshot<NonEncounterCardInfo[]>;
     playCard?: (cardId: number) => void;

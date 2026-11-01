@@ -75,7 +75,6 @@ export const Helm = (props: Props) => {
                 shop={shop}
                 orders={orders}
                 onPause={pause}
-                power={phase === 'encounter' ? undefined : helmState.powerLevel}
                 deckSize={helmState.deck.length}
                 deckView={deckView}
                 cardGeneration={helmState.cardGeneration}

@@ -57,7 +57,7 @@ export const OrderDialog: FC<Props> = (props) => {
                 ? (
                     <>
                         <div className={styles.actions}>
-                            <Button onClick={() => setSpecCardId(null)}>Choose another card</Button>
+                            <Button onClick={() => setSpecCardId(null)}>Go back</Button>
 
                             <Button
                                 palette="good"

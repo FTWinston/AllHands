@@ -39,7 +39,7 @@ export const InEncounter: Story = {
     },
 };
 
-/** The deck indicator is a toggle button for the "my deck" view. Power isn't shown at a station, as no cards are played there. */
+/** The deck indicator is a toggle button for the "my deck" view. Power isn't shown outside an encounter, as no cards are played there. */
 export const AtStation: Story = {
     args: {
         power: undefined,
