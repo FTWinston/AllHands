@@ -8,6 +8,7 @@ import { default as AntimatterIcon } from 'common-ui/icons/antimatter.svg?react'
 import { classNames } from 'common-ui/utils/classNames';
 import { FC, useState } from 'react';
 import cardGridStyles from 'src/features/cardui/components/CardGrid.module.css';
+import { GridCard } from 'src/features/cardui/components/GridCard';
 import styles from './DeckCardList.module.css';
 import type { Snapshot } from '@colyseus/react';
 
@@ -158,8 +159,6 @@ const DeckCardItem: FC<ItemProps> = ({ card, index, canMove, isMoveTarget, onSel
     const { setNodeRef: setDropRef, isOver } = useDroppable({ id: `${slotPrefix}${index}`, disabled: !canMove });
     const { setNodeRef: setDragRef, attributes, listeners, isDragging } = useDraggable({ id: card.id, disabled: !canMove });
 
-    const [isFocused, setIsFocused] = useState(false);
-
     return (
         <li
             ref={setDropRef}
@@ -170,34 +169,27 @@ const DeckCardItem: FC<ItemProps> = ({ card, index, canMove, isMoveTarget, onSel
                 {index + 1}
             </div>
 
-            <div
+            {/* Its button only shows once it's focused, as it would otherwise be covered by the zoomed-in card. */}
+            <GridCard
                 ref={setDragRef}
-                className={classNames(cardGridStyles.card, canMove ? styles.movable : null, isDragging ? styles.dragging : null)}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                // Focusable even when not movable, so it can be tapped to zoom in.
-                {...(canMove ? { ...listeners, ...attributes } : { tabIndex: 0 })}
-            >
-                <Card
-                    type={card.type}
-                    modifiers={card.modifiers}
-                    extraTraits={card.extraTraits}
-                    showTraitDescriptions={isFocused && !isDragging}
-                />
-            </div>
-
-            {onSell && (
-                <Button
-                    className={styles.sell}
-                    palette="danger"
-                    disabled={sellDisabled}
-                    onClick={onSell}
-                    aria-label={`Sell for ${sellPrice} antimatter`}
-                    endIcon={<AntimatterIcon />}
-                >
-                    {`Sell ${sellPrice}`}
-                </Button>
-            )}
+                card={card}
+                className={classNames(canMove ? styles.movable : null, isDragging ? styles.dragging : null)}
+                hideTraitDescriptions={isDragging}
+                action={onSell
+                    ? (
+                        <Button
+                            palette="danger"
+                            disabled={sellDisabled}
+                            onClick={onSell}
+                            aria-label={`Sell for ${sellPrice} antimatter`}
+                            endIcon={<AntimatterIcon />}
+                        >
+                            {`Sell ${sellPrice}`}
+                        </Button>
+                    )
+                    : undefined}
+                {...(canMove ? { ...listeners, ...attributes } : undefined)}
+            />
         </li>
     );
 };

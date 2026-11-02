@@ -17,10 +17,10 @@ import { NumberIndicator } from './NumberIndicator';
 type Props = {
     crew: CrewRoleName;
     onPause: () => void;
-    /** Omitted at a station, where no cards are played. Elsewhere, it shows e.g. reactor damage lowering a system's baseline power. */
+    /** Omitted outside an encounter, where no cards are played and antimatter is shown instead. During one, it shows e.g. reactor damage lowering a system's baseline power. */
     power?: number;
     deckSize: number;
-    /** The ship's antimatter, shown at a shop station for this crew member. */
+    /** The ship's antimatter, shown to every crew member at a station, where it's spent. */
     antimatter?: number;
     cardGeneration?: Cooldown | null;
     /** Outside an encounter, the deck indicator becomes a button that opens this "my deck" view. During one, it is a discard target. */

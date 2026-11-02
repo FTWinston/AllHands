@@ -70,8 +70,14 @@ button.deckButton > span {
     gap: 0.25em;
 }
 
+/* Filled in while its deck view is open, like an open menu's button, as it's what closes it again. */
 button.deckButtonPressed {
-    background-color: var(--primary-mid);
+    background-color: var(--color-light);
+
+    .deckButtonIcon,
+    .deckButtonValue {
+        color: var(--lightest-contrast-dark);
+    }
 }
 
 .deckButtonIcon {

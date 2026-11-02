@@ -14,7 +14,6 @@ const meta = {
         title: 'Full screen',
         isOpen: true,
         setOpen: fn(),
-        headerEnd: <span>Header extra</span>,
         children: Array.from({ length: 40 }, (_, index) => <p key={index}>{`Scrolling content line ${index + 1}`}</p>),
     },
     render: (args) => {

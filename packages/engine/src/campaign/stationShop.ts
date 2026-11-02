@@ -6,7 +6,7 @@ import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import type { IRandom } from 'common-data/types/IRandom';
 
 /** How many cards a shop station offers. */
-export const shopCardCount = 3;
+export const shopCardCount = 5;
 
 /** Picks the different types of card a shop offers the given crew member, at random from those it can sell (see `getShopCardTypes`). */
 export function pickShopCardTypes(random: IRandom, role: CrewRoleName, count = shopCardCount): CardType[] {

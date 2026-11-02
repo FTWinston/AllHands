@@ -1,25 +1,22 @@
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import { Button } from 'common-ui/components/Button';
+import { default as CloseIcon } from 'common-ui/icons/close.svg?react';
 import { classNames } from 'common-ui/utils/classNames';
-import { FC, PropsWithChildren, ReactNode } from 'react';
+import { FC, PropsWithChildren } from 'react';
 import styles from './FullScreenDialog.module.css';
 
 type Props = PropsWithChildren<{
     title: string;
     isOpen: boolean;
     setOpen: (open: boolean) => void;
-    /** Shown before the title, e.g. an icon. */
-    headerStart?: ReactNode;
-    /** Shown after the title, before the close button. */
-    headerEnd?: ReactNode;
-    /** Applied to the header, which holds the title and close button. */
-    headerClassName?: string;
-    /** Applied to the scrolling area beneath the header, which holds the children. */
+    /** Leave out the close button, when something else closes it, e.g. a toggle button in the crew header. */
+    noCloseButton?: boolean;
+    /** Applied to the scrolling area that holds the children. */
     bodyClassName?: string;
 }>;
 
 /**
- * A dialog covering the screen below the crew header, with its own header holding its title and a close button, and a vertically scrolling body.
+ * A dialog covering the screen below the crew header, with its title beneath that, and a vertically scrolling body.
  * It isn't modal, so the crew header stays usable, e.g. to toggle this dialog with a button there.
  */
 export const FullScreenDialog: FC<Props> = props => (
@@ -27,14 +24,18 @@ export const FullScreenDialog: FC<Props> = props => (
     <BaseDialog.Root open={props.isOpen} onOpenChange={props.setOpen} modal={false} disablePointerDismissal>
         <BaseDialog.Portal>
             <BaseDialog.Popup className={styles.popup}>
-                <header className={classNames(styles.header, props.headerClassName)}>
-                    {props.headerStart}
-
+                <header className={styles.header}>
                     <BaseDialog.Title className={styles.title}>{props.title}</BaseDialog.Title>
 
-                    {props.headerEnd}
-
-                    <BaseDialog.Close render={<Button>Close</Button>} />
+                    {!props.noCloseButton && (
+                        <BaseDialog.Close
+                            render={(
+                                <Button className={styles.close} title="Close" aria-label="Close">
+                                    <CloseIcon className={styles.closeIcon} />
+                                </Button>
+                            )}
+                        />
+                    )}
                 </header>
 
                 <div className={classNames(styles.body, props.bodyClassName)}>
