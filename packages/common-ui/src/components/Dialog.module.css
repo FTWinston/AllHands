@@ -26,8 +26,8 @@
   padding: 1.5rem;
   border-radius: 3em;
   corner-shape: squircle;
-  outline: 1px solid var(--primary-mid);
-  background-color: var(--grey-darkest);
+  outline: 1.5px solid var(--line);
+  background-color: var(--panel);
   color: var(--grey-lightest);
   transition: all 150ms;
 

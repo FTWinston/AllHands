@@ -93,13 +93,13 @@
     gap: 0.875em;
     padding-right: 2.25em;
     border-color: color-mix(in oklch, var(--danger-light) 45%, transparent);
-    background-color: color-mix(in oklch, var(--danger-light) 10%, var(--panel));
+    background-color: var(--panel);
     color: var(--danger-light);
 }
 
 .danger .menuButton:hover:not(:disabled), .danger .menuButton:focus-visible {
     border-color: var(--danger-light);
-    background-color: color-mix(in oklch, var(--danger-light) 20%, var(--panel));
+    background-color: var(--panel-raised);
 }
 
 .danger .icon > svg {

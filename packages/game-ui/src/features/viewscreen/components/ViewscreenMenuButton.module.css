@@ -10,3 +10,23 @@
     color: black;
     height: 1.5em;
 }
+
+.menuButton.inBar {
+    position: static;
+    width: 3.25em;
+    height: 3.25em;
+    justify-content: center;
+    padding: 0 !important;
+    border-radius: 1em;
+    background-color: transparent;
+    box-shadow: var(--line) 0px 0px 0px 0.094em inset;
+}
+
+.menuButton.inBar:hover {
+    background-color: var(--panel-raised);
+}
+
+.inBar .menuButtonIcon {
+    color: var(--text-muted);
+    height: 1.5em;
+}

@@ -15,7 +15,7 @@ export const Menu: FC<PropsWithChildren<Props>> = props => (
     <Screen className={styles.screen}>
         <MenuBackdrop />
         <div className={styles.content}>
-            <p className={styles.tagline}>Co-operative starship bridge</p>
+            <p className={styles.tagline}>Real-time card-based co-op starship roguelike</p>
             <h1 className={styles.title}>All Hands</h1>
             <CrewStripe className={styles.stripe} />
 

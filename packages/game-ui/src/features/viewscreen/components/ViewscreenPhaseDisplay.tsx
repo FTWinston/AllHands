@@ -28,10 +28,15 @@ export const ViewscreenPhaseDisplay: FC<Props> = ({ phase, isEnded, outcome, map
         content = <GameEndedDisplay outcome={outcome} message={message} />;
     } else if (phase === 'map' && map) {
         content = (
-            <>
-                <SectorMapDisplay map={map} />
-                {antimatter !== undefined && <AntimatterDisplay antimatter={antimatter} />}
-            </>
+            <SectorMapDisplay
+                map={map}
+                topBarEnd={(
+                    <>
+                        {antimatter !== undefined && <AntimatterDisplay antimatter={antimatter} />}
+                        <ViewscreenMenuButton showMenu={showMenu} inBar />
+                    </>
+                )}
+            />
         );
     } else if ((phase === 'sectorIntro' || phase === 'sectorOutro') && message) {
         content = <SectorMessageDisplay message={message} />;
@@ -41,7 +46,8 @@ export const ViewscreenPhaseDisplay: FC<Props> = ({ phase, isEnded, outcome, map
 
     return (
         <Screen>
-            <ViewscreenMenuButton showMenu={showMenu} />
+            {/* The sector map has its own top bar, which holds the menu button. */}
+            {!(phase === 'map' && map && !isEnded) && <ViewscreenMenuButton showMenu={showMenu} />}
             {content}
             {children}
         </Screen>

@@ -1,4 +1,8 @@
 /* Stands out from a shop, as it's free but time-limited. */
 .panel {
-    border-color: var(--good-mid);
+    border-color: color-mix(in oklch, var(--good-light) 55%, transparent);
+}
+
+.panel h2 {
+    color: var(--good-light);
 }

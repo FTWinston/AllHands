@@ -35,5 +35,5 @@
 }
 
 .engineer, .helm, .science, .tactical {
-    --primary-darkest-muted: color-mix(in srgb, var(--primary-darkest) 50%, var(--grey-darkest));
+    --primary-darkest-muted: color-mix(in srgb, var(--primary-darkest) 50%, var(--space));
 }

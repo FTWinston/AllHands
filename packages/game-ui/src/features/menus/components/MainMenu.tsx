@@ -3,6 +3,9 @@ import { CardsIcon, HostIcon, JoinIcon, PlayIcon, PowerIcon } from 'src/icons';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
 
+/** Shown on the main menu. There are no numbered releases yet. */
+const gameVersion = 'Pre-alpha';
+
 type Props = {
     hostSingleCrewServer: () => void;
     hostMultiCrewServer: () => void;
@@ -13,7 +16,7 @@ type Props = {
 
 export const MainMenu: FC<Props> = (props) => {
     return (
-        <Menu footer="Crew play on their phones, in the browser">
+        <Menu footer={`Version: ${gameVersion}`}>
             <MenuItem
                 text="Start single-crew game"
                 description="One ship, four phones"
