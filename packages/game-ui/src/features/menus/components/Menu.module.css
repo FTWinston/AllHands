@@ -1,14 +1,77 @@
+/* Scale with the window, so the menu fills it whichever dimension is the limit. 1em is 16px on a 1600 x 900 screen. */
+.screen {
+    position: relative;
+    font-size: min(1vw, 1.78vh);
+    color: var(--text);
+    background-color: var(--space);
+    background-image:
+        radial-gradient(0.1em 0.1em at 8% 12%, oklch(1 0 0 / 0.55), transparent 60%),
+        radial-gradient(0.07em 0.07em at 22% 78%, oklch(1 0 0 / 0.45), transparent 60%),
+        radial-gradient(0.1em 0.1em at 41% 33%, oklch(1 0 0 / 0.35), transparent 60%),
+        radial-gradient(0.07em 0.07em at 47% 91%, oklch(1 0 0 / 0.4), transparent 60%),
+        radial-gradient(0.1em 0.1em at 63% 8%, oklch(1 0 0 / 0.5), transparent 60%),
+        radial-gradient(0.07em 0.07em at 71% 62%, oklch(1 0 0 / 0.35), transparent 60%),
+        radial-gradient(0.1em 0.1em at 88% 22%, oklch(1 0 0 / 0.45), transparent 60%),
+        radial-gradient(0.07em 0.07em at 95% 84%, oklch(1 0 0 / 0.4), transparent 60%),
+        radial-gradient(0.07em 0.07em at 33% 52%, oklch(1 0 0 / 0.3), transparent 60%);
+}
+
+.content {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4em 7em 6em;
+}
+
+.tagline, .heading, .footer {
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--label);
+}
+
+.tagline {
+    font-size: 1.125em;
+    margin-bottom: 0.67em;
+}
+
 .title {
-    font-size: 3em;
+    font-size: 8em;
+    line-height: 0.95;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.stripe {
+    margin-top: 0.5em;
+    font-size: 2.8em;
+}
+
+.heading {
+    margin-top: 2.5em;
+    font-size: 1.125em;
 }
 
 .menuRoot {
-    margin: 0.5em 5em 1em 0.5em;
-    font-size: 2em;
+    margin-top: 3.25em;
+}
+
+.heading + .menuRoot {
+    margin-top: 1em;
 }
 
 .menuList {
     display: flex;
     flex-direction: column;
-    gap: 0.25em;
+    gap: 0.75em;
+}
+
+.footer {
+    position: absolute;
+    left: 7em;
+    bottom: 2.75em;
+    letter-spacing: 0.18em;
 }

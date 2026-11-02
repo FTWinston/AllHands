@@ -8,15 +8,18 @@ import styles from './Button.module.css';
 export type Props = Omit<ButtonProps, 'className'> & {
     className?: string;
     palette?: ColorPalette;
+    /** Draw just a coloured outline, for an action that shouldn't stand out, such as disconnecting. */
+    outlined?: boolean;
     startIcon?: ReactNode;
     endIcon?: ReactNode;
 };
 
-export const Button: FC<Props> = ({ children, className, startIcon, endIcon, palette, ...props }) => (
+export const Button: FC<Props> = ({ children, className, startIcon, endIcon, palette, outlined, ...props }) => (
     <ButtonBase
         {...props}
         className={classNames(
             styles.button,
+            outlined ? styles.outlined : null,
             startIcon ? styles.hasStartIcon : null,
             endIcon ? styles.hasEndIcon : null,
             colorPalletes[palette ?? 'primary'],

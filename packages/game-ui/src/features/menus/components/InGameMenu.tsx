@@ -1,6 +1,6 @@
-import { Screen } from 'common-ui/components/Screen';
 import { toggleSoundEnabled, useSoundEnabled } from 'common-ui/features/sound/soundSettings';
 import { FC } from 'react';
+import { PlayIcon, PowerIcon, SoundIcon, SoundOffIcon } from 'src/icons';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
 
@@ -13,24 +13,28 @@ export const InGameMenu: FC<Props> = (props) => {
     const soundEnabled = useSoundEnabled();
 
     return (
-        <Screen padded>
-            <Menu title="All Hands">
-                <MenuItem
-                    text="Resume game"
-                    onClick={props.resumeGame}
-                />
+        <Menu heading="Game paused">
+            <MenuItem
+                text="Resume game"
+                icon={<PlayIcon />}
+                emphasis="primary"
+                onClick={props.resumeGame}
+            />
 
-                <MenuItem
-                    text={`Sound effects ${soundEnabled ? '✅' : '⬜'}`}
-                    onClick={toggleSoundEnabled}
-                />
+            <MenuItem
+                text="Sound effects"
+                description={soundEnabled ? 'On' : 'Off'}
+                icon={soundEnabled ? <SoundIcon /> : <SoundOffIcon />}
+                onClick={toggleSoundEnabled}
+            />
 
-                <MenuItem
-                    text="Disconnect"
-                    onClick={props.disconnect}
-                    confirmPrompt="Are you sure you want to disconnect?"
-                />
-            </Menu>
-        </Screen>
+            <MenuItem
+                text="Disconnect"
+                icon={<PowerIcon />}
+                emphasis="danger"
+                onClick={props.disconnect}
+                confirmPrompt="Are you sure you want to disconnect?"
+            />
+        </Menu>
     );
 };

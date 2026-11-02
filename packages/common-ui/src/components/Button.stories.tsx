@@ -46,3 +46,11 @@ export const BothIcons: Story = {
         endIcon: '😁',
     },
 };
+
+export const Outlined: Story = {
+    args: {
+        children: 'Button',
+        palette: 'danger',
+        outlined: true,
+    },
+};

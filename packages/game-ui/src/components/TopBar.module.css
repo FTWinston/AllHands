@@ -1,0 +1,45 @@
+.topBar {
+    flex-shrink: 0;
+    height: 6em;
+    display: flex;
+    align-items: center;
+    gap: 1.75em;
+    padding: 0 3.5em;
+    background-color: var(--panel);
+    border-bottom: 0.094em solid var(--line);
+    color: var(--text);
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375em;
+}
+
+.wordmark {
+    font-size: 1.375em;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.divider {
+    width: 0.094em;
+    height: 2.75em;
+    background-color: var(--line);
+}
+
+.content {
+    flex-grow: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 1.75em;
+}
+
+.end {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}

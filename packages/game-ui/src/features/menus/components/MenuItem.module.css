@@ -1,26 +1,112 @@
 .menuItem {
     display: flex;
-    align-items: center;
 }
 
 .menuButton {
-    padding: 0.25em;
-    color: var(--grey-mid);
-    transition: color 0.2s ease;
+    width: 37.5em;
+    max-width: 100%;
+    min-height: 5.25em;
+    display: flex;
+    align-items: center;
+    gap: 1.25em;
+    padding: 0.75em 1.625em;
+    border: 0.094em solid var(--line);
+    border-radius: 1.375em;
+    corner-shape: squircle;
+    background-color: var(--panel);
+    color: var(--text);
+    text-align: left;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.menuButton:hover:not(:disabled), .menuButton:focus-visible {
+    border-color: var(--label);
+    background-color: var(--panel-raised);
+    outline: none;
 }
 
 .menuButton:disabled {
     cursor: default;
+    color: var(--label);
 }
 
-.menuButton:hover:not(:disabled), .menuButton:active:not(:disabled) {
-    color: var(--grey-lightest);
-}
-
-.childrenWrapper {
+.icon {
     display: flex;
-    align-items: center;
-    gap: 0.5em;
-    margin-left: 1em;
+    flex-shrink: 0;
+}
+
+.icon > svg {
+    width: 1.875em;
+    height: 1.875em;
+}
+
+.label {
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125em;
+}
+
+.text {
+    font-size: 1.75em;
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+.description {
+    font-size: 1.0625em;
+    color: var(--text-muted);
+}
+
+.chevron {
+    flex-shrink: 0;
+    width: 1.625em;
+    height: 1.625em;
+    color: var(--label);
+}
+
+.primary .menuButton {
+    border: 0.125em solid var(--primary-light);
+    background-color: var(--primary-darkest);
+}
+
+.primary .menuButton:hover:not(:disabled), .primary .menuButton:focus-visible {
+    border-color: var(--primary-lightest);
+    background-color: var(--primary-dark);
+}
+
+.primary .text {
+    font-weight: 700;
+}
+
+.primary .chevron {
+    color: var(--text);
+}
+
+.danger {
+    margin-top: 0.875em;
+}
+
+.danger .menuButton {
+    width: auto;
+    min-height: 4.25em;
+    gap: 0.875em;
+    padding-right: 2.25em;
+    border-color: color-mix(in oklch, var(--danger-light) 45%, transparent);
+    background-color: color-mix(in oklch, var(--danger-light) 10%, var(--panel));
+    color: var(--danger-light);
+}
+
+.danger .menuButton:hover:not(:disabled), .danger .menuButton:focus-visible {
+    border-color: var(--danger-light);
+    background-color: color-mix(in oklch, var(--danger-light) 20%, var(--panel));
+}
+
+.danger .icon > svg {
+    width: 1.5em;
+    height: 1.5em;
+}
+
+.danger .text {
+    font-size: 1.5em;
 }

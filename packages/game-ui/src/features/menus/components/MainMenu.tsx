@@ -1,7 +1,5 @@
-import { Screen } from 'common-ui/components/Screen';
-
 import { FC } from 'react';
-import styles from './MainMenu.module.css';
+import { CardsIcon, HostIcon, JoinIcon, PlayIcon, PowerIcon } from 'src/icons';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
 
@@ -15,34 +13,43 @@ type Props = {
 
 export const MainMenu: FC<Props> = (props) => {
     return (
-        <Screen centered padded className={styles.screen}>
-            <Menu title="All Hands">
-                <MenuItem
-                    text="Start single-crew game"
-                    onClick={props.hostSingleCrewServer}
-                />
+        <Menu footer="Crew play on their phones, in the browser">
+            <MenuItem
+                text="Start single-crew game"
+                description="One ship, four phones"
+                icon={<PlayIcon />}
+                emphasis="primary"
+                onClick={props.hostSingleCrewServer}
+            />
 
-                <MenuItem
-                    text="Host multi-crew game"
-                    onClick={props.hostMultiCrewServer}
-                />
+            <MenuItem
+                text="Host multi-crew game"
+                description="Several crews, one server"
+                icon={<HostIcon />}
+                onClick={props.hostMultiCrewServer}
+            />
 
-                <MenuItem
-                    text="Join multi-crew game"
-                    onClick={props.joinMultiCrewServer}
-                />
+            <MenuItem
+                text="Join multi-crew game"
+                description="Connect to another host by address"
+                icon={<JoinIcon />}
+                onClick={props.joinMultiCrewServer}
+            />
 
-                <MenuItem
-                    text="Card compendium"
-                    onClick={props.showCardCompendium}
-                />
+            <MenuItem
+                text="Card compendium"
+                description="Every card your crews have found"
+                icon={<CardsIcon />}
+                onClick={props.showCardCompendium}
+            />
 
-                <MenuItem
-                    text="Quit"
-                    onClick={props.quit}
-                    confirmPrompt="Are you sure you want to quit?"
-                />
-            </Menu>
-        </Screen>
+            <MenuItem
+                text="Quit"
+                icon={<PowerIcon />}
+                emphasis="danger"
+                onClick={props.quit}
+                confirmPrompt="Are you sure you want to quit?"
+            />
+        </Menu>
     );
 };

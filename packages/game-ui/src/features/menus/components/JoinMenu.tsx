@@ -1,9 +1,9 @@
 import { ServerAddress } from 'common-data/types/ServerAddress';
 import { Button } from 'common-ui/components/Button';
 import { Input } from 'common-ui/components/Input';
-import { Screen } from 'common-ui/components/Screen';
-import { FC, useState } from 'react';
+import { FC, useId, useState } from 'react';
 
+import { BackIcon } from 'src/icons';
 import styles from './JoinMenu.module.css';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
@@ -16,51 +16,60 @@ type Props = {
 export const JoinMenu: FC<Props> = (props) => {
     const [ipAddress, setIpAddress] = useState('');
     const [port, setPort] = useState(0);
+    const id = useId();
 
     return (
-        <Screen padded>
-            <Menu title="Join multi-crew game">
-                <MenuItem
-                    text="Server address"
+        <Menu heading="Join multi-crew game">
+            <li>
+                <form
+                    className={styles.joiningForm}
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        props.joinServer({
+                            ip: ipAddress,
+                            port,
+                        });
+                    }}
                 >
-                    <Input
-                        className={styles.addressInput}
-                        placeholder="IP address"
-                        type="text"
-                        value={ipAddress}
-                        onChange={e =>
-                            setIpAddress(e.target.value)}
-                    />
-                    <Input
-                        className={styles.portInput}
-                        placeholder="Port"
-                        type="number"
-                        value={port === 0 ? '' : port}
-                        onChange={e =>
-                            setPort(Number(e.target.value))}
-                    />
-                </MenuItem>
-
-                <MenuItem
-                    text="Go back"
-                    onClick={props.back}
-                >
-                    <div style={{ flexGrow: 1 }} />
-
+                    <div className={styles.field}>
+                        <label className={styles.fieldLabel} htmlFor={`${id}-address`}>Server address</label>
+                        <Input
+                            id={`${id}-address`}
+                            className={styles.addressInput}
+                            placeholder="IP address"
+                            type="text"
+                            value={ipAddress}
+                            onChange={e =>
+                                setIpAddress(e.target.value)}
+                        />
+                    </div>
+                    <div className={styles.field}>
+                        <label className={styles.fieldLabel} htmlFor={`${id}-port`}>Port</label>
+                        <Input
+                            id={`${id}-port`}
+                            className={styles.portInput}
+                            placeholder="Port"
+                            type="number"
+                            value={port === 0 ? '' : port}
+                            onChange={e =>
+                                setPort(Number(e.target.value))}
+                        />
+                    </div>
                     <Button
+                        className={styles.joinButton}
+                        type="submit"
                         disabled={!ipAddress || port <= 0}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            props.joinServer({
-                                ip: ipAddress,
-                                port,
-                            });
-                        }}
                     >
                         Join
                     </Button>
-                </MenuItem>
-            </Menu>
-        </Screen>
+                </form>
+            </li>
+
+            <MenuItem
+                text="Go back"
+                icon={<BackIcon />}
+                onClick={props.back}
+            />
+        </Menu>
     );
 };

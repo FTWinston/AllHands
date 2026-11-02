@@ -58,7 +58,16 @@ ul, ol {
     --grey-mid: oklch(0.7 0 0);
     --grey-light: oklch(0.82 0 0);
     --grey-lightest: oklch(1 0 0);
-    
+
+    /* Bridge console surfaces: deep space, the panels laid over it, and their hairline borders. */
+    --space: oklch(0.155 0.018 265);
+    --panel: oklch(0.205 0.022 265);
+    --panel-raised: oklch(0.25 0.03 265);
+    --line: oklch(0.34 0.03 265);
+    --text: oklch(0.97 0.005 265);
+    --text-muted: oklch(0.82 0.015 265);
+    --label: oklch(0.74 0.03 265);
+
     --primary-darkest-muted: color-mix(in srgb, var(--primary-darkest) 50%, var(--grey-darkest));
     --primary-darkest: oklch(0.322 0.05 277);
     --primary-dark: oklch(0.4 0.13 277);

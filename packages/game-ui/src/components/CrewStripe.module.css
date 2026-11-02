@@ -1,0 +1,11 @@
+.stripe {
+    display: flex;
+    gap: 0.1875em;
+}
+
+.segment {
+    width: 1.875em;
+    height: 0.25em;
+    border-radius: 0.125em;
+    background-color: var(--primary-light);
+}
