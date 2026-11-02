@@ -84,12 +84,14 @@ export const PlaceOrder: Story = {
 
         // A card's Choose button only shows once it's focused.
         await expect(page.queryByRole('button', { name: 'Choose' })).not.toBeInTheDocument();
+        await expect(page.queryByRole('button', { name: 'Cannot choose' })).not.toBeInTheDocument();
         await expect(page.getByText('No matches')).toBeInTheDocument();
 
-        // A card without matches can still be focused to read it, but not chosen.
+        // A card without matches can still be focused to read it, but its button can't be pressed.
         await userEvent.click(page.getByText('Example Enemy Target'));
         await expect(page.getByText('Example Enemy Target').closest('[tabindex]')).toHaveFocus();
         await expect(page.queryByRole('button', { name: 'Choose' })).not.toBeInTheDocument();
+        await expect(page.getByRole('button', { name: 'Cannot choose' })).toBeDisabled();
 
         await userEvent.click(page.getByText('Photon Torpedo'));
         await userEvent.click(page.getByRole('button', { name: 'Choose' }));

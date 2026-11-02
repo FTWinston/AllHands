@@ -109,7 +109,11 @@ export const OrderDialog: FC<Props> = (props) => {
                                         <GridCard
                                             card={card}
                                             disabled={!orderable}
-                                            action={orderable ? <Button palette="good" onClick={() => pickSpec(card.id)}>Choose</Button> : undefined}
+                                            action={(
+                                                <Button palette="good" disabled={!orderable} onClick={() => pickSpec(card.id)}>
+                                                    {orderable ? 'Choose' : 'Cannot choose'}
+                                                </Button>
+                                            )}
                                         />
 
                                         {!orderable && <span className={styles.label}>No matches</span>}
