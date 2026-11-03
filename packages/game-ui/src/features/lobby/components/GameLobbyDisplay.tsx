@@ -41,6 +41,7 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
     return (
         <Screen className={styles.screen}>
             <TopBar
+                branded
                 end={(
                     <Button
                         className={styles.disconnect}

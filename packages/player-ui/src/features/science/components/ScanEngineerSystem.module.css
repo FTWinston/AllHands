@@ -1,48 +1,69 @@
-.root {
+.root.root {
     display: grid;
-    gap: 0.125em;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
-    justify-items: stretch;
-    align-items: stretch;
+    gap: 0.375em;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    padding-top: 0.625em;
+    border-top: 0.094em solid var(--line);
 }
 
-.system {
-    display: grid;
-    grid-template-columns: 1fr min-content 1fr;
-    grid-template-rows: 1fr min-content;
+.system.system {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    padding-top: 0.25em;
-    padding-bottom: 0.125em;
-    align-items: center;
-    grid-template-areas:
-        "icon icon icon"
-        "power separator health";
-    font-size: 0.7em;
-    > * {
-        line-height: 1.1em;
-    }
+    gap: 0.25em;
+    padding: 0.5625em 0.625em;
+    border: none;
+    border-radius: 0.875em;
+    background-color: var(--space);
+    color: var(--text);
+    text-align: left;
+    overflow: hidden;
+}
+
+.systemTitle {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
 }
 
 .systemIcon {
-    grid-area: icon;
-    width: 0.85em;
-    justify-self: center;
-    color: var(--grey-lightest);
+    width: 1.375em;
+    height: 1.375em;
+    color: var(--label);
 }
 
-.systemPower {
-    grid-area: power;
-    color: var(--energy-lightest);
+.systemName {
+    font-size: 0.8125em;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-muted);
 }
 
-.separator {
-    grid-area: separator;
-    font-size: 0.75em;
-    color: var(--grey-mid);
+.readings {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
 }
 
-.systemHealth {
-    grid-area: health;
-    color: var(--danger-lightest);
+.reading {
+    display: flex;
+    align-items: center;
+    gap: 0.125em;
+    font-weight: 700;
+}
+
+.powerIcon {
+    width: 0.8125em;
+    height: 0.8125em;
+    color: var(--energy-light);
+}
+
+.healthIcon {
+    width: 0.8125em;
+    height: 0.8125em;
+    color: var(--danger-light);
 }

@@ -1,15 +1,11 @@
-.root {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
-    justify-items: stretch;
-    align-items: stretch;
-    gap: 0.25em;
-}
-
-.evasionValue {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--grey-light);
+/* A ring that fills as the maneuver runs. RadialProgress draws it just outside this circle; the shadow is its unfilled track. */
+.maneuverProgress {
+    position: relative;
+    flex-shrink: 0;
+    width: 2.1em;
+    height: 2.1em;
+    margin: 0.2em;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0.2em var(--space);
+    color: var(--primary-light);
 }

@@ -1,22 +1,23 @@
-.root {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
-    justify-items: stretch;
-    align-items: stretch;
-    gap: 0.25em;
+.modifier {
+    margin-top: -0.2em;
+    font-size: 0.765em;
+    font-weight: 400;
+    color: var(--text-muted);
 }
 
-.weaponCardName.weaponCardName {
-    height: 1.25em;
-    margin-bottom: 0.25em;
-
-    > * {
-        line-height: 1em;
-    }
+.noModifier {
+    color: var(--label);
 }
 
 .charge.charge {
+    /* Unlit cells are just outlined. */
+    --energy-dark: transparent;
+    --energy-mid: color-mix(in oklch, var(--energy-light) 60%, transparent);
+    justify-content: flex-start;
     min-height: 0.5em;
     gap: 0.25em;
+
+    > * {
+        flex: 0 0 1.25em;
+    }
 }

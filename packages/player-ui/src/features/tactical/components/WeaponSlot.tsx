@@ -8,7 +8,6 @@ import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo'
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
 import colorPalletes from 'common-ui/ColorPalette.module.css';
 import { DiscreteProgress } from 'common-ui/components/DiscreteProgress';
-import { InfoPopup } from 'common-ui/components/InfoPopup';
 import { CardBase } from 'common-ui/features/cards/components/CardBase';
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
 import { UICardDefinition } from 'common-ui/features/cards/types/UICardDefinition';
@@ -37,12 +36,12 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
     if (!card || !cardDefinition) {
         return (
             <CardDropTarget
-                className={styles.cardWrapper}
+                className={styles.emptyCradle}
                 targetType="weapon-slot"
                 id={props.id}
             >
                 <CardBase className={classNames(styles.card, styles.cardSpace)}>
-                    <div className={styles.noCardLabel}>Drop weapon card here</div>
+                    <div className={styles.noCardLabel}>Drag a weapon card here</div>
                 </CardBase>
             </CardDropTarget>
         );
@@ -56,7 +55,7 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
 
     return (
         <CardDropTarget
-            className={styles.modifyTarget}
+            className={styles.cradle}
             targetType="weapon"
             id={props.id}
             disabled={!canModify}
@@ -119,102 +118,90 @@ export const WeaponSlot = (props: Props) => {
         && charge < totalCharge
         && (!hasBeenFullyCharged || card.extraTraits?.['rechargeable'] !== undefined);
 
-    let statusText: string;
+    let statusTitle: string;
+    let statusHint: string;
     let mainPallete: ColorPalette | undefined;
-    let statusDisabled = false;
-    let statusPallete: ColorPalette | undefined;
-    let statusHeading;
-    let description;
+    let statusClassName: string | undefined;
 
     switch (firingState) {
         case FiringState.NoWeapon:
-            statusText = 'equip';
+            statusTitle = 'Empty';
+            statusHint = 'Equip a weapon card';
             mainPallete = 'primary';
-            statusDisabled = true;
-            statusHeading = 'Empty weapon slot';
-            description = <>Drag a weapon card into this slot to equip it.</>;
+            statusClassName = styles.statusEmpty;
             break;
         case FiringState.NotCharged:
             mainPallete = 'primary';
             if (canBeCharged && charge === 0 && !modified && !hasBeenFullyCharged) {
-                statusText = 'modify?';
-                statusHeading = 'Unmodified weapon';
-                description = <>Drag a modifier card onto the weapon to modify it, or drag weapon or weapon slot cards onto the charge meter to start charging it.</>;
+                statusTitle = 'Unmodified';
+                statusHint = 'Modify, or charge it';
+                statusClassName = styles.statusUnmodified;
             } else {
-                statusText = 'charge';
-                statusHeading = 'Uncharged weapon';
-                description = canBeCharged
-                    ? <>Drag weapon or weapon slot cards onto the charge meter to charge it. The weapon can't fire until it is fully charged.</>
-                    : <>There isn't enough charge for another shot, and this weapon can't be recharged.</>;
+                statusTitle = canBeCharged ? 'Charging' : 'Spent';
+                statusHint = canBeCharged ? 'Drop cards on the meter' : 'Can\'t be recharged';
+                statusClassName = styles.statusCharging;
             }
             break;
         case FiringState.NoTarget:
-            statusText = 'no target';
+            statusTitle = 'No target';
+            statusHint = 'Nothing to fire at';
             mainPallete = 'primary';
-            statusHeading = 'No target';
-            description = <>Weapon is ready, but no target is currently selected.</>;
             break;
         case FiringState.RangeTooFar:
-            statusText = 'range';
+            statusTitle = 'Out of range';
+            statusHint = 'Too far away to fire';
             mainPallete = 'danger';
-            statusHeading = 'Out of range';
-            description = <>Weapon is ready, but you are too far away from the target.</>;
             break;
         case FiringState.RangeTooClose:
-            statusText = 'range';
+            statusTitle = 'Out of range';
+            statusHint = 'Too close to fire';
             mainPallete = 'danger';
-            statusHeading = 'Out of range';
-            description = <>Weapon is ready, but you are too close to the target.</>;
             break;
         case FiringState.RelativeBearingTooWide:
-            statusText = 'bearing';
+            statusTitle = 'Not facing';
+            statusHint = 'Turn towards the target';
             mainPallete = 'danger';
-            statusHeading = 'Not facing target';
-            description = <>Weapon is ready, but you are not facing the target.</>;
             break;
         case FiringState.TargetAspectObscured:
-            statusText = 'obscured';
+            statusTitle = 'Obscured';
+            statusHint = 'Target is facing away';
             mainPallete = 'danger';
-            statusHeading = 'Target is obscured';
-            description = <>Weapon is ready, but target is not facing you.</>;
             break;
         case FiringState.CanFire:
-            statusText = 'ready';
+            statusTitle = 'Ready';
+            statusHint = 'Drag onto the target';
             mainPallete = 'good';
-            statusHeading = 'Active weapon';
-            description = <>Drag the weapon card to the enemy to attack them.</>;
             break;
     }
 
     return (
-        <li className={classNames(styles.weaponSlot, colorPalletes[mainPallete], isFullyCharged ? null : styles.recharging)}>
-            {getCardWrapper(props, slotCardDefinition, isFullyCharged, !!card && !modified && !weaponTraitMismatch)}
+        <li className={classNames(styles.slot, colorPalletes[mainPallete], card ? null : styles.empty, mainPallete === 'primary' ? null : styles.alert)}>
+            <div className={styles.body}>
+                {getCardWrapper(props, slotCardDefinition, isFullyCharged, !!card && !modified && !weaponTraitMismatch)}
 
-            <InfoPopup
-                className={classNames(styles.statusIndicator, statusDisabled ? styles.statusDisabled : null, colorPalletes[statusPallete ?? ''])}
-                name={statusHeading}
-                description={description}
-                palette={mainPallete}
-            >
-                {statusText}
-            </InfoPopup>
+                <CardDropTarget
+                    className={styles.chargeTarget}
+                    targetType="any"
+                    id={`charge:${id}`}
+                    canAcceptCard={canSpendOnCharge}
+                    disabled={!canBeCharged}
+                >
+                    <DiscreteProgress
+                        className={styles.progress}
+                        title="Charge progress"
+                        value={charge ?? 0}
+                        maxValue={totalCharge}
+                        vertical={true}
+                        outlineInactiveBlocks={true}
+                        decay={decay}
+                    />
+                </CardDropTarget>
+            </div>
 
-            <CardDropTarget
-                className={styles.chargeTarget}
-                targetType="any"
-                id={`charge:${id}`}
-                canAcceptCard={canSpendOnCharge}
-                disabled={!canBeCharged}
-            >
-                <DiscreteProgress
-                    className={styles.progress}
-                    title="Charge progress"
-                    value={charge ?? 0}
-                    maxValue={totalCharge}
-                    vertical={true}
-                    decay={decay}
-                />
-            </CardDropTarget>
+            <div className={classNames(styles.status, statusClassName)}>
+                <span className={styles.statusTitle}>{statusTitle}</span>
+                <span className={styles.statusHint}>{statusHint}</span>
+            </div>
         </li>
     );
 };

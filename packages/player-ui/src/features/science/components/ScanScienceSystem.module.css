@@ -1,28 +1,29 @@
-.root {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
-    justify-items: stretch;
-    align-items: stretch;
-    gap: 0.25em;
+.systemName {
+    text-transform: capitalize;
 }
 
 .notScanning {
-    flex: 1;
-    font-size: 0.6em;
-    color: var(--grey-mid);
-    line-height: 1.2em;
+    font-weight: 400;
+    color: var(--label);
+}
+
+.cost {
+    height: 1.875em;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
-    text-align: center;
+    gap: 0.25em;
+    padding: 0 0.5625em 0 0.4375em;
+    border-radius: 0.625em;
+    corner-shape: squircle;
+    background-color: var(--space);
+    font-size: 0.9375em;
+    font-weight: 700;
+    color: var(--text);
 }
 
-.scanTargetList {
-    color: var(--grey-light);
-    height: 2em;
-    font-size: 0.7em;
-}
-
-.systemName {
-    color: var(--grey-lightest);
+.costIcon {
+    width: 0.95em;
+    height: 0.95em;
+    color: var(--energy-light);
 }

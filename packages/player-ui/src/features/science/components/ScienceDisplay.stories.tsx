@@ -69,7 +69,9 @@ export const UI: Story = {
         scannedShipId: 'target1',
         scannedHelm: {
             targetId: 'target1',
+            power: 4,
             activeManeuver: null,
+            maneuverProgress: null,
             evasionChance: 0,
         },
         deliverySlot: 'phasedBurstScan',

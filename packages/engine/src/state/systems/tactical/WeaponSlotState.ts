@@ -1,5 +1,6 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
+import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CardState } from 'src/state/CardState';
 import { CooldownState } from 'src/state/CooldownState';
@@ -22,6 +23,8 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
     @type('number') charge = 0;
     @type('boolean') modified = false;
+    /** The modifier card played onto this weapon. Not synced to tactical, as only science scans show it. */
+    modifierCard: CardType | null = null;
     @type('boolean') hasBeenFullyCharged = false;
     @type(CooldownState) decay: CooldownState | null = null;
     decayDuration = 0;
@@ -118,6 +121,7 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
 
         this.charge = 0;
         this.modified = false;
+        this.modifierCard = null;
         this.hasBeenFullyCharged = false;
         this.decay = null;
         this.modifiers.clear();

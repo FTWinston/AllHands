@@ -244,6 +244,13 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         this.addCardToHand(new CardState(this.getCardId(), cardType));
     }
 
+    override adjustPowerLevel(adjustment: number) {
+        super.adjustPowerLevel(adjustment);
+
+        // Scans show each system's power.
+        this.scienceScanDataChanged.invoke();
+    }
+
     override cleanupAfterEncounter() {
         this.pendingDrawChoice.clear();
         this.shopCards.clear();

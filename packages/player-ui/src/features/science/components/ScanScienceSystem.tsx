@@ -1,8 +1,9 @@
 import { Snapshot } from '@colyseus/react';
 import { EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { ScannedScienceInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { RestrictedHeightText } from 'common-ui/components/RestrictedHeightText';
+import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
+import { resolveParameter } from 'common-ui/types/resolveParameters';
+import { default as PowerIcon } from 'src/features/header/assets/power.svg?react';
 import { ScanBase } from './ScanBase';
 import { ScanCardSlot } from './ScanCardSlot';
 import styles from './ScanScienceSystem.module.css';
@@ -14,39 +15,44 @@ type Props = Snapshot<ScannedScienceInfo> & {
     onClose: () => void;
 };
 
-const ScanTargetList = ({ scanSystem }: { scanSystem: ShipSystem | null }) => {
-    if (!scanSystem) {
-        return <div className={styles.notScanning}>(Not scanning your&nbsp;ship)</div>;
-    }
-
-    return (
-        <RestrictedHeightText className={styles.scanTargetList}>
-            Scanning your
-            {' '}
-            <span className={styles.systemName}>{scanSystem}</span>
-            {' '}
-            system.
-        </RestrictedHeightText>
-    );
-};
-
 export const ScanScienceSystem = (props: Props) => {
+    const { deflectorCard } = props;
+
+    const deflectorCost = deflectorCard
+        ? resolveParameter('cost', getCardDefinition(deflectorCard.type).parameters, deflectorCard.modifiers)
+        : 0;
+
     return (
         <ScanBase
-            contentClassName={styles.root}
             system="science"
+            power={props.power}
             vulnerability={props.vulnerability}
             targetName={props.name}
             targetId={props.targetId}
             onClose={props.onClose}
         >
             <ScanSection label="Sensors">
-                <ScanTargetList scanSystem={props.scanSystem} />
+                {props.scanSystem
+                    ? (
+                        <span>
+                            Scanning your
+                            {' '}
+                            <span className={styles.systemName}>{props.scanSystem}</span>
+                        </span>
+                    )
+                    : <span className={styles.notScanning}>Not scanning your ship</span>}
             </ScanSection>
+
             <ScanCardSlot
                 label="Deflector"
-                card={props.deflectorCard}
-                emptyText="(No action)"
+                card={deflectorCard}
+                emptyText="No deflector"
+                end={(
+                    <span className={styles.cost} title="Power cost">
+                        <PowerIcon className={styles.costIcon} aria-hidden={true} />
+                        {deflectorCost}
+                    </span>
+                )}
             />
         </ScanBase>
     );

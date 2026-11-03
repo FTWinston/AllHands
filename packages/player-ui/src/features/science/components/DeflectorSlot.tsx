@@ -1,6 +1,6 @@
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { Button } from 'common-ui/components/Button';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
+import { default as EjectIcon } from 'common-ui/icons/eject.svg?react';
 import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { ActiveCardInfo } from 'src/features/cardui/components/DragCardProvider';
@@ -47,23 +47,24 @@ export function DeflectorSlot({ cardType, slotType, label, emptyEffectLabel, onC
             id={slotId}
             canAcceptCard={canAcceptCard}
         >
-            <div className={styles.slotLabel}>{label}</div>
+            <span className={styles.slotText}>
+                <span className={styles.slotLabel}>{label}</span>
+                <span className={styles.slotEffect}>{effectParameter ?? emptyEffectLabel}</span>
+                <span className={styles.slotCardName}>
+                    {cardDefinition ? `from ${cardDefinition.name}` : 'Default'}
+                </span>
+            </span>
 
-            {effectParameter
-                ? <div className={styles.slotEffect}>{effectParameter}</div>
-                : (
-                    <div className={styles.slotEmptyText}>
-                        (
-                        {emptyEffectLabel}
-                        )
-                    </div>
-                )}
-
-            {cardDefinition && <div className={styles.slotCardName}>{cardDefinition?.name}</div>}
-
-            <Button className={styles.closeButton} onClick={onClose} disabled={!cardDefinition}>
-                ✕
-            </Button>
+            {cardDefinition && (
+                <button
+                    type="button"
+                    className={styles.ejectButton}
+                    onClick={onClose}
+                    aria-label={`Remove ${cardDefinition.name} from the ${label.toLowerCase()} socket`}
+                >
+                    <EjectIcon className={styles.ejectIcon} />
+                </button>
+            )}
         </CardDropTarget>
     );
 }
