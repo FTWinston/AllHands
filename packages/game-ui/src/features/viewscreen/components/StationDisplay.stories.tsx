@@ -1,9 +1,9 @@
 import { Screen } from 'common-ui/components/Screen';
-import { StationBanner as Component } from './StationBanner';
+import { StationDisplay as Component } from './StationDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta: Meta<typeof Component> = {
-    title: 'game-ui/Station Banner',
+    title: 'game-ui/Station Display',
     component: Component,
     parameters: {
         layout: 'fullscreen',
@@ -15,6 +15,10 @@ const meta: Meta<typeof Component> = {
             </Screen>
         ),
     ],
+    args: {
+        antimatter: 40,
+        showMenu: () => {},
+    },
 };
 
 export default meta;

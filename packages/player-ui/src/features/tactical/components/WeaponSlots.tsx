@@ -15,6 +15,7 @@ export const WeaponSlots = (props: Props) => {
             {props.slots.map((slot, index) => (
                 <WeaponSlot
                     {...slot}
+                    slotNumber={index + 1}
                     firingSolution={props.firingSolution}
                     key={index}
                 />

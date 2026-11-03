@@ -53,8 +53,12 @@
 
 .deflectorCard {
     flex-shrink: 0;
-    display: flex;
+    display: grid;
     align-items: center;
-    justify-content: center;
+    justify-items: center;
     font-size: 0.8em;
+}
+
+.card {
+    grid-area: 1 / 1;
 }

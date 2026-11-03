@@ -2,6 +2,9 @@ import { Snapshot } from '@colyseus/react';
 import { DefaultDeflectorEffectDelivery, DefaultDeflectorEffectModifier, DefaultDeflectorEffectSubstance } from 'common-data/features/cards/types/CardDefinition';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
+import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
+import { resolveParameter } from 'common-ui/types/resolveParameters';
 import { classNames } from 'common-ui/utils/classNames';
 import { DraggableCard } from 'src/features/cardui/components/DraggableCard';
 import styles from './DeflectorDisplay.module.css';
@@ -26,6 +29,9 @@ const defaultDelivery: DefaultDeflectorEffectDelivery = 'Field';
 export const DeflectorDisplay = (props: Props) => {
     const { modifierSlot, substanceSlot, deliverySlot, deflectorCard, availablePower, unmountModifier, unmountSubstance, unmountDelivery } = props;
 
+    const deflectorCardDefinition = getCardDefinition(deflectorCard.type);
+    const deflectorCardCost = resolveParameter('cost', deflectorCardDefinition.parameters, deflectorCard.modifiers);
+
     const wireClassName = (slot: CardType | null) => classNames(styles.wire, slot ? styles.wireFilled : null);
 
     return (
@@ -47,7 +53,15 @@ export const DeflectorDisplay = (props: Props) => {
                 </svg>
 
                 <div className={styles.deflectorCard}>
+                    {/* A copy stays behind while the card is dragged, as the deflector keeps it. */}
+                    <CardDisplay
+                        {...deflectorCardDefinition}
+                        className={styles.card}
+                        modifiers={deflectorCard.modifiers}
+                        sufficientPower={availablePower >= deflectorCardCost}
+                    />
                     <DraggableCard
+                        className={styles.card}
                         index={0}
                         id={deflectorCard.id}
                         type={deflectorCard.type}

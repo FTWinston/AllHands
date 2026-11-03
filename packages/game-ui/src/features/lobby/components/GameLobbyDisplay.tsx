@@ -24,10 +24,12 @@ export type Props = {
     isFull: boolean;
     /** Seconds until the game starts, once every role is claimed; 0 when not counting down. */
     startCountdown: number;
+    /** The countdown has finished, and the lobby is fading out as the game starts. */
+    launching?: boolean;
 };
 
 export const GameLobbyDisplay: FC<Props> = (props) => {
-    const { serverAddress, crewId, allowMultipleCrews, helmState, tacticalState, scienceState, engineerState, numUnassigned, startCountdown } = props;
+    const { serverAddress, crewId, allowMultipleCrews, helmState, tacticalState, scienceState, engineerState, numUnassigned, startCountdown, launching } = props;
 
     let serverUrl = `http://${serverAddress.ip}:${serverAddress.port}/`;
     if (crewId !== soloCrewIdentifier) {
@@ -112,15 +114,13 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                         <LobbyRole system="engineer" state={engineerState} />
                     </ul>
 
-                    {startCountdown > 0
+                    {startCountdown > 0 || launching
                         ? (
                             <div className={styles.countdown} role="timer" aria-live="polite">
                                 <span className={styles.countdownValue}>{startCountdown}</span>
                                 <div className={styles.statusText}>
                                     <p className={styles.statusTitle}>
-                                        Launching in
-                                        {' '}
-                                        {startCountdown}
+                                        {startCountdown > 0 ? `Launching in ${startCountdown}` : 'Launching'}
                                     </p>
                                     <p className={styles.statusDetail}>
                                         To hold the launch, any crew member can tap

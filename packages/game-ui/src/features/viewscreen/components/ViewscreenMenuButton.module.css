@@ -26,7 +26,16 @@
     background-color: var(--panel-raised);
 }
 
+/* Centre the icon: the button's label would otherwise pad it, and an svg with no width of its own fills that. */
+.menuButton.inBar > * {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+}
+
 .inBar .menuButtonIcon {
     color: var(--text-muted);
+    width: 1.5em;
     height: 1.5em;
 }

@@ -1,0 +1,14 @@
+/* 1em is 16px on a 1600 x 900 screen, as on the sector map. */
+.root {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    font-size: min(1vw, 1.78vh);
+    color: var(--text-muted);
+    background-color: var(--space);
+}
+
+.body {
+    flex: 1;
+}

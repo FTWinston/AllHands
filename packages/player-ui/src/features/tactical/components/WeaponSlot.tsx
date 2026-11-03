@@ -22,6 +22,8 @@ import { mergeModifiers } from '../utils/mergeModifiers';
 import styles from './WeaponSlot.module.css';
 
 type Props = Snapshot<WeaponSlotInfo> & {
+    /** Counting from 1, shown on the slot while it's empty. */
+    slotNumber: number;
     firingSolution: FiringSolution | null;
 };
 
@@ -41,7 +43,7 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
                 id={props.id}
             >
                 <CardBase className={classNames(styles.card, styles.cardSpace)}>
-                    <div className={styles.noCardLabel}>Drag a weapon card here</div>
+                    <div className={styles.noCardLabel}>{`Weapon slot ${props.slotNumber}`}</div>
                 </CardBase>
             </CardDropTarget>
         );

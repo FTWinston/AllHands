@@ -1,17 +1,18 @@
 import { isStationKind, stationKinds } from 'common-data/features/sectors/utils/isStationKind';
 import { routeIconSize, StationIconShapes } from 'common-ui/features/cards/components/RouteIcon';
 import { getNodeKindLabel } from 'common-ui/features/sectors/utils/sectorLabels';
-import { FC, ReactNode } from 'react';
-import { TopBar } from 'src/components/TopBar';
+import { FC } from 'react';
 import { getEdgePath, layoutSectorMap, MapEdgeLayout, MapEdgeStatus, MapNodeStatus } from '../utils/layoutSectorMap';
+import { SceneTopBar } from './SceneTopBar';
 import styles from './SectorMapDisplay.module.css';
 import type { SectorMapInfo, SectorMapNodeInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 import type { SectorNodeKind, StationKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 
 type Props = {
     map: SectorMapInfo;
-    /** Readouts and buttons for the far end of the top bar. */
-    topBarEnd?: ReactNode;
+    /** The ship's antimatter. Omitted when unknown. */
+    antimatter?: number;
+    showMenu?: () => void;
 };
 
 const WIDTH = 1600;
@@ -134,21 +135,19 @@ function describeNode(node: SectorMapNodeInfo, status: MapNodeStatus): string {
     return `${node.name}: ${getNodeKindLabel(node.kind, node.elite)} (${statusLabels[status]})`;
 }
 
-export const SectorMapDisplay: FC<Props> = ({ map, topBarEnd }) => {
+export const SectorMapDisplay: FC<Props> = ({ map, antimatter, showMenu }) => {
     const layout = layoutSectorMap(map, WIDTH, HEIGHT, PADDING);
     const kinds = new Map(layout.nodes.map(({ node }) => [node.id, node.kind]));
     const edges = [...layout.edges].sort((a, b) => edgeDrawOrder[a.status] - edgeDrawOrder[b.status]);
 
     return (
         <section className={styles.root} aria-label={`Sector map: ${map.sectorName}`}>
-            <TopBar end={topBarEnd}>
-                <div className={styles.header}>
-                    <p className={styles.subtitle}>
-                        {`Sector ${map.sectorIndex + 1} of ${map.sectorCount}`}
-                    </p>
-                    <h1 className={styles.title}>{map.sectorName}</h1>
-                </div>
-            </TopBar>
+            <SceneTopBar
+                subtitle={`Sector ${map.sectorIndex + 1} of ${map.sectorCount}`}
+                title={map.sectorName}
+                antimatter={antimatter}
+                showMenu={showMenu}
+            />
 
             <div className={styles.body}>
                 <svg className={styles.graph} viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="group" aria-label="Route graph">

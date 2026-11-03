@@ -1,6 +1,5 @@
 import { Screen } from 'common-ui/components/Screen';
 import { FC, PropsWithChildren } from 'react';
-import { AntimatterDisplay } from './AntimatterDisplay';
 import { GameEndedDisplay } from './GameEndedDisplay';
 import { SectorMapDisplay } from './SectorMapDisplay';
 import { SectorMessageDisplay } from './SectorMessageDisplay';
@@ -27,17 +26,7 @@ export const ViewscreenPhaseDisplay: FC<Props> = ({ phase, isEnded, outcome, map
     if (isEnded) {
         content = <GameEndedDisplay outcome={outcome} message={message} />;
     } else if (phase === 'map' && map) {
-        content = (
-            <SectorMapDisplay
-                map={map}
-                topBarEnd={(
-                    <>
-                        {antimatter !== undefined && <AntimatterDisplay antimatter={antimatter} />}
-                        <ViewscreenMenuButton showMenu={showMenu} inBar />
-                    </>
-                )}
-            />
-        );
+        content = <SectorMapDisplay map={map} antimatter={antimatter} showMenu={showMenu} />;
     } else if ((phase === 'sectorIntro' || phase === 'sectorOutro') && message) {
         content = <SectorMessageDisplay message={message} />;
     } else {

@@ -3,15 +3,18 @@ import { CrewStripe } from './CrewStripe';
 import styles from './TopBar.module.css';
 
 type Props = {
+    /** Shown at the start of the bar, e.g. a menu button. */
+    start?: ReactNode;
     /** Show the game's name at the start of the bar. Only worth it before the game starts. */
     branded?: boolean;
     /** Shown at the far end of the bar, e.g. readouts and buttons. */
     end?: ReactNode;
 };
 
-/** The bar across the top of a viewscreen: optionally the game's name, then what this screen is, then any readouts or actions. */
+/** The bar across the top of a viewscreen: optionally a button and the game's name, then what this screen is, then any readouts or actions. */
 export const TopBar: FC<PropsWithChildren<Props>> = props => (
     <header className={styles.topBar}>
+        {props.start}
         {props.branded && (
             <>
                 <div className={styles.brand}>
