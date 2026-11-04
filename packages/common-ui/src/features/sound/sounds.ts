@@ -167,13 +167,13 @@ export const sounds = {
         playChatter({ count: 3, delay: 0.5, step: 0.08, volume: 0.1 });
     },
 
-    /** Warping between the map and an encounter, as the screen fades out: a swelling synth rush, then a deep boom as the ship jumps. */
+    /** Warping between the map and an encounter, as the screen fades out: a swelling synth rush, then a pew as the ship jumps. */
     warp() {
         playNoise({ filterType: 'bandpass', filterFrequency: 150, endFilterFrequency: 3500, envelope: 'gate', attack: 0.6, duration: 1.3, volume: 0.45 });
         playTone({ type: 'sawtooth', frequency: 55, endFrequency: 440, attack: 0.5, duration: 1.3, volume: 0.14, filter: { frequency: 200, endFrequency: 4000, q: 6 } });
-        playTone({ frequency: 90, endFrequency: 30, delay: 1.3, duration: 0.9, volume: 0.7, envelope: 'decay' });
-        playTone({ type: 'sawtooth', frequency: 220, endFrequency: 55, delay: 1.3, duration: 0.6, volume: 0.15, envelope: 'decay', filter: { frequency: 2500, endFrequency: 150, q: 3 } });
-        playNoise({ filterFrequency: 3000, endFilterFrequency: 150, delay: 1.3, duration: 0.6, volume: 0.4 });
+        playTone({ frequency: 2400, endFrequency: 280, delay: 1.3, duration: 0.3, volume: 0.45, envelope: 'decay' });
+        playTone({ type: 'triangle', frequency: 1200, endFrequency: 140, delay: 1.3, duration: 0.3, volume: 0.3, envelope: 'decay' });
+        playNoise({ filterFrequency: 4000, endFilterFrequency: 300, delay: 1.3, duration: 0.25, volume: 0.35 });
     },
 
     /** The hull is close to failing: three whoops of a klaxon, in time with the viewscreen's red alert flashes. */
