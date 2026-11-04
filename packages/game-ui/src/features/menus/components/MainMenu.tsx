@@ -19,7 +19,6 @@ export const MainMenu: FC<Props> = (props) => {
         <Menu footer={`Version: ${gameVersion}`}>
             <MenuItem
                 text="Start single-crew game"
-                description="One ship, four phones"
                 icon={<PlayIcon />}
                 emphasis="primary"
                 onClick={props.hostSingleCrewServer}
@@ -27,21 +26,18 @@ export const MainMenu: FC<Props> = (props) => {
 
             <MenuItem
                 text="Host multi-crew game"
-                description="Several crews, one server"
                 icon={<HostIcon />}
                 onClick={props.hostMultiCrewServer}
             />
 
             <MenuItem
                 text="Join multi-crew game"
-                description="Connect to another host by address"
                 icon={<JoinIcon />}
                 onClick={props.joinMultiCrewServer}
             />
 
             <MenuItem
                 text="Card compendium"
-                description="Every card your crews have found"
                 icon={<CardsIcon />}
                 onClick={props.showCardCompendium}
             />
