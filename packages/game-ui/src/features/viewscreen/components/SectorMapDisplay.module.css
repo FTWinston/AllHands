@@ -69,8 +69,9 @@
     --kind-color: var(--danger-light);
 }
 
+/* Bright neutral, as Helm's shops are already green. Its plus sign marks it out from the boss. */
 .glyph.repair {
-    --kind-color: var(--good-light);
+    --kind-color: var(--primary-lightest);
 }
 
 /* Shop stations, in the colour of the crew member they sell to. */
