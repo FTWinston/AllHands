@@ -35,13 +35,13 @@ export const sounds = {
 
     /** Your system gains power: a synth sweeping open as the machine winds up, then a bleep. */
     powerUp() {
-        playTone({ type: 'sawtooth', frequency: 110, endFrequency: 220, duration: 0.5, volume: 0.13, filter: { frequency: 250, endFrequency: 2400, q: 4 } });
+        playTone({ type: 'sawtooth', frequency: 110, endFrequency: 220, duration: 0.5, volume: 0.12, filter: { frequency: 200, endFrequency: 1000, q: 0 } });
         playTone({ frequency: 1100, delay: 0.5, duration: 0.08, volume: 0.1 });
     },
 
     /** Your system loses power: the synth closing again as the machine winds down. */
     powerDown() {
-        playTone({ type: 'sawtooth', frequency: 220, endFrequency: 70, duration: 0.6, volume: 0.13, filter: { frequency: 2000, endFrequency: 150, q: 4 } });
+        playTone({ type: 'sawtooth', frequency: 220, endFrequency: 70, duration: 0.6, volume: 0.12, filter: { frequency: 1000, endFrequency: 150, q: 0 } });
     },
 
     /** Science completes a scan: a soft sensor sweep, then two low bleeps. */
@@ -51,10 +51,10 @@ export const sounds = {
         playTone({ frequency: 980, delay: 0.62, duration: 0.07, volume: 0.12 });
     },
 
-    /** A tactical weapon is charged and ready to fire: a rising synth whine that settles into a steady charged hum. */
+    /** A tactical weapon is charged and ready to fire: a rising synth tone that settles into a soft charged hum. */
     weaponReady() {
-        playTone({ type: 'sawtooth', frequency: 220, endFrequency: 660, duration: 0.35, volume: 0.1, filter: { frequency: 400, endFrequency: 3000, q: 6 } });
-        playTone({ type: 'sawtooth', frequency: 660, delay: 0.35, duration: 0.25, volume: 0.08, envelope: 'decay', filter: { frequency: 2200, endFrequency: 800, q: 3 } });
+        playTone({ type: 'sawtooth', frequency: 220, endFrequency: 660, duration: 0.35, volume: 0.1, filter: { frequency: 300, endFrequency: 1200, q: 0 } });
+        playTone({ type: 'triangle', frequency: 660, delay: 0.35, duration: 0.25, volume: 0.1, envelope: 'decay' });
     },
 
     /** Helm starts a manoeuvre: a long thruster burn over a low engine thrum. */
@@ -74,17 +74,17 @@ export const sounds = {
         playTone({ frequency: 1100, endFrequency: 520, duration: 0.15, volume: 0.12 });
     },
 
-    /** Every role is claimed and the countdown to the game starting begins: two klaxon whoops, then the computers burbling into readiness. */
+    /** Every role is claimed and the countdown to the game starting begins: two soft whoops, then the computers burbling into readiness. */
     countdownStarted() {
         for (const delay of [0, 0.5]) {
-            klaxonWhoop(delay, 0.4, 0.1);
+            playTone({ type: 'triangle', frequency: 330, endFrequency: 880, attack: 0.04, delay, duration: 0.4, volume: 0.12 });
         }
         playChatter({ count: 8, delay: 1, step: 0.06, volume: 0.08 });
     },
 
     /** A sector message comes in: the ship powering up, its computers coming online, then the bosun's whistle calls all hands. */
     messageReceived() {
-        playTone({ type: 'sawtooth', frequency: 45, endFrequency: 180, attack: 0.4, duration: 1.5, volume: 0.2, filter: { frequency: 200, endFrequency: 1500, q: 3 } });
+        playTone({ type: 'sawtooth', frequency: 45, endFrequency: 180, attack: 0.4, duration: 1.5, volume: 0.17, filter: { frequency: 150, endFrequency: 700, q: 0 } });
         playNoise({ filterType: 'bandpass', filterFrequency: 200, endFilterFrequency: 1000, envelope: 'gate', attack: 0.6, duration: 1.2, volume: 0.1 });
         const chatter = { count: 18, delay: 0.8, step: 0.07 };
         playChatter({ ...chatter, volume: 0.09 });
