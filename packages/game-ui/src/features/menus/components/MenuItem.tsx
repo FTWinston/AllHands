@@ -1,6 +1,6 @@
 import { ConfirmDialog } from 'common-ui/components/ConfirmDialog';
 import { classNames } from 'common-ui/utils/classNames';
-import { FC, ReactNode, useState } from 'react';
+import { FC, useState } from 'react';
 import { ChevronIcon } from 'src/icons';
 import styles from './MenuItem.module.css';
 
@@ -8,8 +8,9 @@ type Props = {
     text: string;
     /** A line under the text, saying more about what the item does. */
     description?: string;
-    icon?: ReactNode;
-    /** A primary item is the one most people want. A danger item is a small text button, set apart from the rest. */
+    /** Its place in the menu, shown before the text like a console's numbered keys. */
+    number?: number;
+    /** A primary item is the one most people want. A danger item is a narrower button, set apart from the rest. */
     emphasis?: 'primary' | 'danger';
     onClick?: () => void;
     confirmPrompt?: string;
@@ -29,12 +30,12 @@ export const MenuItem: FC<Props> = (props) => {
                 onClick={buttonClick}
                 disabled={!props.onClick}
             >
-                {props.icon && <span className={styles.icon}>{props.icon}</span>}
+                {props.number !== undefined && <span className={styles.number} aria-hidden="true">{String(props.number).padStart(2, '0')}</span>}
                 <span className={styles.label}>
                     <span className={styles.text}>{props.text}</span>
                     {props.description && <span className={styles.description}>{props.description}</span>}
                 </span>
-                {props.emphasis !== 'danger' && <ChevronIcon className={styles.chevron} aria-hidden="true" />}
+                <ChevronIcon className={styles.chevron} aria-hidden="true" />
             </button>
             {props.confirmPrompt && props.onClick && (
                 <ConfirmDialog

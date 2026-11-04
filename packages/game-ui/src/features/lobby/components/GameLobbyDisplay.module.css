@@ -1,14 +1,22 @@
 /* Scale with the window, so the lobby fills it whichever dimension is the limit. 1em is 16px on a 1600 x 900 screen. */
 .screen {
+    position: relative;
     font-size: min(1vw, 1.78vh);
     color: var(--text);
     background-color: var(--space);
+    background-image:
+        linear-gradient(var(--grid-line) 0.0625em, transparent 0.0625em),
+        linear-gradient(90deg, var(--grid-line) 0.0625em, transparent 0.0625em);
+    background-size: 3em 3em;
 }
 
 .title {
-    font-size: 2.125em;
-    font-weight: 600;
-    line-height: 1.1;
+    font-family: var(--title-font-family);
+    font-size: 1.75em;
+    line-height: 1.2;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 .crewChip {
@@ -16,8 +24,8 @@
     border: 0.083em solid var(--primary-light);
     border-radius: 999px;
     font-size: 1.125em;
-    font-weight: 700;
     letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--primary-light);
 }
@@ -38,8 +46,8 @@
 
 .label {
     font-size: 1.0625em;
-    font-weight: 600;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--label);
 }
@@ -51,8 +59,8 @@
     padding: 2em;
     background-color: var(--panel);
     border: 0.094em solid var(--line);
-    border-radius: 1.75em;
-    corner-shape: squircle;
+    border-radius: 0 1.75em 0 1.75em;
+    corner-shape: bevel;
 }
 
 .qrCodeContainer {
@@ -62,8 +70,8 @@
     max-width: 100%;
     padding: 1.25em;
     background-color: oklch(0.93 0.01 265);
-    border-radius: 1.25em;
-    corner-shape: squircle;
+    border-radius: 0 1.25em 0 1.25em;
+    corner-shape: bevel;
 }
 
 .qrCode {
@@ -80,7 +88,7 @@
     justify-content: center;
     gap: 0.4em;
     border-radius: inherit;
-    corner-shape: squircle;
+    corner-shape: bevel;
     background-color: color-mix(in oklch, var(--space) 90%, transparent);
     color: var(--good-light);
     font-size: 1.625em;
@@ -107,8 +115,8 @@
 }
 
 .url {
+    font-family: var(--readout-font-family);
     font-size: 1.625em;
-    font-weight: 700;
     color: var(--text);
     user-select: all;
     overflow-wrap: anywhere;
@@ -134,8 +142,8 @@
 }
 
 .crewedCount {
+    font-family: var(--readout-font-family);
     font-size: 1.625em;
-    font-weight: 700;
 }
 
 .roleList {
@@ -150,8 +158,8 @@
     align-items: center;
     gap: 1.5em;
     padding: 1em 2em;
-    border-radius: 1.625em;
-    corner-shape: squircle;
+    border-radius: 0 1.625em 0 1.625em;
+    corner-shape: bevel;
 }
 
 .status {
@@ -162,6 +170,7 @@
 .countdown {
     border: 0.125em solid var(--primary-light);
     background-color: var(--primary-darkest);
+    box-shadow: inset 0 0 2.25em color-mix(in oklch, var(--primary-lightest) 14%, transparent);
 }
 
 .statusDot {
@@ -207,6 +216,8 @@
 
 /* A ring that sweeps round once a second, around the seconds left. */
 .countdownValue {
+    font-family: var(--readout-font-family);
+    font-weight: 400;
     position: relative;
     width: 1.7em;
     height: 1.7em;

@@ -1,0 +1,58 @@
+.track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 0.1875em;
+    display: flex;
+    background-color: color-mix(in oklch, var(--line) 60%, transparent);
+    pointer-events: none;
+}
+
+.half {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+}
+
+.light {
+    --light-color: var(--primary-lightest);
+    position: absolute;
+    top: 0;
+    left: -6em;
+    width: 6em;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--light-color));
+    box-shadow: 0 0 0.5em var(--light-color);
+    animation: chase-in 4s cubic-bezier(0.3, 0, 0.7, 1) infinite;
+}
+
+/* The right-hand light runs the other way. */
+.half + .half .light {
+    left: auto;
+    right: -6em;
+    background: linear-gradient(270deg, transparent, var(--light-color));
+    animation-name: chase-in-reverse;
+}
+
+/* Run on past the middle, where the half clips it: 100% plus the light's own width. */
+@keyframes chase-in {
+    0% { transform: translateX(0); }
+    70%, 100% { transform: translateX(calc(100cqw + 6em)); }
+}
+
+@keyframes chase-in-reverse {
+    0% { transform: translateX(0); }
+    70%, 100% { transform: translateX(calc(-100cqw - 6em)); }
+}
+
+.half {
+    container-type: inline-size;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .light {
+        animation: none;
+        opacity: 0;
+    }
+}

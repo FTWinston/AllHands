@@ -10,8 +10,8 @@
 .label {
     flex: 0 0 8.4em;
     font-size: 0.6875em;
-    font-weight: 600;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--label);
 }

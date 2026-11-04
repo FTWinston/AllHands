@@ -6,8 +6,8 @@
     gap: 1em;
     padding: 1.25em 1.625em;
     border: 0.094em solid var(--line);
-    border-radius: 1.375em;
-    corner-shape: squircle;
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
     background-color: var(--panel);
 }
 
@@ -19,8 +19,8 @@
 
 .fieldLabel {
     font-size: 0.9375em;
-    font-weight: 600;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--label);
 }

@@ -24,8 +24,8 @@
     align-items: center;
     justify-content: center;
     border: 0.094em solid var(--primary-light);
-    border-radius: 0.75em;
-    corner-shape: squircle;
+    border-radius: 0 0.75em 0 0.75em;
+    corner-shape: bevel;
     background-color: var(--primary-darkest);
 }
 
@@ -45,8 +45,8 @@
 
 .targetName {
     font-size: 0.6875em;
-    font-weight: 600;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     white-space: nowrap;
     overflow: hidden;
@@ -63,14 +63,15 @@
 }
 
 .power {
+    font-family: var(--readout-font-family);
     height: 2.5em;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 0.3em;
     padding: 0 0.7em 0 0.55em;
-    border-radius: 0.75em;
-    corner-shape: squircle;
+    border-radius: 0 0.75em 0 0.75em;
+    corner-shape: bevel;
     background-color: var(--space);
     font-size: 1.125em;
     font-weight: 700;
@@ -91,8 +92,8 @@
     align-items: center;
     justify-content: center;
     border: 0.094em solid var(--line);
-    border-radius: 0.875em;
-    corner-shape: squircle;
+    border-radius: 0 0.875em 0 0.875em;
+    corner-shape: bevel;
     background-color: transparent;
     color: var(--text-muted);
     cursor: pointer;
@@ -124,8 +125,8 @@
     gap: 0.625em;
     padding: 0.5625em 0.75em;
     border: 0.094em solid color-mix(in oklch, var(--danger-light) 55%, transparent);
-    border-radius: 0.875em;
-    corner-shape: squircle;
+    border-radius: 0 0.875em 0 0.875em;
+    corner-shape: bevel;
     background-color: color-mix(in oklch, var(--danger-light) 12%, var(--panel));
 }
 
@@ -147,8 +148,8 @@
 
 .vulnerabilityHeading {
     font-size: 0.846em;
-    font-weight: 700;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--danger-light);
 }

@@ -1,5 +1,6 @@
 /* 1em is 16px on a 1600 x 900 screen, as on the lobby. */
 .root {
+    position: relative;
     flex: 1;
     min-height: 0;
     display: flex;
@@ -7,6 +8,10 @@
     font-size: min(1vw, 1.78vh);
     color: var(--text-muted);
     background-color: var(--space);
+    background-image:
+        linear-gradient(var(--grid-line) 0.0625em, transparent 0.0625em),
+        linear-gradient(90deg, var(--grid-line) 0.0625em, transparent 0.0625em);
+    background-size: 3em 3em;
 }
 
 .body {
@@ -68,12 +73,12 @@
     --kind-color: var(--good-light);
 }
 
-/* Shop stations. */
+/* Shop stations, in the colour of the crew member they sell to. */
 .glyph.navigationBeacon,
 .glyph.armsDealer,
 .glyph.salvageYard,
 .glyph.researchOutpost {
-    --kind-color: var(--energy-light);
+    --kind-color: var(--primary-light);
 }
 
 .glyph.boss {
@@ -154,15 +159,15 @@
     padding: 1em 1.75em;
     background-color: var(--panel);
     border: 0.094em solid var(--line);
-    border-radius: 1.375em;
-    corner-shape: squircle;
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
     font-size: 1.125em;
 }
 
 .legend .legendHeading {
     font-size: 0.85em;
-    font-weight: 600;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--label);
 }
@@ -176,6 +181,17 @@
 .legendGlyph {
     width: 2em;
     height: 2em;
+}
+
+/* One small square for each crew member's shops. */
+.shopGlyphs {
+    display: flex;
+    gap: 0.125em;
+
+    .legendGlyph {
+        width: 1.5em;
+        height: 1.5em;
+    }
 }
 
 .legendGlyph .glyph.unreachable {

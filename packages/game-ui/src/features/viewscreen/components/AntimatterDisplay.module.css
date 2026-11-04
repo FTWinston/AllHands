@@ -18,15 +18,15 @@
 }
 
 .label {
-    font-weight: 600;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--energy-light);
 }
 
 .amount {
-    font-size: 1.625em;
-    font-weight: 700;
+    font-family: var(--readout-font-family);
+    font-size: 1.75em;
     color: var(--text);
-    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 0.4em color-mix(in oklch, var(--energy-light) 50%, transparent);
 }

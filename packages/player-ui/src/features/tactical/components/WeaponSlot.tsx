@@ -177,7 +177,7 @@ export const WeaponSlot = (props: Props) => {
     }
 
     return (
-        <li className={classNames(styles.slot, colorPalletes[mainPallete], card ? null : styles.empty, mainPallete === 'primary' ? null : styles.alert)}>
+        <li className={classNames(styles.slot, colorPalletes[mainPallete], card ? null : styles.empty, mainPallete === 'primary' ? null : styles.alert, firingState === FiringState.CanFire ? styles.ready : null)}>
             <div className={styles.body}>
                 {getCardWrapper(props, slotCardDefinition, isFullyCharged, !!card && !modified && !weaponTraitMismatch)}
 
@@ -188,15 +188,19 @@ export const WeaponSlot = (props: Props) => {
                     canAcceptCard={canSpendOnCharge}
                     disabled={!canBeCharged}
                 >
-                    <DiscreteProgress
-                        className={styles.progress}
-                        title="Charge progress"
-                        value={charge ?? 0}
-                        maxValue={totalCharge}
-                        vertical={true}
-                        outlineInactiveBlocks={true}
-                        decay={decay}
-                    />
+                    {card
+                        ? (
+                            <DiscreteProgress
+                                className={styles.progress}
+                                title="Charge progress"
+                                value={charge ?? 0}
+                                maxValue={totalCharge}
+                                vertical={true}
+                                outlineInactiveBlocks={true}
+                                decay={decay}
+                            />
+                        )
+                        : <div className={styles.emptyMeter} />}
                 </CardDropTarget>
             </div>
 

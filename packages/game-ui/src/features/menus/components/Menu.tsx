@@ -1,5 +1,6 @@
 import { Screen } from 'common-ui/components/Screen';
 import { FC, PropsWithChildren } from 'react';
+import { ChaseLights } from 'src/components/ChaseLights';
 import { CrewStripe } from 'src/components/CrewStripe';
 import styles from './Menu.module.css';
 import { MenuBackdrop } from './MenuBackdrop';
@@ -28,5 +29,6 @@ export const Menu: FC<PropsWithChildren<Props>> = props => (
             </nav>
         </div>
         {props.footer && <p className={styles.footer}>{props.footer}</p>}
+        <ChaseLights />
     </Screen>
 );

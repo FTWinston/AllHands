@@ -1,7 +1,7 @@
 .tabs {
   border: 1px solid var(--grey-dark);
-  border-radius: 1em;
-  corner-shape: squircle;
+  border-radius: 0 1em 0 1em;
+  corner-shape: bevel;
 }
 
 .list {

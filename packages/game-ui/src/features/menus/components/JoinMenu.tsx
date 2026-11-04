@@ -3,7 +3,6 @@ import { Button } from 'common-ui/components/Button';
 import { Input } from 'common-ui/components/Input';
 import { FC, useId, useState } from 'react';
 
-import { BackIcon } from 'src/icons';
 import styles from './JoinMenu.module.css';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
@@ -67,7 +66,7 @@ export const JoinMenu: FC<Props> = (props) => {
 
             <MenuItem
                 text="Go back"
-                icon={<BackIcon />}
+                number={2}
                 onClick={props.back}
             />
         </Menu>

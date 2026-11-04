@@ -1,5 +1,8 @@
-import { isStationKind } from 'common-data/features/sectors/utils/isStationKind';
+import { isStationKind, shopStationRoles } from 'common-data/features/sectors/utils/isStationKind';
+import crewStyles from '../../../CrewColors.module.css';
+import { EngineeringIcon, HelmIcon, ScienceIcon, TacticalIcon } from '../../../icons/systems';
 import type { SectorNodeKind, StationKind } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import type { FC, SVGProps } from 'react';
 
 /** The size of the square that route and station icons are drawn in. */
@@ -17,9 +20,26 @@ const common: SVGProps<SVGSVGElement> = {
     strokeLinejoin: 'round',
 };
 
+const crewIcons: Record<CrewRoleName, FC<SVGProps<SVGSVGElement>>> = {
+    helm: HelmIcon,
+    tactical: TacticalIcon,
+    science: ScienceIcon,
+    engineer: EngineeringIcon,
+};
+
+/** A shop is shown as the crew member whose cards it sells, in their colour. */
+const ShopIcon: FC<{ role: CrewRoleName }> = ({ role }) => {
+    const Icon = crewIcons[role];
+    return (
+        <g className={crewStyles[role]}>
+            <Icon x={10} y={10} width={44} height={44} style={{ fill: 'var(--primary-light)', stroke: 'none' }} />
+        </g>
+    );
+};
+
 /**
- * The unstyled shapes of a station's icon, in a `routeIconSize` square. They inherit their stroke from whatever contains them,
- * so the sector map can draw the same icon as the helm's route cards.
+ * The shapes of a station's icon, in a `routeIconSize` square. A repair station's inherit their stroke from whatever contains them,
+ * so the sector map can draw the same icon as the helm's route cards. A shop's are always in its crew member's colour.
  */
 export const StationIconShapes: FC<{ kind: StationKind }> = ({ kind }) => {
     switch (kind) {
@@ -31,30 +51,10 @@ export const StationIconShapes: FC<{ kind: StationKind }> = ({ kind }) => {
                 </>
             );
         case 'navigationBeacon':
-            return (
-                <>
-                    <path d="M32 58V30M22 58h20" />
-                    <circle cx="32" cy="22" r="5" />
-                    <path d="M20 10a17 17 0 0 0 0 24M44 10a17 17 0 0 1 0 24" />
-                </>
-            );
         case 'armsDealer':
-            return <path d="M12 12 44 44M52 12 20 44M38 50l12-12M14 38l12 12" />;
         case 'salvageYard':
-            return (
-                <>
-                    <circle cx="32" cy="32" r="12" />
-                    <path d="M32 8v10M32 46v10M8 32h10M46 32h10M15 15l7 7M42 42l7 7M49 15l-7 7M22 42l-7 7" />
-                </>
-            );
         case 'researchOutpost':
-            return (
-                <>
-                    <ellipse cx="32" cy="32" rx="26" ry="10" transform="rotate(45 32 32)" />
-                    <ellipse cx="32" cy="32" rx="26" ry="10" transform="rotate(-45 32 32)" />
-                    <circle cx="32" cy="32" r="4" />
-                </>
-            );
+            return <ShopIcon role={shopStationRoles[kind]} />;
         default:
             throw new Error(`Station kind not found: ${kind satisfies never}`);
     }

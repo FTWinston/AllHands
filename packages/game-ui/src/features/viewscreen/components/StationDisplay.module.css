@@ -1,5 +1,6 @@
 /* 1em is 16px on a 1600 x 900 screen, as on the sector map. */
 .root {
+    position: relative;
     flex: 1;
     min-height: 0;
     display: flex;
@@ -7,8 +8,17 @@
     font-size: min(1vw, 1.78vh);
     color: var(--text-muted);
     background-color: var(--space);
+    background-image:
+        linear-gradient(var(--grid-line) 0.0625em, transparent 0.0625em),
+        linear-gradient(90deg, var(--grid-line) 0.0625em, transparent 0.0625em);
+    background-size: 3em 3em;
 }
 
 .body {
     flex: 1;
+}
+
+/* A shop is lit from above in its crew member's colour. */
+.shop .body {
+    background: radial-gradient(ellipse 70% 60% at 50% 0%, color-mix(in oklch, var(--primary-mid) 18%, transparent), transparent);
 }

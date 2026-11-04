@@ -1,5 +1,4 @@
 import { FC } from 'react';
-import { CardsIcon, HostIcon, JoinIcon, PlayIcon, PowerIcon } from 'src/icons';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
 
@@ -19,32 +18,32 @@ export const MainMenu: FC<Props> = (props) => {
         <Menu footer={`Version: ${gameVersion}`}>
             <MenuItem
                 text="Start single-crew game"
-                icon={<PlayIcon />}
+                number={1}
                 emphasis="primary"
                 onClick={props.hostSingleCrewServer}
             />
 
             <MenuItem
                 text="Host multi-crew game"
-                icon={<HostIcon />}
+                number={2}
                 onClick={props.hostMultiCrewServer}
             />
 
             <MenuItem
                 text="Join multi-crew game"
-                icon={<JoinIcon />}
+                number={3}
                 onClick={props.joinMultiCrewServer}
             />
 
             <MenuItem
                 text="Card compendium"
-                icon={<CardsIcon />}
+                number={4}
                 onClick={props.showCardCompendium}
             />
 
             <MenuItem
                 text="Quit"
-                icon={<PowerIcon />}
+                number={5}
                 emphasis="danger"
                 onClick={props.quit}
                 confirmPrompt="Are you sure you want to quit?"

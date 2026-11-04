@@ -1,7 +1,7 @@
 .popup {
-    corner-shape: squircle;
+    corner-shape: bevel;
     padding: 1em 1.5em;
-    border-radius: 0.5em;
+    border-radius: 0 0.5em 0 0.5em;
     background-color: var(--primary-darkest);
     transition:
         transform 150ms,

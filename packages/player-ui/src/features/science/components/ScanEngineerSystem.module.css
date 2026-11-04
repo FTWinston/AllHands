@@ -50,10 +50,10 @@
 }
 
 .reading {
+    font-family: var(--readout-font-family);
     display: flex;
     align-items: center;
     gap: 0.125em;
-    font-weight: 700;
 }
 
 .powerIcon {

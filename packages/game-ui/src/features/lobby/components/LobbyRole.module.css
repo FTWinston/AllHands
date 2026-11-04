@@ -5,8 +5,8 @@
     justify-content: space-between;
     gap: 1em;
     padding: 1.625em 1.75em;
-    border-radius: 1.625em;
-    corner-shape: squircle;
+    border-radius: 0 1.625em 0 1.625em;
+    corner-shape: bevel;
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -18,9 +18,11 @@
         var(--panel);
 }
 
+/* A crewed station is lit from behind, like a console lamp. */
 .occupied {
     border: 0.125em solid var(--primary-light);
-    background-color: var(--primary-darkest);
+    background-color: var(--panel);
+    box-shadow: inset 0 0 2.25em color-mix(in oklch, var(--primary-light) 30%, transparent);
 }
 
 .identity {
@@ -37,14 +39,15 @@
     align-items: center;
     justify-content: center;
     border: 0.125em solid var(--primary-light);
-    border-radius: 1.375em;
-    corner-shape: squircle;
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
     color: var(--primary-light);
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .occupied .icon {
     background-color: var(--primary-light);
+    box-shadow: 0 0 1.25em color-mix(in oklch, var(--primary-light) 55%, transparent);
     color: var(--space);
 }
 
@@ -78,8 +81,8 @@
     align-items: center;
     gap: 0.67em;
     font-size: 1.125em;
-    font-weight: 700;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--label);
 }

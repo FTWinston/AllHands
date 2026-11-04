@@ -8,14 +8,15 @@
 }
 
 .cost {
+    font-family: var(--readout-font-family);
     height: 1.875em;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 0.25em;
     padding: 0 0.5625em 0 0.4375em;
-    border-radius: 0.625em;
-    corner-shape: squircle;
+    border-radius: 0 0.625em 0 0.625em;
+    corner-shape: bevel;
     background-color: var(--space);
     font-size: 0.9375em;
     font-weight: 700;

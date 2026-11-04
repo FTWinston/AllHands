@@ -3,6 +3,7 @@ import { Button } from 'common-ui/components/Button';
 import { Screen } from 'common-ui/components/Screen';
 import { FC } from 'react';
 import QRCode from 'react-qr-code';
+import { ChaseLights } from 'src/components/ChaseLights';
 import { TopBar } from 'src/components/TopBar';
 import { PowerIcon } from 'src/icons';
 import styles from './GameLobbyDisplay.module.css';
@@ -142,6 +143,7 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                         )}
                 </section>
             </div>
+            <ChaseLights />
         </Screen>
     );
 };

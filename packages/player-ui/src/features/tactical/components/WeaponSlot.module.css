@@ -5,8 +5,8 @@
     flex-direction: column;
     background-color: var(--panel-raised);
     border: 0.094em solid var(--line);
-    border-radius: 1.125em;
-    corner-shape: squircle;
+    border-radius: 0 1.125em 0 1.125em;
+    corner-shape: bevel;
     transition: border-color 0.333s ease;
 }
 
@@ -19,6 +19,13 @@
 .alert {
     --status-color: var(--color-light);
     border-color: color-mix(in oklch, var(--color-light) 65%, transparent);
+}
+
+/* Ready to fire: lit from behind, like a console lamp. */
+.ready {
+    box-shadow:
+        inset 0 0 1.75em color-mix(in oklch, var(--color-light) 22%, transparent),
+        0 0 1em color-mix(in oklch, var(--color-light) 22%, transparent);
 }
 
 .body {
@@ -88,8 +95,8 @@
     flex: 0 0 1.625em;
     display: flex;
     flex-direction: column;
-    corner-shape: squircle;
-    border-radius: 0.625em;
+    corner-shape: bevel;
+    border-radius: 0 0.625em 0 0.625em;
     --drop-outline-width: 0.167em;
 }
 
@@ -100,10 +107,26 @@
     flex-basis: 0;
     flex-grow: 1;
     gap: 0.25em;
+}
 
-    > * {
-        border-radius: 0.375em;
-    }
+/* The meter's end cells take the slot's cut corners: bottom left on the bottom cell, top right on the top one. */
+.progress.progress > *, .emptyMeter {
+    border-radius: 0.125em;
+    corner-shape: bevel;
+}
+
+.progress.progress > :first-child, .emptyMeter {
+    border-bottom-left-radius: 0.5em;
+}
+
+.progress.progress > :last-child, .emptyMeter {
+    border-top-right-radius: 0.5em;
+}
+
+/* An empty slot can't know how many cells its weapon will need, so its meter is one long faint cell. */
+.emptyMeter {
+    flex-grow: 1;
+    border: 0.1em solid color-mix(in oklch, var(--line) 70%, transparent);
 }
 
 .status {
@@ -118,7 +141,7 @@
     /* Round its tint into the slot's corners, without clipping the slot, which would cut off its card when zoomed. */
     border-end-start-radius: calc(1.125em - 0.094em);
     border-end-end-radius: calc(1.125em - 0.094em);
-    corner-shape: squircle;
+    corner-shape: bevel;
 }
 
 .alert .status {
@@ -140,9 +163,9 @@
 
 .statusTitle {
     font-size: 0.75em;
-    font-weight: 700;
     line-height: 1.2;
     letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--status-color);
 }

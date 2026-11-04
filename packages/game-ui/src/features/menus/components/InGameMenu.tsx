@@ -1,6 +1,5 @@
 import { toggleSoundEnabled, useSoundEnabled } from 'common-ui/features/sound/soundSettings';
 import { FC } from 'react';
-import { PlayIcon, PowerIcon, SoundIcon, SoundOffIcon } from 'src/icons';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
 
@@ -16,7 +15,7 @@ export const InGameMenu: FC<Props> = (props) => {
         <Menu heading="Game paused">
             <MenuItem
                 text="Resume game"
-                icon={<PlayIcon />}
+                number={1}
                 emphasis="primary"
                 onClick={props.resumeGame}
             />
@@ -24,13 +23,13 @@ export const InGameMenu: FC<Props> = (props) => {
             <MenuItem
                 text="Sound effects"
                 description={soundEnabled ? 'On' : 'Off'}
-                icon={soundEnabled ? <SoundIcon /> : <SoundOffIcon />}
+                number={2}
                 onClick={toggleSoundEnabled}
             />
 
             <MenuItem
                 text="Disconnect"
-                icon={<PowerIcon />}
+                number={3}
                 emphasis="danger"
                 onClick={props.disconnect}
                 confirmPrompt="Are you sure you want to disconnect?"

@@ -6,16 +6,16 @@
     min-width: 0;
     padding: 1em;
     border: solid color-mix(in oklch, var(--energy-light) 55%, transparent) 1.5px;
-    border-radius: 1.375em;
-    corner-shape: squircle;
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
     background-color: var(--panel);
 }
 
 .title {
     margin: 0;
     font-size: 1.125em;
-    font-weight: 600;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--energy-light);
 }

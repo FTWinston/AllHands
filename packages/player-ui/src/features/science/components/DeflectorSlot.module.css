@@ -7,8 +7,8 @@
     gap: 0.375em;
     padding: 0 0.25em 0 0.75em;
     border: 0.094em dashed color-mix(in oklch, var(--primary-light) 45%, transparent);
-    border-radius: 1em;
-    corner-shape: squircle;
+    border-radius: 0 1em 0 1em;
+    corner-shape: bevel;
     background-color: var(--space);
 
     &.slotNotEmpty {
@@ -28,8 +28,8 @@
 
 .slotLabel {
     font-size: 0.625em;
-    font-weight: 600;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--label);
 }
@@ -62,8 +62,8 @@
     align-items: center;
     justify-content: center;
     border: none;
-    border-radius: 0.75em;
-    corner-shape: squircle;
+    border-radius: 0 0.75em 0 0.75em;
+    corner-shape: bevel;
     background-color: color-mix(in oklch, var(--space) 60%, transparent);
     color: var(--text-muted);
     cursor: pointer;

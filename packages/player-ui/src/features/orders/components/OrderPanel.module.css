@@ -6,8 +6,8 @@
     margin: 0 auto;
     padding: 0.75em 1em;
     border: solid color-mix(in oklch, var(--energy-light) 55%, transparent) 1.5px;
-    border-radius: 1.375em;
-    corner-shape: squircle;
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
     background-color: var(--panel);
 }
 
@@ -20,9 +20,9 @@
 .heading {
     display: block;
     color: var(--energy-light);
-    font-weight: 600;
     font-size: 0.9em;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
 }
 

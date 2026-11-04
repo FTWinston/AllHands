@@ -6,14 +6,14 @@
     margin: 0 0.75em;
     background-color: var(--panel);
     border: 0.094em solid color-mix(in oklch, var(--primary-light) 45%, transparent);
-    border-radius: 1.375em;
-    corner-shape: squircle;
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
 }
 
 .title {
     font-size: 0.6875em;
-    font-weight: 600;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--label);
 }

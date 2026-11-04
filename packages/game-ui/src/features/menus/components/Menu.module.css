@@ -13,7 +13,10 @@
         radial-gradient(0.07em 0.07em at 71% 62%, oklch(1 0 0 / 0.35), transparent 60%),
         radial-gradient(0.1em 0.1em at 88% 22%, oklch(1 0 0 / 0.45), transparent 60%),
         radial-gradient(0.07em 0.07em at 95% 84%, oklch(1 0 0 / 0.4), transparent 60%),
-        radial-gradient(0.07em 0.07em at 33% 52%, oklch(1 0 0 / 0.3), transparent 60%);
+        radial-gradient(0.07em 0.07em at 33% 52%, oklch(1 0 0 / 0.3), transparent 60%),
+        linear-gradient(var(--grid-line) 0.0625em, transparent 0.0625em),
+        linear-gradient(90deg, var(--grid-line) 0.0625em, transparent 0.0625em);
+    background-size: auto, auto, auto, auto, auto, auto, auto, auto, auto, 3em 3em, 3em 3em;
 }
 
 .content {
@@ -26,8 +29,8 @@
 }
 
 .tagline, .heading, .footer {
-    font-weight: 600;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--label);
 }
@@ -38,11 +41,13 @@
 }
 
 .title {
-    font-size: 8em;
-    line-height: 0.95;
-    font-weight: 700;
-    letter-spacing: 0.03em;
+    font-family: var(--title-font-family);
+    font-size: 5.75em;
+    line-height: 1;
+    font-weight: 400;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
+    text-shadow: 0 0 0.25em color-mix(in oklch, var(--text) 25%, transparent);
 }
 
 .stripe {

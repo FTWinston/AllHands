@@ -14,8 +14,8 @@
     font-size: min(4.45cqw, 5.75cqh);
     background-color: var(--panel);
     border: 0.094em solid color-mix(in oklch, var(--primary-light) 45%, transparent);
-    border-radius: 1.375em;
-    corner-shape: squircle;
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -50,8 +50,8 @@
 
 .label {
     font-size: 0.6875em;
-    font-weight: 600;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--label);
 }
@@ -104,8 +104,8 @@
     grid-area: prompt;
     text-align: center;
     font-size: 0.75em;
-    font-weight: 600;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--label);
 }
@@ -154,8 +154,8 @@
     gap: 0.375em;
     pointer-events: auto;
     border: 0.125em dashed color-mix(in oklch, var(--primary-light) 60%, transparent);
-    border-radius: 1em;
-    corner-shape: squircle;
+    border-radius: 0 1em 0 1em;
+    corner-shape: bevel;
     background-color: color-mix(in oklch, var(--primary-darkest) 85%, var(--panel));
     color: var(--text);
 }
@@ -213,8 +213,8 @@
 
 .unknownLabel, .dropLabel {
     font-size: 0.75em;
-    font-weight: 600;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
     color: var(--label);
 }

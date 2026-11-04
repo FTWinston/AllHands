@@ -5,6 +5,7 @@ import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { useMemo, useState } from 'react';
 import { fn } from 'storybook/test';
+import { LowHullWarning } from './LowHullWarning';
 import { ViewscreenDisplay as Component } from './ViewscreenDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -46,6 +47,14 @@ type Story = StoryObj<typeof meta>;
 export const UI: Story = {
     args: {
         objects: {},
+    },
+};
+
+/** Red alert: the hull is close to failing. */
+export const HullCritical: Story = {
+    args: {
+        objects: {},
+        children: <LowHullWarning health={18} maxHealth={100} />,
     },
 };
 
