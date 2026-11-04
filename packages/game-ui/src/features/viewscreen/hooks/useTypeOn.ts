@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 /** How quickly text is typed on, as if the ship's computer were printing it. */
-const charactersPerSecond = 60;
+export const charactersPerSecond = 60;
 
 /**
  * How much of the given text has been "typed" so far, counting up from nothing whenever the text changes.

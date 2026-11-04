@@ -25,7 +25,7 @@ export const NoRevealedSystem: Story = {
     args: {
         id: 'Enemy-01',
         name: 'Enemy Ship',
-        appearance: 'starfighter',
+        appearance: 'swallowtail-interceptor',
         targetNumber: 1,
         totalTargets: 3,
         systemOrder: [3, 2, 1, 4],

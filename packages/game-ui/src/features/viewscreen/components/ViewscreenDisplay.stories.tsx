@@ -94,7 +94,7 @@ export const WithWeaponArcs: Story = {
             enemy: {
                 id: 'enemy',
                 name: 'Enemy',
-                appearance: 'spaceship',
+                appearance: 'hammerhead-cruiser',
                 faction: 'raiders',
                 motion: [{ time: Date.now(), x: 6, y: -3, angle: Math.PI }],
             },

@@ -173,6 +173,19 @@ export const sounds = {
         playNoise({ filterFrequency: 4000, endFilterFrequency: 300, delay: 1.3, duration: 0.25, volume: 0.35 });
     },
 
+    /** The hull is close to failing: three rising whoops of a klaxon, in time with the viewscreen's red alert flashes. */
+    redAlert() {
+        for (let i = 0; i < 3; i++) {
+            playTone({ type: 'triangle', frequency: 440, endFrequency: 1180, attack: 0.04, delay: i * 1.1, duration: 0.75, volume: 0.16, ring: 30 });
+        }
+    },
+
+    /** The ship's computer prints text out, for about the given number of seconds: quiet, fast chatter. */
+    textPrinting(seconds: number) {
+        const step = 0.07;
+        playChatter({ count: Math.max(1, Math.round(seconds / step)), step, volume: 0.025 });
+    },
+
     /** Background computer chatter, played now and then while the bridge is busy. */
     bridgeChatter() {
         playChatter({ count: 3 + Math.floor(Math.random() * 5), step: 0.05 + Math.random() * 0.04, volume: 0.035 });

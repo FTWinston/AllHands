@@ -1,4 +1,5 @@
-import { FC } from 'react';
+import { sounds } from 'common-ui/features/sound/sounds';
+import { FC, useEffect } from 'react';
 import styles from './LowHullWarning.module.css';
 
 type Props = {
@@ -11,7 +12,16 @@ const lowHullFraction = 0.25;
 
 /** Red alert while the hull is close to failing: the screen's edges flash red a few times, then stay lit, with the hull's health at the top. */
 export const LowHullWarning: FC<Props> = ({ health, maxHealth }) => {
-    if (maxHealth <= 0 || health / maxHealth > lowHullFraction) {
+    const isCritical = maxHealth > 0 && health / maxHealth <= lowHullFraction;
+
+    // The klaxon sounds as the alert starts, in time with its flashes.
+    useEffect(() => {
+        if (isCritical) {
+            sounds.redAlert();
+        }
+    }, [isCritical]);
+
+    if (!isCritical) {
         return null;
     }
 

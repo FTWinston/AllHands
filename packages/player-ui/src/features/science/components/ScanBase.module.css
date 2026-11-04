@@ -118,6 +118,39 @@
     flex-direction: column;
 }
 
+/* A new scan result prints on a row at a time, as if from the ship's computer, then any vulnerability it found. */
+.content > *, .vulnerability {
+    /* Hidden while waiting its turn, but not clipped once printed, so focus rings still show. */
+    animation: print-on 0.4s steps(16) backwards;
+}
+
+.content > :nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.content > :nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+.content > :nth-child(n + 4) {
+    animation-delay: 0.6s;
+}
+
+.vulnerability {
+    animation-delay: 0.7s;
+}
+
+@keyframes print-on {
+    from { clip-path: inset(0 100% 0 0); }
+    to { clip-path: inset(0 0 0 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .content > *, .vulnerability {
+        animation: none;
+    }
+}
+
 .vulnerability {
     flex-shrink: 0;
     display: flex;

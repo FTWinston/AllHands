@@ -83,7 +83,7 @@ export const UI: Story = {
             {
                 id: 'target1',
                 name: 'Enemy Ship 1',
-                appearance: 'scout',
+                appearance: 'kite-scout',
                 faction: 'raiders',
                 motion: [
                     { time: 0, x: 100, y: 100, angle: 0 },
@@ -93,7 +93,7 @@ export const UI: Story = {
             {
                 id: 'target2',
                 name: 'Enemy Ship 2',
-                appearance: 'starfighter',
+                appearance: 'swallowtail-interceptor',
                 faction: 'raiders',
                 motion: [
                     { time: 0, x: -100, y: 100, angle: 0 },
@@ -103,7 +103,7 @@ export const UI: Story = {
             {
                 id: 'target3',
                 name: 'Enemy Ship 3',
-                appearance: 'satellite',
+                appearance: 'sentry-drone',
                 faction: 'raiders',
                 motion: [
                     { time: 0, x: 100, y: 100, angle: 0 },
@@ -113,7 +113,7 @@ export const UI: Story = {
             {
                 id: 'target4',
                 name: 'Enemy Ship 4',
-                appearance: 'interceptor',
+                appearance: 'dart-fighter',
                 faction: 'raiders',
                 motion: [
                     { time: 0, x: -100, y: 100, angle: 0 },
@@ -123,7 +123,7 @@ export const UI: Story = {
             {
                 id: 'target5',
                 name: 'Enemy Ship 5',
-                appearance: 'spaceship',
+                appearance: 'hammerhead-cruiser',
                 faction: 'raiders',
                 motion: [
                     { time: 0, x: -100, y: 100, angle: 0 },
