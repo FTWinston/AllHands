@@ -90,7 +90,7 @@ export const HelmSpaceMap = (props: Props) => {
             if (motionPath) {
                 drawMotionPath(ctx, motionPath, pixelSize);
             }
-            drawWeaponEffects(ctx, props.weaponEffectsRef.current, props.objects, timeProvider.getServerTime(), pixelSize, true);
+            drawWeaponEffects(ctx, props.weaponEffectsRef.current, props.objects, timeProvider.getServerTime(), pixelSize);
         },
         [motionPath, props.weaponEffectsRef, props.objects, timeProvider]
     );

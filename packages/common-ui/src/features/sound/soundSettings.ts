@@ -1,48 +1,12 @@
-import { useSyncExternalStore } from 'react';
+import { createStoredToggle } from '../../utils/storedToggle';
 
-const storageKey = 'allhands.soundEnabled';
-
-function loadEnabled() {
-    try {
-        return localStorage.getItem(storageKey) !== 'false';
-    } catch {
-        return true;
-    }
-}
-
-let enabled = loadEnabled();
-const listeners = new Set<() => void>();
+const soundEnabled = createStoredToggle('allhands.soundEnabled', true);
 
 /** Whether sound effects and vibration are enabled on this device. Remembered between sessions. */
-export function isSoundEnabled() {
-    return enabled;
-}
+export const isSoundEnabled = soundEnabled.get;
 
-export function setSoundEnabled(value: boolean) {
-    enabled = value;
+export const setSoundEnabled = soundEnabled.set;
 
-    try {
-        localStorage.setItem(storageKey, String(value));
-    } catch {
-        // Storage can be unavailable, e.g. in private browsing. The setting just won't be remembered.
-    }
+export const toggleSoundEnabled = soundEnabled.toggle;
 
-    for (const listener of listeners) {
-        listener();
-    }
-}
-
-export function toggleSoundEnabled() {
-    setSoundEnabled(!enabled);
-}
-
-function subscribe(listener: () => void) {
-    listeners.add(listener);
-    return () => {
-        listeners.delete(listener);
-    };
-}
-
-export function useSoundEnabled() {
-    return useSyncExternalStore(subscribe, isSoundEnabled);
-}
+export const useSoundEnabled = soundEnabled.useValue;

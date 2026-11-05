@@ -1,5 +1,6 @@
 import { toggleSoundEnabled, useSoundEnabled } from 'common-ui/features/sound/soundSettings';
 import { FC } from 'react';
+import { toggleCombatLabels, useCombatLabels } from '../../viewscreen/utils/combatLabelSettings';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
 
@@ -10,6 +11,7 @@ type Props = {
 
 export const InGameMenu: FC<Props> = (props) => {
     const soundEnabled = useSoundEnabled();
+    const combatLabels = useCombatLabels();
 
     return (
         <Menu heading="Game paused">
@@ -28,8 +30,15 @@ export const InGameMenu: FC<Props> = (props) => {
             />
 
             <MenuItem
-                text="Disconnect"
+                text="Combat labels"
+                description={combatLabels ? 'On' : 'Off'}
                 number={3}
+                onClick={toggleCombatLabels}
+            />
+
+            <MenuItem
+                text="Disconnect"
+                number={4}
                 emphasis="danger"
                 onClick={props.disconnect}
                 confirmPrompt="Are you sure you want to disconnect?"

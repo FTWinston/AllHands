@@ -64,8 +64,7 @@ const ViewscreenScene: FC<Props> = (props) => {
     const map = (useRoomState(props.room, state => state.map) ?? null) as unknown as SectorMapInfo | null;
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
 
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    useViewscreenEffects(props.room, props.shipId, phase, isEnded ? outcome : null, canvasRef);
+    useViewscreenEffects(props.room, props.shipId, phase, isEnded ? outcome : null);
     useBridgeChatter(!isEnded && phase !== null);
     useWakeLock();
     const showOutcome = useShowOutcome(isEnded, outcome);
@@ -128,7 +127,6 @@ const ViewscreenScene: FC<Props> = (props) => {
             objects={objects}
             viewer={viewer}
             weaponEffectsRef={weaponEffectsRef}
-            canvasRef={canvasRef}
             showMenu={props.showMenu}
         >
             {props.children}

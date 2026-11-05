@@ -1,5 +1,6 @@
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
+import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { DEV_TOOLS_ENABLED } from 'src/generated/devtools';
 import { CrewState } from 'src/state/CrewState';
 import { setupGameRoom, startCampaign } from 'src/testUtils';
@@ -7,6 +8,7 @@ import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it, vi } from 'vitest';
 import { startCountdownDuration, type GameRoom } from './GameRoom';
 import type { ColyseusTestServer } from '@colyseus/testing';
+import type { EngineWeaponSlotCardDefinition } from 'src/cards/EngineCardDefinition';
 
 const rooms = setupGameRoom();
 
@@ -326,7 +328,23 @@ describe('GameRoom player ship destruction', () => {
         ship.destroy();
         await wait();
 
-        expect(effects).toContainEqual(expect.objectContaining({ type: 'explosion', sourceId: ship.id, sourcePosition: { x, y } }));
+        expect(effects).toContainEqual(expect.objectContaining({ type: 'explosion', sourceId: ship.id, position: expect.objectContaining({ x, y }) }));
+    });
+
+    it('sends the viewscreen a weapon being fired and it landing, saying how much damage got through', async () => {
+        const { state, ship, shipClient } = await startGame();
+
+        const effects: unknown[] = [];
+        shipClient.onMessage('weaponEffect', effect => effects.push(effect));
+
+        const card = getCardDefinition('phaserCannon') as EngineWeaponSlotCardDefinition;
+        card.fire(state, ship, ship, { cost: 0, damage: 1 }, 100, []);
+        await wait();
+
+        expect(effects).toEqual([
+            expect.objectContaining({ type: 'shot', weapon: 'phaserCannon', sourceId: ship.id, targetId: ship.id }),
+            expect.objectContaining({ type: 'impact', sourceId: ship.id, targetId: ship.id, damage: expect.any(Number) }),
+        ]);
     });
 
     it('can still pause and resume after one crew has lost their ship, even if their roles changed', async () => {

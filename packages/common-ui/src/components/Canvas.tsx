@@ -128,7 +128,7 @@ export const Canvas = forwardRef<HTMLCanvasElement, PropsWithChildren<Props>>((p
             <canvas
                 className={styles.display}
                 style={displaySizeStyle}
-                ref={ref}
+                ref={canvasRef}
             />
             {props.children}
         </div>

@@ -157,17 +157,20 @@ export class GameState extends Schema {
     }
 
     /**
-     * Send a weapon effect message to all crews that have visibility of the source object.
+     * Send a weapon effect message to all crews that have visibility of either object involved.
      */
     public broadcastWeaponEffect(effect: WeaponEffect) {
+        const targetId = effect.type === 'explosion' ? undefined : effect.targetId;
+
         for (const crew of this.crews.values()) {
             const ship = crew.ship;
             if (!ship) {
                 continue;
             }
 
-            // Send to crew if their ship is the source, or if the source is in their known objects.
-            if (ship.id === effect.sourceId || ship.knownObjects.has(effect.sourceId)) {
+            const canSee = (id: string | undefined) => id !== undefined && (ship.id === id || ship.knownObjects.has(id));
+
+            if (canSee(effect.sourceId) || canSee(targetId)) {
                 crew.sendWeaponEffect(effect);
             }
         }
