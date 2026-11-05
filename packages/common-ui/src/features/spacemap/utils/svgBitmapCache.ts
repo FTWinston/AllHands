@@ -1,3 +1,4 @@
+import { getMapSvg } from '../../../objects/mapSvg';
 import { svgStrings } from '../../../objects/strings';
 import type { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
 
@@ -34,7 +35,7 @@ async function loadBitmap(
     key: string
 ): Promise<void> {
     try {
-        const raw = svgStrings[appearance];
+        const raw = getMapSvg(svgStrings[appearance], appearance);
         const colored = raw
             .replace('<svg ', `<svg width="${BITMAP_SIZE}" height="${BITMAP_SIZE}" `)
             .replace(/currentColor/g, mainColor)

@@ -25,7 +25,7 @@
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(14em, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(28em, 1fr));
     gap: 1em;
 }
 
@@ -43,12 +43,9 @@
     color: var(--danger-light);
 }
 
-.large, .small, .tiny {
-    display: block;
-}
-
 /* About as big as on a tactical or science target. */
 .large {
+    display: block;
     width: 11em;
     height: 11em;
 }
@@ -56,23 +53,26 @@
 .sizes {
     display: flex;
     align-items: center;
-    gap: 1em;
+    justify-content: center;
+    gap: 0.5em;
+    padding: 0.5em;
+    background-color: var(--space);
 }
 
-/* About as big as in the space view. */
-.small {
-    width: 3em;
-    height: 3em;
+/* Ships at the sizes they're drawn on a map, on its background. */
+.field {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    padding: 1em;
+    background-color: var(--space);
+    border: 0.094em solid var(--line);
 }
 
-.tiny {
-    width: 2em;
-    height: 2em;
-}
-
-/* As if turning in the space view. */
-.turned {
-    transform: rotate(-35deg);
+.map {
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--space);
 }
 
 .name {
