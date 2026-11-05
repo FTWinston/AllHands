@@ -222,19 +222,22 @@ export class CrewState extends Schema {
             ] as [string, number][]).filter(([clientId]) => !!clientId)
         );
 
-        // Remove the ship from clients whose role changed or who no longer hold a role.
-        // Doing remove and add in the same call means both land in the same state patch,
-        // so the client sees DELETE + full CREATE rather than a stale delta refId.
-        for (const [clientId, oldRole] of this.shipViewRoles) {
-            if (newShipViewRoles.get(clientId) !== oldRole) {
-                this.clients.getById(clientId)?.view?.remove(this.ship, oldRole);
+        // A crew stays assigned to their ship after it's destroyed, but it's no longer in the state for clients to view.
+        if (state.objects.get(this.ship.id) === this.ship) {
+            // Remove the ship from clients whose role changed or who no longer hold a role.
+            // Doing remove and add in the same call means both land in the same state patch,
+            // so the client sees DELETE + full CREATE rather than a stale delta refId.
+            for (const [clientId, oldRole] of this.shipViewRoles) {
+                if (newShipViewRoles.get(clientId) !== oldRole) {
+                    this.clients.getById(clientId)?.view?.remove(this.ship, oldRole);
+                }
             }
-        }
 
-        // Add the ship to clients with a new or changed role.
-        for (const [clientId, newRole] of newShipViewRoles) {
-            if (this.shipViewRoles.get(clientId) !== newRole) {
-                this.clients.getById(clientId)?.view?.add(this.ship, newRole);
+            // Add the ship to clients with a new or changed role.
+            for (const [clientId, newRole] of newShipViewRoles) {
+                if (this.shipViewRoles.get(clientId) !== newRole) {
+                    this.clients.getById(clientId)?.view?.add(this.ship, newRole);
+                }
             }
         }
 

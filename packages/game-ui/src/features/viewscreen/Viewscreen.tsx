@@ -1,8 +1,6 @@
 import { useRoomState } from '@colyseus/react';
 import { isStationKind } from 'common-data/features/sectors/utils/isStationKind';
 import { FactionRelationshipMap, GameObjectInfo, PlayerShipInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { Keyframes } from 'common-data/features/space/types/Keyframes';
-import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { Screen } from 'common-ui/components/Screen';
 import { ScreenFade } from 'common-ui/components/ScreenFade';
 import { sounds } from 'common-ui/features/sound/sounds';
@@ -15,6 +13,7 @@ import { LowHullWarning } from './components/LowHullWarning';
 import { StationDisplay } from './components/StationDisplay';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import { ViewscreenPhaseDisplay } from './components/ViewscreenPhaseDisplay';
+import { useShowOutcome } from './hooks/useShowOutcome';
 import { useViewscreenEffects } from './hooks/useViewscreenEffects';
 import type { Room } from '@colyseus/sdk';
 import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
@@ -28,8 +27,6 @@ type Props = PropsWithChildren<{
     shipId: string;
     showMenu: () => void;
 }>;
-
-const defaultCenter: Keyframes<Vector2D> = [{ time: 0, x: 0, y: 0 }];
 
 /** The main screen, fading out and back in around scene changes. */
 export const Viewscreen: FC<Props> = (props) => {
@@ -56,6 +53,10 @@ const ViewscreenScene: FC<Props> = (props) => {
     const localShip = objects[props.shipId];
     const weaponEffectsRef = useWeaponEffects(props.room);
 
+    // Friend and foe stay the same while watching the ship explode, once it's gone.
+    const viewerFaction = useRef(localShip?.faction ?? null);
+    viewerFaction.current = localShip?.faction ?? viewerFaction.current;
+
     const phase = (useRoomState(props.room, state => state.phase) ?? null) as GamePhase | null;
     const isEnded = useRoomState(props.room, state => state.gameStatus) === 'ended';
     const outcome = (useRoomState(props.room, state => state.outcome) ?? null) as GameOutcome | null;
@@ -67,6 +68,7 @@ const ViewscreenScene: FC<Props> = (props) => {
     useViewscreenEffects(props.room, props.shipId, phase, isEnded ? outcome : null, canvasRef);
     useBridgeChatter(!isEnded && phase !== null);
     useWakeLock();
+    const showOutcome = useShowOutcome(isEnded, outcome);
 
     const encounterKind = (useRoomState(props.room, state => state.encounterKind) ?? null) as SectorNodeKind | null;
     const encounterName = useRoomState(props.room, state => state.encounter?.name);
@@ -82,7 +84,7 @@ const ViewscreenScene: FC<Props> = (props) => {
         }
     }, [seenCardTypes]);
 
-    if (isEnded || phase !== 'encounter') {
+    if (showOutcome || phase !== 'encounter') {
         return (
             <ViewscreenPhaseDisplay
                 phase={phase}
@@ -113,16 +115,16 @@ const ViewscreenScene: FC<Props> = (props) => {
         );
     }
 
-    const viewerFaction = localShip?.faction ?? null;
+    const faction = viewerFaction.current;
     const viewer: RelationshipViewer = {
         shipId: props.shipId,
-        faction: viewerFaction,
-        relations: viewerFaction ? factions?.[viewerFaction]?.relations ?? null : null,
+        faction,
+        relations: faction ? factions?.[faction]?.relations ?? null : null,
     };
 
     return (
         <ViewscreenDisplay
-            center={localShip ? localShip.motion : defaultCenter}
+            center={localShip ? localShip.motion : null}
             objects={objects}
             viewer={viewer}
             weaponEffectsRef={weaponEffectsRef}

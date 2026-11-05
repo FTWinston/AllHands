@@ -20,7 +20,8 @@
 }
 
 .title {
-    font-size: 5em;
+    /* Small enough for the longest title to fit across a phone screen. */
+    font-size: min(5em, 12vw);
     line-height: 1;
     letter-spacing: 0.2em;
     text-transform: uppercase;

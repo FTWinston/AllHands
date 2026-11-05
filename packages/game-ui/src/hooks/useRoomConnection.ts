@@ -79,6 +79,9 @@ export function useRoomConnection(
         return () => {
             timeSynchronizer.current?.stop();
             joinedRoom?.leave();
+
+            // This game's ship has nothing to do with whichever game is joined next.
+            setShipId(null);
         };
     }, [serverAddress, setConnectionState]);
 

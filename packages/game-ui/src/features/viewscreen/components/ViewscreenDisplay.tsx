@@ -9,13 +9,14 @@ import { drawWeaponArcs, ENEMY_WEAPON_ARC_COLORS, OWN_WEAPON_ARC_COLORS } from '
 import { drawWeaponEffects } from 'common-ui/features/spacemap/utils/drawWeaponEffects';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
-import { FC, Ref, RefObject, PropsWithChildren, useCallback } from 'react';
+import { FC, Ref, RefObject, PropsWithChildren, useCallback, useRef } from 'react';
 import styles from './ViewscreenDisplay.module.css';
 import { ViewscreenMenuButton } from './ViewscreenMenuButton';
 import type { Snapshot } from '@colyseus/react';
 
 type Props = PropsWithChildren<{
-    center: ReadonlyKeyframes<Vector2D>;
+    /** What to keep centered on. If null (e.g. the ship was destroyed), the view stays where it last was. */
+    center: ReadonlyKeyframes<Vector2D> | null;
     objects: Record<string, GameObjectInfo>;
     viewer: RelationshipViewer;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
@@ -31,7 +32,11 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
 
     const currentTime = timeProvider.getServerTime();
 
-    let centerVector = interpolateVector(props.center, currentTime);
+    const lastCenter = useRef<Vector2D>({ x: 0, y: 0 });
+    if (props.center) {
+        lastCenter.current = interpolateVector(props.center, currentTime);
+    }
+    const centerVector = lastCenter.current;
 
     const cellRadius = 32; // TODO: make this controllable? automatic?
 
