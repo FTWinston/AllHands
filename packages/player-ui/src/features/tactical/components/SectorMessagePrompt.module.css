@@ -15,8 +15,8 @@
     text-align: center;
     background-color: var(--primary-darkest-muted);
     border: solid var(--primary-mid) 0.2em;
-    border-radius: 1.5em;
-    corner-shape: squircle;
+    border-radius: 0 1.5em 0 1.5em;
+    corner-shape: bevel;
     box-shadow: 0 0 2em 0.5em color-mix(in srgb, var(--primary-light) 40%, transparent);
 }
 

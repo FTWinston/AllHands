@@ -1,7 +1,37 @@
 .joiningForm {
+    width: 37.5em;
+    max-width: 100%;
     display: flex;
-    align-items: center;
-    gap: 0.25em;
+    align-items: flex-end;
+    gap: 1em;
+    padding: 1.25em 1.625em;
+    border: 0.094em solid var(--line);
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
+    background-color: var(--panel);
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375em;
+}
+
+.fieldLabel {
+    font-size: 0.9375em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--label);
+}
+
+.field .addressInput, .field .portInput {
+    height: 2.25em;
+    font-size: 1.375em;
+    border-radius: 0.5em;
+    background-color: var(--space);
+    border-color: var(--line);
+    color: var(--text);
 }
 
 .addressInput {
@@ -10,4 +40,10 @@
 
 .portInput {
     width: 5em;
+}
+
+.joinButton {
+    margin-left: auto;
+    font-size: 1.375em;
+    height: 2.25em;
 }

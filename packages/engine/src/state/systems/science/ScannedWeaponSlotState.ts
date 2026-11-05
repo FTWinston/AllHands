@@ -1,4 +1,5 @@
 import { MapSchema, Schema, type } from '@colyseus/schema';
+import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ScannedWeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CardState } from 'src/state/CardState';
 
@@ -12,4 +13,5 @@ export class ScannedWeaponSlotState extends Schema implements ScannedWeaponSlotI
     @type(CardState) card: CardState | null = null;
     @type({ map: 'number' }) readonly modifiers = new MapSchema<number>();
     @type('number') charge: number = 0;
+    @type('string') modifierCard: CardType | null = null;
 }

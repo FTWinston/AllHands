@@ -584,7 +584,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
             played = this.playWeaponSlotCard(cardDefinition, card, targetId, parameters);
             slotted = true;
         } else if (cardDefinition.targetType === 'weapon') {
-            played = this.playWeaponCard(cardDefinition, targetId, parameters);
+            played = this.playWeaponCard(cardDefinition, cardType, targetId, parameters);
         } else if (cardDefinition.targetType === 'enemy') {
             played = this.playEnemyCard(cardDefinition, targetId, parameters);
         } else if (cardDefinition.targetType === 'scan') {
@@ -665,7 +665,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
         return false;
     }
 
-    protected playWeaponCard(_cardDefinition: EngineWeaponTargetCardDefinition, _targetId: string, _parameters: CardParameters): boolean {
+    protected playWeaponCard(_cardDefinition: EngineWeaponTargetCardDefinition, _cardType: CardType, _targetId: string, _parameters: CardParameters): boolean {
         console.warn('non-tactical system trying to play weapon card');
         return false;
     }

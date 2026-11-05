@@ -1,19 +1,80 @@
 .warning {
+    --alert-color: oklch(0.65 0.22 20);
     position: fixed;
     inset: 0;
     pointer-events: none;
-    box-shadow: inset 0 0 12vmin 2vmin var(--danger-mid);
-    animation: pulse 2.5s ease-in-out infinite;
+    font-size: min(1vw, 1.78vh);
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 0.2; }
-    50% { opacity: 0.8; }
+/* These flash a few times as the alert starts, then stay lit. */
+.glow, .edge {
+    animation: flash 1.1s ease-in-out 3 both;
+}
+
+.glow {
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 6em 0.6em color-mix(in oklch, var(--alert-color) 55%, transparent);
+}
+
+.edge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 0.5em;
+    background-color: var(--alert-color);
+}
+
+.bottom {
+    top: auto;
+    bottom: 0;
+}
+
+.plate {
+    position: absolute;
+    left: 50%;
+    top: 0.5em;
+    transform: translateX(-50%);
+    height: 2.875em;
+    display: flex;
+    align-items: center;
+    gap: 1.125em;
+    padding: 0 1.75em;
+    border-radius: 0 0 0 0.875em;
+    corner-shape: bevel;
+    background-color: var(--alert-color);
+    color: var(--space);
+}
+
+.plateTitle {
+    font-family: var(--title-font-family);
+    font-size: 1.125em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.plateDivider {
+    width: 0.094em;
+    height: 1.375em;
+    background-color: color-mix(in oklch, var(--space) 50%, transparent);
+}
+
+.plateValue {
+    font-family: var(--readout-font-family);
+    font-size: 1.25em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+@keyframes flash {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .warning {
+    .glow, .edge {
         animation: none;
-        opacity: 0.5;
+        opacity: 0.7;
     }
 }

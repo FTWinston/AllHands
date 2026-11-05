@@ -115,6 +115,7 @@ export const HelmSpaceMap = (props: Props) => {
                 gridColor="green"
                 ref={canvas}
                 drawExtraForeground={drawExtraForeground}
+                shipStyle="silhouette"
             />
 
             <Button

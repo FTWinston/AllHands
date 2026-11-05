@@ -33,22 +33,23 @@ export const TacticalTarget = (props: Props) => {
                 couldDropClassName={styles.couldDrop}
             />
 
-            <h2 className={styles.name}>{props.name}</h2>
+            <div className={styles.name}>
+                <span className={styles.label}>Target</span>
+                <h2 className={styles.nameText}>{props.name}</h2>
+            </div>
 
             <div className={styles.count}>
-                #
-                {' '}
                 {props.targetNumber}
-                {' '}
-                /
-                {' '}
+                {' / '}
                 {props.totalTargets}
             </div>
 
-            <ObjectIcon
-                appearance={props.appearance}
-                className={styles.image}
-            />
+            <div className={styles.frame}>
+                <ObjectIcon
+                    appearance={props.appearance}
+                    className={styles.image}
+                />
+            </div>
 
             <SubTargetList
                 className={styles.vulnerabilities}

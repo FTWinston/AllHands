@@ -3,8 +3,8 @@
   gap: 0.5em;
   align-items: center;
   cursor: pointer;
-  border-radius: 3em;
-  corner-shape: squircle;
+  border-radius: 0 0.75em 0 0.75em;
+  corner-shape: bevel;
   border: none;
   font-weight: 600;
   font-size: 1em;
@@ -60,4 +60,20 @@
 .icon > svg {
   height: 1em;
   width: 1em;
+}
+
+.outlined:not(:disabled,[aria-disabled="true"]) {
+  background-color: transparent;
+  color: var(--color-light);
+  box-shadow: color-mix(in oklch, var(--color-light) 60%, transparent) 0px 0px 0px 0.094em inset;
+}
+
+.outlined:hover:not(:disabled,[aria-disabled="true"]) {
+  background-color: color-mix(in oklch, var(--color-light) 12%, transparent);
+  box-shadow: var(--color-light) 0px 0px 0px 0.094em inset;
+}
+
+.outlined:active:not(:disabled,[aria-disabled="true"]) {
+  background-color: var(--color-light);
+  color: var(--lightest-contrast-dark);
 }

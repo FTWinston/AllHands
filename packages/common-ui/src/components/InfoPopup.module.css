@@ -1,8 +1,8 @@
 .item {
     outline: 0;
     border: 0.1em solid var(--color-dark);
-    corner-shape: squircle;
-    border-radius: 1em;
+    corner-shape: bevel;
+    border-radius: 0 1em 0 1em;
     color: var(--color-lightest);
     user-select: none;
     background-color: var(--color-darkest);

@@ -1,0 +1,74 @@
+.backdrop {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    max-width: 60%;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.edges {
+    fill: none;
+    stroke-linecap: round;
+    stroke-width: 3;
+}
+
+.travelled {
+    stroke: var(--primary-light);
+}
+
+.available {
+    stroke: var(--text);
+    stroke-dasharray: 10 8;
+}
+
+.unreachable {
+    stroke: var(--grey-dark);
+}
+
+.currentRing, .availableRing {
+    fill: none;
+    stroke: var(--text);
+    stroke-width: 3;
+}
+
+.currentRing {
+    stroke-dasharray: 4 6;
+}
+
+.availableRing {
+    opacity: 0.7;
+}
+
+.combat, .repair, .shop, .boss {
+    fill: var(--space);
+    stroke: var(--kind-color);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.combat path, .repair path {
+    stroke-width: 5;
+}
+
+.shop circle, .boss circle {
+    fill: none;
+}
+
+.combat {
+    --kind-color: var(--danger-light);
+}
+
+.repair {
+    --kind-color: var(--good-light);
+}
+
+.shop {
+    --kind-color: var(--energy-light);
+}
+
+.boss {
+    --kind-color: var(--primary-light);
+}

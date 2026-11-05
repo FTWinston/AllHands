@@ -5,6 +5,7 @@ import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { useMemo, useState } from 'react';
 import { fn } from 'storybook/test';
+import { LowHullWarning } from './LowHullWarning';
 import { ViewscreenDisplay as Component } from './ViewscreenDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -49,6 +50,14 @@ export const UI: Story = {
     },
 };
 
+/** Red alert: the hull is close to failing. */
+export const HullCritical: Story = {
+    args: {
+        objects: {},
+        children: <LowHullWarning health={18} maxHealth={100} />,
+    },
+};
+
 export const WithWeaponArcs: Story = {
     render: (args) => {
         const weaponEffectsRef = useWeaponEffects(null);
@@ -85,7 +94,7 @@ export const WithWeaponArcs: Story = {
             enemy: {
                 id: 'enemy',
                 name: 'Enemy',
-                appearance: 'spaceship',
+                appearance: 'hammerhead-cruiser',
                 faction: 'raiders',
                 motion: [{ time: Date.now(), x: 6, y: -3, angle: Math.PI }],
             },

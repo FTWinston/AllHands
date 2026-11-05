@@ -90,7 +90,7 @@
 .grid:not(.noZoom) .card:is(:hover, :focus-within) {
     z-index: 1;
     transform: scale(calc(1 / var(--card-scale)));
-    filter: drop-shadow(0 0 0.2em var(--grey-darkest)) drop-shadow(0 0 0.45em var(--grey-darkest));
+    filter: drop-shadow(0 0 0.2em var(--space)) drop-shadow(0 0 0.45em var(--space));
 }
 
 /*
@@ -111,7 +111,7 @@
     width: max-content;
     padding: 0.5em 0.75em;
     border-radius: 0 0 1em 1em;
-    background-color: var(--grey-darkest);
+    background-color: var(--space);
 
     .card:not(:focus-within) > &,
     .noZoom & {

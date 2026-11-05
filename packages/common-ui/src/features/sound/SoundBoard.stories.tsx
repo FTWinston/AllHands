@@ -20,6 +20,7 @@ const Component: FC = () => {
         enemyProjectileFired: () => sounds.projectileFired(false),
         shipHit: () => sounds.shipHit(0),
         bigShipHit: () => sounds.shipHit(5),
+        textPrinting: () => sounds.textPrinting(2),
     };
 
     return (

@@ -90,6 +90,8 @@ export interface ScannedWeaponSlotInfo {
     card: CardInstance | null;
     modifiers?: IMap<string, number>;
     charge: number;
+    /** The modifier card played onto this weapon, if any. */
+    modifierCard: CardType | null;
 }
 
 export interface SubTargetInfo {
@@ -127,10 +129,14 @@ export interface ScannedSystemOrderInfo {
 
 export interface ScannedBaseInfo {
     targetId: string;
+    /** The scanned system's current power level. */
+    power: number;
 }
 
 export interface ScannedHelmInfo extends ScannedBaseInfo {
     activeManeuver: CardInstance | null;
+    /** When the active maneuver started, and when it will end. */
+    maneuverProgress: Cooldown | null;
     evasionChance: number;
 }
 

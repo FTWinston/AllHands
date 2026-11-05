@@ -1,0 +1,69 @@
+.root {
+    min-height: 100vh;
+    padding: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+    color: var(--text);
+    background-color: var(--space);
+}
+
+.family {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.familyHeading {
+    font-family: var(--readout-font-family);
+    font-size: 1em;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--label);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(28em, 1fr));
+    gap: 1em;
+}
+
+.tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75em;
+    padding: 1em;
+    border: 0.094em solid var(--line);
+    border-radius: 0 1em 0 1em;
+    corner-shape: bevel;
+    background-color: var(--panel);
+    color: var(--danger-light);
+}
+
+/* About as big as on a tactical or science target. */
+.large {
+    display: block;
+    width: 11em;
+    height: 11em;
+}
+
+.sizes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    padding: 0.5em;
+    background-color: var(--space);
+}
+
+.name {
+    font-family: var(--readout-font-family);
+    font-size: 0.875em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: center;
+}

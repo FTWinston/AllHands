@@ -17,8 +17,8 @@
     display: flex;
     justify-content: stretch;
     align-content: stretch;
-    border-radius: 1.5em;
-    corner-shape: squircle;
+    border-radius: 0 1.5em 0 1.5em;
+    corner-shape: bevel;
 }
 
 .itemWrapper > * {
@@ -29,6 +29,6 @@
     grid-area: repair;
     display: flex;
     flex-direction: column;
-    border-radius: 3em;
-    corner-shape: squircle;
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
 }

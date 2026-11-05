@@ -21,10 +21,10 @@
   max-width: calc(100vw - 3rem);
   margin-top: -2rem;
   padding: 1.5rem;
-  border-radius: 3em;
-  corner-shape: squircle;
-  outline: 1px solid var(--primary-mid);
-  background-color: var(--grey-darkest);
+  border-radius: 0 1.375em 0 1.375em;
+  corner-shape: bevel;
+  outline: 1.5px solid var(--line);
+  background-color: var(--panel);
   color: var(--grey-lightest);
   transition: all 150ms;
 

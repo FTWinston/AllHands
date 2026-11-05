@@ -1,5 +1,6 @@
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import type { AiGoalInfo, AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import type { ShipAppearance } from 'common-data/features/space/types/ObjectAppearance';
 import type { Position } from 'common-data/features/space/types/Position';
 import type { IRandom } from 'common-data/types/IRandom';
 
@@ -22,7 +23,7 @@ const system = <T extends string>(cards: T[], initialHandSize = 1) => ({ cards, 
 
 /** The original "An Enemy" ship from the old default scenario; all other roles are tweaks of it. */
 const fighterTemplate: Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal'> = {
-    appearance: 'chevron',
+    appearance: 'swallowtail-interceptor',
     skill: 1,
     hull: system(shieldCards(12), 0),
     // Loading a torpedo takes 3 tactical power.
@@ -36,7 +37,6 @@ const fighterTemplate: Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | '
 const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal'>> = {
     scout: {
         ...fighterTemplate,
-        appearance: 'interceptor',
         hull: system(shieldCards(6), 0),
         reactor: system(reactorCards(2, 'reactorPowerTactical', 'reactorPowerHelm'), 0),
         helm: system(['zigZag', 'strafe', 'zigZag', 'slowAndSteady']),
@@ -46,7 +46,6 @@ const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' 
     fighter: fighterTemplate,
     heavy: {
         ...fighterTemplate,
-        appearance: 'spaceship',
         hull: system(shieldCards(16), 0),
         reactor: system(reactorCards(2, 'reactorPowerTactical', 'reactorPowerHull', 'reactorPowerEngineer'), 0),
         tactical: { ...system(['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield']), numSlots: 2 },
@@ -55,7 +54,6 @@ const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' 
     },
     flagship: {
         ...fighterTemplate,
-        appearance: 'apollo',
         hull: system(shieldCards(24), 0),
         reactor: system(reactorCards(3, 'reactorPowerTactical', 'reactorPowerHull'), 0),
         tactical: { ...system(['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield', 'fullSpread']), numSlots: 3 },
@@ -69,6 +67,13 @@ const roleNames: Record<EnemyRole, string> = {
     fighter: 'Fighter',
     heavy: 'Heavy Cruiser',
     flagship: 'Flagship',
+};
+
+/** Each faction's ships of a role share a design, so the same shape always means the same kind of enemy. */
+const factionAppearances: Record<string, Record<EnemyRole, ShipAppearance>> = {
+    factionA: { scout: 'dart-fighter', fighter: 'swallowtail-interceptor', heavy: 'hammerhead-cruiser', flagship: 'manta-command-ship' },
+    factionB: { scout: 'kite-scout', fighter: 'trident-raider', heavy: 'wedge-destroyer', flagship: 'crescent-battlecruiser' },
+    factionC: { scout: 'lance-interceptor', fighter: 'mantis-drone', heavy: 'segmented-battleship', flagship: 'spinal-gun-dreadnought' },
 };
 
 /** Faction-specific competence multiplier, so later-sector factions play better. */
@@ -88,6 +93,7 @@ export function createEnemySetup(role: EnemyRole, factionId: string, position: P
     const template = roleTemplates[role];
     return {
         ...template,
+        appearance: (factionAppearances[factionId] ?? factionAppearances.factionA)[role],
         name: options.name ?? `${factionId} ${roleNames[role]}`,
         faction: factionId,
         position,

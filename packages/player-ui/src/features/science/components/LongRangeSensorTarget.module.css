@@ -13,8 +13,8 @@
     font-size: 7cqw; /* Keep everything relative to the container width, as with science targets. */
     background-color: var(--primary-darkest-muted);
     border: solid var(--color-mid) 0.1em;
-    border-radius: 3em;
-    corner-shape: squircle;
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
     padding: 0.5em 1em;
     display: grid;
     grid-template-columns: 1fr max-content;

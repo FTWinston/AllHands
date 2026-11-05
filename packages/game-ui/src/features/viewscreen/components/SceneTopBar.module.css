@@ -1,0 +1,43 @@
+.icon {
+    display: flex;
+    width: 3.25em;
+    height: 3.25em;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border: 0.094em solid var(--primary-light);
+    border-radius: 0 0.875em 0 0.875em;
+    corner-shape: bevel;
+    background-color: var(--primary-darkest);
+    box-shadow: inset 0 0 1.25em color-mix(in oklch, var(--primary-light) 35%, transparent);
+    color: var(--primary-light);
+
+    > svg {
+        width: 2em;
+        height: 2em;
+    }
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125em;
+}
+
+.title {
+    font-family: var(--title-font-family);
+    font-size: 1.75em;
+    line-height: 1.2;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+.subtitle {
+    font-size: 1em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--label);
+}

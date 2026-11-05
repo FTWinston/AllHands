@@ -2,8 +2,8 @@
     width: 1em;
     height: 9px;
     top: -8px;
-    background-color: var(--grey-darkest);
-    border: solid var(--grey-mid) 1px;
+    background-color: var(--panel);
+    border: solid var(--line) 1px;
     border-bottom: none;
     corner-shape: bevel;
     border-top-left-radius: 1em;
@@ -39,7 +39,7 @@ button.menuButton {
     box-sizing: border-box;
     padding-block: 0.25rem;
     border-radius: 0.375rem;
-    background-color: var(--grey-darkest);
+    background-color: var(--panel);
     color: var(--grey-mid);
     transition:
         transform 150ms,

@@ -1,4 +1,5 @@
 .amount {
+    font-family: var(--readout-font-family);
     white-space: nowrap;
 }
 

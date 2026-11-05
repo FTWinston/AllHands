@@ -3,6 +3,7 @@ import { isStationKind } from 'common-data/features/sectors/utils/isStationKind'
 import { FactionRelationshipMap, GameObjectInfo, PlayerShipInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
+import { Screen } from 'common-ui/components/Screen';
 import { ScreenFade } from 'common-ui/components/ScreenFade';
 import { sounds } from 'common-ui/features/sound/sounds';
 import { useBridgeChatter } from 'common-ui/features/sound/useBridgeChatter';
@@ -10,9 +11,8 @@ import { useWakeLock } from 'common-ui/hooks/useWakeLock';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { FC, PropsWithChildren, useEffect, useRef } from 'react';
 import { addKnownCardTypes } from '../cardCompendium/utils/knownCardStorage';
-import { AntimatterDisplay } from './components/AntimatterDisplay';
 import { LowHullWarning } from './components/LowHullWarning';
-import { StationBanner } from './components/StationBanner';
+import { StationDisplay } from './components/StationDisplay';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import { ViewscreenPhaseDisplay } from './components/ViewscreenPhaseDisplay';
 import { useViewscreenEffects } from './hooks/useViewscreenEffects';
@@ -49,7 +49,7 @@ export const Viewscreen: FC<Props> = (props) => {
     );
 };
 
-/** Whatever the current phase of the game calls for: the space view during an encounter, otherwise the sector map, messages, etc. */
+/** Whatever the current phase of the game calls for: the space view during a fight, the station while docked, otherwise the sector map, messages, etc. */
 const ViewscreenScene: FC<Props> = (props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
     const factions = useRoomState(props.room, state => state.factions) as Record<string, { relations: FactionRelationshipMap }>;
@@ -98,6 +98,21 @@ const ViewscreenScene: FC<Props> = (props) => {
         );
     }
 
+    if (isStationKind(encounterKind)) {
+        return (
+            <Screen>
+                <StationDisplay
+                    kind={encounterKind}
+                    name={encounterName ?? ''}
+                    antimatter={antimatter}
+                    showMenu={props.showMenu}
+                >
+                    {props.children}
+                </StationDisplay>
+            </Screen>
+        );
+    }
+
     const viewerFaction = localShip?.faction ?? null;
     const viewer: RelationshipViewer = {
         shipId: props.shipId,
@@ -116,12 +131,6 @@ const ViewscreenScene: FC<Props> = (props) => {
         >
             {props.children}
             {hull && <LowHullWarning health={hull.health} maxHealth={hull.maxHealth} />}
-            {isStationKind(encounterKind) && (
-                <>
-                    <StationBanner kind={encounterKind} name={encounterName ?? ''} />
-                    {antimatter !== undefined && <AntimatterDisplay antimatter={antimatter} />}
-                </>
-            )}
         </ViewscreenDisplay>
     );
 };

@@ -1,9 +1,12 @@
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { Button } from 'common-ui/components/Button';
 import { Screen } from 'common-ui/components/Screen';
-import { EngineeringIcon, HelmIcon, ScienceIcon, TacticalIcon } from 'common-ui/icons/systems';
+import { default as PowerIcon } from 'common-ui/icons/power.svg?react';
 import { FC } from 'react';
 import QRCode from 'react-qr-code';
+import { ChaseLights } from 'src/components/ChaseLights';
+import { CrewStripe } from 'src/components/CrewStripe';
+import { TopBar } from 'src/components/TopBar';
 import styles from './GameLobbyDisplay.module.css';
 import { LobbyRole } from './LobbyRole';
 import type { ServerAddress } from 'common-data/types/ServerAddress';
@@ -23,112 +26,143 @@ export type Props = {
     isFull: boolean;
     /** Seconds until the game starts, once every role is claimed; 0 when not counting down. */
     startCountdown: number;
+    /** The countdown has finished, and the lobby is fading out as the game starts. */
+    launching?: boolean;
 };
 
 export const GameLobbyDisplay: FC<Props> = (props) => {
-    const { serverAddress, crewId, allowMultipleCrews, helmState, tacticalState, scienceState, engineerState, numUnassigned } = props;
+    const { serverAddress, crewId, allowMultipleCrews, helmState, tacticalState, scienceState, engineerState, numUnassigned, startCountdown, launching } = props;
 
     let serverUrl = `http://${serverAddress.ip}:${serverAddress.port}/`;
     if (crewId !== soloCrewIdentifier) {
         serverUrl += `?crew=${crewId}`;
     }
 
+    const numCrewed = [helmState, tacticalState, scienceState, engineerState]
+        .filter(state => state === 'occupied')
+        .length;
+
     return (
-        <Screen padded>
-            <h1 className={styles.title}>Crew setup</h1>
-            <div className={styles.sections}>
-                <div className={styles.section}>
-                    <h2 className={styles.sectionHeading}>Scan to connect</h2>
-                    <p>
-                        To join
+        <Screen className={styles.screen}>
+            <TopBar
+                start={(
+                    <>
+                        <div className={styles.brand}>
+                            <span className={styles.wordmark}>All Hands</span>
+                            <CrewStripe />
+                        </div>
+                        <span className={styles.divider} aria-hidden="true" />
+                    </>
+                )}
+                end={(
+                    <Button
+                        className={styles.disconnect}
+                        onClick={props.disconnect}
+                        palette="danger"
+                        outlined
+                        startIcon={<PowerIcon />}
+                    >
+                        Disconnect
+                    </Button>
+                )}
+            >
+                <h1 className={styles.title}>Crew assembly</h1>
+                {allowMultipleCrews && (
+                    <span className={styles.crewChip}>
+                        Crew
                         {' '}
-                        {allowMultipleCrews ? 'this crew' : 'the game'}
-                        , use your phone camera to scan the QR code below,
-                        or go to
-                        {' '}
-                        <strong className={styles.url}>{serverUrl}</strong>
-                        {' '}
-                        in your mobile browser.
-                    </p>
+                        {crewId}
+                    </span>
+                )}
+            </TopBar>
+
+            <div className={styles.body}>
+                <section className={styles.joinPanel} aria-label="How to join">
+                    <p className={styles.label}>Scan to join</p>
                     <div className={styles.qrCodeContainer}>
                         <QRCode
                             className={styles.qrCode}
                             value={serverUrl}
                             size={256}
-                            bgColor="var(--grey-mid)"
+                            fgColor="var(--space)"
+                            bgColor="transparent"
                         />
-                        {props.isFull && <div className={styles.fullSize}>🚫</div>}
+                        {props.isFull && (
+                            <div className={styles.full}>
+                                <svg className={styles.check} viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                                </svg>
+                                Crew full
+                            </div>
+                        )}
                     </div>
-                </div>
-                <div className={styles.section}>
-                    <h2 className={styles.sectionHeading}>Crew roles</h2>
-                    <p>
-                        This crew has 4 different roles. Each crew member must select one.
+                    <p className={styles.label}>Or open on your phone</p>
+                    <p className={styles.url}>{serverUrl}</p>
+                    <p className={styles.hint}>
+                        Everyone joins
+                        {' '}
+                        {allowMultipleCrews ? 'this crew' : 'the game'}
+                        {' '}
+                        on their own phone, then claims one of the four stations.
                     </p>
-                    <ul className={styles.roleList}>
-                        <LobbyRole
-                            name="Helm"
-                            icon={<HelmIcon />}
-                            state={helmState}
-                        />
-                        <LobbyRole
-                            name="Tactical"
-                            icon={<TacticalIcon />}
-                            state={tacticalState}
-                        />
-                        <LobbyRole
-                            name="Science"
-                            icon={<ScienceIcon />}
-                            state={scienceState}
-                        />
-                        <LobbyRole
-                            name="Engineer"
-                            icon={<EngineeringIcon />}
-                            state={engineerState}
-                        />
-                    </ul>
-                    {numUnassigned > 0 && (
-                        <p>
-                            There
+                </section>
+
+                <section className={styles.stations} aria-label="Stations">
+                    <div className={styles.stationsHeader}>
+                        <h2 className={styles.label}>Stations</h2>
+                        <p className={styles.crewedCount}>
+                            {numCrewed}
                             {' '}
-                            {numUnassigned === 1 ? 'is' : 'are'}
-                            {' '}
-                            also
-                            {' '}
-                            <span className={styles.numUnassigned}>
-                                {numUnassigned}
-                                {' '}
-                                unassigned
-                            </span>
-                            {' '}
-                            crew member
-                            {numUnassigned === 1 ? '' : 's'}
-                            .
+                            of 4 crewed
                         </p>
-                    )}
-                    {props.startCountdown > 0 && (
-                        <div className={styles.countdown} role="timer" aria-live="polite">
-                            <span className={styles.countdownValue}>{props.startCountdown}</span>
-                            <p>
-                                The game is about to start.
-                                <br/>
-                                To stop it, press
-                                {' '}
-                                <strong>Change role</strong>
-                                .
-                            </p>
-                        </div>
-                    )}
-                </div>
+                    </div>
+
+                    <ul className={styles.roleList}>
+                        <LobbyRole system="helm" state={helmState} />
+                        <LobbyRole system="tactical" state={tacticalState} />
+                        <LobbyRole system="science" state={scienceState} />
+                        <LobbyRole system="engineer" state={engineerState} />
+                    </ul>
+
+                    {startCountdown > 0 || launching
+                        ? (
+                            <div className={styles.countdown} role="timer" aria-live="polite">
+                                <span className={styles.countdownValue}>{startCountdown}</span>
+                                <div className={styles.statusText}>
+                                    <p className={styles.statusTitle}>
+                                        {startCountdown > 0 ? `Launching in ${startCountdown}` : 'Launching'}
+                                    </p>
+                                    <p className={styles.statusDetail}>
+                                        To hold the launch, any crew member can tap
+                                        {' '}
+                                        <strong>Change role</strong>
+                                        .
+                                    </p>
+                                </div>
+                            </div>
+                        )
+                        : (
+                            <div className={styles.status} role="status">
+                                <span className={styles.statusDot} aria-hidden="true" />
+                                <div className={styles.statusText}>
+                                    <p className={styles.statusTitle}>{getWaitingText(numCrewed, numUnassigned)}</p>
+                                    <p className={styles.statusDetail}>The game launches as soon as every station is crewed.</p>
+                                </div>
+                            </div>
+                        )}
+                </section>
             </div>
-            <div className={styles.footer}>
-                <Button
-                    onClick={props.disconnect}
-                    palette="danger"
-                >
-                    Disconnect
-                </Button>
-            </div>
+            <ChaseLights />
         </Screen>
     );
 };
+
+function getWaitingText(numCrewed: number, numUnassigned: number) {
+    if (numUnassigned > 0) {
+        return `${numUnassigned} crew member${numUnassigned === 1 ? '' : 's'} still choosing a station`;
+    }
+
+    return numCrewed === 0
+        ? 'Waiting for the crew to join'
+        : 'Waiting for more crew to join';
+}

@@ -25,7 +25,7 @@ export const NoRevealedSystem: Story = {
     args: {
         id: 'Enemy-01',
         name: 'Enemy Ship',
-        appearance: 'starfighter',
+        appearance: 'swallowtail-interceptor',
         targetNumber: 1,
         totalTargets: 3,
         systemOrder: [3, 2, 1, 4],
@@ -38,7 +38,9 @@ export const Helm_NoManeuver: Story = {
         ...NoRevealedSystem.args,
         scannedHelm: {
             targetId: 'Enemy-01',
+            power: 3,
             activeManeuver: null,
+            maneuverProgress: null,
             evasionChance: 0,
         },
     },
@@ -49,10 +51,12 @@ export const Helm_HasManeuver: Story = {
         ...NoRevealedSystem.args,
         scannedHelm: {
             targetId: 'Enemy-01',
+            power: 3,
             activeManeuver: {
                 id: 42,
                 type: 'slowAndSteady',
             },
+            maneuverProgress: { startTime: Date.now() - 6000, endTime: Date.now() + 4000 },
             evasionChance: 5,
         },
     },
@@ -63,10 +67,12 @@ export const Helm_LongManeuverName: Story = {
         ...NoRevealedSystem.args,
         scannedHelm: {
             targetId: 'Enemy-01',
+            power: 3,
             activeManeuver: {
                 id: 42,
                 type: 'exampleNoTarget',
             },
+            maneuverProgress: { startTime: Date.now() - 1000, endTime: Date.now() + 9000 },
             evasionChance: 5,
         },
     },
@@ -77,6 +83,7 @@ export const Engineer: Story = {
         ...NoRevealedSystem.args,
         scannedEngineer: {
             targetId: 'Enemy-01',
+            power: 3,
             engineerTiles: [
                 { system: 'hull', power: 1, health: 5 },
                 { system: 'reactor', power: 2, health: 4 },
@@ -94,9 +101,10 @@ export const Tactical_NoWeapons: Story = {
         ...NoRevealedSystem.args,
         scannedTactical: {
             targetId: 'Enemy-01',
+            power: 3,
             weaponSlots: [
-                { id: 'slot-1', card: null, charge: 0 },
-                { id: 'slot-2', card: null, charge: 0 },
+                { id: 'slot-1', card: null, charge: 0, modifierCard: null },
+                { id: 'slot-2', card: null, charge: 0, modifierCard: null },
             ],
         },
     },
@@ -107,9 +115,10 @@ export const Tactical_OneWeapon: Story = {
         ...NoRevealedSystem.args,
         scannedTactical: {
             targetId: 'Enemy-01',
+            power: 3,
             weaponSlots: [
-                { id: 'slot-1', card: { id: 3, type: 'phaserStrip' }, charge: 2 },
-                { id: 'slot-2', card: null, charge: 0 },
+                { id: 'slot-1', card: { id: 3, type: 'phaserStrip' }, charge: 2, modifierCard: null },
+                { id: 'slot-2', card: null, charge: 0, modifierCard: null },
             ],
         },
     },
@@ -120,9 +129,10 @@ export const Tactical_TwoWeapons: Story = {
         ...NoRevealedSystem.args,
         scannedTactical: {
             targetId: 'Enemy-01',
+            power: 3,
             weaponSlots: [
-                { id: 'slot-1', card: { id: 3, type: 'phaserStrip' }, charge: 2 },
-                { id: 'slot-2', card: { id: 4, type: 'photonTorpedo' }, charge: 1 },
+                { id: 'slot-1', card: { id: 3, type: 'phaserStrip' }, charge: 2, modifierCard: 'overcharge' },
+                { id: 'slot-2', card: { id: 4, type: 'photonTorpedo' }, charge: 1, modifierCard: null },
             ],
         },
     },
@@ -133,6 +143,7 @@ export const Science_Empty: Story = {
         ...NoRevealedSystem.args,
         scannedScience: {
             targetId: 'Enemy-01',
+            power: 3,
             scanSystem: null,
             deflectorCard: null,
         },
@@ -144,6 +155,7 @@ export const Science_DeflectorCard: Story = {
         ...NoRevealedSystem.args,
         scannedScience: {
             targetId: 'Enemy-01',
+            power: 3,
             scanSystem: null,
             deflectorCard: {
                 id: 7,
@@ -158,6 +170,7 @@ export const Science_ScanTarget: Story = {
         ...NoRevealedSystem.args,
         scannedScience: {
             targetId: 'Enemy-01',
+            power: 3,
             deflectorCard: null,
             scanSystem: 'helm',
         },
@@ -169,6 +182,7 @@ export const Science_Both: Story = {
         ...NoRevealedSystem.args,
         scannedScience: {
             targetId: 'Enemy-01',
+            power: 3,
             deflectorCard: {
                 id: 7,
                 type: 'deflectorCoherentAntiprotonPulse',
@@ -183,6 +197,7 @@ export const Science_Vulnerability: Story = {
         ...NoRevealedSystem.args,
         scannedScience: {
             targetId: 'Enemy-01',
+            power: 3,
             scanSystem: null,
             deflectorCard: null,
         },

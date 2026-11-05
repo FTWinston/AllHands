@@ -18,6 +18,7 @@ const meta: Meta<typeof Component> = {
         </div>
     ),
     args: {
+        slotNumber: 1,
         modified: false,
         hasBeenFullyCharged: true,
     },

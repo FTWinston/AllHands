@@ -17,7 +17,8 @@
 }
 
 .value {
-    font-weight: bold;
+    font-family: var(--readout-font-family);
+    font-size: 1.125em;
     color: var(--grey-lightest);
     min-width: 1.25em;
 }

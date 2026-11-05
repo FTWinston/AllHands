@@ -4,6 +4,7 @@ import { CSSProperties, forwardRef } from 'react';
 import { Canvas } from '../../../components/Canvas';
 import { useTimeProvider } from '../../../hooks/useTimeProvider';
 import { drawFunction, drawMap } from '../utils/drawMap';
+import type { ShipMapStyle } from '../../../objects/mapSvg';
 
 type Props = {
     className?: string;
@@ -15,6 +16,8 @@ type Props = {
     viewer: RelationshipViewer;
     drawExtraForeground?: drawFunction;
     drawExtraBackground?: drawFunction;
+    /** How to draw ship designs. Defaults to filled. */
+    shipStyle?: ShipMapStyle;
 };
 
 export const SpaceMap = forwardRef<HTMLCanvasElement, Props>((props, ref) => {
@@ -28,13 +31,14 @@ export const SpaceMap = forwardRef<HTMLCanvasElement, Props>((props, ref) => {
         viewer,
         drawExtraForeground,
         drawExtraBackground,
+        shipStyle,
     } = props;
 
     const timeProvider = useTimeProvider();
 
     const draw = (ctx: CanvasRenderingContext2D, bounds: DOMRect) => {
         const currentTime = timeProvider.getServerTime();
-        drawMap(ctx, bounds, gridColor, cellRadius, center, currentTime, Object.values(objects), viewer, drawExtraBackground, drawExtraForeground);
+        drawMap(ctx, bounds, gridColor, cellRadius, center, currentTime, Object.values(objects), viewer, drawExtraBackground, drawExtraForeground, shipStyle);
     };
 
     return (

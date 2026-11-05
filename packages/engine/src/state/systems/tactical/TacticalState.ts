@@ -83,7 +83,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         return true;
     }
 
-    protected playWeaponCard(cardDefinition: EngineWeaponTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+    protected playWeaponCard(cardDefinition: EngineWeaponTargetCardDefinition, cardType: CardType, targetId: string, parameters: CardParameters): boolean {
         const slot = this.resolveWeaponSlot(targetId);
         if (!slot) {
             console.warn('weapon slot not found: ' + targetId);
@@ -115,6 +115,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
 
         slot.modified = true;
+        slot.modifierCard = cardType;
         this.scienceScanDataChanged.invoke();
         return true;
     }
@@ -312,6 +313,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     cleanupAfterEncounter() {
         for (const slot of this.slots) {
             slot.modified = false;
+            slot.modifierCard = null;
             slot.hasBeenFullyCharged = false;
             slot.charge = 0;
             slot.decay = null;

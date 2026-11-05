@@ -1,33 +1,21 @@
+/* 1em is 16px on a 1600 x 900 screen, as on the lobby. */
 .root {
+    position: relative;
     flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 1em;
-    padding: 1em 3em 1em;
-    font-size: clamp(0.875rem, 1.7vmin, 1.75rem);
-    color: var(--grey-light);
-    background-color: black;
-}
-
-.header {
-    text-align: center;
-}
-
-.title {
-    font-size: 2.2em;
-    line-height: 1.1;
-    color: var(--grey-lightest);
-}
-
-.subtitle {
-    font-size: 1.1em;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--primary-light);
+    font-size: min(1vw, 1.78vh);
+    color: var(--text-muted);
+    background-color: var(--space);
+    background-image:
+        linear-gradient(var(--grid-line) 0.0625em, transparent 0.0625em),
+        linear-gradient(90deg, var(--grid-line) 0.0625em, transparent 0.0625em);
+    background-size: 3em 3em;
 }
 
 .body {
+    padding: 2.5em 3.5em 0;
     flex: 1;
     min-height: 0;
     display: flex;
@@ -81,16 +69,17 @@
     --kind-color: var(--danger-light);
 }
 
+/* Bright neutral, as Helm's shops are already green. Its plus sign marks it out from the boss. */
 .glyph.repair {
-    --kind-color: var(--good-light);
+    --kind-color: var(--primary-lightest);
 }
 
-/* Shop stations. */
+/* Shop stations, in the colour of the crew member they sell to. */
 .glyph.navigationBeacon,
 .glyph.armsDealer,
 .glyph.salvageYard,
 .glyph.researchOutpost {
-    --kind-color: var(--energy-light);
+    --kind-color: var(--primary-light);
 }
 
 .glyph.boss {
@@ -98,7 +87,7 @@
 }
 
 .shape {
-    fill: var(--grey-darkest);
+    fill: var(--space);
     stroke: var(--kind-color);
     stroke-width: 4;
 }
@@ -114,9 +103,7 @@
 .stationIcon {
     fill: none;
     stroke: var(--kind-color);
-    stroke-width: 7;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    stroke-width: 4;
 }
 
 .check {
@@ -165,9 +152,23 @@
 .legend {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5em 2em;
-    font-size: 0.9em;
+    align-items: center;
+    gap: 0.5em 2.25em;
+    margin: 1.5em 3.5em 2.5em;
+    padding: 1em 1.75em;
+    background-color: var(--panel);
+    border: 0.094em solid var(--line);
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
+    font-size: 1.125em;
+}
+
+.legend .legendHeading {
+    font-size: 0.85em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--label);
 }
 
 .legend li {
@@ -179,6 +180,17 @@
 .legendGlyph {
     width: 2em;
     height: 2em;
+}
+
+/* One small square for each crew member's shops. */
+.shopGlyphs {
+    display: flex;
+    gap: 0.125em;
+
+    .legendGlyph {
+        width: 1.5em;
+        height: 1.5em;
+    }
 }
 
 .legendGlyph .glyph.unreachable {

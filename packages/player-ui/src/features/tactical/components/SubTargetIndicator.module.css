@@ -1,6 +1,6 @@
 .dropTarget {
-    corner-shape: squircle;
-    border-radius: 1em;
+    corner-shape: bevel;
+    border-radius: 0 1em 0 1em;
 
     position: absolute;
     left: 50%;

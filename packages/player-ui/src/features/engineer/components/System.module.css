@@ -1,7 +1,7 @@
 .system {
     position: relative;
-    border-radius: 1.5em;
-    corner-shape: squircle;
+    border-radius: 0 1.5em 0 1.5em;
+    corner-shape: bevel;
     border: solid 0.1em var(--primary-mid);
     background-color: var(--primary-darkest-muted);
     padding: 0.25em 0.5em 0.5em 0.5em;
