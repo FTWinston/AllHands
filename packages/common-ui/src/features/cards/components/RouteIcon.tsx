@@ -32,24 +32,20 @@ const ShopIcon: FC<{ role: CrewRoleName }> = ({ role }) => {
     const Icon = crewIcons[role];
     return (
         <g className={crewStyles[role]}>
-            <Icon x={10} y={10} width={44} height={44} style={{ fill: 'var(--primary-light)', stroke: 'none' }} />
+            <Icon x={10} y={10} width={44} height={44} style={{ color: 'var(--primary-light)' }} />
         </g>
     );
 };
 
 /**
- * The shapes of a station's icon, in a `routeIconSize` square. A repair station's inherit their stroke from whatever contains them,
- * so the sector map can draw the same icon as the helm's route cards. A shop's are always in its crew member's colour.
+ * The shapes of a station's icon, in a `routeIconSize` square. A repair station has no crew member, so it's a small, light plus.
+ * Its stroke is inherited from whatever contains it, so the sector map can draw the same icon as the helm's route cards.
+ * A shop's are always in its crew member's colour.
  */
 export const StationIconShapes: FC<{ kind: StationKind }> = ({ kind }) => {
     switch (kind) {
         case 'repair':
-            return (
-                <>
-                    <path d="M32 12v40M12 32h40" />
-                    <circle cx="32" cy="32" r="22" />
-                </>
-            );
+            return <path d="M32 21v22M21 32h22" strokeLinecap="butt" />;
         case 'navigationBeacon':
         case 'armsDealer':
         case 'salvageYard':
