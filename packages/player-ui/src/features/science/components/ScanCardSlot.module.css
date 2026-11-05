@@ -20,10 +20,10 @@
     }
 }
 
+/* One line tall, so a long name shrinks to fit. */
 .cardName {
+    height: 1.6em;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .emptyText {

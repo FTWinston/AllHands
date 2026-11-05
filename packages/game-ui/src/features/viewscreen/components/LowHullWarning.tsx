@@ -28,12 +28,12 @@ export const LowHullWarning: FC<Props> = ({ health, maxHealth }) => {
     const percent = Math.max(0, Math.round((health / maxHealth) * 100));
 
     return (
-        <div className={styles.warning} role="status" aria-label={`Red alert: hull at ${percent}%`}>
+        <div className={styles.warning} role="status" aria-label={`Warning: hull at ${percent}%`}>
             <div className={styles.glow} />
             <div className={styles.edge} />
             <div className={`${styles.edge} ${styles.bottom}`} />
             <div className={styles.plate} aria-hidden="true">
-                <span className={styles.plateTitle}>Red alert</span>
+                <span className={styles.plateTitle}>Warning</span>
                 <span className={styles.plateDivider} />
                 <span className={styles.plateValue}>{`Hull ${percent}%`}</span>
             </div>

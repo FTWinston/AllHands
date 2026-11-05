@@ -1,6 +1,7 @@
 import { Snapshot } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
+import { RestrictedHeightText } from 'common-ui/components/RestrictedHeightText';
 import { Card } from 'common-ui/features/cards/components/Card';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { classNames } from 'common-ui/utils/classNames';
@@ -31,7 +32,7 @@ export const ScanCardSlot = (props: Props) => {
                 description={<Card {...card} {...(modifiers !== undefined ? { modifiers } : undefined)} slotted={slotted} disabled={true} />}
             >
                 <ScanSectionContent label={label} end={end}>
-                    <span className={styles.cardName}>{cardDef.name}</span>
+                    <RestrictedHeightText className={styles.cardName}>{cardDef.name}</RestrictedHeightText>
                     {children}
                 </ScanSectionContent>
             </InfoPopup>

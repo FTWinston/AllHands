@@ -55,14 +55,15 @@
 }
 
 .ejectButton {
-    width: 2.75em;
-    height: 2.75em;
+    position: relative;
+    width: 1.875em;
+    height: 1.875em;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     border: none;
-    border-radius: 0 0.75em 0 0.75em;
+    border-radius: 0 0.5em 0 0.5em;
     corner-shape: bevel;
     background-color: color-mix(in oklch, var(--space) 60%, transparent);
     color: var(--text-muted);
@@ -75,7 +76,14 @@
     }
 }
 
+/* The button is as easy to tap as if it were bigger. */
+.ejectButton::after {
+    content: '';
+    position: absolute;
+    inset: -0.4375em;
+}
+
 .ejectIcon {
-    width: 1.25em;
-    height: 1.25em;
+    width: 1em;
+    height: 1em;
 }

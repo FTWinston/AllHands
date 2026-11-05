@@ -23,27 +23,6 @@
     pointer-events: none;
 }
 
-.brand {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375em;
-}
-
-.wordmark {
-    font-family: var(--title-font-family);
-    font-size: 1.25em;
-    line-height: 1;
-    font-weight: 400;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
-.divider {
-    width: 0.094em;
-    height: 2.75em;
-    background-color: var(--line);
-}
-
 .content {
     flex-grow: 1;
     min-width: 0;

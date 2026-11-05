@@ -1,8 +1,8 @@
 .root.root {
     display: grid;
     gap: 0.375em;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
     padding-top: 0.625em;
     border-top: 0.094em solid var(--line);
 }
@@ -11,26 +11,29 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     gap: 0.25em;
-    padding: 0.5625em 0.625em;
+    padding: 0.25em 0.625em;
     border: none;
     border-radius: 0.875em;
     background-color: var(--space);
     color: var(--text);
-    text-align: left;
+    text-align: center;
     overflow: hidden;
 }
 
 .systemTitle {
     display: flex;
-    flex-direction: column;
-    gap: 0.25em;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375em;
+    min-width: 0;
 }
 
 .systemIcon {
-    width: 1.375em;
-    height: 1.375em;
+    flex-shrink: 0;
+    width: 1.125em;
+    height: 1.125em;
     color: var(--label);
 }
 
@@ -46,6 +49,7 @@
 .readings {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5em;
 }
 

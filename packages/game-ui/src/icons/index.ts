@@ -1,9 +1,0 @@
-export { default as BackIcon } from './back.svg?react';
-export { default as CardsIcon } from './cards.svg?react';
-export { default as ChevronIcon } from './chevron.svg?react';
-export { default as HostIcon } from './host.svg?react';
-export { default as JoinIcon } from './join.svg?react';
-export { default as PlayIcon } from './play.svg?react';
-export { default as PowerIcon } from './power.svg?react';
-export { default as SoundIcon } from './sound.svg?react';
-export { default as SoundOffIcon } from './soundOff.svg?react';

@@ -1,11 +1,12 @@
 import { soloCrewIdentifier } from 'common-data/utils/constants';
 import { Button } from 'common-ui/components/Button';
 import { Screen } from 'common-ui/components/Screen';
+import { default as PowerIcon } from 'common-ui/icons/power.svg?react';
 import { FC } from 'react';
 import QRCode from 'react-qr-code';
 import { ChaseLights } from 'src/components/ChaseLights';
+import { CrewStripe } from 'src/components/CrewStripe';
 import { TopBar } from 'src/components/TopBar';
-import { PowerIcon } from 'src/icons';
 import styles from './GameLobbyDisplay.module.css';
 import { LobbyRole } from './LobbyRole';
 import type { ServerAddress } from 'common-data/types/ServerAddress';
@@ -44,7 +45,15 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
     return (
         <Screen className={styles.screen}>
             <TopBar
-                branded
+                start={(
+                    <>
+                        <div className={styles.brand}>
+                            <span className={styles.wordmark}>All Hands</span>
+                            <CrewStripe />
+                        </div>
+                        <span className={styles.divider} aria-hidden="true" />
+                    </>
+                )}
                 end={(
                     <Button
                         className={styles.disconnect}

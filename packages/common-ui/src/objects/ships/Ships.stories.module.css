@@ -59,22 +59,6 @@
     background-color: var(--space);
 }
 
-/* Ships at the sizes they're drawn on a map, on its background. */
-.field {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5em;
-    padding: 1em;
-    background-color: var(--space);
-    border: 0.094em solid var(--line);
-}
-
-.map {
-    width: 100vw;
-    height: 100vh;
-    background-color: var(--space);
-}
-
 .name {
     font-family: var(--readout-font-family);
     font-size: 0.875em;

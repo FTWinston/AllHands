@@ -1,7 +1,7 @@
 import { ConfirmDialog } from 'common-ui/components/ConfirmDialog';
+import { default as ChevronForwardIcon } from 'common-ui/icons/chevron-forward.svg?react';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC, useState } from 'react';
-import { ChevronIcon } from 'src/icons';
 import styles from './MenuItem.module.css';
 
 type Props = {
@@ -35,7 +35,7 @@ export const MenuItem: FC<Props> = (props) => {
                     <span className={styles.text}>{props.text}</span>
                     {props.description && <span className={styles.description}>{props.description}</span>}
                 </span>
-                <ChevronIcon className={styles.chevron} aria-hidden="true" />
+                <ChevronForwardIcon className={styles.chevron} aria-hidden="true" />
             </button>
             {props.confirmPrompt && props.onClick && (
                 <ConfirmDialog
