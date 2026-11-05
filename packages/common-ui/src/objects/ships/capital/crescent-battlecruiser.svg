@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-<g stroke-width="16"><path d="M425 91.5A190 190 0 1 0 425 420.5A166.4 166.4 0 1 1 425 91.5Z"/><polyline points="234.8 236 430 236 472 256 430 276 234.8 276"/><polyline points="141.1 236 100 236 80 214 48 214 48 298 80 298 100 276 141.1 276"/></g>
-<g stroke-width="8"><circle cx="190" cy="175" r="12"/><circle cx="190" cy="337" r="12"/><line x1="265" y1="77.5" x2="329.7" y2="105.2"/><line x1="265" y1="434.5" x2="329.7" y2="406.8"/><circle cx="400" cy="256" r="10"/><polygon points="48 218 34 214 34 238 48 234"/><polygon points="48 294 34 298 34 274 48 278"/><line x1="80" y1="214" x2="80" y2="298"/></g>
-<g stroke-width="5"><path d="M8 256H498" stroke-dasharray="14 18"/><path d="M488 244V268M18 244V268M316 48H344M316 464H344"/></g>
+<g class="hull" stroke-width="16"><path d="M425 91.5A190 190 0 1 0 425 420.5A166.4 166.4 0 1 1 425 91.5Z"/><polyline points="234.8 236 430 236 472 256 430 276 234.8 276"/><polyline points="141.1 236 100 236 80 214 48 214 48 298 80 298 100 276 141.1 276"/></g>
+<g class="details" stroke-width="8"><circle cx="190" cy="175" r="12"/><circle cx="190" cy="337" r="12"/><line x1="265" y1="77.5" x2="329.7" y2="105.2"/><line x1="265" y1="434.5" x2="329.7" y2="406.8"/><circle cx="400" cy="256" r="10"/><polygon points="48 218 34 214 34 238 48 234"/><polygon points="48 294 34 298 34 274 48 278"/><line x1="80" y1="214" x2="80" y2="298"/></g>
+<g class="marks" stroke-width="5"><path d="M8 256H498" stroke-dasharray="14 18"/><path d="M488 244V268M18 244V268M316 48H344M316 464H344"/></g>
 </svg>

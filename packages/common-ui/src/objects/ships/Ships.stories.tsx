@@ -7,6 +7,7 @@ import { getColors } from '../../features/spacemap/utils/relationshipColors';
 import { getSvgBitmap } from '../../features/spacemap/utils/svgBitmapCache';
 import { useAnimationFrame } from '../../hooks/useAnimationFrame';
 import styles from './Ships.stories.module.css';
+import type { ShipMapStyle } from '../mapSvg';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 
@@ -25,13 +26,14 @@ const getMapSize = (cellRadius: number) => cellRadius * 2;
 type MapShipProps = {
     appearance: ObjectAppearance;
     relationship?: RelationshipType;
+    shipStyle?: ShipMapStyle;
     size: number;
     /** Radians, clockwise from pointing right. */
     angle?: number;
 };
 
 /** Draws an object just as the space map does, including the bitmap it's scaled down from. */
-const MapShip: FC<MapShipProps> = ({ appearance, relationship = RelationshipType.Hostile, size, angle = 0 }) => {
+const MapShip: FC<MapShipProps> = ({ appearance, relationship = RelationshipType.Hostile, shipStyle, size, angle = 0 }) => {
     const canvas = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -40,7 +42,7 @@ const MapShip: FC<MapShipProps> = ({ appearance, relationship = RelationshipType
         const draw = () => {
             const ctx = canvas.current?.getContext('2d');
             const [main, highlight] = getColors(relationship);
-            const bitmap = getSvgBitmap(appearance, main, highlight);
+            const bitmap = getSvgBitmap(appearance, main, highlight, shipStyle);
 
             if (!ctx || !bitmap) {
                 frame = requestAnimationFrame(draw);
@@ -59,12 +61,12 @@ const MapShip: FC<MapShipProps> = ({ appearance, relationship = RelationshipType
 
         draw();
         return () => cancelAnimationFrame(frame);
-    }, [appearance, relationship, size, angle]);
+    }, [appearance, relationship, shipStyle, size, angle]);
 
     return <canvas ref={canvas} style={{ width: size, height: size, display: 'block' }} />;
 };
 
-/** Every ship design as big as on a target, then as it's drawn on a space map. */
+/** Every ship design as big as on a target, then as it's drawn on the viewscreen's map, then on the helm's. */
 const Catalogue: FC = () => (
     <div className={styles.root}>
         {families.map(family => (
@@ -75,10 +77,11 @@ const Catalogue: FC = () => (
                         <li key={appearance} className={styles.tile}>
                             <ObjectIcon appearance={appearance} className={styles.large} />
                             <span className={styles.sizes}>
-                                <MapShip appearance={appearance} size={128} />
                                 <MapShip appearance={appearance} size={getMapSize(defaultCellRadius)} />
                                 <MapShip appearance={appearance} size={getMapSize(defaultCellRadius)} angle={-0.6} />
-                                <MapShip appearance={appearance} size={getMapSize(zoomedOutCellRadius)} />
+                                <MapShip appearance={appearance} shipStyle="silhouette" size={getMapSize(defaultCellRadius)} />
+                                <MapShip appearance={appearance} shipStyle="silhouette" size={getMapSize(defaultCellRadius)} angle={-0.6} />
+                                <MapShip appearance={appearance} shipStyle="silhouette" size={getMapSize(zoomedOutCellRadius)} />
                             </span>
                             <span className={styles.name}>{appearance}</span>
                         </li>
@@ -90,7 +93,7 @@ const Catalogue: FC = () => (
 );
 
 /** All the ships at the sizes they're drawn on a map, among the player's own ship. */
-const MapSizes: FC<{ relationship: RelationshipType }> = ({ relationship }) => (
+const MapSizes: FC<{ relationship: RelationshipType; shipStyle: ShipMapStyle }> = ({ relationship, shipStyle }) => (
     <div className={styles.root}>
         {[defaultCellRadius, zoomedOutCellRadius].map(cellRadius => (
             <section key={cellRadius} className={styles.family}>
@@ -102,6 +105,7 @@ const MapSizes: FC<{ relationship: RelationshipType }> = ({ relationship }) => (
                             key={appearance}
                             appearance={appearance}
                             relationship={relationship}
+                            shipStyle={shipStyle}
                             size={getMapSize(cellRadius)}
                             angle={index * 0.7}
                         />
@@ -134,7 +138,7 @@ function getMotion(x: number, y: number, phase: number): GameObjectInfo['motion'
 const viewer = { shipId: 'player', faction: 'player', relations: { raiders: RelationshipType.Hostile } };
 
 /** The real space map, with ships moving and turning beside the player's. */
-const OnTheMap: FC<{ cellRadius: number }> = ({ cellRadius }) => {
+const OnTheMap: FC<{ cellRadius: number; shipStyle: ShipMapStyle }> = ({ cellRadius, shipStyle }) => {
     useAnimationFrame();
     const canvas = useRef<HTMLCanvasElement>(null);
 
@@ -157,6 +161,7 @@ const OnTheMap: FC<{ cellRadius: number }> = ({ cellRadius }) => {
             cellRadius={cellRadius}
             center={{ x: 0, y: 0 }}
             viewer={viewer}
+            shipStyle={shipStyle}
         />
     );
 };
@@ -176,8 +181,9 @@ export const AllShips: StoryObj<typeof Catalogue> = {
 
 export const AtMapSizes: StoryObj<typeof MapSizes> = {
     render: args => <MapSizes {...args} />,
-    args: { relationship: RelationshipType.Hostile },
+    args: { relationship: RelationshipType.Hostile, shipStyle: 'filled' },
     argTypes: {
+        shipStyle: { control: 'select', options: ['filled', 'silhouette'] },
         relationship: {
             control: 'select',
             options: [RelationshipType.Hostile, RelationshipType.Neutral, RelationshipType.Friendly, RelationshipType.Unknown],
@@ -191,13 +197,16 @@ export const AtMapSizes: StoryObj<typeof MapSizes> = {
     },
 };
 
-export const MovingOnTheMap: StoryObj<typeof OnTheMap> = {
+export const ViewscreenMap: StoryObj<typeof OnTheMap> = {
     render: args => <OnTheMap {...args} />,
-    args: { cellRadius: defaultCellRadius },
-    argTypes: { cellRadius: { control: { type: 'range', min: 16, max: 128, step: 8 } } },
+    args: { cellRadius: defaultCellRadius, shipStyle: 'filled' },
+    argTypes: {
+        cellRadius: { control: { type: 'range', min: 16, max: 128, step: 8 } },
+        shipStyle: { control: 'select', options: ['filled', 'silhouette'] },
+    },
 };
 
-export const MovingZoomedOut: StoryObj<typeof OnTheMap> = {
-    ...MovingOnTheMap,
-    args: { cellRadius: zoomedOutCellRadius },
+export const HelmMap: StoryObj<typeof OnTheMap> = {
+    ...ViewscreenMap,
+    args: { cellRadius: defaultCellRadius, shipStyle: 'silhouette' },
 };

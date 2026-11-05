@@ -1,4 +1,4 @@
-import { getMapSvg } from '../../../objects/mapSvg';
+import { getMapSvg, type ShipMapStyle } from '../../../objects/mapSvg';
 import { svgStrings } from '../../../objects/strings';
 import type { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
 
@@ -7,23 +7,24 @@ const BITMAP_SIZE = 128;
 const cache = new Map<string, ImageBitmap>();
 const loading = new Set<string>();
 
-function cacheKey(appearance: ObjectAppearance, mainColor: string, highlight: string): string {
-    return `${appearance}-${mainColor}-${highlight}`;
+function cacheKey(appearance: ObjectAppearance, mainColor: string, highlight: string, shipStyle: ShipMapStyle): string {
+    return `${appearance}-${mainColor}-${highlight}-${shipStyle}`;
 }
 
 export function getSvgBitmap(
     appearance: ObjectAppearance,
     mainColor: string,
-    highlight: string
+    highlight: string,
+    shipStyle: ShipMapStyle = 'filled'
 ): ImageBitmap | undefined {
-    const key = cacheKey(appearance, mainColor, highlight);
+    const key = cacheKey(appearance, mainColor, highlight, shipStyle);
     const cached = cache.get(key);
     if (cached) {
         return cached;
     }
     if (!loading.has(key)) {
         loading.add(key);
-        loadBitmap(appearance, mainColor, highlight, key);
+        loadBitmap(appearance, mainColor, highlight, shipStyle, key);
     }
     return undefined;
 }
@@ -32,10 +33,11 @@ async function loadBitmap(
     appearance: ObjectAppearance,
     mainColor: string,
     highlight: string,
+    shipStyle: ShipMapStyle,
     key: string
 ): Promise<void> {
     try {
-        const raw = getMapSvg(svgStrings[appearance], appearance);
+        const raw = getMapSvg(svgStrings[appearance], appearance, shipStyle);
         const colored = raw
             .replace('<svg ', `<svg width="${BITMAP_SIZE}" height="${BITMAP_SIZE}" `)
             .replace(/currentColor/g, mainColor)

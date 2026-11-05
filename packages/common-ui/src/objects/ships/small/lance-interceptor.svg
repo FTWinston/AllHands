@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-<g stroke-width="16"><path d="M474 256L410 246L296 238L188 120L158 120L166 236L70 240L48 256L70 272L166 276L158 392L188 392L296 274L410 266Z"/></g>
-<g stroke-width="8"><path d="M420 256L396 248L360 248L352 256L360 264L396 264Z"/><path d="M296 238V274"/><path d="M240 236L180 136M240 276L180 376"/><path d="M120 238V274"/><path d="M84 240V272"/></g>
-<g stroke-width="5"><path d="M30 256H494" stroke-dasharray="14 18"/><path d="M488 244V268M34 244V268M161 104H185M161 408H185"/></g>
+<g class="hull" stroke-width="16"><path d="M474 256L410 246L296 238L188 120L158 120L166 236L70 240L48 256L70 272L166 276L158 392L188 392L296 274L410 266Z"/></g>
+<g class="details" stroke-width="8"><path d="M420 256L396 248L360 248L352 256L360 264L396 264Z"/><path d="M296 238V274"/><path d="M240 236L180 136M240 276L180 376"/><path d="M120 238V274"/><path d="M84 240V272"/></g>
+<g class="marks" stroke-width="5"><path d="M30 256H494" stroke-dasharray="14 18"/><path d="M488 244V268M34 244V268M161 104H185M161 408H185"/></g>
 </svg>

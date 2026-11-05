@@ -1,21 +1,27 @@
 import { shipAppearances, type ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
 
 /**
- * The svg to draw an object on a space map. A ship's wireframe is too fine for the size it's drawn there, moving and turning,
- * so its hull gets a light fill, its details get heavier lines, and its fine construction marks are left off.
- * A shape in the hull group with `stroke="none"` shows only as part of this fill, for where the hull's lines leave a gap.
+ * How to draw ship designs on a space map, where a wireframe is too fine for the size it's drawn at, moving and turning.
+ * A filled ship keeps its details. A silhouette has only its hull's shape, for a simpler view.
  */
-export function getMapSvg(raw: string, appearance: ObjectAppearance): string {
+export type ShipMapStyle = 'filled' | 'silhouette';
+
+/**
+ * Every ship's drawing labels its groups of lines as hull, details and marks (the fine construction marks), so these can restyle them.
+ * A shape in the hull group with `stroke="none"` shows only when filled, for where the hull's lines don't enclose the right area.
+ * A detail labelled as structure is part of the ship's shape, such as the spokes across a hollow ring, so silhouettes keep it too.
+ */
+const shipMapStyles: Record<ShipMapStyle, string> = {
+    filled: '.marks{display:none}.hull{stroke-width:14;fill:var(--highlight)}.details{stroke-width:12}.structure{fill:var(--highlight)}',
+    silhouette: '.marks,.details>:not(.structure){display:none}.hull,.structure{stroke:var(--highlight);fill:var(--highlight)}.structure{stroke-width:16}',
+};
+
+/** The svg to draw an object on a space map. Only ship designs have map styles; other objects are drawn as they are. */
+export function getMapSvg(raw: string, appearance: ObjectAppearance, style: ShipMapStyle): string {
     if (!(shipAppearances as readonly ObjectAppearance[]).includes(appearance)) {
         return raw;
     }
 
-    const open = raw.match(/<svg[^>]*>/)?.[0];
-    const [hull, details] = [...raw.matchAll(/<g stroke-width="\d+">([\s\S]*?)<\/g>/g)].map(match => match[1]);
-
-    if (!open || hull === undefined || details === undefined) {
-        throw new Error(`Ship design isn't in the expected form: ${appearance}`);
-    }
-
-    return `${open}<g stroke-width="14" fill="var(--highlight)">${hull}</g><g stroke-width="12">${details}</g></svg>`;
+    const contentStart = raw.indexOf('>') + 1;
+    return `${raw.slice(0, contentStart)}<style>${shipMapStyles[style]}</style>${raw.slice(contentStart)}`;
 }

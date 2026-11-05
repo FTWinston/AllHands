@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-<g stroke-width="16"><polygon stroke="none" points="472 256 282 363 230 363 80 276 56 276 56 236 80 236 230 149 282 149"/><circle cx="256" cy="134" r="30"/><circle cx="256" cy="378" r="30"/><polyline points="282.1 148.8 472 256 282.1 363.2"/><polyline points="230 149 80 236 56 236 56 276 80 276 230 363"/></g>
-<g stroke-width="8"><polygon points="420 256 256 182 140 256 256 330"/><circle cx="256" cy="256" r="20"/><circle cx="256" cy="134" r="13"/><circle cx="256" cy="378" r="13"/><line x1="290" y1="134" x2="332" y2="134"/><line x1="290" y1="378" x2="332" y2="378"/><polygon points="56 244 42 240 42 272 56 268"/></g>
-<g stroke-width="5"><path d="M16 256H498" stroke-dasharray="14 18"/><path d="M488 244V268M26 244V268M227 86H255M227 426H255"/></g>
+<g class="hull" stroke-width="16"><polygon stroke="none" points="472 256 282 363 230 363 80 276 56 276 56 236 80 236 230 149 282 149"/><circle cx="256" cy="134" r="30"/><circle cx="256" cy="378" r="30"/><polyline points="282.1 148.8 472 256 282.1 363.2"/><polyline points="230 149 80 236 56 236 56 276 80 276 230 363"/></g>
+<g class="details" stroke-width="8"><polygon points="420 256 256 182 140 256 256 330"/><circle cx="256" cy="256" r="20"/><circle cx="256" cy="134" r="13"/><circle cx="256" cy="378" r="13"/><line x1="290" y1="134" x2="332" y2="134"/><line x1="290" y1="378" x2="332" y2="378"/><polygon points="56 244 42 240 42 272 56 268"/></g>
+<g class="marks" stroke-width="5"><path d="M16 256H498" stroke-dasharray="14 18"/><path d="M488 244V268M26 244V268M227 86H255M227 426H255"/></g>
 </svg>
