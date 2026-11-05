@@ -1,9 +1,9 @@
 import { IArray } from '@colyseus/react';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'common-data/features/ships/types/SystemEffectDefinition';
+import { default as HealthIcon } from 'common-ui/icons/health.svg?react';
 import { SystemIcon } from 'common-ui/icons/systems';
 import { classNames } from 'common-ui/utils/classNames';
-import { default as HealthIcon } from '../../header/assets/health.svg?react';
 import { default as PowerIcon } from '../../header/assets/power.svg?react';
 import { default as CardDrawIconIcon } from '../assets/card-draw.svg?react';
 import { EffectList } from './EffectList';
