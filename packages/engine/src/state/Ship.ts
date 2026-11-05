@@ -219,10 +219,13 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     protected wasHit(_hit: ShipHit) { }
 
     override destroy() {
+        const { x, y } = this.getPosition(this.gameState.currentTime);
+
         // Broadcast explosion effect before removal.
         this.gameState.broadcastWeaponEffect({
             type: 'explosion',
             sourceId: this.id,
+            sourcePosition: { x, y },
             color: '#ff6600',
             thickness: 0.5,
             brightness: 3,

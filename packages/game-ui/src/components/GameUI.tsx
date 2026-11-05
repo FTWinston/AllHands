@@ -53,7 +53,8 @@ export const GameUI = () => {
                         <Viewscreen
                             room={room}
                             shipId={shipId}
-                            showMenu={pause}
+                            // A game that's over can't be paused or resumed, so the only place left to go is the main menu.
+                            showMenu={serverState === 'ended' ? disconnect : pause}
                         >
                             {children}
                         </Viewscreen>

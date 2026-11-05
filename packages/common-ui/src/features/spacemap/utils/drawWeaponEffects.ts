@@ -216,20 +216,14 @@ function drawExplosion(
     pixelSize: number,
     minimal: boolean
 ) {
-    // For explosions, use startTime position since the object may have been removed
+    // An exploding object is removed straight away, so it's usually only here for the first few frames of its explosion.
     const source = objects[effect.sourceId];
-    let x: number, y: number;
-    if (source) {
-        const pos = interpolatePosition(source.motion, currentTime);
-        x = pos.x;
-        y = pos.y;
-    } else {
-        // Object was removed (destroyed). Use a fallback — try to use the position from the effect start.
-        // Since we can't interpolate a removed object, we accept that the explosion might not render
-        // if the object is already gone. The destroy() method broadcasts the effect before removal,
-        // so the first frame should still find the object.
+    const position = source ? interpolatePosition(source.motion, currentTime) : effect.sourcePosition;
+    if (!position) {
         return;
     }
+
+    const { x, y } = position;
 
     const progress = getProgress(effect, currentTime);
     const maxRadius = effect.thickness * 3;

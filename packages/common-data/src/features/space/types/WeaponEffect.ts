@@ -9,6 +9,8 @@ export interface WeaponEffect {
     type: WeaponEffectType;
     /** The object ID of the source (firing) ship. */
     sourceId: ObjectId;
+    /** Source position when fired, used if the source no longer exists (e.g. an exploding ship, destroyed just after this is sent). */
+    sourcePosition?: { x: number; y: number };
     /** The object ID of the target. If not specified, the effect projects forward from the source, rotating with it. */
     targetId?: ObjectId;
     /** Target position when fired, used if the target no longer exists (e.g. destroyed by this shot). */

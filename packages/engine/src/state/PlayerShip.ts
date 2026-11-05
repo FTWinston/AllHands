@@ -91,13 +91,4 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
     protected override wasHit(hit: ShipHit) {
         this.crew?.sendShipHit(hit);
     }
-
-    destroy() {
-        super.destroy();
-
-        // TODO: do these actually want called? Are we better off leaving the crew assigned to the ship,
-        // and letting them view the destroyed ship, then ending the game a short while after?
-        this.crew?.unassignFromShip();
-        this.crew?.setShip(null);
-    }
 }

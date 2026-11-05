@@ -1,6 +1,6 @@
+import { GameEndedDisplay } from 'common-ui/components/GameEndedDisplay';
 import { Screen } from 'common-ui/components/Screen';
 import { FC, PropsWithChildren } from 'react';
-import { GameEndedDisplay } from './GameEndedDisplay';
 import { SectorMapDisplay } from './SectorMapDisplay';
 import { SectorMessageDisplay } from './SectorMessageDisplay';
 import { ViewscreenMenuButton } from './ViewscreenMenuButton';
