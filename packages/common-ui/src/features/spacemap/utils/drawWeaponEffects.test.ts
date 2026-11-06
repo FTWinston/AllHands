@@ -13,31 +13,41 @@ function createContext() {
     };
 }
 
-const explosion: WeaponEffect = {
-    type: 'explosion',
-    sourceId: 'gone',
-    color: '#ff6600',
-    thickness: 0.5,
-    duration: 1500,
-    startTime: 0,
-};
-
-function draw(effect: WeaponEffect) {
+function draw(effects: WeaponEffect[], currentTime = 750) {
     const context = createContext();
-    drawWeaponEffects(context as unknown as CanvasRenderingContext2D, [effect], {}, 750, 1, false);
+    drawWeaponEffects(context as unknown as CanvasRenderingContext2D, effects, {}, currentTime, 1);
     return context;
 }
 
+const explosion: WeaponEffect = {
+    type: 'explosion',
+    sourceId: 'gone',
+    appearance: 'chevron',
+    position: { x: 12, y: -3, angle: 0 },
+    startTime: 0,
+};
+
 describe('drawWeaponEffects', () => {
     it('draws an explosion where its source was, once the source has been removed', () => {
-        const context = draw({ ...explosion, sourcePosition: { x: 12, y: -3 } });
+        const context = draw([explosion]);
 
         expect(context.arc).toHaveBeenCalledWith(12, -3, expect.any(Number), 0, Math.PI * 2);
     });
 
-    it('draws nothing for an explosion if there is no telling where it was', () => {
-        const context = draw(explosion);
+    it('prunes effects that have finished', () => {
+        const effects: WeaponEffect[] = [explosion];
 
-        expect(context.arc).not.toHaveBeenCalled();
+        draw(effects, 100000);
+
+        expect(effects).toEqual([]);
+    });
+
+    it('draws nothing for an impact, and prunes it', () => {
+        const effects: WeaponEffect[] = [{ type: 'impact', sourceId: 'a', targetId: 'b', damage: 1, startTime: 0 }];
+
+        const context = draw(effects);
+
+        expect(context.stroke).not.toHaveBeenCalled();
+        expect(effects).toEqual([]);
     });
 });

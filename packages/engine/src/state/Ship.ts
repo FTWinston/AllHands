@@ -177,7 +177,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this.scienceState.forgetShip(objectId);
     }
 
-    damage(damage: Damage) {
+    override damage(damage: Damage): number {
         if (!damage.targetSystem) {
             damage.targetSystem = this.random.pick(shipSystems);
         }
@@ -213,23 +213,20 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         for (const trait of damage.traits) {
             applyWeaponTrait(trait, this, targetSystem);
         }
+
+        return remainingAmount;
     }
 
     /** Called whenever this ship is hit, just before the damage is applied. */
     protected wasHit(_hit: ShipHit) { }
 
     override destroy() {
-        const { x, y } = this.getPosition(this.gameState.currentTime);
-
         // Broadcast explosion effect before removal.
         this.gameState.broadcastWeaponEffect({
             type: 'explosion',
             sourceId: this.id,
-            sourcePosition: { x, y },
-            color: '#ff6600',
-            thickness: 0.5,
-            brightness: 3,
-            duration: 1500,
+            appearance: this.appearance,
+            position: this.getPosition(this.gameState.currentTime),
             startTime: this.gameState.currentTime,
         });
 

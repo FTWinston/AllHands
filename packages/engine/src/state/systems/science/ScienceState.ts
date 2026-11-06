@@ -391,6 +391,16 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             return null;
         }
 
+        const { x, y } = target.getPosition(this.getGameState().currentTime);
+        this.getGameState().broadcastWeaponEffect({
+            type: 'shot',
+            weapon: this.deflectorCard.type,
+            sourceId: this.getShip().id,
+            targetId: target.id,
+            targetPosition: { x, y },
+            startTime: this.getGameState().currentTime,
+        });
+
         // The main deflector card has been played, and should be expended.
         this.handlePlayedCard(this.deflectorCard, -1, false);
 

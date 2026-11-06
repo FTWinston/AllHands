@@ -56,9 +56,20 @@ function totalHealth(ship: PlayerShip): number {
         + ship.reactorState.health;
 }
 
+/** Advance the game, and its timers as well, as these aren't otherwise running. Torpedoes rely on them to land. */
+function tick(state: GameState) {
+    state.tick(TICK);
+
+    for (const delayed of [...rooms.getClock().delayed]) {
+        if (delayed.active) {
+            delayed.tick(TICK);
+        }
+    }
+}
+
 function run(state: GameState, ms: number, until?: () => boolean) {
     for (let t = 0; t < ms; t += TICK) {
-        state.tick(TICK);
+        tick(state);
         if (until?.()) {
             return;
         }
@@ -114,7 +125,7 @@ describe('AI ship integration', () => {
                     ticksUnderWay.set(enemy, ticksUnderWay.get(enemy)! + 1);
                 }
             }
-            state.tick(TICK);
+            tick(state);
         }
 
         enemies.forEach((enemy, index) => {
