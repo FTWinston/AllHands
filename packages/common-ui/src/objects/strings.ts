@@ -1,34 +1,22 @@
-import afterburnRaw from './afterburn.svg?raw';
-import apolloRaw from './apollo-capsule.svg?raw';
-import satelliteRaw from './beam-satellite.svg?raw';
+import { shipAppearances, type ObjectAppearance, type ShipAppearance } from 'common-data/features/space/types/ObjectAppearance';
 import chevronRaw from './chevron.svg?raw';
 import circleRaw from './circle.svg?raw';
-import hypersonicRaw from './hypersonic-bolt.svg?raw';
-import interceptorRaw from './interceptor-ship.svg?raw';
-import jetpackRaw from './jetpack.svg?raw';
-import pathfinderRaw from './mars-pathfinder.svg?raw';
-import rocketRaw from './rocket.svg?raw';
-import scoutRaw from './scout-ship.svg?raw';
-import spaceshipRaw from './spaceship.svg?raw';
-import spiderbotRaw from './spider-bot.svg?raw';
-import starfighterRaw from './starfighter.svg?raw';
-import strafeRaw from './strafe.svg?raw';
-import type { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
+
+/** Every ship design's file, by its name: the same as its appearance. */
+const shipFiles = import.meta.glob<string>('./ships/*/*.svg', { query: '?raw', import: 'default', eager: true });
+
+const shipStrings = Object.fromEntries(
+    Object.entries(shipFiles).map(([path, raw]) => [path.replace(/^.*\/(.+)\.svg$/, '$1'), raw])
+) as Partial<Record<ShipAppearance, string>>;
+
+for (const appearance of shipAppearances) {
+    if (!shipStrings[appearance]) {
+        throw new Error(`No ship design file for appearance: ${appearance}`);
+    }
+}
 
 export const svgStrings: Record<ObjectAppearance, string> = {
-    afterburn: afterburnRaw,
-    apollo: apolloRaw,
-    satellite: satelliteRaw,
-    hypersonic: hypersonicRaw,
-    interceptor: interceptorRaw,
-    jetpack: jetpackRaw,
-    pathfinder: pathfinderRaw,
-    rocket: rocketRaw,
-    scout: scoutRaw,
-    spaceship: spaceshipRaw,
-    spiderbot: spiderbotRaw,
-    starfighter: starfighterRaw,
-    strafe: strafeRaw,
     chevron: chevronRaw,
     circle: circleRaw,
+    ...shipStrings as Record<ShipAppearance, string>,
 };

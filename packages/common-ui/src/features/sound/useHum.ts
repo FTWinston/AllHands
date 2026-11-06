@@ -52,7 +52,7 @@ export function useHum(intensity: HumIntensity) {
         if (!hum.current) {
             const oscillator = context.createOscillator();
             oscillator.type = 'sawtooth';
-            oscillator.frequency.value = 120;
+            oscillator.frequency.value = 90;
 
             const filter = context.createBiquadFilter();
             filter.type = 'lowpass';

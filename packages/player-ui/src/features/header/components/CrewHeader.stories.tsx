@@ -39,7 +39,7 @@ export const InEncounter: Story = {
     },
 };
 
-/** The deck indicator is a toggle button for the "my deck" view. Power isn't shown at a station, as no cards are played there. */
+/** The deck indicator is a toggle button for the "my deck" view. Power isn't shown outside an encounter, as no cards are played there. */
 export const AtStation: Story = {
     args: {
         power: undefined,
@@ -72,7 +72,8 @@ export const AtStation: Story = {
         await expect(button).toHaveAttribute('aria-pressed', 'false');
 
         await userEvent.click(button);
-        await expect(await page.findByText('My deck')).toBeInTheDocument();
+
+        await expect(await page.findByRole('heading', { name: 'My deck' })).toBeInTheDocument();
         await expect(page.getByText('#10')).toBeInTheDocument();
 
         // It stays open, rather than treating the click that opened it as an outside press.
@@ -86,17 +87,14 @@ export const AtStation: Story = {
         await expect(args.onPause).toHaveBeenCalled();
         await expect(page.getByRole('dialog')).toBeInTheDocument();
 
-        // The same button closes it again, as does the deck view's own close button.
+        // The same button closes it again, as the deck view has no close button of its own.
+        await expect(page.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument();
         await userEvent.click(button);
-        await expect(button).toHaveAttribute('aria-pressed', 'false');
-
-        await userEvent.click(button);
-        await userEvent.click(await page.findByRole('button', { name: 'Close' }));
         await expect(button).toHaveAttribute('aria-pressed', 'false');
     },
 };
 
-/** At a shop station, the crew member with the shop sees the ship's antimatter. */
+/** At a station, every crew member sees the ship's antimatter. */
 export const Shopping: Story = {
     args: {
         power: undefined,

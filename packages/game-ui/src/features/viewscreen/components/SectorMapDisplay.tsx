@@ -1,14 +1,21 @@
-import { isStationKind, stationKinds } from 'common-data/features/sectors/utils/isStationKind';
+import { getShopRole, isStationKind } from 'common-data/features/sectors/utils/isStationKind';
+import crewStyles from 'common-ui/CrewColors.module.css';
 import { routeIconSize, StationIconShapes } from 'common-ui/features/cards/components/RouteIcon';
 import { getNodeKindLabel } from 'common-ui/features/sectors/utils/sectorLabels';
+import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
+import { ChaseLights } from 'src/components/ChaseLights';
 import { getEdgePath, layoutSectorMap, MapEdgeLayout, MapEdgeStatus, MapNodeStatus } from '../utils/layoutSectorMap';
+import { SceneTopBar } from './SceneTopBar';
 import styles from './SectorMapDisplay.module.css';
 import type { SectorMapInfo, SectorMapNodeInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 import type { SectorNodeKind, StationKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 
 type Props = {
     map: SectorMapInfo;
+    /** The ship's antimatter. Omitted when unknown. */
+    antimatter?: number;
+    showMenu?: () => void;
 };
 
 const WIDTH = 1600;
@@ -65,7 +72,16 @@ function getSpikedPoints(radius: number, spikes: number) {
 /** How much of the width of a station's square its icon takes up. */
 const STATION_ICON_FILL = 0.85;
 
-/** Every station is a rounded square, holding the same icon as the helm's route card for it. */
+/** A station's square has the interface's cut corners, top right and bottom left. */
+function getStationPoints(radius: number) {
+    const cut = radius * 0.4;
+    return [
+        [-radius, -radius], [radius - cut, -radius], [radius, -radius + cut],
+        [radius, radius], [-radius + cut, radius], [-radius, radius - cut],
+    ].map(([x, y]) => `${x},${y}`).join(' ');
+}
+
+/** Every station is a square, holding the same icon as the helm's route card for it. */
 const StationMark: FC<{ kind: StationKind; radius: number }> = ({ kind, radius }) => {
     const scale = (radius * 2 * STATION_ICON_FILL) / routeIconSize;
 
@@ -78,9 +94,11 @@ const StationMark: FC<{ kind: StationKind; radius: number }> = ({ kind, radius }
 
 const NodeGlyph: FC<{ kind: SectorNodeKind; elite?: boolean; status: MapNodeStatus; radius: number }> = ({ kind, elite, status, radius }) => {
     const inner = radius * 0.5;
+    // A shop takes the colour of the crew member whose cards it sells.
+    const shopRole = getShopRole(kind);
 
     return (
-        <g className={`${styles.glyph} ${styles[status]} ${styles[kind]}`}>
+        <g className={classNames(styles.glyph, styles[status], styles[kind], shopRole ? crewStyles[shopRole] : null)}>
             {status === 'available' && <circle className={styles.halo} r={radius + 10} />}
             {status === 'current' && <circle className={styles.currentRing} r={radius + 10} />}
 
@@ -94,7 +112,7 @@ const NodeGlyph: FC<{ kind: SectorNodeKind; elite?: boolean; status: MapNodeStat
             )}
             {isStationKind(kind) && (
                 <>
-                    <rect className={styles.shape} x={-radius} y={-radius} width={radius * 2} height={radius * 2} rx={radius * 0.3} />
+                    <polygon className={styles.shape} points={getStationPoints(radius)} />
                     <StationMark kind={kind} radius={radius} />
                 </>
             )}
@@ -127,23 +145,26 @@ const LegendGlyph: FC<{ kind: SectorNodeKind; elite?: boolean; status: MapNodeSt
     </svg>
 );
 
+/** One shop of each crew member's, so the legend's single shop entry shows all their colours. */
+const shopLegendKinds: StationKind[] = ['navigationBeacon', 'armsDealer', 'researchOutpost', 'salvageYard'];
+
 function describeNode(node: SectorMapNodeInfo, status: MapNodeStatus): string {
     return `${node.name}: ${getNodeKindLabel(node.kind, node.elite)} (${statusLabels[status]})`;
 }
 
-export const SectorMapDisplay: FC<Props> = ({ map }) => {
+export const SectorMapDisplay: FC<Props> = ({ map, antimatter, showMenu }) => {
     const layout = layoutSectorMap(map, WIDTH, HEIGHT, PADDING);
     const kinds = new Map(layout.nodes.map(({ node }) => [node.id, node.kind]));
     const edges = [...layout.edges].sort((a, b) => edgeDrawOrder[a.status] - edgeDrawOrder[b.status]);
 
     return (
         <section className={styles.root} aria-label={`Sector map: ${map.sectorName}`}>
-            <header className={styles.header}>
-                <h1 className={styles.title}>{map.sectorName}</h1>
-                <p className={styles.subtitle}>
-                    {`Sector ${map.sectorIndex + 1} of ${map.sectorCount}`}
-                </p>
-            </header>
+            <SceneTopBar
+                subtitle={`Sector ${map.sectorIndex + 1} of ${map.sectorCount}`}
+                title={map.sectorName}
+                antimatter={antimatter}
+                showMenu={showMenu}
+            />
 
             <div className={styles.body}>
                 <svg className={styles.graph} viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="group" aria-label="Route graph">
@@ -177,6 +198,7 @@ export const SectorMapDisplay: FC<Props> = ({ map }) => {
             </div>
 
             <ul className={styles.legend} aria-label="Legend">
+                <li className={styles.legendHeading} aria-hidden="true">Legend</li>
                 <li>
                     <LegendGlyph kind="combat" status="unreachable" />
                     Combat
@@ -185,12 +207,16 @@ export const SectorMapDisplay: FC<Props> = ({ map }) => {
                     <LegendGlyph kind="combat" elite status="unreachable" />
                     Elite combat
                 </li>
-                {stationKinds.map(kind => (
-                    <li key={kind}>
-                        <LegendGlyph kind={kind} status="unreachable" />
-                        {getNodeKindLabel(kind)}
-                    </li>
-                ))}
+                <li>
+                    <LegendGlyph kind="repair" status="unreachable" />
+                    {getNodeKindLabel('repair')}
+                </li>
+                <li>
+                    <span className={styles.shopGlyphs} aria-hidden="true">
+                        {shopLegendKinds.map(kind => <LegendGlyph key={kind} kind={kind} status="unreachable" />)}
+                    </span>
+                    Shop, for that crew member
+                </li>
                 <li>
                     <LegendGlyph kind="boss" status="unreachable" />
                     Boss
@@ -200,14 +226,11 @@ export const SectorMapDisplay: FC<Props> = ({ map }) => {
                     Current position
                 </li>
                 <li>
-                    <LegendGlyph kind="combat" status="visited" />
-                    Visited
-                </li>
-                <li>
                     <LegendGlyph kind="combat" status="available" />
                     Available
                 </li>
             </ul>
+            <ChaseLights />
         </section>
     );
 };

@@ -1,10 +1,3 @@
-.icon {
-    height: 1.5em;
-    width: 1.5em;
-    flex-shrink: 0;
-    color: var(--primary-light);
-}
-
 .body {
     display: flex;
     flex-direction: column;
@@ -20,7 +13,7 @@
 
 /* Separates the deck from the hand above it. */
 .section + .section {
-    border-top: solid var(--primary-mid) 2px;
+    border-top: solid var(--primary-mid) 1px;
     padding-top: 1.5em;
 }
 

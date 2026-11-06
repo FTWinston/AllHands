@@ -58,13 +58,25 @@ ul, ol {
     --grey-mid: oklch(0.7 0 0);
     --grey-light: oklch(0.82 0 0);
     --grey-lightest: oklch(1 0 0);
-    
-    --primary-darkest-muted: color-mix(in srgb, var(--primary-darkest) 50%, var(--grey-darkest));
-    --primary-darkest: oklch(0.322 0.05 277);
-    --primary-dark: oklch(0.4 0.13 277);
-    --primary-mid: oklch(0.58 0.2 277);
-    --primary-light: oklch(0.75 0.147 277);
-    --primary-lightest: oklch(0.9 0.147 277);
+
+    /* Bridge console surfaces: deep space, the panels laid over it, and their hairline borders. Nearly neutral, so colour is left to things that mean something. */
+    --space: oklch(0.14 0.01 250);
+    --panel: oklch(0.19 0.012 250);
+    --panel-raised: oklch(0.24 0.014 250);
+    --line: oklch(0.36 0.016 250);
+    --text: oklch(0.97 0.004 250);
+    --text-muted: oklch(0.84 0.008 250);
+    --label: oklch(0.78 0.015 250);
+    /* A faint plotting grid over the ground of a whole screen. */
+    --grid-line: oklch(1 0 0 / 0.03);
+
+    --primary-darkest-muted: color-mix(in srgb, var(--primary-darkest) 50%, var(--space));
+    /* Outside a crew station, the primary palette is a bright neutral: the main action, the boss, where you are. */
+    --primary-darkest: oklch(0.27 0.014 250);
+    --primary-dark: oklch(0.36 0.016 250);
+    --primary-mid: oklch(0.6 0.015 250);
+    --primary-light: oklch(0.86 0.01 250);
+    --primary-lightest: oklch(0.95 0.008 250);
    
     --danger-darkest: oklch(0.18 0.25 10);
     --danger-dark: oklch(0.3 0.25 10);
@@ -87,6 +99,10 @@ ul, ol {
     --lightest-contrast-dark: oklch(0 0 0);
 
     --main-font-family: 'Jura', sans-serif;
-    background-color: var(--grey-darkest);
+    /* Screen titles only. */
+    --title-font-family: 'Michroma', sans-serif;
+    /* Labels, and every number that changes, so its digits don't shift as it counts. */
+    --readout-font-family: 'Share Tech Mono', monospace;
+    background-color: var(--space);
     color: var(--grey-mid);
 }

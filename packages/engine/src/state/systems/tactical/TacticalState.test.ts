@@ -145,6 +145,7 @@ describe('TacticalState weapon slot charging', () => {
         tactical.playCard(handCard(tactical, 'lowYield').id, 'lowYield', 'weapon', slot.id);
 
         expect(slot.modified).toBe(true);
+        expect(slot.modifierCard).toBe('lowYield');
         expect(slot.charge).toBe(0);
     });
 
@@ -163,11 +164,13 @@ describe('TacticalState weapon slot charging', () => {
         const slot = loadWeapon(tactical);
         slot.addCharge(slot.getParameter('totalCharge'), 0);
         slot.modified = true;
+        slot.modifierCard = 'lowYield';
         slot.charge = slot.getParameter('chargePerUse');
 
         expect(slot.afterFiring(0)).toBe(true);
         expect(slot.card).toBeNull();
         expect(slot.modified).toBe(false);
+        expect(slot.modifierCard).toBeNull();
         expect(slot.hasBeenFullyCharged).toBe(false);
     });
 

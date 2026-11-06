@@ -1,52 +1,89 @@
+/* A socket that a scan card's deflector effect can be slotted into. Empty, it shows the default effect. */
 .slotRoot {
-    line-height: 1em;
-    flex-grow: 1;
-    position: relative;
-    border-radius: 1.5em;
-    corner-shape: squircle;
-    border: solid 0.1em var(--primary-darkest);
-    background-color: var(--primary-darkest);
-    padding: 0.5em;
-    display: grid;
-    grid-template-columns: auto min-content;
-    grid-template-rows: auto auto auto;
-    grid-template-areas:
-        "label close"
-        "effect close"
-        "cardName cardName";
-    gap: 0.1em;
-    
+    height: 3.875em;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.375em;
+    padding: 0 0.25em 0 0.75em;
+    border: 0.094em dashed color-mix(in oklch, var(--primary-light) 45%, transparent);
+    border-radius: 0 1em 0 1em;
+    corner-shape: bevel;
+    background-color: var(--space);
+
     &.slotNotEmpty {
+        border-style: solid;
         border-color: var(--primary-light);
+        background-color: var(--primary-darkest);
     }
 }
 
+.slotText {
+    flex-grow: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.0625em;
+}
+
 .slotLabel {
-    color: var(--grey-light);
-    font-size: 0.875em;
+    font-size: 0.625em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    color: var(--label);
 }
 
 .slotEffect {
-    font-size: 1.1em;
-    color: var(--grey-lightest);
-    font-weight: bold;
+    font-size: 1em;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text-muted);
+
+    .slotNotEmpty & {
+        color: var(--text);
+    }
 }
 
 .slotCardName {
-    font-size: 0.875em;
-    color: var(--grey-light);
+    font-size: 0.625em;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--label);
 }
 
-.slotEmptyText {
-    color: var(--grey-mid);
-    font-size: 1.1em;
-    padding: 0.25em 0;
+.ejectButton {
+    position: relative;
+    width: 1.875em;
+    height: 1.875em;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 0 0.5em 0 0.5em;
+    corner-shape: bevel;
+    background-color: color-mix(in oklch, var(--space) 60%, transparent);
+    color: var(--text-muted);
+    cursor: pointer;
+
+    @media (hover: hover) {
+        &:hover {
+            color: var(--text);
+        }
+    }
 }
 
-.closeButton {
-    grid-area: close;
-    padding: 0.333em 0.25em !important;
-    align-self: start;
+/* The button is as easy to tap as if it were bigger. */
+.ejectButton::after {
+    content: '';
+    position: absolute;
+    inset: -0.4375em;
+}
+
+.ejectIcon {
+    width: 1em;
+    height: 1em;
 }

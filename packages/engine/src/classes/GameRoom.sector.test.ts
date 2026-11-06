@@ -1,13 +1,16 @@
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
+import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { DEV_TOOLS_ENABLED } from 'src/generated/devtools';
-import { setupGameRoom } from 'src/testUtils';
+import { CrewState } from 'src/state/CrewState';
+import { setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it, vi } from 'vitest';
 import { startCountdownDuration, type GameRoom } from './GameRoom';
 import type { IArray } from '@colyseus/react';
 import type { ColyseusTestServer } from '@colyseus/testing';
+import type { EngineWeaponSlotCardDefinition } from 'src/cards/EngineCardDefinition';
 import type { PlayerShip } from 'src/state/PlayerShip';
 
 const rooms = setupGameRoom();
@@ -38,10 +41,10 @@ async function send(room: GameRoom, client: TestClient, type: string, payload?: 
 const roles: RoleName[] = ['helm', 'tactical', 'science', 'engineer'];
 
 /** A ship client plus one crew client per role, with every role claimed, so the start countdown is running. */
-async function claimAllRoles() {
+async function claimAllRoles(shipOptions: object = {}) {
     const room = rooms.getRoom();
 
-    const shipClient = await connect(room, { type: 'ship' });
+    const shipClient = await connect(room, { type: 'ship', ...shipOptions });
     const [crewId] = [...room.state.crews.keys()];
 
     const clients = {} as Record<RoleName, TestClient>;
@@ -54,8 +57,8 @@ async function claimAllRoles() {
 }
 
 /** A ship client plus one crew client per role, so the campaign has started. */
-async function startGame() {
-    const { room, crewId, shipClient, clients } = await claimAllRoles();
+async function startGame(shipOptions: object = {}) {
+    const { room, crewId, shipClient, clients } = await claimAllRoles(shipOptions);
 
     room.tickStartCountdown(startCountdownDuration);
 
@@ -219,6 +222,23 @@ describe('GameRoom campaign messages', () => {
         expect(ship.antimatter).toBe(cardSellPrice);
     });
 
+    it('sends an order preview only to the crew member who asked for it', async () => {
+        const { room, state, ship, clients } = await startGame();
+        await send(room, clients.tactical, 'dismissMessage');
+        expect(state.campaign!.devLoadEncounter('navigationBeacon')).toBe(true);
+
+        const tacticalPreviews: unknown[] = [];
+        const helmPreviews: unknown[] = [];
+        clients.tactical.onMessage('orderPreview', preview => tacticalPreviews.push(preview));
+        clients.helm.onMessage('orderPreview', preview => helmPreviews.push(preview));
+
+        const spec = ship.tacticalState.deck.find(card => card.type === 'photonTorpedo')!;
+        await send(room, clients.tactical, 'previewOrder', { cardId: spec.id });
+
+        await vi.waitFor(() => expect(tacticalPreviews).toEqual([expect.objectContaining({ specCardId: spec.id })]));
+        expect(helmPreviews).toEqual([]);
+    });
+
     if (DEV_TOOLS_ENABLED) {
         it('dev client can start any encounter from the lobby', async () => {
             const room = rooms.getRoom();
@@ -332,5 +352,98 @@ describe('GameRoom game start', () => {
 
         expect(room.state.sceneChange).toBeNull();
         expect(room.state.gameStatus).toBe('active');
+    });
+
+    it('counts the card types the ship client already knows as seen, ignoring anything that cannot be known', async () => {
+        const { ship } = await startGame({ knownCardTypes: ['purge', 'warpAway', 'notACard', 7, 'zigZag'] });
+
+        expect(ship.seenCardTypes).toContain('purge');
+        expect(ship.seenCardTypes).toContain('zigZag');
+        expect(ship.seenCardTypes).not.toContain('warpAway');
+        expect(ship.seenCardTypes).not.toContain('notACard');
+    });
+
+    it('ignores known card types sent as anything other than a list', async () => {
+        const { ship } = await startGame({ knownCardTypes: 'purge' });
+
+        expect(ship.seenCardTypes).not.toContain('purge');
+    });
+});
+
+describe('GameRoom player ship destruction', () => {
+    const wait = () => new Promise(resolve => setTimeout(resolve, 50));
+
+    it('ends the game with the crew still assigned, so their clients can show the outcome', async () => {
+        const { state, ship, shipClient } = await startGame();
+        const crew = [...state.crews.values()][0];
+
+        const shipMessages: unknown[] = [];
+        shipClient.onMessage('ship', message => shipMessages.push(message));
+
+        ship.destroy();
+        await wait();
+
+        expect(state.gameStatus).toBe('ended');
+        expect(state.outcome).toBe('defeat');
+        expect(crew.shipId).toBe(ship.id);
+        expect(shipMessages).not.toContainEqual({ shipId: null });
+    });
+
+    it('sends the viewscreen an explosion that says where the ship was, as the ship itself will be gone', async () => {
+        const { state, ship, shipClient } = await startGame();
+
+        const effects: unknown[] = [];
+        shipClient.onMessage('weaponEffect', effect => effects.push(effect));
+
+        const { x, y } = ship.getPosition(state.currentTime);
+        ship.destroy();
+        await wait();
+
+        expect(effects).toContainEqual(expect.objectContaining({ type: 'explosion', sourceId: ship.id, position: expect.objectContaining({ x, y }) }));
+    });
+
+    it('sends the viewscreen a weapon being fired and it landing, saying how much damage got through', async () => {
+        const { state, ship, shipClient } = await startGame();
+
+        const effects: unknown[] = [];
+        shipClient.onMessage('weaponEffect', effect => effects.push(effect));
+
+        const card = getCardDefinition('phaserCannon') as EngineWeaponSlotCardDefinition;
+        card.fire(state, ship, ship, { cost: 0, damage: 1 }, 100, []);
+        await wait();
+
+        expect(effects).toEqual([
+            expect.objectContaining({ type: 'shot', weapon: 'phaserCannon', sourceId: ship.id, targetId: ship.id }),
+            expect.objectContaining({ type: 'impact', sourceId: ship.id, targetId: ship.id, damage: expect.any(Number) }),
+        ]);
+    });
+
+    it('can still pause and resume after one crew has lost their ship, even if their roles changed', async () => {
+        const room = rooms.getRoom();
+        const shipClient = await connect(room, { type: 'ship' });
+        const [lostCrew] = [...room.state.crews.values()];
+        const crewClient = await connect(room, { type: 'crew', crewId: lostCrew.crewId });
+
+        const { ships: [lostShip, survivingShip] } = startCampaign(room.state, 2);
+        const survivingCrew = new CrewState(room.clients, '', 'survivors');
+        room.state.crews.set(survivingCrew.crewId, survivingCrew);
+        lostCrew.setShip(lostShip);
+        survivingCrew.setShip(survivingShip);
+        room.startOrResume();
+        expect(shipClient.sessionId).toBe(lostCrew.shipClientId);
+
+        lostShip.destroy();
+        expect(room.state.gameStatus).toBe('active');
+
+        room.pause();
+        expect(room.state.gameStatus).toBe('paused');
+
+        lostCrew.helmClientId = crewClient.sessionId;
+        const addToView = vi.spyOn(room.clients.getById(crewClient.sessionId)!.view!, 'add');
+
+        room.startOrResume();
+
+        expect(room.state.gameStatus).toBe('active');
+        expect(addToView).not.toHaveBeenCalledWith(lostShip, expect.anything());
     });
 });

@@ -93,6 +93,17 @@ describe('PlayerShip seen card types', () => {
         expect([...ship.seenCardTypes]).toEqual(['slowAndSteady', 'phaserCannon']);
     });
 
+    it('counts known card types from earlier games as seen first, ignoring any already in a deck', () => {
+        const gameState = rooms.createState();
+        const ship = new PlayerShip(gameState, {
+            ...setup,
+            helm: { ...setup.helm, cards: ['slowAndSteady'] },
+            tactical: { ...setup.tactical, cards: ['phaserCannon'] },
+        }, ['purge', 'slowAndSteady']);
+
+        expect([...ship.seenCardTypes]).toEqual(['purge', 'slowAndSteady', 'phaserCannon']);
+    });
+
     it('ignores expendable and campaign cards', () => {
         const ship = createShipWithDecks();
 

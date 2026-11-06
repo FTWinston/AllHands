@@ -1,6 +1,6 @@
-import { Screen } from 'common-ui/components/Screen';
 import { toggleSoundEnabled, useSoundEnabled } from 'common-ui/features/sound/soundSettings';
 import { FC } from 'react';
+import { toggleCombatLabels, toggleShakeAndFlashes, useCombatLabels, useShakeAndFlashes } from '../../viewscreen/utils/combatEffectSettings';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
 
@@ -11,26 +11,46 @@ type Props = {
 
 export const InGameMenu: FC<Props> = (props) => {
     const soundEnabled = useSoundEnabled();
+    const combatLabels = useCombatLabels();
+    const shakeAndFlashes = useShakeAndFlashes();
 
     return (
-        <Screen padded>
-            <Menu title="All Hands">
-                <MenuItem
-                    text="Resume game"
-                    onClick={props.resumeGame}
-                />
+        <Menu heading="Game paused">
+            <MenuItem
+                text="Resume game"
+                number={1}
+                emphasis="primary"
+                onClick={props.resumeGame}
+            />
 
-                <MenuItem
-                    text={`Sound effects ${soundEnabled ? '✅' : '⬜'}`}
-                    onClick={toggleSoundEnabled}
-                />
+            <MenuItem
+                text="Sound effects"
+                description={soundEnabled ? 'On' : 'Off'}
+                number={2}
+                onClick={toggleSoundEnabled}
+            />
 
-                <MenuItem
-                    text="Disconnect"
-                    onClick={props.disconnect}
-                    confirmPrompt="Are you sure you want to disconnect?"
-                />
-            </Menu>
-        </Screen>
+            <MenuItem
+                text="Combat labels"
+                description={combatLabels ? 'On' : 'Off'}
+                number={3}
+                onClick={toggleCombatLabels}
+            />
+
+            <MenuItem
+                text="Shake and flashes"
+                description={shakeAndFlashes ? 'On' : 'Off'}
+                number={4}
+                onClick={toggleShakeAndFlashes}
+            />
+
+            <MenuItem
+                text="Disconnect"
+                number={5}
+                emphasis="danger"
+                onClick={props.disconnect}
+                confirmPrompt="Are you sure you want to disconnect?"
+            />
+        </Menu>
     );
 };

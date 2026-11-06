@@ -61,6 +61,12 @@ export interface CrewSystemInfo extends SystemInfo {
     nonEncounterCards: IArray<NonEncounterCardInfo>;
     /** Cards on sale to this crew member at a shop station for their role (see `getShopRole`), each for `shopCardPrice`. Empty elsewhere. */
     shopCards: IArray<CardInstance>;
+    /** The type of the deck card this crew member placed a work order for, which is delivered at the next station. Null when there's none. */
+    pendingOrder: CardType | null;
+    /** Ids of the deck cards this crew member could place a work order for, at a shop station for another crew member. Empty elsewhere. */
+    orderableCardIds: IArray<number>;
+    /** Cards delivered by this crew member's work order, to choose one of for free. Lost on leaving the station. Empty when there's no delivery. */
+    deliveryCards: IArray<CardInstance>;
 }
 
 export interface HelmSystemInfo extends CrewSystemInfo {
@@ -84,6 +90,8 @@ export interface ScannedWeaponSlotInfo {
     card: CardInstance | null;
     modifiers?: IMap<string, number>;
     charge: number;
+    /** The modifier card played onto this weapon, if any. */
+    modifierCard: CardType | null;
 }
 
 export interface SubTargetInfo {
@@ -121,10 +129,14 @@ export interface ScannedSystemOrderInfo {
 
 export interface ScannedBaseInfo {
     targetId: string;
+    /** The scanned system's current power level. */
+    power: number;
 }
 
 export interface ScannedHelmInfo extends ScannedBaseInfo {
     activeManeuver: CardInstance | null;
+    /** When the active maneuver started, and when it will end. */
+    maneuverProgress: Cooldown | null;
     evasionChance: number;
 }
 
@@ -191,7 +203,13 @@ export interface PlayerShipInfo extends ShipInfo {
     /** The ship's currency, earned by completing encounters (see `antimatterRewards`). Only synced to the ship's own crew and game client. */
     antimatter: number;
 
-    /** Non-expendable card types the crew has seen this game, which the game client adds to its known cards. Only synced to the ship's game client. */
+    /** How many work orders the ship's crew has placed this game, which raises the price of the next (see `getOrderPrice`). Synced like `antimatter`. */
+    ordersPlaced: number;
+
+    /**
+     * Non-expendable card types the crew has seen, starting with those its game client knew from earlier games.
+     * The game client adds new ones to its known cards. Only synced to the ship's game client.
+     */
     seenCardTypes: IArray<CardType>;
 }
 

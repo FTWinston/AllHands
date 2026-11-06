@@ -1,0 +1,38 @@
+.topBar {
+    position: relative;
+    flex-shrink: 0;
+    height: 6em;
+    display: flex;
+    align-items: center;
+    gap: 1.75em;
+    padding: 0 3.5em;
+    background-color: var(--panel);
+    border-bottom: 0.094em solid var(--line);
+    color: var(--text);
+}
+
+/* Ruler ticks along the bar's lower edge. */
+.topBar::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 0.5em;
+    background: repeating-linear-gradient(90deg, var(--line) 0 0.094em, transparent 0.094em 1.5em);
+    pointer-events: none;
+}
+
+.content {
+    flex-grow: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 1.75em;
+}
+
+.end {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}

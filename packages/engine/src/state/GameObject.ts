@@ -60,8 +60,10 @@ export abstract class GameObject extends Schema implements GameObjectInfo {
      */
     resolveScenarioReferences(): void {}
 
-    damage(_damage: Damage) {
+    /** Apply damage to this object, and return how much of it got through. */
+    damage(_damage: Damage): number {
         // Can't damage an arbitrary game object, but subclasses can override this to be damageable.
+        return 0;
     }
 
     destroy() {

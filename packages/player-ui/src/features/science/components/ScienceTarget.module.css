@@ -1,24 +1,25 @@
 .rootOuter {
-    aspect-ratio: 1 / 1;
-    height: min(calc(100vw - var(--scroll-padding) * 2), calc(40dvh - 4em));
-    container-type: inline-size;
+    width: calc(100vw - var(--scroll-padding, 1em) * 2);
+    height: min(calc(100vw - var(--scroll-padding, 1em) * 2), calc(40dvh - 4em));
+    container-type: size;
     display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     align-items: stretch;
     justify-items: stretch;
 }
 
 .rootInner {
-    font-size: 7cqw; /* Ensure that font-size of everything within the container is relative to the container width, so it all scales consistently as the container does. */
-    background-color: var(--primary-darkest-muted);
-    border: solid var(--color-mid) 0.1em;
-    border-radius: 3em;
-    corner-shape: squircle;
+    /* Size everything to the container, so a scan readout always fits it. This is about 16px on a typical phone. */
+    font-size: min(4.45cqw, 5.75cqh);
+    background-color: var(--panel);
+    border: 0.094em solid color-mix(in oklch, var(--primary-light) 45%, transparent);
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
     position: relative;
     display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     align-items: stretch;
     justify-items: stretch;
     min-height: 0;
@@ -26,34 +27,87 @@
 
 .notRevealedContent {
     display: grid;
-    margin: 0.5em 1em;
+    padding: 0.875em 1em 0.75em;
     grid-template-columns: 1fr max-content;
-    grid-template-rows: min-content 1fr;
+    grid-template-rows: min-content 1fr min-content;
+    gap: 0.5em;
     border-radius: inherit;
     corner-shape: inherit;
+    min-height: 0;
 
-    align-items: center;
     grid-template-areas:
         "name count"
-        "image image";
+        "image image"
+        "prompt prompt";
 }
 
 .name {
-    font-size: 1.25em;
     grid-area: name;
-    color: var(--grey-light);
+    display: flex;
+    flex-direction: column;
+    gap: 0.125em;
+}
+
+.label {
+    font-size: 0.6875em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--label);
+}
+
+.nameText {
+    font-size: 1.25em;
+    line-height: 1.1;
+    color: var(--text);
 }
 
 .count {
     grid-area: count;
-    justify-self: end;
+    align-self: start;
+    font-size: 0.8125em;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--label);
+}
+
+/* Targeting brackets around the ship. */
+.frame {
+    grid-area: image;
+    position: relative;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 2.5em;
+    padding: 0.75em;
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border: 0.19em solid var(--primary-light);
+        border-radius: 0.5em;
+        mask: conic-gradient(at 1.875em 1.875em, transparent 75%, black 0) 0 0 / calc(100% - 1.875em) calc(100% - 1.875em);
+        pointer-events: none;
+    }
 }
 
 .image {
-    grid-area: image;
+    max-width: 100%;
+    max-height: 100%;
     object-fit: contain;
-    color: var(--color-lightest);
-    justify-self: center;
+    color: var(--primary-light);
+}
+
+.prompt {
+    grid-area: prompt;
+    text-align: center;
+    font-size: 0.75em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--label);
 }
 
 .dropTargetOverlay {
@@ -73,46 +127,44 @@
     outline: solid var(--primary-mid) 0.25em;
 }
 
+/* Quadrants to drop a scan card on, one per system, shown only while dragging one. */
 .systemSelector {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: inherit;
-    corner-shape: inherit;
+    inset: 0.5em;
 
     display: grid;
     grid-template-rows: 1fr 1fr;
     grid-template-columns: 1fr 1fr;
-    gap: 0.25em;
+    gap: 0.5em;
     justify-content: stretch;
     align-items: stretch;
+    pointer-events: none;
+
+    /* Hide the ship between the quadrants while they show. */
+    &:has(.selectableSystemCouldDrop, .selectableSystemDropping) {
+        background-color: var(--panel);
+    }
 }
 
 .selectableSystem {
     display: none;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: var(--grey-light);
-    background-color: var(--primary-darkest-muted);    
-    corner-shape: squircle;
+    gap: 0.375em;
+    pointer-events: auto;
+    border: 0.125em dashed color-mix(in oklch, var(--primary-light) 60%, transparent);
+    border-radius: 0 1em 0 1em;
+    corner-shape: bevel;
+    background-color: color-mix(in oklch, var(--primary-darkest) 85%, var(--panel));
+    color: var(--text);
+}
 
-    &:nth-child(1) {
-        border-top-left-radius: 3em;
-    }
-
-    &:nth-child(2) {
-        border-top-right-radius: 3em;
-    }
-
-    &:nth-child(3) {
-        border-bottom-left-radius: 3em;
-    }
-
-    &:nth-child(4) {
-        border-bottom-right-radius: 3em;
-    }
+.unknown {
+    border-color: color-mix(in oklch, var(--primary-light) 50%, transparent);
+    background:
+        repeating-linear-gradient(135deg, color-mix(in oklch, var(--primary-light) 10%, transparent) 0 0.1875em, transparent 0.1875em 1em),
+        var(--space);
 }
 
 .selectableSystemCouldDrop {
@@ -122,19 +174,52 @@
 .selectableSystemDropping {
     display: flex;
     z-index: 1;
+    border-style: solid;
+    border-color: var(--text);
+    background: var(--primary-darkest);
+    box-shadow: 0 0 0 0.25em color-mix(in oklch, var(--primary-light) 25%, transparent);
 
-    .systemName {
-        color: var(--primary-lightest);
+    .unknownSystem, .unknownLabel {
+        color: var(--text);
+    }
+
+    .unknownLabel {
+        display: none;
+    }
+
+    .dropLabel {
+        display: block;
     }
 }
 
-.unknownSystem {
-    color: var(--grey-mid);
-    font-size: 4em;
+.systemIcon {
+    width: 2.125em;
+    height: 2.125em;
+    color: var(--primary-light);
 }
 
 .systemName {
-    color: var(--grey-light);
+    font-size: 0.9375em;
+    font-weight: 700;
     text-transform: capitalize;
-    font-size: 1.5em;
+}
+
+.unknownSystem {
+    font-size: 1.875em;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--primary-light);
+}
+
+.unknownLabel, .dropLabel {
+    font-size: 0.75em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--label);
+}
+
+.dropLabel {
+    display: none;
+    color: var(--text);
 }

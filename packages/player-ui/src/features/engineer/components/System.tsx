@@ -1,9 +1,10 @@
 import { IArray } from '@colyseus/react';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'common-data/features/ships/types/SystemEffectDefinition';
+import { Button } from 'common-ui/components/Button';
+import { default as HealthIcon } from 'common-ui/icons/health.svg?react';
 import { SystemIcon } from 'common-ui/icons/systems';
 import { classNames } from 'common-ui/utils/classNames';
-import { default as HealthIcon } from '../../header/assets/health.svg?react';
 import { default as PowerIcon } from '../../header/assets/power.svg?react';
 import { default as CardDrawIconIcon } from '../assets/card-draw.svg?react';
 import { EffectList } from './EffectList';
@@ -28,20 +29,16 @@ export const System = (props: Props) => {
         <div className={styles.system}>
             <h2 className={styles.name}>
                 {/* The whole name is the button, as narrow tiles have no room for one beside it. */}
-                <button
-                    type="button"
+                <Button
+                    outlined
                     className={styles.nameButton}
+                    startIcon={<SystemIcon system={props.system} />}
                     onClick={props.onViewCards}
                     aria-label={`View ${props.system} cards`}
                     title={`View ${props.system} cards`}
                 >
-                    <SystemIcon
-                        system={props.system}
-                        className={styles.image}
-                    />
-
                     {props.system}
-                </button>
+                </Button>
             </h2>
 
             <CardDrawIconIcon className={classNames(styles.generating, props.generating ? styles.currentlyGenerating : undefined)} />

@@ -14,6 +14,7 @@ import {
 } from 'common-data/features/cards/utils/cardDefinitions';
 import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { projectileFlightTime } from 'common-data/features/space/types/WeaponEffect';
 import { IRandom } from 'common-data/types/IRandom';
 import { choiceEvaluator } from 'src/ai/evaluators';
 import { distributePowerEvaluator, powerBoostEvaluator } from 'src/ai/evaluators/engineer';
@@ -46,6 +47,7 @@ import {
     EngineNoTargetCardDefinition,
 } from './EngineCardDefinition';
 import { getReactorCardTypeForSystem } from './getReactorCardTypeForSystem';
+import type { GameState } from 'src/state/GameState';
 import type { Ship } from 'src/state/Ship';
 import type { WeaponSlotState } from 'src/state/systems/tactical/WeaponSlotState';
 
@@ -143,30 +145,63 @@ function getTargetPosition(target: GameObject | null, time: number) {
     return { x, y };
 }
 
-function tryToDamage(
+/**
+ * Fire a weapon at a target, telling clients to show that. Whether it will hit is settled now, but any damage lands when the shot arrives.
+ * A target that's gone by then takes no damage: the shot just carries on to where it was.
+ */
+function fireShot(
+    gameState: GameState,
+    ship: Ship,
     target: GameObject | null,
-    random: IRandom,
+    weapon: string,
     accuracy: number,
     damageAmount: number | null | undefined,
-    traits: WeaponTrait[]
-): boolean {
-    if (!target || !damageAmount) {
-        return false;
+    traits: WeaponTrait[],
+    flightTime = 0
+) {
+    const hits = !!target && !!damageAmount && rollToHit(gameState.random, getTargetEvasion(target), accuracy);
+
+    gameState.broadcastWeaponEffect({
+        type: 'shot',
+        weapon,
+        sourceId: ship.id,
+        targetId: target?.id,
+        targetPosition: getTargetPosition(target, gameState.currentTime),
+        missed: hits ? undefined : true,
+        startTime: gameState.currentTime,
+    });
+
+    if (!hits) {
+        return;
     }
 
-    const evasion = getTargetEvasion(target);
+    const land = () => {
+        if (gameState.objects.get(target.id) !== target) {
+            return;
+        }
 
-    if (rollToHit(random, evasion, accuracy)) {
         // TODO: ability to target a specific system or vulnerability.
-        target.damage({
+        const damage = target.damage({
             amount: damageAmount,
             traits,
         });
 
-        return true;
-    }
+        if (isShip(target)) {
+            gameState.broadcastWeaponEffect({
+                type: 'impact',
+                sourceId: ship.id,
+                targetId: target.id,
+                damage,
+                startTime: gameState.currentTime,
+            });
+        }
+    };
 
-    return false;
+    if (flightTime > 0) {
+        gameState.setTimeout(land, flightTime);
+    } else {
+        land();
+    }
 }
 
 function loadCardDefinitions() {
@@ -270,21 +305,7 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
-                const targetPosition = getTargetPosition(target, gameState.currentTime);
-                tryToDamage(target, gameState.random, accuracy, parameters.damage, weaponTraits);
-
-                gameState.broadcastWeaponEffect({
-                    type: 'beam',
-                    sourceId: ship.id,
-                    targetId: target?.id,
-                    targetPosition,
-                    color: '#ff4400',
-                    thickness: 0.15,
-                    brightness: 1.5,
-                    duration: 600,
-                    startTime: gameState.currentTime,
-                });
-
+                fireShot(gameState, ship, target, 'phaserCannon', accuracy, parameters.damage, weaponTraits);
                 return true;
             },
         },
@@ -294,21 +315,7 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
-                const targetPosition = getTargetPosition(target, gameState.currentTime);
-                tryToDamage(target, gameState.random, accuracy, parameters.damage, weaponTraits);
-
-                gameState.broadcastWeaponEffect({
-                    type: 'beam',
-                    sourceId: ship.id,
-                    targetId: target?.id,
-                    targetPosition,
-                    color: '#ff8800',
-                    thickness: 0.1,
-                    brightness: 1.2,
-                    duration: 800,
-                    startTime: gameState.currentTime,
-                });
-
+                fireShot(gameState, ship, target, 'phaserStrip', accuracy, parameters.damage, weaponTraits);
                 return true;
             },
         },
@@ -318,21 +325,7 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
-                const targetPosition = getTargetPosition(target, gameState.currentTime);
-                tryToDamage(target, gameState.random, accuracy, parameters.damage, weaponTraits);
-
-                gameState.broadcastWeaponEffect({
-                    type: 'beam',
-                    sourceId: ship.id,
-                    targetId: target?.id,
-                    targetPosition,
-                    color: '#ffcc00',
-                    thickness: 0.25,
-                    brightness: 2,
-                    duration: 1000,
-                    startTime: gameState.currentTime,
-                });
-
+                fireShot(gameState, ship, target, 'photonicCannon', accuracy, parameters.damage, weaponTraits);
                 return true;
             },
         },
@@ -342,21 +335,7 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
-                const targetPosition = getTargetPosition(target, gameState.currentTime);
-                tryToDamage(target, gameState.random, accuracy, parameters.damage, weaponTraits);
-
-                gameState.broadcastWeaponEffect({
-                    type: 'projectile',
-                    sourceId: ship.id,
-                    targetId: target?.id,
-                    targetPosition,
-                    color: '#ffd000',
-                    thickness: 0.2,
-                    brightness: 2,
-                    duration: 1200,
-                    startTime: gameState.currentTime,
-                });
-
+                fireShot(gameState, ship, target, 'photonTorpedo', accuracy, parameters.damage, weaponTraits, projectileFlightTime);
                 return true;
             },
         },
@@ -366,21 +345,7 @@ function loadCardDefinitions() {
                 return true;
             },
             fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
-                const targetPosition = getTargetPosition(target, gameState.currentTime);
-                tryToDamage(target, gameState.random, accuracy, parameters.damage, weaponTraits);
-
-                gameState.broadcastWeaponEffect({
-                    type: 'projectile',
-                    sourceId: ship.id,
-                    targetId: target?.id,
-                    targetPosition,
-                    color: '#89caff',
-                    thickness: 0.2,
-                    brightness: 2,
-                    duration: 1200,
-                    startTime: gameState.currentTime,
-                });
-
+                fireShot(gameState, ship, target, 'quantumTorpedo', accuracy, parameters.damage, weaponTraits, projectileFlightTime);
                 return true;
             },
         },

@@ -1,83 +1,274 @@
+/* Scale with the window, so the lobby fills it whichever dimension is the limit. 1em is 16px on a 1600 x 900 screen. */
+.screen {
+    position: relative;
+    font-size: min(1vw, 1.78vh);
+    color: var(--text);
+    background-color: var(--space);
+    background-image:
+        linear-gradient(var(--grid-line) 0.0625em, transparent 0.0625em),
+        linear-gradient(90deg, var(--grid-line) 0.0625em, transparent 0.0625em);
+    background-size: 3em 3em;
+}
+
 .title {
-    font-size: 3em;
-}
-
-.sections {
-    display: flex;
-    gap: 3em;
-}
-
-.section {
-    flex: 1 1;
-}
-
-.sectionHeading {
+    font-family: var(--title-font-family);
     font-size: 1.75em;
+    line-height: 1.2;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
-.url {
-    color: var(--grey-lightest);
-    user-select: all;
+.crewChip {
+    padding: 0.33em 0.9em;
+    border: 0.083em solid var(--primary-light);
+    border-radius: 999px;
+    font-size: 1.125em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--primary-light);
+}
+
+.disconnect {
+    font-size: 1.25em;
+    height: 2.6em;
+}
+
+.body {
+    flex-grow: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 29.25em minmax(0, 1fr);
+    gap: 3em;
+    padding: 2.75em 3.5em 3em;
+}
+
+.label {
+    font-size: 1.0625em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--label);
+}
+
+.joinPanel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.125em;
+    padding: 2em;
+    background-color: var(--panel);
+    border: 0.094em solid var(--line);
+    border-radius: 0 1.75em 0 1.75em;
+    corner-shape: bevel;
 }
 
 .qrCodeContainer {
     position: relative;
-    margin-top: 1em;
-    width: 100%;
-    height: 40em;
+    align-self: center;
+    width: 23.75em;
+    max-width: 100%;
+    padding: 1.25em;
+    background-color: oklch(0.93 0.01 265);
+    border-radius: 0 1.25em 0 1.25em;
+    corner-shape: bevel;
 }
 
 .qrCode {
     width: 100%;
-    height: 100%;
+    height: auto;
 }
 
-.fullSize {
+.full {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 20em;
+    gap: 0.4em;
+    border-radius: inherit;
+    corner-shape: bevel;
+    background-color: color-mix(in oklch, var(--space) 90%, transparent);
+    color: var(--good-light);
+    font-size: 1.625em;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.full .check {
+    width: 2.5em;
+    height: 2.5em;
+}
+
+.check {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.joinPanel .label + .url {
+    margin-top: -0.5em;
+}
+
+.url {
+    font-family: var(--readout-font-family);
+    font-size: 1.625em;
+    color: var(--text);
+    user-select: all;
+    overflow-wrap: anywhere;
+}
+
+.hint {
+    font-size: 1.1875em;
+    line-height: 1.45;
+    color: var(--text-muted);
+}
+
+.stations {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.125em;
+}
+
+.stationsHeader {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.crewedCount {
+    font-family: var(--readout-font-family);
+    font-size: 1.625em;
 }
 
 .roleList {
-    margin: 1em 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25em;
+}
+
+.status, .countdown {
+    min-height: 8em;
     display: flex;
-    flex-direction: column;
-    gap: 1em;
+    align-items: center;
+    gap: 1.5em;
+    padding: 1em 2em;
+    border-radius: 0 1.625em 0 1.625em;
+    corner-shape: bevel;
+}
+
+.status {
+    border: 0.094em solid var(--line);
+    background-color: var(--panel);
 }
 
 .countdown {
+    border: 0.125em solid var(--primary-light);
+    background-color: var(--primary-darkest);
+    box-shadow: inset 0 0 2.25em color-mix(in oklch, var(--primary-lightest) 14%, transparent);
+}
+
+.statusDot {
+    width: 0.875em;
+    height: 0.875em;
+    flex-shrink: 0;
+    margin: 0 0.4em;
+    border-radius: 50%;
+    background-color: var(--primary-light);
+    box-shadow: 0 0 0 0.44em color-mix(in oklch, var(--primary-light) 20%, transparent);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    50% {
+        box-shadow: 0 0 0 0.2em color-mix(in oklch, var(--primary-light) 10%, transparent);
+    }
+}
+
+.statusText {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+}
+
+.statusTitle {
+    font-size: 1.625em;
+    font-weight: 700;
+}
+
+.countdown .statusTitle {
+    font-size: 2.125em;
+}
+
+.statusDetail {
+    font-size: 1.25em;
+    color: var(--text-muted);
+}
+
+.statusDetail strong {
+    color: var(--text);
+}
+
+/* A ring that sweeps round once a second, around the seconds left. */
+.countdownValue {
+    font-family: var(--readout-font-family);
+    font-weight: 400;
+    position: relative;
+    width: 1.7em;
+    height: 1.7em;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
-    gap: 1em;
-    margin-top: 1.5em;
-    padding: 0.5em 1.5em;
-    border-radius: 1em;
-    corner-shape: squircle;
-    background-color: var(--primary-darkest);
-    border: solid var(--primary-light) 0.2em;
-}
-
-.countdownValue {
-    font-size: 4em;
-    font-weight: bold;
-    color: var(--grey-lightest);
-    min-width: 1ch;
-    text-align: center;
-}
-
-.numUnassigned {
-    color: var(--grey-lightest);
-}
-
-.footer {
-    display: flex;
     justify-content: center;
-    gap: 2em;
-    margin-top: 2em;
+    font-size: 3.375em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.countdownValue::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 0.074em solid var(--primary-light);
+    border-right-color: color-mix(in oklch, var(--primary-light) 25%, transparent);
+    border-radius: 50%;
+    animation: sweep 1s linear infinite;
+}
+
+@keyframes sweep {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .statusDot, .countdownValue::before {
+        animation: none;
+    }
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375em;
+}
+
+.wordmark {
+    font-family: var(--title-font-family);
+    font-size: 1.25em;
+    line-height: 1;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.divider {
+    width: 0.094em;
+    height: 2.75em;
+    background-color: var(--line);
 }

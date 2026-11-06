@@ -3,6 +3,7 @@ import { Screen } from 'common-ui/components/Screen';
 import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
 import { useWakeLock } from 'common-ui/hooks/useWakeLock';
 import { useState } from 'react';
+import { CrewGameEnded } from '../features/gameEnded/CrewGameEnded';
 import { GameLobby } from '../features/lobby/GameLobby';
 import { useRoomConnection } from '../hooks/useRoomConnection';
 import { CrewUI } from './CrewUI';
@@ -52,6 +53,12 @@ export const PlayerUI = () => {
             }
         } else if (serverState === 'paused') {
             return <Screen centered>paused</Screen>;
+        } else if (serverState === 'ended') {
+            if (room) {
+                return <CrewGameEnded room={room} />;
+            } else {
+                console.warn('expected room to be set when serverState is ended');
+            }
         } else {
             console.warn('unexpected serverState', serverState);
         }

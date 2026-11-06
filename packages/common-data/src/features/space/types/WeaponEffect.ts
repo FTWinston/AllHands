@@ -1,26 +1,51 @@
 import { ObjectId } from './GameObjectInfo';
+import { ObjectAppearance } from './ObjectAppearance';
+import { Position } from './Position';
+import { Vector2D } from './Vector2D';
 
-/** The visual type of weapon effect to display. */
-export type WeaponEffectType = 'beam' | 'projectile' | 'explosion';
+/** How long a projectile takes to reach its target, in game-time milliseconds. Its damage lands when it arrives. */
+export const projectileFlightTime = 1200;
 
-/** A weapon effect to be displayed on SpaceMap clients. */
-export interface WeaponEffect {
-    /** The type of visual effect. */
-    type: WeaponEffectType;
-    /** The object ID of the source (firing) ship. */
+/** A weapon or deflector being fired. How it looks is up to each client, based on the card type. */
+export interface ShotEffect {
+    type: 'shot';
+    /** The type of the card that fired. */
+    weapon: string;
+    /** The object ID of the firing ship. */
     sourceId: ObjectId;
-    /** The object ID of the target. If not specified, the effect projects forward from the source, rotating with it. */
+    /** The object ID of the target. If not specified, the shot goes straight ahead of its source. */
     targetId?: ObjectId;
     /** Target position when fired, used if the target no longer exists (e.g. destroyed by this shot). */
-    targetPosition?: { x: number; y: number };
-    /** CSS color string for the effect (e.g. '#ff0000', 'orange'). */
-    color: string;
-    /** Thickness of the effect in world units. */
-    thickness: number;
-    /** Brightness multiplier (1 = normal, >1 = brighter glow). Default 1. */
-    brightness?: number;
-    /** Duration of the effect in game-time milliseconds. */
-    duration: number;
+    targetPosition?: Vector2D;
+    /** True if this shot won't hit. Shots that do hit are followed by an impact, once they land. */
+    missed?: boolean;
     /** The server game time at which the effect starts. */
     startTime: number;
 }
+
+/** A shot landing on a ship. */
+export interface ImpactEffect {
+    type: 'impact';
+    /** The object ID of the firing ship, which may no longer exist. */
+    sourceId: ObjectId;
+    /** The object ID of the ship that was hit, which may no longer exist. */
+    targetId: ObjectId;
+    /** How much damage got through the shields. Zero if they absorbed it all. */
+    damage: number;
+    /** The server game time at which the effect starts. */
+    startTime: number;
+}
+
+/** A ship exploding. Everything needed to draw it is included, as the ship itself is removed straight away. */
+export interface ExplosionEffect {
+    type: 'explosion';
+    /** The object ID of the ship that exploded, which no longer exists. */
+    sourceId: ObjectId;
+    appearance: ObjectAppearance;
+    position: Position;
+    /** The server game time at which the effect starts. */
+    startTime: number;
+}
+
+/** Something to be displayed on SpaceMap clients. */
+export type WeaponEffect = ShotEffect | ImpactEffect | ExplosionEffect;

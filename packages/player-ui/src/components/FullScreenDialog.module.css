@@ -7,7 +7,7 @@
     z-index: 10;
     display: flex;
     flex-direction: column;
-    background-color: var(--grey-darkest);
+    background-color: var(--space);
     color: var(--grey-lightest);
     transition: opacity 150ms;
 
@@ -17,22 +17,38 @@
     }
 }
 
+/* Tall enough for its close button, or the same without one. */
 .header {
     display: flex;
     align-items: center;
     gap: 0.75em;
-    padding: 0.5em 1em;
-    background-color: var(--primary-darkest);
-    border-bottom: solid var(--primary-mid) 2px;
+    min-height: 2.5em;
+    padding: 0.25em 0.25em 0.25em 1em;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    border-bottom: solid var(--primary-mid) 1px;
 }
 
 .title {
     margin: 0;
     flex-grow: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 1.5em;
+    font-size: 1.25em;
+    line-height: 1em;
     font-weight: 500;
     color: var(--primary-light);
+}
+
+button.close {
+    padding: 0.25em;
+}
+
+.closeIcon {
+    width: 1.5em;
+    height: 1.5em;
 }
 
 .body {

@@ -68,6 +68,15 @@ export const SingleCrewFullyOccupied: Story = {
     },
 };
 
+/** The countdown has finished, and the lobby is fading out. */
+export const SingleCrewLaunching: Story = {
+    args: {
+        ...SingleCrewFullyOccupied.args,
+        startCountdown: 0,
+        launching: true,
+    },
+};
+
 export const MultipleCrewEmpty: Story = {
     args: {
         crewId: 'ABC',

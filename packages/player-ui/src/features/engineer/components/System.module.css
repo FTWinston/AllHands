@@ -1,7 +1,7 @@
 .system {
     position: relative;
-    border-radius: 1.5em;
-    corner-shape: squircle;
+    border-radius: 0 1.5em 0 1.5em;
+    corner-shape: bevel;
     border: solid 0.1em var(--primary-mid);
     background-color: var(--primary-darkest-muted);
     padding: 0.25em 0.5em 0.5em 0.5em;
@@ -48,11 +48,6 @@
     text-transform: capitalize;
 }
 
-.image {
-    height: 1em;
-    color: var(--primary-light);
-}
-
 .attribute {
     display: flex;
     align-items: baseline;
@@ -92,6 +87,8 @@
     right: 0.5em;
     width: 2em;
     height: 2em;
+    /* It can overlap the end of a long name, which is a button. */
+    pointer-events: none;
 }
 
 .currentlyGenerating {
@@ -107,24 +104,20 @@
 .noHealth {
     color: var(--danger-mid);
 }
-/* Looks like the heading it's in, with an outline to show it can be pressed. */
-.nameButton {
-    display: flex;
-    align-items: center;
-    gap: 0.5em;
-    margin: 0 0 0 -0.25em;
-    padding: 0 0.25em;
-    border: none;
-    border-radius: 0.3em;
-    box-shadow: var(--primary-mid) 0 0 0 1px inset;
-    background: none;
-    color: inherit;
-    font: inherit;
-    text-transform: inherit;
-    cursor: pointer;
 
-    &:hover,
-    &:focus-visible {
-        background-color: var(--primary-dark);
+/* Keeps the size and casing of the heading it's in. */
+button.nameButton {
+    gap: 0.25em;
+    max-width: fit-content;
+    margin-left: -0.25em;
+    padding: 0.125em 0.5em 0.125em 0.25em;
+    font-size: 1em;
+    font-weight: inherit;
+    text-transform: inherit;
+
+    /* Narrow tiles shouldn't squash the icon. */
+    & > span {
+        flex-shrink: 0;
+        padding: 0;
     }
 }

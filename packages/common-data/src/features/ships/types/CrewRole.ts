@@ -33,6 +33,14 @@ export type CrewRole
 
 export type CrewRoleName = 'helm' | 'science' | 'tactical' | 'engineer';
 
+/** Every crew role, in the order their stations are listed. */
+export const crewRoleNames: readonly CrewRoleName[] = ['helm', 'tactical', 'science', 'engineer'];
+
+/** Whether the given system is one with a crew member, rather than e.g. the hull or reactor. */
+export function isCrewRoleName(system: string): system is CrewRoleName {
+    return (crewRoleNames as readonly string[]).includes(system);
+}
+
 export const getRole: (name: CrewRoleName) => CrewRole = (name: CrewRoleName) => {
     switch (name) {
         case 'helm': return ownHelmClientRole;

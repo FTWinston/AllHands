@@ -1,9 +1,9 @@
-import { Screen } from 'common-ui/components/Screen';
-
 import { FC } from 'react';
-import styles from './MainMenu.module.css';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
+
+/** Shown on the main menu. There are no numbered releases yet. */
+const gameVersion = 'Pre-alpha';
 
 type Props = {
     hostSingleCrewServer: () => void;
@@ -15,34 +15,39 @@ type Props = {
 
 export const MainMenu: FC<Props> = (props) => {
     return (
-        <Screen centered padded className={styles.screen}>
-            <Menu title="All Hands">
-                <MenuItem
-                    text="Start single-crew game"
-                    onClick={props.hostSingleCrewServer}
-                />
+        <Menu footer={`Version: ${gameVersion}`}>
+            <MenuItem
+                text="Start single-crew game"
+                number={1}
+                emphasis="primary"
+                onClick={props.hostSingleCrewServer}
+            />
 
-                <MenuItem
-                    text="Host multi-crew game"
-                    onClick={props.hostMultiCrewServer}
-                />
+            <MenuItem
+                text="Host multi-crew game"
+                number={2}
+                onClick={props.hostMultiCrewServer}
+            />
 
-                <MenuItem
-                    text="Join multi-crew game"
-                    onClick={props.joinMultiCrewServer}
-                />
+            <MenuItem
+                text="Join multi-crew game"
+                number={3}
+                onClick={props.joinMultiCrewServer}
+            />
 
-                <MenuItem
-                    text="Card compendium"
-                    onClick={props.showCardCompendium}
-                />
+            <MenuItem
+                text="Card compendium"
+                number={4}
+                onClick={props.showCardCompendium}
+            />
 
-                <MenuItem
-                    text="Quit"
-                    onClick={props.quit}
-                    confirmPrompt="Are you sure you want to quit?"
-                />
-            </Menu>
-        </Screen>
+            <MenuItem
+                text="Quit"
+                number={5}
+                emphasis="danger"
+                onClick={props.quit}
+                confirmPrompt="Are you sure you want to quit?"
+            />
+        </Menu>
     );
 };

@@ -27,7 +27,7 @@ function unlock() {
 }
 
 /**
- * Everything plays through a gentle low-pass filter and a short, dark echo, like an old console speaker in a metal room,
+ * Everything plays through a gentle low-pass filter and a dark echo, like a console speaker on a large metal bridge,
  * which takes the digital edge off the oscillators. A compressor lets explosions hit hard without clipping,
  * ducking anything quieter that's playing at the time.
  */
@@ -44,19 +44,19 @@ function createOutput(context: AudioContext) {
 
     const speaker = context.createBiquadFilter();
     speaker.type = 'lowpass';
-    speaker.frequency.value = 6000;
+    speaker.frequency.value = 5000;
     speaker.Q.value = 0.5;
     output.connect(compressor).connect(speaker).connect(context.destination);
 
     const echo = context.createDelay(1);
-    echo.delayTime.value = 0.11;
+    echo.delayTime.value = 0.15;
     const echoFilter = context.createBiquadFilter();
     echoFilter.type = 'lowpass';
-    echoFilter.frequency.value = 2500;
+    echoFilter.frequency.value = 2000;
     const feedback = context.createGain();
     feedback.gain.value = 0.3;
     const echoLevel = context.createGain();
-    echoLevel.gain.value = 0.2;
+    echoLevel.gain.value = 0.24;
 
     speaker.connect(echo).connect(echoFilter).connect(feedback).connect(echo);
     echoFilter.connect(echoLevel).connect(context.destination);
@@ -119,6 +119,11 @@ type ToneOptions = {
     warble?: { rate: number; cents: number; shape?: OscillatorNode['type'] };
     /** Ring modulate by a sine wave at this frequency, in Hz, for a metallic, electrical edge. */
     ring?: number;
+    /**
+     * Pass the tone through a low-pass filter, which can sweep from its frequency to its end frequency over the tone.
+     * On a sawtooth or square wave, this gives the warm, rounded sound of an analog synthesizer. A higher q makes it resonate.
+     */
+    filter?: { frequency: number; endFrequency?: number; q?: number };
     envelope?: Envelope;
     /** Seconds to fade in. Defaults to near-instant. */
     attack?: number;
@@ -165,6 +170,19 @@ export function playTone(options: ToneOptions) {
     const gain = context.createGain();
     applyEnvelope(gain, start, end, options.volume, options.envelope ?? 'gate', options.attack);
 
+    let destination: AudioNode = gain;
+    if (options.filter) {
+        const filter = context.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.Q.value = options.filter.q ?? 1;
+        filter.frequency.setValueAtTime(options.filter.frequency, start);
+        if (options.filter.endFrequency) {
+            filter.frequency.exponentialRampToValueAtTime(options.filter.endFrequency, end);
+        }
+        filter.connect(gain);
+        destination = filter;
+    }
+
     if (options.ring) {
         // A gain of zero, driven up and down by the modulator, multiplies the two signals together.
         const ring = context.createGain();
@@ -173,9 +191,9 @@ export function playTone(options: ToneOptions) {
         modulator.frequency.value = options.ring;
         modulator.connect(ring.gain);
         sources.push(modulator);
-        oscillator.connect(ring).connect(gain);
+        oscillator.connect(ring).connect(destination);
     } else {
-        oscillator.connect(gain);
+        oscillator.connect(destination);
     }
 
     gain.connect(output);
@@ -235,7 +253,7 @@ export function playNoise(options: NoiseOptions) {
  * Pitches for computer chatter. Deliberately not from any musical scale,
  * so a run of them sounds like a machine at work rather than a tune.
  */
-const chatterFrequencies = [587, 740, 905, 1110, 1310, 1570, 1830, 2210, 2640];
+const chatterFrequencies = [410, 520, 635, 775, 915, 1100, 1280, 1545, 1850];
 
 type ChatterOptions = {
     /** How many bleeps. */
@@ -247,7 +265,7 @@ type ChatterOptions = {
     volume: number;
 };
 
-/** Play a run of random bleeps and trills, like a bank of computers working something out. */
+/** Play a run of random burbling bleeps, like a bank of computers working something out. */
 export function playChatter(options: ChatterOptions) {
     let previous = -1;
 
@@ -259,16 +277,20 @@ export function playChatter(options: ChatterOptions) {
         }
         previous = index;
 
-        const isSquare = Math.random() < 0.3;
+        const isSquare = Math.random() < 0.15;
+        const frequency = chatterFrequencies[index];
 
         playTone({
             type: isSquare ? 'square' : 'sine',
-            frequency: chatterFrequencies[index],
-            warble: Math.random() < 0.25 ? { rate: 25, cents: 300, shape: 'square' } : undefined,
+            frequency,
+            // Each bleep bends a little, up or down, so a run of them burbles.
+            endFrequency: frequency * (Math.random() < 0.5 ? 1.06 : 0.94),
+            filter: isSquare ? { frequency: frequency * 2 } : undefined,
+            warble: Math.random() < 0.1 ? { rate: 18, cents: 150 } : undefined,
             delay: (options.delay ?? 0) + i * options.step,
             duration: options.step * 0.8,
             // Square waves sound much louder than sine waves at the same volume.
-            volume: isSquare ? options.volume * 0.4 : options.volume,
+            volume: isSquare ? options.volume * 0.5 : options.volume,
         });
     }
 }

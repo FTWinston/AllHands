@@ -1,18 +1,18 @@
 .target {
-    aspect-ratio: 1 / 1;
-    --targetSize: min(calc(100vw - var(--scroll-padding) * 2), calc(40dvh - 4em));
+    --targetSize: calc(100vw - var(--scroll-padding, 1em) * 2);
     --targetSidePadding: 1em;
-    height: var(--targetSize);
-    background-color: var(--primary-darkest-muted);
-    border: solid var(--color-mid) 0.1em;
-    border-radius: 3em;
-    corner-shape: squircle;
-    padding: 0.5em var(--targetSidePadding);
+    width: var(--targetSize);
+    height: min(var(--targetSize), calc(40dvh - 4em));
+    background-color: var(--panel);
+    border: 0.094em solid color-mix(in oklch, var(--primary-light) 45%, transparent);
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
+    padding: 0.875em var(--targetSidePadding) 0.5em;
 
     position: relative;
     display: grid;
-    grid-template-columns: 1fr 3.5em;
-    grid-template-rows: 1.5em 1fr 4em;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr 4em;
 
     grid-template-areas:
         "name count"
@@ -21,31 +21,68 @@
 }
 
 .name {
-    font-size: 1.25em;
     grid-area: name;
-    color: var(--grey-light);
+    display: flex;
+    flex-direction: column;
+    gap: 0.125em;
+}
+
+.label {
+    font-size: 0.6875em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--label);
+}
+
+.nameText {
+    font-size: 1.25em;
+    line-height: 1.1;
+    color: var(--text);
 }
 
 .count {
     grid-area: count;
     justify-self: end;
+    font-size: 0.8125em;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--label);
+}
+
+/* Targeting brackets around the ship. It also takes the sub-target row's space while there are none, giving it up smoothly when they appear. */
+.frame {
+    grid-row: 2 / span 2;
+    grid-column: 1 / -1;
+    position: relative;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.625em 1.875em 0.25em;
+    padding: 0.75em;
+    transition: margin-bottom 250ms ease-in-out;
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border: 0.19em solid var(--primary-light);
+        border-radius: 0.5em;
+        mask: conic-gradient(at 1.875em 1.875em, transparent 75%, black 0) 0 0 / calc(100% - 1.875em) calc(100% - 1.875em);
+        pointer-events: none;
+    }
+}
+
+.hasVulnerabilities .frame {
+    margin-bottom: 4.25em;
 }
 
 .image {
-    grid-area: image;
+    max-width: 100%;
+    max-height: 100%;
     object-fit: contain;
-    color: var(--color-lightest);
-    justify-self: center;
-     /* Allow smooth transitions between the default (overflowing) size and the reduced size.
-         Use max-height because height:auto is not animatable; give a bit of extra so the
-         default state visually appears to overflow the allocated area. */
-     max-height: calc(100% + 4em);
-     transition: max-height 250ms ease-in-out;
-     will-change: max-height;
-}
-
-.hasVulnerabilities .image {
-     max-height: 100%;
+    color: var(--primary-light);
 }
 
 .vulnerabilities {

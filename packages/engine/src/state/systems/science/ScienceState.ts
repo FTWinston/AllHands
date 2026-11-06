@@ -11,6 +11,7 @@ import { EngineCardDefinition, EngineScanTargetCardDefinition, EngineEnemyTarget
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { resolveParameters } from 'src/cards/resolveParameters';
 import { CardState } from 'src/state/CardState';
+import { CooldownState } from 'src/state/CooldownState';
 import { GameState } from 'src/state/GameState';
 import { SectorDestinationState } from 'src/state/SectorDestinationState';
 import { Ship } from 'src/state/Ship';
@@ -291,11 +292,17 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     }
 
     private copyHelmData(state: ScannedHelmState, source: Ship['helmState']): void {
+        state.power = source.powerLevel;
         state.activeManeuver = source.activeManeuver?.card?.cloneCard() ?? null;
+        state.maneuverProgress = source.activeManeuver
+            ? new CooldownState(source.activeManeuver.startTime, source.activeManeuver.endTime)
+            : null;
         state.evasionChance = source.activeManeuver?.card?.getParameter('evasion') ?? 0;
     }
 
     private copyTacticalData(state: ScannedTacticalState, source: Ship['tacticalState']): void {
+        state.power = source.powerLevel;
+
         // Make the slots be the same length.
         while (state.weaponSlots.length < source.slots.length) {
             const src = source.slots[state.weaponSlots.length];
@@ -310,6 +317,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             const dest = state.weaponSlots[i];
             dest.charge = src.charge;
             dest.card = src.card?.cloneCard() ?? null;
+            dest.modifierCard = src.modifierCard;
             dest.modifiers.clear();
             for (const [key, value] of src.modifiers) {
                 dest.modifiers.set(key, value);
@@ -318,10 +326,13 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     }
 
     private copyScienceData(state: ScannedScienceState, source: Ship['scienceState']): void {
+        state.power = source.powerLevel;
         state.deflectorCard = source.deflectorCard.cloneCard() ?? null;
     }
 
     private copyEngineerData(state: ScannedEngineerState, source: Ship['engineerState']): void {
+        state.power = source.powerLevel;
+
         // Make the tiles be the same length.
         while (state.engineerTiles.length < source.systems.length) {
             state.engineerTiles.push(new ScannedEngineerTileState('hull'));
@@ -379,6 +390,16 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             console.log('deflector card refused to play');
             return null;
         }
+
+        const { x, y } = target.getPosition(this.getGameState().currentTime);
+        this.getGameState().broadcastWeaponEffect({
+            type: 'shot',
+            weapon: this.deflectorCard.type,
+            sourceId: this.getShip().id,
+            targetId: target.id,
+            targetPosition: { x, y },
+            startTime: this.getGameState().currentTime,
+        });
 
         // The main deflector card has been played, and should be expended.
         this.handlePlayedCard(this.deflectorCard, -1, false);

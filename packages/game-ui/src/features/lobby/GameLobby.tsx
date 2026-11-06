@@ -116,6 +116,7 @@ export const GameLobby: FC<Props> = (props) => {
                 numUnassigned={numUnassigned}
                 isFull={isFull}
                 startCountdown={startCountdown}
+                launching={sceneChange === 'start'}
             />
             <ScreenFade covered={sceneChange === 'start'} />
         </>

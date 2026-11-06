@@ -23,7 +23,7 @@ type Story = StoryObj<typeof meta>;
 export const TacticalTarget: Story = {
     args: {
         id: 'Enemy-01',
-        appearance: 'starfighter',
+        appearance: 'swallowtail-interceptor',
         targetNumber: 1,
         totalTargets: 3,
         subTargets: [{ id: 'helm', system: 'helm', aspect: 0 }, { id: 'tactical', system: 'tactical', aspect: Math.PI }],

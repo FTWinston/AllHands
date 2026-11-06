@@ -1,40 +1,53 @@
-.weaponSlot {
-    background-color: var(--color-mid);
-    padding: 0.125em;
-    border-radius: 1.5em;
-    corner-shape: squircle;
-    border: solid 0.1em var(--color-mid);
-    display: grid;
-    grid-template-columns: auto 3em;
-    grid-template-rows: auto 2.5em;
-    grid-template-areas:
-        "card progress"
-        "status progress";
-    justify-content: space-evenly;
-    gap: 0.25em;
+/* One weapon slot: its card held beside its charge meter, with its status along the bottom edge. */
+.slot {
+    --status-color: var(--energy-light);
+    display: flex;
+    flex-direction: column;
+    background-color: var(--panel-raised);
+    border: 0.094em solid var(--line);
+    border-radius: 0 1.125em 0 1.125em;
+    corner-shape: bevel;
+    transition: border-color 0.333s ease;
+}
 
-    transition: transform 0.333s ease;
+.empty {
+    border-style: dashed;
+    border-color: color-mix(in oklch, var(--primary-light) 50%, transparent);
+}
+
+/* Ready to fire, or unable to: the slot's own colour palette says which. */
+.alert {
+    --status-color: var(--color-light);
+    border-color: color-mix(in oklch, var(--color-light) 65%, transparent);
+}
+
+/* Ready to fire: lit from behind, like a console lamp. */
+.ready {
+    box-shadow:
+        inset 0 0 1.75em color-mix(in oklch, var(--color-light) 22%, transparent),
+        0 0 1em color-mix(in oklch, var(--color-light) 22%, transparent);
+}
+
+.body {
+    display: flex;
+    gap: 0.375em;
+    padding: 0.5em;
+}
+
+.cradle, .emptyCradle {
+    flex-shrink: 0;
+    display: grid;
+    border-radius: 0.75em;
+    corner-shape: squircle;
+    --drop-outline-width: 0.167em;
 }
 
 .cardWrapper {
-    grid-area: card;
+    grid-area: 1 / 1;
     font-size: 0.667em;
     position: relative;
-    corner-shape: squircle;
-    border-radius: 1.5em;
 }
 
-.modifyTarget {
-    grid-area: card;
-    display: grid;
-    corner-shape: squircle;
-    border-radius: 1.5em;
-    --drop-outline-width: 0.167em; /* matches the empty slot's outline, which is drawn in the 0.667em zoomed-out wrapper */
-
-    .cardWrapper {
-        grid-area: 1 / 1;
-    }
-}
 .card {
     transition: transform 0.33s ease-in-out;
     transform-origin: top left;
@@ -46,78 +59,122 @@
 }
 
 .actualCard:focus {
-    /* Shift by the slot's border + padding (0.225em of the slot, i.e. 0.3375em at this card's 0.667em font size) so the zoomed card aligns with the slot's outer corner. */
-    transform: translate(-0.3375em, -0.3375em) scale(1.5);
+    /* Shift by the slot's border and padding (0.594em of the slot, i.e. 0.89em at this card's 0.667em font size), so the zoomed card lines up with the slot's outer edge. */
+    transform: translate(-0.89em, -0.89em) scale(1.5);
     z-index: 10;
 }
 
-.cardSpace {
+.emptyCradle {
+    font-size: 0.667em;
+}
+
+/* The same size as a card, so an empty slot is the same size as a full one. */
+.cardSpace.cardSpace {
+    border-radius: 1.125em;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: solid var(--color-mid) 0.1em;
-    background-color: var(--primary-darkest);
+    padding: 0 1.5em;
+    border: dashed color-mix(in oklch, var(--primary-light) 55%, transparent) 0.2em;
+    background:
+        repeating-linear-gradient(135deg, color-mix(in oklch, var(--primary-light) 10%, transparent) 0 0.3em, transparent 0.3em 1.5em),
+        var(--space);
 }
 
 .noCardLabel {
-    font-size: 2em;
-    color: var(--grey-mid);
-    transition: color 0.2s ease-in-out;
-    text-align: center;
-
-    &:hover, &:focus {
-        color: var(--grey-light);
-    }
-}
-
-.statusIndicator {
-    grid-area: status;
-    flex-basis: 0;
-    flex-grow: 1;
-    letter-spacing: 0.1em;
-    font-weight: bold;
+    font-size: 1.5em;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    overflow: hidden;
-    padding: 0.33em;
-    transition: background-color 0.333s ease, color 0.333s ease;
-}
-
-.statusDisabled {
-    color: var(--color-light);
-    background-color: var(--color-darkest);
-    border-color: var(--color-darkest);
+    color: var(--label);
+    text-align: center;
 }
 
 .chargeTarget {
-    grid-area: progress;
+    flex: 0 0 1.625em;
     display: flex;
     flex-direction: column;
-    justify-self: stretch;
-    corner-shape: squircle;
-    border-radius: 1em;
+    corner-shape: bevel;
+    border-radius: 0 0.625em 0 0.625em;
     --drop-outline-width: 0.167em;
 }
 
 .progress {
+    /* Unlit cells are just outlined, so the lit ones stand out. */
+    --energy-dark: transparent;
+    --energy-mid: color-mix(in oklch, var(--energy-light) 35%, transparent);
     flex-basis: 0;
     flex-grow: 1;
-    justify-self: stretch;
-    padding: 0.125em;
-    background-color: var(--color-darkest);
-    corner-shape: squircle;
-    border-radius: 1em;
+    gap: 0.25em;
+}
 
-    > :first-child {
-        corner-bottom-left-shape: squircle;
-        corner-bottom-right-shape: squircle;
-        border-bottom-left-radius: 1em;
-        border-bottom-right-radius: 1em;
-    }
+/* The meter's end cells take the slot's cut corners: bottom left on the bottom cell, top right on the top one. */
+.progress.progress > *, .emptyMeter {
+    border-radius: 0.125em;
+    corner-shape: bevel;
+}
 
-    > :last-child {
-        corner-top-left-shape: squircle;
-        corner-top-right-shape: squircle;
-        border-top-left-radius: 1em;
-        border-top-right-radius: 1em;
-    }
+.progress.progress > :first-child, .emptyMeter {
+    border-bottom-left-radius: 0.5em;
+}
+
+.progress.progress > :last-child, .emptyMeter {
+    border-top-right-radius: 0.5em;
+}
+
+/* An empty slot can't know how many cells its weapon will need, so its meter is one long faint cell. */
+.emptyMeter {
+    flex-grow: 1;
+    border: 0.1em solid color-mix(in oklch, var(--line) 70%, transparent);
+}
+
+.status {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.0625em;
+    /* The title's capitals sit lower in their line than the hint's text does, so trim the top to look even. */
+    padding: 0.375em 0.625em 0.5em;
+    border-top: 0.094em solid var(--line);
+    /* Round its tint into the slot's corners, without clipping the slot, which would cut off its card when zoomed. */
+    border-end-start-radius: calc(1.125em - 0.094em);
+    border-end-end-radius: calc(1.125em - 0.094em);
+    corner-shape: bevel;
+}
+
+.alert .status {
+    border-top-color: color-mix(in oklch, var(--color-light) 50%, transparent);
+    background-color: color-mix(in oklch, var(--color-light) 12%, transparent);
+}
+
+.statusEmpty {
+    --status-color: var(--label);
+}
+
+.statusUnmodified {
+    --status-color: var(--primary-light);
+}
+
+.statusCharging {
+    --status-color: var(--energy-light);
+}
+
+.statusTitle {
+    font-size: 0.75em;
+    line-height: 1.2;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--status-color);
+}
+
+.statusHint {
+    font-size: 0.6875em;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-muted);
 }

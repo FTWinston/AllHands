@@ -6,6 +6,7 @@ import { scaleToRange } from 'common-data/utils/scaleToRange';
 import { Rectangle } from '../types/Rectangle';
 import { drawHexGrid } from './drawHexGrid';
 import { drawObject } from './drawObject';
+import type { ShipMapStyle } from '../../../objects/mapSvg';
 
 export type drawFunction = (context: CanvasRenderingContext2D, bounds: Rectangle, pixelSize: number) => void;
 
@@ -59,7 +60,8 @@ export function drawMap(
     objects: Iterable<GameObjectInfo>,
     viewer: RelationshipViewer,
     drawExtraBackground?: drawFunction,
-    drawExtraForeground?: drawFunction
+    drawExtraForeground?: drawFunction,
+    shipStyle?: ShipMapStyle
 ) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -87,7 +89,7 @@ export function drawMap(
         ctx.translate(position.x, position.y);
         ctx.rotate(-position.angle);
 
-        drawObject(ctx, obj.appearance, getDisplayRelationship(obj, viewer));
+        drawObject(ctx, obj.appearance, getDisplayRelationship(obj, viewer), shipStyle);
 
         ctx.rotate(position.angle);
         ctx.translate(-position.x, -position.y);

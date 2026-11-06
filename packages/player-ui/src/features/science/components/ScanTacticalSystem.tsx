@@ -3,6 +3,7 @@ import { ScannedTacticalInfo } from 'common-data/features/space/types/GameObject
 import { DiscreteProgress } from 'common-ui/components/DiscreteProgress';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { resolveParameter } from 'common-ui/types/resolveParameters';
+import { classNames } from 'common-ui/utils/classNames';
 import { mergeModifiers } from 'src/features/tactical/utils/mergeModifiers';
 import { ScanBase } from './ScanBase';
 import { ScanCardSlot } from './ScanCardSlot';
@@ -31,11 +32,13 @@ const SlotDisplay = (props: SlotDisplayProps) => {
         <ScanCardSlot
             label={props.label}
             card={props.card}
-            emptyText="(Empty slot)"
+            emptyText="Empty slot"
             modifiers={mergedModifiers}
             slotted
-            cardNameClassName={styles.weaponCardName}
         >
+            <span className={classNames(styles.modifier, props.modifierCard ? null : styles.noModifier)}>
+                {props.modifierCard ? `+ ${getCardDefinition(props.modifierCard).name}` : 'No modifier'}
+            </span>
             <DiscreteProgress
                 className={styles.charge}
                 title="Charge progress"
@@ -54,8 +57,8 @@ export const ScanTacticalSystem = (props: Props) => {
 
     return (
         <ScanBase
-            contentClassName={styles.root}
             system="tactical"
+            power={props.power}
             vulnerability={props.vulnerability}
             targetName={props.name}
             targetId={props.targetId}

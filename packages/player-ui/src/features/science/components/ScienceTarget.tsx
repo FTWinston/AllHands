@@ -4,6 +4,8 @@ import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSy
 import { GameObjectInfo, ObjectId, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
+import crewStyles from 'common-ui/CrewColors.module.css';
+import { SystemIcon } from 'common-ui/icons/systems';
 import { ObjectIcon } from 'common-ui/objects';
 import { classNames } from 'common-ui/utils/classNames';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
@@ -36,21 +38,24 @@ const SelectableSystem = (props: SystemSelectorProps) => {
     const id = `target/${props.targetId}/${props.systemIndex}`;
 
     const content = props.system ? (
-        <div className={styles.systemName}>
-            {props.system}
-        </div>
+        <>
+            <SystemIcon className={styles.systemIcon} system={props.system} />
+            <span className={styles.systemName}>{props.system}</span>
+        </>
     )
         : (
-            <div className={styles.unknownSystem}>
-                ?
-            </div>
+            <>
+                <span className={styles.unknownSystem}>?</span>
+                <span className={styles.unknownLabel}>Unknown</span>
+                <span className={styles.dropLabel}>Drop to scan</span>
+            </>
         );
 
     return (
         <CardDropTarget
             targetType="scan"
             id={id}
-            className={styles.selectableSystem}
+            className={classNames(styles.selectableSystem, props.system ? crewStyles[props.system] : styles.unknown)}
             couldDropClassName={styles.selectableSystemCouldDrop}
             droppingClassName={styles.selectableSystemDropping}
         >
@@ -63,22 +68,25 @@ type NonRevealedProps = Pick<Props, 'id' | 'name' | 'appearance' | 'targetNumber
 
 const NonRevealedContent = (props: NonRevealedProps) => (
     <div className={styles.notRevealedContent}>
-        <h2 className={styles.name}>{props.name}</h2>
+        <div className={styles.name}>
+            <span className={styles.label}>Target</span>
+            <h2 className={styles.nameText}>{props.name}</h2>
+        </div>
 
         <div className={styles.count}>
-            #
-            {' '}
             {props.targetNumber}
-            {' '}
-            /
-            {' '}
+            {' / '}
             {props.totalTargets}
         </div>
 
-        <ObjectIcon
-            appearance={props.appearance}
-            className={styles.image}
-        />
+        <div className={styles.frame}>
+            <ObjectIcon
+                appearance={props.appearance}
+                className={styles.image}
+            />
+        </div>
+
+        <p className={styles.prompt}>Drag a scan card onto this ship</p>
 
         <ul className={styles.systemSelector}>
             <SelectableSystem systemIndex={0} targetId={props.id} system={props.systemOrder?.[0] === undefined ? undefined : shipSystems[props.systemOrder[0]]} />
@@ -111,12 +119,6 @@ export const ScienceTarget = (props: Props) => {
                             systemOrder={props.systemOrder}
                         />
                     );
-
-    /*
-props.identifiedVulnerability
-        ? <ScanVulnerability name={props.name} system="engineer" targetId={props.id} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
-        :
-                    */
 
     return (
         <div className={classNames(styles.rootOuter, colorPalettes.primary)}>

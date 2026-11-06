@@ -1,4 +1,5 @@
-import { FC } from 'react';
+import { sounds } from 'common-ui/features/sound/sounds';
+import { FC, useEffect } from 'react';
 import styles from './LowHullWarning.module.css';
 
 type Props = {
@@ -6,14 +7,36 @@ type Props = {
     maxHealth: number;
 };
 
-/** Below this fraction of hull health, the viewscreen's edges pulse red. */
+/** Below this fraction of hull health, the viewscreen goes to red alert. */
 const lowHullFraction = 0.25;
 
-/** A silent warning that the hull is close to failing: the edges of the screen slowly pulse red. */
+/** Red alert while the hull is close to failing: the screen's edges flash red a few times, then stay lit, with the hull's health at the top. */
 export const LowHullWarning: FC<Props> = ({ health, maxHealth }) => {
-    if (maxHealth <= 0 || health / maxHealth > lowHullFraction) {
+    const isCritical = maxHealth > 0 && health / maxHealth <= lowHullFraction;
+
+    // The klaxon sounds as the alert starts, in time with its flashes.
+    useEffect(() => {
+        if (isCritical) {
+            sounds.redAlert();
+        }
+    }, [isCritical]);
+
+    if (!isCritical) {
         return null;
     }
 
-    return <div className={styles.warning} role="status" aria-label="Hull integrity critical" />;
+    const percent = Math.max(0, Math.round((health / maxHealth) * 100));
+
+    return (
+        <div className={styles.warning} role="status" aria-label={`Warning: hull at ${percent}%`}>
+            <div className={styles.glow} />
+            <div className={styles.edge} />
+            <div className={`${styles.edge} ${styles.bottom}`} />
+            <div className={styles.plate} aria-hidden="true">
+                <span className={styles.plateTitle}>Warning</span>
+                <span className={styles.plateDivider} />
+                <span className={styles.plateValue}>{`Hull ${percent}%`}</span>
+            </div>
+        </div>
+    );
 };

@@ -1,6 +1,9 @@
 import { Snapshot } from '@colyseus/react';
 import { EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ScannedHelmInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { RadialProgress } from 'common-ui/components/RadialProgress';
+import crewStyles from 'common-ui/CrewColors.module.css';
+import { classNames } from 'common-ui/utils/classNames';
 import { ScanBase } from './ScanBase';
 import { ScanCardSlot } from './ScanCardSlot';
 import styles from './ScanHelmSystem.module.css';
@@ -13,12 +16,18 @@ type Props = Snapshot<ScannedHelmInfo> & {
 };
 
 export const ScanHelmSystem = (props: Props) => {
-    const evasionChancePercent = props.evasionChance;
+    const progress = props.maneuverProgress
+        ? (
+            <span className={classNames(styles.maneuverProgress, crewStyles.helm)}>
+                <RadialProgress progress={props.maneuverProgress} title="Maneuver progress" backgroundColor="var(--panel)" />
+            </span>
+        )
+        : undefined;
 
     return (
         <ScanBase
-            contentClassName={styles.root}
             system="helm"
+            power={props.power}
             vulnerability={props.vulnerability}
             targetName={props.name}
             targetId={props.targetId}
@@ -27,14 +36,13 @@ export const ScanHelmSystem = (props: Props) => {
             <ScanCardSlot
                 label="Maneuver"
                 card={props.activeManeuver}
-                emptyText="(No maneuver)"
+                emptyText="No maneuver"
+                end={progress}
             />
 
             <ScanSection label="Evasion">
-                <div className={styles.evasionValue}>
-                    {evasionChancePercent}
-                    %
-                </div>
+                {props.evasionChance}
+                %
             </ScanSection>
         </ScanBase>
     );

@@ -1,6 +1,5 @@
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
-import { SystemIcon } from 'common-ui/icons/systems';
 import { FC } from 'react';
 import { FullScreenDialog } from 'src/components/FullScreenDialog';
 import { DeckCardList } from 'src/features/deck/components/DeckCardList';
@@ -29,7 +28,6 @@ export const SystemCardsDialog: FC<Props> = (props) => {
     return (
         <FullScreenDialog
             title={`${props.system[0].toUpperCase()}${props.system.substring(1)} cards`}
-            headerStart={<SystemIcon system={props.system} className={styles.icon} />}
             isOpen={props.isOpen}
             setOpen={props.setOpen}
             bodyClassName={styles.body}

@@ -1,31 +1,64 @@
 .deflectorDisplay {
-    background-color: var(--primary-dark);
     display: flex;
-    align-items: stretch;
-    gap: 0.5em;
-    padding: 0.5em;
-    margin: 0 0.25em;
-    corner-shape: squircle;
-    border-radius: 2em;
-    justify-content: space-evenly;
+    flex-direction: column;
+    gap: 0.625em;
+    padding: 0.75em;
+    margin: 0 0.75em;
+    background-color: var(--panel);
+    border: 0.094em solid color-mix(in oklch, var(--primary-light) 45%, transparent);
+    border-radius: 0 1.375em 0 1.375em;
+    corner-shape: bevel;
 }
 
 .title {
-    margin-left: 0.075em;
+    font-size: 0.6875em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--label);
+}
+
+.body {
+    display: flex;
+    align-items: center;
 }
 
 .slots {
+    flex-grow: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 0.5em;
-    justify-content: center;
-    flex: 0 0 auto;
-    flex-grow: 1;
+}
+
+/* Matches the slots' height: three 3.875em slots with 0.5em gaps. */
+.wires {
+    flex-shrink: 0;
+    width: 1.625em;
+    height: 12.625em;
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+}
+
+.wire {
+    stroke: color-mix(in oklch, var(--label) 60%, transparent);
+    stroke-dasharray: 4 5;
+}
+
+.wireFilled {
+    stroke: var(--primary-light);
+    stroke-dasharray: none;
 }
 
 .deflectorCard {
-    flex: 0 0 auto;
-    display: flex;
+    flex-shrink: 0;
+    display: grid;
     align-items: center;
-    justify-content: center;
+    justify-items: center;
+    font-size: 0.8em;
+}
+
+.card {
+    grid-area: 1 / 1;
 }

@@ -34,8 +34,10 @@
 }
 
 .titleText {
-    text-transform: capitalize;
-    font-size: 1.5em;
+    font-family: var(--title-font-family);
+    font-size: 1.125em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     line-height: 1em;
 }
 
@@ -52,8 +54,8 @@
 }
 
 .deckIndicator {
-    corner-shape: squircle;
-    border-radius: 1em;
+    corner-shape: bevel;
+    border-radius: 0 1em 0 1em;
 }
 
 /* As tall as the deck indicator it replaces. */
@@ -70,8 +72,14 @@ button.deckButton > span {
     gap: 0.25em;
 }
 
+/* Filled in while its deck view is open, like an open menu's button, as it's what closes it again. */
 button.deckButtonPressed {
-    background-color: var(--primary-mid);
+    background-color: var(--color-light);
+
+    .deckButtonIcon,
+    .deckButtonValue {
+        color: var(--lightest-contrast-dark);
+    }
 }
 
 .deckButtonIcon {

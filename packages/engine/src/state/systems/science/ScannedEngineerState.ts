@@ -4,5 +4,6 @@ import { ScannedEngineerTileState } from './ScannedEngineerTileState';
 
 export class ScannedEngineerState extends Schema implements ScannedEngineerInfo {
     @type('string') targetId: string = '';
+    @type('uint8') power: number = 0;
     @type([ScannedEngineerTileState]) engineerTiles = new ArraySchema<ScannedEngineerTileState>();
 }

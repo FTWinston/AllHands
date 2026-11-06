@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+<g class="hull" stroke-width="16"><polygon points="408 256 408 222 472 222 472 170 446 150 110 150 70 180 70 256 70 332 110 362 446 362 472 342 472 290 408 290"/></g>
+<g class="details" stroke-width="8"><line x1="430" y1="186" x2="140" y2="186"/><line x1="430" y1="326" x2="140" y2="326"/><line x1="300" y1="150" x2="300" y2="362"/><rect x="160" y="236" width="60" height="40"/><polygon points="70 186 54 182 54 210 70 206"/><polygon points="70 326 54 330 54 302 70 306"/><polygon points="70 244 54 240 54 272 70 268"/></g>
+<g class="marks" stroke-width="5"><path d="M28 256H498" stroke-dasharray="14 18"/><path d="M488 244V268M38 244V268M264 132H292M264 380H292"/></g>
+</svg>

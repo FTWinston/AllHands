@@ -1,5 +1,7 @@
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { AiShip } from 'src/state/AiShip';
+import { CardCooldownState } from 'src/state/CardCooldownState';
+import { CardState } from 'src/state/CardState';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
 
@@ -67,5 +69,46 @@ describe('ScienceState scan-slot targeting', () => {
 
         expect(played).toBeNull();
         expect(scanner.scienceState.hand.length).toBe(handBefore);
+    });
+});
+
+describe('ScienceState scanned systems', () => {
+    function scan(scanner: AiShip, target: AiShip, scannedSystemIndex: number) {
+        const card = scanner.scienceState.hand[0];
+        scanner.scienceState.playCard(card.id, card.type, 'scan', `target/${target.id}/${scannedSystemIndex}`);
+    }
+
+    it('keeps a scanned system\'s power up to date', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.tacticalState.scannedSystemIndex);
+        const scanned = scanner.scienceState.scannedTactical!;
+        const powerBefore = target.tacticalState.powerLevel;
+        expect(scanned.power).toBe(powerBefore);
+
+        target.tacticalState.adjustPowerLevel(-1);
+
+        expect(scanned.power).toBe(powerBefore - 1);
+    });
+
+    it('shows which modifier card was played on a scanned weapon', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.tacticalState.scannedSystemIndex);
+        const slot = target.tacticalState.slots[0];
+
+        slot.card = new CardState(999, 'photonTorpedo');
+        slot.modifierCard = 'lowYield';
+        target.tacticalState.scienceScanDataChanged.invoke();
+
+        expect(scanner.scienceState.scannedTactical!.weaponSlots[0].modifierCard).toBe('lowYield');
+    });
+
+    it('shows how far through its maneuver a scanned helm is', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        expect(scanner.scienceState.scannedHelm!.maneuverProgress).toBeNull();
+
+        target.helmState.setActiveManeuver(new CardCooldownState(new CardState(998, 'slowAndSteady'), 100, 600, 1));
+
+        expect(scanner.scienceState.scannedHelm!.maneuverProgress).toMatchObject({ startTime: 100, endTime: 600 });
     });
 });

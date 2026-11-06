@@ -1,32 +1,32 @@
-.slot {
-    overflow: hidden;
-    padding: 0.25em;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
+/* The row is a button that shows the card, but looks like any other row. */
+.cardRow.cardRow {
+    width: 100%;
+    border: none;
+    border-top: 0.094em solid var(--line);
+    border-radius: 0;
+    background-color: transparent;
+    color: var(--text);
+    font: inherit;
+
+    @media (hover: hover) {
+        &:hover {
+            background-color: color-mix(in oklch, var(--text) 5%, transparent);
+        }
+    }
+
+    &:active, &[data-popup-open] {
+        outline: none;
+        background-color: color-mix(in oklch, var(--text) 8%, transparent);
+    }
 }
 
-.itemLabel {
-    font-size: 0.5em;
-    margin-top: -0.35em;
-    text-align: center;
-    color: var(--primary-lightest);
-}
-
+/* One line tall, so a long name shrinks to fit. */
 .cardName {
-    font-size: 0.7em;
-    line-height: 1.1em;
-    color: var(--grey-light);
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 2em;
+    height: 1.6em;
+    overflow: hidden;
 }
 
 .emptyText {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--grey-mid);
+    font-weight: 400;
+    color: var(--label);
 }

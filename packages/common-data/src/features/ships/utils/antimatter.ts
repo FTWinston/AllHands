@@ -32,3 +32,14 @@ export function canSellFromDeck(deckSize: number): boolean {
 
 /** Antimatter spent to buy a card from a shop station. */
 export const shopCardPrice = 20;
+
+/** Antimatter spent on a ship's first work order. Each later order from the same ship costs more (see `getOrderPrice`). */
+export const baseOrderPrice = 45;
+
+/** How many times the price of the previous work order from the same ship the next one costs. */
+export const orderPriceGrowth = 1.5;
+
+/** Antimatter spent to place a work order, for a ship that has already placed the given number this game. Rounded to a multiple of 5. */
+export function getOrderPrice(ordersPlaced: number): number {
+    return Math.round(baseOrderPrice * orderPriceGrowth ** ordersPlaced / 5) * 5;
+}
