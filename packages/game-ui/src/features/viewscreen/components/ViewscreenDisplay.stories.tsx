@@ -7,7 +7,7 @@ import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { ComponentProps, RefObject, useEffect, useMemo, useState } from 'react';
 import { fn } from 'storybook/test';
-import { setCombatLabels } from '../utils/combatLabelSettings';
+import { setCombatLabels } from '../utils/combatEffectSettings';
 import { LowHullWarning } from './LowHullWarning';
 import { ViewscreenDisplay as Component } from './ViewscreenDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';

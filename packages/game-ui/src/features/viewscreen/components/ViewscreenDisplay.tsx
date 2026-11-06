@@ -13,7 +13,7 @@ import { getCombatShake } from '../effects/combatShake';
 import { drawCombatEffects } from '../effects/drawCombatEffects';
 import { drawSpaceBackground } from '../effects/drawSpaceBackground';
 import { ObjectTracker, trackObjects } from '../effects/objectTracker';
-import { useCombatLabels } from '../utils/combatLabelSettings';
+import { useCombatLabels, useShakeAndFlashes } from '../utils/combatEffectSettings';
 import styles from './ViewscreenDisplay.module.css';
 import { ViewscreenMenuButton } from './ViewscreenMenuButton';
 import type { Snapshot } from '@colyseus/react';
@@ -29,8 +29,6 @@ type Props = PropsWithChildren<{
 
 /** Quiet, so the instruments stay in the background of a fight, which has plenty of its own light. */
 const gridColor = 'rgba(127, 176, 200, 0.25)';
-
-const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 export const ViewscreenDisplay: FC<Props> = (props) => {
     useAnimationFrame();
@@ -50,15 +48,15 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
     const { objects, weaponEffectsRef, viewer } = props;
 
     const showLabels = useCombatLabels();
-    const reducedMotion = reducedMotionQuery.matches;
+    const shakeAndFlashes = useShakeAndFlashes();
 
     const tracker = useRef<ObjectTracker>(new Map()).current;
     trackObjects(tracker, objects, viewer, currentTime);
 
     // Shake what's drawn, rather than the canvas itself, so that its edges never show.
-    const shake = reducedMotion
-        ? { x: 0, y: 0 }
-        : getCombatShake(weaponEffectsRef.current, viewer.shipId, centerVector, currentTime);
+    const shake = shakeAndFlashes
+        ? getCombatShake(weaponEffectsRef.current, viewer.shipId, centerVector, currentTime)
+        : { x: 0, y: 0 };
 
     const localShip = viewer.shipId ? (objects[viewer.shipId] as unknown as Snapshot<ShipInfo> | undefined) : undefined;
     const ownWeaponSlots = localShip?.tacticalState?.slots;
@@ -88,10 +86,10 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
         (ctx: CanvasRenderingContext2D) => {
             drawCombatEffects(ctx, weaponEffectsRef.current, tracker, timeProvider.getServerTime(), {
                 showLabels,
-                allowFlashes: !reducedMotion,
+                allowFlashes: shakeAndFlashes,
             });
         },
-        [weaponEffectsRef, tracker, timeProvider, showLabels, reducedMotion]
+        [weaponEffectsRef, tracker, timeProvider, showLabels, shakeAndFlashes]
     );
 
     return (
