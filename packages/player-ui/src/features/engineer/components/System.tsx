@@ -50,7 +50,7 @@ export const System = (props: Props) => {
                 </div>
             </div>
 
-            <EffectList className={styles.effects} effects={props.effects} />
+            <EffectList className={styles.effects} effects={props.effects} emptyText="Status nominal" />
 
             {/* Lights up while this system's next card is being generated. */}
             <Button

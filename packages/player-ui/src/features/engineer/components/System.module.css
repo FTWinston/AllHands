@@ -230,10 +230,9 @@ button.viewCards.generating {
         }
     }
 
-    /* Just fits its contents, to stay narrower than power and health. */
     button.viewCards {
         justify-self: start;
-        width: auto;
+        width: 7.5em;
         flex-direction: row;
         gap: 0.25em;
         padding: 0.55em 0.6em 0.55em 0.5em;
