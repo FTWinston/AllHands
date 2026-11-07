@@ -2,7 +2,7 @@ import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { useState } from 'react';
-import { expect, fn, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { SystemCardsDialog as Component } from './SystemCardsDialog';
 import type { Snapshot } from '@colyseus/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -95,6 +95,43 @@ export const DrawChoice: Story = {
         const page = within(canvasElement.ownerDocument.body);
         await expect((await page.findByRole('list', { name: 'Revealed' })).children).toHaveLength(3);
         await expect(page.getByText('No cards in hand.')).toBeInTheDocument();
+    },
+};
+
+/** As cards are drawn, the rest move up the deck. Those at the start of a row wrap around to the end of the row above. */
+export const Drawing: Story = {
+    render: (args) => {
+        const [cards, setCards] = useState({ hand: args.hand, deck: args.deck });
+
+        const draw = () => setCards(({ hand, deck }) => (deck.length > 0
+            ? { hand: [...hand.slice(-2), deck[0]], deck: deck.slice(1) }
+            : { hand, deck }));
+
+        return (
+            <>
+                <button onClick={draw}>Draw</button>
+
+                <Component {...args} {...cards} />
+            </>
+        );
+    },
+    play: async ({ canvasElement }) => {
+        const page = within(canvasElement.ownerDocument.body);
+        const deck = await page.findByRole('list', { name: 'Deck' });
+        const cardAt = (index: number) => deck.children[index].querySelector('[data-shift-card-id]')!;
+        const nextCard = cardAt(1);
+        const wrappingCard = cardAt(3);
+
+        await userEvent.click(page.getByRole('button', { name: 'Draw' }));
+
+        // Each moved up one place.
+        await expect(cardAt(0)).toBe(nextCard);
+        await expect(cardAt(2)).toBe(wrappingCard);
+
+        // A card on the same row just slides, but one changing rows also fades out and back in.
+        const keyframes = (card: Element) => (card.getAnimations()[0] as Animation & { effect: KeyframeEffect }).effect.getKeyframes();
+        await expect(keyframes(nextCard)).toHaveLength(2);
+        await expect(keyframes(wrappingCard)).toHaveLength(4);
     },
 };
 

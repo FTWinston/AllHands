@@ -44,15 +44,15 @@ export const SystemCardsDialog: FC<Props> = (props) => {
                 <section className={styles.section}>
                     <h3 className={styles.heading}>Hand</h3>
                     {props.hand.length > 0
-                        ? <DeckCardList cards={props.hand} showPositions={false} highlightExtraTraits aria-label="Hand" />
+                        ? <DeckCardList cards={props.hand} showPositions={false} highlightExtraTraits animateShifts aria-label="Hand" />
                         : <p className={styles.note}>No cards in hand.</p>}
                 </section>
             )}
 
             <section className={styles.section}>
-                <h3 className={styles.heading}>Deck – draw order</h3>
+                <h3 className={styles.heading}>Deck</h3>
                 {props.deck.length > 0
-                    ? <DeckCardList cards={props.deck} highlightExtraTraits />
+                    ? <DeckCardList cards={props.deck} highlightExtraTraits animateShifts />
                     : <p className={styles.note}>The deck is empty.</p>}
             </section>
         </FullScreenDialog>

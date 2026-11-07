@@ -2,6 +2,8 @@
     display: flex;
     flex-direction: column;
     gap: 1.5em;
+    /* Cards slide off the sides of the screen as they move up the deck. */
+    overflow-x: hidden;
 }
 
 .section {

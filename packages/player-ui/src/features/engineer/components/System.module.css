@@ -1,100 +1,155 @@
+/*
+    Each tile is laid out to suit its own shape, as tiles are size containers (see SystemList.module.css).
+    The font scales with the tile, so its shape decides what fits, more than its size does.
+    By default, power and health are stacked beside the cards button, with effects below.
+*/
 .system {
     position: relative;
     border-radius: 0 1.5em 0 1.5em;
     corner-shape: bevel;
     border: solid 0.1em var(--primary-mid);
     background-color: var(--primary-darkest-muted);
-    padding: 0.25em 0.5em 0.5em 0.5em;
-    justify-self: stretch;
-    align-self: stretch;
-    height: var(--system-height);
-    font-size: min(3vw, calc(var(--system-height) / 12));
-    font-size: calc(var(--system-height) / 12);
-    font-size: 3vw;
+    padding: 0.25em 0.6em 0.5em 0.6em;
+    font-size: min(8cqw, 10cqh, 1.25rem);
 
-    display: flex;
-    flex-direction: column;
-
-    gap: 0em;
-    justify-items: center;
-}
-
-@media (min-width: 400px) {
-    .system {
-        gap: 0.5em;
-    }
-}
-
-@media (min-width: 600px) {
-    .system {
-        gap: 0.5em;
-    }
-}
-
-@media (min-width: 800px) {
-    .system {
-        gap: 1em;
-    }
+    display: grid;
+    align-items: center;
+    column-gap: 0.75em;
+    row-gap: 0.15em;
+    /* The button is always narrower than power and health. */
+    grid-template-columns: minmax(max-content, 3fr) minmax(0, 2fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    grid-template-areas:
+        "name name"
+        "attributes cards"
+        "attributes cards"
+        "effects effects";
 }
 
 .name {
+    grid-area: name;
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 0.5em;
-    justify-self: flex-start;
+    white-space: nowrap;
 
     font-size: 1.75em;
     font-weight: bold;
+    line-height: 1.25;
     text-transform: capitalize;
+    /* It spans the columns below, so mustn't widen them. */
+    contain: inline-size;
+
+    /* Centred in the width left of the tile's cut-off corner, where there's room. */
+    &::after {
+        content: '';
+        flex: 0 1 calc(1.5em / 1.75);
+        min-width: 0;
+    }
 }
 
-.attribute {
-    display: flex;
+.nameIcon {
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+    margin-right: 0.25em;
+    color: var(--primary-light);
+}
+
+/*
+    Power and health share columns for icon, value and maximum, with the values right-aligned.
+    Its rows are the tile's own, so in wide tiles they line up with the name and button.
+*/
+.attributes {
+    grid-area: attributes;
+    justify-self: center;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-template-rows: subgrid;
     align-items: baseline;
-    align-self: center;
-    flex-wrap: nowrap;
-    gap: 0.25em;
-    width: 6em;
+    column-gap: 0.2em;
     color: var(--grey-light);
 }
 
+.attribute {
+    display: contents;
+}
+
+.power > * {
+    grid-row: 1;
+}
+
+.health > * {
+    grid-row: 2;
+}
+
+/* Power's maximum never changes, so this is only shown if there's lots of room. */
+.powerMax {
+    display: none;
+}
+
 .attributeValue {
+    grid-column: 2;
+    justify-self: end;
     font-weight: bold;
     font-size: 1.5em;
+    line-height: 1.15;
     color: var(--grey-lightest);
 }
 
+.attributeMax {
+    grid-column: 3;
+}
+
 .attributeIcon {
-    width: 1.5em;
-    height: 1.5em;
-    margin-right: 0.5em;
+    grid-column: 1;
+    margin-right: 0.1em;
+    width: 1.35em;
+    height: 1.35em;
     flex-shrink: 0;
     color: var(--primary-light);
     align-self: center;
 }
 
 .effects {
-    flex-grow: 1;
-    flex-basis: 2em;
+    grid-area: effects;
+    align-self: stretch;
+    min-height: 2.5em;
+    /* So the effects can spread across exactly the space they have. */
+    container-type: inline-size;
 }
 
-.generating {
-    opacity: 0;
-    display: none;
-    transition: opacity 0.25s ease-in-out;
-    position: absolute;
-    top: 0.5em;
-    right: 0.5em;
-    width: 2em;
-    height: 2em;
-    /* It can overlap the end of a long name, which is a button. */
-    pointer-events: none;
+/* Lots of effects can overlap each other, but they stay within their space. */
+.system .effects {
+    --available-for-items: calc(100cqw - 2.5em);
 }
 
-.currentlyGenerating {
-    opacity: 1;
-    display: block;
+button.viewCards {
+    grid-area: cards;
+    align-self: stretch;
+    justify-self: center;
+    /* Narrower than power and health, which take at least 5em. */
+    width: 4.5em;
+    max-width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.15em;
+    padding: 0.3em;
+    font-size: 1em;
+
+    & > span {
+        flex-grow: 0;
+        padding: 0;
+    }
+
+    & > span:first-child {
+        font-size: 1.6em;
+    }
+}
+
+button.viewCards.generating {
     color: var(--energy-lightest);
+    box-shadow: var(--energy-light) 0 0 0 0.125em inset;
 }
 
 .lowHealth {
@@ -105,19 +160,86 @@
     color: var(--danger-mid);
 }
 
-/* Keeps the size and casing of the heading it's in. */
-button.nameButton {
-    gap: 0.25em;
-    max-width: fit-content;
-    margin-left: -0.25em;
-    padding: 0.125em 0.5em 0.125em 0.25em;
-    font-size: 1em;
-    font-weight: inherit;
-    text-transform: inherit;
+@container (min-width: 260px) {
+    .powerMax {
+        display: block;
+    }
+}
 
-    /* Narrow tiles shouldn't squash the icon. */
-    & > span {
-        flex-shrink: 0;
-        padding: 0;
+/* Tall tiles have height to spare, so give power, health and the button more of it, leaving less for effects. */
+@container (aspect-ratio < 1/1) {
+    .attributes {
+        row-gap: 0.5em;
+        margin-block: 0.25em;
+    }
+
+    .attributeValue {
+        font-size: 1.75em;
+    }
+
+    .attributeIcon {
+        width: 1.6em;
+        height: 1.6em;
+    }
+
+    button.viewCards {
+        gap: 0.3em;
+
+        & > span:first-child {
+            font-size: 2em;
+        }
+    }
+}
+
+/* Wide tiles have the name and button, then power and health, in columns on the left, leaving the rest for effects. */
+@container (aspect-ratio > 8/5) and (min-width: 400px) {
+    .system {
+        font-size: min(4cqw, 13cqh, 1.75rem);
+        padding: 0.5em 1em 0.5em 0.75em;
+        column-gap: 1.25em;
+        row-gap: 0.4em;
+        align-content: center;
+        /* Wide enough for every system's name, so the columns line up from tile to tile. */
+        grid-template-columns: minmax(max-content, 10.5em) max-content minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            "name attributes effects"
+            "cards attributes effects";
+    }
+
+    .attributes {
+        justify-self: start;
+        column-gap: 0.35em;
+    }
+
+    /* Larger, both to fill some space and to stay wider than the button beside them. */
+    .attributeValue {
+        font-size: 1.9em;
+    }
+
+    .attributeIcon {
+        width: 1.5em;
+        height: 1.5em;
+    }
+
+    .name {
+        justify-content: start;
+
+        &::after {
+            content: none;
+        }
+    }
+
+    /* Just fits its contents, to stay narrower than power and health. */
+    button.viewCards {
+        justify-self: start;
+        width: auto;
+        flex-direction: row;
+        gap: 0.25em;
+        padding: 0.55em 0.6em 0.55em 0.5em;
+
+        & > span:first-child {
+            font-size: 1.25em;
+        }
     }
 }

@@ -6,9 +6,10 @@ import { Card } from 'common-ui/features/cards/components/Card';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { default as AntimatterIcon } from 'common-ui/icons/antimatter.svg?react';
 import { classNames } from 'common-ui/utils/classNames';
-import { FC, useState } from 'react';
+import { FC, useRef, useState } from 'react';
 import cardGridStyles from 'src/features/cardui/components/CardGrid.module.css';
 import { GridCard } from 'src/features/cardui/components/GridCard';
+import { cardIdAttribute, useCardShiftAnimation } from '../hooks/useCardShiftAnimation';
 import styles from './DeckCardList.module.css';
 import type { Snapshot } from '@colyseus/react';
 
@@ -26,6 +27,8 @@ type Props = {
     'showPositions'?: boolean;
     /** Whether to mark cards that have extra traits, beyond those of their card type. */
     'highlightExtraTraits'?: boolean;
+    /** Whether to animate cards moving when the list changes, e.g. as cards are drawn. Don't use this with `onMoveCard`, whose drag and drop shows moves itself. */
+    'animateShifts'?: boolean;
     /** Defaults to "Deck". */
     'aria-label'?: string;
 };
@@ -52,6 +55,9 @@ export const DeckCardList: FC<Props> = (props) => {
     // Kept once the confirmation closes, so its prompt doesn't change as it fades out.
     const [sellingCard, setSellingCard] = useState<Snapshot<CardInstance> | null>(null);
     const [isConfirmingSell, setConfirmingSell] = useState(false);
+
+    const listRef = useRef<HTMLOListElement>(null);
+    useCardShiftAnimation(listRef, displayedCards.map(card => card.id), props.animateShifts ?? false);
 
     const sensors = useSensors(
         useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
@@ -97,7 +103,7 @@ export const DeckCardList: FC<Props> = (props) => {
             onDragCancel={() => setDraggingCard(null)}
         >
             <div className={cardGridStyles.scale}>
-                <ol className={classNames(cardGridStyles.grid, draggingCard ? cardGridStyles.noZoom : null)} aria-label={props['aria-label'] ?? 'Deck'}>
+                <ol ref={listRef} className={classNames(cardGridStyles.grid, draggingCard ? cardGridStyles.noZoom : null)} aria-label={props['aria-label'] ?? 'Deck'}>
                     {displayedCards.map((card, index) => (
                         <DeckCardItem
                             key={card.id}
@@ -189,6 +195,7 @@ const DeckCardItem: FC<ItemProps> = ({ card, index, showPosition, highlightExtra
                 card={card}
                 className={classNames(canMove ? styles.movable : null, isDragging ? styles.dragging : null, hasExtraTraits ? styles.extraTraits : null)}
                 hideTraitDescriptions={isDragging}
+                {...{ [cardIdAttribute]: card.id }}
                 action={onSell
                     ? (
                         <Button

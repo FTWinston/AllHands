@@ -10,10 +10,11 @@
     "sys5 sys6 repair";
 
     height: calc(100dvh - 17rem);
-    --system-height: calc((100dvh - 20rem) / 3);
 }
 
 .itemWrapper {
+    /* Each system lays itself out to suit the size of its tile. */
+    container-type: size;
     display: flex;
     justify-content: stretch;
     align-content: stretch;
