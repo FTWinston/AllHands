@@ -55,5 +55,6 @@
 }
 
 .ejectButton {
-    --icon-button-size: 1.875em;
+    width: 1.875em;
+    height: 1.875em;
 }

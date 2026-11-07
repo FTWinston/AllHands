@@ -85,8 +85,13 @@
 }
 
 .closeButton {
-    --icon-button-size: 2.75em;
-    --icon-button-icon-size: 1.125em;
+    width: 2.75em;
+    height: 2.75em;
+}
+
+.closeIcon {
+    width: 1.125em;
+    height: 1.125em;
 }
 
 .content {

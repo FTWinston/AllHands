@@ -42,8 +42,9 @@
     color: var(--primary-light);
 }
 
-.close {
-    --icon-button-icon-size: 1.5em;
+.closeIcon {
+    width: 1.5em;
+    height: 1.5em;
 }
 
 .body {

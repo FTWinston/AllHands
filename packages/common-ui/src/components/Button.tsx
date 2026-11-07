@@ -20,7 +20,7 @@ type LabelledProps = CommonProps & {
 
 /**
  * A square button showing only an icon, so it needs an aria-label to say what it does.
- * Size it with the --icon-button-size custom property (default 2em), and its icon with --icon-button-icon-size (default half that).
+ * It's 2em across, with an icon half that, unless given a width and height through its className, or a size on the icon itself.
  */
 type IconOnlyProps = CommonProps & {
     'icon': ReactNode;
@@ -45,7 +45,7 @@ export const Button: FC<Props> = ({ children, className, icon, startIcon, endIco
             className)}
     >
         {icon
-            ? <span className={styles.icon} aria-hidden="true">{icon}</span>
+            ? <span className={styles.iconOnlyIcon} aria-hidden="true">{icon}</span>
             : (
                 <>
                     {startIcon && <span className={styles.icon}>{startIcon}</span>}

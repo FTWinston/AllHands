@@ -163,7 +163,8 @@ Kept clear of the card, in the far corner, so it isn't hit when going to drag th
 As wide as the charge meter, and lined up beneath it: the body's padding is 0.125em less than the status's.
 */
 .ejectButton {
-    --icon-button-size: 1.625em;
+    width: 1.625em;
+    height: 1.625em;
     margin-right: -0.125em;
 }
 
