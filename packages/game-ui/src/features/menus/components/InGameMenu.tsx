@@ -24,11 +24,11 @@ export const InGameMenu: FC<Props> = props => (
         />
 
         <MenuItem
-            text="Disconnect"
+            text="Quit to menu"
             number={3}
             emphasis="danger"
             onClick={props.disconnect}
-            confirmPrompt="Are you sure you want to disconnect?"
+            confirmPrompt="Are you sure you want to quit to the main menu?"
         />
     </Menu>
 );
