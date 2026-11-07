@@ -7,6 +7,7 @@ import { drawCombatLabels } from './drawCombatLabels';
 import { drawExplosion, drawWreck, wreckDuration } from './drawExplosion';
 import { drawHullHit, drawShieldHit, hullFireDuration } from './drawImpacts';
 import { drawBeam, drawDeflector, drawProjectile } from './drawShots';
+import { getEngineOffset } from './engineOffset';
 import { getLayer, glow } from './light';
 import { ObjectTracker, TrackedObject, litShipColor } from './objectTracker';
 import { findBeamImpact, getEffectSeed, getShotAim } from './shotPaths';
@@ -17,9 +18,6 @@ const shotLinger = 1200;
 const bloomScale = 4;
 const bloomBlur = 'blur(5px)';
 const bloomStrength = 0.65;
-
-/** How far behind a ship's center its engine glow is. */
-const engineOffset = 0.85;
 
 function getExpiry(effect: WeaponEffect) {
     switch (effect.type) {
@@ -111,6 +109,7 @@ function drawEngineGlow(ctx: CanvasRenderingContext2D, ship: TrackedObject, time
 
     if (strength > 0.02) {
         const flicker = 0.88 + 0.12 * Math.sin(time * 0.05 + ship.x);
+        const engineOffset = getEngineOffset(ship.appearance);
         const x = ship.x - Math.cos(ship.angle) * engineOffset;
         const y = ship.y + Math.sin(ship.angle) * engineOffset;
 
