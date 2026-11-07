@@ -117,8 +117,13 @@ export const InGame: Story = {
         await user.click(soundEffects);
         await expect(soundEffects.textContent).toEqual(initialValue);
 
+        // A toggle stays where it is, so unlike "Go back" it has no chevron saying it goes somewhere.
+        const goBack = canvas.getByRole('button', { name: /Go back/ });
+        await expect(soundEffects.querySelector('svg')).toBeNull();
+        await expect(goBack.querySelector('svg')).not.toBeNull();
+
         // Going back returns to the in-game menu, not the main menu.
-        await user.click(canvas.getByText('Go back'));
+        await user.click(goBack);
         await expect(canvas.getByText('Game paused')).toBeInTheDocument();
     },
 };

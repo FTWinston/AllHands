@@ -17,21 +17,21 @@ export const SettingsMenu: FC<Props> = (props) => {
         <Menu heading="Settings">
             <MenuItem
                 text="Sound effects"
-                description={soundEnabled ? 'On' : 'Off'}
+                toggledOn={soundEnabled}
                 number={1}
                 onClick={toggleSoundEnabled}
             />
 
             <MenuItem
                 text="Combat labels"
-                description={combatLabels ? 'On' : 'Off'}
+                toggledOn={combatLabels}
                 number={2}
                 onClick={toggleCombatLabels}
             />
 
             <MenuItem
                 text="Shake and flashes"
-                description={shakeAndFlashes ? 'On' : 'Off'}
+                toggledOn={shakeAndFlashes}
                 number={3}
                 onClick={toggleShakeAndFlashes}
             />

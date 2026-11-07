@@ -37,22 +37,24 @@
     color: var(--label);
 }
 
-.label {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.125em;
-}
-
 .text {
+    flex-grow: 1;
     font-size: 1.75em;
     font-weight: 600;
     line-height: 1.1;
 }
 
-.description {
-    font-size: 1.0625em;
-    color: var(--text-muted);
+.toggleState {
+    flex-shrink: 0;
+    font-family: var(--readout-font-family);
+    font-size: 1.375em;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--label);
+}
+
+.toggleState.on {
+    color: var(--text);
 }
 
 .chevron {
