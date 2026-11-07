@@ -20,12 +20,10 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     systems: IArray<SystemInfo & SystemCards>;
     repairCapacity: number;
     maxRepairCapacity: number;
-    pendingDrawChoice: Snapshot<CardInstance[]>;
-    resolveDrawChoice: (cardId: number) => void;
 };
 
 export const EngineerDisplay = (props: Props) => {
-    const { cards, systems, playCard, repair, repairCapacity, maxRepairCapacity, pendingDrawChoice, resolveDrawChoice, ...headerProps } = props;
+    const { cards, systems, playCard, repair, repairCapacity, maxRepairCapacity, ...headerProps } = props;
 
     useRootClassName(crewStyles.engineer);
 
@@ -36,8 +34,6 @@ export const EngineerDisplay = (props: Props) => {
                 cardHand={cards}
                 availablePower={headerProps.power}
                 onAlternateDrop={repair}
-                pendingDrawChoice={pendingDrawChoice}
-                resolveDrawChoice={resolveDrawChoice}
             >
                 <CrewHeader
                     crew="engineer"

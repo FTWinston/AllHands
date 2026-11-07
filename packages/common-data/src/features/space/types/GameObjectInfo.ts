@@ -55,8 +55,6 @@ export interface CrewSystemInfo extends SystemInfo {
     hand: IArray<CardInstance>;
     deck: IArray<CardInstance>;
     cardGeneration: Cooldown | null;
-    /** Cards revealed from the draw pile awaiting a player choice; empty when there is none pending. */
-    pendingDrawChoice: IArray<CardInstance>;
     /** Shown instead of the system's display while outside an encounter; empty during one (see `NonEncounterCardInfo`). */
     nonEncounterCards: IArray<NonEncounterCardInfo>;
     /** Cards on sale to this crew member at a shop station for their role (see `getShopRole`), each for `shopCardPrice`. Empty elsewhere. */
@@ -181,8 +179,6 @@ export interface EngineerSystemTileInfo {
     hand: IArray<CardInstance>;
     /** The system's own deck, in draw order. */
     deck: IArray<CardInstance>;
-    /** The system's own pending draw choice. Always empty for hull and reactor. */
-    pendingDrawChoice: IArray<CardInstance>;
 }
 
 export interface EngineerSystemInfo extends CrewSystemInfo {

@@ -24,12 +24,10 @@ type Props = PropsWithChildren<Omit<ComponentProps<typeof CrewHeader>, 'crew' | 
     targets: Snapshot<GameObjectInfo[]>;
     subTargetsByTarget: Partial<Record<string, TargetSubTargets>>;
     viewer: RelationshipViewer;
-    pendingDrawChoice: Snapshot<CardInstance[]>;
-    resolveDrawChoice: (cardId: number) => void;
 }>;
 
 export const TacticalDisplay = (props: Props) => {
-    const { cards, slots, playCard, targets, subTargetsByTarget, viewer, pendingDrawChoice, resolveDrawChoice, children, ...headerProps } = props;
+    const { cards, slots, playCard, targets, subTargetsByTarget, viewer, children, ...headerProps } = props;
 
     useRootClassName(crewStyles.tactical);
 
@@ -72,8 +70,6 @@ export const TacticalDisplay = (props: Props) => {
                 playCard={playCard}
                 cardHand={cards}
                 availablePower={headerProps.power}
-                pendingDrawChoice={pendingDrawChoice}
-                resolveDrawChoice={resolveDrawChoice}
                 isCardHighlighted={isCardHighlighted}
             >
                 <CrewHeader

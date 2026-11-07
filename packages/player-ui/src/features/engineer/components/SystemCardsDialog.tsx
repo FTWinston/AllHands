@@ -10,8 +10,6 @@ export type SystemCards = {
     hand: Snapshot<CardInstance[]>;
     /** In draw order. */
     deck: Snapshot<CardInstance[]>;
-    /** Cards taken from the top of the deck while a crew member chooses one to draw. */
-    pendingDrawChoice: Snapshot<CardInstance[]>;
 };
 
 type Props = SystemCards & {
@@ -32,14 +30,6 @@ export const SystemCardsDialog: FC<Props> = (props) => {
             setOpen={props.setOpen}
             bodyClassName={styles.body}
         >
-            {props.pendingDrawChoice.length > 0 && (
-                <section className={styles.section}>
-                    <h3 className={styles.heading}>Revealed</h3>
-                    <p className={styles.note}>Taken from the top of the deck, while one is chosen to draw. The rest go to the bottom.</p>
-                    <DeckCardList cards={props.pendingDrawChoice} showPositions={false} highlightExtraTraits ariaLabel="Revealed" />
-                </section>
-            )}
-
             {hasHand && (
                 <section className={styles.section}>
                     <h3 className={styles.heading}>Hand</h3>
