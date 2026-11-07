@@ -50,11 +50,13 @@
     color: var(--label);
 }
 
-/* Targeting brackets around the ship. It also takes the sub-target row's space while there are none, giving it up smoothly when they appear. */
-.frame {
+/*
+ * Where the ship is drawn. Its padding leaves room for the shield outline, which reaches a little beyond the ship's drawing.
+ * It also takes the sub-target row's space while there are none, giving it up smoothly when they appear.
+ */
+.shipArea {
     grid-row: 2 / span 2;
     grid-column: 1 / -1;
-    position: relative;
     min-height: 0;
     display: flex;
     align-items: center;
@@ -62,27 +64,13 @@
     margin: 0.625em 1.875em 0.25em;
     padding: 0.75em;
     transition: margin-bottom 250ms ease-in-out;
-
-    &::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border: 0.19em solid var(--primary-light);
-        border-radius: 0.5em;
-        mask: conic-gradient(at 1.875em 1.875em, transparent 75%, black 0) 0 0 / calc(100% - 1.875em) calc(100% - 1.875em);
-        pointer-events: none;
-    }
 }
 
-.hasVulnerabilities .frame {
+.hasVulnerabilities .shipArea {
     margin-bottom: 4.25em;
 }
 
-.unframed::before {
-    display: none;
-}
-
-/* The scanned hull's readouts, in the card's bottom corners, below the target's name and count. Like the frame, they make way for sub-targets. */
+/* The scanned hull's readouts, in the card's bottom corners, below the target's name and count. Like the ship, they make way for sub-targets. */
 .shieldReadout,
 .hullReadout {
     grid-row: 2 / span 2;

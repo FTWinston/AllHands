@@ -71,30 +71,15 @@
     color: var(--label);
 }
 
-/* Targeting brackets around the ship. */
-.frame {
+/* Where the ship is drawn. Its padding leaves room for the shield outline, which reaches a little beyond the ship's drawing. */
+.shipArea {
     grid-area: image;
-    position: relative;
     min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 2.5em;
     padding: 0.75em;
-
-    &::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border: 0.19em solid var(--primary-light);
-        border-radius: 0.5em;
-        mask: conic-gradient(at 1.875em 1.875em, transparent 75%, black 0) 0 0 / calc(100% - 1.875em) calc(100% - 1.875em);
-        pointer-events: none;
-    }
-}
-
-.unframed::before {
-    display: none;
 }
 
 /* The scanned hull's readouts, in the bottom corners of the ship's area, below the target's name and count. */

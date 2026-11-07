@@ -82,8 +82,7 @@ const NonRevealedContent = (props: NonRevealedProps) => (
             {props.totalTargets}
         </div>
 
-        {/* While the hull is scanned, its readouts take the frame's corners, so the frame isn't drawn. */}
-        <div className={classNames(styles.frame, props.scannedHull && styles.unframed)}>
+        <div className={styles.shipArea}>
             <ShieldedObjectIcon
                 appearance={props.appearance}
                 shield={props.scannedHull?.shield ?? null}
