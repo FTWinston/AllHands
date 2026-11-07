@@ -39,10 +39,27 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         for (const slot of this.slots) {
             const slotCard = slot.card;
             if (slot.update(currentTime) && slotCard) {
-                this.markCardUnslotted(slotCard);
-                this.handlePlayedCard(slotCard, -1, false);
+                this.discardSlotCard(slotCard);
             }
         }
+    }
+
+    /** Discard the weapon in a slot, before it's used up. Its charge and any modifier are lost. */
+    ejectWeapon(slotId: string): boolean {
+        const slotCard = this.resolveWeaponSlot(slotId)?.clear();
+        if (!slotCard) {
+            return false;
+        }
+
+        this.discardSlotCard(slotCard);
+        this.scienceScanDataChanged.invoke();
+        return true;
+    }
+
+    /** Put a card that has left a weapon slot back at the end of the deck. */
+    private discardSlotCard(card: CardState) {
+        this.markCardUnslotted(card);
+        this.handlePlayedCard(card, -1, false);
     }
 
     override playCard(cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string): EngineCardDefinition | null {
@@ -204,9 +221,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
 
         if (slotCard && slot.afterFiring(currentTime)) {
-            // Put card back at the end of the deck.
-            this.markCardUnslotted(slotCard);
-            this.handlePlayedCard(slotCard, -1, false);
+            this.discardSlotCard(slotCard);
         }
 
         const selfDamage = slotParameters['selfDamage'];
@@ -312,12 +327,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
     cleanupAfterEncounter() {
         for (const slot of this.slots) {
-            slot.modified = false;
-            slot.modifierCard = null;
-            slot.hasBeenFullyCharged = false;
-            slot.charge = 0;
-            slot.decay = null;
-            slot.card = null;
+            slot.clear();
         }
         super.cleanupAfterEncounter();
     }

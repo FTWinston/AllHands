@@ -47,6 +47,14 @@ export const BothIcons: Story = {
     },
 };
 
+export const IconOnly: Story = {
+    args: {
+        icon: '✕',
+        ariaLabel: 'Close',
+        palette: 'danger',
+    },
+};
+
 export const Outlined: Story = {
     args: {
         children: 'Button',

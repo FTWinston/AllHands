@@ -2,6 +2,7 @@ import { EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefi
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ObjectId } from 'common-data/features/space/types/GameObjectInfo';
 import { getIndefiniteArticle } from 'common-data/utils/strings';
+import { Button } from 'common-ui/components/Button';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { default as CloseIcon } from 'common-ui/icons/close.svg?react';
@@ -53,9 +54,14 @@ export const ScanBase = (props: Props) => {
                     {props.power}
                 </span>
 
-                <button type="button" className={styles.closeButton} onClick={props.onClose} aria-label="Close scan">
-                    <CloseIcon className={styles.closeIcon} />
-                </button>
+                <Button
+                    className={styles.closeButton}
+                    palette="grey"
+                    outlined={true}
+                    icon={<CloseIcon className={styles.closeIcon} />}
+                    onClick={props.onClose}
+                    ariaLabel="Close scan"
+                />
             </div>
 
             <div className={classNames(styles.content, props.contentClassName)}>

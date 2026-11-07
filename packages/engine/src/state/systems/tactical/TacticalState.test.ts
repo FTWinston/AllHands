@@ -187,6 +187,66 @@ describe('TacticalState weapon slot charging', () => {
         expect(slot.charge).toBe(0);
     });
 
+    it('ejects a weapon to the end of the deck, losing its charge and modifier', () => {
+        const { tactical } = createTactical(['phaserCannon', 'precisionFocus']);
+        const slot = loadWeapon(tactical);
+        const weapon = slot.card!;
+        tactical.playCard(handCard(tactical, 'precisionFocus').id, 'precisionFocus', 'weapon', slot.id);
+        slot.addCharge(slot.getParameter('totalCharge'), 0);
+
+        expect(tactical.ejectWeapon(slot.id)).toBe(true);
+
+        expect(slot.card).toBeNull();
+        expect(slot.charge).toBe(0);
+        expect(slot.modified).toBe(false);
+        expect(slot.modifierCard).toBeNull();
+        expect(slot.modifiers.size).toBe(0);
+        expect(slot.hasBeenFullyCharged).toBe(false);
+        expect(slot.decay).toBeNull();
+        expect(tactical.deck.at(-1)).toBe(weapon);
+        expect(tactical.hand.includes(weapon)).toBe(false);
+    });
+
+    it('strips traits a modifier added when ejecting a weapon', () => {
+        const { tactical } = createTactical(['phaserCannon', 'rechargeable']);
+        const slot = loadWeapon(tactical);
+        const weapon = slot.card!;
+        tactical.playCard(handCard(tactical, 'rechargeable').id, 'rechargeable', 'weapon', slot.id);
+
+        tactical.ejectWeapon(slot.id);
+
+        expect(weapon.hasTrait('rechargeable')).toBe(false);
+    });
+
+    it('lets a new weapon be loaded into an ejected slot', () => {
+        const { tactical } = createTactical(['phaserCannon', 'photonTorpedo']);
+        const slot = loadWeapon(tactical);
+
+        tactical.ejectWeapon(slot.id);
+        loadWeapon(tactical, 'photonTorpedo');
+
+        expect(slot.card?.type).toBe('photonTorpedo');
+    });
+
+    it.each(['slot1', 'nonexistent'])('refuses to eject from %s when it holds no weapon', (slotId) => {
+        const { tactical } = createTactical(['phaserCannon']);
+        const deckSize = tactical.deck.length;
+
+        expect(tactical.ejectWeapon(slotId)).toBe(false);
+        expect(tactical.deck.length).toBe(deckSize);
+    });
+
+    it('clears slot modifiers at the end of an encounter', () => {
+        const { tactical } = createTactical(['phaserCannon', 'precisionFocus']);
+        const slot = loadWeapon(tactical);
+        tactical.playCard(handCard(tactical, 'precisionFocus').id, 'precisionFocus', 'weapon', slot.id);
+
+        tactical.cleanupAfterEncounter();
+
+        expect(slot.card).toBeNull();
+        expect(slot.modifiers.size).toBe(0);
+    });
+
     it('keeps a weapon whose charge is still above zero after decaying', () => {
         const { state, tactical } = createTactical(['phaserCannon']);
         const slot = loadWeapon(tactical);

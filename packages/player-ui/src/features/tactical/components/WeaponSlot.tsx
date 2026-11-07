@@ -7,11 +7,13 @@ import { FiringState } from 'common-data/features/space/types/FiringState';
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
 import colorPalletes from 'common-ui/ColorPalette.module.css';
+import { Button } from 'common-ui/components/Button';
 import { DiscreteProgress } from 'common-ui/components/DiscreteProgress';
 import { CardBase } from 'common-ui/features/cards/components/CardBase';
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
 import { UICardDefinition } from 'common-ui/features/cards/types/UICardDefinition';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
+import { default as EjectIcon } from 'common-ui/icons/eject.svg?react';
 import { ColorPalette } from 'common-ui/types/ColorPalette';
 import { resolveParameters } from 'common-ui/types/resolveParameters';
 import { classNames } from 'common-ui/utils/classNames';
@@ -25,6 +27,8 @@ type Props = Snapshot<WeaponSlotInfo> & {
     /** Counting from 1, shown on the slot while it's empty. */
     slotNumber: number;
     firingSolution: FiringSolution | null;
+    /** Discard the slotted weapon, losing its charge. */
+    onEject?: () => void;
 };
 
 // Only weapon and weapon slot cards can be spent as charge, and damaged cards can't be used.
@@ -89,7 +93,7 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
 }
 
 export const WeaponSlot = (props: Props) => {
-    const { id, card, modifiers, charge, decay, firingSolution, modified, hasBeenFullyCharged } = props;
+    const { id, card, modifiers, charge, decay, firingSolution, modified, hasBeenFullyCharged, onEject } = props;
 
     const activeCard = useActiveCard();
     const activeCardDefinition = activeCard?.targetType === 'weapon'
@@ -205,8 +209,20 @@ export const WeaponSlot = (props: Props) => {
             </div>
 
             <div className={classNames(styles.status, statusClassName)}>
-                <span className={styles.statusTitle}>{statusTitle}</span>
-                <span className={styles.statusHint}>{statusHint}</span>
+                <span className={styles.statusText}>
+                    <span className={styles.statusTitle}>{statusTitle}</span>
+                    <span className={styles.statusHint}>{statusHint}</span>
+                </span>
+
+                {slotCardDefinition && (
+                    <Button
+                        className={styles.ejectButton}
+                        palette="danger"
+                        icon={<EjectIcon />}
+                        onClick={onEject}
+                        ariaLabel={`Eject ${slotCardDefinition.name} from weapon slot ${props.slotNumber}`}
+                    />
+                )}
             </div>
         </li>
     );
