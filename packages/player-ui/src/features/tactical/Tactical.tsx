@@ -50,6 +50,10 @@ export const Tactical = (props: Props) => {
         });
     }, [props.room]);
 
+    const ejectWeapon = useCallback((slotId: string) => {
+        props.room.send('ejectWeapon', { slotId });
+    }, [props.room]);
+
     if (!localShip?.tacticalState?.hand) {
         return <div>unable to load</div>;
     }
@@ -93,6 +97,7 @@ export const Tactical = (props: Props) => {
             deckSize={tacticalState.deck.length}
             deckView={deckView}
             playCard={playCard}
+            ejectWeapon={ejectWeapon}
             cardGeneration={tacticalState.cardGeneration}
             viewer={viewer}
         />

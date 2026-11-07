@@ -7,6 +7,7 @@ import styles from './WeaponSlots.module.css';
 type Props = {
     slots: Snapshot<WeaponSlotInfo[]>;
     firingSolution: FiringSolution | null;
+    onEject: (slotId: string) => void;
 };
 
 export const WeaponSlots = (props: Props) => {
@@ -17,6 +18,7 @@ export const WeaponSlots = (props: Props) => {
                     {...slot}
                     slotNumber={index + 1}
                     firingSolution={props.firingSolution}
+                    onEject={() => props.onEject(slot.id)}
                     key={index}
                 />
             ))}
