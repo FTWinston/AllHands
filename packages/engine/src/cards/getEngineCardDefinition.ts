@@ -902,7 +902,7 @@ function loadCardDefinitions() {
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
-                ship.scienceState.presentDrawChoice();
+                ship.scienceState.drawFromTop(2);
                 return true;
             },
         },

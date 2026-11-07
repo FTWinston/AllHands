@@ -12,8 +12,6 @@ const meta: Meta<typeof Component> = {
     },
     args: {
         onPause: fn(),
-        pendingDrawChoice: [],
-        resolveDrawChoice: fn(),
         targets: [],
         modifierSlot: null,
         substanceSlot: null,

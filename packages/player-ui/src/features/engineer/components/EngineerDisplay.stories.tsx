@@ -9,7 +9,7 @@ import { EngineerDisplay as Component } from './EngineerDisplay';
 import type { SystemCards } from './SystemCardsDialog';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-const noCards = { hand: [], deck: [], pendingDrawChoice: [] };
+const noCards = { hand: [], deck: [] };
 
 const helmCards = {
     hand: [{ id: 101, type: 'zigZag' }],
@@ -19,7 +19,6 @@ const helmCards = {
         { id: 104, type: 'faceTarget' },
         { id: 105, type: 'sweep', extraTraits: { expendable: ExtraTraitType.Normal } },
     ],
-    pendingDrawChoice: [],
 } satisfies SystemCards;
 
 const meta: Meta<typeof Component> = {
@@ -31,8 +30,6 @@ const meta: Meta<typeof Component> = {
     includeStories: /^[A-Z]/,
     args: {
         onPause: fn(),
-        pendingDrawChoice: [],
-        resolveDrawChoice: fn(),
     },
     render: (args) => {
         const { cards, expendCard, cardGeneration } = useFakePowerAndCards({

@@ -62,10 +62,6 @@ export const Science = (props: Props) => {
         props.room.send('unmountDeflector', { slot: 'delivery' });
     }, [props.room]);
 
-    const resolveDrawChoice = useCallback((cardId: number) => {
-        props.room.send('resolveDrawChoice', { cardId });
-    }, [props.room]);
-
     if (!localShip?.scienceState?.hand) {
         return <div>unable to load</div>;
     }
@@ -122,8 +118,6 @@ export const Science = (props: Props) => {
             unmountDeflectorDelivery={unmountDeflectorDelivery}
             unmountDeflectorModifier={unmountDeflectorModifier}
             unmountDeflectorSubstance={unmountDeflectorSubstance}
-            pendingDrawChoice={scienceState.pendingDrawChoice}
-            resolveDrawChoice={resolveDrawChoice}
         />
     );
 };

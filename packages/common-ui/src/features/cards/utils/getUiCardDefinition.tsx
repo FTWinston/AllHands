@@ -739,7 +739,7 @@ function loadCardDefinitions() {
         invertedPulseScan: {
             name: 'Inverted Pulse Scan',
             description: <>
-                Finding a vulnerability lets you pick from the next 3 cards in your deck, returning the other two to its end.
+                Finding a vulnerability draws 2 cards.
             </>,
             image: <ExampleIcon />,
         },

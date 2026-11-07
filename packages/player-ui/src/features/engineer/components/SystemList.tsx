@@ -60,7 +60,6 @@ export const SystemList = (props: Props) => {
                     system={viewedSystem.system}
                     hand={viewedSystem.hand}
                     deck={viewedSystem.deck}
-                    pendingDrawChoice={viewedSystem.pendingDrawChoice}
                     isOpen={isViewingCards}
                     setOpen={setViewingCards}
                 />

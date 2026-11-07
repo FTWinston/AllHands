@@ -309,12 +309,11 @@ describe('GameRoom engineer system cards', () => {
         });
     });
 
-    it('engineer sees changes to other systems\' cards, including extra traits and draw choices', async () => {
+    it('engineer sees changes to other systems\' cards, including extra traits', async () => {
         const { state, ship, clients } = await startEncounter();
 
         ship.helmState.discard();
         ship.helmState.deck[2].addTrait('expendable', ExtraTraitType.Normal);
-        ship.scienceState.presentDrawChoice();
         ship.tick(0, state.currentTime);
 
         await vi.waitFor(() => {
@@ -323,10 +322,6 @@ describe('GameRoom engineer system cards', () => {
             expect(cardIds(helmTile.hand)).toEqual(cardIds(ship.helmState.hand));
             expect(cardIds(helmTile.deck)).toEqual(cardIds(ship.helmState.deck));
             expect(helmTile.deck[2].extraTraits.get('expendable')).toBe(ExtraTraitType.Normal);
-
-            const scienceTile = engineerShip.engineerState.systems.find(t => t.system === 'science')!;
-            expect(scienceTile.pendingDrawChoice.length).toBeGreaterThan(0);
-            expect(cardIds(scienceTile.pendingDrawChoice)).toEqual(cardIds(ship.scienceState.pendingDrawChoice));
         });
 
         await vi.waitFor(() => {

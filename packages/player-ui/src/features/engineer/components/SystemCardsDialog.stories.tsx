@@ -28,7 +28,6 @@ const meta: Meta<typeof Component> = {
             ...createCards(['fullSpread', 'weaponOvercharge', 'subCritical'], 6),
             { id: 9, type: 'rapidFire', extraTraits: { expendable: ExtraTraitType.Normal } },
         ],
-        pendingDrawChoice: [],
     },
     render: (args) => {
         const [isOpen, setOpen] = useState(args.isOpen);
@@ -61,7 +60,6 @@ export const CrewSystem: Story = {
 
         await expect(page.getByRole('list', { name: 'Hand' }).children).toHaveLength(2);
         await expect(page.getByRole('list', { name: 'Deck' }).children).toHaveLength(7);
-        await expect(page.queryByRole('list', { name: 'Revealed' })).not.toBeInTheDocument();
 
         // Only the deck is numbered.
         await expect(page.getAllByText(/^#\d+$/)).toHaveLength(7);
@@ -80,21 +78,6 @@ export const Reactor: Story = {
         await expect(await page.findByText('Reactor cards')).toBeInTheDocument();
         await expect(page.queryByText('Hand')).not.toBeInTheDocument();
         await expect(page.getByRole('list', { name: 'Deck' }).children).toHaveLength(6);
-    },
-};
-
-/** Cards revealed for a draw choice have left the deck, so are shown separately. */
-export const DrawChoice: Story = {
-    args: {
-        system: 'science',
-        hand: [],
-        pendingDrawChoice: createCards(['passiveScan', 'polaronScan', 'tetryonScan'], 1),
-        deck: createCards(['phasedBurstScan', 'invertedPulseScan', 'coherentChronitonScan'], 4),
-    },
-    play: async ({ canvasElement }) => {
-        const page = within(canvasElement.ownerDocument.body);
-        await expect((await page.findByRole('list', { name: 'Revealed' })).children).toHaveLength(3);
-        await expect(page.getByText('No cards in hand.')).toBeInTheDocument();
     },
 };
 

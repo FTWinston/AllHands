@@ -14,8 +14,6 @@ const meta: Meta<typeof Component> = {
     },
     args: {
         onPause: fn(),
-        pendingDrawChoice: [],
-        resolveDrawChoice: fn(),
         viewer: { shipId: null, faction: 'player', relations: { raiders: RelationshipType.Hostile } },
     },
     render: (args) => {

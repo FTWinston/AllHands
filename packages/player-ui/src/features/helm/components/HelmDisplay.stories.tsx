@@ -17,8 +17,6 @@ const meta: Meta<typeof Component> = {
     },
     args: {
         onPause: fn(),
-        pendingDrawChoice: [],
-        resolveDrawChoice: fn(),
     },
     render: (args) => {
         const { cards, expendCard, cardGeneration } = useFakePowerAndCards({
