@@ -58,6 +58,13 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
         this.processEffectTicks(currentTime);
     }
 
+    /** Update each tile's copies of its system's cards, which only the engineer of a player ship can see. */
+    mirrorSystemCards() {
+        for (const tile of this.systems) {
+            tile.mirrorSystemCards();
+        }
+    }
+
     /**
      * Remove any effects from system tiles whose duration has reached its end time.
      */

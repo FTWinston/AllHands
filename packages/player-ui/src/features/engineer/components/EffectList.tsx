@@ -16,6 +16,11 @@ const getEffectType = (effect: SystemEffectInstance) => effect.type;
 export const EffectList = (props: Props) => {
     const { knownItems, currentItemIds, removingItemIds } = useArrayChanges(props.effects ?? [], getEffectType);
 
+    // Shown once any last effect has finished disappearing.
+    if (knownItems.length === 0) {
+        return <p className={classNames(styles.empty, props.className)}>Status nominal</p>;
+    }
+
     return (
         <ul
             className={classNames(styles.effects, props.className)}

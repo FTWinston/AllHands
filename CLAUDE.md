@@ -12,7 +12,7 @@ Multiplayer co-op starship bridge game. npm workspaces monorepo (TypeScript, Rea
 Build order: common-data → engine/common-ui → player-ui/game-ui → game-app.
 
 ## Commands (run from repo root)
-- Typecheck: `npx tsc -b` (builds all packages). This rewrites `engine/dist` without the `tsc-alias` step that resolves its `src/...` imports, so `npm run dev` then fails with `Cannot find module 'src/...'`. Run `npm run build:devtools` before `npm run dev` to fix it.
+- Typecheck: `npm run typecheck`. Don't run bare `npx tsc -b`: it rewrites `engine/dist` and `common-data/dist` without the `tsc-alias` step that resolves their imports, so `npm run dev` then fails with `Cannot find module 'src/...'`. The script runs that step too. (`tsc -b --noEmit` isn't an option, as referenced projects can't disable emit.)
 - Unit tests: `npm run test:unit -- --run`; story tests: `npx vitest run --project storybook` (slow)
 - Lint: `npx eslint <files>` (`npm run lint` runs with --fix over everything)
 - End-to-end: `npm run dev` serves the game at http://localhost:23552/ (dev mode). Pressing **Start Single-Player Game** in the main menu also opens 4 mobile-sized Playwright windows (`launch-players.ts`), one per crew role, which auto-join and start the game. Those windows aren't controllable via Claude in Chrome; open the URL there yourself to drive the main screen.

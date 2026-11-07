@@ -1,11 +1,26 @@
 import { Snapshot } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { Cooldown } from 'common-data/types/Cooldown';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fn } from 'storybook/test';
 import { EngineerDisplay as Component } from './EngineerDisplay';
+import type { SystemCards } from './SystemCardsDialog';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+
+const noCards = { hand: [], deck: [], pendingDrawChoice: [] };
+
+const helmCards = {
+    hand: [{ id: 101, type: 'zigZag' }],
+    deck: [
+        { id: 102, type: 'slowAndSteady' },
+        { id: 103, type: 'strafe', extraTraits: { damaged: ExtraTraitType.Normal } },
+        { id: 104, type: 'faceTarget' },
+        { id: 105, type: 'sweep', extraTraits: { expendable: ExtraTraitType.Normal } },
+    ],
+    pendingDrawChoice: [],
+} satisfies SystemCards;
 
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Engineer/UI',
@@ -163,6 +178,7 @@ export const UI: Story = {
         systems: [
             {
                 system: 'hull',
+                ...(noCards),
                 health: 15,
                 maxHealth: 18,
                 power: 5,
@@ -184,6 +200,7 @@ export const UI: Story = {
             },
             {
                 system: 'reactor',
+                ...(noCards),
                 health: 18,
                 maxHealth: 18,
                 power: 5,
@@ -197,6 +214,7 @@ export const UI: Story = {
             },
             {
                 system: 'helm',
+                ...(helmCards),
                 health: 18,
                 maxHealth: 18,
                 power: 5,
@@ -204,6 +222,7 @@ export const UI: Story = {
             },
             {
                 system: 'science',
+                ...(noCards),
                 health: 18,
                 maxHealth: 18,
                 power: 5,
@@ -245,6 +264,7 @@ export const UI: Story = {
             },
             {
                 system: 'tactical',
+                ...(noCards),
                 health: 18,
                 maxHealth: 18,
                 power: 5,
@@ -278,6 +298,7 @@ export const UI: Story = {
             },
             {
                 system: 'engineer',
+                ...(noCards),
                 health: 18,
                 maxHealth: 18,
                 power: 5,

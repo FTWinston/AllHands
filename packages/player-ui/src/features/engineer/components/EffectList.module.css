@@ -19,6 +19,16 @@
     --center-index: calc((var(--count) - 1) / 2);
 }
 
+.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    font-size: 0.9em;
+    text-align: center;
+    color: var(--grey-mid);
+}
+
 .effectItem {
     position: absolute;
     left: 50%;

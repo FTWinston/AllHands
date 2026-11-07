@@ -1,0 +1,33 @@
+.body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    /* Cards slide off the sides of the screen as they move up the deck. */
+    overflow-x: hidden;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+    min-width: 0;
+}
+
+/* Separates the deck from the hand above it. */
+.section + .section {
+    border-top: solid var(--primary-mid) 1px;
+    padding-top: 1.5em;
+}
+
+.heading {
+    margin: 0;
+    text-align: center;
+    font-size: 1.25em;
+    color: var(--primary-light);
+}
+
+.note {
+    margin: 0;
+    text-align: center;
+    color: var(--grey-light);
+}
