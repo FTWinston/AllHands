@@ -15,22 +15,22 @@ import type { Snapshot } from '@colyseus/react';
 
 type Props = {
     /** In draw order. */
-    'cards': Snapshot<CardInstance[]>;
+    cards: Snapshot<CardInstance[]>;
     /** When provided, cards can be dragged to a new position. */
-    'onMoveCard'?: (cardId: number, toIndex: number) => void;
+    onMoveCard?: (cardId: number, toIndex: number) => void;
     /** When provided, each card has a button to sell it for `sellPrice`, once confirmed. */
-    'onSellCard'?: (cardId: number) => void;
-    'sellPrice'?: number;
+    onSellCard?: (cardId: number) => void;
+    sellPrice?: number;
     /** Selling is disabled while this is set. */
-    'sellDisabled'?: boolean;
+    sellDisabled?: boolean;
     /** Whether to number each card by its position. Defaults to true. */
-    'showPositions'?: boolean;
+    showPositions?: boolean;
     /** Whether to mark cards that have extra traits, beyond those of their card type. */
-    'highlightExtraTraits'?: boolean;
+    highlightExtraTraits?: boolean;
     /** Whether to animate cards moving when the list changes, e.g. as cards are drawn. Don't use this with `onMoveCard`, whose drag and drop shows moves itself. */
-    'animateShifts'?: boolean;
+    animateShifts?: boolean;
     /** Defaults to "Deck". */
-    'aria-label'?: string;
+    ariaLabel?: string;
 };
 
 type PendingMove = {
@@ -103,7 +103,7 @@ export const DeckCardList: FC<Props> = (props) => {
             onDragCancel={() => setDraggingCard(null)}
         >
             <div className={cardGridStyles.scale}>
-                <ol ref={listRef} className={classNames(cardGridStyles.grid, draggingCard ? cardGridStyles.noZoom : null)} aria-label={props['aria-label'] ?? 'Deck'}>
+                <ol ref={listRef} className={classNames(cardGridStyles.grid, draggingCard ? cardGridStyles.noZoom : null)} aria-label={props.ariaLabel ?? 'Deck'}>
                     {displayedCards.map((card, index) => (
                         <DeckCardItem
                             key={card.id}

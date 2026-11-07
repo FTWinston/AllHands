@@ -36,7 +36,7 @@ export const SystemCardsDialog: FC<Props> = (props) => {
                 <section className={styles.section}>
                     <h3 className={styles.heading}>Revealed</h3>
                     <p className={styles.note}>Taken from the top of the deck, while one is chosen to draw. The rest go to the bottom.</p>
-                    <DeckCardList cards={props.pendingDrawChoice} showPositions={false} highlightExtraTraits aria-label="Revealed" />
+                    <DeckCardList cards={props.pendingDrawChoice} showPositions={false} highlightExtraTraits ariaLabel="Revealed" />
                 </section>
             )}
 
@@ -44,7 +44,7 @@ export const SystemCardsDialog: FC<Props> = (props) => {
                 <section className={styles.section}>
                     <h3 className={styles.heading}>Hand</h3>
                     {props.hand.length > 0
-                        ? <DeckCardList cards={props.hand} showPositions={false} highlightExtraTraits animateShifts aria-label="Hand" />
+                        ? <DeckCardList cards={props.hand} showPositions={false} highlightExtraTraits animateShifts ariaLabel="Hand" />
                         : <p className={styles.note}>No cards in hand.</p>}
                 </section>
             )}

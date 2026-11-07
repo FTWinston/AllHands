@@ -9,8 +9,6 @@ import styles from './EffectList.module.css';
 type Props = {
     className?: string;
     effects: IArray<SystemEffectInstance> | undefined;
-    /** Shown in place of the list when there are no effects, once any last one has finished disappearing. */
-    emptyText?: string;
 };
 
 const getEffectType = (effect: SystemEffectInstance) => effect.type;
@@ -18,8 +16,9 @@ const getEffectType = (effect: SystemEffectInstance) => effect.type;
 export const EffectList = (props: Props) => {
     const { knownItems, currentItemIds, removingItemIds } = useArrayChanges(props.effects ?? [], getEffectType);
 
-    if (knownItems.length === 0 && props.emptyText) {
-        return <p className={classNames(styles.empty, props.className)}>{props.emptyText}</p>;
+    // Shown once any last effect has finished disappearing.
+    if (knownItems.length === 0) {
+        return <p className={classNames(styles.empty, props.className)}>Status nominal</p>;
     }
 
     return (
