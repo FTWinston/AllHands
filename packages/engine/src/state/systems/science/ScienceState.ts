@@ -157,7 +157,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
 
     /**
      * Identifies this ship's listener on the scanned ship's hull, which (unlike its systems) science keeps watching until it scans another ship.
-     * The engineer scan listens to the same hull tile, so this needs its own id.
+     * Science's scan of the target's engineer system also listens to this tile (keyed by this ship's id), so the hull listener needs its own id.
      */
     private get hullListenerId() {
         return `${this.getShip().id}/hull`;
