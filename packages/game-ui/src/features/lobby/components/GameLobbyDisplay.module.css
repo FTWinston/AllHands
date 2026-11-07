@@ -43,6 +43,7 @@
     min-height: 0;
     display: grid;
     grid-template-columns: 29.25em minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     gap: var(--panel-gap);
     padding: 2.75em 3.5em 3em;
 }
@@ -66,10 +67,13 @@
     corner-shape: bevel;
 }
 
+/* Shrinks to whatever height the rest of the join panel leaves, so the panel never runs into the body's bottom padding. */
 .qrCodeContainer {
     position: relative;
     align-self: center;
-    width: 23.75em;
+    flex: 0 1 23.75em;
+    min-height: 0;
+    aspect-ratio: 1;
     max-width: 100%;
     padding: 1.25em;
     background-color: oklch(0.93 0.01 265);
@@ -78,8 +82,9 @@
 }
 
 .qrCode {
+    display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
 }
 
 .full {
