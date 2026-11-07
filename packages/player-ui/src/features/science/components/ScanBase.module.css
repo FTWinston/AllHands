@@ -85,30 +85,8 @@
 }
 
 .closeButton {
-    width: 2.75em;
-    height: 2.75em;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 0.094em solid var(--line);
-    border-radius: 0 0.875em 0 0.875em;
-    corner-shape: bevel;
-    background-color: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-
-    @media (hover: hover) {
-        &:hover {
-            border-color: var(--label);
-            color: var(--text);
-        }
-    }
-}
-
-.closeIcon {
-    width: 1.125em;
-    height: 1.125em;
+    --icon-button-size: 2.75em;
+    --icon-button-icon-size: 1.125em;
 }
 
 .content {

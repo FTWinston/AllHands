@@ -7,6 +7,7 @@ import { FiringState } from 'common-data/features/space/types/FiringState';
 import { WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
 import colorPalletes from 'common-ui/ColorPalette.module.css';
+import { Button } from 'common-ui/components/Button';
 import { DiscreteProgress } from 'common-ui/components/DiscreteProgress';
 import { CardBase } from 'common-ui/features/cards/components/CardBase';
 import { CardDisplay } from 'common-ui/features/cards/components/CardDisplay';
@@ -214,14 +215,13 @@ export const WeaponSlot = (props: Props) => {
                 </span>
 
                 {slotCardDefinition && (
-                    <button
-                        type="button"
+                    <Button
                         className={styles.ejectButton}
+                        palette="danger"
+                        icon={<EjectIcon />}
                         onClick={onEject}
                         aria-label={`Eject ${slotCardDefinition.name} from weapon slot ${props.slotNumber}`}
-                    >
-                        <EjectIcon className={styles.ejectIcon} />
-                    </button>
+                    />
                 )}
             </div>
         </li>
