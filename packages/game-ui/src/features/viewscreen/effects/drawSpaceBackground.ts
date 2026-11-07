@@ -4,8 +4,6 @@ import { getLayer, glow, seededRandom } from './light';
 /** Stars are spread over a square tile of this many pixels, repeated as needed. */
 const starTileSize = 2048;
 
-/** How much bigger than the screen the nebula is drawn, so it has room to drift. */
-const nebulaMargin = 500;
 const nebulaParallax = 0.03;
 
 const starLayers = [0.08, 0.2, 0.45].map((parallax, index) => {
@@ -46,11 +44,14 @@ function getStarSprite(color: string) {
     return sprite;
 }
 
-let nebulaSize = '';
+let nebulaSize = 0;
 
-function getNebula(width: number, height: number) {
-    const layer = getLayer('nebula', width, height);
-    const size = `${width}x${height}`;
+/**
+ * A square nebula tile that repeats seamlessly, so it can drift forever without ever jumping.
+ * Each blob is also drawn a tile's width away in every direction, so whatever crosses one edge comes back in at the other.
+ */
+function getNebula(size: number) {
+    const layer = getLayer('nebula', size, size);
 
     if (size !== nebulaSize) {
         nebulaSize = size;
@@ -59,12 +60,20 @@ function getNebula(width: number, height: number) {
         const random = seededRandom(4242);
 
         ctx.fillStyle = '#03050c';
-        ctx.fillRect(0, 0, width, height);
+        ctx.fillRect(0, 0, size, size);
         ctx.globalCompositeOperation = 'lighter';
 
         for (let i = 0; i < 26; i++) {
             const color = i % 3 === 0 ? '#2a1a55' : i % 3 === 1 ? '#0d3350' : '#3a1630';
-            glow(ctx, random() * width, random() * height, (0.18 + random() * 0.35) * Math.max(width, height), color, 0.13);
+            const x = random() * size;
+            const y = random() * size;
+            const radius = (0.18 + random() * 0.35) * size;
+
+            for (const offsetX of [-size, 0, size]) {
+                for (const offsetY of [-size, 0, size]) {
+                    glow(ctx, x + offsetX, y + offsetY, radius, color, 0.13);
+                }
+            }
         }
 
         ctx.globalCompositeOperation = 'source-over';
@@ -86,9 +95,19 @@ export function drawSpaceBackground(ctx: CanvasRenderingContext2D, center: Vecto
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.globalAlpha = 1;
 
-    const nebulaX = wrap(center.x * cellRadius * nebulaParallax, nebulaMargin / 2);
-    const nebulaY = wrap(center.y * cellRadius * nebulaParallax, nebulaMargin / 2);
-    ctx.drawImage(getNebula(width + nebulaMargin, height + nebulaMargin), -nebulaX, -nebulaY);
+    // The tile is at least as big as the screen, so a 2x2 block of tiles always covers it.
+    const nebulaSize = Math.max(width, height, 1);
+    const nebula = getNebula(nebulaSize);
+    const nebulaX = wrap(center.x * cellRadius * nebulaParallax, nebulaSize);
+    const nebulaY = wrap(center.y * cellRadius * nebulaParallax, nebulaSize);
+
+    for (const tileX of [-nebulaX, nebulaSize - nebulaX]) {
+        for (const tileY of [-nebulaY, nebulaSize - nebulaY]) {
+            if (tileX < width && tileY < height) {
+                ctx.drawImage(nebula, tileX, tileY);
+            }
+        }
+    }
 
     for (const layer of starLayers) {
         for (const star of layer.stars) {
