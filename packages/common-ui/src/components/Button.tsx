@@ -14,26 +14,28 @@ type CommonProps = Omit<ButtonProps, 'className'> & {
 
 type LabelledProps = CommonProps & {
     icon?: never;
+    ariaLabel?: never;
     startIcon?: ReactNode;
     endIcon?: ReactNode;
 };
 
 /**
- * A square button showing only an icon, so it needs an aria-label to say what it does.
+ * A square button showing only an icon, so it needs an ariaLabel to say what it does.
  * It's 2em across, with an icon half that, unless given a width and height through its className, or a size on the icon itself.
  */
-type IconOnlyProps = CommonProps & {
-    'icon': ReactNode;
-    'aria-label': string;
-    'children'?: never;
-    'startIcon'?: never;
-    'endIcon'?: never;
+type IconOnlyProps = Omit<CommonProps, 'aria-label'> & {
+    icon: ReactNode;
+    ariaLabel: string;
+    children?: never;
+    startIcon?: never;
+    endIcon?: never;
 };
 
 export type Props = LabelledProps | IconOnlyProps;
 
-export const Button: FC<Props> = ({ children, className, icon, startIcon, endIcon, palette, outlined, ...props }) => (
+export const Button: FC<Props> = ({ children, className, icon, ariaLabel, startIcon, endIcon, palette, outlined, ...props }) => (
     <ButtonBase
+        aria-label={ariaLabel}
         {...props}
         className={classNames(
             styles.button,

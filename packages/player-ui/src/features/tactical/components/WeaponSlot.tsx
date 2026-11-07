@@ -220,7 +220,7 @@ export const WeaponSlot = (props: Props) => {
                         palette="danger"
                         icon={<EjectIcon />}
                         onClick={onEject}
-                        aria-label={`Eject ${slotCardDefinition.name} from weapon slot ${props.slotNumber}`}
+                        ariaLabel={`Eject ${slotCardDefinition.name} from weapon slot ${props.slotNumber}`}
                     />
                 )}
             </div>

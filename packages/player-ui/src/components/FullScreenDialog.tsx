@@ -30,7 +30,7 @@ export const FullScreenDialog: FC<Props> = props => (
                     {!props.noCloseButton && (
                         <BaseDialog.Close
                             render={(
-                                <Button title="Close" aria-label="Close" icon={<CloseIcon className={styles.closeIcon} />} />
+                                <Button title="Close" ariaLabel="Close" icon={<CloseIcon className={styles.closeIcon} />} />
                             )}
                         />
                     )}

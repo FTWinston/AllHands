@@ -62,7 +62,7 @@ export function DeflectorSlot({ cardType, slotType, label, emptyEffectLabel, onC
                     palette="danger"
                     icon={<EjectIcon />}
                     onClick={onClose}
-                    aria-label={`Remove ${cardDefinition.name} from the ${label.toLowerCase()} socket`}
+                    ariaLabel={`Remove ${cardDefinition.name} from the ${label.toLowerCase()} socket`}
                 />
             )}
         </CardDropTarget>

@@ -49,9 +49,9 @@ export const BothIcons: Story = {
 
 export const IconOnly: Story = {
     args: {
-        'icon': '✕',
-        'aria-label': 'Close',
-        'palette': 'danger',
+        icon: '✕',
+        ariaLabel: 'Close',
+        palette: 'danger',
     },
 };
 

@@ -60,7 +60,7 @@ export const ScanBase = (props: Props) => {
                     outlined={true}
                     icon={<CloseIcon className={styles.closeIcon} />}
                     onClick={props.onClose}
-                    aria-label="Close scan"
+                    ariaLabel="Close scan"
                 />
             </div>
 
