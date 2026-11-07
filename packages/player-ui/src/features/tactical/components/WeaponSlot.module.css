@@ -135,7 +135,8 @@
     align-items: center;
     gap: 0.375em;
     /* The title's capitals sit lower in their line than the hint's text does, so trim the top to look even. */
-    padding: 0.375em 0.625em 0.5em;
+    /* The left padding keeps the text clear of the slot's bevelled bottom left corner. */
+    padding: 0.375em 0.625em 0.5em 0.9375em;
     border-top: 0.094em solid var(--line);
     /* Round its tint into the slot's corners, without clipping the slot, which would cut off its card when zoomed. */
     border-end-start-radius: calc(1.125em - 0.094em);
@@ -171,18 +172,17 @@ As wide as the charge meter, and lined up beneath it: the body's padding is 0.12
     align-items: center;
     justify-content: center;
     padding: 0;
-    border: 0.094em solid color-mix(in oklch, var(--danger-light) 55%, transparent);
+    border: none;
     border-radius: 0 0.5em 0 0.5em;
     corner-shape: bevel;
-    background-color: color-mix(in oklch, var(--danger-light) 12%, var(--panel));
-    color: var(--danger-light);
+    background-color: var(--danger-mid);
+    color: var(--danger-lightest);
     cursor: pointer;
-    transition: border-color 0.15s ease, background-color 0.15s ease;
+    transition: background-color 0.15s ease;
 
     @media (hover: hover) {
         &:hover {
-            border-color: var(--danger-light);
-            background-color: color-mix(in oklch, var(--danger-light) 25%, var(--panel));
+            background-color: var(--danger-light);
         }
     }
 }
