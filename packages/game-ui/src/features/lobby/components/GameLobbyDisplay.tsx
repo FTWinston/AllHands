@@ -62,7 +62,7 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                         outlined
                         startIcon={<PowerIcon />}
                     >
-                        Disconnect
+                        Quit to menu
                     </Button>
                 )}
             >

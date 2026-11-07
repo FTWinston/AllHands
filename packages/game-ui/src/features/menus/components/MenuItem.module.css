@@ -5,7 +5,7 @@
 .menuButton {
     width: 37.5em;
     max-width: 100%;
-    min-height: 4.75em;
+    min-height: 4.25em;
     display: flex;
     align-items: center;
     gap: 1.25em;
@@ -37,22 +37,24 @@
     color: var(--label);
 }
 
-.label {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.125em;
-}
-
 .text {
+    flex-grow: 1;
     font-size: 1.75em;
     font-weight: 600;
     line-height: 1.1;
 }
 
-.description {
-    font-size: 1.0625em;
-    color: var(--text-muted);
+.toggleState {
+    flex-shrink: 0;
+    font-family: var(--readout-font-family);
+    font-size: 1.375em;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--label);
+}
+
+.toggleState.on {
+    color: var(--text);
 }
 
 .chevron {
@@ -92,7 +94,6 @@
 
 .danger .menuButton {
     width: auto;
-    min-height: 4.25em;
     gap: 1.25em;
     border-color: color-mix(in oklch, var(--danger-light) 45%, transparent);
     background-color: var(--panel);
