@@ -6,8 +6,8 @@ import styles from './MenuItem.module.css';
 
 type Props = {
     text: string;
-    /** A line under the text, saying more about what the item does. */
-    description?: string;
+    /** Set this for an item that switches a setting on or off where it is, rather than going somewhere. It says which in place of a chevron. */
+    toggledOn?: boolean;
     /** Its place in the menu, shown before the text like a console's numbered keys. */
     number?: number;
     /** A primary item is the one most people want. A danger item is a narrower button, set apart from the rest. */
@@ -29,13 +29,13 @@ export const MenuItem: FC<Props> = (props) => {
                 className={styles.menuButton}
                 onClick={buttonClick}
                 disabled={!props.onClick}
+                aria-pressed={props.toggledOn}
             >
                 {props.number !== undefined && <span className={styles.number} aria-hidden="true">{String(props.number).padStart(2, '0')}</span>}
-                <span className={styles.label}>
-                    <span className={styles.text}>{props.text}</span>
-                    {props.description && <span className={styles.description}>{props.description}</span>}
-                </span>
-                <ChevronForwardIcon className={styles.chevron} aria-hidden="true" />
+                <span className={styles.text}>{props.text}</span>
+                {props.toggledOn === undefined
+                    ? <ChevronForwardIcon className={styles.chevron} aria-hidden="true" />
+                    : <span className={classNames(styles.toggleState, props.toggledOn ? styles.on : null)} aria-hidden="true">{props.toggledOn ? 'On' : 'Off'}</span>}
             </button>
             {props.confirmPrompt && props.onClick && (
                 <ConfirmDialog

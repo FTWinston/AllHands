@@ -1,7 +1,7 @@
 import type { PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 
 export const playerShipSetup: PlayerShipSetupInfo = {
-    name: 'Yourself',
+    name: 'Ship',
     position: { x: 0, y: 0, angle: 0 },
     hull: {
         cards: Array(12).fill('hullChargeShields'),

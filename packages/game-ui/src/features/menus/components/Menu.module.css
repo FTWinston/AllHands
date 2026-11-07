@@ -4,19 +4,6 @@
     font-size: min(1vw, 1.78vh);
     color: var(--text);
     background-color: var(--space);
-    background-image:
-        radial-gradient(0.1em 0.1em at 8% 12%, oklch(1 0 0 / 0.55), transparent 60%),
-        radial-gradient(0.07em 0.07em at 22% 78%, oklch(1 0 0 / 0.45), transparent 60%),
-        radial-gradient(0.1em 0.1em at 41% 33%, oklch(1 0 0 / 0.35), transparent 60%),
-        radial-gradient(0.07em 0.07em at 47% 91%, oklch(1 0 0 / 0.4), transparent 60%),
-        radial-gradient(0.1em 0.1em at 63% 8%, oklch(1 0 0 / 0.5), transparent 60%),
-        radial-gradient(0.07em 0.07em at 71% 62%, oklch(1 0 0 / 0.35), transparent 60%),
-        radial-gradient(0.1em 0.1em at 88% 22%, oklch(1 0 0 / 0.45), transparent 60%),
-        radial-gradient(0.07em 0.07em at 95% 84%, oklch(1 0 0 / 0.4), transparent 60%),
-        radial-gradient(0.07em 0.07em at 33% 52%, oklch(1 0 0 / 0.3), transparent 60%),
-        linear-gradient(var(--grid-line) 0.0625em, transparent 0.0625em),
-        linear-gradient(90deg, var(--grid-line) 0.0625em, transparent 0.0625em);
-    background-size: auto, auto, auto, auto, auto, auto, auto, auto, auto, 3em 3em, 3em 3em;
 }
 
 .content {
@@ -25,7 +12,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 4em 7em 6em;
+    padding: 2.5em 7em 5em;
 }
 
 .tagline, .heading, .footer {
@@ -42,7 +29,7 @@
 
 .title {
     font-family: var(--title-font-family);
-    font-size: 5.75em;
+    font-size: 7.5em;
     line-height: 1;
     font-weight: 400;
     letter-spacing: 0.04em;
@@ -52,7 +39,12 @@
 
 .stripe {
     margin-top: 0.5em;
-    font-size: 2.8em;
+    font-size: 3.2em;
+}
+
+/* As tall as the main menu needs, so that the title stays in the same place on every menu. */
+.menuArea {
+    min-height: 32em;
 }
 
 .heading {
@@ -61,7 +53,7 @@
 }
 
 .menuRoot {
-    margin-top: 3.25em;
+    margin-top: 2.5em;
 }
 
 .heading + .menuRoot {
@@ -71,12 +63,12 @@
 .menuList {
     display: flex;
     flex-direction: column;
-    gap: 0.75em;
+    gap: 0.6em;
 }
 
 .footer {
     position: absolute;
     left: 7em;
-    bottom: 2.75em;
+    bottom: 2.25em;
     letter-spacing: 0.18em;
 }
