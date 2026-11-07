@@ -2,10 +2,10 @@ import { IArray } from '@colyseus/react';
 import { GameObjectInfo, ScannedHullInfo, SubTargetInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
-import { ShieldedObjectIcon } from 'common-ui/objects/shields/ShieldedObjectIcon';
 import { classNames } from 'common-ui/utils/classNames';
 import { TargetReadout } from 'src/components/TargetReadout';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
+import { ShieldedObjectIcon } from 'src/features/shields/components/ShieldedObjectIcon';
 import { SubTargetList } from './SubTargetList';
 import styles from './TacticalTarget.module.css';
 

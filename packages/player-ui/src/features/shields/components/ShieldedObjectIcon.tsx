@@ -1,8 +1,8 @@
+import { ObjectIcon } from 'common-ui/objects';
+import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
-import { ObjectIcon } from '..';
-import { classNames } from '../../utils/classNames';
+import { getShieldDotPattern, getShieldPath, shieldDotSize, shieldTrackDasharray } from '../utils/shieldOutline';
 import styles from './ShieldedObjectIcon.module.css';
-import { getShieldDotPattern, getShieldPath, shieldDotSize, shieldTrackDasharray } from './shieldOutline';
 import type { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
 
 type ShieldOutlineProps = {

@@ -12,5 +12,10 @@
     "common-ui": "1.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/clipper-lib": "^6.4.0",
+    "clipper-lib": "^6.4.2",
+    "svg-path-properties": "^2.2.0"
   }
 }

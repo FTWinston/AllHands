@@ -6,10 +6,10 @@ import { RelationshipType } from 'common-data/features/space/types/RelationshipT
 import colorPalettes from 'common-ui/ColorPalette.module.css';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { SystemIcon } from 'common-ui/icons/systems';
-import { ShieldedObjectIcon } from 'common-ui/objects/shields/ShieldedObjectIcon';
 import { classNames } from 'common-ui/utils/classNames';
 import { TargetReadout } from 'src/components/TargetReadout';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
+import { ShieldedObjectIcon } from 'src/features/shields/components/ShieldedObjectIcon';
 import { ScanEngineerSystem } from './ScanEngineerSystem';
 import { ScanHelmSystem } from './ScanHelmSystem';
 import { ScanScienceSystem } from './ScanScienceSystem';

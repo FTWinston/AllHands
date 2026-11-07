@@ -1,6 +1,6 @@
 import { shipAppearances } from 'common-data/features/space/types/ObjectAppearance';
+import { svgStrings } from 'common-ui/objects/strings';
 import { describe, expect, it } from 'vitest';
-import { svgStrings } from '../strings';
 import { generateShieldOutline } from './generateShieldOutline';
 import { getShieldDotPattern, getShieldPath, shieldDotCount, shieldDotSize, shieldOverhang } from './shieldOutline';
 
