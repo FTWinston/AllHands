@@ -96,14 +96,13 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                             </div>
                         )}
                     </div>
-                    <p className={styles.label}>Or open on your phone</p>
+                    <p className={styles.label}>Or browse on your phone</p>
                     <p className={styles.url}>{serverUrl}</p>
                     <p className={styles.hint}>
-                        Everyone joins
-                        {' '}
-                        {allowMultipleCrews ? 'this crew' : 'the game'}
-                        {' '}
-                        on their own phone, then claims one of the four stations.
+                        Each crew member joins on their own phone, and assigns themselves a station.
+                    </p>
+                    <p className={styles.hint}>
+                        If you have a captain, they don't connect to anything. They play by talking to the rest of the crew.
                     </p>
                 </section>
 
@@ -113,7 +112,7 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                         <p className={styles.crewedCount}>
                             {numCrewed}
                             {' '}
-                            of 4 crewed
+                            of 4 crew assigned
                         </p>
                     </div>
 
@@ -146,7 +145,7 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                                 <span className={styles.statusDot} aria-hidden="true" />
                                 <div className={styles.statusText}>
                                     <p className={styles.statusTitle}>{getWaitingText(numCrewed, numUnassigned)}</p>
-                                    <p className={styles.statusDetail}>The game launches as soon as every station is crewed.</p>
+                                    <p className={styles.statusDetail}>The game will start when every crew station is occupied.</p>
                                 </div>
                             </div>
                         )}

@@ -37,13 +37,13 @@ export const LobbyRole: FC<Props> = (props) => {
                             <svg className={styles.check} viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M5 12.5l4.5 4.5L19 7.5" />
                             </svg>
-                            Crewed
+                            Occupied
                         </>
                     )
                     : (
                         <>
                             <span className={styles.openDot} aria-hidden="true" />
-                            Awaiting crew
+                            Vacant
                         </>
                     )}
             </p>
