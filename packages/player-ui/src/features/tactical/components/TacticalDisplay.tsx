@@ -18,6 +18,7 @@ import { WeaponSlots } from './WeaponSlots';
 type Props = PropsWithChildren<Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     power: number;
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
+    ejectWeapon: (slotId: string) => void;
     cards: Snapshot<CardInstance[]>;
     slots: Snapshot<WeaponSlotInfo[]>;
     shipMotion: GameObjectInfo['motion'];
@@ -27,7 +28,7 @@ type Props = PropsWithChildren<Omit<ComponentProps<typeof CrewHeader>, 'crew' | 
 }>;
 
 export const TacticalDisplay = (props: Props) => {
-    const { cards, slots, playCard, targets, subTargetsByTarget, viewer, children, ...headerProps } = props;
+    const { cards, slots, playCard, ejectWeapon, targets, subTargetsByTarget, viewer, children, ...headerProps } = props;
 
     useRootClassName(crewStyles.tactical);
 
@@ -85,7 +86,7 @@ export const TacticalDisplay = (props: Props) => {
                     viewer={viewer}
                 />
 
-                <WeaponSlots slots={slots} firingSolution={firingSolution} />
+                <WeaponSlots slots={slots} firingSolution={firingSolution} onEject={ejectWeapon} />
             </CardUI>
 
             {children}

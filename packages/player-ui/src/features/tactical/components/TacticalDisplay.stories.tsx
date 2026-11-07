@@ -72,6 +72,10 @@ const meta: Meta<typeof Component> = {
                         setSlots(prevSlots => prevSlots.map(slot => slot.id === targetId ? { ...slot, modified: true } : slot));
                     }
                 }}
+                ejectWeapon={(slotId) => {
+                    console.log(`ejected weapon from ${slotId}`);
+                    setSlots(prevSlots => prevSlots.map(slot => slot.id === slotId ? { ...slot, card: null, modified: false, hasBeenFullyCharged: false, charge: 0 } : slot));
+                }}
                 slots={slots}
             />
         );

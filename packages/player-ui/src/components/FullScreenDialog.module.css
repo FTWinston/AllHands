@@ -42,10 +42,6 @@
     color: var(--primary-light);
 }
 
-button.close {
-    padding: 0.25em;
-}
-
 .closeIcon {
     width: 1.5em;
     height: 1.5em;

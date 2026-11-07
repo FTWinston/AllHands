@@ -298,6 +298,27 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             }
         });
 
+        this.onMessage('ejectWeapon', (client, message: { slotId: string }) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (clientRole !== ownTacticalClientRole) {
+                console.error('Only tactical can eject weapons');
+                return;
+            }
+
+            if (!this.getSystemState(ship, clientRole).ejectWeapon(message?.slotId)) {
+                console.warn(`Rejected ejecting weapon slot ${message?.slotId} from ${client.sessionId}`);
+            }
+        });
+
         this.onMessage('dismissMessage', (client) => {
             if (this.state.gameStatus !== 'active') {
                 return;

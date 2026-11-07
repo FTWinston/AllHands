@@ -1,4 +1,5 @@
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { Button } from 'common-ui/components/Button';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { default as EjectIcon } from 'common-ui/icons/eject.svg?react';
 import { classNames } from 'common-ui/utils/classNames';
@@ -56,14 +57,13 @@ export function DeflectorSlot({ cardType, slotType, label, emptyEffectLabel, onC
             </span>
 
             {cardDefinition && (
-                <button
-                    type="button"
+                <Button
                     className={styles.ejectButton}
+                    palette="danger"
+                    icon={<EjectIcon />}
                     onClick={onClose}
                     aria-label={`Remove ${cardDefinition.name} from the ${label.toLowerCase()} socket`}
-                >
-                    <EjectIcon className={styles.ejectIcon} />
-                </button>
+                />
             )}
         </CardDropTarget>
     );

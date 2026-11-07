@@ -114,11 +114,9 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         return this.discardIfEmpty();
     }
 
-    private discardIfEmpty(): boolean {
-        if (this.charge > 0) {
-            return false;
-        }
-
+    /** Empty the slot, losing its charge and any modifier. Return the card that was in it. */
+    clear(): CardState | null {
+        const card = this.card;
         this.charge = 0;
         this.modified = false;
         this.modifierCard = null;
@@ -126,6 +124,15 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         this.decay = null;
         this.modifiers.clear();
         this.card = null;
+        return card;
+    }
+
+    private discardIfEmpty(): boolean {
+        if (this.charge > 0) {
+            return false;
+        }
+
+        this.clear();
         return true;
     }
 }

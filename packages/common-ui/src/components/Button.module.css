@@ -62,6 +62,41 @@
   width: 1em;
 }
 
+/* Square, with its corners and icon in proportion to its size, so icon buttons look alike whatever their size. */
+.iconOnly {
+  position: relative;
+  flex-shrink: 0;
+  justify-content: center;
+  padding: 0;
+  border-radius: 0 30% 0 30%;
+}
+
+.iconOnlyIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Default sizes have no specificity, so a width and height in a className passed to the button, or on its icon, override them. */
+:where(.iconOnly) {
+  width: 2em;
+  height: 2em;
+}
+
+:where(.iconOnlyIcon > svg) {
+  width: 50%;
+  height: 50%;
+}
+
+/* A small button is as easy to tap as one 2.75em across. */
+.iconOnly::after {
+  content: '';
+  position: absolute;
+  inset: min(0em, (100% - 2.75em) / 2);
+}
+
 .outlined:not(:disabled,[aria-disabled="true"]) {
   background-color: transparent;
   color: var(--color-light);

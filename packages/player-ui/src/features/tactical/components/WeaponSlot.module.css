@@ -132,11 +132,11 @@
 .status {
     flex-grow: 1;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.0625em;
+    align-items: center;
+    gap: 0.375em;
     /* The title's capitals sit lower in their line than the hint's text does, so trim the top to look even. */
-    padding: 0.375em 0.625em 0.5em;
+    /* The left padding keeps the text clear of the slot's bevelled bottom left corner. */
+    padding: 0.375em 0.625em 0.5em 0.9375em;
     border-top: 0.094em solid var(--line);
     /* Round its tint into the slot's corners, without clipping the slot, which would cut off its card when zoomed. */
     border-end-start-radius: calc(1.125em - 0.094em);
@@ -147,6 +147,25 @@
 .alert .status {
     border-top-color: color-mix(in oklch, var(--color-light) 50%, transparent);
     background-color: color-mix(in oklch, var(--color-light) 12%, transparent);
+}
+
+.statusText {
+    flex-grow: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.0625em;
+}
+
+/*
+Kept clear of the card, in the far corner, so it isn't hit when going to drag the card.
+As wide as the charge meter, and lined up beneath it: the body's padding is 0.125em less than the status's.
+*/
+.ejectButton {
+    width: 1.625em;
+    height: 1.625em;
+    margin-right: -0.125em;
 }
 
 .statusEmpty {
