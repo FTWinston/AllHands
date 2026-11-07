@@ -330,6 +330,30 @@ describe('GameRoom engineer system cards', () => {
             expect(helmShip.helmState.deck[2].extraTraits.get('expendable')).toBe(ExtraTraitType.Normal);
         });
     });
+
+    it('science and tactical both see the hull of the ship science is scanning, and no one else does', async () => {
+        const { state, ship, clients } = await startEncounter();
+        const [enemy] = getHostileShips(state);
+        expect(enemy).toBeDefined();
+
+        ship.scienceState.subscribeToSystem(enemy, 'helm');
+        enemy.engineerState.systems.find(tile => tile.system === 'hull')!.adjustEffectLevel('shield', 45);
+
+        for (const role of ['science', 'tactical'] as const) {
+            await vi.waitFor(() => {
+                expect(getClientShip(clients[role], ship).scannedHull).toMatchObject({
+                    targetId: enemy.id,
+                    health: enemy.hullState.health,
+                    maxHealth: enemy.hullState.maxHealth,
+                    shield: 45,
+                });
+            });
+        }
+
+        for (const role of ['helm', 'engineer'] as const) {
+            expect(getClientShip(clients[role], ship).scannedHull).toBeUndefined();
+        }
+    });
 });
 
 describe('GameRoom game start', () => {

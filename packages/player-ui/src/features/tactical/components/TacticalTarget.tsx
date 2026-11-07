@@ -1,10 +1,11 @@
 import { IArray } from '@colyseus/react';
-import { GameObjectInfo, SubTargetInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, ScannedHullInfo, SubTargetInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
-import { ObjectIcon } from 'common-ui/objects';
 import { classNames } from 'common-ui/utils/classNames';
+import { TargetReadout } from 'src/components/TargetReadout';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
+import { ShieldedObjectIcon } from 'src/features/shields/components/ShieldedObjectIcon';
 import { SubTargetList } from './SubTargetList';
 import styles from './TacticalTarget.module.css';
 
@@ -14,6 +15,8 @@ type Props = GameObjectInfo & {
     totalTargets: number;
     subTargets?: IArray<SubTargetInfo> | null;
     targetAspect?: number;
+    /** This target's hull, if science is scanning it. */
+    scannedHull?: ScannedHullInfo | null;
 };
 
 export const TacticalTarget = (props: Props) => {
@@ -44,12 +47,27 @@ export const TacticalTarget = (props: Props) => {
                 {props.totalTargets}
             </div>
 
-            <div className={styles.frame}>
-                <ObjectIcon
+            <div className={styles.shipArea}>
+                <ShieldedObjectIcon
                     appearance={props.appearance}
+                    shield={props.scannedHull?.shield ?? null}
                     className={styles.image}
                 />
             </div>
+
+            {props.scannedHull && (
+                <>
+                    <TargetReadout label="Shield" side="start" className={styles.shieldReadout}>
+                        {props.scannedHull.shield}
+                        %
+                    </TargetReadout>
+                    <TargetReadout label="Hull" side="end" className={styles.hullReadout}>
+                        {props.scannedHull.health}
+                        {' / '}
+                        {props.scannedHull.maxHealth}
+                    </TargetReadout>
+                </>
+            )}
 
             <SubTargetList
                 className={styles.vulnerabilities}

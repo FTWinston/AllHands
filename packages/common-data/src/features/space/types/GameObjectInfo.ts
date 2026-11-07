@@ -151,6 +151,16 @@ export interface ScannedEngineerInfo extends ScannedBaseInfo {
     engineerTiles: IArray<ScannedEngineerTileInfo>;
 }
 
+/** The hull of the ship that science is scanning, which science and tactical can both see. */
+export interface ScannedHullInfo {
+    /** Empty while science isn't scanning a ship. */
+    targetId: string;
+    health: number;
+    maxHealth: number;
+    /** Shield strength, 0-100. */
+    shield: number;
+}
+
 export interface ScienceSystemInfo extends CrewSystemInfo {
     modifierSlotCard: CardInstance | null;
     substanceSlotCard: CardInstance | null;
@@ -193,6 +203,8 @@ export interface ShipInfo extends GameObjectInfo {
     scienceState: ScienceSystemInfo;
     tacticalState: TacticalSystemInfo;
     engineerState: EngineerSystemInfo;
+    /** The hull of the ship that science is scanning, from when it first scans any of that ship's systems until it scans another ship, or loses this one. */
+    scannedHull: ScannedHullInfo;
 }
 
 export interface PlayerShipInfo extends ShipInfo {

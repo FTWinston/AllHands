@@ -103,6 +103,7 @@ export const Science = (props: Props) => {
             scannedTactical={scienceState.scannedTactical}
             scannedScience={scienceState.scannedScience}
             scannedEngineer={scienceState.scannedEngineer}
+            scannedHull={localShip.scannedHull ?? null}
             modifierSlot={scienceState.modifierSlotCard?.type ?? null}
             substanceSlot={scienceState.substanceSlotCard?.type ?? null}
             deliverySlot={scienceState.deliverySlotCard?.type ?? null}

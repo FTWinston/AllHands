@@ -16,9 +16,11 @@ import { GameState } from 'src/state/GameState';
 import { SectorDestinationState } from 'src/state/SectorDestinationState';
 import { Ship } from 'src/state/Ship';
 import { CrewSystemState } from '../CrewSystemState';
+import { EngineerSystemTile } from '../engineer/EngineerSystemTile';
 import { ScannedEngineerState } from './ScannedEngineerState';
 import { ScannedEngineerTileState } from './ScannedEngineerTileState';
 import { ScannedHelmState } from './ScannedHelmState';
+import { ScannedHullState } from './ScannedHullState';
 import { ScannedScienceState } from './ScannedScienceState';
 import { ScannedSystemOrderState } from './ScannedSystemOrderState';
 import { ScannedTacticalState } from './ScannedTacticalState';
@@ -74,6 +76,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
      */
     unsubscribeFromShip(targetId: string | null = null): void {
         if (targetId === null || this.scannedShip?.id === targetId) {
+            this.unsubscribeFromHull();
             this.unsubscribeFromHelm();
             this.unsubscribeFromTactical();
             this.unsubscribeFromScience();
@@ -119,6 +122,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         if (this.scannedShipId !== targetShip.id) {
             this.scannedShip = targetShip;
             this.scannedShipId = targetShip.id;
+            this.subscribeToHull(targetShip);
             // Restore previously identified system layout for this ship, or start fresh.
             const history = this.systemOrderByTarget.get(targetShip.id);
             if (history) {
@@ -149,6 +153,42 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         }
 
         this.notifyTacticalSystemKnowledge(targetShip);
+    }
+
+    /**
+     * Identifies this ship's listener on the scanned ship's hull, which (unlike its systems) science keeps watching until it scans another ship.
+     * Science's scan of the target's engineer system also listens to this tile (keyed by this ship's id), so the hull listener needs its own id.
+     */
+    private get hullListenerId() {
+        return `${this.getShip().id}/hull`;
+    }
+
+    private unsubscribeFromHull(): void {
+        const state = this.getShip().scannedHull;
+        if (state.targetId) {
+            if (this.scannedShip) {
+                getHullTile(this.scannedShip).scienceScanDataChanged.removeListener(this.hullListenerId);
+            }
+
+            state.targetId = '';
+            state.health = 0;
+            state.maxHealth = 0;
+            state.shield = 0;
+        }
+    }
+
+    private subscribeToHull(targetShip: Ship): void {
+        this.unsubscribeFromHull();
+        const source = getHullTile(targetShip);
+        const state = this.getShip().scannedHull;
+        state.targetId = targetShip.id;
+        this.copyHullData(state, source);
+        source.scienceScanDataChanged.addListener(
+            this.hullListenerId,
+            () => {
+                this.copyHullData(state, source);
+            }
+        );
     }
 
     private unsubscribeFromHelm(): void {
@@ -289,6 +329,12 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         targetSystemOrder.order[scannedSystemIndex] = systemId;
 
         this.scannedSystemOrder[scannedSystemIndex] = systemId;
+    }
+
+    private copyHullData(state: ScannedHullState, source: EngineerSystemTile): void {
+        state.health = source.health;
+        state.maxHealth = source.maxHealth;
+        state.shield = source.getEffectLevel('shield');
     }
 
     private copyHelmData(state: ScannedHelmState, source: Ship['helmState']): void {
@@ -584,4 +630,13 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.updateDeflectorCard();
         super.cleanupAfterEncounter();
     }
+}
+
+/** The engineer's tile for a ship's hull, which carries its health and its shield effect. */
+function getHullTile(ship: Ship): EngineerSystemTile {
+    const tile = ship.engineerState.systems.find(system => system.system === 'hull');
+    if (!tile) {
+        throw new Error(`Ship ${ship.id} has no hull tile`);
+    }
+    return tile;
 }

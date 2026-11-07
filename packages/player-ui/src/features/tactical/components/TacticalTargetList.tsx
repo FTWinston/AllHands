@@ -1,5 +1,5 @@
 import { IArray } from '@colyseus/react';
-import { GameObjectInfo, RelationshipViewer, TargetSubTargets } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer, ScannedHullInfo, TargetSubTargets } from 'common-data/features/space/types/GameObjectInfo';
 import { getDisplayRelationship } from 'common-data/features/space/utils/getDisplayRelationship';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
 import { TacticalTarget } from './TacticalTarget';
@@ -8,13 +8,15 @@ import styles from './TacticalTargetList.module.css';
 type Props = {
     targets: IArray<GameObjectInfo>;
     subTargetsByTarget: Partial<Record<string, TargetSubTargets>>;
+    /** The hull of the ship science is scanning, if any. */
+    scannedHull: ScannedHullInfo | null;
     onVisibleTargetChange: (index: number) => void;
     targetAspect?: number;
     viewer: RelationshipViewer;
 };
 
 export const TacticalTargetList = (props: Props) => {
-    const { targets, targetAspect, subTargetsByTarget, onVisibleTargetChange, viewer } = props;
+    const { targets, targetAspect, subTargetsByTarget, scannedHull, onVisibleTargetChange, viewer } = props;
 
     // Handler for HorizontalScroll's onScrollFractionChange
     const handleScrollFractionChange = (fraction: number) => {
@@ -47,6 +49,7 @@ export const TacticalTargetList = (props: Props) => {
                         relationship={getDisplayRelationship(target, viewer)}
                         motion={target.motion}
                         subTargets={subTargetsByTarget[target.id]?.subTargets}
+                        scannedHull={scannedHull?.targetId === target.id ? scannedHull : null}
                         targetNumber={index + 1}
                         targetAspect={targetAspect}
                         totalTargets={targets.length}
