@@ -4,6 +4,7 @@ import { CardCompendium } from '../cardCompendium/CardCompendium';
 import { InGameMenu } from './components/InGameMenu';
 import { JoinMenu } from './components/JoinMenu';
 import { MainMenu } from './components/MainMenu';
+import { SettingsMenu } from './components/SettingsMenu';
 
 type Props = {
     isConnectedToGame: boolean;
@@ -18,11 +19,18 @@ type Props = {
 export const MenuSelector: FC<Props> = (props) => {
     const [joining, setJoining] = useState(false);
     const [viewingCardCompendium, setViewingCardCompendium] = useState(false);
+    const [viewingSettings, setViewingSettings] = useState(false);
+
+    // Settings can be reached from both the main menu and the in-game menu, and go back to whichever it was.
+    if (viewingSettings) {
+        return <SettingsMenu back={() => setViewingSettings(false)} />;
+    }
 
     if (props.isConnectedToGame) {
         return (
             <InGameMenu
                 resumeGame={props.resumeGame}
+                showSettings={() => setViewingSettings(true)}
                 disconnect={props.disconnect}
             />
         );
@@ -47,6 +55,7 @@ export const MenuSelector: FC<Props> = (props) => {
             hostMultiCrewServer={props.hostMultiCrewServer}
             joinMultiCrewServer={() => setJoining(true)}
             showCardCompendium={() => setViewingCardCompendium(true)}
+            showSettings={() => setViewingSettings(true)}
             quit={props.quit}
         />
     );

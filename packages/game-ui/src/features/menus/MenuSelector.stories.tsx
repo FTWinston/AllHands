@@ -71,6 +71,11 @@ export const Selector: Story = {
         await expect(canvas.getByRole('heading', { name: 'Card compendium' })).toBeInTheDocument();
         await user.click(canvas.getByRole('button', { name: 'Back' }));
 
+        // View the settings, then go back
+        await user.click(canvas.getByText('Settings'));
+        await expect(canvas.getByText('Shake and flashes')).toBeInTheDocument();
+        await user.click(canvas.getByText('Go back'));
+
         // Click quit button
         const quitButton = canvas.getByText('Quit');
         await user.click(quitButton);
@@ -89,5 +94,31 @@ export const Selector: Story = {
             .find(btn => btn.textContent?.includes('OK'));
         await user.click(confirmButton as HTMLElement);
         await expect(args.quit).toHaveBeenCalled();
+    },
+};
+
+export const InGame: Story = {
+    args: {
+        isConnectedToGame: true,
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const user = userEvent.setup();
+
+        // The settings are a level down from the in-game menu.
+        await expect(canvas.queryByText('Shake and flashes')).not.toBeInTheDocument();
+        await user.click(canvas.getByText('Settings'));
+
+        // Toggling a setting shows its new value. Toggle it back, as it's remembered between stories.
+        const soundEffects = canvas.getByRole('button', { name: /Sound effects/ });
+        const initialValue = soundEffects.textContent;
+        await user.click(soundEffects);
+        await expect(soundEffects.textContent).not.toEqual(initialValue);
+        await user.click(soundEffects);
+        await expect(soundEffects.textContent).toEqual(initialValue);
+
+        // Going back returns to the in-game menu, not the main menu.
+        await user.click(canvas.getByText('Go back'));
+        await expect(canvas.getByText('Game paused')).toBeInTheDocument();
     },
 };

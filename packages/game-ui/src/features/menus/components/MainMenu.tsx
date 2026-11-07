@@ -10,6 +10,7 @@ type Props = {
     hostMultiCrewServer: () => void;
     joinMultiCrewServer: () => void;
     showCardCompendium: () => void;
+    showSettings: () => void;
     quit: () => void;
 };
 
@@ -42,8 +43,14 @@ export const MainMenu: FC<Props> = (props) => {
             />
 
             <MenuItem
-                text="Quit"
+                text="Settings"
                 number={5}
+                onClick={props.showSettings}
+            />
+
+            <MenuItem
+                text="Quit"
+                number={6}
                 emphasis="danger"
                 onClick={props.quit}
                 confirmPrompt="Are you sure you want to quit?"

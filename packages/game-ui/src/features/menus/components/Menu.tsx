@@ -20,13 +20,15 @@ export const Menu: FC<PropsWithChildren<Props>> = props => (
             <h1 className={styles.title}>All Hands</h1>
             <CrewStripe className={styles.stripe} />
 
-            {props.heading && <h2 className={styles.heading}>{props.heading}</h2>}
+            <div className={styles.menuArea}>
+                {props.heading && <h2 className={styles.heading}>{props.heading}</h2>}
 
-            <nav className={styles.menuRoot} aria-label={props.heading ?? 'Main menu'}>
-                <ul className={styles.menuList}>
-                    {props.children}
-                </ul>
-            </nav>
+                <nav className={styles.menuRoot} aria-label={props.heading ?? 'Main menu'}>
+                    <ul className={styles.menuList}>
+                        {props.children}
+                    </ul>
+                </nav>
+            </div>
         </div>
         {props.footer && <p className={styles.footer}>{props.footer}</p>}
         <ChaseLights />

@@ -5,7 +5,7 @@
 .menuButton {
     width: 37.5em;
     max-width: 100%;
-    min-height: 4.75em;
+    min-height: 4.25em;
     display: flex;
     align-items: center;
     gap: 1.25em;
@@ -92,7 +92,6 @@
 
 .danger .menuButton {
     width: auto;
-    min-height: 4.25em;
     gap: 1.25em;
     border-color: color-mix(in oklch, var(--danger-light) 45%, transparent);
     background-color: var(--panel);
