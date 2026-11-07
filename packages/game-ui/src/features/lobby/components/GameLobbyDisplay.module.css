@@ -36,11 +36,14 @@
 }
 
 .body {
+    /* Between the lobby's panels: the join panel, each station, and the status below them. */
+    --panel-gap: 3em;
+
     flex-grow: 1;
     min-height: 0;
     display: grid;
     grid-template-columns: 29.25em minmax(0, 1fr);
-    gap: 3em;
+    gap: var(--panel-gap);
     padding: 2.75em 3.5em 3em;
 }
 
@@ -129,10 +132,12 @@
 }
 
 .stations {
+    --header-gap: 1.125em;
+
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 1.125em;
+    gap: var(--header-gap);
 }
 
 .stationsHeader {
@@ -146,13 +151,17 @@
     font-size: 1.625em;
 }
 
+/* The stations take up any spare height, so the status below them ends level with the join panel. */
 .roleList {
+    flex-grow: 1;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25em;
+    gap: var(--panel-gap);
 }
 
 .status, .countdown {
+    /* On top of the column's own gap, which is kept small for the header. */
+    margin-top: calc(var(--panel-gap) - var(--header-gap));
     min-height: 8em;
     display: flex;
     align-items: center;

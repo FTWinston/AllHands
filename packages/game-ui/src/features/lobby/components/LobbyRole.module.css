@@ -1,5 +1,6 @@
+/* The lobby stretches these to fill its height, so this only matters on a wide, short screen. */
 .role {
-    min-height: 14em;
+    min-height: 12em;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
