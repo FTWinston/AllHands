@@ -23,6 +23,7 @@
     "test": "vitest",
     "test:unit": "vitest --project unit",
     "test:data": "vitest --project data",
+    "generate:shield-outlines": "vitest run packages/common-ui/src/objects/shields/shieldOutlines.test.ts --project unit --update",
     "test:stories": "vitest --project storybook"
   },
   "devDependencies": {

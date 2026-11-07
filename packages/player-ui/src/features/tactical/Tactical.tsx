@@ -92,6 +92,7 @@ export const Tactical = (props: Props) => {
             shipMotion={localShip.motion}
             targets={targets}
             subTargetsByTarget={tacticalState.subTargetsByTarget}
+            scannedHull={localShip.scannedHull ?? null}
             onPause={pause}
             power={tacticalState.powerLevel}
             deckSize={tacticalState.deck.length}

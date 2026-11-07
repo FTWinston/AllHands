@@ -1,6 +1,6 @@
 import { IArray, Snapshot } from '@colyseus/react';
 import { EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, RelationshipViewer, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedSystemOrderInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer, ScannedEngineerInfo, ScannedHelmInfo, ScannedHullInfo, ScannedScienceInfo, ScannedSystemOrderInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getDisplayRelationship } from 'common-data/features/space/utils/getDisplayRelationship';
 import { HorizontalScroll } from 'common-ui/components/HorizontalScroll';
 import { ScienceTarget } from './ScienceTarget';
@@ -15,12 +15,14 @@ type Props = {
     scannedTactical: Snapshot<ScannedTacticalInfo> | null;
     scannedScience: Snapshot<ScannedScienceInfo> | null;
     scannedEngineer: Snapshot<ScannedEngineerInfo> | null;
+    /** The hull of the ship being scanned, if any. */
+    scannedHull: ScannedHullInfo | null;
     viewer: RelationshipViewer;
     closeRevealedSystem: () => void;
 };
 
 export const ScienceTargetList = (props: Props) => {
-    const { targets, scannedShipId, scannedHelm, scannedTactical, scannedScience, scannedEngineer } = props;
+    const { targets, scannedShipId, scannedHelm, scannedTactical, scannedScience, scannedEngineer, scannedHull } = props;
 
     return (
         <HorizontalScroll
@@ -46,6 +48,7 @@ export const ScienceTargetList = (props: Props) => {
                         scannedTactical={target.id === scannedShipId ? scannedTactical : null}
                         scannedScience={target.id === scannedShipId ? scannedScience : null}
                         scannedEngineer={target.id === scannedShipId ? scannedEngineer : null}
+                        scannedHull={scannedHull?.targetId === target.id ? scannedHull : null}
                         closeRevealedSystem={props.closeRevealedSystem}
                     />
                 </li>

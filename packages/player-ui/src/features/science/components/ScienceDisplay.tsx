@@ -2,7 +2,7 @@ import { Snapshot } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType, EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, RelationshipViewer, ScannedEngineerInfo, ScannedHelmInfo, ScannedScienceInfo, ScannedSystemOrderInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer, ScannedEngineerInfo, ScannedHelmInfo, ScannedHullInfo, ScannedScienceInfo, ScannedSystemOrderInfo, ScannedTacticalInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ComponentProps } from 'react';
@@ -24,6 +24,8 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     scannedTactical: Snapshot<ScannedTacticalInfo> | null;
     scannedScience: Snapshot<ScannedScienceInfo> | null;
     scannedEngineer: Snapshot<ScannedEngineerInfo> | null;
+    /** The hull of the ship being scanned, if any. */
+    scannedHull: ScannedHullInfo | null;
     modifierSlot: CardType | null;
     substanceSlot: CardType | null;
     deliverySlot: CardType | null;
@@ -38,7 +40,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
 export const ScienceDisplay = (props: Props) => {
     const {
         cards, playCard, targets, scannedShipId, systemOrderByTarget, modifierSlot, substanceSlot, deliverySlot,
-        deflectorCard, viewer, scannedHelm, scannedTactical, scannedScience, scannedEngineer, identifiedVulnerability,
+        deflectorCard, viewer, scannedHelm, scannedTactical, scannedScience, scannedEngineer, scannedHull, identifiedVulnerability,
         closeRevealedSystem, ...headerProps
     } = props;
 
@@ -65,6 +67,7 @@ export const ScienceDisplay = (props: Props) => {
                     scannedTactical={scannedTactical}
                     scannedScience={scannedScience}
                     scannedEngineer={scannedEngineer}
+                    scannedHull={scannedHull}
                     viewer={viewer}
                     closeRevealedSystem={closeRevealedSystem}
                 />

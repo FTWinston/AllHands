@@ -40,7 +40,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
 
     @type('boolean') generating = false;
 
-    /** Emitted when health or power changes. */
+    /** Emitted when health, power or effects change. */
     readonly scienceScanDataChanged = new InterceptableAction();
 
     /** Integer percentage adjustment to shield pass-through damage for this system. Adjusted by shieldFocus/shieldReduced effects. */
@@ -92,6 +92,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
             this.effects.push(effect);
         }
 
+        this.scienceScanDataChanged.invoke();
         return true;
     }
 
@@ -110,6 +111,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         getSystemEffectDefinition(effectType)
             .remove(this, early, level);
 
+        this.scienceScanDataChanged.invoke();
         return true;
     }
 
@@ -120,6 +122,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         }
 
         this.effects.clear();
+        this.scienceScanDataChanged.invoke();
     }
 
     /**
@@ -160,6 +163,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
             if (newLevel > 0) {
                 effect.level = newLevel;
                 def.onLevelChanged?.(this, newLevel, oldLevel);
+                this.scienceScanDataChanged.invoke();
                 return newLevel >= maxLevel;
             } else {
                 this.removeEffect(effectType, true);

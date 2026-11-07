@@ -15,6 +15,7 @@ import { EngineerState } from './systems/engineer/EngineerState';
 import { HelmState } from './systems/HelmState';
 import { HullState } from './systems/HullState';
 import { ReactorState } from './systems/ReactorState';
+import { ScannedHullState } from './systems/science/ScannedHullState';
 import { ScienceState } from './systems/science/ScienceState';
 import { SystemState } from './systems/SystemState';
 import { TacticalState } from './systems/tactical/TacticalState';
@@ -89,6 +90,12 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     @view(ownShipClientRole | ownScienceClientRole) @type(ScienceState) scienceState: ScienceState;
     @view(ownShipClientRole | ownTacticalClientRole) @type(TacticalState) tacticalState: TacticalState;
     @view(ownEngineerClientRole) @type(EngineerState) engineerState: EngineerState;
+
+    /**
+     * Kept up to date by this ship's science system, but synced to tactical too.
+     * Its target is empty while science isn't scanning a ship, as Colyseus can't send a field that's null to only some clients.
+     */
+    @view(ownScienceClientRole | ownTacticalClientRole) @type(ScannedHullState) readonly scannedHull = new ScannedHullState();
 
     private systems: ReadonlyMap<ShipSystem, SystemState>;
 

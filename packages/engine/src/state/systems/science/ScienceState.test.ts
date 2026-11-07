@@ -102,6 +102,66 @@ describe('ScienceState scanned systems', () => {
         expect(scanner.scienceState.scannedTactical!.weaponSlots[0].modifierCard).toBe('lowYield');
     });
 
+    function hullTile(ship: AiShip) {
+        return ship.engineerState.systems.find(tile => tile.system === 'hull')!;
+    }
+
+    it('shows the scanned ship\'s hull health and shields, whichever system was scanned', () => {
+        const { scanner, target } = createWorld();
+        hullTile(target).adjustEffectLevel('shield', 40);
+
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+
+        expect(scanner.scannedHull).toMatchObject({
+            targetId: target.id,
+            health: target.hullState.health,
+            maxHealth: target.hullState.maxHealth,
+            shield: 40,
+        });
+    });
+
+    it('keeps the scanned hull\'s health and shields up to date', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        const healthBefore = target.hullState.health;
+
+        hullTile(target).adjustEffectLevel('shield', 60);
+        expect(scanner.scannedHull.shield).toBe(60);
+
+        hullTile(target).adjustEffectLevel('shield', -25);
+        expect(scanner.scannedHull.shield).toBe(35);
+
+        hullTile(target).removeEffect('shield', true);
+        expect(scanner.scannedHull.shield).toBe(0);
+
+        target.hullState.adjustHealth(-1);
+        expect(scanner.scannedHull.health).toBe(healthBefore - 1);
+    });
+
+    it('keeps showing the hull after the scan is closed, and while scanning the engineer', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        scanner.scienceState.closeScan();
+
+        hullTile(target).adjustEffectLevel('shield', 50);
+        expect(scanner.scannedHull.shield).toBe(50);
+
+        // The engineer scan listens to the same hull tile, so mustn't replace the hull's listener.
+        scan(scanner, target, target.engineerState.scannedSystemIndex);
+        hullTile(target).adjustEffectLevel('shield', 10);
+        expect(scanner.scannedHull.shield).toBe(60);
+    });
+
+    it('stops showing the hull when the scanned ship is lost', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+
+        scanner.scienceState.unsubscribeFromShip(target.id);
+
+        expect(scanner.scannedHull.targetId).toBe('');
+        expect(hullTile(target).scienceScanDataChanged.hasListener(`${scanner.id}/hull`)).toBe(false);
+    });
+
     it('shows how far through its maneuver a scanned helm is', () => {
         const { scanner, target } = createWorld();
         scan(scanner, target, target.helmState.scannedSystemIndex);

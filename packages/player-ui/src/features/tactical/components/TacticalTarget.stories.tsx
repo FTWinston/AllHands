@@ -29,3 +29,19 @@ export const TacticalTarget: Story = {
         subTargets: [{ id: 'helm', system: 'helm', aspect: 0 }, { id: 'tactical', system: 'tactical', aspect: Math.PI }],
     },
 };
+
+export const ScannedHull: Story = {
+    args: {
+        ...TacticalTarget.args,
+        scannedHull: { targetId: 'Enemy-01', health: 7, maxHealth: 12, shield: 55 },
+    },
+};
+
+export const ScannedHull_NoSubTargets: Story = {
+    args: {
+        ...ScannedHull.args,
+        appearance: 'spiked-mine',
+        subTargets: [],
+        scannedHull: { targetId: 'Enemy-01', health: 12, maxHealth: 12, shield: 100 },
+    },
+};

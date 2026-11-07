@@ -1,0 +1,25 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125em;
+    pointer-events: none;
+}
+
+.end {
+    align-items: end;
+}
+
+.label {
+    font-size: 0.6875em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--label);
+}
+
+.value {
+    font-size: 1.25em;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+}

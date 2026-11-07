@@ -33,6 +33,21 @@ export const NoRevealedSystem: Story = {
     },
 };
 
+export const ScannedHull: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        scannedHull: { targetId: 'Enemy-01', health: 7, maxHealth: 12, shield: 55 },
+    },
+};
+
+export const ScannedHull_NoShields: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        appearance: 'quad-nacelle-courier',
+        scannedHull: { targetId: 'Enemy-01', health: 2, maxHealth: 12, shield: 0 },
+    },
+};
+
 export const Helm_NoManeuver: Story = {
     args: {
         ...NoRevealedSystem.args,

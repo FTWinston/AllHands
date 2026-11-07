@@ -2,7 +2,7 @@ import { Snapshot } from '@colyseus/react';
 import { CardInstance } from 'common-data/features/cards/types/CardInstance';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { GameObjectInfo, RelationshipViewer, TargetSubTargets, WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer, ScannedHullInfo, TargetSubTargets, WeaponSlotInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
@@ -24,11 +24,13 @@ type Props = PropsWithChildren<Omit<ComponentProps<typeof CrewHeader>, 'crew' | 
     shipMotion: GameObjectInfo['motion'];
     targets: Snapshot<GameObjectInfo[]>;
     subTargetsByTarget: Partial<Record<string, TargetSubTargets>>;
+    /** The hull of the ship science is scanning, if any. */
+    scannedHull: ScannedHullInfo | null;
     viewer: RelationshipViewer;
 }>;
 
 export const TacticalDisplay = (props: Props) => {
-    const { cards, slots, playCard, ejectWeapon, targets, subTargetsByTarget, viewer, children, ...headerProps } = props;
+    const { cards, slots, playCard, ejectWeapon, targets, subTargetsByTarget, scannedHull, viewer, children, ...headerProps } = props;
 
     useRootClassName(crewStyles.tactical);
 
@@ -81,6 +83,7 @@ export const TacticalDisplay = (props: Props) => {
                 <TacticalTargetList
                     targets={targets}
                     subTargetsByTarget={subTargetsByTarget}
+                    scannedHull={scannedHull}
                     onVisibleTargetChange={setCurrentTargetIndex}
                     targetAspect={firingSolution?.targetAspect}
                     viewer={viewer}
