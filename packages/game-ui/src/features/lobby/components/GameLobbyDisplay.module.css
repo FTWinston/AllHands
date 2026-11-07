@@ -146,7 +146,9 @@
     font-size: 1.625em;
 }
 
+/* The stations take up any spare height, so the status below them ends level with the join panel. */
 .roleList {
+    flex-grow: 1;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.25em;
