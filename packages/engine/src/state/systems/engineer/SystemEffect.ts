@@ -16,7 +16,10 @@ export class SystemEffect extends Schema implements SystemEffectInstance {
 
     @type(CooldownState) progress: CooldownState | null;
 
-    @type('uint8') level: number;
+    @type('uint16') level: number;
+
+    /** Set when this effect's max level varies by ship, rather than being fixed by its definition. */
+    @type('uint16') maxLevel?: number;
 
     lastTickTime: number = 0;
 }

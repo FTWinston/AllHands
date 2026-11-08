@@ -196,6 +196,16 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }
 
     /**
+     * The max level of a leveled effect on this system, where that varies by ship rather than being fixed by the effect's definition.
+     */
+    getEffectMaxLevel(_effectType: LeveledSystemEffectType): number | undefined {
+        return undefined;
+    }
+
+    /** Called after a card joins or leaves the card pool, e.g. when bought or sold at a station. */
+    protected cardPoolChanged() { }
+
+    /**
      * Link this system to an EngineerSystemTile so that power, health,
      * and effect changes are automatically propagated.
      */
@@ -460,6 +470,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         (this as { maxHealth: number }).maxHealth = this.cardPool.size;
         this.syncHealth();
+        this.cardPoolChanged();
     }
 
     private removeFromCardPool(card: CardState) {
@@ -484,6 +495,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         (this as { maxHealth: number }).maxHealth = this.cardPool.size;
         this.syncHealth();
+        this.cardPoolChanged();
     }
 
     /** Order the card pool to match the deck, with any pool cards that aren't in the deck (e.g. in the hand) left at the end. */

@@ -337,7 +337,8 @@ describe('GameRoom engineer system cards', () => {
         expect(enemy).toBeDefined();
 
         ship.scienceState.subscribeToSystem(enemy, 'helm');
-        enemy.engineerState.systems.find(tile => tile.system === 'hull')!.adjustEffectLevel('shield', 45);
+        // Enemies start an encounter with full shields.
+        enemy.engineerState.systems.find(tile => tile.system === 'hull')!.adjustEffectLevel('shield', -25);
 
         for (const role of ['science', 'tactical'] as const) {
             await vi.waitFor(() => {
@@ -345,7 +346,8 @@ describe('GameRoom engineer system cards', () => {
                     targetId: enemy.id,
                     health: enemy.hullState.health,
                     maxHealth: enemy.hullState.maxHealth,
-                    shield: 45,
+                    shield: enemy.hullState.maxShield - 25,
+                    maxShield: enemy.hullState.maxShield,
                 });
             });
         }

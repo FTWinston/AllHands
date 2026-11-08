@@ -105,6 +105,13 @@ function loadSystemEffectDefinitions() {
 
             },
         },
+        shieldRecovering: {
+            // Counted down by HullState as undamaged hull cards are drawn.
+            apply: (system) => {
+                return system.system === 'hull';
+            },
+            remove: () => { },
+        },
         auxPower: {
             apply: (system, _level) => {
                 // Remove this effect from every other ship system.

@@ -1007,10 +1007,20 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 3 },
     },
-    hullChargeShields: {
+    hullShieldEmitter: {
         targetType: 'no-target',
         system: 'hull',
-        parameters: { cost: 0 },
+        parameters: { cost: 0, shieldCapacity: 10 },
+    },
+    hullShieldRegenerator: {
+        targetType: 'no-target',
+        system: 'hull',
+        parameters: { cost: 0, shieldCharge: 1 },
+    },
+    hullShieldRestart: {
+        targetType: 'no-target',
+        system: 'hull',
+        parameters: { cost: 0, shieldDelayReduction: 1 },
     },
     warpAway: {
         targetType: 'no-target',

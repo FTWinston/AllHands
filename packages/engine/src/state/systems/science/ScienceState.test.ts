@@ -19,6 +19,8 @@ function createWorld() {
     state.add(scanner);
     const target = new AiShip(state, { ...shipSetup('player', 5, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
     state.add(target);
+    // AI ships start with full shields: empty them, so tests can set them.
+    target.engineerState.systems.find(tile => tile.system === 'hull')!.removeEffect('shield', false);
     scanner.updateKnownObjects(0);
     return { state, scanner, target };
 }
@@ -117,6 +119,7 @@ describe('ScienceState scanned systems', () => {
             health: target.hullState.health,
             maxHealth: target.hullState.maxHealth,
             shield: 40,
+            maxShield: target.hullState.maxShield,
         });
     });
 

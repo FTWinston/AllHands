@@ -33,7 +33,7 @@ export const TacticalTarget: Story = {
 export const ScannedHull: Story = {
     args: {
         ...TacticalTarget.args,
-        scannedHull: { targetId: 'Enemy-01', health: 7, maxHealth: 12, shield: 55 },
+        scannedHull: { targetId: 'Enemy-01', health: 7, maxHealth: 12, shield: 55, maxShield: 80 },
     },
 };
 
@@ -42,6 +42,6 @@ export const ScannedHull_NoSubTargets: Story = {
         ...ScannedHull.args,
         appearance: 'spiked-mine',
         subTargets: [],
-        scannedHull: { targetId: 'Enemy-01', health: 12, maxHealth: 12, shield: 100 },
+        scannedHull: { targetId: 'Enemy-01', health: 12, maxHealth: 12, shield: 100, maxShield: 100 },
     },
 };

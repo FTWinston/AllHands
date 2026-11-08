@@ -1,6 +1,6 @@
 import { systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
-import { EffectLevel } from '../components/EffectLevelContext';
+import { EffectLevel, EffectMaxLevel } from '../components/EffectLevelContext';
 import { SystemEffectDescription, UISystemEffectDefinition } from '../types/UISystemEffectDefinition';
 
 function loadEffectDefinitions() {
@@ -8,11 +8,26 @@ function loadEffectDefinitions() {
         shield: {
             name: 'Shields',
             description: <>
-                Protects the ship from damage. Recharged by hull energy level, each time the hull generates.
-                The higher the shield strength (currently at
+                Protects the ship from damage, currently at
                 {' '}
                 <EffectLevel />
-                %), the greater a proportion of damage it absorbs.
+                {' '}
+                of
+                {' '}
+                <EffectMaxLevel />
+                . The fuller the shields, the greater a proportion of damage they absorb.
+                Each undamaged hull card that's drawn recharges them, by an amount that the hull's cards and power level determine.
+            </>,
+            image: ExampleIcon,
+        },
+        shieldRecovering: {
+            name: 'Shields Recovering',
+            description: <>
+                The shields were hit recently, and won't start recharging until
+                {' '}
+                <EffectLevel />
+                {' '}
+                more undamaged hull cards are drawn.
             </>,
             image: ExampleIcon,
         },

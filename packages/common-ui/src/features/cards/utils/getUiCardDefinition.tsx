@@ -47,9 +47,37 @@ function loadCardDefinitions() {
             description: 'Deploy a smoke screen to obscure vision and provide cover.',
             image: <ExampleIcon />,
         },
-        hullChargeShields: {
-            name: 'Charge shields',
-            description: 'Charge the shields by the hull\'s power level.',
+        hullShieldEmitter: {
+            name: 'Shield Emitter',
+            description: <>
+                Adds
+                {' '}
+                <Parameter name="shieldCapacity" />
+                {' '}
+                to the shields' capacity, even when damaged. When drawn undamaged, recharges the shields.
+            </>,
+            image: <ExampleIcon />,
+        },
+        hullShieldRegenerator: {
+            name: 'Shield Regenerator',
+            description: <>
+                While undamaged, adds
+                {' '}
+                <Parameter name="shieldCharge" />
+                {' '}
+                to how much the shields recharge by. When drawn undamaged, recharges the shields.
+            </>,
+            image: <ExampleIcon />,
+        },
+        hullShieldRestart: {
+            name: 'Shield Restart',
+            description: <>
+                While undamaged, the shields start recharging
+                {' '}
+                <Parameter name="shieldDelayReduction" />
+                {' '}
+                hull card sooner after being hit. When drawn undamaged, recharges the shields.
+            </>,
             image: <ExampleIcon />,
         },
         warpAway: {

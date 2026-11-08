@@ -157,8 +157,9 @@ export interface ScannedHullInfo {
     targetId: string;
     health: number;
     maxHealth: number;
-    /** Shield strength, 0-100. */
     shield: number;
+    /** The ship's shield capacity. */
+    maxShield: number;
 }
 
 export interface ScienceSystemInfo extends CrewSystemInfo {
@@ -231,6 +232,16 @@ export interface NonCrewSystemSetupInfo extends SystemSetupInfo {
     cards: UntargetedCardType[];
 }
 
+/** The hull's base shield stats, which its cards then add to (see their shieldCapacity, shieldCharge and shieldDelayReduction parameters). */
+export interface HullSystemSetupInfo extends NonCrewSystemSetupInfo {
+    /** The shields' max level. */
+    shieldCapacity: number;
+    /** How much the shields recharge by, each time an undamaged hull card is drawn. The hull's power level adds to this. */
+    shieldCharge: number;
+    /** How many undamaged hull cards must be drawn after the shields are hit, before they start recharging again. */
+    shieldRechargeDelay: number;
+}
+
 export interface TacticalSystemSetupInfo extends SystemSetupInfo {
     numSlots: number;
 }
@@ -257,7 +268,7 @@ export interface GameObjectSetupInfo {
 
 export interface ShipSetupInfo extends GameObjectSetupInfo {
     position: Position;
-    hull: NonCrewSystemSetupInfo;
+    hull: HullSystemSetupInfo;
     reactor: NonCrewSystemSetupInfo;
     helm: SystemSetupInfo;
     science: SystemSetupInfo;

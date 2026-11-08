@@ -5,5 +5,6 @@ export class ScannedHullState extends Schema implements ScannedHullInfo {
     @type('string') targetId: string = '';
     @type('uint8') health: number = 0;
     @type('uint8') maxHealth: number = 0;
-    @type('uint8') shield: number = 0;
+    @type('uint16') shield: number = 0;
+    @type('uint16') maxShield: number = 0;
 }

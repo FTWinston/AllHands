@@ -10,6 +10,7 @@ import { classNames } from 'common-ui/utils/classNames';
 import { TargetReadout } from 'src/components/TargetReadout';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { ShieldedObjectIcon } from 'src/features/shields/components/ShieldedObjectIcon';
+import { getShieldPercentage } from 'src/features/shields/utils/getShieldPercentage';
 import { ScanEngineerSystem } from './ScanEngineerSystem';
 import { ScanHelmSystem } from './ScanHelmSystem';
 import { ScanScienceSystem } from './ScanScienceSystem';
@@ -85,7 +86,7 @@ const NonRevealedContent = (props: NonRevealedProps) => (
         <div className={styles.shipArea}>
             <ShieldedObjectIcon
                 appearance={props.appearance}
-                shield={props.scannedHull?.shield ?? null}
+                shield={getShieldPercentage(props.scannedHull)}
                 className={styles.image}
             />
         </div>
@@ -94,7 +95,8 @@ const NonRevealedContent = (props: NonRevealedProps) => (
             <>
                 <TargetReadout label="Shield" side="start" className={styles.shieldReadout}>
                     {props.scannedHull.shield}
-                    %
+                    {' / '}
+                    {props.scannedHull.maxShield}
                 </TargetReadout>
                 <TargetReadout label="Hull" side="end" className={styles.hullReadout}>
                     {props.scannedHull.health}

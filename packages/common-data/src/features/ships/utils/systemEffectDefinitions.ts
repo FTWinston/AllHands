@@ -8,10 +8,15 @@ function defineSystemEffects<T extends Record<string, SystemEffectDefinition>>(d
 }
 
 export const systemEffectDefinitions = defineSystemEffects({
+    /** Its max level is the hull's shield capacity, so it varies by ship (see HullState). */
     shield: {
         category: SystemEffectCategory.Positive,
         usesLevels: true,
-        maxLevel: 100,
+    },
+    /** How many more undamaged hull cards must be drawn before the shields start recharging again, after being hit. */
+    shieldRecovering: {
+        category: SystemEffectCategory.Negative,
+        usesLevels: true,
     },
     auxPower: {
         category: SystemEffectCategory.Positive,

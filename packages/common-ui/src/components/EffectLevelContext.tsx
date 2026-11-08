@@ -4,6 +4,8 @@ import styles from './EffectLevelContext.module.css';
 
 export type EffectLevelContextValue = {
     level: number;
+    /** Set when the effect's max level varies by ship. */
+    maxLevel?: number;
     category: SystemEffectCategory;
 };
 
@@ -25,6 +27,16 @@ export const EffectLevel: FC = () => {
     return (
         <strong className={getClassNameForCategory(ctx?.category)}>
             {level}
+        </strong>
+    );
+};
+
+/** An effect's max level, for effects whose max level varies by ship, such as shields. */
+export const EffectMaxLevel: FC = () => {
+    const ctx = useContext(EffectLevelContext);
+    return (
+        <strong className={styles.neutral}>
+            {ctx?.maxLevel ?? '?'}
         </strong>
     );
 };

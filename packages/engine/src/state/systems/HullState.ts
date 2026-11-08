@@ -1,12 +1,21 @@
+import { LeveledSystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { Damage } from 'common-data/features/space/types/Damage';
-import { SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { HullSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
+/**
+ * The hull's cards set its shield stats, on top of its base ones. Every hull card counts towards its shield capacity,
+ * but damaged cards don't count towards how fast the shields recharge, or how soon they start recharging after a hit.
+ */
 export class HullState extends SystemState {
-    constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
+    constructor(setup: HullSystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
         super(setup, 'hull', gameState, ship, initialPowerLevel, getCardId);
+
+        this.baseShieldCapacity = setup.shieldCapacity;
+        this.baseShieldCharge = setup.shieldCharge;
+        this.baseShieldRechargeDelay = setup.shieldRechargeDelay;
 
         this.cardAddedToHand.addListener('hull', (card) => {
             // Immediately after drawing a card, try to play it, and discard it if that fails for any reason, such as it being damaged.
@@ -18,6 +27,83 @@ export class HullState extends SystemState {
 
     override readonly maxHandSize = 1;
 
+    private readonly baseShieldCapacity: number;
+    private readonly baseShieldCharge: number;
+    private readonly baseShieldRechargeDelay: number;
+
+    private sumCardParameter(parameter: string, includeDamaged: boolean) {
+        let total = 0;
+
+        for (const card of this.cardPool) {
+            if (includeDamaged || !card.isDamaged) {
+                total += card.getParameter(parameter);
+            }
+        }
+
+        return total;
+    }
+
+    /** The shields' max level. */
+    get maxShield() {
+        return Math.max(0, this.baseShieldCapacity + this.sumCardParameter('shieldCapacity', true));
+    }
+
+    /** How much the shields recharge by, each time an undamaged hull card is drawn. Nothing while the hull is unpowered. */
+    get shieldCharge() {
+        if (this.powerLevel <= 0) {
+            return 0;
+        }
+
+        return Math.max(0, this.baseShieldCharge + this.sumCardParameter('shieldCharge', false) + this.powerLevel);
+    }
+
+    /** How many undamaged hull cards must be drawn after the shields are hit, before they start recharging again. */
+    get shieldRechargeDelay() {
+        return Math.max(0, this.baseShieldRechargeDelay - this.sumCardParameter('shieldDelayReduction', false));
+    }
+
+    get shield() {
+        return this.linkedEngineerSystemTile.getEffectLevel('shield');
+    }
+
+    override getEffectMaxLevel(effectType: LeveledSystemEffectType): number | undefined {
+        return effectType === 'shield'
+            ? this.maxShield
+            : undefined;
+    }
+
+    protected override cardPoolChanged() {
+        this.linkedEngineerSystemTile.refreshEffectMaxLevel('shield');
+    }
+
+    /** Fully charge the shields, e.g. at the start of an encounter. */
+    restoreShields() {
+        const tile = this.linkedEngineerSystemTile;
+        tile.removeEffect('shieldRecovering', false);
+        tile.adjustEffectLevel('shield', this.maxShield - this.shield);
+    }
+
+    /**
+     * Called whenever an undamaged hull card is drawn (and so played).
+     * Recharges the shields, unless they're still recovering from being hit, in which case that recovery progresses instead.
+     */
+    tickShieldRecharge() {
+        const tile = this.linkedEngineerSystemTile;
+
+        if (tile.hasEffect('shieldRecovering')) {
+            tile.adjustEffectLevel('shieldRecovering', -1);
+            return;
+        }
+
+        tile.adjustEffectLevel('shield', this.shieldCharge);
+    }
+
+    /** Restart the countdown until the shields start recharging again. */
+    private restartShieldRecovery() {
+        const tile = this.linkedEngineerSystemTile;
+        tile.adjustEffectLevel('shieldRecovering', this.shieldRechargeDelay - tile.getEffectLevel('shieldRecovering'));
+    }
+
     /**
      * Apply incoming damage to the shields first, reducing their levels as necessary,
      * and return the remaining damage to be done to the ship itself.
@@ -27,7 +113,8 @@ export class HullState extends SystemState {
         // const damageType = damageTypeScales[damage.damageType];
         const damageTypeScale = { drain: 1.0, pen: 0.0 };
 
-        const shieldStrengthFraction = this.linkedEngineerSystemTile.getEffectLevel('shield') / 100;
+        const maxShield = this.maxShield;
+        const shieldStrengthFraction = maxShield > 0 ? this.shield / maxShield : 0;
 
         // Nonlinear falloff so that higher shield levels are disproportionately more effective.
         let passThroughFraction = Math.pow(1 - shieldStrengthFraction, 2) + damageTypeScale.pen;
@@ -37,6 +124,10 @@ export class HullState extends SystemState {
         const absorbedByShields = Math.round((damage.amount - passThroughDamage) * damageTypeScale.drain);
 
         this.linkedEngineerSystemTile.adjustEffectLevel('shield', -absorbedByShields);
+
+        if (damage.amount > 0) {
+            this.restartShieldRecovery();
+        }
 
         const targetSystem = this.getShip().getSystem(damage.targetSystem ?? 'hull');
 

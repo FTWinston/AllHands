@@ -174,6 +174,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             state.health = 0;
             state.maxHealth = 0;
             state.shield = 0;
+            state.maxShield = 0;
         }
     }
 
@@ -335,6 +336,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         state.health = source.health;
         state.maxHealth = source.maxHealth;
         state.shield = source.getEffectLevel('shield');
+        state.maxShield = source.getEffectMaxLevel('shield');
     }
 
     private copyHelmData(state: ScannedHelmState, source: Ship['helmState']): void {

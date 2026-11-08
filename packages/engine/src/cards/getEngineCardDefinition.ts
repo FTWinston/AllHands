@@ -204,6 +204,11 @@ function fireShot(
     }
 }
 
+function tickShieldRecharge(_gameState: GameState, ship: Ship) {
+    ship.hullState.tickShieldRecharge();
+    return true;
+}
+
 function loadCardDefinitions() {
     const cardFunctionalities: CardFunctionalityLookup = {
         reactorPowerHull: {
@@ -288,11 +293,15 @@ function loadCardDefinitions() {
                 console.log('played smokeScreen'); return true;
             },
         },
-        hullChargeShields: {
-            play: (_gameState, ship) => {
-                ship.hullState.adjustEffectLevel('shield', ship.hullState.powerLevel);
-                return true;
-            },
+        // Every hull card recharges the shields the same way when drawn: they only differ in the shield stats they contribute.
+        hullShieldEmitter: {
+            play: tickShieldRecharge,
+        },
+        hullShieldRegenerator: {
+            play: tickShieldRecharge,
+        },
+        hullShieldRestart: {
+            play: tickShieldRecharge,
         },
         warpAway: {
             play: (gameState, ship) => {
