@@ -710,11 +710,8 @@ function loadCardDefinitions() {
         chronitonScan: {
             name: 'Chroniton Scan',
             description: <>
-                Scanning a system causes it to take
+                Scanning a system causes it to fail every other card draw, for
                 {' '}
-                <Parameter name="effectLevel" />
-                {' '}
-                seconds longer to draw card, for
                 <Parameter name="duration" />
                 {' '}
                 seconds.

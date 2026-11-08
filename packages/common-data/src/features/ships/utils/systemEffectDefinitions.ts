@@ -150,8 +150,8 @@ export const systemEffectDefinitions = defineSystemEffects({
     },
     chronitonSaturation: {
         category: SystemEffectCategory.Negative,
-        usesLevels: true,
-        duration: 20_000,
+        usesLevels: false,
+        duration: 45_000,
     },
     polaronBombardment: {
         category: SystemEffectCategory.Negative,

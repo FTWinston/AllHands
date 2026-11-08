@@ -437,7 +437,6 @@ export const cardDefinitions = defineCardDefinitions({
         system: 'science',
         parameters: {
             cost: 2,
-            effectLevel: 1,
             duration: systemEffectDefinitions.chronitonSaturation.duration,
         },
         deflectorSubstance: 'Chroniton',
