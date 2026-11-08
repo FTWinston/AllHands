@@ -3,7 +3,9 @@ import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { useState } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
+import { getHullShieldStats } from 'src/features/shields/utils/getHullShieldStats';
 import { RepairIndicator } from './RepairIndicator';
+import { ShieldSummaryInfo } from './ShieldStatsSummary';
 import { System, SystemInfo } from './System';
 import { SystemCards, SystemCardsDialog } from './SystemCardsDialog';
 import styles from './SystemList.module.css';
@@ -14,6 +16,22 @@ type Props = {
     maxRepairCapacity: number;
 };
 
+/** The hull's shields, worked out from its effects and all of its cards. Undefined for other systems. */
+function getShieldInfo(system: SystemInfo & SystemCards): ShieldSummaryInfo | undefined {
+    if (system.system !== 'hull') {
+        return undefined;
+    }
+
+    const effectLevel = (type: string) => system.effects?.find(effect => effect.type === type)?.level ?? 0;
+
+    return {
+        stats: getHullShieldStats([...system.hand, ...system.deck], system.power),
+        power: system.power,
+        level: effectLevel('shield'),
+        recovering: effectLevel('shieldRecovering'),
+    };
+}
+
 export const SystemList = (props: Props) => {
     const activeCard = useActiveCard();
     const isAlternateDrag = activeCard?.isAlternateDrag === true;
@@ -22,6 +40,7 @@ export const SystemList = (props: Props) => {
     const [cardsSystem, setCardsSystem] = useState<ShipSystem | null>(null);
     const [isViewingCards, setViewingCards] = useState(false);
     const viewedSystem = props.systems.find(system => system.system === cardsSystem);
+    const hullShield = getShieldInfo(props.systems.find(system => system.system === 'hull')!);
 
     return (
         <>
@@ -36,6 +55,7 @@ export const SystemList = (props: Props) => {
                     >
                         <System
                             {...system}
+                            shield={system.system === 'hull' && hullShield ? { level: hullShield.level, max: hullShield.stats.capacity } : undefined}
                             onViewCards={() => {
                                 setCardsSystem(system.system);
                                 setViewingCards(true);
@@ -58,6 +78,7 @@ export const SystemList = (props: Props) => {
             {viewedSystem && (
                 <SystemCardsDialog
                     system={viewedSystem.system}
+                    shield={viewedSystem.system === 'hull' ? hullShield : undefined}
                     hand={viewedSystem.hand}
                     deck={viewedSystem.deck}
                     isOpen={isViewingCards}

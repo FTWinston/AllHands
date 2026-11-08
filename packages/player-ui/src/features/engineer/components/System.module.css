@@ -152,6 +152,35 @@ button.viewCards.generating {
     box-shadow: var(--energy-light) 0 0 0 0.125em inset;
 }
 
+/* The hull's shields, set into the tile's top border (which is its shield outline), short of its bevelled corner. */
+.shield {
+    position: absolute;
+    top: -0.65em;
+    right: 2em;
+    display: flex;
+    align-items: baseline;
+    gap: 0.1em;
+    padding: 0.1em 0.35em;
+    border-radius: 0.3em;
+    background-color: var(--primary-darkest);
+    font-size: 0.8em;
+    line-height: 1;
+    color: var(--energy-light);
+    pointer-events: none;
+}
+
+.shieldIcon {
+    align-self: center;
+    width: 1.1em;
+    height: 1.1em;
+}
+
+.shieldValue {
+    font-weight: bold;
+    font-size: 1.25em;
+    color: var(--energy-lightest);
+}
+
 .lowHealth {
     color: var(--danger-light);
 }

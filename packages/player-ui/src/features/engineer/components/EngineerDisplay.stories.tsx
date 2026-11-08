@@ -21,6 +21,16 @@ const helmCards = {
     ],
 } satisfies SystemCards;
 
+// The player's starting hull, with an emitter and a regenerator damaged: 90 shield capacity, recharging by 2 plus power.
+const hullCards = {
+    hand: [],
+    deck: (['hullShieldEmitter', 'hullShieldRegenerator', 'hullShieldEmitter', 'hullShieldDelayReduction'] as const)
+        .flatMap(type => [type, type, type])
+        .map((type, index) => index === 1 || index === 4
+            ? { id: 201 + index, type, extraTraits: { damaged: ExtraTraitType.Normal } }
+            : { id: 201 + index, type }),
+} satisfies SystemCards;
+
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Engineer/UI',
     component: Component,
@@ -175,12 +185,23 @@ export const UI: Story = {
         systems: [
             {
                 system: 'hull',
-                ...(noCards),
-                health: 15,
-                maxHealth: 18,
-                power: 5,
+                ...(hullCards),
+                health: 10,
+                maxHealth: 12,
+                power: 3,
                 generating: true,
                 effects: [
+                    {
+                        type: 'shield',
+                        level: 62,
+                        maxLevel: 90,
+                        progress: null,
+                    },
+                    {
+                        type: 'shieldRecovering',
+                        level: 2,
+                        progress: null,
+                    },
                     {
                         type: 'auxPower',
                         progress: { startTime: Date.now(), endTime: Date.now() + 30000 },

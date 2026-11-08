@@ -81,6 +81,32 @@ export const Reactor: Story = {
     },
 };
 
+/** The hull's shield stats are shown above its cards. */
+export const Hull: Story = {
+    args: {
+        system: 'hull',
+        hand: [],
+        deck: [
+            ...createCards(['hullShieldEmitter', 'hullShieldRegenerator'], 1),
+            { id: 3, type: 'hullShieldEmitter', extraTraits: { damaged: ExtraTraitType.Normal } },
+            ...createCards(['hullShieldDelayReduction', 'hullPlating', 'hullShieldEmitter'], 4),
+        ],
+        shield: {
+            stats: { capacity: 45, cardCharge: 1, charge: 4, rechargeDelay: 2 },
+            power: 3,
+            level: 30,
+            recovering: 1,
+        },
+    },
+    play: async ({ canvasElement }) => {
+        const page = within(canvasElement.ownerDocument.body);
+        const shields = await page.findByRole('region', { name: 'Shields' });
+        await expect(within(shields).getByText('45')).toBeInTheDocument();
+        await expect(within(shields).getByText('1 card + 3 power')).toBeInTheDocument();
+        await expect(within(shields).getByText(/Recharges after 1 more undamaged draw$/)).toBeInTheDocument();
+    },
+};
+
 /**
  * As cards are drawn, the rest move up the deck. Those at the start of a row wrap around to the end of the row above.
  * The hand holds up to five cards, so it gets a second row on the second draw, and the deck below glides down to make room.

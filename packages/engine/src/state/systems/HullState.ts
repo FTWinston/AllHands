@@ -1,3 +1,4 @@
+import { getShieldStats } from 'common-data/features/ships/utils/shieldStats';
 import { LeveledSystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { Damage } from 'common-data/features/space/types/Damage';
 import { NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
@@ -5,10 +6,7 @@ import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
-/**
- * The hull's cards alone set its shield stats. Emitters give capacity, and add to the recharge delay, even when damaged.
- * Regenerators add to the charge, and delay reduction cards take from the recharge delay, only while undamaged.
- */
+/** The hull's cards alone set its shield stats (see getShieldStats). */
 export class HullState extends SystemState {
     constructor(setup: NonCrewSystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
         super(setup, 'hull', gameState, ship, initialPowerLevel, getCardId);
@@ -23,35 +21,24 @@ export class HullState extends SystemState {
 
     override readonly maxHandSize = 1;
 
-    private sumCardParameter(parameter: string, includeDamaged: boolean) {
-        let total = 0;
-
-        for (const card of this.cardPool) {
-            if (includeDamaged || !card.isDamaged) {
-                total += card.getParameter(parameter);
-            }
-        }
-
-        return total;
+    /** The engineer works out the same stats from the hull cards they can see. */
+    private get shieldStats() {
+        return getShieldStats(this.cardPool, this.powerLevel);
     }
 
     /** The shields' max level. */
     get maxShield() {
-        return Math.max(0, this.sumCardParameter('shieldCapacity', true));
+        return this.shieldStats.capacity;
     }
 
     /** How much the shields recharge by, each time an undamaged hull card is drawn. Nothing while the hull is unpowered. */
     get shieldCharge() {
-        if (this.powerLevel <= 0) {
-            return 0;
-        }
-
-        return Math.max(0, this.sumCardParameter('shieldCharge', false) + this.powerLevel);
+        return this.shieldStats.charge;
     }
 
     /** How many undamaged hull cards must be drawn after the shields are hit, before they start recharging again. */
     get shieldRechargeDelay() {
-        return Math.max(0, this.sumCardParameter('shieldRechargeDelay', true) - this.sumCardParameter('shieldDelayReduction', false));
+        return this.shieldStats.rechargeDelay;
     }
 
     get shield() {

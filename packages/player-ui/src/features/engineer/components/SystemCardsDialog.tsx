@@ -3,6 +3,7 @@ import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { FC } from 'react';
 import { FullScreenDialog } from 'src/components/FullScreenDialog';
 import { DeckCardList } from 'src/features/deck/components/DeckCardList';
+import { ShieldStatsSummary, ShieldSummaryInfo } from './ShieldStatsSummary';
 import styles from './SystemCardsDialog.module.css';
 import type { Snapshot } from '@colyseus/react';
 
@@ -14,6 +15,8 @@ export type SystemCards = {
 
 type Props = SystemCards & {
     system: ShipSystem;
+    /** For the hull, its shield stats, shown above its cards. */
+    shield?: ShieldSummaryInfo;
     isOpen: boolean;
     setOpen: (open: boolean) => void;
 };
@@ -30,6 +33,12 @@ export const SystemCardsDialog: FC<Props> = (props) => {
             setOpen={props.setOpen}
             bodyClassName={styles.body}
         >
+            {props.shield && (
+                <section className={styles.section}>
+                    <ShieldStatsSummary {...props.shield} />
+                </section>
+            )}
+
             {hasHand && (
                 <section className={styles.section}>
                     <h3 className={styles.heading}>Hand</h3>
