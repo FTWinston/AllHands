@@ -61,8 +61,8 @@ describe('getShieldDotPattern', () => {
     const spacing = 100 / shieldDotCount;
 
     /** The positions along the outline that the pattern puts a dot at. */
-    function litPositions(level: number) {
-        const pattern = getShieldDotPattern(level);
+    function litPositions(level: number, dotCount?: number) {
+        const pattern = getShieldDotPattern(level, dotCount);
         if (!pattern) {
             return [];
         }
@@ -106,5 +106,12 @@ describe('getShieldDotPattern', () => {
         const forward = positions.filter(position => position < 50).length;
         const back = positions.length - forward;
         expect(Math.abs(forward - back)).toBeLessThanOrEqual(2);
+    });
+
+    it('can use a different number of dots', () => {
+        const positions = litPositions(50, 120);
+
+        expect(positions).toHaveLength(60);
+        expect(positions[1] - positions[0]).toBeCloseTo(100 / 120, 6);
     });
 });

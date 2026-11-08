@@ -22,23 +22,23 @@ export function getShieldPath(appearance: ObjectAppearance): string | null {
 
 /**
  * A dash pattern for a path with a pathLength of 100, drawing a round dot (a zero-length dash) at each lit position:
- * the share of all `shieldDotCount` dots that `level` (0-100) amounts to, centred on the start of the path, which is the ship's nose.
+ * the share of all `dotCount` dots that `level` (0-100) amounts to, centred on the start of the path, which is the ship's nose.
  * Partial shields always light at least one dot, and never all of them, so neither looks like empty or full shields.
  * Null when no dots are lit.
  */
-export function getShieldDotPattern(level: number): { dasharray: string; dashoffset: number } | null {
-    const spacing = 100 / shieldDotCount;
+export function getShieldDotPattern(level: number, dotCount = shieldDotCount): { dasharray: string; dashoffset: number } | null {
+    const spacing = 100 / dotCount;
     const lit = level <= 0
         ? 0
         : level >= 100
-            ? shieldDotCount
-            : Math.max(1, Math.min(shieldDotCount - 1, Math.round(level / 100 * shieldDotCount)));
+            ? dotCount
+            : Math.max(1, Math.min(dotCount - 1, Math.round(level / 100 * dotCount)));
 
     if (lit <= 0) {
         return null;
     }
 
-    if (lit >= shieldDotCount) {
+    if (lit >= dotCount) {
         return { dasharray: `0 ${spacing}`, dashoffset: 0 };
     }
 
@@ -52,4 +52,8 @@ export function getShieldDotPattern(level: number): { dasharray: string; dashoff
 }
 
 /** A dash pattern drawing every dot, for the faint track that shows the shields' full extent. */
-export const shieldTrackDasharray = `0 ${100 / shieldDotCount}`;
+export function getShieldTrackDasharray(dotCount = shieldDotCount) {
+    return `0 ${100 / dotCount}`;
+}
+
+export const shieldTrackDasharray = getShieldTrackDasharray();

@@ -26,7 +26,7 @@ export type TileShieldInfo = {
 };
 
 type Props = SystemInfo & {
-    /** The hull's shields, shown along the tile's border and in its corner, instead of as an effect. */
+    /** The hull's shields, shown along the tile's border and with its name or stats, instead of as an effect. */
     shield?: TileShieldInfo;
     /** Opens a view of all of this system's cards. */
     onViewCards: () => void;
@@ -36,28 +36,32 @@ export const System = (props: Props) => {
     const { shield } = props;
     const effects = shield ? props.effects?.filter(effect => effect.type !== 'shield') : props.effects;
 
+    const hasShield = !!shield && shield.max > 0;
+    const shieldTitle = hasShield ? `Shields: ${shield.level} of ${shield.max}` : undefined;
+
     return (
-        <div className={styles.system}>
-            {shield && shield.max > 0 && (
-                <>
-                    <TileShieldOutline level={shield.level / shield.max * 100} />
-                    <div className={styles.shield} title={`Shields: ${shield.level} of ${shield.max}`}>
-                        <ShieldsIcon className={styles.shieldIcon} />
-                        <span className={styles.shieldValue}>{shield.level}</span>
-                        <span className={styles.shieldMax}>
+        <div className={classNames(styles.system, hasShield ? styles.shielded : undefined)}>
+            {hasShield && <TileShieldOutline level={shield.level / shield.max * 100} />}
+
+            <div className={styles.header}>
+                <h2 className={styles.name}>
+                    <SystemIcon className={styles.nameIcon} system={props.system} />
+                    {props.system}
+                </h2>
+
+                {/* Narrower tiles show the shields beside the name, and wide ones show them with power and health. */}
+                {hasShield && (
+                    <div className={styles.headerShield} title={shieldTitle}>
+                        <span className={styles.headerShieldValue}>{shield.level}</span>
+                        <span>
                             /
                             {shield.max}
                         </span>
                     </div>
-                </>
-            )}
+                )}
+            </div>
 
-            <h2 className={styles.name}>
-                <SystemIcon className={styles.nameIcon} system={props.system} />
-                {props.system}
-            </h2>
-
-            {/* One grid, so the icons and values line up between the two. */}
+            {/* One grid, so the icons and values line up between them. */}
             <div className={styles.attributes}>
                 <div className={classNames(styles.attribute, styles.power)}>
                     <PowerIcon className={styles.attributeIcon} />
@@ -73,6 +77,17 @@ export const System = (props: Props) => {
                         {props.maxHealth}
                     </div>
                 </div>
+                {hasShield && (
+                    <div className={classNames(styles.attribute, styles.shieldAttribute)} title={shieldTitle}>
+                        <ShieldsIcon className={classNames(styles.attributeIcon, styles.shieldIcon)} />
+                        <div className={classNames(styles.attributeValue, styles.shieldValue)}>{shield.level}</div>
+                        <div className={styles.attributeMax}>
+                            /
+                            {' '}
+                            {shield.max}
+                        </div>
+                    </div>
+                )}
             </div>
 
             <EffectList className={styles.effects} effects={effects} />

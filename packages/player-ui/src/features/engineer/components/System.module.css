@@ -26,26 +26,35 @@
         "effects effects";
 }
 
-.name {
+/* The name, and the shields if it has them. */
+.header {
     grid-area: name;
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 0.6em;
     white-space: nowrap;
-
-    font-size: 1.75em;
-    font-weight: bold;
-    line-height: 1.25;
-    text-transform: capitalize;
     /* It spans the columns below, so mustn't widen them. */
     contain: inline-size;
 
     /* Centred in the width left of the tile's cut-off corner, where there's room. */
     &::after {
         content: '';
-        flex: 0 1 calc(1.5em / 1.75);
+        flex: 0 1 1.5em;
         min-width: 0;
+        margin-left: -0.6em;
     }
+}
+
+.name {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+
+    font-size: 1.75em;
+    font-weight: bold;
+    line-height: 1.25;
+    text-transform: capitalize;
 }
 
 .nameIcon {
@@ -152,32 +161,39 @@ button.viewCards.generating {
     box-shadow: var(--energy-light) 0 0 0 0.125em inset;
 }
 
-/* The hull's shields, set into the tile's top border (which is its shield outline), short of its bevelled corner. */
-.shield {
-    position: absolute;
-    top: -0.65em;
-    right: 2em;
-    display: flex;
-    align-items: baseline;
-    gap: 0.1em;
-    padding: 0.1em 0.35em;
-    border-radius: 0.3em;
-    background-color: var(--primary-darkest);
-    font-size: 0.8em;
-    line-height: 1;
+/*
+    The hull's shields, beside its name in small tiles. There's little room, and the hull's own icon is a shield, so this has none.
+    Taller and wider tiles show them with power and health instead.
+*/
+.headerShield {
+    flex-shrink: 0;
     color: var(--energy-light);
-    pointer-events: none;
 }
 
-.shieldIcon {
-    align-self: center;
-    width: 1.1em;
-    height: 1.1em;
-}
-
-.shieldValue {
+.headerShieldValue {
     font-weight: bold;
-    font-size: 1.25em;
+    font-size: 1.35em;
+    color: var(--energy-lightest);
+}
+
+/* Its shield border is darker, so the shield's dots stand out on it. */
+.system.shielded {
+    border-color: var(--primary-dark);
+}
+
+.shieldAttribute {
+    display: none;
+
+    & > * {
+        grid-row: 3;
+    }
+}
+
+.attributeIcon.shieldIcon {
+    color: var(--energy-light);
+}
+
+.attributeValue.shieldValue {
     color: var(--energy-lightest);
 }
 
@@ -218,6 +234,21 @@ button.viewCards.generating {
             font-size: 2em;
         }
     }
+
+    /* The hull's shields go with power and health, taking room from the effects. */
+    .headerShield {
+        display: none;
+    }
+
+    .shielded .attributes {
+        grid-template-rows: auto auto auto;
+        align-self: center;
+        row-gap: 0.25em;
+    }
+
+    .shieldAttribute {
+        display: contents;
+    }
 }
 
 /* Wide tiles have the name and button, then power and health, in columns on the left, leaving the rest for effects. */
@@ -251,12 +282,33 @@ button.viewCards.generating {
         height: 1.5em;
     }
 
-    .name {
+    .header {
         justify-content: start;
 
         &::after {
             content: none;
         }
+    }
+
+    .headerShield {
+        display: none;
+    }
+
+    /* Three rows can't line up with the name and button, so they're spaced on their own. */
+    .shielded .attributes {
+        grid-template-rows: auto auto auto;
+        align-self: center;
+        row-gap: 0.1em;
+    }
+
+    /* The tile is at least 7.7em tall, so this is as large as three rows can be, just short of other tiles' values. */
+    .shielded .attributeValue {
+        font-size: 1.75em;
+        line-height: 1.1;
+    }
+
+    .shieldAttribute {
+        display: contents;
     }
 
     button.viewCards {
@@ -269,5 +321,25 @@ button.viewCards.generating {
         & > span:first-child {
             font-size: 1.25em;
         }
+    }
+}
+
+/*
+    Tiles that are wide, but not very wide, would leave the effects only a narrow column, while having height to spare.
+    So the effects go in a row along the bottom instead.
+*/
+@container (aspect-ratio > 8/5) and (aspect-ratio <= 4/1) and (min-width: 400px) {
+    .system {
+        /* Tall enough for three rows of attributes and the effects. */
+        font-size: min(4cqw, 10cqh, 1.75rem);
+        align-content: stretch;
+        /* Spread out across the tile's width, with spacer columns. */
+        column-gap: 0;
+        grid-template-columns: minmax(0, 1fr) minmax(max-content, 10.5em) minmax(1.25em, 1fr) max-content minmax(0, 1fr);
+        grid-template-rows: auto auto minmax(2.5em, 1fr);
+        grid-template-areas:
+            ". name . attributes ."
+            ". cards . attributes ."
+            "effects effects effects effects effects";
     }
 }

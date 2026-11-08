@@ -9,8 +9,12 @@
 
     fill: none;
     stroke: currentColor;
-    stroke-width: 0.3em;
+    stroke-width: var(--tile-shield-dot-size, 0.35em);
     stroke-linecap: round;
     /* Shields are always energy coloured, as on targets' shield outlines. */
     color: var(--energy-light);
+}
+
+.track {
+    opacity: var(--tile-shield-track-opacity, 0.3);
 }
