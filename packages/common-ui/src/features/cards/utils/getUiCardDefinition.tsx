@@ -47,6 +47,13 @@ function loadCardDefinitions() {
             description: 'Deploy a smoke screen to obscure vision and provide cover.',
             image: <ExampleIcon />,
         },
+        hullPlating: {
+            name: 'Hull Plating',
+            description: <>
+                Plain hull plating, which doesn't contribute to the shields. When drawn undamaged, recharges the shields.
+            </>,
+            image: <ExampleIcon />,
+        },
         hullShieldEmitter: {
             name: 'Shield Emitter',
             description: <>

@@ -70,6 +70,29 @@ describe('HullState shield stats', () => {
 });
 
 describe('HullState shields', () => {
+    it('has no shields at all when there are only plating cards', () => {
+        const state = rooms.createState();
+        const ship = new PlayerShip(state, { ...setup, hull: { ...setup.hull, cards: ['hullPlating', 'hullPlating', 'hullPlating'] } });
+        state.add(ship);
+
+        ship.startEncounter();
+        ship.hullState.drawFromTop();
+
+        expect(ship.hullState.maxShield).toBe(0);
+        expect(ship.hullState.shieldRechargeDelay).toBe(0);
+        expect(getHullTile(ship).hasEffect('shield')).toBe(false);
+    });
+
+    it('recharges the shields when a plating card is drawn', () => {
+        const state = rooms.createState();
+        const ship = new PlayerShip(state, { ...setup, hull: { ...setup.hull, cards: ['hullPlating', 'hullShieldEmitter', 'hullShieldEmitter'] } });
+        state.add(ship);
+
+        ship.hullState.drawFromTop();
+
+        expect(ship.hullState.shield).toBe(3);
+    });
+
     it('fills the shields to capacity, which they can\'t exceed', () => {
         const ship = createShip();
 

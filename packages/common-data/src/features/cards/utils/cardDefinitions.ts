@@ -1007,6 +1007,11 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 3 },
     },
+    hullPlating: {
+        targetType: 'no-target',
+        system: 'hull',
+        parameters: { cost: 0 },
+    },
     hullShieldEmitter: {
         targetType: 'no-target',
         system: 'hull',

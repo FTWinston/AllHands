@@ -294,6 +294,9 @@ function loadCardDefinitions() {
             },
         },
         // Every hull card recharges the shields the same way when drawn: they only differ in the shield stats they contribute.
+        hullPlating: {
+            play: tickShieldRecharge,
+        },
         hullShieldEmitter: {
             play: tickShieldRecharge,
         },
