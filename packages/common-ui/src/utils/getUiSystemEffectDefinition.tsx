@@ -23,7 +23,7 @@ function loadEffectDefinitions() {
         shieldRecovering: {
             name: 'Shields Recovering',
             description: <>
-                The shields were hit recently, and won't start recharging until
+                The shields were hit or disrupted recently, and won't start recharging until
                 {' '}
                 <EffectLevel />
                 {' '}
@@ -215,13 +215,6 @@ function loadEffectDefinitions() {
                 {' '}
                 <EffectLevel />
                 %.
-            </>,
-            image: ExampleIcon,
-        },
-        tetryonAccumulation: {
-            name: 'Tetryon Accumulation',
-            description: <>
-                An accumulation of tetryon particles from enemy sensors on the hull is preventing the shields from regenerating.
             </>,
             image: ExampleIcon,
         },

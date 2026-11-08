@@ -13,7 +13,7 @@ export const systemEffectDefinitions = defineSystemEffects({
         category: SystemEffectCategory.Positive,
         usesLevels: true,
     },
-    /** How many more undamaged hull cards must be drawn before the shields start recharging again, after being hit. */
+    /** How many more undamaged hull cards must be drawn before the shields start recharging again, e.g. after being hit. */
     shieldRecovering: {
         category: SystemEffectCategory.Negative,
         usesLevels: true,
@@ -147,11 +147,6 @@ export const systemEffectDefinitions = defineSystemEffects({
         category: SystemEffectCategory.Negative,
         usesLevels: true,
         duration: 12_000,
-    },
-    tetryonAccumulation: {
-        category: SystemEffectCategory.Negative,
-        usesLevels: false,
-        duration: 8_000,
     },
     chronitonSaturation: {
         category: SystemEffectCategory.Negative,

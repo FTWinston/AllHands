@@ -428,7 +428,7 @@ export const cardDefinitions = defineCardDefinitions({
         system: 'science',
         parameters: {
             cost: 2,
-            duration: systemEffectDefinitions.tetryonAccumulation.duration,
+            recoveryDraws: 3,
         },
         deflectorSubstance: 'Tetryon',
     },
@@ -1017,7 +1017,7 @@ export const cardDefinitions = defineCardDefinitions({
         system: 'hull',
         parameters: { cost: 0, shieldCharge: 1 },
     },
-    hullShieldRestart: {
+    hullShieldDelayReduction: {
         targetType: 'no-target',
         system: 'hull',
         parameters: { cost: 0, shieldDelayReduction: 1 },

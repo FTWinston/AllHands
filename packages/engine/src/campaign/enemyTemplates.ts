@@ -28,16 +28,16 @@ function interleaveHullCards(counts: Partial<Record<HullCards[number], number>>)
 
 /**
  * A hull with the given base shield stats, which each emitter raises the capacity of by 10,
- * each regenerator raises the charge of by 1, and each restart card shortens the recharge delay of by 1.
+ * each regenerator raises the charge of by 1, and each delay reduction card shortens the recharge delay of by 1.
  */
 const hull = (
     base: Pick<HullSystemSetupInfo, 'shieldCapacity' | 'shieldCharge' | 'shieldRechargeDelay'>,
     emitters: number,
     regenerators: number,
-    restarts: number
+    delayReductions: number
 ): HullSystemSetupInfo => ({
     ...base,
-    cards: interleaveHullCards({ hullShieldEmitter: emitters, hullShieldRegenerator: regenerators, hullShieldRestart: restarts }),
+    cards: interleaveHullCards({ hullShieldEmitter: emitters, hullShieldRegenerator: regenerators, hullShieldDelayReduction: delayReductions }),
     maxPowerLevel: MAX_POWER_LEVEL,
     initialHandSize: 0,
 });

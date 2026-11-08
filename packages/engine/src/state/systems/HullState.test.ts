@@ -13,7 +13,7 @@ const setup: PlayerShipSetupInfo = {
     ...baseSetup,
     hull: {
         ...baseSetup.hull,
-        cards: ['hullShieldEmitter', 'hullShieldRegenerator', 'hullShieldEmitter', 'hullShieldRestart'],
+        cards: ['hullShieldEmitter', 'hullShieldRegenerator', 'hullShieldEmitter', 'hullShieldDelayReduction'],
         shieldCapacity: 30,
         shieldCharge: 1,
         shieldRechargeDelay: 3,
@@ -131,6 +131,27 @@ describe('HullState shields', () => {
 
         ship.damage({ amount: 10, traits: [], targetSystem: 'hull' });
         expect(tile.getEffectLevel('shieldRecovering')).toBe(2);
+    });
+
+    it('adds to the recharge delay when disrupted, on top of any remaining delay', () => {
+        const ship = createShip();
+        const tile = getHullTile(ship);
+        ship.hullState.restoreShields();
+
+        ship.damage({ amount: 10, traits: [], targetSystem: 'hull' });
+        ship.hullState.delayShieldRecovery(3);
+        expect(tile.getEffectLevel('shieldRecovering')).toBe(5);
+    });
+
+    it('doesn\'t shorten a longer recharge delay when hit', () => {
+        const ship = createShip();
+        const tile = getHullTile(ship);
+        ship.hullState.restoreShields();
+
+        ship.hullState.delayShieldRecovery(4);
+        ship.damage({ amount: 10, traits: [], targetSystem: 'hull' });
+
+        expect(tile.getEffectLevel('shieldRecovering')).toBe(4);
     });
 
     it('blocks the same share of damage at full shields, whatever their capacity', () => {

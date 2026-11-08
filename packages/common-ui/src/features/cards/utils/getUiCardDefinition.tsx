@@ -69,7 +69,7 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
-        hullShieldRestart: {
+        hullShieldDelayReduction: {
             name: 'Shield Restart',
             description: <>
                 While undamaged, the shields start recharging
@@ -727,11 +727,11 @@ function loadCardDefinitions() {
         tetryonScan: {
             name: 'Tetryon Scan',
             description: <>
-                Finding a vulnerability prevents the target ship's shields from regenerating for
+                Finding a vulnerability delays the target ship's shield recharge by
                 {' '}
-                <Parameter name="duration" />
+                <Parameter name="recoveryDraws" />
                 {' '}
-                seconds.
+                more undamaged hull card draws.
             </>,
             image: <ExampleIcon />,
         },

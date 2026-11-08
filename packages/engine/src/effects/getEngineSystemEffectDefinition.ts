@@ -297,19 +297,6 @@ function loadSystemEffectDefinitions() {
                 system.systemState.applyDamage.addHandler('antiprotonResidue', false, damage => damage * (1 + newLevel / 100));
             },
         },
-        tetryonAccumulation: {
-            apply: (system) => {
-                // Prevent this system from generating while this effect is active.
-                system.systemState.scheduledDraw.addInterceptor('tetryonAccumulation', () => {
-                    return true;
-                });
-                return true;
-            },
-            remove: (system) => {
-                // When removed, allow scheduled draw events to fire again.
-                system.systemState.scheduledDraw.removeInterceptor('tetryonAccumulation');
-            },
-        },
         chronitonSaturation: {
             apply: (system) => {
                 // Block every second scheduled draw while this effect is active, starting with the first.

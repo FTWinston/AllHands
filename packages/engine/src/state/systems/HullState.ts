@@ -98,10 +98,16 @@ export class HullState extends SystemState {
         tile.adjustEffectLevel('shield', this.shieldCharge);
     }
 
-    /** Restart the countdown until the shields start recharging again. */
+    /** Add to the countdown until the shields start recharging again, e.g. when enemy sensors disrupt them. */
+    delayShieldRecovery(draws: number | undefined) {
+        this.linkedEngineerSystemTile.adjustEffectLevel('shieldRecovering', draws ?? 0);
+    }
+
+    /** Restart the countdown until the shields start recharging again, without shortening a longer one that's already running. */
     private restartShieldRecovery() {
         const tile = this.linkedEngineerSystemTile;
-        tile.adjustEffectLevel('shieldRecovering', this.shieldRechargeDelay - tile.getEffectLevel('shieldRecovering'));
+        const remaining = tile.getEffectLevel('shieldRecovering');
+        tile.adjustEffectLevel('shieldRecovering', Math.max(0, this.shieldRechargeDelay - remaining));
     }
 
     /**

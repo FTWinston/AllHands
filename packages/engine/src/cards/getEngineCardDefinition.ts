@@ -300,7 +300,7 @@ function loadCardDefinitions() {
         hullShieldRegenerator: {
             play: tickShieldRecharge,
         },
-        hullShieldRestart: {
+        hullShieldDelayReduction: {
             play: tickShieldRecharge,
         },
         warpAway: {
@@ -864,9 +864,9 @@ function loadCardDefinitions() {
                 ship.scienceState.subscribeToSystem(target, targetSystem);
                 return true;
             },
-            findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
+            findVulnerability: (_gameState, ship, target, targetSystem, parameters) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
-                target.hullState.addEffect('tetryonAccumulation');
+                target.hullState.delayShieldRecovery(parameters.recoveryDraws);
                 return true;
             },
         },
