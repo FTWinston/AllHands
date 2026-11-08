@@ -213,10 +213,7 @@ function loadEffectDefinitions() {
         chronitonSaturation: {
             name: 'Chroniton Saturation',
             description: <>
-                Saturated by chroniton particles from enemy sensors, this system takes
-                {' '}
-                <EffectLevel />
-                seconds longer to generate a card.
+                Saturated by chroniton particles from enemy sensors, this system fails every other attempt to generate a card.
             </>,
             image: ExampleIcon,
         },

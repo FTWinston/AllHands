@@ -304,24 +304,18 @@ function loadSystemEffectDefinitions() {
             },
         },
         chronitonSaturation: {
-            apply: (/* system, level */) => {
-                /*
-                // Increase time to generate a card by level seconds.
-                system.systemState.generationDuration
-                    .addHandler('chronitonSaturation', value => value + level * 1000);
-                */
+            apply: (system) => {
+                // Block every second scheduled draw while this effect is active, starting with the first.
+                let blockNext = true;
+                system.systemState.scheduledDraw.addInterceptor('chronitonSaturation', () => {
+                    const block = blockNext;
+                    blockNext = !blockNext;
+                    return block;
+                });
                 return true;
             },
-            remove: (/* system */) => {
-                /*
-                system.systemState.generationDuration.removeHandler('chronitonSaturation');
-                */
-            },
-            onLevelChanged: (/* system, newLevel */) => {
-                /*
-                // addHandler replaces the old handler, so we can just call it again with the new level.
-                system.systemState.generationDuration.addHandler('chronitonSaturation', value => value + newLevel * 1000);
-                */
+            remove: (system) => {
+                system.systemState.scheduledDraw.removeInterceptor('chronitonSaturation');
             },
         },
         polaronBombardment: {

@@ -866,9 +866,9 @@ function loadCardDefinitions() {
             load: () => {
                 return true;
             },
-            revealSystem: (_gameState, ship, target, targetSystem, parameters) => {
+            revealSystem: (_gameState, ship, target, targetSystem, _parameters) => {
                 ship.scienceState.subscribeToSystem(target, targetSystem);
-                target.getSystem(targetSystem).adjustEffectLevel('chronitonSaturation', parameters.effectLevel);
+                target.getSystem(targetSystem).addEffect('chronitonSaturation');
                 return true;
             },
             findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
