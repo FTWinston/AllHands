@@ -4,11 +4,8 @@ export const playerShipSetup: PlayerShipSetupInfo = {
     name: 'Ship',
     position: { x: 0, y: 0, angle: 0 },
     hull: {
-        // 100 shield capacity, recharging by 3 plus the hull's power level, 2 hull cards after being hit.
+        // 90 shield capacity, recharging by 3 plus the hull's power level, 3 hull cards after being hit.
         cards: Array(3).fill(['hullShieldEmitter', 'hullShieldRegenerator', 'hullShieldEmitter', 'hullShieldDelayReduction']).flat(),
-        shieldCapacity: 40,
-        shieldCharge: 0,
-        shieldRechargeDelay: 5,
         maxPowerLevel: 5,
         initialHandSize: 0,
     },

@@ -54,7 +54,11 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="shieldCapacity" />
                 {' '}
-                to the shields' capacity, even when damaged. When drawn undamaged, recharges the shields.
+                to the shields' capacity, but they take
+                {' '}
+                <Parameter name="shieldRechargeDelay" />
+                {' '}
+                more hull card to start recharging after being hit. Both apply even when damaged. When drawn undamaged, recharges the shields.
             </>,
             image: <ExampleIcon />,
         },

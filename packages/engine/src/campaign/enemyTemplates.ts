@@ -1,12 +1,12 @@
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
-import type { AiGoalInfo, AiShipSetupInfo, HullSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import type { AiGoalInfo, AiShipSetupInfo, NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import type { ShipAppearance } from 'common-data/features/space/types/ObjectAppearance';
 import type { Position } from 'common-data/features/space/types/Position';
 import type { IRandom } from 'common-data/types/IRandom';
 
 export type EnemyRole = 'scout' | 'fighter' | 'heavy' | 'flagship';
 
-type HullCards = HullSystemSetupInfo['cards'];
+type HullCards = NonCrewSystemSetupInfo['cards'];
 type ReactorCards = AiShipSetupInfo['reactor']['cards'];
 
 /** Interleave the given numbers of each type of hull card, so they're spread through the deck. */
@@ -27,16 +27,14 @@ function interleaveHullCards(counts: Partial<Record<HullCards[number], number>>)
 }
 
 /**
- * A hull with the given base shield stats, which each emitter raises the capacity of by 10,
- * each regenerator raises the charge of by 1, and each delay reduction card shortens the recharge delay of by 1.
+ * A hull whose shield stats come from its cards: each emitter adds 15 capacity and 1 recharge delay,
+ * each regenerator adds 1 charge, and each delay reduction card takes 1 from the recharge delay.
  */
 const hull = (
-    base: Pick<HullSystemSetupInfo, 'shieldCapacity' | 'shieldCharge' | 'shieldRechargeDelay'>,
     emitters: number,
     regenerators: number,
     delayReductions: number
-): HullSystemSetupInfo => ({
-    ...base,
+): NonCrewSystemSetupInfo => ({
     cards: interleaveHullCards({ hullShieldEmitter: emitters, hullShieldRegenerator: regenerators, hullShieldDelayReduction: delayReductions }),
     maxPowerLevel: MAX_POWER_LEVEL,
     initialHandSize: 0,
@@ -58,8 +56,8 @@ const system = <T extends string>(cards: T[], initialHandSize = 1) => ({ cards, 
 const fighterTemplate: Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal'> = {
     appearance: 'swallowtail-interceptor',
     skill: 1,
-    // 70 shield capacity, recharging by 4 plus the hull's power level, 2 hull cards after being hit.
-    hull: hull({ shieldCapacity: 30, shieldCharge: 0, shieldRechargeDelay: 6 }, 4, 4, 4),
+    // 75 shield capacity, recharging by 3 plus the hull's power level, 1 hull card after being hit.
+    hull: hull(5, 3, 4),
     // Loading a torpedo takes 3 tactical power.
     reactor: system(reactorCards(2, 'reactorPowerTactical'), 0),
     helm: system(['slowAndSteady', 'zigZag', 'strafe', 'slowAndSteady']),
@@ -71,8 +69,8 @@ const fighterTemplate: Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | '
 const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal'>> = {
     scout: {
         ...fighterTemplate,
-        // A small shield (40) that's quick to start recharging (after 1 hull card).
-        hull: hull({ shieldCapacity: 20, shieldCharge: 0, shieldRechargeDelay: 3 }, 2, 2, 2),
+        // A small shield (30) that starts recharging straight away.
+        hull: hull(2, 2, 2),
         reactor: system(reactorCards(2, 'reactorPowerTactical', 'reactorPowerHelm'), 0),
         helm: system(['zigZag', 'strafe', 'zigZag', 'slowAndSteady']),
         tactical: { ...system(['lowYield', 'lowYield', 'photonTorpedo']), numSlots: 1 },
@@ -81,8 +79,8 @@ const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' 
     fighter: fighterTemplate,
     heavy: {
         ...fighterTemplate,
-        // A big shield (110) that's slow to start recharging (after 5 hull cards), but then recharges quickly.
-        hull: hull({ shieldCapacity: 30, shieldCharge: 0, shieldRechargeDelay: 7 }, 8, 6, 2),
+        // A big shield (120) that's slow to start recharging (after 6 hull cards), but then recharges quickly.
+        hull: hull(8, 6, 2),
         reactor: system(reactorCards(2, 'reactorPowerTactical', 'reactorPowerHull', 'reactorPowerEngineer'), 0),
         tactical: { ...system(['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield']), numSlots: 2 },
         engineer: system(['auxPower', 'auxPower', 'distributePower', 'auxPower']),
@@ -90,8 +88,8 @@ const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' 
     },
     flagship: {
         ...fighterTemplate,
-        // The biggest shield (150), recharging by 8 plus the hull's power level, 2 hull cards after being hit.
-        hull: hull({ shieldCapacity: 50, shieldCharge: 0, shieldRechargeDelay: 8 }, 10, 8, 6),
+        // The biggest shield (150), recharging by 8 plus the hull's power level, 4 hull cards after being hit.
+        hull: hull(10, 8, 6),
         reactor: system(reactorCards(3, 'reactorPowerTactical', 'reactorPowerHull'), 0),
         tactical: { ...system(['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield', 'fullSpread']), numSlots: 3 },
         engineer: system(['auxPower', 'auxPower', 'distributePower', 'auxPower', 'distributePower']),

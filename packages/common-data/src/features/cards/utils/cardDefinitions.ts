@@ -1010,7 +1010,7 @@ export const cardDefinitions = defineCardDefinitions({
     hullShieldEmitter: {
         targetType: 'no-target',
         system: 'hull',
-        parameters: { cost: 0, shieldCapacity: 10 },
+        parameters: { cost: 0, shieldCapacity: 15, shieldRechargeDelay: 1 },
     },
     hullShieldRegenerator: {
         targetType: 'no-target',

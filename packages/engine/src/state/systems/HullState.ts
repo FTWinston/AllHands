@@ -1,21 +1,17 @@
 import { LeveledSystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { Damage } from 'common-data/features/space/types/Damage';
-import { HullSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
 
 /**
- * The hull's cards set its shield stats, on top of its base ones. Every hull card counts towards its shield capacity,
- * but damaged cards don't count towards how fast the shields recharge, or how soon they start recharging after a hit.
+ * The hull's cards alone set its shield stats. Emitters give capacity, and add to the recharge delay, even when damaged.
+ * Regenerators add to the charge, and delay reduction cards take from the recharge delay, only while undamaged.
  */
 export class HullState extends SystemState {
-    constructor(setup: HullSystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
+    constructor(setup: NonCrewSystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
         super(setup, 'hull', gameState, ship, initialPowerLevel, getCardId);
-
-        this.baseShieldCapacity = setup.shieldCapacity;
-        this.baseShieldCharge = setup.shieldCharge;
-        this.baseShieldRechargeDelay = setup.shieldRechargeDelay;
 
         this.cardAddedToHand.addListener('hull', (card) => {
             // Immediately after drawing a card, try to play it, and discard it if that fails for any reason, such as it being damaged.
@@ -26,10 +22,6 @@ export class HullState extends SystemState {
     }
 
     override readonly maxHandSize = 1;
-
-    private readonly baseShieldCapacity: number;
-    private readonly baseShieldCharge: number;
-    private readonly baseShieldRechargeDelay: number;
 
     private sumCardParameter(parameter: string, includeDamaged: boolean) {
         let total = 0;
@@ -45,7 +37,7 @@ export class HullState extends SystemState {
 
     /** The shields' max level. */
     get maxShield() {
-        return Math.max(0, this.baseShieldCapacity + this.sumCardParameter('shieldCapacity', true));
+        return Math.max(0, this.sumCardParameter('shieldCapacity', true));
     }
 
     /** How much the shields recharge by, each time an undamaged hull card is drawn. Nothing while the hull is unpowered. */
@@ -54,12 +46,12 @@ export class HullState extends SystemState {
             return 0;
         }
 
-        return Math.max(0, this.baseShieldCharge + this.sumCardParameter('shieldCharge', false) + this.powerLevel);
+        return Math.max(0, this.sumCardParameter('shieldCharge', false) + this.powerLevel);
     }
 
     /** How many undamaged hull cards must be drawn after the shields are hit, before they start recharging again. */
     get shieldRechargeDelay() {
-        return Math.max(0, this.baseShieldRechargeDelay - this.sumCardParameter('shieldDelayReduction', false));
+        return Math.max(0, this.sumCardParameter('shieldRechargeDelay', true) - this.sumCardParameter('shieldDelayReduction', false));
     }
 
     get shield() {

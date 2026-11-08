@@ -17,7 +17,10 @@ function createWorld() {
     setup.science = { ...setup.science, cards: ['passiveScan', 'passiveScan', 'invertedChronitonScan', 'coherentBeamScan'] as never, initialHandSize: 2 };
     const scanner = new AiShip(state, setup);
     state.add(scanner);
-    const target = new AiShip(state, { ...shipSetup('player', 5, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
+    const targetSetup = shipSetup('player', 5, 0);
+    // Shield capacity comes only from hull cards: 5 emitters give 75.
+    targetSetup.hull = { ...targetSetup.hull, cards: Array(5).fill('hullShieldEmitter') };
+    const target = new AiShip(state, { ...targetSetup, goal: { type: 'search-and-destroy' }, skill: 1 });
     state.add(target);
     // AI ships start with full shields: empty them, so tests can set them.
     target.engineerState.systems.find(tile => tile.system === 'hull')!.removeEffect('shield', false);

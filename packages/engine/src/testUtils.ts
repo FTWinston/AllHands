@@ -118,7 +118,7 @@ export function shipSetup(faction: string | undefined, x = 0, y = 0): ShipSetupI
         appearance: 'chevron',
         faction,
         position: { x, y, angle: 0 },
-        hull: { ...minimalSystemSetup, shieldCapacity: 100, shieldCharge: 0, shieldRechargeDelay: 0 },
+        hull: { ...minimalSystemSetup },
         reactor: { ...minimalSystemSetup, cards: ['reactorPowerHull', 'reactorPowerHelm', 'reactorPowerTactical', 'reactorPowerEngineer', 'reactorPowerScience', 'reactorPowerReactor', 'reactorPowerHull', 'reactorPowerHelm', 'reactorPowerTactical', 'reactorPowerEngineer', 'reactorPowerScience', 'reactorPowerReactor', 'reactorPowerHull', 'reactorPowerHelm', 'reactorPowerTactical', 'reactorPowerEngineer', 'reactorPowerScience', 'reactorPowerReactor'] },
         helm: { ...minimalSystemSetup },
         science: { ...minimalSystemSetup },

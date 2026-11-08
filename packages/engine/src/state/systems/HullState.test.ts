@@ -8,15 +8,12 @@ const rooms = setupGameRoom();
 
 const baseSetup = shipSetup(undefined);
 
-// Capacity 30 + 2 × 10 = 50. Charge 1 + 1, plus the hull's power level (3). Delay 3 - 1 = 2.
+// Capacity 3 × 15 = 45. Charge 1, plus the hull's power level (3). Delay 3 emitters - 1 = 2.
 const setup: PlayerShipSetupInfo = {
     ...baseSetup,
     hull: {
         ...baseSetup.hull,
-        cards: ['hullShieldEmitter', 'hullShieldRegenerator', 'hullShieldEmitter', 'hullShieldDelayReduction'],
-        shieldCapacity: 30,
-        shieldCharge: 1,
-        shieldRechargeDelay: 3,
+        cards: ['hullShieldEmitter', 'hullShieldRegenerator', 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldDelayReduction'],
     },
 };
 
@@ -36,21 +33,21 @@ function damageCard(ship: PlayerShip, index: number) {
 }
 
 describe('HullState shield stats', () => {
-    it('adds the capacity of every hull card, damaged or not, to the base capacity', () => {
+    it('adds up the capacity of every hull card, damaged or not', () => {
         const ship = createShip();
-        expect(ship.hullState.maxShield).toBe(50);
+        expect(ship.hullState.maxShield).toBe(45);
 
         damageCard(ship, 0);
-        expect(ship.hullState.maxShield).toBe(50);
+        expect(ship.hullState.maxShield).toBe(45);
     });
 
-    it('adds the charge of undamaged hull cards and the power level to the base charge', () => {
+    it('adds up the charge of undamaged hull cards, plus the power level', () => {
         const ship = createShip();
         expect(ship.hullState.powerLevel).toBe(3);
-        expect(ship.hullState.shieldCharge).toBe(5);
+        expect(ship.hullState.shieldCharge).toBe(4);
 
         damageCard(ship, 1);
-        expect(ship.hullState.shieldCharge).toBe(4);
+        expect(ship.hullState.shieldCharge).toBe(3);
     });
 
     it('doesn\'t charge the shields at all while the hull is unpowered', () => {
@@ -60,11 +57,14 @@ describe('HullState shield stats', () => {
         expect(ship.hullState.shieldCharge).toBe(0);
     });
 
-    it('takes the delay reduction of undamaged hull cards from the base delay', () => {
+    it('takes the delay reduction of undamaged hull cards from the delay that every emitter adds', () => {
         const ship = createShip();
         expect(ship.hullState.shieldRechargeDelay).toBe(2);
 
-        damageCard(ship, 3);
+        damageCard(ship, 0);
+        expect(ship.hullState.shieldRechargeDelay).toBe(2);
+
+        damageCard(ship, 4);
         expect(ship.hullState.shieldRechargeDelay).toBe(3);
     });
 });
@@ -74,11 +74,11 @@ describe('HullState shields', () => {
         const ship = createShip();
 
         ship.hullState.restoreShields();
-        expect(ship.hullState.shield).toBe(50);
+        expect(ship.hullState.shield).toBe(45);
 
         getHullTile(ship).adjustEffectLevel('shield', 10);
-        expect(ship.hullState.shield).toBe(50);
-        expect(getHullTile(ship).effects.find(effect => effect.type === 'shield')?.maxLevel).toBe(50);
+        expect(ship.hullState.shield).toBe(45);
+        expect(getHullTile(ship).effects.find(effect => effect.type === 'shield')?.maxLevel).toBe(45);
     });
 
     it('fills the shields at the start of an encounter', () => {
@@ -86,18 +86,18 @@ describe('HullState shields', () => {
 
         ship.startEncounter();
 
-        expect(ship.hullState.shield).toBe(50);
+        expect(ship.hullState.shield).toBe(45);
     });
 
     it('recharges the shields when an undamaged hull card is drawn, but not a damaged one', () => {
         const ship = createShip();
 
         ship.hullState.drawFromTop();
-        expect(ship.hullState.shield).toBe(5);
+        expect(ship.hullState.shield).toBe(4);
 
         damageCard(ship, 0);
         ship.hullState.drawFromTop();
-        expect(ship.hullState.shield).toBe(5);
+        expect(ship.hullState.shield).toBe(4);
     });
 
     it('waits for the recharge delay\'s worth of undamaged draws after a hit, before recharging again', () => {
@@ -107,7 +107,7 @@ describe('HullState shields', () => {
 
         ship.damage({ amount: 20, traits: [], targetSystem: 'hull' });
         const shieldAfterHit = ship.hullState.shield;
-        expect(shieldAfterHit).toBeLessThan(50);
+        expect(shieldAfterHit).toBeLessThan(45);
         expect(tile.getEffectLevel('shieldRecovering')).toBe(2);
 
         ship.hullState.tickShieldRecharge();
@@ -117,7 +117,7 @@ describe('HullState shields', () => {
         expect(ship.hullState.shield).toBe(shieldAfterHit);
 
         ship.hullState.tickShieldRecharge();
-        expect(ship.hullState.shield).toBe(shieldAfterHit + 5);
+        expect(ship.hullState.shield).toBe(shieldAfterHit + 4);
     });
 
     it('restarts the recharge delay when hit again', () => {
@@ -161,17 +161,18 @@ describe('HullState shields', () => {
         const passedThrough = ship.damage({ amount: 20, traits: [], targetSystem: 'hull' });
 
         expect(passedThrough).toBe(0);
-        expect(ship.hullState.shield).toBe(30);
+        expect(ship.hullState.shield).toBe(25);
     });
 
-    it('lowers the shields to their new capacity when an emitter is removed', () => {
+    it('lowers the shields to their new capacity, and shortens the delay, when an emitter is removed', () => {
         const ship = createShip();
         ship.hullState.restoreShields();
 
         ship.hullState.removeDeckCard(ship.hullState.deck[0].id);
 
-        expect(ship.hullState.maxShield).toBe(40);
-        expect(ship.hullState.shield).toBe(40);
-        expect(getHullTile(ship).effects.find(effect => effect.type === 'shield')?.maxLevel).toBe(40);
+        expect(ship.hullState.maxShield).toBe(30);
+        expect(ship.hullState.shield).toBe(30);
+        expect(ship.hullState.shieldRechargeDelay).toBe(1);
+        expect(getHullTile(ship).effects.find(effect => effect.type === 'shield')?.maxLevel).toBe(30);
     });
 });
