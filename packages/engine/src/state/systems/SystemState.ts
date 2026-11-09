@@ -205,6 +205,12 @@ export abstract class SystemState extends Schema implements SystemInfo {
     /** Called after a card joins or leaves the card pool, e.g. when bought or sold at a station. */
     protected cardPoolChanged() { }
 
+    /** Called after this system's health changes, as cards are damaged or repaired. */
+    protected healthChanged() { }
+
+    /** Called as each of this system's cards is damaged, before its health is updated. */
+    protected cardDamaged(_card: CardState) { }
+
     /**
      * Link this system to an EngineerSystemTile so that power, health,
      * and effect changes are automatically propagated.
@@ -321,6 +327,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
         this.linkedEngineerSystemTile.setHealthFromSystem(this);
 
         this.updateDamagedCardEffect();
+        this.healthChanged();
     }
 
     /**
@@ -339,31 +346,58 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
     private damageCards(count: number) {
         for (let i = 0; i < count; i++) {
-            const card = this.damageQueue.shift();
+            const card = this.damageQueue[0];
             if (!card) {
                 break;
             }
 
-            if (this.lastUnslottedIndex > 0) {
-                this.lastUnslottedIndex--;
-            }
-
-            if (card.hasTrait('stabilised')) {
-                card.removeTrait('stabilised');
-                card.addTrait('critical', ExtraTraitType.Normal);
-            } else {
-                card.addTrait('damaged', ExtraTraitType.Normal);
-
-                // Damaged cards go into the repair queue to be potentially repaired later.
-                // (Critically damaged cards do not.)
-                this.getGameState().random.insert(this.repairQueue, card);
-            }
-
-            // Trigger any "damaged" effect on the card definition.
-            getCardDefinition(card.type)?.damaged?.(this._gameState, this._ship, card);
+            this.damageCard(card);
         }
 
         this.syncHealth();
+    }
+
+    /** Damage every undamaged pool card that matches, wherever it is in the damage queue. */
+    protected damageSpecificCards(predicate: (card: CardState) => boolean) {
+        const cards = this.damageQueue.filter(predicate);
+        if (cards.length === 0) {
+            return;
+        }
+
+        for (const card of cards) {
+            // An earlier card's own damage may already have damaged this one.
+            if (this.damageQueue.includes(card)) {
+                this.damageCard(card);
+            }
+        }
+
+        this.syncHealth();
+    }
+
+    /** Damage an undamaged pool card, taking it out of the damage queue. Stabilised cards become critically damaged. */
+    private damageCard(card: CardState) {
+        const index = this.damageQueue.indexOf(card);
+        this.damageQueue.splice(index, 1);
+
+        if (index < this.lastUnslottedIndex) {
+            this.lastUnslottedIndex--;
+        }
+
+        if (card.hasTrait('stabilised')) {
+            card.removeTrait('stabilised');
+            card.addTrait('critical', ExtraTraitType.Normal);
+        } else {
+            card.addTrait('damaged', ExtraTraitType.Normal);
+
+            // Damaged cards go into the repair queue to be potentially repaired later.
+            // (Critically damaged cards do not.)
+            this.getGameState().random.insert(this.repairQueue, card);
+        }
+
+        // Trigger any "damaged" effect on the card definition.
+        getCardDefinition(card.type)?.damaged?.(this._gameState, this._ship, card);
+
+        this.cardDamaged(card);
     }
 
     private repairCards(count: number) {
@@ -393,6 +427,9 @@ export abstract class SystemState extends Schema implements SystemInfo {
         for (const card of [...this.slottedCards]) {
             this.markCardUnslotted(card);
         }
+
+        // Damaged cards are stabilised between encounters, as if they were repaired. Critically damaged cards stay that way.
+        this.repairCards(this.repairQueue.length);
 
         // Restore the deck from the card pool. Clear down modifiers, but don't clean up extra card traits.
         this.deck.clear();

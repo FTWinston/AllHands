@@ -87,23 +87,26 @@ export const Hull: Story = {
         system: 'hull',
         hand: [],
         deck: [
-            ...createCards(['hullShieldEmitter', 'hullShieldRegenerator'], 1),
+            ...createCards(['hullShieldEmitter', 'hullShieldTuningEnergy'], 1),
             { id: 3, type: 'hullShieldEmitter', extraTraits: { damaged: ExtraTraitType.Normal } },
-            ...createCards(['hullShieldDelayReduction', 'hullPlating', 'hullShieldEmitter'], 4),
+            ...createCards(['hullVolatileEmitter', 'hullPlating', 'hullShieldTuningTorpedo'], 4),
         ],
         shield: {
-            stats: { capacity: 45, cardCharge: 1, charge: 4, rechargeDelay: 2 },
-            power: 3,
+            capacity: 60,
             level: 30,
-            recovering: 1,
+            power: 3,
+            tuning: 'energy',
+            scrambled: 0,
         },
     },
     play: async ({ canvasElement }) => {
         const page = within(canvasElement.ownerDocument.body);
         const shields = await page.findByRole('region', { name: 'Shields' });
-        await expect(within(shields).getByText('45')).toBeInTheDocument();
-        await expect(within(shields).getByText('1 card + 3 power')).toBeInTheDocument();
-        await expect(within(shields).getByText(/Recharges after 1 more undamaged draw$/)).toBeInTheDocument();
+        await expect(within(shields).getByText('60')).toBeInTheDocument();
+        // Half full at power 3: 80% × (1 - (1/2)²).
+        await expect(within(shields).getByText('60%')).toBeInTheDocument();
+        await expect(within(shields).getByText('Energy')).toBeInTheDocument();
+        await expect(within(shields).getByText(/30 \/ 60/)).toBeInTheDocument();
     },
 };
 

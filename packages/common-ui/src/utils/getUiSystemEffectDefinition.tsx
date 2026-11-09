@@ -1,3 +1,4 @@
+import { shieldTuningBonus, shieldTuningPenalty } from 'common-data/features/ships/utils/shieldStats';
 import { systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { EffectLevel, EffectMaxLevel } from '../components/EffectLevelContext';
@@ -15,19 +16,32 @@ function loadEffectDefinitions() {
                 of
                 {' '}
                 <EffectMaxLevel />
-                . The fuller the shields, the greater a proportion of damage they absorb.
-                Each undamaged hull card that's drawn recharges them, by an amount that the hull's cards and power level determine.
+                . The shields absorb a share of each hit, which is greater the fuller they are, and the more power the hull has. At full power, full shields absorb everything. They only recharge between encounters.
             </>,
             image: ExampleIcon,
         },
-        shieldRecovering: {
-            name: 'Shields Recovering',
+        shieldTunedEnergy: {
+            name: 'Tuned: Energy',
             description: <>
-                The shields were hit or disrupted recently, and won't start recharging until
+                {`The shields are tuned against energy weapons, absorbing ${shieldTuningBonus}% more of their damage, but ${shieldTuningPenalty}% less of anything else, until the next hull card is drawn.`}
+            </>,
+            image: ExampleIcon,
+        },
+        shieldTunedTorpedo: {
+            name: 'Tuned: Torpedoes',
+            description: <>
+                {`The shields are tuned against torpedoes, absorbing ${shieldTuningBonus}% more of their damage, but ${shieldTuningPenalty}% less of anything else, until the next hull card is drawn.`}
+            </>,
+            image: ExampleIcon,
+        },
+        shieldScrambled: {
+            name: 'Shields Scrambled',
+            description: <>
+                The shields' tuning has been scrambled, so they can't be tuned again until
                 {' '}
                 <EffectLevel />
                 {' '}
-                more undamaged hull cards are drawn.
+                more hull cards are drawn.
             </>,
             image: ExampleIcon,
         },

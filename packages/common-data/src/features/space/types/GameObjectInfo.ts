@@ -10,6 +10,7 @@ import { ReadonlyKeyframes } from './Keyframes';
 import { ObjectAppearance } from './ObjectAppearance';
 import { Position } from './Position';
 import { RelationshipType } from './RelationshipType';
+import type { ShieldTuning } from 'src/features/ships/utils/shieldStats';
 
 export type ObjectId = string;
 
@@ -160,6 +161,8 @@ export interface ScannedHullInfo {
     shield: number;
     /** The ship's shield capacity. */
     maxShield: number;
+    /** The weapon type that the ship's shields are currently tuned against, or empty if they aren't tuned. */
+    shieldTuning: ShieldTuning | '';
 }
 
 export interface ScienceSystemInfo extends CrewSystemInfo {

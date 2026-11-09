@@ -105,8 +105,20 @@ function loadSystemEffectDefinitions() {
 
             },
         },
-        shieldRecovering: {
-            // Counted down by HullState as undamaged hull cards are drawn.
+        // HullState sets the shields' tuning as hull cards are drawn, and counts down any scrambling.
+        shieldTunedEnergy: {
+            apply: (system) => {
+                return system.system === 'hull';
+            },
+            remove: () => { },
+        },
+        shieldTunedTorpedo: {
+            apply: (system) => {
+                return system.system === 'hull';
+            },
+            remove: () => { },
+        },
+        shieldScrambled: {
             apply: (system) => {
                 return system.system === 'hull';
             },

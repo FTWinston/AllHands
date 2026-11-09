@@ -428,7 +428,7 @@ export const cardDefinitions = defineCardDefinitions({
         system: 'science',
         parameters: {
             cost: 2,
-            recoveryDraws: 3,
+            scrambleDraws: 3,
         },
         deflectorSubstance: 'Tetryon',
     },
@@ -1015,17 +1015,22 @@ export const cardDefinitions = defineCardDefinitions({
     hullShieldEmitter: {
         targetType: 'no-target',
         system: 'hull',
-        parameters: { cost: 0, shieldCapacity: 15, shieldRechargeDelay: 1 },
+        parameters: { cost: 0, shieldCapacity: 15 },
     },
-    hullShieldRegenerator: {
+    hullVolatileEmitter: {
         targetType: 'no-target',
         system: 'hull',
-        parameters: { cost: 0, shieldCharge: 1 },
+        parameters: { cost: 0, shieldCapacity: 45 },
     },
-    hullShieldDelayReduction: {
+    hullShieldTuningEnergy: {
         targetType: 'no-target',
         system: 'hull',
-        parameters: { cost: 0, shieldDelayReduction: 1 },
+        parameters: { cost: 0 },
+    },
+    hullShieldTuningTorpedo: {
+        targetType: 'no-target',
+        system: 'hull',
+        parameters: { cost: 0 },
     },
     warpAway: {
         targetType: 'no-target',

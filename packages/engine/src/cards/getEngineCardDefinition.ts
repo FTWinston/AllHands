@@ -14,6 +14,7 @@ import {
 } from 'common-data/features/cards/utils/cardDefinitions';
 import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { WeaponType } from 'common-data/features/space/types/Damage';
 import { projectileFlightTime } from 'common-data/features/space/types/WeaponEffect';
 import { IRandom } from 'common-data/types/IRandom';
 import { choiceEvaluator } from 'src/ai/evaluators';
@@ -145,6 +146,17 @@ function getTargetPosition(target: GameObject | null, time: number) {
     return { x, y };
 }
 
+/** Which group of weapons a weapon card belongs to, which shields can be tuned against. */
+function getWeaponType(weapon: string): WeaponType | undefined {
+    const traits = (cardDefinitions as Record<string, { traits?: readonly string[] }>)[weapon]?.traits;
+
+    return traits?.includes('energyWeapon')
+        ? 'energy'
+        : traits?.includes('torpedoWeapon')
+            ? 'torpedo'
+            : undefined;
+}
+
 /**
  * Fire a weapon at a target, telling clients to show that. Whether it will hit is settled now, but any damage lands when the shot arrives.
  * A target that's gone by then takes no damage: the shot just carries on to where it was.
@@ -184,6 +196,7 @@ function fireShot(
         const damage = target.damage({
             amount: damageAmount,
             traits,
+            weaponType: getWeaponType(weapon),
         });
 
         if (isShip(target)) {
@@ -204,8 +217,7 @@ function fireShot(
     }
 }
 
-function tickShieldRecharge(_gameState: GameState, ship: Ship) {
-    ship.hullState.tickShieldRecharge();
+function playHullCard() {
     return true;
 }
 
@@ -293,18 +305,21 @@ function loadCardDefinitions() {
                 console.log('played smokeScreen'); return true;
             },
         },
-        // Every hull card recharges the shields the same way when drawn: they only differ in the shield stats they contribute.
+        // Hull cards do nothing when played: HullState retunes the shields as each one is drawn, and adds up their shield capacity.
         hullPlating: {
-            play: tickShieldRecharge,
+            play: playHullCard,
         },
         hullShieldEmitter: {
-            play: tickShieldRecharge,
+            play: playHullCard,
         },
-        hullShieldRegenerator: {
-            play: tickShieldRecharge,
+        hullVolatileEmitter: {
+            play: playHullCard,
         },
-        hullShieldDelayReduction: {
-            play: tickShieldRecharge,
+        hullShieldTuningEnergy: {
+            play: playHullCard,
+        },
+        hullShieldTuningTorpedo: {
+            play: playHullCard,
         },
         warpAway: {
             play: (gameState, ship) => {
@@ -869,7 +884,7 @@ function loadCardDefinitions() {
             },
             findVulnerability: (_gameState, ship, target, targetSystem, parameters) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
-                target.hullState.delayShieldRecovery(parameters.recoveryDraws);
+                target.hullState.scrambleShields(parameters.scrambleDraws);
                 return true;
             },
         },

@@ -1,4 +1,5 @@
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
+import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { AiShip } from 'src/state/AiShip';
 import { CardCooldownState } from 'src/state/CardCooldownState';
 import { CardState } from 'src/state/CardState';
@@ -142,6 +143,29 @@ describe('ScienceState scanned systems', () => {
 
         target.hullState.adjustHealth(-1);
         expect(scanner.scannedHull.health).toBe(healthBefore - 1);
+    });
+
+    it('shows what the scanned ship\'s shields are tuned against', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        expect(scanner.scannedHull.shieldTuning).toBe('');
+
+        hullTile(target).addEffect('shieldTunedTorpedo');
+        expect(scanner.scannedHull.shieldTuning).toBe('torpedo');
+
+        target.hullState.scrambleShields(2);
+        expect(scanner.scannedHull.shieldTuning).toBe('');
+    });
+
+    it('scrambles the target\'s shields when a tetryon scan finds a vulnerability', () => {
+        const { state, scanner, target } = createWorld();
+        hullTile(target).addEffect('shieldTunedEnergy');
+
+        const card = getCardDefinition('tetryonScan');
+        card.findVulnerability(state, scanner, target, 'helm', { cost: 2, scrambleDraws: 3 });
+
+        expect(target.hullState.shieldTuning).toBeNull();
+        expect(hullTile(target).getEffectLevel('shieldScrambled')).toBe(3);
     });
 
     it('keeps showing the hull after the scan is closed, and while scanning the engineer', () => {

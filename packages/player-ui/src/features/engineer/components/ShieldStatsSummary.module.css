@@ -36,6 +36,12 @@
     color: var(--grey-lightest);
 }
 
+/* A word, rather than a number, so it's smaller to fit. */
+.wordValue {
+    font-size: 1.25em;
+    line-height: 1.4;
+}
+
 .detail {
     margin: 0;
     font-size: 0.75em;

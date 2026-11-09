@@ -13,8 +13,18 @@ export const systemEffectDefinitions = defineSystemEffects({
         category: SystemEffectCategory.Positive,
         usesLevels: true,
     },
-    /** How many more undamaged hull cards must be drawn before the shields start recharging again, e.g. after being hit. */
-    shieldRecovering: {
+    /** The shields are tuned against energy weapons, until the next hull card is drawn (see shieldStats). */
+    shieldTunedEnergy: {
+        category: SystemEffectCategory.Neutral,
+        usesLevels: false,
+    },
+    /** The shields are tuned against torpedoes, until the next hull card is drawn. */
+    shieldTunedTorpedo: {
+        category: SystemEffectCategory.Neutral,
+        usesLevels: false,
+    },
+    /** How many more hull cards must be drawn before the shields can be tuned again. */
+    shieldScrambled: {
         category: SystemEffectCategory.Negative,
         usesLevels: true,
     },

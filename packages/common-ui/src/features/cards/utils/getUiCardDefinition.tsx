@@ -1,4 +1,5 @@
 import { CardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
+import { shieldTuningBonus, shieldTuningPenalty } from 'common-data/features/ships/utils/shieldStats';
 import { WarpAwayIcon } from '../../../icons/cards/WarpAway';
 import { default as ExampleIcon } from '../../../icons/exampleIcon.svg?react';
 import { Parameter } from '../components/Parameter';
@@ -50,44 +51,43 @@ function loadCardDefinitions() {
         hullPlating: {
             name: 'Hull Plating',
             description: <>
-                Plain hull plating, which doesn't contribute to the shields. When drawn undamaged, recharges the shields.
+                Plain hull plating, with no shield capacity.
             </>,
             image: <ExampleIcon />,
         },
         hullShieldEmitter: {
             name: 'Shield Emitter',
             description: <>
-                Adds
+                While undamaged, adds
                 {' '}
                 <Parameter name="shieldCapacity" />
                 {' '}
-                to the shields' capacity, but they take
-                {' '}
-                <Parameter name="shieldRechargeDelay" />
-                {' '}
-                more hull card to start recharging after being hit. Both apply even when damaged. When drawn undamaged, recharges the shields.
+                to the shields' capacity.
             </>,
             image: <ExampleIcon />,
         },
-        hullShieldRegenerator: {
-            name: 'Shield Regenerator',
+        hullVolatileEmitter: {
+            name: 'Volatile Emitter',
             description: <>
                 While undamaged, adds
                 {' '}
-                <Parameter name="shieldCharge" />
+                <Parameter name="shieldCapacity" />
                 {' '}
-                to how much the shields recharge by. When drawn undamaged, recharges the shields.
+                to the shields' capacity. If any volatile emitter is damaged, or the shields are knocked out, every volatile emitter is damaged.
             </>,
             image: <ExampleIcon />,
         },
-        hullShieldDelayReduction: {
-            name: 'Shield Restart',
+        hullShieldTuningEnergy: {
+            name: 'Energy Tuning',
             description: <>
-                While undamaged, the shields start recharging
-                {' '}
-                <Parameter name="shieldDelayReduction" />
-                {' '}
-                hull card sooner after being hit. When drawn undamaged, recharges the shields.
+                {`Tunes the shields against energy weapons until the next hull card: +${shieldTuningBonus}% absorbed from them, −${shieldTuningPenalty}% from others.`}
+            </>,
+            image: <ExampleIcon />,
+        },
+        hullShieldTuningTorpedo: {
+            name: 'Torpedo Tuning',
+            description: <>
+                {`Tunes the shields against torpedoes until the next hull card: +${shieldTuningBonus}% absorbed from them, −${shieldTuningPenalty}% from others.`}
             </>,
             image: <ExampleIcon />,
         },
@@ -738,11 +738,11 @@ function loadCardDefinitions() {
         tetryonScan: {
             name: 'Tetryon Scan',
             description: <>
-                Finding a vulnerability delays the target ship's shield recharge by
+                Finding a vulnerability scrambles the target ship's shields, clearing their tuning, and stopping them being tuned again for
                 {' '}
-                <Parameter name="recoveryDraws" />
+                <Parameter name="scrambleDraws" />
                 {' '}
-                more undamaged hull card draws.
+                more hull card draws.
             </>,
             image: <ExampleIcon />,
         },

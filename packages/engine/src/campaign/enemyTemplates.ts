@@ -27,15 +27,11 @@ function interleaveHullCards(counts: Partial<Record<HullCards[number], number>>)
 }
 
 /**
- * A hull whose shield stats come from its cards: each emitter adds 15 capacity and 1 recharge delay,
- * each regenerator adds 1 charge, and each delay reduction card takes 1 from the recharge delay.
+ * A hull with the given numbers of each type of hull card, which also make up its health.
+ * Each emitter adds 15 shield capacity, and each volatile emitter 45. Tuning cards tune the shields when drawn, and plating does nothing.
  */
-const hull = (
-    emitters: number,
-    regenerators: number,
-    delayReductions: number
-): NonCrewSystemSetupInfo => ({
-    cards: interleaveHullCards({ hullShieldEmitter: emitters, hullShieldRegenerator: regenerators, hullShieldDelayReduction: delayReductions }),
+const hull = (cards: Partial<Record<HullCards[number], number>>): NonCrewSystemSetupInfo => ({
+    cards: interleaveHullCards(cards),
     maxPowerLevel: MAX_POWER_LEVEL,
     initialHandSize: 0,
 });
@@ -56,8 +52,8 @@ const system = <T extends string>(cards: T[], initialHandSize = 1) => ({ cards, 
 const fighterTemplate: Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal'> = {
     appearance: 'swallowtail-interceptor',
     skill: 1,
-    // 75 shield capacity, recharging by 3 plus the hull's power level, 1 hull card after being hit.
-    hull: hull(5, 3, 4),
+    // 60 shield capacity, often tuned against energy weapons.
+    hull: hull({ hullShieldEmitter: 4, hullShieldTuningEnergy: 2, hullPlating: 2 }),
     // Loading a torpedo takes 3 tactical power.
     reactor: system(reactorCards(2, 'reactorPowerTactical'), 0),
     helm: system(['slowAndSteady', 'zigZag', 'strafe', 'slowAndSteady']),
@@ -69,8 +65,8 @@ const fighterTemplate: Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | '
 const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal'>> = {
     scout: {
         ...fighterTemplate,
-        // A small shield (30) that starts recharging straight away.
-        hull: hull(2, 2, 2),
+        // A small shield (30), and a flimsy hull.
+        hull: hull({ hullShieldEmitter: 2, hullShieldTuningEnergy: 1, hullPlating: 2 }),
         reactor: system(reactorCards(2, 'reactorPowerTactical', 'reactorPowerHelm'), 0),
         helm: system(['zigZag', 'strafe', 'zigZag', 'slowAndSteady']),
         tactical: { ...system(['lowYield', 'lowYield', 'photonTorpedo']), numSlots: 1 },
@@ -79,8 +75,8 @@ const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' 
     fighter: fighterTemplate,
     heavy: {
         ...fighterTemplate,
-        // A big shield (120) that's slow to start recharging (after 6 hull cards), but then recharges quickly.
-        hull: hull(8, 6, 2),
+        // A big shield (135), a third of it from a volatile emitter, often tuned against torpedoes.
+        hull: hull({ hullShieldEmitter: 6, hullVolatileEmitter: 1, hullShieldTuningTorpedo: 2, hullPlating: 3 }),
         reactor: system(reactorCards(2, 'reactorPowerTactical', 'reactorPowerHull', 'reactorPowerEngineer'), 0),
         tactical: { ...system(['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield']), numSlots: 2 },
         engineer: system(['auxPower', 'auxPower', 'distributePower', 'auxPower']),
@@ -88,8 +84,8 @@ const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' 
     },
     flagship: {
         ...fighterTemplate,
-        // The biggest shield (150), recharging by 8 plus the hull's power level, 4 hull cards after being hit.
-        hull: hull(10, 8, 6),
+        // The biggest shield (210), with two volatile emitters, tuned against either weapon type.
+        hull: hull({ hullShieldEmitter: 8, hullVolatileEmitter: 2, hullShieldTuningEnergy: 2, hullShieldTuningTorpedo: 2, hullPlating: 2 }),
         reactor: system(reactorCards(3, 'reactorPowerTactical', 'reactorPowerHull'), 0),
         tactical: { ...system(['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield', 'fullSpread']), numSlots: 3 },
         engineer: system(['auxPower', 'auxPower', 'distributePower', 'auxPower', 'distributePower']),

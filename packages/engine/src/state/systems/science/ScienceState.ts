@@ -6,6 +6,7 @@ import { CardType, EnemyTargetedCardType } from 'common-data/features/cards/util
 import { SectorDestinationInfo } from 'common-data/features/sectors/types/SectorDestinationInfo';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { engineerSystem, helmSystem, scienceSystem, shipSystems, ShipSystem, tacticalSystem } from 'common-data/features/ships/types/ShipSystem';
+import { shieldTuningEffects, shieldTunings } from 'common-data/features/ships/utils/shieldStats';
 import { SystemSetupInfo, ScienceSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineScanTargetCardDefinition, EngineEnemyTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
@@ -175,6 +176,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             state.maxHealth = 0;
             state.shield = 0;
             state.maxShield = 0;
+            state.shieldTuning = '';
         }
     }
 
@@ -337,6 +339,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         state.maxHealth = source.maxHealth;
         state.shield = source.getEffectLevel('shield');
         state.maxShield = source.getEffectMaxLevel('shield');
+        state.shieldTuning = shieldTunings.find(tuning => source.hasEffect(shieldTuningEffects[tuning])) ?? '';
     }
 
     private copyHelmData(state: ScannedHelmState, source: Ship['helmState']): void {
