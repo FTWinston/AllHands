@@ -140,89 +140,100 @@ describe('HullState absorbing damage', () => {
     });
 });
 
-describe('HullState shield tuning', () => {
-    it('tunes the shields as each hull card is drawn', () => {
+function drawHullCards(ship: PlayerShip, count: number) {
+    for (let i = 0; i < count; i++) {
+        ship.hullState.drawFromTop();
+    }
+}
+
+function bonusLevels(ship: PlayerShip) {
+    const tile = getHullTile(ship);
+    return {
+        reinforced: tile.getEffectLevel('shieldReinforced'),
+        braced: tile.getEffectLevel('hullBraced'),
+        tunedEnergy: tile.getEffectLevel('shieldTunedEnergy'),
+        tunedTorpedo: tile.getEffectLevel('shieldTunedTorpedo'),
+    };
+}
+
+describe('HullState hit bonuses', () => {
+    it('builds up a bonus from each hull card drawn, up to 3 levels of each', () => {
         const ship = createShip();
 
-        ship.hullState.drawFromTop();
-        expect(ship.hullState.shieldTuning).toBeNull();
+        drawHullCards(ship, 1);
+        expect(bonusLevels(ship)).toEqual({ reinforced: 1, braced: 0, tunedEnergy: 0, tunedTorpedo: 0 });
 
-        ship.hullState.drawFromTop();
-        expect(ship.hullState.shieldTuning).toBe('energy');
-        expect(getHullTile(ship).hasEffect('shieldTunedEnergy')).toBe(true);
+        // An energy tuning card, then a volatile emitter, which reinforces twice.
+        drawHullCards(ship, 2);
+        expect(bonusLevels(ship)).toEqual({ reinforced: 3, braced: 0, tunedEnergy: 1, tunedTorpedo: 0 });
 
-        ship.hullState.drawFromTop();
-        expect(ship.hullState.shieldTuning).toBeNull();
-        expect(getHullTile(ship).hasEffect('shieldTunedEnergy')).toBe(false);
+        // An emitter, plating and a volatile emitter, then a torpedo tuning card.
+        drawHullCards(ship, 4);
+        expect(bonusLevels(ship)).toEqual({ reinforced: 3, braced: 1, tunedEnergy: 1, tunedTorpedo: 1 });
     });
 
-    it('doesn\'t tune the shields when a damaged tuning card is drawn', () => {
+    it('adds no bonus when a damaged card is drawn', () => {
         const ship = createShip();
-        ship.hullState.deck[1].addTrait('damaged', ExtraTraitType.Normal);
+        ship.hullState.deck[0].addTrait('damaged', ExtraTraitType.Normal);
 
-        ship.hullState.drawFromTop();
-        ship.hullState.drawFromTop();
+        drawHullCards(ship, 1);
 
-        expect(ship.hullState.shieldTuning).toBeNull();
+        expect(bonusLevels(ship).reinforced).toBe(0);
     });
 
-    it.each([
-        // 80% + 20%.
-        ['energy', 0],
-        // 80% - 10%.
-        ['torpedo', 6],
-        [undefined, 6],
-    ] as const)('absorbs more from the weapon type the shields are tuned against, and less from anything else (%s)', (weaponType, passedThrough) => {
+    it('uses up the bonuses that reduce a hit, and keeps the rest', () => {
         const ship = createShip();
         ship.hullState.restoreShields();
-        ship.hullState.drawFromTop();
-        ship.hullState.drawFromTop();
+        drawHullCards(ship, 2);
 
-        expect(hit(ship, 20, weaponType)).toBe(passedThrough);
+        // Of 20, the shields absorb 16, and being reinforced makes that drain them by 11.
+        expect(hit(ship, 20, 'torpedo')).toBe(4);
+        expect(ship.hullState.shield).toBe(109);
+        expect(bonusLevels(ship)).toEqual({ reinforced: 0, braced: 0, tunedEnergy: 1, tunedTorpedo: 0 });
     });
 
     it('knows that phasers are energy weapons', () => {
         const { state, ship } = createShipInState();
         ship.hullState.restoreShields();
-        ship.hullState.drawFromTop();
-        ship.hullState.drawFromTop();
+        ship.hullState.adjustPowerLevel(2);
+        drawHullCards(ship, 2);
 
         const phaser = getCardDefinition('phaserCannon');
         phaser.fire(state, ship, ship, { cost: 0, damage: 20 }, 100, []);
 
-        // Tuned against energy weapons, so all of it is absorbed.
-        expect(ship.hullState.shield).toBe(100);
+        // Tuning prevents 10, which is half of the hit, so reinforcement doesn't apply, and isn't used up.
+        expect(ship.hullState.shield).toBe(110);
+        expect(bonusLevels(ship)).toEqual({ reinforced: 1, braced: 0, tunedEnergy: 0, tunedTorpedo: 0 });
     });
 
-    it('stays untuned while scrambled, until enough hull cards are drawn', () => {
+    it('strips the bonuses when scrambled, and adds none until enough hull cards are drawn', () => {
         const ship = createShip();
         const tile = getHullTile(ship);
-        ship.hullState.drawFromTop();
-        ship.hullState.drawFromTop();
+        drawHullCards(ship, 2);
 
         ship.hullState.scrambleShields(2);
-        expect(ship.hullState.shieldTuning).toBeNull();
+        expect(bonusLevels(ship)).toEqual({ reinforced: 0, braced: 0, tunedEnergy: 0, tunedTorpedo: 0 });
         expect(tile.getEffectLevel('shieldScrambled')).toBe(2);
 
-        ship.hullState.drawFromTop();
-        ship.hullState.drawFromTop();
+        drawHullCards(ship, 2);
         expect(tile.hasEffect('shieldScrambled')).toBe(false);
+        expect(bonusLevels(ship).reinforced).toBe(0);
 
-        ship.hullState.drawFromTop();
-        ship.hullState.drawFromTop();
-        ship.hullState.drawFromTop();
-        expect(ship.hullState.shieldTuning).toBe('torpedo');
+        // Plating.
+        drawHullCards(ship, 1);
+        expect(bonusLevels(ship).braced).toBe(1);
     });
 
-    it('clears the tuning and scrambling at the start of an encounter', () => {
+    it('clears the bonuses and scrambling at the start of an encounter', () => {
         const ship = createShip();
-        ship.hullState.drawFromTop();
-        ship.hullState.drawFromTop();
+        drawHullCards(ship, 2);
         ship.hullState.scrambleShields(2);
+        drawHullCards(ship, 2);
+        drawHullCards(ship, 1);
 
         ship.hullState.restoreShields();
 
-        expect(ship.hullState.shieldTuning).toBeNull();
+        expect(bonusLevels(ship)).toEqual({ reinforced: 0, braced: 0, tunedEnergy: 0, tunedTorpedo: 0 });
         expect(getHullTile(ship).hasEffect('shieldScrambled')).toBe(false);
     });
 });

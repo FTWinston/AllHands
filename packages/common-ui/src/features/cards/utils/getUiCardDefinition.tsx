@@ -1,5 +1,4 @@
 import { CardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
-import { shieldTuningBonus, shieldTuningPenalty } from 'common-data/features/ships/utils/shieldStats';
 import { WarpAwayIcon } from '../../../icons/cards/WarpAway';
 import { default as ExampleIcon } from '../../../icons/exampleIcon.svg?react';
 import { Parameter } from '../components/Parameter';
@@ -51,7 +50,11 @@ function loadCardDefinitions() {
         hullPlating: {
             name: 'Hull Plating',
             description: <>
-                Plain hull plating, with no shield capacity.
+                No shield capacity. When drawn, adds
+                {' '}
+                <Parameter name="brace" />
+                {' '}
+                Braced.
             </>,
             image: <ExampleIcon />,
         },
@@ -62,7 +65,11 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="shieldCapacity" />
                 {' '}
-                to the shields' capacity.
+                to the shields' capacity. When drawn, adds
+                {' '}
+                <Parameter name="reinforce" />
+                {' '}
+                Reinforced.
             </>,
             image: <ExampleIcon />,
         },
@@ -73,21 +80,33 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="shieldCapacity" />
                 {' '}
-                to the shields' capacity. If any volatile emitter is damaged, or the shields are knocked out, every volatile emitter is damaged.
+                to the shields' capacity. When drawn, adds
+                {' '}
+                <Parameter name="reinforce" />
+                {' '}
+                Reinforced. All are damaged if one is, or if the shields fail.
             </>,
             image: <ExampleIcon />,
         },
         hullShieldTuningEnergy: {
             name: 'Energy Tuning',
             description: <>
-                {`Tunes the shields against energy weapons until the next hull card: +${shieldTuningBonus}% absorbed from them, −${shieldTuningPenalty}% from others.`}
+                When drawn, adds
+                {' '}
+                <Parameter name="tune" />
+                {' '}
+                Tuned: Energy, reducing the next energy weapon hit.
             </>,
             image: <ExampleIcon />,
         },
         hullShieldTuningTorpedo: {
             name: 'Torpedo Tuning',
             description: <>
-                {`Tunes the shields against torpedoes until the next hull card: +${shieldTuningBonus}% absorbed from them, −${shieldTuningPenalty}% from others.`}
+                When drawn, adds
+                {' '}
+                <Parameter name="tune" />
+                {' '}
+                Tuned: Torpedoes, reducing the next torpedo hit.
             </>,
             image: <ExampleIcon />,
         },
@@ -738,7 +757,7 @@ function loadCardDefinitions() {
         tetryonScan: {
             name: 'Tetryon Scan',
             description: <>
-                Finding a vulnerability scrambles the target ship's shields, clearing their tuning, and stopping them being tuned again for
+                Finding a vulnerability scrambles the target ship's shields, stripping its hull bonuses, and stopping new ones for
                 {' '}
                 <Parameter name="scrambleDraws" />
                 {' '}

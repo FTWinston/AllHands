@@ -1,6 +1,6 @@
 import { IArray } from '@colyseus/react';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
-import { shieldTuningEffects, shieldTunings } from 'common-data/features/ships/utils/shieldStats';
+import { shieldTuningEffects } from 'common-data/features/ships/utils/shieldStats';
 import { useState } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
@@ -24,13 +24,17 @@ function getShieldInfo(system: SystemInfo & SystemCards): ShieldSummaryInfo | un
     }
 
     const effectLevel = (type: string) => system.effects?.find(effect => effect.type === type)?.level ?? 0;
-    const tuning = shieldTunings.find(tuning => system.effects?.some(effect => effect.type === shieldTuningEffects[tuning])) ?? null;
 
     return {
         capacity: getHullShieldCapacity([...system.hand, ...system.deck]),
         level: effectLevel('shield'),
         power: system.power,
-        tuning,
+        reinforced: effectLevel('shieldReinforced'),
+        braced: effectLevel('hullBraced'),
+        tuned: {
+            energy: effectLevel(shieldTuningEffects.energy),
+            torpedo: effectLevel(shieldTuningEffects.torpedo),
+        },
         scrambled: effectLevel('shieldScrambled'),
     };
 }

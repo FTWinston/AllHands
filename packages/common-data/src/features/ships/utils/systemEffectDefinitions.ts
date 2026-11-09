@@ -2,6 +2,9 @@ import { SystemEffectDefinition, SystemEffectCategory } from '../types/SystemEff
 
 export const MAX_POWER_LEVEL = 5;
 
+/** How many levels each hull hit bonus (Reinforced, Braced, Tuned) can build up to. */
+export const HIT_BONUS_MAX_LEVEL = 3;
+
 // Enforce that values are of a system effect type, without widening the key type to "string".
 function defineSystemEffects<T extends Record<string, SystemEffectDefinition>>(defs: T) {
     return defs;
@@ -13,17 +16,31 @@ export const systemEffectDefinitions = defineSystemEffects({
         category: SystemEffectCategory.Positive,
         usesLevels: true,
     },
-    /** The shields are tuned against energy weapons, until the next hull card is drawn (see shieldStats). */
+    /** Built up by drawing emitters: the next hit the shields absorb drains them less (see shieldStats). */
+    shieldReinforced: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: true,
+        maxLevel: HIT_BONUS_MAX_LEVEL,
+    },
+    /** Built up by drawing hull plating: less of the next hit gets past the shields. */
+    hullBraced: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: true,
+        maxLevel: HIT_BONUS_MAX_LEVEL,
+    },
+    /** Built up by drawing energy tuning cards: the next hit from an energy weapon does less damage. */
     shieldTunedEnergy: {
-        category: SystemEffectCategory.Neutral,
-        usesLevels: false,
+        category: SystemEffectCategory.Positive,
+        usesLevels: true,
+        maxLevel: HIT_BONUS_MAX_LEVEL,
     },
-    /** The shields are tuned against torpedoes, until the next hull card is drawn. */
+    /** Built up by drawing torpedo tuning cards: the next torpedo hit does less damage. */
     shieldTunedTorpedo: {
-        category: SystemEffectCategory.Neutral,
-        usesLevels: false,
+        category: SystemEffectCategory.Positive,
+        usesLevels: true,
+        maxLevel: HIT_BONUS_MAX_LEVEL,
     },
-    /** How many more hull cards must be drawn before the shields can be tuned again. */
+    /** How many more hull cards must be drawn before they add hit bonuses again. */
     shieldScrambled: {
         category: SystemEffectCategory.Negative,
         usesLevels: true,

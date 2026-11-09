@@ -95,7 +95,9 @@ export const Hull: Story = {
             capacity: 60,
             level: 30,
             power: 3,
-            tuning: 'energy',
+            reinforced: 2,
+            braced: 1,
+            tuned: { energy: 1, torpedo: 0 },
             scrambled: 0,
         },
     },
@@ -105,7 +107,9 @@ export const Hull: Story = {
         await expect(within(shields).getByText('60')).toBeInTheDocument();
         // Half full at power 3: 80% × (1 - (1/2)²).
         await expect(within(shields).getByText('60%')).toBeInTheDocument();
-        await expect(within(shields).getByText('Energy')).toBeInTheDocument();
+        // Reinforced 2 and Braced 1, at 5 each.
+        await expect(within(shields).getByText('−15')).toBeInTheDocument();
+        await expect(within(shields).getByText('and −10 vs energy')).toBeInTheDocument();
         await expect(within(shields).getByText(/30 \/ 60/)).toBeInTheDocument();
     },
 };

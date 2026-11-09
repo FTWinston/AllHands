@@ -198,7 +198,15 @@ export const UI: Story = {
                         progress: null,
                     },
                     {
+                        type: 'shieldReinforced',
+                        level: 2,
+                        maxLevel: 3,
+                        progress: null,
+                    },
+                    {
                         type: 'shieldTunedEnergy',
+                        level: 1,
+                        maxLevel: 3,
                         progress: null,
                     },
                     {

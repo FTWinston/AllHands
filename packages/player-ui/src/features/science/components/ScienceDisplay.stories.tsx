@@ -65,7 +65,7 @@ export const UI: Story = {
             target1: { order: [3, 2, 0, 4] },
         },
         scannedShipId: 'target1',
-        scannedHull: { targetId: 'target1', health: 9, maxHealth: 14, shield: 70, maxShield: 80, shieldTuning: 'energy' },
+        scannedHull: { targetId: 'target1', health: 9, maxHealth: 14, shield: 70, maxShield: 80, shieldTuning: ['energy'] },
         scannedHelm: {
             targetId: 'target1',
             power: 4,

@@ -106,6 +106,18 @@ function loadSystemEffectDefinitions() {
             },
         },
         // HullState sets the shields' tuning as hull cards are drawn, and counts down any scrambling.
+        shieldReinforced: {
+            apply: (system) => {
+                return system.system === 'hull';
+            },
+            remove: () => { },
+        },
+        hullBraced: {
+            apply: (system) => {
+                return system.system === 'hull';
+            },
+            remove: () => { },
+        },
         shieldTunedEnergy: {
             apply: (system) => {
                 return system.system === 'hull';

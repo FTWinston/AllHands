@@ -176,7 +176,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             state.maxHealth = 0;
             state.shield = 0;
             state.maxShield = 0;
-            state.shieldTuning = '';
+            state.shieldTuning.clear();
         }
     }
 
@@ -339,7 +339,8 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         state.maxHealth = source.maxHealth;
         state.shield = source.getEffectLevel('shield');
         state.maxShield = source.getEffectMaxLevel('shield');
-        state.shieldTuning = shieldTunings.find(tuning => source.hasEffect(shieldTuningEffects[tuning])) ?? '';
+        state.shieldTuning.clear();
+        state.shieldTuning.push(...shieldTunings.filter(tuning => source.hasEffect(shieldTuningEffects[tuning])));
     }
 
     private copyHelmData(state: ScannedHelmState, source: Ship['helmState']): void {

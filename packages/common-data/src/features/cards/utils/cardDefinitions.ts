@@ -1010,27 +1010,27 @@ export const cardDefinitions = defineCardDefinitions({
     hullPlating: {
         targetType: 'no-target',
         system: 'hull',
-        parameters: { cost: 0 },
+        parameters: { cost: 0, brace: 1 },
     },
     hullShieldEmitter: {
         targetType: 'no-target',
         system: 'hull',
-        parameters: { cost: 0, shieldCapacity: 15 },
+        parameters: { cost: 0, shieldCapacity: 15, reinforce: 1 },
     },
     hullVolatileEmitter: {
         targetType: 'no-target',
         system: 'hull',
-        parameters: { cost: 0, shieldCapacity: 45 },
+        parameters: { cost: 0, shieldCapacity: 45, reinforce: 2 },
     },
     hullShieldTuningEnergy: {
         targetType: 'no-target',
         system: 'hull',
-        parameters: { cost: 0 },
+        parameters: { cost: 0, tune: 1 },
     },
     hullShieldTuningTorpedo: {
         targetType: 'no-target',
         system: 'hull',
-        parameters: { cost: 0 },
+        parameters: { cost: 0, tune: 1 },
     },
     warpAway: {
         targetType: 'no-target',

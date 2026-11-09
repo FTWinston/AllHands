@@ -161,8 +161,8 @@ export interface ScannedHullInfo {
     shield: number;
     /** The ship's shield capacity. */
     maxShield: number;
-    /** The weapon type that the ship's shields are currently tuned against, or empty if they aren't tuned. */
-    shieldTuning: ShieldTuning | '';
+    /** The weapon types that the ship's shields are currently tuned against, if any. */
+    shieldTuning: IArray<ShieldTuning>;
 }
 
 export interface ScienceSystemInfo extends CrewSystemInfo {
