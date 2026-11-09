@@ -188,6 +188,7 @@ export const UI: Story = {
                 ...(hullCards),
                 health: 10,
                 maxHealth: 12,
+                maxShield: 75,
                 power: 3,
                 generating: true,
                 effects: [

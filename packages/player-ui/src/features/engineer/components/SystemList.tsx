@@ -1,32 +1,32 @@
 import { IArray } from '@colyseus/react';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { shieldTuningEffects } from 'common-data/features/ships/utils/shieldStats';
+import { isHullSystemTile } from 'common-data/features/space/types/GameObjectInfo';
 import { useState } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
-import { getHullShieldCapacity } from 'src/features/shields/utils/getHullShieldCapacity';
 import { RepairIndicator } from './RepairIndicator';
 import { ShieldSummaryInfo } from './ShieldStatsSummary';
-import { System, SystemInfo } from './System';
+import { HullSystemInfo, System, SystemInfo } from './System';
 import { SystemCards, SystemCardsDialog } from './SystemCardsDialog';
 import styles from './SystemList.module.css';
 
 type Props = {
-    systems: IArray<SystemInfo & SystemCards>;
+    systems: IArray<(SystemInfo | HullSystemInfo) & SystemCards>;
     repairCapacity: number;
     maxRepairCapacity: number;
 };
 
-/** The hull's shields, worked out from its effects and all of its cards. Undefined for other systems. */
+/** The hull's shields, from its capacity and effects. Undefined for other systems. */
 function getShieldInfo(system: SystemInfo & SystemCards): ShieldSummaryInfo | undefined {
-    if (system.system !== 'hull') {
+    if (!isHullSystemTile(system)) {
         return undefined;
     }
 
     const effectLevel = (type: string) => system.effects?.find(effect => effect.type === type)?.level ?? 0;
 
     return {
-        capacity: getHullShieldCapacity([...system.hand, ...system.deck]),
+        capacity: system.maxShield,
         level: effectLevel('shield'),
         power: system.power,
         reinforced: effectLevel('shieldReinforced'),

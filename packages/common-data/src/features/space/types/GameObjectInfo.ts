@@ -195,6 +195,18 @@ export interface EngineerSystemTileInfo {
     deck: IArray<CardInstance>;
 }
 
+/** The hull's engineer tile, which also has the hull's shield capacity. */
+export interface HullSystemTileInfo extends EngineerSystemTileInfo {
+    system: 'hull';
+    /** The hull's shield capacity, which stays known while the shields are down. */
+    maxShield: number;
+}
+
+/** Whether an engineer tile is the hull's, which always has the hull's extra fields. */
+export function isHullSystemTile<T extends { system: ShipSystem }>(tile: T): tile is T & Pick<HullSystemTileInfo, 'system' | 'maxShield'> {
+    return tile.system === 'hull';
+}
+
 export interface EngineerSystemInfo extends CrewSystemInfo {
     systems: IArray<EngineerSystemTileInfo>;
     repairCapacity: number;

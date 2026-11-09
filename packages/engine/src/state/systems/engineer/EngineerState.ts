@@ -10,6 +10,7 @@ import { getSystemEffectDefinition } from 'src/effects/getEngineSystemEffectDefi
 import { GameState } from 'src/state/GameState';
 import { CrewSystemState } from '../CrewSystemState';
 import { EngineerSystemTile } from './EngineerSystemTile';
+import { HullSystemTile } from './HullSystemTile';
 import type { Ship } from 'src/state/Ship';
 
 export class EngineerState extends CrewSystemState implements EngineerSystemInfo {
@@ -19,7 +20,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
 
     public initSystems() {
         const ship = this.getShip();
-        this.systems.push(new EngineerSystemTile(ship.hullState, 'hull'));
+        this.systems.push(new HullSystemTile(ship.hullState));
         this.systems.push(new EngineerSystemTile(ship.reactorState, 'reactor'));
         this.systems.push(new EngineerSystemTile(ship.helmState, 'helm'));
         this.systems.push(new EngineerSystemTile(ship.scienceState, 'science'));

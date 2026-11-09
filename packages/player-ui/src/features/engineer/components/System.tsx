@@ -1,6 +1,7 @@
 import { IArray } from '@colyseus/react';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'common-data/features/ships/types/SystemEffectDefinition';
+import { HullSystemTileInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Button } from 'common-ui/components/Button';
 import { default as HealthIcon } from 'common-ui/icons/health.svg?react';
 import { ShieldsIcon, SystemIcon } from 'common-ui/icons/systems';
@@ -19,6 +20,9 @@ export type SystemInfo = {
     generating: boolean;
     effects?: IArray<SystemEffectInstance>;
 };
+
+/** The hull's tile, which also has the hull's shield capacity (see `isHullSystemTile`). */
+export type HullSystemInfo = SystemInfo & Pick<HullSystemTileInfo, 'system' | 'maxShield'>;
 
 export type TileShieldInfo = {
     level: number;

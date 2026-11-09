@@ -4,6 +4,7 @@ import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
+import { HullSystemTile } from './engineer/HullSystemTile';
 
 const rooms = setupGameRoom();
 
@@ -30,7 +31,7 @@ function createShip(cards = setup.hull.cards) {
 }
 
 function getHullTile(ship: PlayerShip) {
-    return ship.engineerState.systems.find(tile => tile.system === 'hull')!;
+    return ship.engineerState.systems.find(tile => tile.system === 'hull') as HullSystemTile;
 }
 
 function hit(ship: PlayerShip, amount: number, weaponType?: 'energy' | 'torpedo') {
@@ -67,6 +68,21 @@ describe('HullState shield capacity', () => {
         getHullTile(ship).adjustEffectLevel('shield', 10);
         expect(ship.hullState.shield).toBe(120);
         expect(getHullTile(ship).effects.find(effect => effect.type === 'shield')?.maxLevel).toBe(120);
+    });
+
+    it('keeps the hull tile\'s capacity up to date, even while the shields are down', () => {
+        const ship = createShip();
+        const tile = getHullTile(ship);
+        expect(tile.maxShield).toBe(120);
+
+        ship.hullState.restoreShields();
+        tile.adjustEffectLevel('shield', -120);
+        expect(tile.hasEffect('shield')).toBe(false);
+        expect(tile.maxShield).toBe(120);
+
+        // Damages the first card in the deck, an emitter.
+        ship.hullState.adjustHealth(-1);
+        expect(tile.maxShield).toBe(105);
     });
 
     it('lowers the shields to their new capacity when an emitter is damaged', () => {

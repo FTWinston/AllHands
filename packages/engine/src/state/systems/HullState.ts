@@ -1,12 +1,14 @@
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { getShieldCapacity, hitBonusEffects, resolveShieldHit, shieldTuningCards, shieldTuningEffects } from 'common-data/features/ships/utils/shieldStats';
+import { shieldTuningEffects } from 'common-data/features/ships/utils/shieldStats';
 import { LeveledSystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { Damage } from 'common-data/features/space/types/Damage';
 import { NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { getShieldCapacity, hitBonusEffects, resolveShieldHit, shieldTuningCards } from 'src/utils/hullShields';
 import { CardState } from '../CardState';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
 import type { Ship } from '../Ship';
+import type { HullSystemTile } from './engineer/HullSystemTile';
 
 /** Hull cards that are all damaged together, whenever any one of them is damaged, or the shields are knocked out. */
 const volatileCardTypes: ReadonlySet<CardType> = new Set<CardType>(['hullVolatileEmitter']);
@@ -46,13 +48,18 @@ export class HullState extends SystemState {
             : undefined;
     }
 
+    /** The hull's engineer tile, which EngineerState always creates as a HullSystemTile. */
+    private get hullTile() {
+        return this.linkedEngineerSystemTile as HullSystemTile;
+    }
+
     protected override cardPoolChanged() {
-        this.linkedEngineerSystemTile.refreshEffectMaxLevel('shield');
+        this.hullTile.setMaxShield(this.maxShield);
     }
 
     protected override healthChanged() {
         // Damaged cards don't count towards the shields' capacity.
-        this.linkedEngineerSystemTile.refreshEffectMaxLevel('shield');
+        this.hullTile.setMaxShield(this.maxShield);
     }
 
     /** Fully charge the shields, and clear any hit bonuses and scrambling, e.g. at the start of an encounter. */
