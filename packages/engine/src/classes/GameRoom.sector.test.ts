@@ -308,6 +308,39 @@ describe('GameRoom encounter sides', () => {
     });
 });
 
+describe('GameRoom viewscreen readouts', () => {
+    it('the viewscreen is sent the objective, what is being said, and how the encounter ended', async () => {
+        const { room, state, ship, shipClient, clients } = await startGame();
+        const getState = () => shipClient.state as GameRoom['state'];
+
+        await send(room, clients.tactical, 'dismissMessage');
+        expect(state.campaign!.devLoadEncounter('tollCollectors')).toBe(true);
+
+        await vi.waitFor(() => {
+            expect(getState().objective).toMatchObject({ type: 'clear' });
+            expect(getState().hail).toMatchObject({ speaker: 'Warden Cruiser Assize' });
+            expect(getState().encounterOutcome ?? null).toBeNull();
+        });
+
+        for (const hostile of getHostileShips(state)) {
+            hostile.destroy();
+        }
+
+        await vi.waitFor(() => {
+            expect(getState().encounterOutcome).toBe('success');
+            expect(getState().hail).toMatchObject({ speaker: 'Hauler Local 12' });
+        });
+
+        expect(state.campaign!.warpAway(ship)).toBe(true);
+
+        await vi.waitFor(() => {
+            expect(getState().objective ?? null).toBeNull();
+            expect(getState().hail ?? null).toBeNull();
+            expect(getState().encounterOutcome ?? null).toBeNull();
+        });
+    });
+});
+
 describe('GameRoom engineer system cards', () => {
     /** Start the game and enter the first encounter, where hands are dealt. */
     async function startEncounter() {

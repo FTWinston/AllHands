@@ -150,6 +150,25 @@ export const sounds = {
         crackle(0.2, 1.5, 10);
     },
 
+    /** Someone speaks over comms: a quick two-note chirp, to make the bridge look up. */
+    hailReceived() {
+        playTone({ type: 'triangle', frequency: 880, duration: 0.09, volume: 0.14 });
+        playTone({ type: 'triangle', frequency: 1320, delay: 0.1, duration: 0.14, volume: 0.14 });
+    },
+
+    /** The encounter's objective is met: three bright notes, climbing. */
+    objectiveComplete() {
+        playTone({ type: 'triangle', frequency: 660, duration: 0.12, volume: 0.16 });
+        playTone({ type: 'triangle', frequency: 880, delay: 0.13, duration: 0.12, volume: 0.16 });
+        playTone({ type: 'triangle', frequency: 1320, delay: 0.26, duration: 0.3, volume: 0.16, envelope: 'decay' });
+    },
+
+    /** The encounter's objective is failed: two low notes, falling. */
+    objectiveFailed() {
+        playTone({ type: 'sawtooth', frequency: 330, duration: 0.25, volume: 0.12, filter: { frequency: 900 } });
+        playTone({ type: 'sawtooth', frequency: 220, delay: 0.28, duration: 0.5, volume: 0.12, envelope: 'decay', filter: { frequency: 700 } });
+    },
+
     /** Another ship jumps to warp: a short rush as it gathers itself, then a pew as it goes. A smaller, quieter take on our own (see `warp`). */
     shipWarpedOut() {
         playNoise({ filterType: 'bandpass', filterFrequency: 300, endFilterFrequency: 3000, envelope: 'gate', attack: 0.3, duration: 0.5, volume: 0.2 });

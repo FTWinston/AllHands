@@ -1,0 +1,59 @@
+/* Along the bottom of the viewscreen, sized with it, and big enough to read from across a room. */
+.hail {
+    position: fixed;
+    left: 50%;
+    bottom: 3em;
+    transform: translateX(-50%);
+    width: min(60em, 86vw);
+    padding: 0.9em 1.5em 1.1em;
+    border: 0.094em solid color-mix(in oklch, var(--primary-light) 55%, transparent);
+    border-left-width: 0.5em;
+    border-radius: 0 1em 0 1em;
+    background-color: color-mix(in oklch, var(--space) 88%, transparent);
+    pointer-events: none;
+    font-size: min(1vw, 1.78vh);
+    animation: arrive 0.25s ease-out both;
+}
+
+.speaker {
+    margin: 0;
+    font-family: var(--readout-font-family);
+    font-size: 1.125em;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--primary-light);
+}
+
+.text {
+    margin: 0.35em 0 0;
+    font-size: 1.75em;
+    line-height: 1.4;
+    color: var(--text);
+}
+
+.visuallyHidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.untyped {
+    visibility: hidden;
+}
+
+@keyframes arrive {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(1em);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hail {
+        animation: none;
+    }
+}

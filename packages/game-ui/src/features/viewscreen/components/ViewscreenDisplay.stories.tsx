@@ -9,7 +9,9 @@ import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { ComponentProps, RefObject, useEffect, useMemo, useState } from 'react';
 import { fn } from 'storybook/test';
 import { setCombatLabels } from '../utils/combatEffectSettings';
+import { HailDisplay } from './HailDisplay';
 import { LowHullWarning } from './LowHullWarning';
+import { ObjectiveDisplay } from './ObjectiveDisplay';
 import { ViewscreenDisplay as Component } from './ViewscreenDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -210,6 +212,27 @@ export const Combat: Story = {
 /** The same fight, with the optional labels saying what's going on. */
 export const CombatWithLabels: Story = {
     render: args => <CombatStory {...args} showLabels />,
+};
+
+/** A fight with someone speaking over comms, and the objective in the corner: everything a captain has to go on. */
+export const CombatWithHailAndObjective: Story = {
+    render: args => (
+        <CombatStory {...args} showLabels>
+            <ObjectiveDisplay objective={{ type: 'clear' }} outcome={null} />
+            <HailDisplay hail={{ speaker: 'Warden Cruiser Assize', text: 'Unregistered vessel. Transit duty is forty percent of cargo. Heave to for assessment.' }} />
+        </CombatStory>
+    ),
+};
+
+/** Red alert at the same time: the hull warning has the top of the screen to itself. */
+export const CombatWithEverything: Story = {
+    render: args => (
+        <CombatStory {...args} showLabels>
+            <ObjectiveDisplay objective={{ type: 'protect', subject: 'Marrow' }} outcome="failure" />
+            <HailDisplay hail={{ speaker: 'Clinic Ship Marrow', text: 'We can\'t take much more of this.' }} />
+            <LowHullWarning health={18} maxHealth={100} />
+        </CombatStory>
+    ),
 };
 
 const warpOrder = ['fighter', 'cruiser', 'player'];

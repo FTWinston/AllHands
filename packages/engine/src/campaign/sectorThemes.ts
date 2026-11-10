@@ -9,8 +9,14 @@ export interface SectorTheme {
     outroMessage: string;
     defeatMessage: string;
     environments: readonly EnvironmentType[];
+    /** What the sector's encounters can be: those in its first few layers come from `early`, and the rest from `late`. An encounter listed more than once turns up more often. */
+    encounters: { early: readonly EncounterId[]; late: readonly EncounterId[] };
     bossEncounterId: EncounterId;
 }
+
+/** Placeholder fights, which every sector has for now. */
+const earlyEncounters: readonly EncounterId[] = ['skirmish', 'ambush', 'survive'];
+const lateEncounters: readonly EncounterId[] = ['assault', 'escort', 'survive', 'ambush'];
 
 // All content below is placeholder text, until the campaign is written.
 export const sectorThemes: readonly SectorTheme[] = [
@@ -21,6 +27,7 @@ export const sectorThemes: readonly SectorTheme[] = [
         outroMessage: 'Placeholder outro message for sector 1.',
         defeatMessage: 'Placeholder defeat message for sector 1.',
         environments: ['asteroidField', 'deepSpace', 'nebula'],
+        encounters: { early: [...earlyEncounters, 'tollCollectors'], late: [...lateEncounters, 'tollCollectors'] },
         bossEncounterId: 'bossA',
     },
     {
@@ -30,6 +37,7 @@ export const sectorThemes: readonly SectorTheme[] = [
         outroMessage: 'Placeholder outro message for sector 2.',
         defeatMessage: 'Placeholder defeat message for sector 2.',
         environments: ['nebula', 'gasGiant', 'deepSpace'],
+        encounters: { early: earlyEncounters, late: lateEncounters },
         bossEncounterId: 'bossB',
     },
     {
@@ -39,6 +47,7 @@ export const sectorThemes: readonly SectorTheme[] = [
         outroMessage: 'Placeholder outro message for sector 3.',
         defeatMessage: 'Placeholder defeat message for sector 3.',
         environments: ['deepSpace', 'gasGiant', 'asteroidField'],
+        encounters: { early: earlyEncounters, late: lateEncounters },
         bossEncounterId: 'bossC',
     },
 ];

@@ -7,6 +7,7 @@ import { createEncounter, getDefaultNode, hasEncounter } from '../encounters/Enc
 import { CardState } from '../state/CardState';
 import { EncounterSummaryState } from '../state/EncounterSummaryState';
 import { MotionKeyframe } from '../state/MotionKeyframe';
+import { ObjectiveState } from '../state/ObjectiveState';
 import { PlayerShip } from '../state/PlayerShip';
 import { SectorMapState } from '../state/SectorMapState';
 import { SectorMessageState } from '../state/SectorMessageState';
@@ -330,9 +331,7 @@ export class Campaign {
     }
 
     private finish(outcome: GameOutcome): void {
-        this.encounter = null;
-        this.state.encounter = null;
-        this.state.encounterKind = null;
+        this.clearEncounterState();
         this.state.message = outcome === 'defeat' && this.sector
             ? new SectorMessageState({ kind: 'defeat', title: this.sector.name, text: this.sector.defeatMessage })
             : null;
@@ -392,6 +391,7 @@ export class Campaign {
         summary.objective = encounterNode.objective ? encounterNode.objective : undefined;
         this.state.encounter = summary;
         this.state.encounterKind = encounterNode.kind;
+        this.state.objective = encounterNode.objective ? new ObjectiveState(encounterNode.objective) : null;
 
         // Subscribe before starting, as an encounter may complete immediately.
         this.encounter.onComplete.addListener('campaign', () => {
@@ -432,6 +432,7 @@ export class Campaign {
         }
 
         this.state.encounter.outcome = this.encounter.outcome;
+        this.state.encounterOutcome = this.encounter.outcome;
 
         for (const ship of this.playerShipsInEncounter) {
             this.offerWarpAway(ship);
@@ -447,12 +448,20 @@ export class Campaign {
         ship.helmState.addCardToHand(new CardState(ship.getCardId(), 'warpAway'));
     }
 
-    /** Ends the running encounter: removes the warp cards and every non-player object, and resets the player ships' card state. */
-    private teardownEncounter(): void {
-        this.playerShipsInEncounter.clear();
+    /** Forgets everything about the encounter that was running, on the server and on every screen. */
+    private clearEncounterState(): void {
         this.encounter = null;
         this.state.encounter = null;
         this.state.encounterKind = null;
+        this.state.objective = null;
+        this.state.encounterOutcome = null;
+        this.state.hail = null;
+    }
+
+    /** Ends the running encounter: removes the warp cards and every non-player object, and resets the player ships' card state. */
+    private teardownEncounter(): void {
+        this.playerShipsInEncounter.clear();
+        this.clearEncounterState();
 
         this.tearingDown = true;
         try {

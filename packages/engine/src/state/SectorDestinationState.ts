@@ -14,6 +14,7 @@ export class SectorDestinationState extends Schema implements SectorDestinationI
         this.elite = info.elite;
         this.environment = info.environment;
         this.objective = info.objective ? new ObjectiveState(info.objective) : undefined;
+        this.request = info.request;
     }
 
     @type('string') readonly id: string;
@@ -22,4 +23,5 @@ export class SectorDestinationState extends Schema implements SectorDestinationI
     @type('boolean') readonly elite?: boolean;
     @type('string') readonly environment?: EnvironmentType;
     @type(ObjectiveState) readonly objective?: ObjectiveState;
+    @type('string') readonly request?: string;
 }

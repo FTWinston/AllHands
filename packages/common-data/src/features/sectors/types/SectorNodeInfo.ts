@@ -24,6 +24,8 @@ export interface SectorNodeInfo {
     environment?: EnvironmentType;
     /** Absent for stations. */
     objective?: ObjectiveInfo;
+    /** What whoever is asking for help here had to say, as picked up by long range sensors. Absent for stations, and where nobody has called. */
+    request?: string;
     /** A tougher form of the encounter: what that means is up to each one. Known from the outset, for route planning. */
     elite?: boolean;
     /** Normalised 0..1 layout position; x runs start to boss. */

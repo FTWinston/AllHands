@@ -9,7 +9,9 @@ import { useWakeLock } from 'common-ui/hooks/useWakeLock';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { FC, PropsWithChildren, useEffect, useRef } from 'react';
 import { addKnownCardTypes } from '../cardCompendium/utils/knownCardStorage';
+import { HailDisplay } from './components/HailDisplay';
 import { LowHullWarning } from './components/LowHullWarning';
+import { ObjectiveDisplay } from './components/ObjectiveDisplay';
 import { StationDisplay } from './components/StationDisplay';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import { ViewscreenPhaseDisplay } from './components/ViewscreenPhaseDisplay';
@@ -17,6 +19,8 @@ import { useShowOutcome } from './hooks/useShowOutcome';
 import { useViewscreenEffects } from './hooks/useViewscreenEffects';
 import type { Room } from '@colyseus/sdk';
 import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
+import type { HailInfo } from 'common-data/features/sectors/types/HailInfo';
+import type { EncounterOutcome, ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { SectorMapInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMessageInfo';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
@@ -63,6 +67,9 @@ const ViewscreenScene: FC<Props> = (props) => {
     // Snapshots are plain objects, so the shared info interfaces describe them.
     const map = (useRoomState(props.room, state => state.map) ?? null) as unknown as SectorMapInfo | null;
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
+    const objective = (useRoomState(props.room, state => state.objective) ?? null) as unknown as ObjectiveInfo | null;
+    const encounterOutcome = (useRoomState(props.room, state => state.encounterOutcome) ?? null) as EncounterOutcome | null;
+    const hail = (useRoomState(props.room, state => state.hail) ?? null) as unknown as HailInfo | null;
 
     useViewscreenEffects(props.room, props.shipId, phase, isEnded ? outcome : null);
     useBridgeChatter(!isEnded && phase !== null);
@@ -130,6 +137,8 @@ const ViewscreenScene: FC<Props> = (props) => {
             showMenu={props.showMenu}
         >
             {props.children}
+            {objective && <ObjectiveDisplay objective={objective} outcome={encounterOutcome} />}
+            <HailDisplay hail={hail} />
             {hull && <LowHullWarning health={hull.health} maxHealth={hull.maxHealth} />}
         </ViewscreenDisplay>
     );
