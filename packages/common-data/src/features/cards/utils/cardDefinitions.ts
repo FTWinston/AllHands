@@ -1,4 +1,4 @@
-import { systemEffectDefinitions } from '../../../features/ships/utils/systemEffectDefinitions';
+import { extendedShieldsDuration, extendedShieldsRange, systemEffectDefinitions } from '../../../features/ships/utils/systemEffectDefinitions';
 import { CardDefinition, CardMotionSegmentFacing } from '../types/CardDefinition';
 import { CardTargetType } from '../types/CardTargetType';
 
@@ -338,6 +338,11 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'system',
         system: 'engineer',
         parameters: { cost: 1, shieldBoost: 50, shieldReduction: 10 },
+    },
+    extendShields: {
+        targetType: 'no-target',
+        system: 'engineer',
+        parameters: { cost: 3, duration: extendedShieldsDuration / 1000, range: extendedShieldsRange },
     },
     relocateSystem: {
         targetType: 'system',

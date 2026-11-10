@@ -2,6 +2,12 @@ import { SystemEffectDefinition, SystemEffectCategory } from '../types/SystemEff
 
 export const MAX_POWER_LEVEL = 5;
 
+/** How long a ship's shields stay extended over a friendly ship, once the Extend Shields card is played. */
+export const extendedShieldsDuration = 10_000;
+
+/** How close a friendly ship has to be for extended shields to cover it, in world units. Staying that close is helm's job. */
+export const extendedShieldsRange = 4;
+
 /** How long a shield tuning lasts after the hull card that set it is played, unless another hull card renews or replaces it. */
 const SHIELD_TUNING_DURATION = 12_000;
 
@@ -61,6 +67,11 @@ export const systemEffectDefinitions = defineSystemEffects({
         category: SystemEffectCategory.Positive,
         usesLevels: false,
         duration: 20_000,
+    },
+    shieldsExtended: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: false,
+        duration: extendedShieldsDuration,
     },
     shieldReduced: {
         category: SystemEffectCategory.Negative,

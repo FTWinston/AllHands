@@ -80,6 +80,11 @@ export abstract class Encounter {
         this.state.showHail(speaker, text);
     }
 
+    /** Cuts off whatever is being said over comms. */
+    protected silence(): void {
+        this.state.hail = null;
+    }
+
     /** Creates the encounter's initial objects. */
     protected abstract populate(): void;
 

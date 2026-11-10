@@ -10,7 +10,8 @@ import type { Ship } from 'src/state/Ship';
 import type { CrewSystemState } from 'src/state/systems/CrewSystemState';
 
 export type AiRole = 'helm' | 'tactical' | 'science' | 'engineer';
-export type AiStance = 'aggressive' | 'evasive' | 'withdrawing' | 'holding';
+/** How the helm should fly. A ship that's travelling keeps to its route, and one that's withdrawing runs: neither manoeuvres against its target. */
+export type AiStance = 'aggressive' | 'evasive' | 'withdrawing' | 'holding' | 'travelling';
 
 export interface PowerRequest {
     /** Minimum power level the requesting officer needs. */

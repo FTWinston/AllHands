@@ -11,6 +11,8 @@ import { Blackboard, ResolvedAiConfig, SKILL_NOISE_SCALE, SKILL_SKIP_CHANCE } fr
 
 const TARGET_SWITCH_FACTOR = 1.25;
 const GUARD_LEASH = 30;
+/** How much more a hunter wants the ship it prefers than any other hostile, in the same terms as distance: this many units closer. */
+export const PREFER_BONUS = 30;
 const FLEE_DISTANCE = 50;
 const EVASIVE_HULL_FRACTION = 0.5;
 const WANDER_DISTANCE = 40;
@@ -23,6 +25,8 @@ export class Commander {
     /** Hull fraction below which the ship flees. Starts as configured; `standFast` zeroes it. */
     private fleeThreshold: number;
     private withdrawing = false;
+    /** Which of a `travel-route` goal's waypoints the ship is heading for. */
+    private waypointIndex = 0;
 
     constructor(
         private readonly ship: Ship,
@@ -64,6 +68,17 @@ export class Commander {
      * has a matching `scenarioId`.
      */
     resolveScenarioReferences(): void {
+        if (this.activeGoal.type === 'search-and-destroy') {
+            // The same goes for the ship a hunter prefers to go after.
+            const { prefer } = this.activeGoal;
+            const preferred = prefer !== undefined && !this.gameState.objects.has(prefer) ? this.gameState.getObjectByScenarioId(prefer) : undefined;
+            if (preferred) {
+                this.activeGoal = { ...this.activeGoal, prefer: preferred.id };
+            }
+
+            return;
+        }
+
         if (this.activeGoal.type !== 'guard-ship' || this.gameState.objects.has(this.activeGoal.shipId)) {
             return;
         }
@@ -72,6 +87,16 @@ export class Commander {
         if (ward) {
             this.activeGoal = { ...this.activeGoal, shipId: ward.id };
         }
+    }
+
+    /** How many of a `travel-route` goal's waypoints the ship has reached so far. Always 0 for any other goal. */
+    get waypointsReached(): number {
+        return this.waypointIndex;
+    }
+
+    /** Whether the ship has reached the last waypoint of a `travel-route` goal. Always false for any other goal. */
+    get isRouteComplete(): boolean {
+        return this.activeGoal.type === 'travel-route' && this.waypointIndex >= this.activeGoal.waypoints.length;
     }
 
     update(blackboard: Blackboard, currentTime: number): void {
@@ -156,7 +181,8 @@ export class Commander {
 
         // Perceived scores: a low-skill commander misjudges which target matters most.
         const noise = () => (skill < 1 ? this.gameState.random.getFloat(-1, 1) * SKILL_NOISE_SCALE * (1 - skill) : 0);
-        const scored = new Map(hostiles.map(h => [h, 100 - distance(ownPosition, h.getPosition(currentTime)) + noise()]));
+        const preferred = this.activeGoal.type === 'search-and-destroy' ? this.activeGoal.prefer : undefined;
+        const scored = new Map(hostiles.map(h => [h, 100 - distance(ownPosition, h.getPosition(currentTime)) + noise() + (h.id === preferred ? PREFER_BONUS : 0)]));
 
         const current = hostiles.find(h => h.id === blackboard.targetId) ?? null;
         const best = hostiles.reduce<GameObject | null>((a, b) => (a === null || scored.get(b)! > scored.get(a)! ? b : a), null);
@@ -177,6 +203,9 @@ export class Commander {
     private updateStance(blackboard: Blackboard, hullFraction: number) {
         if (blackboard.goal === 'flee') {
             blackboard.stance = 'withdrawing';
+        } else if (blackboard.goal === 'travel-route') {
+            // Whether or not there's anything to shoot at on the way.
+            blackboard.stance = 'travelling';
         } else if (blackboard.targetId !== null) {
             blackboard.stance = hullFraction < EVASIVE_HULL_FRACTION ? 'evasive' : 'aggressive';
         } else {
@@ -204,6 +233,15 @@ export class Commander {
 
         if (this.activeGoal.type === 'defend-position') {
             blackboard.destination = this.activeGoal.position;
+        } else if (this.activeGoal.type === 'travel-route') {
+            const { waypoints, arrivalRadius } = this.activeGoal;
+
+            while (this.waypointIndex < waypoints.length && distance(ownPosition, waypoints[this.waypointIndex]) <= arrivalRadius) {
+                this.waypointIndex++;
+            }
+
+            // Once it's been everywhere, it holds at the last of them.
+            blackboard.destination = waypoints[Math.min(this.waypointIndex, waypoints.length - 1)] ?? null;
         } else if (this.activeGoal.type === 'guard-ship') {
             const ward = this.gameState.objects.get(this.activeGoal.shipId);
             blackboard.destination = ward ? ward.getPosition(currentTime) : null;

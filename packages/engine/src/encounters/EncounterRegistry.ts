@@ -1,5 +1,6 @@
 import { BossAEncounter, BossBEncounter, BossCEncounter } from './bosses';
 import { AmbushEncounter, AssaultEncounter, EscortEncounter, SkirmishEncounter } from './CombatEncounter';
+import { SlowBoatEncounter } from './SlowBoatEncounter';
 import { StationEncounter } from './StationEncounter';
 import { defaultSurviveDurationMs, SurviveEncounter } from './SurviveEncounter';
 import { TollCollectorsEncounter } from './TollCollectorsEncounter';
@@ -52,6 +53,15 @@ const definitions: readonly EncounterDefinition[] = [
         defaultEnvironment: 'deepSpace',
         request: { from: 'Hauler Local 12', subject: 'toll dispute', text: 'Wardens on the Kessin jump point, charging forty percent. We can\'t pay it and we can\'t go round.' },
         create: (state, node) => new TollCollectorsEncounter(state, node),
+    },
+    {
+        id: 'slowBoat',
+        name: 'Slow Boat',
+        kind: 'combat',
+        objective: { type: 'protect', subject: 'Marrow' },
+        defaultEnvironment: 'asteroidField',
+        request: { from: 'Clinic Ship Marrow', subject: 'escort request', text: 'Full ward, forty beds. We\'re crossing the Shallows drift and something\'s been shadowing us since the last beacon.' },
+        create: (state, node) => new SlowBoatEncounter(state, node),
     },
     { id: 'repairStation', name: 'Repair Station', kind: 'repair', create: (state, node) => new StationEncounter(state, node) },
     { id: 'navigationBeacon', name: 'Navigation Beacon', kind: 'navigationBeacon', create: (state, node) => new StationEncounter(state, node) },

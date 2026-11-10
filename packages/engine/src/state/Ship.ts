@@ -3,8 +3,10 @@ import { CardType, UntargetedCardType } from 'common-data/features/cards/utils/c
 import { ownShipClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole, CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
+import { extendedShieldsRange } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { Damage } from 'common-data/features/space/types/Damage';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { distanceSq } from 'common-data/features/space/utils/vectors';
 import { applyWeaponTrait } from 'src/cards/applyWeaponTrait';
 import { GameObject } from './GameObject';
@@ -189,7 +191,11 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             damage.targetSystem = this.random.pick(shipSystems);
         }
 
-        const remainingAmount = this.hullState.damageShields(damage);
+        // A friendly ship that has extended its shields over this one takes the hit on them first. Whatever they let through then meets this ship's own.
+        const extender = this.findShieldExtender();
+        const remainingAmount = this.hullState.damageShields(extender
+            ? { ...damage, amount: extender.hullState.damageShields(damage) }
+            : damage);
 
         // Before applying the damage, as that could destroy the ship.
         this.wasHit({ damage: remainingAmount });
@@ -222,6 +228,34 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         }
 
         return remainingAmount;
+    }
+
+    /** Whether this ship's shields are extended over nearby friendly ships just now (see the Extend Shields card). */
+    get hasExtendedShields(): boolean {
+        return this.engineerState.systems.some(tile => tile.system === 'hull' && tile.hasEffect('shieldsExtended'));
+    }
+
+    /** The nearest friendly ship that is close enough, and has its shields extended, to take a hit meant for this one. */
+    private findShieldExtender(): Ship | undefined {
+        const currentTime = this.gameState.currentTime;
+        const ownPosition = this.getPosition(currentTime);
+        const registry = this.gameState.factionRegistry;
+        let nearest: Ship | undefined;
+        let nearestDistanceSq = extendedShieldsRange ** 2;
+
+        for (const other of this.gameState.objects.values()) {
+            if (other === this || !(other instanceof Ship) || !other.hasExtendedShields || registry.getRelationship(this, other) !== RelationshipType.Friendly) {
+                continue;
+            }
+
+            const otherDistanceSq = distanceSq(ownPosition, other.getPosition(currentTime));
+            if (otherDistanceSq <= nearestDistanceSq) {
+                nearest = other;
+                nearestDistanceSq = otherDistanceSq;
+            }
+        }
+
+        return nearest;
     }
 
     /** Called whenever this ship is hit, just before the damage is applied. */

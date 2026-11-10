@@ -614,6 +614,19 @@ function loadCardDefinitions() {
                 return true;
             },
         },
+        extendShields: {
+            play: (_gameState, ship) => {
+                const hull = ship.engineerState.systems.find(tile => tile.system === 'hull');
+                if (!hull) {
+                    return false;
+                }
+
+                // Playing it again while it's running starts its time over.
+                hull.removeEffect('shieldsExtended', false);
+                hull.addEffect('shieldsExtended');
+                return true;
+            },
+        },
         focusShields: {
             play: (_gameState, ship, system) => {
                 if (system.system === 'hull') {

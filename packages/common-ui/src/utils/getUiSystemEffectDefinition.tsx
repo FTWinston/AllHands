@@ -1,5 +1,5 @@
 import { reinforcedDrainPercent, tunedReductionPercent } from 'common-data/features/ships/utils/shieldStats';
-import { systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { extendedShieldsRange, systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { EffectLevel } from '../components/EffectLevelContext';
 import { SystemEffectDescription, UISystemEffectDefinition } from '../types/UISystemEffectDefinition';
@@ -77,6 +77,11 @@ function loadEffectDefinitions() {
         shieldFocus: {
             name: 'Shield Focus',
             description: <>Shields are focused on this system, increasing its protection by 50%.</>,
+            image: ExampleIcon,
+        },
+        shieldsExtended: {
+            name: 'Shields Extended',
+            description: <>{`The shields are extended over friendly ships within ${extendedShieldsRange} units: hits on them drain these shields, not theirs.`}</>,
             image: ExampleIcon,
         },
         shieldReduced: {

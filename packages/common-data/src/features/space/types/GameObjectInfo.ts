@@ -10,6 +10,7 @@ import { ReadonlyKeyframes } from './Keyframes';
 import { ObjectAppearance } from './ObjectAppearance';
 import { Position } from './Position';
 import { RelationshipType } from './RelationshipType';
+import { Vector2D } from './Vector2D';
 import type { ShieldTuningEffect } from 'src/features/ships/utils/shieldStats';
 
 export type ObjectId = string;
@@ -285,8 +286,17 @@ export interface ShipSetupInfo extends GameObjectSetupInfo {
 export type PlayerShipSetupInfo = Omit<ShipSetupInfo, 'appearance' | 'faction'>;
 
 export type AiGoalInfo
-    = | { type: 'search-and-destroy' }
+    /**
+     * `prefer` is a ship to go after ahead of any other hostile, unless another is very much closer.
+     * Like `guard-ship`'s `shipId`, it can be the scenario-authored `id` of an object in the same batch.
+     */
+    = | { type: 'search-and-destroy'; prefer?: string }
         | { type: 'defend-position'; position: Position; radius: number }
+        /**
+         * Fly to each waypoint in turn, then hold at the last. The ship doesn't turn aside for anything on the way,
+         * though it still shoots at whatever hostiles come within reach.
+         */
+        | { type: 'travel-route'; waypoints: Vector2D[]; arrivalRadius: number }
         /**
          * `shipId` is normally a live runtime object id. When authored in a scenario file
          * (where the runtime id can't be known in advance) it should instead be the target

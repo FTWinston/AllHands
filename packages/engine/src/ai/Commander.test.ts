@@ -1,9 +1,10 @@
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { IRandom } from 'common-data/types/IRandom';
 import { AiShip } from 'src/state/AiShip';
+import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
-import { Commander } from './Commander';
+import { Commander, PREFER_BONUS } from './Commander';
 import { createBlackboard, resolveAiConfig } from './types';
 
 const rooms = setupGameRoom();
@@ -423,5 +424,121 @@ describe('Commander', () => {
 
         expect(bb.destination).not.toBeNull();
         expect(bb.destination!.x).toBeLessThan(0);
+    });
+
+    describe('travel-route', () => {
+        const waypoints = [{ x: 10, y: 0 }, { x: 10, y: -10 }];
+        const routeSetup = () => aiSetup({ goal: { type: 'travel-route', waypoints, arrivalRadius: 2 } });
+
+        function moveTo(ai: AiShip, x: number, y: number) {
+            ai.motion.clear();
+            ai.motion.push(new MotionKeyframe(0, x, y, 0));
+        }
+
+        it('heads for each waypoint in turn, then holds at the last', () => {
+            const state = createWorld();
+            const setup = routeSetup();
+            const ai = new AiShip(state, setup);
+            state.add(ai);
+            const bb = createBlackboard(setup.goal);
+            const commander = new Commander(ai, state, resolveAiConfig(setup as never));
+
+            commander.update(bb, 0);
+            expect(bb.goal).toBe('travel-route');
+            expect(bb.destination).toEqual(waypoints[0]);
+            expect(commander.waypointsReached).toBe(0);
+            expect(commander.isRouteComplete).toBe(false);
+
+            // Close enough counts.
+            moveTo(ai, 8.5, 0);
+            commander.update(bb, 0);
+            expect(commander.waypointsReached).toBe(1);
+            expect(bb.destination).toEqual(waypoints[1]);
+
+            moveTo(ai, 10, -10);
+            commander.update(bb, 0);
+            expect(commander.waypointsReached).toBe(2);
+            expect(commander.isRouteComplete).toBe(true);
+            expect(bb.destination).toEqual(waypoints[1]);
+        });
+
+        it('keeps to its route with a hostile in reach, which it still picks out to shoot at', () => {
+            const state = createWorld();
+            const setup = routeSetup();
+            const ai = new AiShip(state, setup);
+            state.add(ai);
+            const hostile = new AiShip(state, { ...shipSetup('player', 3, 3), goal: { type: 'search-and-destroy' }, skill: 1 });
+            state.add(hostile);
+            ai.updateKnownObjects(0);
+
+            const bb = createBlackboard(setup.goal);
+            const commander = new Commander(ai, state, resolveAiConfig(setup as never));
+            commander.update(bb, 0);
+
+            expect(bb.targetId).toBe(hostile.id);
+            expect(bb.stance).toBe('travelling');
+            expect(bb.destination).toEqual(waypoints[0]);
+        });
+
+        it('still flees if it is damaged enough, and it is the kind that flees', () => {
+            const state = createWorld();
+            const setup = routeSetup();
+            const ai = new AiShip(state, setup);
+            state.add(ai);
+            const bb = createBlackboard(setup.goal);
+            const commander = new Commander(ai, state, resolveAiConfig(setup as never));
+
+            ai.hullState.adjustHealth(-80);
+            commander.update(bb, 0);
+
+            expect(bb.goal).toBe('flee');
+            expect(bb.stance).toBe('withdrawing');
+        });
+
+        it('is never complete for a ship with some other goal', () => {
+            const state = createWorld();
+            const ai = new AiShip(state, aiSetup());
+            state.add(ai);
+            const commander = new Commander(ai, state, resolveAiConfig(aiSetup() as never));
+
+            commander.update(createBlackboard({ type: 'search-and-destroy' }), 0);
+
+            expect(commander.isRouteComplete).toBe(false);
+            expect(commander.waypointsReached).toBe(0);
+        });
+    });
+
+    describe('a preferred target', () => {
+        function createHunt(preferredDistance: number, otherDistance: number) {
+            const state = createWorld();
+            const preferred = new AiShip(state, { ...shipSetup('player', preferredDistance, 0), id: 'ward', goal: { type: 'search-and-destroy' }, skill: 1 });
+            const other = new AiShip(state, { ...shipSetup('player', -otherDistance, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
+            state.add(preferred);
+            state.add(other);
+
+            const setup = aiSetup({ goal: { type: 'search-and-destroy', prefer: 'ward' } });
+            const ai = new AiShip(state, setup);
+            state.add(ai);
+            ai.updateKnownObjects(0);
+
+            const bb = createBlackboard(setup.goal);
+            const commander = new Commander(ai, state, resolveAiConfig(setup as never));
+            commander.resolveScenarioReferences();
+            commander.update(bb, 0);
+
+            return { bb, preferred, other };
+        }
+
+        it('is gone after even when something else is rather closer', () => {
+            const { bb, preferred } = createHunt(20, 5);
+
+            expect(bb.targetId).toBe(preferred.id);
+        });
+
+        it('is passed over for something very much closer', () => {
+            const { bb, other } = createHunt(PREFER_BONUS + 10, 5);
+
+            expect(bb.targetId).toBe(other.id);
+        });
     });
 });
