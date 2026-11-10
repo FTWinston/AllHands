@@ -1,14 +1,13 @@
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { bracedPerLevel, getShieldAbsorption, maxPreventedPercent, reinforcedPerLevel, ShieldTuning, shieldTuningEffects, tunedPerLevel } from 'common-data/features/ships/utils/shieldStats';
+import { getShieldAbsorption, getShieldDrainPercent, shieldCollapsePercent, ShieldModeEffect, tunedReductionPercent } from 'common-data/features/ships/utils/shieldStats';
 
-/** The hull cards that tune the shields when drawn, and what they tune them against. */
-export const shieldTuningCards: Partial<Record<CardType, ShieldTuning>> = {
-    hullShieldTuningEnergy: 'energy',
-    hullShieldTuningTorpedo: 'torpedo',
+/** The hull cards that switch the shields into a mode when drawn, and the effect that mode is. Other hull cards leave the mode as it is. */
+export const shieldModeCards: Partial<Record<CardType, ShieldModeEffect>> = {
+    hullShieldEmitter: 'shieldReinforced',
+    hullVolatileEmitter: 'shieldReinforced',
+    hullShieldTuningEnergy: 'shieldTunedEnergy',
+    hullShieldTuningTorpedo: 'shieldTunedTorpedo',
 };
-
-/** The hull effects that drawing hull cards builds up, each of which the next hit it applies to uses up. */
-export const hitBonusEffects = ['shieldReinforced', 'hullBraced', ...Object.values(shieldTuningEffects)] as const;
 
 /** What's needed of a hull card, to work out what it contributes to the shields. */
 export interface ShieldStatCard {
@@ -29,54 +28,56 @@ export function getShieldCapacity(cards: Iterable<ShieldStatCard>): number {
     return Math.max(0, total);
 }
 
-/** The levels of each hit bonus that could apply to a hit. */
-export interface HitBonusLevels {
-    reinforced: number;
-    braced: number;
-    /** Levels of tuning against the hit's weapon type. */
-    tuned: number;
+/** What the shields' current mode does to a hit. */
+export interface ShieldHitModifiers {
+    /** Whether the shields are tuned against the hit's weapon type. */
+    tuned: boolean;
+    reinforced: boolean;
 }
 
 export interface ShieldHitResult {
-    /** How much the shields are drained by. */
+    /** How much the shields are drained by. When they collapse, this is all they had left. */
     drain: number;
     /** The damage that gets past the shields. */
     passedThrough: number;
-    /** How much damage each bonus prevented. Each bonus that prevented any is used up by the hit. */
-    prevented: HitBonusLevels;
+    /** Whether the hit left the shields too weak to hold, so they failed. */
+    collapsed: boolean;
 }
 
 /**
- * Work out how a hit is split between the shields and what gets past them, given the hit bonuses that are built up.
- * - Tuning against the hit's weapon type reduces the hit itself.
- * - The shields then absorb a share of what's left, and Reinforced reduces how much of that drains them.
- * - Braced then reduces the damage that gets past the shields.
- * Between them, the bonuses never prevent more than `maxPreventedPercent` of the hit. A bonus that this leaves with nothing to prevent isn't used up.
+ * Work out how a hit is split between the shields and what gets past them.
+ * - Shields tuned against the hit's weapon type reduce the hit itself.
+ * - The shields then absorb a share of what's left, set by the hull's power level. The rest gets past them.
+ * - Absorbing drains the shields: by less at higher hull power, and by less again while they're reinforced.
+ * - If that leaves the shields below `shieldCollapsePercent` of their capacity, they collapse, losing the rest.
  */
-export function resolveShieldHit(amount: number, shield: number, maxShield: number, powerLevel: number, bonuses: HitBonusLevels): ShieldHitResult {
-    let budget = Math.floor(amount * maxPreventedPercent / 100);
-    const prevent = (wanted: number) => {
-        const prevented = Math.max(0, Math.min(wanted, budget));
-        budget -= prevented;
-        return prevented;
-    };
+export function resolveShieldHit(amount: number, shield: number, maxShield: number, powerLevel: number, modifiers: ShieldHitModifiers): ShieldHitResult {
+    const reduced = modifiers.tuned
+        ? amount - Math.round(amount * tunedReductionPercent / 100)
+        : amount;
 
-    const tuned = prevent(Math.min(amount, bonuses.tuned * tunedPerLevel));
-    const remaining = amount - tuned;
-
-    const fullness = maxShield > 0 ? shield / maxShield : 0;
-    const absorbed = shield > 0
-        ? Math.round(remaining * getShieldAbsorption(powerLevel, fullness) / 100)
+    let absorbed = shield > 0
+        ? Math.round(reduced * getShieldAbsorption(powerLevel) / 100)
         : 0;
-    const reinforced = prevent(Math.min(absorbed, bonuses.reinforced * reinforcedPerLevel));
-    const drain = Math.min(shield, absorbed - reinforced);
 
-    const unabsorbed = remaining - reinforced - drain;
-    const braced = prevent(Math.min(unabsorbed, bonuses.braced * bracedPerLevel));
+    if (absorbed <= 0) {
+        return { drain: 0, passedThrough: reduced, collapsed: false };
+    }
+
+    const drainPercent = getShieldDrainPercent(powerLevel, modifiers.reinforced);
+    let drain = Math.round(absorbed * drainPercent / 100);
+
+    if (drain > shield) {
+        // The shields can't absorb their whole share: only what they have left pays for.
+        drain = shield;
+        absorbed = Math.min(absorbed, Math.floor(shield * 100 / drainPercent));
+    }
+
+    const collapsed = shield - drain < maxShield * shieldCollapsePercent / 100;
 
     return {
-        drain,
-        passedThrough: unabsorbed - braced,
-        prevented: { tuned, reinforced, braced },
+        drain: collapsed ? shield : drain,
+        passedThrough: reduced - absorbed,
+        collapsed,
     };
 }

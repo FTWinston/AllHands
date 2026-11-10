@@ -81,7 +81,7 @@ export const Reactor: Story = {
     },
 };
 
-/** The hull's shield stats are shown above its cards. */
+/** Hull cards are played as they're drawn, so the hull has no hand either. Its shields are shown on its tile, not here. */
 export const Hull: Story = {
     args: {
         system: 'hull',
@@ -91,26 +91,12 @@ export const Hull: Story = {
             { id: 3, type: 'hullShieldEmitter', extraTraits: { damaged: ExtraTraitType.Normal } },
             ...createCards(['hullVolatileEmitter', 'hullPlating', 'hullShieldTuningTorpedo'], 4),
         ],
-        shield: {
-            capacity: 60,
-            level: 30,
-            power: 3,
-            reinforced: 2,
-            braced: 1,
-            tuned: { energy: 1, torpedo: 0 },
-            scrambled: 0,
-        },
     },
     play: async ({ canvasElement }) => {
         const page = within(canvasElement.ownerDocument.body);
-        const shields = await page.findByRole('region', { name: 'Shields' });
-        await expect(within(shields).getByText('60')).toBeInTheDocument();
-        // Half full at power 3: 80% × (1 - (1/2)²).
-        await expect(within(shields).getByText('60%')).toBeInTheDocument();
-        // Reinforced 2 and Braced 1, at 5 each.
-        await expect(within(shields).getByText('−15')).toBeInTheDocument();
-        await expect(within(shields).getByText('and −10 vs energy')).toBeInTheDocument();
-        await expect(within(shields).getByText(/30 \/ 60/)).toBeInTheDocument();
+        await expect(await page.findByText('Hull cards')).toBeInTheDocument();
+        await expect(page.queryByText('Hand')).not.toBeInTheDocument();
+        await expect(page.getByRole('list', { name: 'Deck' }).children).toHaveLength(6);
     },
 };
 

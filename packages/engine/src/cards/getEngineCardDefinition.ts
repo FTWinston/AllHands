@@ -305,7 +305,7 @@ function loadCardDefinitions() {
                 console.log('played smokeScreen'); return true;
             },
         },
-        // Hull cards do nothing when played: HullState retunes the shields as each one is drawn, and adds up their shield capacity.
+        // Hull cards do nothing when played: HullState sets the shields' mode as each one is drawn, and adds up their shield capacity.
         hullPlating: {
             play: playHullCard,
         },

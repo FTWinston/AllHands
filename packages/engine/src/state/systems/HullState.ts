@@ -1,9 +1,9 @@
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { shieldTuningEffects } from 'common-data/features/ships/utils/shieldStats';
+import { shieldModeEffects, shieldTuningEffects } from 'common-data/features/ships/utils/shieldStats';
 import { LeveledSystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { Damage } from 'common-data/features/space/types/Damage';
 import { NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { getShieldCapacity, hitBonusEffects, resolveShieldHit, shieldTuningCards } from 'src/utils/hullShields';
+import { getShieldCapacity, resolveShieldHit, shieldModeCards } from 'src/utils/hullShields';
 import { CardState } from '../CardState';
 import { GameState } from '../GameState';
 import { SystemState } from './SystemState';
@@ -14,15 +14,15 @@ import type { HullSystemTile } from './engineer/HullSystemTile';
 const volatileCardTypes: ReadonlySet<CardType> = new Set<CardType>(['hullVolatileEmitter']);
 
 /**
- * The hull's cards set its shield capacity, and the hull's power level sets how much damage they absorb (see shieldStats).
- * The shields only recharge between encounters, but each hull card that's drawn builds up a hit bonus, which the next hit it applies to uses up.
+ * The hull's cards set its shield capacity, and the hull's power level sets how much damage they absorb, and how efficiently (see shieldStats).
+ * The shields only recharge between encounters, but each hull card that's drawn can switch them into a mode, which lasts a while.
  */
 export class HullState extends SystemState {
     constructor(setup: NonCrewSystemSetupInfo, gameState: GameState, ship: Ship, initialPowerLevel: number, getCardId: () => number) {
         super(setup, 'hull', gameState, ship, initialPowerLevel, getCardId);
 
         this.cardAddedToHand.addListener('hull', (card) => {
-            this.addHitBonus(card);
+            this.setShieldMode(card);
 
             // Immediately after drawing a card, try to play it, and discard it if that fails for any reason, such as it being damaged.
             if (!this.playCard(card.id, card.type, 'no-target', '')) {
@@ -62,20 +62,20 @@ export class HullState extends SystemState {
         this.hullTile.setMaxShield(this.maxShield);
     }
 
-    /** Fully charge the shields, and clear any hit bonuses and scrambling, e.g. at the start of an encounter. */
+    /** Fully charge the shields, and clear any shield mode and scrambling, e.g. at the start of an encounter. */
     restoreShields() {
         const tile = this.linkedEngineerSystemTile;
         tile.removeEffect('shieldScrambled', false);
-        this.clearHitBonuses();
+        this.clearShieldMode();
         tile.adjustEffectLevel('shield', this.maxShield - this.shield);
     }
 
     /**
-     * Called as each hull card is drawn. An undamaged card builds up its hit bonus:
-     * emitters reinforce the shields, plating braces the hull, and tuning cards tune the shields against a weapon type.
-     * While scrambled, cards add no bonus, and the scrambling wears off by one draw.
+     * Called as each hull card is drawn. An undamaged emitter or tuning card switches the shields into its mode, replacing any other,
+     * and that lasts until it times out. Other cards leave the current mode running.
+     * While scrambled, cards set no mode, and the scrambling wears off by one draw.
      */
-    private addHitBonus(card: CardState) {
+    private setShieldMode(card: CardState) {
         const tile = this.linkedEngineerSystemTile;
 
         if (tile.hasEffect('shieldScrambled')) {
@@ -83,28 +83,30 @@ export class HullState extends SystemState {
             return;
         }
 
-        if (card.isDamaged) {
+        const mode = shieldModeCards[card.type];
+        if (!mode || card.isDamaged) {
             return;
         }
 
-        tile.adjustEffectLevel('shieldReinforced', card.getParameter('reinforce'));
-        tile.adjustEffectLevel('hullBraced', card.getParameter('brace'));
+        for (const effect of shieldModeEffects) {
+            if (effect !== mode) {
+                tile.removeEffect(effect, true);
+            }
+        }
 
-        const tuning = shieldTuningCards[card.type];
-        if (tuning) {
-            tile.adjustEffectLevel(shieldTuningEffects[tuning], card.getParameter('tune'));
+        // Restarts the mode's duration, if the shields were already in it.
+        tile.addEffect(mode);
+    }
+
+    private clearShieldMode() {
+        for (const effect of shieldModeEffects) {
+            this.linkedEngineerSystemTile.removeEffect(effect, true);
         }
     }
 
-    private clearHitBonuses() {
-        for (const effect of hitBonusEffects) {
-            this.linkedEngineerSystemTile.removeEffect(effect, false);
-        }
-    }
-
-    /** Strip every hit bonus, and stop new ones building up until that many more hull cards are drawn, e.g. when enemy sensors disrupt the shields. */
+    /** Cancel the shields' mode, and stop hull cards setting another until that many more are drawn, e.g. when enemy sensors disrupt the shields. */
     scrambleShields(draws: number | undefined) {
-        this.clearHitBonuses();
+        this.clearShieldMode();
         this.linkedEngineerSystemTile.adjustEffectLevel('shieldScrambled', draws ?? 0);
     }
 
@@ -120,28 +122,16 @@ export class HullState extends SystemState {
 
     /**
      * Apply incoming damage to the shields first, reducing their levels as necessary, and return the remaining damage to be done to the ship itself.
-     * While they last, the shields absorb a share of each hit, set by the hull's power level and how full they are.
-     * Hit bonuses that apply to the hit reduce it, and are used up (see resolveShieldHit). If the hit knocks the shields out, every volatile hull card is damaged.
+     * While they last, the shields absorb a share of each hit, set by the hull's power level, and their mode can reduce the hit or how much it drains them (see resolveShieldHit).
+     * If the hit knocks the shields out, every volatile hull card is damaged.
      */
     damageShields(damage: Damage): number {
         const tile = this.linkedEngineerSystemTile;
-        const tunedEffect = damage.weaponType ? shieldTuningEffects[damage.weaponType] : null;
 
         const result = resolveShieldHit(damage.amount, this.shield, this.maxShield, this.powerLevel, {
-            reinforced: tile.getEffectLevel('shieldReinforced'),
-            braced: tile.getEffectLevel('hullBraced'),
-            tuned: tunedEffect ? tile.getEffectLevel(tunedEffect) : 0,
+            tuned: damage.weaponType !== undefined && tile.hasEffect(shieldTuningEffects[damage.weaponType]),
+            reinforced: tile.hasEffect('shieldReinforced'),
         });
-
-        if (result.prevented.tuned > 0 && tunedEffect) {
-            tile.removeEffect(tunedEffect, false);
-        }
-        if (result.prevented.reinforced > 0) {
-            tile.removeEffect('shieldReinforced', false);
-        }
-        if (result.prevented.braced > 0) {
-            tile.removeEffect('hullBraced', false);
-        }
 
         if (result.drain > 0) {
             tile.adjustEffectLevel('shield', -result.drain);

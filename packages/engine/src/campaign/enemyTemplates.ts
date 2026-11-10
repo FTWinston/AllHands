@@ -28,7 +28,8 @@ function interleaveHullCards(counts: Partial<Record<HullCards[number], number>>)
 
 /**
  * A hull with the given numbers of each type of hull card, which also make up its health.
- * Each emitter adds 15 shield capacity, and each volatile emitter 45. Tuning cards tune the shields when drawn, and plating does nothing.
+ * Each emitter adds 15 shield capacity, and each volatile emitter 45. Emitters and tuning cards set the shields' mode when drawn.
+ * Plating does nothing but add health, so the more of it a hull has, the less of the time its shields are in any mode.
  */
 const hull = (cards: Partial<Record<HullCards[number], number>>): NonCrewSystemSetupInfo => ({
     cards: interleaveHullCards(cards),
@@ -52,7 +53,7 @@ const system = <T extends string>(cards: T[], initialHandSize = 1) => ({ cards, 
 const fighterTemplate: Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal'> = {
     appearance: 'swallowtail-interceptor',
     skill: 1,
-    // 60 shield capacity, often tuned against energy weapons.
+    // 60 shield capacity, sometimes tuned against energy weapons.
     hull: hull({ hullShieldEmitter: 4, hullShieldTuningEnergy: 2, hullPlating: 2 }),
     // Loading a torpedo takes 3 tactical power.
     reactor: system(reactorCards(2, 'reactorPowerTactical'), 0),
@@ -75,7 +76,7 @@ const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' 
     fighter: fighterTemplate,
     heavy: {
         ...fighterTemplate,
-        // A big shield (135), a third of it from a volatile emitter, often tuned against torpedoes.
+        // A big shield (135), a third of it from a volatile emitter, sometimes tuned against torpedoes.
         hull: hull({ hullShieldEmitter: 6, hullVolatileEmitter: 1, hullShieldTuningTorpedo: 2, hullPlating: 3 }),
         reactor: system(reactorCards(2, 'reactorPowerTactical', 'reactorPowerHull', 'reactorPowerEngineer'), 0),
         tactical: { ...system(['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield']), numSlots: 2 },
@@ -84,7 +85,7 @@ const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' 
     },
     flagship: {
         ...fighterTemplate,
-        // The biggest shield (210), with two volatile emitters, tuned against either weapon type.
+        // The biggest shield (210), with two volatile emitters, sometimes tuned against either weapon type.
         hull: hull({ hullShieldEmitter: 8, hullVolatileEmitter: 2, hullShieldTuningEnergy: 2, hullShieldTuningTorpedo: 2, hullPlating: 2 }),
         reactor: system(reactorCards(3, 'reactorPowerTactical', 'reactorPowerHull'), 0),
         tactical: { ...system(['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield', 'fullSpread']), numSlots: 3 },

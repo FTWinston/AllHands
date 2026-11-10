@@ -4,8 +4,8 @@ export const playerShipSetup: PlayerShipSetupInfo = {
     name: 'Ship',
     position: { x: 0, y: 0, angle: 0 },
     hull: {
-        // 90 shield capacity, sometimes tuned against energy weapons or torpedoes.
-        cards: Array(2).fill(['hullShieldEmitter', 'hullShieldTuningEnergy', 'hullShieldEmitter', 'hullPlating', 'hullShieldEmitter', 'hullShieldTuningTorpedo']).flat(),
+        // 120 shield capacity, sometimes tuned against energy weapons or torpedoes.
+        cards: Array(2).fill(['hullShieldEmitter', 'hullShieldTuningEnergy', 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldTuningTorpedo']).flat(),
         maxPowerLevel: 5,
         initialHandSize: 0,
     },

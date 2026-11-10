@@ -1,9 +1,14 @@
 import { CardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
+import { tunedReductionPercent } from 'common-data/features/ships/utils/shieldStats';
+import { systemEffectDefinitions } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { WarpAwayIcon } from '../../../icons/cards/WarpAway';
 import { default as ExampleIcon } from '../../../icons/exampleIcon.svg?react';
 import { Parameter } from '../components/Parameter';
 import { Trait } from '../components/Trait';
 import { CardDescription, UICardDefinition } from '../types/UICardDefinition';
+
+/** How long a hull card's shield mode lasts. Every mode lasts the same time. */
+const shieldModeSeconds = systemEffectDefinitions.shieldReinforced.duration / 1000;
 
 function loadCardDefinitions() {
     const cardDescriptions: Record<CardType, CardDescription> = {
@@ -49,13 +54,7 @@ function loadCardDefinitions() {
         },
         hullPlating: {
             name: 'Hull Plating',
-            description: <>
-                No shield capacity. When drawn, adds
-                {' '}
-                <Parameter name="brace" />
-                {' '}
-                Braced.
-            </>,
+            description: 'Adds nothing to the shields, and leaves their mode as it is when drawn.',
             image: <ExampleIcon />,
         },
         hullShieldEmitter: {
@@ -65,11 +64,8 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="shieldCapacity" />
                 {' '}
-                to the shields' capacity. When drawn, adds
-                {' '}
-                <Parameter name="reinforce" />
-                {' '}
-                Reinforced.
+                to the shields' capacity.
+                {` When drawn, reinforces the shields for ${shieldModeSeconds} seconds, so they drain less.`}
             </>,
             image: <ExampleIcon />,
         },
@@ -80,34 +76,19 @@ function loadCardDefinitions() {
                 {' '}
                 <Parameter name="shieldCapacity" />
                 {' '}
-                to the shields' capacity. When drawn, adds
-                {' '}
-                <Parameter name="reinforce" />
-                {' '}
-                Reinforced. All are damaged if one is, or if the shields fail.
+                to the shields' capacity.
+                {` When drawn, reinforces the shields for ${shieldModeSeconds} seconds. All are damaged if one is, or if the shields collapse.`}
             </>,
             image: <ExampleIcon />,
         },
         hullShieldTuningEnergy: {
             name: 'Energy Tuning',
-            description: <>
-                When drawn, adds
-                {' '}
-                <Parameter name="tune" />
-                {' '}
-                Tuned: Energy, reducing the next energy weapon hit.
-            </>,
+            description: `When drawn, tunes the shields for ${shieldModeSeconds} seconds, so energy weapon hits do ${tunedReductionPercent}% less damage.`,
             image: <ExampleIcon />,
         },
         hullShieldTuningTorpedo: {
             name: 'Torpedo Tuning',
-            description: <>
-                When drawn, adds
-                {' '}
-                <Parameter name="tune" />
-                {' '}
-                Tuned: Torpedoes, reducing the next torpedo hit.
-            </>,
+            description: `When drawn, tunes the shields for ${shieldModeSeconds} seconds, so torpedo hits do ${tunedReductionPercent}% less damage.`,
             image: <ExampleIcon />,
         },
         warpAway: {
@@ -757,7 +738,7 @@ function loadCardDefinitions() {
         tetryonScan: {
             name: 'Tetryon Scan',
             description: <>
-                Finding a vulnerability scrambles the target ship's shields, stripping its hull bonuses, and stopping new ones for
+                Finding a vulnerability scrambles the target ship's shields, cancelling their mode, and stopping them entering another for
                 {' '}
                 <Parameter name="scrambleDraws" />
                 {' '}

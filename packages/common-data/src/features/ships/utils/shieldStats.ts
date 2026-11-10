@@ -3,7 +3,7 @@ import type { WeaponType } from 'src/features/space/types/Damage';
 
 /**
  * A type of weapon that a ship's shields can be tuned against.
- * Shields recharge only between encounters, but each hull card that's drawn adds a bonus that the next hit uses up (see the engine's hullShields).
+ * Shields recharge only between encounters, but each hull card that's drawn can switch them into a mode for a while (see the engine's hullShields).
  */
 export type ShieldTuning = WeaponType;
 
@@ -15,30 +15,41 @@ export const shieldTuningEffects = {
     torpedo: 'shieldTunedTorpedo',
 } as const satisfies Record<ShieldTuning, string>;
 
-/** How much less each level of Reinforced drains from the shields, of the damage they absorb. */
-export const reinforcedPerLevel = 5;
+/**
+ * The hull effects that are shield modes. Drawing a hull card that sets a mode replaces any other, so only one is ever active.
+ * Each lasts for its effect definition's duration, unless another draw renews or replaces it.
+ */
+export const shieldModeEffects = ['shieldReinforced', shieldTuningEffects.energy, shieldTuningEffects.torpedo] as const;
 
-/** How much less damage gets past the shields, for each level of Braced. */
-export const bracedPerLevel = 5;
+export type ShieldModeEffect = typeof shieldModeEffects[number];
 
-/** How much less damage a hit of a weapon type does, for each level of tuning against it. */
-export const tunedPerLevel = 10;
+/** While the shields are reinforced, they're drained by this percentage of what they otherwise would be. */
+export const reinforcedDrainPercent = 75;
 
-/** The most of any one hit, as a percentage, that hit bonuses can prevent between them. */
-export const maxPreventedPercent = 50;
+/** The percentage by which a hit is reduced, while the shields are tuned against its weapon type. */
+export const tunedReductionPercent = 40;
+
+/** Shields that a hit leaves below this percentage of their capacity collapse, losing what's left. */
+export const shieldCollapsePercent = 10;
 
 /**
  * The percentage of each hit's damage that the shields absorb, while they last.
- * Full shields absorb from 60% at hull power 1 to all of it at full power, and unpowered shields absorb nothing.
- * Emptier shields absorb less: `fullness` (0-1) scales this, with a falloff that makes fuller shields disproportionately effective.
+ * They absorb from 60% at hull power 1 to all of it at full power, and nothing while the hull is unpowered.
  */
-export function getShieldAbsorption(powerLevel: number, fullness: number): number {
-    if (powerLevel <= 0) {
-        return 0;
-    }
+export function getShieldAbsorption(powerLevel: number): number {
+    return powerLevel <= 0
+        ? 0
+        : 50 + 10 * Math.min(powerLevel, MAX_POWER_LEVEL);
+}
 
-    const clampedFullness = Math.max(0, Math.min(1, fullness));
-    const absorption = (50 + 10 * Math.min(powerLevel, MAX_POWER_LEVEL)) * (1 - Math.pow(1 - clampedFullness, 2));
+/**
+ * How much the shields are drained by the damage they absorb, as a percentage of it.
+ * More hull power makes them more efficient: from 100% at power 1 to 60% at full power, so the same capacity absorbs more.
+ */
+export function getShieldDrainPercent(powerLevel: number, reinforced: boolean): number {
+    const forPower = 110 - 10 * Math.max(1, Math.min(powerLevel, MAX_POWER_LEVEL));
 
-    return Math.round(Math.max(0, Math.min(100, absorption)));
+    return reinforced
+        ? forPower * reinforcedDrainPercent / 100
+        : forPower;
 }

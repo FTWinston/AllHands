@@ -1,4 +1,4 @@
-import { bracedPerLevel, maxPreventedPercent, reinforcedPerLevel, tunedPerLevel } from 'common-data/features/ships/utils/shieldStats';
+import { reinforcedDrainPercent, shieldCollapsePercent, tunedReductionPercent } from 'common-data/features/ships/utils/shieldStats';
 import { systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { EffectLevel, EffectMaxLevel } from '../components/EffectLevelContext';
@@ -16,51 +16,29 @@ function loadEffectDefinitions() {
                 of
                 {' '}
                 <EffectMaxLevel />
-                . The shields absorb a share of each hit, which is greater the fuller they are, and the more power the hull has. At full power, full shields absorb everything. They only recharge between encounters.
-                {` Bonuses from drawing hull cards reduce hits further, but never by more than ${maxPreventedPercent}% of a hit.`}
+                {`. The shields absorb a share of each hit, which drains them. More hull power means they absorb more, for less drain. They collapse if a hit leaves them below ${shieldCollapsePercent}%, and only recharge between encounters.`}
             </>,
             image: ExampleIcon,
         },
         shieldReinforced: {
             name: 'Reinforced',
-            description: <>
-                {`The next hit the shields absorb drains them ${reinforcedPerLevel} less for each level, currently `}
-                <EffectLevel />
-                . Built up by drawing shield emitters, and used up by that hit.
-            </>,
-            image: ExampleIcon,
-        },
-        hullBraced: {
-            name: 'Braced',
-            description: <>
-                {`${bracedPerLevel} less of the next hit gets past the shields for each level, currently `}
-                <EffectLevel />
-                . Built up by drawing hull plating, and used up by that hit.
-            </>,
+            description: <>{`A shield mode: the shields are drained ${100 - reinforcedDrainPercent}% less by the damage they absorb. Set by drawing a shield emitter, until it runs out or another mode replaces it.`}</>,
             image: ExampleIcon,
         },
         shieldTunedEnergy: {
             name: 'Tuned: Energy',
-            description: <>
-                {`The next hit from an energy weapon does ${tunedPerLevel} less damage for each level, currently `}
-                <EffectLevel />
-                . Built up by drawing energy tuning cards, and used up by that hit.
-            </>,
+            description: <>{`A shield mode: hits from energy weapons do ${tunedReductionPercent}% less damage. Set by drawing an energy tuning card, until it runs out or another mode replaces it.`}</>,
             image: ExampleIcon,
         },
         shieldTunedTorpedo: {
             name: 'Tuned: Torpedoes',
-            description: <>
-                {`The next torpedo hit does ${tunedPerLevel} less damage for each level, currently `}
-                <EffectLevel />
-                . Built up by drawing torpedo tuning cards, and used up by that hit.
-            </>,
+            description: <>{`A shield mode: torpedo hits do ${tunedReductionPercent}% less damage. Set by drawing a torpedo tuning card, until it runs out or another mode replaces it.`}</>,
             image: ExampleIcon,
         },
         shieldScrambled: {
             name: 'Shields Scrambled',
             description: <>
-                The shields have been scrambled, so drawing hull cards adds no bonuses until
+                The shields have been scrambled, so drawing hull cards sets no shield mode until
                 {' '}
                 <EffectLevel />
                 {' '}

@@ -21,7 +21,7 @@ const helmCards = {
     ],
 } satisfies SystemCards;
 
-// The player's starting hull, with an emitter and a plating card damaged: 75 shield capacity.
+// A hull with every common card type, with an emitter and a plating card damaged: 75 shield capacity.
 const hullCards = {
     hand: [],
     deck: (['hullShieldEmitter', 'hullShieldTuningEnergy', 'hullShieldEmitter', 'hullPlating', 'hullShieldEmitter', 'hullShieldTuningTorpedo'] as const)
@@ -199,16 +199,8 @@ export const UI: Story = {
                         progress: null,
                     },
                     {
-                        type: 'shieldReinforced',
-                        level: 2,
-                        maxLevel: 3,
-                        progress: null,
-                    },
-                    {
                         type: 'shieldTunedEnergy',
-                        level: 1,
-                        maxLevel: 3,
-                        progress: null,
+                        progress: { startTime: Date.now(), endTime: Date.now() + 12000 },
                     },
                     {
                         type: 'auxPower',

@@ -150,11 +150,12 @@ describe('ScienceState scanned systems', () => {
         scan(scanner, target, target.helmState.scannedSystemIndex);
         expect([...scanner.scannedHull.shieldTuning]).toEqual([]);
 
-        hullTile(target).adjustEffectLevel('shieldTunedTorpedo', 1);
+        hullTile(target).addEffect('shieldTunedTorpedo');
         expect([...scanner.scannedHull.shieldTuning]).toEqual(['torpedo']);
 
-        hullTile(target).adjustEffectLevel('shieldTunedEnergy', 2);
-        expect([...scanner.scannedHull.shieldTuning]).toEqual(['energy', 'torpedo']);
+        hullTile(target).removeEffect('shieldTunedTorpedo', false);
+        hullTile(target).addEffect('shieldTunedEnergy');
+        expect([...scanner.scannedHull.shieldTuning]).toEqual(['energy']);
 
         target.hullState.scrambleShields(2);
         expect([...scanner.scannedHull.shieldTuning]).toEqual([]);
@@ -162,14 +163,12 @@ describe('ScienceState scanned systems', () => {
 
     it('scrambles the target\'s shields when a tetryon scan finds a vulnerability', () => {
         const { state, scanner, target } = createWorld();
-        hullTile(target).adjustEffectLevel('shieldTunedEnergy', 1);
-        hullTile(target).adjustEffectLevel('hullBraced', 2);
+        hullTile(target).addEffect('shieldTunedEnergy');
 
         const card = getCardDefinition('tetryonScan');
         card.findVulnerability(state, scanner, target, 'helm', { cost: 2, scrambleDraws: 3 });
 
         expect(hullTile(target).hasEffect('shieldTunedEnergy')).toBe(false);
-        expect(hullTile(target).hasEffect('hullBraced')).toBe(false);
         expect(hullTile(target).getEffectLevel('shieldScrambled')).toBe(3);
     });
 

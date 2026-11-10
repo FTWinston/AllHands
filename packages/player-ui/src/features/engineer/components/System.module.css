@@ -165,7 +165,17 @@ button.viewCards.generating {
     The hull's shields, beside its name in small tiles. There's little room, and the hull's own icon is a shield, so this has none.
     Taller and wider tiles show them with power and health instead.
 */
-.headerShield {
+/* A shield readout is a button that opens a description of the shields, so it keeps the popup trigger's outline, in the shields' colour. */
+.system .shieldReadout {
+    padding: 0.05em 0.35em;
+    border-color: var(--energy-dark);
+    border-radius: 0 0.5em 0 0.5em;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+.system .headerShield {
     flex-shrink: 0;
     color: var(--energy-light);
 }
@@ -181,12 +191,16 @@ button.viewCards.generating {
     border-color: var(--primary-dark);
 }
 
+/* Takes the attributes' third row, sharing their columns. */
 .shieldAttribute {
     display: none;
+    grid-row: 3;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    align-items: baseline;
 
-    & > * {
-        grid-row: 3;
-    }
+    /* Lets its outline overhang, so its icon and values stay in line with those above. */
+    margin: 0 -0.45em;
 }
 
 .attributeIcon.shieldIcon {
@@ -236,7 +250,7 @@ button.viewCards.generating {
     }
 
     /* The hull's shields go with power and health, taking room from the effects. */
-    .headerShield {
+    .system .headerShield {
         display: none;
     }
 
@@ -247,7 +261,7 @@ button.viewCards.generating {
     }
 
     .shieldAttribute {
-        display: contents;
+        display: grid;
     }
 }
 
@@ -290,7 +304,7 @@ button.viewCards.generating {
         }
     }
 
-    .headerShield {
+    .system .headerShield {
         display: none;
     }
 
@@ -308,7 +322,7 @@ button.viewCards.generating {
     }
 
     .shieldAttribute {
-        display: contents;
+        display: grid;
     }
 
     button.viewCards {
