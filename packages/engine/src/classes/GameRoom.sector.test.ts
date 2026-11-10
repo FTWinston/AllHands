@@ -4,6 +4,8 @@ import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { playerFactionId } from 'src/campaign/factions';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
+import { getDefaultNode } from 'src/encounters/EncounterRegistry';
+import { offerAnswers, offerAtMs } from 'src/encounters/SlowBoatEncounter';
 import { DEV_TOOLS_ENABLED } from 'src/generated/devtools';
 import { CrewState } from 'src/state/CrewState';
 import { setupGameRoom, startCampaign } from 'src/testUtils';
@@ -12,6 +14,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { startCountdownDuration, type GameRoom } from './GameRoom';
 import type { IArray } from '@colyseus/react';
 import type { ColyseusTestServer } from '@colyseus/testing';
+import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { EngineWeaponSlotCardDefinition } from 'src/cards/EngineCardDefinition';
 import type { PlayerShip } from 'src/state/PlayerShip';
 import type { HullSystemTile } from 'src/state/systems/engineer/HullSystemTile';
@@ -337,6 +340,46 @@ describe('GameRoom viewscreen readouts', () => {
             expect(getState().objective ?? null).toBeNull();
             expect(getState().hail ?? null).toBeNull();
             expect(getState().encounterOutcome ?? null).toBeNull();
+        });
+    });
+});
+
+describe('GameRoom comms prompts', () => {
+    it('everyone is sent what is being asked, but only tactical can answer it', async () => {
+        const { room, state, shipClient, clients } = await startGame();
+        const getPrompt = (client: TestClient) => (client.state as GameRoom['state']).prompt ?? null;
+
+        // The elite form of Slow Boat, whose harriers make an offer a minute in.
+        await send(room, clients.tactical, 'dismissMessage');
+        (state.campaign as unknown as { startEncounter(node: SectorNodeInfo): void }).startEncounter({ ...getDefaultNode('slowBoat'), elite: true });
+        state.currentTime += offerAtMs;
+        state.campaign!.tick(0);
+        expect(state.prompt).not.toBeNull();
+
+        await vi.waitFor(() => {
+            for (const client of [shipClient, clients.tactical]) {
+                expect(getPrompt(client)).toMatchObject({ speaker: 'Stranded Lead' });
+                expect(getPrompt(client)!.options.map(option => option.id)).toEqual([offerAnswers.handOver, offerAnswers.refuse]);
+            }
+        });
+
+        for (const role of ['helm', 'science', 'engineer'] as const) {
+            await send(room, clients[role], 'answerPrompt', { optionId: offerAnswers.handOver });
+            expect(state.prompt).not.toBeNull();
+        }
+
+        // Nor can tactical give an answer that wasn't on offer.
+        await send(room, clients.tactical, 'answerPrompt', { optionId: 'somethingElse' });
+        await send(room, clients.tactical, 'answerPrompt', {});
+        expect(state.prompt).not.toBeNull();
+
+        await send(room, clients.tactical, 'answerPrompt', { optionId: offerAnswers.handOver });
+        expect(state.prompt).toBeNull();
+        expect(getHostileShips(state).every(ship => ship.ai.commander.isWithdrawing)).toBe(true);
+
+        await vi.waitFor(() => {
+            expect(getPrompt(shipClient)).toBeNull();
+            expect(getPrompt(clients.tactical)).toBeNull();
         });
     });
 });

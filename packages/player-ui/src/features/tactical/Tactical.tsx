@@ -9,10 +9,12 @@ import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisp
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { useOrders } from '../orders/hooks/useOrders';
 import { useShop } from '../shop/hooks/useShop';
+import { CommsPrompt } from './components/CommsPrompt';
 import { SectorMessagePrompt } from './components/SectorMessagePrompt';
 import { TacticalDisplay } from './components/TacticalDisplay';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
+import type { PromptInfo } from 'common-data/features/sectors/types/PromptInfo';
 import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMessageInfo';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameState } from 'engine/state/GameState';
@@ -34,6 +36,11 @@ export const Tactical = (props: Props) => {
     const orders = useOrders(props.room, 'tactical', localShip?.tacticalState, localShip);
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
 
+    const prompt = (useRoomState(props.room, state => state.prompt) ?? null) as unknown as PromptInfo | null;
+
+    const answerPrompt = useCallback((optionId: string) => {
+        props.room.send('answerPrompt', { optionId });
+    }, [props.room]);
     const dismissMessage = useCallback(() => {
         props.room.send('dismissMessage');
     }, [props.room]);
@@ -86,21 +93,24 @@ export const Tactical = (props: Props) => {
     };
 
     return (
-        <TacticalDisplay
-            cards={tacticalState.hand}
-            slots={tacticalState.slots}
-            shipMotion={localShip.motion}
-            targets={targets}
-            subTargetsByTarget={tacticalState.subTargetsByTarget}
-            scannedHull={localShip.scannedHull ?? null}
-            onPause={pause}
-            power={tacticalState.powerLevel}
-            deckSize={tacticalState.deck.length}
-            deckView={deckView}
-            playCard={playCard}
-            ejectWeapon={ejectWeapon}
-            cardGeneration={tacticalState.cardGeneration}
-            viewer={viewer}
-        />
+        <>
+            {prompt && <CommsPrompt prompt={prompt} onAnswer={answerPrompt} />}
+            <TacticalDisplay
+                cards={tacticalState.hand}
+                slots={tacticalState.slots}
+                shipMotion={localShip.motion}
+                targets={targets}
+                subTargetsByTarget={tacticalState.subTargetsByTarget}
+                scannedHull={localShip.scannedHull ?? null}
+                onPause={pause}
+                power={tacticalState.powerLevel}
+                deckSize={tacticalState.deck.length}
+                deckView={deckView}
+                playCard={playCard}
+                ejectWeapon={ejectWeapon}
+                cardGeneration={tacticalState.cardGeneration}
+                viewer={viewer}
+            />
+        </>
     );
 };

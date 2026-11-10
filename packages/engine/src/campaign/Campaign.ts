@@ -91,7 +91,22 @@ export class Campaign {
             return;
         }
 
+        // Whatever's being asked over comms is answered for the crew, if they've run out of time to answer it.
+        const prompt = this.state.prompt;
+        if (prompt && this.state.currentTime >= prompt.countdown.endTime) {
+            this.encounter.answerPrompt(null);
+        }
+
         this.encounter.tick(deltaTime);
+    }
+
+    /** Tactical answers what's being asked over comms, by picking one of its options. */
+    answerPrompt(optionId: string): boolean {
+        if (!this.isInEncounter || !this.encounter || typeof optionId !== 'string') {
+            return false;
+        }
+
+        return this.encounter.answerPrompt(optionId);
     }
 
     onObjectRemoved(object: GameObject, reason: RemovalReason): void {
@@ -456,6 +471,7 @@ export class Campaign {
         this.state.objective = null;
         this.state.encounterOutcome = null;
         this.state.hail = null;
+        this.state.prompt = null;
     }
 
     /** Ends the running encounter: removes the warp cards and every non-player object, and resets the player ships' card state. */

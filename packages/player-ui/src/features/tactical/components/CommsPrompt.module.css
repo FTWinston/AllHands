@@ -1,0 +1,62 @@
+/* Covers everything else, so nothing behind it can be played until this is answered. */
+.backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: color-mix(in srgb, var(--space) 70%, transparent);
+}
+
+.prompt {
+    width: min(32em, 90vw);
+    max-height: 80dvh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+    padding: 1.5em;
+    text-align: center;
+    background-color: color-mix(in oklch, var(--energy-darkest) 70%, var(--panel));
+    border: solid var(--energy-mid) 0.2em;
+    border-radius: 0 1.5em 0 1.5em;
+    corner-shape: bevel;
+    box-shadow: 0 0 2em 0.5em color-mix(in srgb, var(--energy-light) 40%, transparent);
+}
+
+.speaker {
+    font-family: var(--readout-font-family);
+    font-size: 1em;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--energy-light);
+}
+
+.text {
+    line-height: 1.5;
+    color: var(--grey-lightest);
+}
+
+.options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1em;
+    width: 100%;
+}
+
+.button {
+    flex: 1 1 8em;
+    font-size: 1.35em;
+}
+
+/* Fills up as the time to answer runs out. */
+.countdown {
+    align-self: stretch;
+    flex-grow: 0;
+    color: var(--energy-light);
+    background-color: color-mix(in oklch, var(--energy-light) 15%, transparent);
+}

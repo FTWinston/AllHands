@@ -56,6 +56,15 @@ const shieldLines: readonly (readonly [fraction: number, line: string])[] = [
     [0.25, 'Shields are almost gone. We can\'t take much more of this.'],
 ];
 
+const strandedLead = 'Stranded Lead';
+/** How long into an elite encounter the harriers' leader makes its offer, and how long there is to answer it. */
+export const offerAtMs = 60_000;
+export const offerTimeoutMs = 20_000;
+/** The answers that can be given to the offer. */
+export const offerAnswers = { handOver: 'handOver', refuse: 'refuse' } as const;
+/** How much of the usual reward a crossing is worth, if it was bought with a share of the clinic ship's stores. */
+export const boughtCrossingScore = 0.5;
+
 const numberNames = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'];
 
 /**
@@ -66,6 +75,8 @@ const numberNames = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eig
  * - It's a success once the clinic ship reaches the end of its route, and a failure if it's destroyed. Either way the harriers then leave.
  *
  * How the clinic ship is doing is only ever said, as its shields fall, or found by scanning it: nothing shows it.
+ *
+ * Elite: a minute in, the harriers' leader offers to leave for a third of the clinic ship's stores. Neither answer is the right one.
  */
 export class SlowBoatEncounter extends Encounter {
     protected override readonly sides = [
@@ -81,6 +92,15 @@ export class SlowBoatEncounter extends Encounter {
     private nextHarrierTime = 0;
     /** Whether Marrow has reached the end of its route, so its removal isn't a loss. */
     private arrived = false;
+
+    /** Whether the harriers' leader has made its offer, in the elite form. */
+    private offerMade = false;
+    /** Whether the harriers have been bought off, so no more will come. */
+    private harriersCalledOff = false;
+    /** The most harriers that can be here at once. */
+    private mostHarriers = maxHarriers;
+    /** How much of the usual reward getting Marrow across is worth. */
+    private crossingScore = 1;
 
     /** How many of Marrow's turns have been announced. */
     private turnsAnnounced = 0;
@@ -169,12 +189,45 @@ export class SlowBoatEncounter extends Encounter {
         this.announceShields(marrow);
         this.announceTurn(marrow, now);
 
-        if (now >= this.nextHarrierTime) {
+        if (this.node.elite && !this.offerMade && now - this.startTime >= offerAtMs) {
+            this.makeOffer();
+        }
+
+        if (!this.harriersCalledOff && now >= this.nextHarrierTime) {
             this.nextHarrierTime = now + harrierIntervalMs;
 
-            if (this.harriers.length < maxHarriers) {
+            if (this.harriers.length < this.mostHarriers) {
                 this.spawnHarrier(this.state.random.getFloat(0, Math.PI * 2));
             }
+        }
+    }
+
+    /** The harriers' leader offers to leave for a share of what the clinic ship is carrying. Saying nothing is taken as a no. */
+    private makeOffer(): void {
+        this.offerMade = true;
+        this.prompt(
+            strandedLead,
+            'There\'s two hundred of us on a dead hauler, and that ship\'s carrying antibiotics. A third of the stores and we\'re gone. Your call.',
+            [{ id: offerAnswers.handOver, label: 'Hand it over' }, { id: offerAnswers.refuse, label: 'Refuse' }],
+            offerTimeoutMs,
+            offerAnswers.refuse
+        );
+    }
+
+    /**
+     * Handing the stores over ends the fighting: every harrier leaves, no more come, and the crossing is worth less for having been bought.
+     * Refusing brings another harrier straight away, and lets one more than before be here at once.
+     */
+    protected override onPromptAnswered(optionId: string): void {
+        if (optionId === offerAnswers.handOver) {
+            this.harriersCalledOff = true;
+            this.crossingScore = boughtCrossingScore;
+            this.sendHarriersAway();
+            this.hail(strandedLead, 'That\'ll keep us alive. We\'re gone.');
+        } else {
+            this.mostHarriers = maxHarriers + 1;
+            this.spawnHarrier(this.state.random.getFloat(0, Math.PI * 2));
+            this.hail(strandedLead, 'Then we\'ll take all of it.');
         }
     }
 
@@ -194,7 +247,7 @@ export class SlowBoatEncounter extends Encounter {
         this.arrived = true;
         this.sendHarriersAway();
         marrow.depart();
-        this.complete('success');
+        this.complete('success', this.crossingScore);
         this.hail(marrowName, 'Jump point. Forty patients say thank you, and so do I.');
     }
 
