@@ -1,4 +1,4 @@
-import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
+import { WeaponEffect, warpOutWindUp } from 'common-data/features/space/types/WeaponEffect';
 import { describe, expect, it, vi } from 'vitest';
 import { drawWeaponEffects } from './drawWeaponEffects';
 
@@ -8,6 +8,8 @@ function createContext() {
         restore: vi.fn(),
         beginPath: vi.fn(),
         arc: vi.fn(),
+        moveTo: vi.fn(),
+        lineTo: vi.fn(),
         fill: vi.fn(),
         stroke: vi.fn(),
     };
@@ -49,5 +51,38 @@ describe('drawWeaponEffects', () => {
 
         expect(context.stroke).not.toHaveBeenCalled();
         expect(effects).toEqual([]);
+    });
+
+    describe('a ship jumping to warp', () => {
+        const warpOut: WeaponEffect = {
+            type: 'warpOut',
+            sourceId: 'gone',
+            appearance: 'chevron',
+            position: { x: 12, y: -3, angle: 0 },
+            startTime: 0,
+        };
+
+        it('draws nothing while the ship gathers itself', () => {
+            const context = draw([warpOut], warpOutWindUp);
+
+            expect(context.stroke).not.toHaveBeenCalled();
+        });
+
+        it('then draws a line from where it was, off the way it was facing', () => {
+            const context = draw([warpOut], warpOutWindUp + 200);
+
+            expect(context.moveTo).toHaveBeenCalledWith(12, -3);
+            const [x, y] = context.lineTo.mock.calls[0];
+            expect(x).toBeGreaterThan(12);
+            expect(y).toBeCloseTo(-3);
+        });
+
+        it('is pruned once it has finished', () => {
+            const effects: WeaponEffect[] = [warpOut];
+
+            draw(effects, 100000);
+
+            expect(effects).toEqual([]);
+        });
     });
 });

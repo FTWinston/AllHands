@@ -170,6 +170,12 @@ export class Campaign {
         }
 
         this.playerShipsInEncounter.delete(ship);
+
+        // There's no space view to show it in at a station.
+        if (!this.isAtStation) {
+            ship.showWarpOut();
+        }
+
         this.leaveIfAllDeparted();
         return true;
     }

@@ -35,10 +35,12 @@ export class AiShip extends Ship {
     }
 
     /**
-     * Leaves the encounter in one piece: the ship is removed from the game without being destroyed.
+     * Leaves the encounter in one piece: the ship jumps to warp, and is removed from the game without being destroyed.
      * Driving a ship off counts for as much as destroying it, as it's just as gone.
      */
     depart(): void {
+        // Before removal, while those who can see the ship still know of it.
+        this.showWarpOut();
         this.scienceState.unsubscribeFromShip();
         this.gameState.remove(this, 'departed');
     }

@@ -1,7 +1,7 @@
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Position } from 'common-data/features/space/types/Position';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
-import { ExplosionEffect, ShotEffect, WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
+import { ExplosionEffect, ShotEffect, WarpOutEffect, WeaponEffect, warpOutWindUp } from 'common-data/features/space/types/WeaponEffect';
 import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
 import { getWeaponVisual } from './weaponVisuals';
 
@@ -12,6 +12,9 @@ const PROJECTILE_FORWARD_DISTANCE = 15;
 
 const EXPLOSION_DURATION = 1500;
 const EXPLOSION_RADIUS = 1.5;
+
+const WARP_OUT_DURATION = 1300;
+const WARP_OUT_LENGTH = 30;
 
 const COLOR = '#cccccc';
 
@@ -88,12 +91,33 @@ function drawExplosion(ctx: CanvasRenderingContext2D, effect: ExplosionEffect, c
     ctx.stroke();
 }
 
+/** Draw a ship jumping to warp: after a moment, a line that shoots off the way it was facing, and fades away. */
+function drawWarpOut(ctx: CanvasRenderingContext2D, effect: WarpOutEffect, currentTime: number, pixelSize: number) {
+    const progress = getProgress(effect.startTime + warpOutWindUp, WARP_OUT_DURATION - warpOutWindUp, currentTime);
+    if (progress <= 0) {
+        return;
+    }
+
+    const { x, y, angle } = effect.position;
+    const length = WARP_OUT_LENGTH * progress;
+
+    ctx.globalAlpha = 1 - progress;
+    ctx.strokeStyle = COLOR;
+    ctx.lineWidth = Math.max(pixelSize * 2, 0.05);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + Math.cos(angle) * length, y - Math.sin(angle) * length);
+    ctx.stroke();
+}
+
 function getDuration(effect: WeaponEffect) {
     switch (effect.type) {
         case 'shot':
             return getWeaponVisual(effect.weapon).duration;
         case 'explosion':
             return EXPLOSION_DURATION;
+        case 'warpOut':
+            return WARP_OUT_DURATION;
         default:
             return 0;
     }
@@ -130,6 +154,8 @@ export function drawWeaponEffects(
 
         if (effect.type === 'explosion') {
             drawExplosion(ctx, effect, currentTime, pixelSize);
+        } else if (effect.type === 'warpOut') {
+            drawWarpOut(ctx, effect, currentTime, pixelSize);
         } else if (effect.type === 'shot') {
             const { kind, duration, thickness } = getWeaponVisual(effect.weapon);
 

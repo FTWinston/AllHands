@@ -3,6 +3,7 @@ import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { WeaponEffect, projectileFlightTime } from 'common-data/features/space/types/WeaponEffect';
+import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
 import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { ComponentProps, RefObject, useEffect, useMemo, useState } from 'react';
@@ -209,4 +210,52 @@ export const Combat: Story = {
 /** The same fight, with the optional labels saying what's going on. */
 export const CombatWithLabels: Story = {
     render: args => <CombatStory {...args} showLabels />,
+};
+
+const warpOrder = ['fighter', 'cruiser', 'player'];
+
+function useScriptedWarps(effects: RefObject<WeaponEffect[]>) {
+    useEffect(() => {
+        let step = 0;
+
+        const interval = setInterval(() => {
+            const now = Date.now();
+            const ship = combatObjects[warpOrder[step++ % warpOrder.length]];
+
+            effects.current.push({
+                type: 'warpOut',
+                sourceId: ship.id,
+                appearance: ship.appearance,
+                position: interpolatePosition(ship.motion, now),
+                startTime: now,
+            });
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [effects]);
+}
+
+const WarpOutStory = (args: ComponentProps<typeof Component>) => {
+    const weaponEffectsRef = useWeaponEffects(null);
+    useScriptedWarps(weaponEffectsRef);
+
+    useEffect(() => setCombatLabels(true), []);
+
+    return (
+        <Component
+            {...args}
+            center={[{ time: combatTime, x: 0, y: 0 }, { time: combatTime + 3600000, x: 3600, y: 0 }]}
+            objects={combatObjects}
+            viewer={{ shipId: 'player', faction: 'player', relations: { raiders: RelationshipType.Hostile } }}
+            weaponEffectsRef={weaponEffectsRef}
+        />
+    );
+};
+
+/**
+ * Ships jumping to warp in turn: a small one, a big one, then our own. Each is hidden once it goes.
+ * In the game it would then be gone for good, but here it's still there, so it comes back for the next round.
+ */
+export const WarpOut: Story = {
+    render: args => <WarpOutStory {...args} />,
 };

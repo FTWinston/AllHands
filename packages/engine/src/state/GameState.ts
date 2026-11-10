@@ -161,7 +161,7 @@ export class GameState extends Schema {
      * Send a weapon effect message to all crews that have visibility of either object involved.
      */
     public broadcastWeaponEffect(effect: WeaponEffect) {
-        const targetId = effect.type === 'explosion' ? undefined : effect.targetId;
+        const targetId = 'targetId' in effect ? effect.targetId : undefined;
 
         for (const crew of this.crews.values()) {
             const ship = crew.ship;

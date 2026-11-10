@@ -14,6 +14,11 @@ export function useViewscreenEffects(room: Room, shipId: string, phase: GamePhas
     useEffect(() => room.onMessage<WeaponEffect>('weaponEffect', (effect) => {
         if (effect.type === 'explosion') {
             sounds.explosion();
+        } else if (effect.type === 'warpOut') {
+            // Our own jump is heard as the scene changes.
+            if (effect.sourceId !== shipId) {
+                sounds.shipWarpedOut();
+            }
         } else if (effect.type === 'shot') {
             const isOwnShip = effect.sourceId === shipId;
 

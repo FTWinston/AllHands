@@ -48,8 +48,10 @@ describe('AiShip departing', () => {
         run(state, 2500);
         expect(state.objects.has(ship.id)).toBe(false);
         expect(remove).toHaveBeenCalledWith(ship, 'departed');
-        // It left in one piece, so nothing explodes.
-        expect(effects).not.toHaveBeenCalled();
+        // It left in one piece, so it jumps to warp from where it was, and nothing explodes.
+        expect(effects.mock.calls.map(([effect]) => effect)).toEqual([
+            expect.objectContaining({ type: 'warpOut', sourceId: ship.id, appearance: ship.appearance, position: expect.objectContaining({ x: departDistance + 10, y: 0 }) }),
+        ]);
     });
 
     it('stays while a hostile is too close', () => {

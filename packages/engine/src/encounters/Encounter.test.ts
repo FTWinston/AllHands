@@ -3,7 +3,7 @@ import { antimatterRewards } from 'common-data/features/ships/utils/antimatter';
 import { playerFactionId } from 'src/campaign/factions';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createEncounter, getDefaultNode, getDevEncounterList, getEncounterIds, stationEncounterIds } from './EncounterRegistry';
 import { StationEncounter } from './StationEncounter';
 import { defaultSurviveDurationMs } from './SurviveEncounter';
@@ -228,6 +228,46 @@ describe('outcomes', () => {
 
         expect(state.encounter!.outcome).toBe('failure');
         expect(ships[0].antimatter).toBe(0);
+    });
+});
+
+describe('warping away', () => {
+    it('shows the player ship jumping to warp from where it is, as it leaves a fight', () => {
+        const { state, campaign, ships } = createCampaign();
+        campaign.devLoadEncounter('skirmish');
+        for (const hostile of getHostileShips(state)) {
+            hostile.destroy();
+        }
+
+        const effects = vi.spyOn(state, 'broadcastWeaponEffect');
+        expect(campaign.warpAway(ships[0])).toBe(true);
+
+        expect(effects).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+            type: 'warpOut',
+            sourceId: ships[0].id,
+            appearance: ships[0].appearance,
+            position: ships[0].getPosition(state.currentTime),
+        }));
+    });
+
+    it('shows nothing when leaving a station, as there is no space view there', () => {
+        const { state, campaign, ships } = createCampaign();
+        campaign.devLoadEncounter('repairStation');
+
+        const effects = vi.spyOn(state, 'broadcastWeaponEffect');
+        expect(campaign.warpAway(ships[0])).toBe(true);
+
+        expect(effects).not.toHaveBeenCalled();
+    });
+
+    it('shows nothing when the card is refused', () => {
+        const { state, campaign, ships } = createCampaign();
+        campaign.devLoadEncounter('skirmish');
+
+        const effects = vi.spyOn(state, 'broadcastWeaponEffect');
+        expect(campaign.warpAway(ships[0])).toBe(false);
+
+        expect(effects).not.toHaveBeenCalled();
     });
 });
 
