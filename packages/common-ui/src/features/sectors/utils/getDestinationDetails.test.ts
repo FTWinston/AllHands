@@ -9,17 +9,15 @@ const repairStation: SectorDestinationInfo = {
 };
 
 describe('getDestinationDetails', () => {
-    it('lists environment, hostile faction and objective', () => {
+    it('lists environment and objective', () => {
         expect(getDestinationDetails({
             id: 'n2',
             kind: 'combat',
             name: 'Ember Belt',
             environment: 'asteroidField',
-            factionId: 'factionA',
             objective: { type: 'survive', durationMs: 90_000 },
         })).toEqual([
             { label: 'Environment', value: 'Asteroid field' },
-            { label: 'Hostile', value: 'Faction A' },
             { label: 'Objective', value: 'Survive for 1 minute 30 seconds' },
         ]);
     });

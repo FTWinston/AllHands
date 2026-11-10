@@ -4,7 +4,7 @@ import { Random } from 'common-data/classes/Random';
 import { ShipSetupInfo, NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { roomIdentifier } from 'common-data/utils/constants';
 import { Campaign } from 'src/campaign/Campaign';
-import { factionConfigs, playerFactionId } from 'src/campaign/factions';
+import { playerFactionId } from 'src/campaign/factions';
 import { playerShipSetup } from 'src/campaign/playerShipSetup';
 import { sectorThemes, type SectorTheme } from 'src/campaign/sectorThemes';
 import { GameRoom } from 'src/classes/GameRoom';
@@ -87,9 +87,9 @@ export function seededRandom(seed: number): Random {
     });
 }
 
-/** Creates factions, one player ship per count, and a started campaign (in its first sector intro) on the state. */
+/** Creates the player faction, one player ship per count, and a started campaign (in its first sector intro) on the state. */
 export function startCampaign(state: GameState, shipCount = 1, themes: readonly SectorTheme[] = sectorThemes) {
-    state.initFactions(factionConfigs, playerFactionId);
+    state.initFactions([{ id: playerFactionId }], playerFactionId);
 
     const ships: PlayerShip[] = [];
     for (let i = 0; i < shipCount; i++) {

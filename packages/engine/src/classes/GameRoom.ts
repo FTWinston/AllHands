@@ -15,7 +15,7 @@ import { EngineerState } from 'src/state/systems/engineer/EngineerState';
 import { ScienceState } from 'src/state/systems/science/ScienceState';
 import { TacticalState } from 'src/state/systems/tactical/TacticalState';
 import { Campaign } from '../campaign/Campaign';
-import { factionConfigs, playerFactionId } from '../campaign/factions';
+import { playerFactionId } from '../campaign/factions';
 import { playerShipSetup } from '../campaign/playerShipSetup';
 import { getDevEncounterList, hasEncounter } from '../encounters/EncounterRegistry';
 import { DEV_TOOLS_ENABLED } from '../generated/devtools';
@@ -866,7 +866,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
     populateScenario() {
         console.log('Initializing campaign');
-        this.state.initFactions(factionConfigs, playerFactionId);
+        this.state.initFactions([{ id: playerFactionId }], playerFactionId);
 
         // Factions didn't exist yet when already-connected clients' views were set up
         // (see addFactionToViews), so add the now-created player faction to them here.

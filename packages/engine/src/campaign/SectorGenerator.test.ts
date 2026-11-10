@@ -215,11 +215,9 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
 
             if (isStationKind(node.kind)) {
                 expect(node.objective).toBeUndefined();
-                expect(node.factionId).toBeUndefined();
                 expect(node.encounterId).toBe(stationEncounterIds[node.kind]);
             } else {
                 expect(node.environment).toBeDefined();
-                expect(node.factionId).toBe(theme.factionId);
                 expect(node.objective).toBeDefined();
             }
 
@@ -229,7 +227,7 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
                 expect(node.objective).toMatchObject({ type: 'survive' });
                 expect((node.objective as { durationMs: number }).durationMs).toBeGreaterThan(0);
             } else if (node.kind === 'combat') {
-                expect(node.objective).toEqual({ type: 'destroyAll' });
+                expect(node.objective).toEqual({ type: 'clear' });
             }
         }
     });

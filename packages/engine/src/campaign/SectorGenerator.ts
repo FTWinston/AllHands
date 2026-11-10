@@ -80,8 +80,8 @@ function pickInRange(random: IRandom, { min, max }: Range): number {
     return min + random.getInt(max - min + 1);
 }
 
-const easyEncounters: readonly EncounterId[] = ['skirmish', 'ambush', 'survive'];
-const hardEncounters: readonly EncounterId[] = ['assault', 'escort', 'survive', 'ambush'];
+const easyEncounters: readonly EncounterId[] = ['skirmish', 'ambush', 'survive', 'tollCollectors'];
+const hardEncounters: readonly EncounterId[] = ['assault', 'escort', 'survive', 'ambush', 'tollCollectors'];
 /** Encounter layers 1..easyLayerCount use the easier encounters. */
 const easyLayerCount = 3;
 const surviveDurationsMs = [45_000, 60_000, 75_000];
@@ -487,7 +487,6 @@ function createNode(random: IRandom, theme: SectorTheme, slot: NodeSlot, role: N
             encounterId: definition.id,
             name: definition.name,
             environment: random.pick(theme.environments),
-            factionId: theme.factionId,
             objective: definition.objective,
         };
     }
@@ -512,7 +511,6 @@ function createNode(random: IRandom, theme: SectorTheme, slot: NodeSlot, role: N
         encounterId,
         name: `Encounter ${gridReference}`,
         environment: random.pick(theme.environments),
-        factionId: theme.factionId,
         objective: createObjective(random, definition.objective),
         ...(role === 'elite' && { elite: true }),
     };

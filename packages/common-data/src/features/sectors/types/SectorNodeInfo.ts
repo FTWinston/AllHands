@@ -22,11 +22,9 @@ export interface SectorNodeInfo {
     gridReference: string;
     /** Absent for stations. */
     environment?: EnvironmentType;
-    /** References `FactionConfig.id`. Absent for nodes without hostiles. */
-    factionId?: string;
     /** Absent for stations. */
     objective?: ObjectiveInfo;
-    /** A tougher combat encounter, bringing an extra heavy cruiser. Known from the outset, for route planning. */
+    /** A tougher form of the encounter: what that means is up to each one. Known from the outset, for route planning. */
     elite?: boolean;
     /** Normalised 0..1 layout position; x runs start to boss. */
     x: number;

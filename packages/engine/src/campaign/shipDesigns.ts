@@ -1,16 +1,16 @@
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import type { AiGoalInfo, AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import type { ShipAppearance } from 'common-data/features/space/types/ObjectAppearance';
 import type { Position } from 'common-data/features/space/types/Position';
 import type { IRandom } from 'common-data/types/IRandom';
 
-export type EnemyRole = 'scout' | 'fighter' | 'heavy' | 'flagship';
+/** A kind of AI ship. Each has its own appearance, so the same shape always means the same kind of ship, whichever side it's on. */
+export type ShipDesign = 'harrier' | 'fighter' | 'bulwark' | 'flagship';
 
 type ReactorCards = AiShipSetupInfo['reactor']['cards'];
 
 /**
  * Each reactor card gives its system one level of baseline power (and makes it draw cards more often),
- * so a role's strengths come from the `extra` cards on top of the basic sets.
+ * so a design's strengths come from the `extra` cards on top of the basic sets.
  */
 const reactorCards = (sets: number, ...extra: ReactorCards) => [
     ...Array(sets).fill(['reactorPowerHull', 'reactorPowerHelm', 'reactorPowerTactical', 'reactorPowerEngineer', 'reactorPowerScience', 'reactorPowerReactor']).flat(),
@@ -26,10 +26,12 @@ const system = <T extends string>(cards: T[], initialHandSize = 1) => ({ cards, 
     so the more of them a hull has, the less of the time its shields are tuned.
 */
 
-/** The original "An Enemy" ship from the old default scenario; all other roles are tweaks of it. */
-const fighterTemplate: Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal'> = {
+/** Everything about a ship that its design decides. The rest comes from the encounter that spawns it. */
+type DesignTemplate = Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal' | 'skill'>;
+
+/** The original "An Enemy" ship from the old default scenario; all other designs are tweaks of it. */
+const fighterTemplate: DesignTemplate = {
     appearance: 'swallowtail-interceptor',
-    skill: 1,
     // 60 shield capacity, sometimes tuned against energy weapons.
     hull: system(['hullShieldEmitter', 'hullShieldTuningEnergy', 'hullBare', 'hullShieldEmitter', 'hullShieldTuningEnergy', 'hullBare', 'hullShieldEmitter', 'hullShieldEmitter'], 0),
     // Loading a torpedo takes 3 tactical power.
@@ -40,9 +42,10 @@ const fighterTemplate: Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | '
     engineer: system(['auxPower', 'auxPower', 'distributePower']),
 };
 
-const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal'>> = {
-    scout: {
+const designTemplates: Record<ShipDesign, DesignTemplate> = {
+    harrier: {
         ...fighterTemplate,
+        appearance: 'dart-fighter',
         // A small shield (30), and a flimsy hull.
         hull: system(['hullShieldEmitter', 'hullShieldTuningEnergy', 'hullBare', 'hullShieldEmitter', 'hullBare'], 0),
         reactor: system(reactorCards(2, 'reactorPowerTactical', 'reactorPowerHelm'), 0),
@@ -51,8 +54,9 @@ const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' 
         fleeThreshold: 0.4,
     },
     fighter: fighterTemplate,
-    heavy: {
+    bulwark: {
         ...fighterTemplate,
+        appearance: 'hammerhead-cruiser',
         // A big shield (135), a third of it from a volatile emitter, sometimes tuned against torpedoes.
         hull: system([
             'hullShieldEmitter', 'hullVolatileEmitter', 'hullShieldTuningTorpedo', 'hullBare', 'hullShieldEmitter', 'hullShieldTuningTorpedo',
@@ -65,6 +69,7 @@ const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' 
     },
     flagship: {
         ...fighterTemplate,
+        appearance: 'manta-command-ship',
         // The biggest shield (210), with two volatile emitters, sometimes tuned against energy weapons or torpedoes.
         hull: system([
             'hullShieldEmitter', 'hullVolatileEmitter', 'hullShieldTuningEnergy', 'hullShieldTuningTorpedo', 'hullBare', 'hullShieldEmitter', 'hullVolatileEmitter', 'hullShieldTuningEnergy',
@@ -77,43 +82,33 @@ const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' 
     },
 };
 
-const roleNames: Record<EnemyRole, string> = {
-    scout: 'Scout',
+/** What a ship of each design is called, unless the encounter names it. */
+const designNames: Record<ShipDesign, string> = {
+    harrier: 'Harrier',
     fighter: 'Fighter',
-    heavy: 'Heavy Cruiser',
+    bulwark: 'Heavy Cruiser',
     flagship: 'Flagship',
 };
 
-/** Each faction's ships of a role share a design, so the same shape always means the same kind of enemy. */
-const factionAppearances: Record<string, Record<EnemyRole, ShipAppearance>> = {
-    factionA: { scout: 'dart-fighter', fighter: 'swallowtail-interceptor', heavy: 'hammerhead-cruiser', flagship: 'manta-command-ship' },
-    factionB: { scout: 'kite-scout', fighter: 'trident-raider', heavy: 'wedge-destroyer', flagship: 'crescent-battlecruiser' },
-    factionC: { scout: 'lance-interceptor', fighter: 'mantis-drone', heavy: 'segmented-battleship', flagship: 'spinal-gun-dreadnought' },
-};
+/** How well a ship plays (see `AiShipSetupInfo.skill`), unless the encounter says otherwise. */
+export const defaultSkill = 0.8;
 
-/** Faction-specific competence multiplier, so later-sector factions play better. */
-const factionSkill: Record<string, number> = {
-    factionA: 0.7,
-    factionB: 0.85,
-    factionC: 1,
-};
-
-export interface EnemySetupOptions {
+export interface ShipSetupOptions {
     scenarioId?: string;
     goal?: AiGoalInfo;
     name?: string;
+    skill?: number;
 }
 
-export function createEnemySetup(role: EnemyRole, factionId: string, position: Position, options: EnemySetupOptions = {}): AiShipSetupInfo {
-    const template = roleTemplates[role];
+/** The setup for a ship of the given design, on one of the sides that the encounter spawning it declares (see `Encounter.sides`). */
+export function createShipSetup(design: ShipDesign, side: string, position: Position, options: ShipSetupOptions = {}): AiShipSetupInfo {
     return {
-        ...template,
-        appearance: (factionAppearances[factionId] ?? factionAppearances.factionA)[role],
-        name: options.name ?? `${factionId} ${roleNames[role]}`,
-        faction: factionId,
+        ...designTemplates[design],
+        name: options.name ?? designNames[design],
+        faction: side,
         position,
         goal: options.goal ?? { type: 'search-and-destroy' },
-        skill: template.skill * (factionSkill[factionId] ?? 0.8),
+        skill: options.skill ?? defaultSkill,
         ...(options.scenarioId !== undefined ? { id: options.scenarioId } : {}),
     };
 }

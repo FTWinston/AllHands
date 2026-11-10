@@ -20,6 +20,7 @@ import type { Encounter } from '../encounters/Encounter';
 import type { GameObject } from '../state/GameObject';
 import type { GameState } from '../state/GameState';
 import type { CrewSystemState } from '../state/systems/CrewSystemState';
+import type { RemovalReason } from '../types/RemovalReason';
 import type { OrderPreview } from 'common-data/features/cards/types/OrderPreview';
 import type { GameOutcome } from 'common-data/features/sectors/types/GamePhase';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
@@ -92,7 +93,7 @@ export class Campaign {
         this.encounter.tick(deltaTime);
     }
 
-    onObjectRemoved(object: GameObject): void {
+    onObjectRemoved(object: GameObject, reason: RemovalReason): void {
         if (this.tearingDown || this.state.phase === null || this.isEnded) {
             return;
         }
@@ -109,7 +110,7 @@ export class Campaign {
         }
 
         if (this.state.phase === 'encounter' && this.encounter) {
-            this.encounter.onObjectRemoved(object);
+            this.encounter.onObjectRemoved(object, reason);
         }
     }
 
@@ -157,9 +158,14 @@ export class Campaign {
         });
     }
 
+    /** The running encounter is over, with its objective met or failed, so the player ships are free to leave it. */
+    private get isEncounterOver(): boolean {
+        return this.state.encounter?.outcome != null;
+    }
+
     /** Helm plays the Warp Away card, leaving the completed encounter. It ends once every player ship has warped away or been destroyed. */
     warpAway(ship: Ship): boolean {
-        if (!this.isInEncounter || !this.state.encounter?.objectiveMet || !(ship instanceof PlayerShip) || !this.playerShipsInEncounter.has(ship)) {
+        if (!this.isInEncounter || !this.isEncounterOver || !(ship instanceof PlayerShip) || !this.playerShipsInEncounter.has(ship)) {
             return false;
         }
 
@@ -170,7 +176,7 @@ export class Campaign {
 
     /** Ends the completed encounter once no player ship remains in it, moving on to the map, or the outro after the boss. */
     private leaveIfAllDeparted(): void {
-        if (this.playerShipsInEncounter.size > 0 || !this.isInEncounter || !this.state.encounter?.objectiveMet) {
+        if (this.playerShipsInEncounter.size > 0 || !this.isInEncounter || !this.isEncounterOver) {
             return;
         }
 
@@ -377,7 +383,6 @@ export class Campaign {
         const { node: encounterNode } = this.encounter;
         const summary = new EncounterSummaryState(encounterNode.encounterId, encounterNode.name);
         summary.environment = encounterNode.environment;
-        summary.factionId = encounterNode.factionId;
         summary.objective = encounterNode.objective ? encounterNode.objective : undefined;
         this.state.encounter = summary;
         this.state.encounterKind = encounterNode.kind;
@@ -385,7 +390,7 @@ export class Campaign {
         // Subscribe before starting, as an encounter may complete immediately.
         this.encounter.onComplete.addListener('campaign', () => {
             this.awardAntimatter();
-            this.completeObjective();
+            this.concludeEncounter();
         });
         if (this.state.devAutoWin) {
             this.encounter.startComplete();
@@ -395,31 +400,41 @@ export class Campaign {
         summary.objectiveEndTime = this.encounter.objectiveEndTime;
     }
 
-    /** Each player ship still in the completed encounter earns antimatter, according to the kind of node it was (see `antimatterRewards`). */
+    /**
+     * Each player ship still in an encounter whose objective was met earns antimatter, according to the kind of node it was (see `antimatterRewards`),
+     * scaled by its score if it grades its outcome. A failed objective earns nothing.
+     */
     private awardAntimatter(): void {
-        const reward = this.encounter ? getAntimatterReward(this.encounter.node) : 0;
+        if (this.encounter?.outcome !== 'success') {
+            return;
+        }
+
+        const reward = Math.round(getAntimatterReward(this.encounter.node) * this.encounter.score);
 
         for (const ship of this.playerShipsInEncounter) {
             ship.addAntimatter(reward);
         }
     }
 
-    /** Once the objective is met, every helm gets an expendable Warp Away card in its hand. Stations are complete on arrival. */
-    private completeObjective(): void {
-        if (!this.state.encounter || this.state.encounter.objectiveMet) {
+    /**
+     * Once the objective is met or failed, every helm gets an expendable Warp Away card in its hand: leaving is how either one ends.
+     * Stations are complete on arrival.
+     */
+    private concludeEncounter(): void {
+        if (!this.state.encounter || !this.encounter || this.isEncounterOver) {
             return;
         }
 
-        this.state.encounter.objectiveMet = true;
+        this.state.encounter.outcome = this.encounter.outcome;
 
         for (const ship of this.playerShipsInEncounter) {
             this.offerWarpAway(ship);
         }
     }
 
-    /** Gives the ship's helm an expendable Warp Away card, if the objective is met and they don't already have one. */
+    /** Gives the ship's helm an expendable Warp Away card, if the encounter is over and they don't already have one. */
     private offerWarpAway(ship: PlayerShip): void {
-        if (!this.state.encounter?.objectiveMet || !this.playerShipsInEncounter.has(ship) || ship.helmState.hand.some(card => card.type === 'warpAway')) {
+        if (!this.isEncounterOver || !this.playerShipsInEncounter.has(ship) || ship.helmState.hand.some(card => card.type === 'warpAway')) {
             return;
         }
 
@@ -447,6 +462,9 @@ export class Campaign {
         } finally {
             this.tearingDown = false;
         }
+
+        // Nothing relates to anything else from one encounter to the next.
+        this.state.factionRegistry.setEncounterSides([]);
 
         for (const ship of getPlayerShips(this.state)) {
             ship.cleanupAfterEncounter();

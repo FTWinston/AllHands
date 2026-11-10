@@ -1,20 +1,22 @@
 import { getHostileShips } from 'src/utils/shipQueries';
-import { spawnEnemies, withEliteReinforcements, type EnemySpawn } from './CombatEncounter';
+import { hostileToPlayer } from '../campaign/factions';
+import { hostileSide, spawnEnemies, withEliteReinforcements, type EnemySpawn } from './CombatEncounter';
 import { Encounter } from './Encounter';
-import type { EnemyRole } from '../campaign/enemyTemplates';
+import type { ShipDesign } from '../campaign/shipDesigns';
 import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameState } from 'src/state/GameState';
 
 export const defaultSurviveDurationMs = 60_000;
 const reinforcementIntervalMs = 12_000;
 const maxSimultaneousHostiles = 4;
-const reinforcementRoles: readonly EnemyRole[] = ['scout', 'fighter', 'scout', 'heavy'];
+const reinforcementDesigns: readonly ShipDesign[] = ['harrier', 'fighter', 'harrier', 'bulwark'];
 
 /**
  * Hold out for a set time. Hostiles keep arriving while the timer runs (up to a cap on how many
  * are alive at once); whatever is left when the timer ends does not have to be destroyed.
  */
 export class SurviveEncounter extends Encounter {
+    protected override readonly sides = [hostileToPlayer(hostileSide)];
     private sinceLastWave = 0;
     private endTime = 0;
     private started = false;
@@ -37,8 +39,8 @@ export class SurviveEncounter extends Encounter {
     }
 
     protected populate(): void {
-        const opening: EnemySpawn[] = [{ role: 'fighter' }, { role: 'scout' }];
-        this.spawnObjects(spawnEnemies(this.state, this.factionId, withEliteReinforcements(this.node, opening)));
+        const opening: EnemySpawn[] = [{ design: 'fighter' }, { design: 'harrier' }];
+        this.spawnObjects(spawnEnemies(this.state, hostileSide, withEliteReinforcements(this.node, opening)));
     }
 
     override tick(deltaTime: number): void {
@@ -58,8 +60,8 @@ export class SurviveEncounter extends Encounter {
         this.sinceLastWave = 0;
 
         if (getHostileShips(this.state).length < maxSimultaneousHostiles) {
-            const role = this.state.random.pick(reinforcementRoles);
-            this.spawnObjects(spawnEnemies(this.state, this.factionId, [{ role }]));
+            const design = this.state.random.pick(reinforcementDesigns);
+            this.spawnObjects(spawnEnemies(this.state, hostileSide, [{ design }]));
         }
     }
 }

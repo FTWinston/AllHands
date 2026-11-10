@@ -20,6 +20,9 @@ export class Commander {
     private activeGoal: AiGoalInfo;
     /** Current patrol-wander waypoint for search-and-destroy with no known/last-known hostile. Commander-private. */
     private wanderDestination: Vector2D | null = null;
+    /** Hull fraction below which the ship flees. Starts as configured; `standFast` zeroes it. */
+    private fleeThreshold: number;
+    private withdrawing = false;
 
     constructor(
         private readonly ship: Ship,
@@ -27,6 +30,30 @@ export class Commander {
         private readonly config: ResolvedAiConfig
     ) {
         this.activeGoal = config.goal;
+        this.fleeThreshold = config.fleeThreshold;
+    }
+
+    /** Whether the ship has been told to leave the fight for good (see `withdraw`). */
+    get isWithdrawing(): boolean {
+        return this.withdrawing;
+    }
+
+    /**
+     * Gives up on the goal for good: from its next update the ship flees whatever the state of its hull, and never comes back.
+     * Once it's clear of every hostile it leaves the encounter (see `AiShip.depart`), so this is how a ship stands down without being destroyed.
+     */
+    withdraw(): void {
+        this.withdrawing = true;
+    }
+
+    /** Stops the ship ever fleeing because of damage. It doesn't hold back a ship that has been told to `withdraw`. */
+    standFast(): void {
+        this.fleeThreshold = 0;
+    }
+
+    /** Calls off a withdrawal: from its next update the ship goes back to its goal, unless it's damaged enough to flee anyway. */
+    rally(): void {
+        this.withdrawing = false;
     }
 
     /**
@@ -64,18 +91,20 @@ export class Commander {
             this.activeGoal = { type: 'search-and-destroy' };
         }
 
-        // Flee transitions, with hysteresis.
-        if (blackboard.goal !== 'flee') {
-            if (this.config.fleeThreshold > 0 && hullFraction < this.config.fleeThreshold) {
+        // Flee transitions, with hysteresis. A ship that's withdrawing flees regardless, and doesn't come back.
+        if (this.withdrawing) {
+            blackboard.goal = 'flee';
+        } else if (blackboard.goal !== 'flee') {
+            if (this.fleeThreshold > 0 && hullFraction < this.fleeThreshold) {
                 blackboard.goal = 'flee';
             } else {
                 blackboard.goal = this.activeGoal.type;
             }
-        } else if (hullFraction >= Math.min(2 * this.config.fleeThreshold, 1)) {
+        } else if (hullFraction >= Math.min(2 * this.fleeThreshold, 1)) {
             blackboard.goal = this.activeGoal.type;
         }
 
-        const hostiles = this.getHostilesInScope(currentTime);
+        const hostiles = this.getHostilesInScope(blackboard, currentTime);
 
         this.updateTarget(blackboard, hostiles, ownPosition, currentTime, skill);
         this.updateStance(blackboard, hullFraction);
@@ -93,11 +122,16 @@ export class Commander {
         }
     }
 
-    private getHostilesInScope(currentTime: number): GameObject[] {
+    private getHostilesInScope(blackboard: Blackboard, currentTime: number): GameObject[] {
         const registry = this.gameState.factionRegistry;
         let hostiles = [...this.ship.knownObjects]
             .map(id => this.gameState.objects.get(id))
             .filter((o): o is GameObject => o !== undefined && registry.areHostile(this.ship, o));
+
+        if (blackboard.goal === 'flee') {
+            // A fleeing ship runs from every hostile it knows of, not just those its goal had it watching.
+            return hostiles;
+        }
 
         if (this.activeGoal.type === 'defend-position') {
             const anchor = this.activeGoal.position;

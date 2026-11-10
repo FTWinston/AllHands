@@ -97,4 +97,64 @@ describe('FactionRegistry', () => {
         expect(state.factionRegistry.areHostile(player, raider)).toBe(true);
         expect(state.factionRegistry.areHostile(player, neutral)).toBe(false);
     });
+
+    describe('setEncounterSides', () => {
+        it('adds sides with their relations, to each other and to the lasting factions', () => {
+            const state = createGameState();
+            state.initFactions([{ id: 'player' }], 'player');
+            const reg = state.factionRegistry;
+
+            reg.setEncounterSides([
+                { id: 'clinic', relations: { player: RelationshipType.Friendly, raiders: RelationshipType.Hostile } },
+                { id: 'raiders', relations: { player: RelationshipType.Hostile } },
+            ]);
+
+            expect(reg.getRelationshipBetween('player', 'clinic')).toBe(RelationshipType.Friendly);
+            expect(reg.getRelationshipBetween('player', 'raiders')).toBe(RelationshipType.Hostile);
+            expect(reg.getRelationshipBetween('raiders', 'clinic')).toBe(RelationshipType.Hostile);
+        });
+
+        it('replaces the previous sides, leaving no trace of them', () => {
+            const state = createGameState();
+            state.initFactions([{ id: 'player' }], 'player');
+            const reg = state.factionRegistry;
+            const player = state.factions.get('player')!;
+
+            reg.setEncounterSides([{ id: 'raiders', relations: { player: RelationshipType.Hostile } }]);
+            reg.setEncounterSides([{ id: 'wardens', relations: { player: RelationshipType.Hostile } }]);
+
+            expect([...state.factions.keys()].sort()).toEqual(['player', 'wardens']);
+            expect([...player.relations.keys()]).toEqual(['wardens']);
+            expect(reg.getRelationshipBetween('player', 'raiders')).toBe(RelationshipType.Neutral);
+
+            reg.setEncounterSides([]);
+
+            expect([...state.factions.keys()]).toEqual(['player']);
+            expect(player.relations.size).toBe(0);
+        });
+
+        it('keeps the lasting factions themselves, as clients hold onto the player faction', () => {
+            const state = createGameState();
+            state.initFactions([{ id: 'player' }], 'player');
+            const player = state.factions.get('player');
+
+            state.factionRegistry.setEncounterSides([{ id: 'raiders', relations: { player: RelationshipType.Hostile } }]);
+            state.factionRegistry.setEncounterSides([]);
+
+            expect(state.factions.get('player')).toBe(player);
+        });
+
+        it('fires relationsChanged', () => {
+            const state = createGameState();
+            state.initFactions([{ id: 'player' }], 'player');
+            let fired = 0;
+            state.factionRegistry.relationsChanged.addListener('test', () => {
+                fired++;
+            });
+
+            state.factionRegistry.setEncounterSides([{ id: 'raiders', relations: { player: RelationshipType.Hostile } }]);
+
+            expect(fired).toBe(1);
+        });
+    });
 });
