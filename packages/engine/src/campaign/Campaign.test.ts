@@ -112,6 +112,7 @@ describe('Campaign phase flow', () => {
         for (const destination of destinations) {
             const node = state.map!.getNode(destination.id)!;
             expect(destination).toMatchObject({ kind: node.kind, name: node.name, environment: node.environment });
+            expect(destination.request).toBe(node.request);
         }
 
         expect(ship.scienceState.nonEncounterCards).toHaveLength(0);

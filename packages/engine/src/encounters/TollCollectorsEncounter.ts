@@ -8,6 +8,7 @@ import type { GameState } from 'src/state/GameState';
 import type { RemovalReason } from 'src/types/RemovalReason';
 
 const wardens = 'wardens';
+const assize = 'Warden Cruiser Assize';
 
 /** The scenario id of the cruiser holding the jump point, which its escorts guard. */
 export const tollCruiserScenarioId = 'tollCruiser';
@@ -48,6 +49,7 @@ export class TollCollectorsEncounter extends Encounter {
     override start(): void {
         super.start();
         this.startTime = this.state.currentTime;
+        this.hail(assize, 'Unregistered vessel. Transit duty is forty percent of cargo. Heave to for assessment.');
     }
 
     protected populate(): void {
@@ -58,7 +60,7 @@ export class TollCollectorsEncounter extends Encounter {
             {
                 design: 'bulwark',
                 scenarioId: tollCruiserScenarioId,
-                name: 'Warden Cruiser Assize',
+                name: assize,
                 position: position(0),
                 goal: { type: 'defend-position', position: position(0), radius: cruiserDefendRadius },
                 skill,
@@ -103,17 +105,23 @@ export class TollCollectorsEncounter extends Encounter {
                     escort.ai.commander.rally();
                     escort.ai.commander.standFast();
                 }
+
+                if (this.escorts.length > 0) {
+                    this.hail(this.escorts[0].name, 'Assize is gone. No quarter.');
+                }
             }
         }
 
         if (noHostilesRemain(this.state)) {
             this.complete();
+            this.hail('Hauler Local 12', 'Point\'s clear. We\'ll take it from here. Drinks are on the Local.');
         }
     }
 
     /** A cruiser that has lost its shields gives up the jump point. The first one takes its escorts with it. */
     private withdraw(cruiser: AiShip): void {
         cruiser.ai.commander.withdraw();
+        this.hail(cruiser.name, 'Cost exceeds mandate. Withdrawing.');
 
         if (cruiser !== this.firstCruiser) {
             return;
@@ -136,5 +144,6 @@ export class TollCollectorsEncounter extends Encounter {
 
         this.cruisers.push(cruiser);
         this.spawnObjects([cruiser]);
+        this.hail(cruiser.name, 'Assize, we have your signal. Engaging.');
     }
 }

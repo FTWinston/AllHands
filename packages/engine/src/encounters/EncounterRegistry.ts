@@ -18,7 +18,24 @@ export interface EncounterDefinition {
     objective?: ObjectiveInfo;
     /** Environment used when launched standalone from dev tools. */
     defaultEnvironment?: EnvironmentType;
+    /** Who is asking for help here, and what they said. Absent for stations, and for encounters that nobody called about. */
+    request?: EncounterRequest;
     create(state: GameState, node: SectorNodeInfo): Encounter;
+}
+
+/** A call for help, which is what the map shows of the encounter it leads to. */
+export interface EncounterRequest {
+    /** Who's calling, e.g. "Hauler Local 12". */
+    from: string;
+    /** What it's about, in a couple of words, e.g. "toll dispute". With who's calling, it names the node. */
+    subject: string;
+    /** What they said. Science reads this on long range sensors. */
+    text: string;
+}
+
+/** What a node holding the given encounter is called: who's calling and what about, if anyone is. */
+export function getNodeName(definition: EncounterDefinition, fallback: string): string {
+    return definition.request ? `${definition.request.from}: ${definition.request.subject}` : fallback;
 }
 
 const definitions: readonly EncounterDefinition[] = [
@@ -27,7 +44,15 @@ const definitions: readonly EncounterDefinition[] = [
     { id: 'assault', name: 'Assault', kind: 'combat', objective: { type: 'clear' }, defaultEnvironment: 'nebula', create: (state, node) => new AssaultEncounter(state, node) },
     { id: 'escort', name: 'Escorted Cruiser', kind: 'combat', objective: { type: 'clear' }, defaultEnvironment: 'gasGiant', create: (state, node) => new EscortEncounter(state, node) },
     { id: 'survive', name: 'Hold Out', kind: 'combat', objective: { type: 'survive', durationMs: defaultSurviveDurationMs }, defaultEnvironment: 'asteroidField', create: (state, node) => new SurviveEncounter(state, node) },
-    { id: 'tollCollectors', name: 'Toll Collectors', kind: 'combat', objective: { type: 'clear' }, defaultEnvironment: 'deepSpace', create: (state, node) => new TollCollectorsEncounter(state, node) },
+    {
+        id: 'tollCollectors',
+        name: 'Toll Collectors',
+        kind: 'combat',
+        objective: { type: 'clear' },
+        defaultEnvironment: 'deepSpace',
+        request: { from: 'Hauler Local 12', subject: 'toll dispute', text: 'Wardens on the Kessin jump point, charging forty percent. We can\'t pay it and we can\'t go round.' },
+        create: (state, node) => new TollCollectorsEncounter(state, node),
+    },
     { id: 'repairStation', name: 'Repair Station', kind: 'repair', create: (state, node) => new StationEncounter(state, node) },
     { id: 'navigationBeacon', name: 'Navigation Beacon', kind: 'navigationBeacon', create: (state, node) => new StationEncounter(state, node) },
     { id: 'armsDealer', name: 'Arms Dealer', kind: 'armsDealer', create: (state, node) => new StationEncounter(state, node) },
@@ -72,6 +97,7 @@ export function getDefaultNode(id: EncounterId): SectorNodeInfo {
         gridReference: 'A1',
         environment: definition.defaultEnvironment,
         objective: definition.objective,
+        request: definition.request?.text,
         x: 0,
         y: 0,
         next: [],

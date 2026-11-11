@@ -1,10 +1,11 @@
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { antimatterRewards } from 'common-data/features/ships/utils/antimatter';
 import { playerFactionId } from 'src/campaign/factions';
+import { ObjectiveState } from 'src/state/ObjectiveState';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it, vi } from 'vitest';
-import { createEncounter, getDefaultNode, getDevEncounterList, getEncounterIds, stationEncounterIds } from './EncounterRegistry';
+import { createEncounter, getDefaultNode, getDevEncounterList, getEncounterDefinition, getEncounterIds, getNodeName, stationEncounterIds } from './EncounterRegistry';
 import { StationEncounter } from './StationEncounter';
 import { defaultSurviveDurationMs } from './SurviveEncounter';
 import type { Campaign } from 'src/campaign/Campaign';
@@ -228,6 +229,91 @@ describe('outcomes', () => {
 
         expect(state.encounter!.outcome).toBe('failure');
         expect(ships[0].antimatter).toBe(0);
+    });
+});
+
+describe('what the viewscreen is told', () => {
+    it('is the objective while the encounter runs, then how it ended, then nothing once the crew has left', () => {
+        const { state, campaign, ships } = createCampaign();
+        expect(state.objective).toBeNull();
+
+        campaign.devLoadEncounter('skirmish');
+        expect(state.objective).toMatchObject({ type: 'clear' });
+        expect(state.encounterOutcome).toBeNull();
+
+        for (const hostile of getHostileShips(state)) {
+            hostile.destroy();
+        }
+        expect(state.objective).toMatchObject({ type: 'clear' });
+        expect(state.encounterOutcome).toBe('success');
+
+        campaign.warpAway(ships[0]);
+        expect(state.objective).toBeNull();
+        expect(state.encounterOutcome).toBeNull();
+    });
+
+    it('includes a failure', () => {
+        const { state, campaign } = createCampaign();
+        campaign.devLoadEncounter('skirmish');
+
+        (campaign.activeEncounter as unknown as { complete(outcome: 'failure'): void }).complete('failure');
+
+        expect(state.encounterOutcome).toBe('failure');
+    });
+
+    it('carries how long there is to survive, and who or what an objective is about', () => {
+        const { state, campaign } = createCampaign();
+
+        campaign.devLoadEncounter('survive');
+        expect(state.objective).toMatchObject({ type: 'survive', durationMs: defaultSurviveDurationMs, subject: '' });
+
+        expect(new ObjectiveState({ type: 'protect', subject: 'Marrow' })).toMatchObject({ type: 'protect', durationMs: 0, subject: 'Marrow' });
+    });
+
+    it('has no objective at a station', () => {
+        const { state, campaign } = createCampaign();
+        campaign.devLoadEncounter('repairStation');
+
+        expect(state.objective).toBeNull();
+        expect(state.encounterOutcome).toBe('success');
+    });
+
+    it('forgets whatever was being said once the crew has left', () => {
+        const { state, campaign, ships } = createCampaign();
+        campaign.devLoadEncounter('skirmish');
+        state.showHail('Someone', 'Something.');
+
+        for (const hostile of getHostileShips(state)) {
+            hostile.destroy();
+        }
+        expect(state.hail).not.toBeNull();
+
+        campaign.warpAway(ships[0]);
+        expect(state.hail).toBeNull();
+    });
+});
+
+describe('requests', () => {
+    it('name a node after who is calling and what about, and give it what they said', () => {
+        const node = getDefaultNode('tollCollectors');
+        const definition = getEncounterDefinition('tollCollectors');
+
+        expect(definition.request).toBeDefined();
+        expect(getNodeName(definition, 'Encounter B2')).toBe('Hauler Local 12: toll dispute');
+        expect(node.request).toBe(definition.request!.text);
+    });
+
+    it('leave an encounter that nobody called about with its usual name, and nothing said', () => {
+        const definition = getEncounterDefinition('skirmish');
+
+        expect(getNodeName(definition, 'Encounter B2')).toBe('Encounter B2');
+        expect(getDefaultNode('skirmish').request).toBeUndefined();
+    });
+
+    it('are never made about stations', () => {
+        for (const encounterId of Object.values(stationEncounterIds)) {
+            expect(getEncounterDefinition(encounterId).request).toBeUndefined();
+        }
     });
 });
 

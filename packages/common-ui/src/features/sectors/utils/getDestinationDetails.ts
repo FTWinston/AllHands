@@ -16,5 +16,8 @@ export function getDestinationDetails(destination: Readonly<SectorDestinationInf
     if (destination.objective) {
         details.push({ label: 'Objective', value: getObjectiveLabel(destination.objective) });
     }
+    if (destination.request) {
+        details.push({ label: 'Message', value: destination.request });
+    }
     return details;
 }

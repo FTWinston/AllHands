@@ -2,7 +2,7 @@ import { isShopStationKind, isStationKind, shopStationKinds } from 'common-data/
 import { describe, expect, it } from 'vitest';
 import { getEncounterDefinition, hasEncounter, stationEncounterIds } from '../encounters/EncounterRegistry';
 import { seededRandom } from '../testUtils';
-import { generateSector, getMaxEliteCount, maxMidStationCount, maxRouteChoices, midStationLayers, minShopStationsPerRoute, sectorLayerCount, sectorRowCount } from './SectorGenerator';
+import { earlyLayerCount, generateSector, getMaxEliteCount, maxMidStationCount, maxRouteChoices, midStationLayers, minShopStationsPerRoute, sectorLayerCount, sectorRowCount } from './SectorGenerator';
 import { sectorThemes } from './sectorThemes';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
 
@@ -32,6 +32,15 @@ function enumeratePaths(sector: SectorInfo): string[][] {
 }
 
 describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorIndex] as const))('generateSector (%s)', (_name, theme, sectorIndex) => {
+    it.each(seeds)('seed %i only holds the encounters its theme lists, with the early ones in its first few layers', (seed) => {
+        const sector = getSector(seed, sectorIndex);
+
+        for (const node of sector.nodes.filter(node => node.kind === 'combat')) {
+            const layer = Math.round(node.x * (sectorLayerCount - 1));
+            expect(layer <= earlyLayerCount ? theme.encounters.early : theme.encounters.late).toContain(node.encounterId);
+        }
+    });
+
     it.each(seeds)('seed %i satisfies the graph invariants', (seed) => {
         const sector = getSector(seed, sectorIndex);
         const nodes = new Map(sector.nodes.map(node => [node.id, node]));
@@ -245,7 +254,10 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
             if (node.kind === 'boss') {
                 expect(node.name).toBe(getEncounterDefinition(theme.bossEncounterId).name);
             } else if (node.kind === 'combat') {
-                expect(node.name).toBe(`Encounter ${gridReference}`);
+                // Where someone has called for help, the node is named after who they are and what it's about.
+                const { request } = getEncounterDefinition(node.encounterId);
+                expect(node.name).toBe(request ? `${request.from}: ${request.subject}` : `Encounter ${gridReference}`);
+                expect(node.request).toBe(request?.text);
             } else {
                 expect(node.name).toBe(`${getEncounterDefinition(node.encounterId).name} ${gridReference}`);
             }

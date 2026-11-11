@@ -72,6 +72,14 @@ export abstract class Encounter {
         this.onComplete.triggerListeners();
     }
 
+    /**
+     * Has someone say something over comms, which the viewscreen shows for a while. It replaces anything already being said.
+     * This is how the people here get a voice, and how the crew hears things it can't see for itself, like how an ally is doing.
+     */
+    protected hail(speaker: string, text: string): void {
+        this.state.showHail(speaker, text);
+    }
+
     /** Creates the encounter's initial objects. */
     protected abstract populate(): void;
 

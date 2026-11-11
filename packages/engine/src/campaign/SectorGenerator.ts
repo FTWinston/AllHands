@@ -1,9 +1,9 @@
 import { shopStationKinds, stationKinds } from 'common-data/features/sectors/utils/isStationKind';
-import { getEncounterDefinition, stationEncounterIds } from '../encounters/EncounterRegistry';
+import { getEncounterDefinition, getNodeName, stationEncounterIds } from '../encounters/EncounterRegistry';
 import type { SectorTheme } from './sectorThemes';
 import type { ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
-import type { EncounterId, SectorNodeInfo, ShopStationKind, StationKind } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { SectorNodeInfo, ShopStationKind, StationKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { IRandom } from 'common-data/types/IRandom';
 
 /** A node's place in the graph, before what it holds is decided. */
@@ -80,10 +80,8 @@ function pickInRange(random: IRandom, { min, max }: Range): number {
     return min + random.getInt(max - min + 1);
 }
 
-const easyEncounters: readonly EncounterId[] = ['skirmish', 'ambush', 'survive', 'tollCollectors'];
-const hardEncounters: readonly EncounterId[] = ['assault', 'escort', 'survive', 'ambush', 'tollCollectors'];
-/** Encounter layers 1..easyLayerCount use the easier encounters. */
-const easyLayerCount = 3;
+/** Encounter layers 1..earlyLayerCount use the theme's early encounters, and the rest its late ones. */
+export const earlyLayerCount = 3;
 const surviveDurationsMs = [45_000, 60_000, 75_000];
 
 /** Nodes sit on one of this many evenly spaced rows. The start and boss nodes prefer the middle one. */
@@ -502,16 +500,17 @@ function createNode(random: IRandom, theme: SectorTheme, slot: NodeSlot, role: N
         };
     }
 
-    const encounterId = random.pick(slot.layer <= easyLayerCount ? easyEncounters : hardEncounters);
+    const encounterId = random.pick(slot.layer <= earlyLayerCount ? theme.encounters.early : theme.encounters.late);
     const definition = getEncounterDefinition(encounterId);
 
     return {
         ...base,
         kind: 'combat',
         encounterId,
-        name: `Encounter ${gridReference}`,
+        name: getNodeName(definition, `Encounter ${gridReference}`),
         environment: random.pick(theme.environments),
         objective: createObjective(random, definition.objective),
+        ...(definition.request && { request: definition.request.text }),
         ...(role === 'elite' && { elite: true }),
     };
 }

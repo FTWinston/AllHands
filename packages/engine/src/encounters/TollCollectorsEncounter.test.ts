@@ -179,6 +179,42 @@ describe('TollCollectorsEncounter', () => {
         expect(escorts[1].ai.commander.isWithdrawing).toBe(false);
     });
 
+    describe('hails', () => {
+        it('opens with the cruiser demanding its toll', () => {
+            const { state } = createTollCollectors();
+
+            expect(state.hail).toMatchObject({ speaker: 'Warden Cruiser Assize' });
+            expect(state.hail!.text).toContain('Transit duty');
+        });
+
+        it('has the cruiser say so when it withdraws', () => {
+            const { state, campaign, cruiser } = createTollCollectors();
+
+            dropShields(cruiser);
+            campaign.tick(0);
+
+            expect(state.hail).toMatchObject({ speaker: 'Warden Cruiser Assize', text: 'Cost exceeds mandate. Withdrawing.' });
+        });
+
+        it('has an escort swear revenge when the cruiser is destroyed', () => {
+            const { state, cruiser, escorts } = createTollCollectors();
+
+            cruiser.destroy();
+
+            expect(state.hail).toMatchObject({ speaker: escorts[0].name, text: 'Assize is gone. No quarter.' });
+        });
+
+        it('ends with thanks from whoever asked for help', () => {
+            const { state, cruiser, escorts } = createTollCollectors();
+
+            for (const ship of [...escorts, cruiser]) {
+                ship.destroy();
+            }
+
+            expect(state.hail).toMatchObject({ speaker: 'Hauler Local 12' });
+        });
+    });
+
     it('never brings a second cruiser unless it is elite', () => {
         const { state, campaign } = createTollCollectors();
 
@@ -213,6 +249,7 @@ describe('TollCollectorsEncounter', () => {
 
             const second = hostiles.find(ship => ship.name === 'Warden Cruiser Tithe')!;
             expect(second.ai.blackboard.goal).toBe('search-and-destroy');
+            expect(state.hail).toMatchObject({ speaker: 'Warden Cruiser Tithe' });
 
             // Only the one.
             state.currentTime += eliteReinforcementMs;

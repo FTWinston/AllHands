@@ -1,6 +1,7 @@
 import { Schema, type, MapSchema, view } from '@colyseus/schema';
 import { ClockTimer } from '@colyseus/timer';
 import { Random } from 'common-data/classes/Random';
+import { getHailDuration } from 'common-data/features/sectors/types/HailInfo';
 import { FactionConfig } from 'common-data/features/space/types/FactionConfig';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { IRandom } from 'common-data/types/IRandom';
@@ -12,10 +13,13 @@ import { CrewState } from './CrewState';
 import { EncounterSummaryState } from './EncounterSummaryState';
 import { FactionState } from './FactionState';
 import { GameObject } from './GameObject';
+import { HailState } from './HailState';
+import { ObjectiveState } from './ObjectiveState';
 import { SectorMapState } from './SectorMapState';
 import { SectorMessageState } from './SectorMessageState';
 import type { Campaign } from '../campaign/Campaign';
 import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
+import type { EncounterOutcome } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { SceneChange } from 'common-data/features/sectors/types/SceneChange';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 
@@ -36,6 +40,12 @@ export class GameState extends Schema {
     sceneChangeDelay = 1100;
     /** The kind of node whose encounter is running, e.g. so the viewscreen can tell a repair station apart; null outside the encounter phase. */
     @type('string') encounterKind: SectorNodeKind | null = null;
+    /** What the running encounter asks of the crew, for the viewscreen to show; null outside the encounter phase, and for encounters with no objective. */
+    @type(ObjectiveState) objective: ObjectiveState | null = null;
+    /** How the running encounter ended, for the viewscreen to show; null while it's undecided, and outside the encounter phase. */
+    @type('string') encounterOutcome: EncounterOutcome | null = null;
+    /** What's being said over comms, for the viewscreen to show; null when nobody is speaking. See `showHail`. */
+    @type(HailState) hail: HailState | null = null;
     /** Server-only. Summary of the running encounter; null outside the encounter phase. */
     encounter: EncounterSummaryState | null = null;
     @view() @type({ map: GameObject }) objects = new MapSchema<GameObject>();
@@ -117,6 +127,21 @@ export class GameState extends Schema {
      */
     public setTimeout(callback: () => void, delay: number) {
         return this.clock.setTimeout(callback, delay / this.timeScale);
+    }
+
+    /**
+     * Show a line of speech on the viewscreen, replacing any that's already there. It clears itself once there's been time to read it.
+     * That's real time, however fast the game clock is running: a faster clock gives less time to talk, not less time to read.
+     */
+    public showHail(speaker: string, text: string) {
+        const hail = new HailState({ speaker, text });
+        this.hail = hail;
+
+        this.setTimeout(() => {
+            if (this.hail === hail) {
+                this.hail = null;
+            }
+        }, getHailDuration(text) * Math.max(1, this.timeScale));
     }
 
     /**

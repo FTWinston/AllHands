@@ -12,7 +12,7 @@ const environmentLabels: Record<EnvironmentType, string> = {
 };
 
 const nodeKindLabels: Record<SectorNodeKind, string> = {
-    combat: 'Combat',
+    combat: 'Request',
     repair: 'Repair station',
     navigationBeacon: 'Navigation beacon',
     armsDealer: 'Arms dealer',
@@ -34,7 +34,7 @@ export function getEnvironmentLabel(environment: EnvironmentType): string {
 }
 
 export function getNodeKindLabel(kind: SectorNodeKind, elite = false): string {
-    return elite ? `Elite ${nodeKindLabels[kind].toLowerCase()}` : nodeKindLabels[kind];
+    return elite ? `Priority ${nodeKindLabels[kind].toLowerCase()}` : nodeKindLabels[kind];
 }
 
 export function getObjectiveLabel(objective: ObjectiveInfo): string {
@@ -45,6 +45,10 @@ export function getObjectiveLabel(objective: ObjectiveInfo): string {
             return `Survive for ${formatDuration(objective.durationMs)}`;
         case 'boss':
             return 'Defeat the boss';
+        case 'protect':
+            return `Protect ${objective.subject}`;
+        case 'shutDown':
+            return `Shut down ${objective.subject}`;
         default:
             throw new Error(`Objective type not found: ${objective satisfies never}`);
     }

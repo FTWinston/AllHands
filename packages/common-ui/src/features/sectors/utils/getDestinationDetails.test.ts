@@ -22,6 +22,21 @@ describe('getDestinationDetails', () => {
         ]);
     });
 
+    it('ends with what whoever is asking for help had to say', () => {
+        expect(getDestinationDetails({
+            id: 'n2',
+            kind: 'combat',
+            name: 'Hauler Local 12: toll dispute',
+            environment: 'deepSpace',
+            objective: { type: 'clear' },
+            request: 'Wardens on the Kessin jump point, charging forty percent.',
+        })).toEqual([
+            { label: 'Environment', value: 'Deep space' },
+            { label: 'Objective', value: 'Clear the area' },
+            { label: 'Message', value: 'Wardens on the Kessin jump point, charging forty percent.' },
+        ]);
+    });
+
     it('omits missing details', () => {
         expect(getDestinationDetails(repairStation)).toEqual([]);
     });

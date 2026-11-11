@@ -201,11 +201,11 @@ export const SectorMapDisplay: FC<Props> = ({ map, antimatter, showMenu }) => {
                 <li className={styles.legendHeading} aria-hidden="true">Legend</li>
                 <li>
                     <LegendGlyph kind="combat" status="unreachable" />
-                    Combat
+                    {getNodeKindLabel('combat')}
                 </li>
                 <li>
                     <LegendGlyph kind="combat" elite status="unreachable" />
-                    Elite combat
+                    {getNodeKindLabel('combat', true)}
                 </li>
                 <li>
                     <LegendGlyph kind="repair" status="unreachable" />
