@@ -6,7 +6,7 @@ The same rules hold. Every number is a starting value to tune in playtests. Ever
 
 These were written with the first three built, so the numbers are already in the engine's terms: hits are counted in cards, shields by hull power, clues by the field that carries them. Where a design in the plan depended on something the engine doesn't do, the spec says what it does instead, under **Changed from the plan**. Each spec still ends with **Check first**: what I read in the code and didn't run.
 
-**Status:** nothing in this file is built.
+**Status:** groundwork H is built, on `aimed-shots`, and so is reading a hand (M below), on `scan-hands`, stacked on it. No encounter here is built yet.
 
 ## Build order
 
@@ -39,6 +39,14 @@ Tactical can aim at a system once science has identified it, and the aim does no
 This changes every fight. AI tactical officers already aim at their commander's focus system, tactical first and then helm, whenever their science has found it, so the crew will lose weapons and manoeuvres faster than now. It also makes Focus Shields mean something, as `HullState.damageShields` already scales what gets through by the aimed system's pass-through. Run Slow Boat's balance tests before and after, and note the difference.
 
 Tests: an aimed shot damages the system aimed at and the hull in a 60 to 40 split. An unaimed one still picks at random. Each shot of a spread carries the aim.
+
+**As built:**
+
+- As specified. All five weapons pass the aim on, and a hit says who fired it.
+- **Slow Boat got harder.** A crew that does nothing loses *Marrow* at 77 and 104 seconds, where it was 87 and 120, because the harriers aim at its tactical system and then its helm. A crew that only extends its shields still gets it there on both seeds.
+- ***Marrow*'s shields can go from a third to nothing in one hit**, and the ship is lost before its last warning is said. The simulation that expected that line now expects any shield warning.
+- **Seeded runs drift wherever anything aims.** An unaimed shot uses a random number to pick its system and an aimed one doesn't, so everything random after it goes differently.
+- **Extended shields use the extender's own system.** A hit aimed at a covered ship's helm is scaled by the pass-through of the covering ship's helm. So the crew's Focus Shields changes what gets through to a ship it's covering.
 
 ### I. Hits can be heard
 
@@ -75,6 +83,24 @@ Objectives need objects: a module, a station, a relay. The engine's only objects
 
 `Encounter` gains `protected setObjective(objective: ObjectiveInfo)`, which replaces `state.objective` and the summary's. Only the boss uses it, once. The node keeps the objective it was made with.
 
+### M. Reading a hand, as built
+
+Not something these specs asked for: it came out of writing them. The design plan's tells all assume a scan shows what a ship is holding, and no scan did.
+
+A scan card played on a system that's already revealed now does one of two things, chosen by where science drops it:
+
+- **Find a vulnerability**, as before.
+- **Read the hand:** science sees the cards that system is holding, kept up to date as it draws and plays, until they scan something else. Then it has to be paid for again. No scan card has a side effect when it reads.
+
+So a system gives up three things, at two prices. Its power and what it's doing now come with the first card. What it's about to do, or how to hurt it, each cost a second.
+
+For encounters:
+
+- What science sees is `scienceState.scannedHelm` (or `scannedTactical`, `scannedScience`, `scannedEngineer`), and its `hand`: null until read, then copies of the cards.
+- `scienceState.readHand(target, system)` reads one from code, if science is scanning that system.
+- **Change a hand through `SystemState`'s own methods** (`addCardToHand`, `drawFromTop`, `discard`, `removeCard`, `playCard`), or a hand that's being read won't show the change. Changing a trait on a card that's already held doesn't show either, until `scienceScanDataChanged` is invoked.
+- The AI never reads a hand.
+
 ---
 
 ## 4. Fever Ship
@@ -96,8 +122,9 @@ Each part of that is a different seat's:
 
 | Part | Who has it | How |
 |---|---|---|
-| **Which system** | Science | Scanning a system shows its power. A hauler's systems run at 2. The one with the update runs at 5, and stays there |
-| **What it's doing** | A different seat each time | See "What the update does" below. It's a hint, and science's reading confirms it |
+| **Which system, probably** | Science | Scanning a system shows its power. A hauler's systems run at 2. The one with the update runs at 5, and stays there |
+| **Which system, for certain** | Science | A second scan card reads the system's hand (groundwork M). The infected one is holding a warship's cards |
+| **What it's doing** | A different seat each time | See "What the update does" below. It's a hint, and science's readings confirm it |
 | **Putting it out** | Tactical | Aiming at that system (groundwork H), with weapons small enough not to hole her |
 | **How much hull she has left** | Science and tactical | The scanned hull, which both see, and nobody else |
 
@@ -135,7 +162,7 @@ At `populate()`, pick one of the four crew systems at random. Build the ship by 
 | Science | `tetryonScan` × 2, `antiprotonScan`, `polaronScan`, `chronitonScan` | Status effects landing on their own systems | The engineer |
 | Engineer | `overcharge` × 3, `distributePower`, `drawPower` | Other systems' power jumping to 5 for a few seconds at a time | Science |
 
-The last is the hard case, and it's deliberate. With the update in her engineering, science sees fives come and go on healthy systems. The rule is "five, and stays five".
+The last is the hard case, and it's deliberate. With the update in her engineering, science sees fives come and go on healthy systems. The rule is "five, and stays five", and that takes watching. Reading a hand settles it at once: three Overcharges in an engineer's hand, torpedoes in a hauler's tactical. But a hand costs a second card on a system science may be about to rule out, and it's lost the moment they scan another.
 
 ### Ships
 
@@ -162,12 +189,12 @@ Her 60 shield lasts four or five cannon hits. So the first system costs about 4 
 
 | Station | Sees | Does |
 |---|---|---|
-| Science | One system's power at a time, live, after finding which of four scan slots it is. *Ostler*'s hull and shields | Reads each system, calls the one that's at five and staying there. Says when her hull is getting short |
+| Science | One system's power at a time, live, after finding which of four scan slots it is. That system's hand, for a second card. *Ostler*'s hull and shields | Reads each system, calls the one that's at five and staying there, and decides whether a hand is worth a card. Says when her hull is getting short |
 | Tactical | The systems science has identified, as targets. The same hull science sees | Puts one system out with the smallest weapon that will, and stops. Never fires unaimed |
 | Helm | The flight picture | Holds inside 10 units for the cannon, or 6 for the strips, of a ship that's hunting them |
 | Engineer | Effects arriving on their own systems. Power | Calls it when *Ostler*'s science is what's hitting them. Feeds science for the scans, then tactical |
 
-**Captain's call:** whether to shoot on the hint, or wait for science to confirm it. The hint arrives in seconds. Finding the right scan slot and reading it takes two or three cards. A wrong shot costs a quarter of her hull and makes her hit harder.
+**Captain's call:** how sure to be before shooting. There are three levels, each slower than the last: the hint, which arrives in seconds; a power reading, which takes finding the right scan slot; and the hand, which takes another card after that. A wrong shot costs a quarter of her hull and makes her hit harder.
 
 ### Hails
 
@@ -199,7 +226,7 @@ Her 60 shield lasts four or five cannon hits. So the first system costs about 4 
 
 The update moves, once. When the infected system is put out, it jumps to another crew system that's still working, picked at random: that system gains 3 power and the first loses 3. *Ostler* says "DOCTRINE RESTORED FROM BACKUP." and her crew, "It's moved. It's somewhere else now." Putting that one out ends it.
 
-Only the power moves, not the deck, so the second time there's no hint. Science has to read it, with about half the hull budget left.
+Only the power moves, not the deck, so the second time there's no hint, and a hand shows nothing but a hauler's cards. Power is the only reading left, with about half the hull budget to spend on it.
 
 **Legacy (for when legacies are built):** on success, *Ostler*'s crew bring the update they pulled out of her to the sector boss. It names one of the Gate's pylons as a slave, so the first phase starts with three to choose from. No failure legacy.
 
@@ -217,6 +244,7 @@ Only the power moves, not the deck, so the second time there's no hint. Science 
 ### Tests
 
 - The infected system starts at power 5 with a warship's deck, and the other three at 2, for each of the four.
+- A hand read from the infected system holds only cards from its warship deck, and one read from a healthy system holds none of them.
 - Putting the infected system out: success, *Ostler* neutral, reward given.
 - Putting a healthy one out: no outcome, the other crew systems gain 1 power, and only the first time for that system.
 - Destroying *Ostler*: failure, nothing said, Warp Away still offered.
@@ -225,7 +253,7 @@ Only the power moves, not the deck, so the second time there's no hint. Science 
 
 ### Changed from the plan
 
-- **Scanning doesn't show a hand.** The plan had the infected system holding cards the others don't. A scan shows a system's power, and what it's doing right now (the manoeuvre under way, the weapons loaded, the deflector), never its hand. So the tell is power, and the cards show up as behaviour.
+- **A hand is the second reading, not the first.** The plan had the infected system holding cards the others don't, and when this was first written no scan showed a hand at all, so the tell became power. A hand can now be read for a second card (groundwork M). Power stays as the quick reading, and the cards also show up as behaviour.
 - **"Erratic" is more power**, as there's nothing else in the engine that makes a ship worse to fight at a stroke.
 
 ### Check first

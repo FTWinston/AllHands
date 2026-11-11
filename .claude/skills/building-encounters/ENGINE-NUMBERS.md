@@ -7,7 +7,8 @@ What a spec's numbers come to in the engine, and what each seat can really see. 
 - **Health is a card count.** A system's health is how many of its cards are undamaged (`SystemState`). The hull's is the same, and a ship is destroyed when its hull reaches 0 (`HullState.adjustHealth`).
 - **A hit that gets through damages that many cards.** Weapons do 10 to 60 (`cardDefinitions.ts`: phaser strip 10, phaser cannon 20, photon torpedo 40, photonic cannon and quantum torpedo 60). A harrier's hull is 5 cards. So shields are the health bar, and what's under them is one or two hits.
 - **Where a hit lands** (`Ship.damage`): on a system picked at random from all six, hull included. If that's the hull, all of it goes there. Otherwise 60% (rounded up) goes to the system and the rest to the hull.
-- **Aiming at a system doesn't yet direct the damage.** `fireShot` never passes the sub-target's system on. A sub-target only limits the angle a shot can be taken from. (Groundwork H in `docs/encounter-specs-2.md` changes this.)
+- **An aimed shot lands on the system aimed at**: 60% to it, the rest to the hull. AI tactical officers aim whenever their science has identified a system, at tactical first and then helm. So anything the AI shoots at loses its weapons before its hull.
+- **Seeded runs drift wherever anything aims**, because an aimed shot skips the random pick. A balance test's numbers move when aiming does.
 - **To make something survive stray hits**, pad its hull with `hullBare`. The customs platform has 60, which is one or two hits after its shields go.
 
 ## Shields
@@ -59,13 +60,16 @@ The channels a clue can travel by. If the fact isn't in one of these, the seat c
 | Seat | Sees | Where |
 |---|---|---|
 | Science | For one system of one ship at a time, after finding which of four shuffled scan slots it is: its power level, and for helm the manoeuvre under way and its progress; for tactical each weapon slot's card, charge and modifier; for science the loaded deflector card; for engineer every system's power and health | `ScienceState.copy*Data`, `Scanned*Info` |
+| Science, for a second scan card | That system's hand, live, until they scan anything else. Or a vulnerability. One card buys one | `Scanned*Info.hand` (null until read), `ScienceState.readHand` |
 | Science and tactical | The scanned ship's hull: health, shield, capacity and current tuning. It follows whichever ship science last scanned | `Ship.scannedHull` |
 | Tactical | The systems science has identified on a target, as sub-targets, which stay known. Its own weapons and whether each can fire | `TacticalState.subTargetsByTarget` |
 | Engineer | Every status effect on its own ship's systems, by name. Each system's power, health, hand and deck | `EngineerSystemTile` |
 | Helm | Where everything is and which way it faces | `GameObject.motion` |
 | Viewscreen | The same picture, shots and who fired them, the objective line, hails, questions | `GameState` |
 
-Nobody sees another ship's hands, its status effects, or its goal. A scan never shows what a ship is about to do, except a helm scan showing the manoeuvre it has already begun.
+Nobody sees another ship's decks, its status effects, or its goal. What a ship is about to do is in its hands, which cost science a second card each, one system at a time.
+
+An encounter that changes a ship's hand does it through `SystemState`'s methods (`addCardToHand`, `removeCard`, `discard`), so that a hand being read shows the change.
 
 ## Comms
 
