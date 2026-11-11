@@ -10,6 +10,17 @@ What a spec's numbers come to in the engine, and what each seat can really see. 
 - **An aimed shot lands on the system aimed at**: 60% to it, the rest to the hull. AI tactical officers aim whenever their science has identified a system, at tactical first and then helm. So anything the AI shoots at loses its weapons before its hull.
 - **Seeded runs drift wherever anything aims**, because an aimed shot skips the random pick. A balance test's numbers move when aiming does.
 - **To make something survive stray hits**, pad its hull with `hullBare`. The customs platform has 60, which is one or two hits after its shields go.
+- **Cards are damaged in the order the design lists them**, until repairs shuffle things. A damaged emitter takes its 15 off the shield capacity, so list a hull's bare cards before its emitters if its shields are meant to outlast its first hull damage.
+- **A system at 0 health can't play, load or charge anything**, but a weapon that's already loaded and charged goes on firing, and a manoeuvre under way runs to its end.
+
+## Pace
+
+How often things happen, which no table of amounts shows. Measure it for every armed ship: seconds to its first shot, and shield taken off an idle crew per minute.
+
+- The reactor plays one of its cards every 8, 4, 2, 1, 0.5 or 0.25 seconds, at reactor power 0 to 5 (`ReactorState`). Each card played makes its own system draw one card. So a system draws once per pass through the reactor deck for each of its reactor cards in it.
+- Adding reactor cards for a system raises its power and its draw rate together. To raise power alone, use `adjustPowerLevel` after the ship is built. Three extra tactical reactor cards made a hauler lethal inside 90 seconds.
+- A weapon needs its own card, then enough other weapon cards spent on it to reach its `totalCharge`, before its first shot. A slow-drawing ship with an expensive weapon may never fire.
+- The player's science gets a card about every 6 seconds on top of the one it starts with.
 
 ## Shields
 
@@ -28,7 +39,10 @@ What a spec's numbers come to in the engine, and what each seat can really see. 
 - A system's baseline power is how many of its `reactorPower<System>` cards the reactor deck holds (`Ship` constructor). The player ship has 3 everywhere. The most is 5.
 - **A card's cost is a level, not a price.** A card can be played if its system's power is at least its cost, and playing it doesn't lower the power (`SystemState.playCard`). "Costs more than the station normally has" means a cost of 4 or 5.
 - Each reactor card, as it's played, makes its system draw a card, so more reactor cards of a kind also means a faster hand.
-- An AI ship's engineer raises power with the cards it holds, and repairs damaged systems from a repair capacity of 50 (`EngineerOfficer`). A system an encounter needs to stay broken won't, unless that officer is switched off.
+- **An AI engineer repairs for free, every second**, once a system is a fifth damaged, from a repair capacity of 50 (`EngineerOfficer`). It undoes small hits between shots. To stop repairs alone, set the ship's `engineerState.repairCapacity` and `maxRepairCapacity` to 0. `priorities: { engineer: 0 }` stops its cards as well.
+- A repaired card comes back stabilised, and is damaged for good the next time. So a system put out, repaired and put out again stays out.
+- **An AI engineer only plays a power card when another officer has asked for power**, which happens when that officer holds a card it can't afford. A ship of cheap cards never asks.
+- Emitters, as they're drawn, set the shields to reinforced, which cuts their drain to 75%.
 
 ## Movement and space
 
@@ -46,7 +60,9 @@ What a spec's numbers come to in the engine, and what each seat can really see. 
 - **`defend-position`** ignores hostiles outside its radius. Use 30, which is past every weapon.
 - **`guard-ship`** only goes for hostiles within 30 of its ward.
 - **Target choice:** score is 100 minus distance, plus 30 for the preferred ship, plus noise. A ship only switches to a target scoring 1.25 times its current one, which at encounter distances is almost never.
-- **Skill** (0 to 1, default 0.8): below 1, target scores get noise of up to 30 × (1 − skill), and the commander skips up to half its updates.
+- **Skill** (0 to 1, default 0.8): below 1, target scores get noise of up to 30 × (1 − skill), and the commander skips up to half its updates. The officers do the same with their own choices: at 0.7 each skips about one think in seven, and every card's score is off by up to 9.
+- **An AI science officer scans only to reveal a system**, and stops once it has found all four of its target's. So scan cards that mark what they reveal (Antiproton, Chroniton) land in the first minute and then stop. It never looks for a vulnerability or reads a hand.
+- **A modifier's evaluator doesn't check the weapon it's for.** An AI with torpedo modifiers and a cannon will try to put one on the other, and fail. Give a ship only modifiers that fit its weapons.
 - **Fleeing:** below `fleeThreshold` of hull (0.25 unless the design says, 0 for never), and back once the hull recovers to twice that. `withdraw()` is permanent until `rally()`. `standFast()` stops it fleeing.
 - **Leaving:** a fleeing ship departs after 3 seconds at least 30 units from every hostile it knows. Against a ship that sits still that takes about 23 seconds for a harrier and 33 for a bulwark.
 - **An officer with priority 0 never acts.** `priorities: { helm: 0 }` makes a ship that can't move or turn.
