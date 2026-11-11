@@ -1,6 +1,7 @@
 import { BossAEncounter, BossBEncounter, BossCEncounter } from './bosses';
 import { AmbushEncounter, AssaultEncounter, EscortEncounter, SkirmishEncounter } from './CombatEncounter';
 import { SlowBoatEncounter } from './SlowBoatEncounter';
+import { StandingOrdersEncounter } from './StandingOrdersEncounter';
 import { StationEncounter } from './StationEncounter';
 import { defaultSurviveDurationMs, SurviveEncounter } from './SurviveEncounter';
 import { TollCollectorsEncounter } from './TollCollectorsEncounter';
@@ -62,6 +63,15 @@ const definitions: readonly EncounterDefinition[] = [
         defaultEnvironment: 'asteroidField',
         request: { from: 'Clinic Ship Marrow', subject: 'escort request', text: 'Full ward, forty beds. We\'re crossing the Shallows drift and something\'s been shadowing us since the last beacon.' },
         create: (state, node) => new SlowBoatEncounter(state, node),
+    },
+    {
+        id: 'standingOrders',
+        name: 'Standing Orders',
+        kind: 'combat',
+        objective: { type: 'shutDown', subject: 'Customs Platform 7' },
+        defaultEnvironment: 'deepSpace',
+        request: { from: 'Dock Clerk, Tessaly Yard', subject: 'impounded cargo', text: 'The old customs platform\'s had our supply run for three weeks. I\'ve found its manual. I need someone with a deflector dish.' },
+        create: (state, node) => new StandingOrdersEncounter(state, node),
     },
     { id: 'repairStation', name: 'Repair Station', kind: 'repair', create: (state, node) => new StationEncounter(state, node) },
     { id: 'navigationBeacon', name: 'Navigation Beacon', kind: 'navigationBeacon', create: (state, node) => new StationEncounter(state, node) },

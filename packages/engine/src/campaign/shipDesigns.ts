@@ -4,7 +4,7 @@ import type { Position } from 'common-data/features/space/types/Position';
 import type { IRandom } from 'common-data/types/IRandom';
 
 /** A kind of AI ship. Each has its own appearance, so the same shape always means the same kind of ship, whichever side it's on. */
-export type ShipDesign = 'harrier' | 'fighter' | 'bulwark' | 'flagship' | 'clinicShip';
+export type ShipDesign = 'harrier' | 'fighter' | 'bulwark' | 'flagship' | 'clinicShip' | 'customsPlatform' | 'drone';
 
 type ReactorCards = AiShipSetupInfo['reactor']['cards'];
 
@@ -90,6 +90,30 @@ const designTemplates: Record<ShipDesign, DesignTemplate> = {
         tactical: { ...system(['phaserStrip', 'lowYield', 'phaserStrip']), numSlots: 1 },
         fleeThreshold: 0,
     },
+    // It stays where it was built: all its helm can do is turn to face things. Its shields (90) are fully powered, and there's a lot of bare hull under them,
+    // so it can take a few hits after they've gone. It never leaves. Whoever spawns one decides what it's armed with.
+    customsPlatform: {
+        ...fighterTemplate,
+        appearance: 'diamond-monitor',
+        hull: system([
+            'hullShieldEmitter', 'hullShieldTuningEnergy', 'hullShieldTuningTorpedo', 'hullBare', 'hullShieldEmitter', 'hullBare', 'hullShieldEmitter', 'hullBare',
+            'hullShieldEmitter', 'hullBare', 'hullShieldEmitter', 'hullBare', 'hullShieldEmitter', 'hullBare', ...Array<'hullBare'>(54).fill('hullBare'),
+        ], 0),
+        reactor: system(reactorCards(2, 'reactorPowerHull', 'reactorPowerHull', 'reactorPowerHull', 'reactorPowerTactical'), 0),
+        helm: system(['faceTarget', 'faceTarget', 'faceTarget']),
+        tactical: { ...system(['phaserCannon', 'photonTorpedo', 'phaserCannon', 'photonTorpedo']), numSlots: 2 },
+        fleeThreshold: 0,
+    },
+    // A harrier with half the hull, and nobody aboard to think better of it.
+    drone: {
+        ...fighterTemplate,
+        appearance: 'mantis-drone',
+        hull: system(['hullShieldEmitter', 'hullBare', 'hullBare'], 0),
+        reactor: system(reactorCards(2, 'reactorPowerTactical', 'reactorPowerHelm'), 0),
+        helm: system(['zigZag', 'strafe', 'zigZag', 'slowAndSteady']),
+        tactical: { ...system(['lowYield', 'lowYield', 'photonTorpedo']), numSlots: 1 },
+        fleeThreshold: 0,
+    },
 };
 
 /** What a ship of each design is called, unless the encounter names it. */
@@ -99,6 +123,8 @@ const designNames: Record<ShipDesign, string> = {
     bulwark: 'Heavy Cruiser',
     flagship: 'Flagship',
     clinicShip: 'Clinic Ship',
+    customsPlatform: 'Customs Platform',
+    drone: 'Drone',
 };
 
 /** How well a ship plays (see `AiShipSetupInfo.skill`), unless the encounter says otherwise. */

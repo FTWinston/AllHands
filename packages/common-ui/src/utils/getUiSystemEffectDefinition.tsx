@@ -84,6 +84,21 @@ function loadEffectDefinitions() {
             description: <>{`The shields are extended over friendly ships within ${extendedShieldsRange} units: hits on them drain these shields, not theirs.`}</>,
             image: ExampleIcon,
         },
+        phasedPing: {
+            name: 'Phased Ping',
+            description: <>Something has pinged this system with a phased signal. It does no harm.</>,
+            image: ExampleIcon,
+        },
+        coherentPing: {
+            name: 'Coherent Ping',
+            description: <>Something has pinged this system with a coherent signal. It does no harm.</>,
+            image: ExampleIcon,
+        },
+        invertedPing: {
+            name: 'Inverted Ping',
+            description: <>Something has pinged this system with an inverted signal. It does no harm.</>,
+            image: ExampleIcon,
+        },
         shieldReduced: {
             name: 'Shield Reduced',
             description: <>Shields are focused on another system, decreasing this system's protection by 10%.</>,

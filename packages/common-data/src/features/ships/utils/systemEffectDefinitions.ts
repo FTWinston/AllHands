@@ -8,6 +8,9 @@ export const extendedShieldsDuration = 10_000;
 /** How close a friendly ship has to be for extended shields to cover it, in world units. Staying that close is helm's job. */
 export const extendedShieldsRange = 4;
 
+/** How long the mark of a customs platform's inspection ping stays on the system it landed on. */
+export const inspectionPingDuration = 8000;
+
 /** How long a shield tuning lasts after the hull card that set it is played, unless another hull card renews or replaces it. */
 const SHIELD_TUNING_DURATION = 12_000;
 
@@ -72,6 +75,22 @@ export const systemEffectDefinitions = defineSystemEffects({
         category: SystemEffectCategory.Positive,
         usesLevels: false,
         duration: extendedShieldsDuration,
+    },
+    // What a customs platform's inspection ping leaves behind. They do nothing: which one it is says how the platform is keyed.
+    phasedPing: {
+        category: SystemEffectCategory.Neutral,
+        usesLevels: false,
+        duration: inspectionPingDuration,
+    },
+    coherentPing: {
+        category: SystemEffectCategory.Neutral,
+        usesLevels: false,
+        duration: inspectionPingDuration,
+    },
+    invertedPing: {
+        category: SystemEffectCategory.Neutral,
+        usesLevels: false,
+        duration: inspectionPingDuration,
     },
     shieldReduced: {
         category: SystemEffectCategory.Negative,
