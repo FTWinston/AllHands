@@ -4,7 +4,7 @@ import type { Position } from 'common-data/features/space/types/Position';
 import type { IRandom } from 'common-data/types/IRandom';
 
 /** A kind of AI ship. Each has its own appearance, so the same shape always means the same kind of ship, whichever side it's on. */
-export type ShipDesign = 'harrier' | 'fighter' | 'bulwark' | 'flagship';
+export type ShipDesign = 'harrier' | 'fighter' | 'bulwark' | 'flagship' | 'clinicShip';
 
 type ReactorCards = AiShipSetupInfo['reactor']['cards'];
 
@@ -80,6 +80,16 @@ const designTemplates: Record<ShipDesign, DesignTemplate> = {
         engineer: system(['auxPower', 'auxPower', 'distributePower', 'auxPower', 'distributePower']),
         fleeThreshold: 0,
     },
+    // Not a warship: slow, with one short-range gun, and nothing to speak of under its shields (75). Those are fully powered, as they're all it has.
+    clinicShip: {
+        ...fighterTemplate,
+        appearance: 'ring-spine-tender',
+        hull: system(['hullShieldEmitter', 'hullBare', 'hullShieldEmitter', 'hullBare', 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldEmitter'], 0),
+        reactor: system(reactorCards(2, 'reactorPowerHull', 'reactorPowerHull', 'reactorPowerHull'), 0),
+        helm: system(['slowAndSteady', 'slowAndSteady', 'slowAndSteady', 'slowAndSteady']),
+        tactical: { ...system(['phaserStrip', 'lowYield', 'phaserStrip']), numSlots: 1 },
+        fleeThreshold: 0,
+    },
 };
 
 /** What a ship of each design is called, unless the encounter names it. */
@@ -88,6 +98,7 @@ const designNames: Record<ShipDesign, string> = {
     fighter: 'Fighter',
     bulwark: 'Heavy Cruiser',
     flagship: 'Flagship',
+    clinicShip: 'Clinic Ship',
 };
 
 /** How well a ship plays (see `AiShipSetupInfo.skill`), unless the encounter says otherwise. */

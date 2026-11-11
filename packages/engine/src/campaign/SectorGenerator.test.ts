@@ -236,7 +236,8 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
                 expect(node.objective).toMatchObject({ type: 'survive' });
                 expect((node.objective as { durationMs: number }).durationMs).toBeGreaterThan(0);
             } else if (node.kind === 'combat') {
-                expect(node.objective).toEqual({ type: 'clear' });
+                // Whatever its encounter asks of the crew.
+                expect(node.objective).toEqual(getEncounterDefinition(node.encounterId).objective);
             }
         }
     });

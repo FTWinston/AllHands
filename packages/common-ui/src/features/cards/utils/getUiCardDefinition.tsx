@@ -577,6 +577,21 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
+        extendShields: {
+            name: 'Extend Shields',
+            description: <>
+                For
+                {' '}
+                <Parameter name="duration" />
+                {' '}
+                seconds, hits on friendly ships within
+                {' '}
+                <Parameter name="range" />
+                {' '}
+                units land on your shields, not theirs.
+            </>,
+            image: <ExampleIcon />,
+        },
         relocateSystem: {
             name: 'Relocate System',
             description: 'Mark a system for relocation. Adds a Relocate Here card to your hand to place it in any position.',

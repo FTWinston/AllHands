@@ -216,6 +216,11 @@ function loadSystemEffectDefinitions() {
                 }
             },
         },
+        // Nothing to do here: `Ship.damage` looks for this on any friendly ship nearby when one is hit.
+        shieldsExtended: {
+            apply: system => system.system === 'hull',
+            remove: () => {},
+        },
         shieldReduced: {
             apply: (system) => {
                 if (system.system === 'hull') {

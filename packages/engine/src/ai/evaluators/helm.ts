@@ -34,6 +34,7 @@ function underwayValue(stance: AiStance): number {
     switch (stance) {
         case 'evasive':
         case 'withdrawing':
+        case 'travelling':
             return 30;
         case 'aggressive':
             return 25;
@@ -45,7 +46,7 @@ function underwayValue(stance: AiStance): number {
 /** The target to maneuver against, or undefined when there isn't one (or we're running from it). */
 function getEngagedTarget(ctx: EvaluationContext): GameObject | undefined {
     const bb = ctx.blackboard;
-    if (bb.targetId === null || bb.stance === 'withdrawing') {
+    if (bb.targetId === null || bb.stance === 'withdrawing' || bb.stance === 'travelling') {
         return undefined;
     }
     return ctx.gameState.objects.get(bb.targetId);
