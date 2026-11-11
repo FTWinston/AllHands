@@ -8,7 +8,7 @@ import { ComponentProps } from 'react';
 import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
-import { SystemInfo } from './System';
+import { HullSystemInfo, SystemInfo } from './System';
 import { SystemCards } from './SystemCardsDialog';
 import { SystemList } from './SystemList';
 
@@ -17,7 +17,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     playCard: (cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => void;
     repair: (system: string) => void;
     cards: Snapshot<CardInstance[]>;
-    systems: IArray<SystemInfo & SystemCards>;
+    systems: IArray<(SystemInfo | HullSystemInfo) & SystemCards>;
     repairCapacity: number;
     maxRepairCapacity: number;
 };

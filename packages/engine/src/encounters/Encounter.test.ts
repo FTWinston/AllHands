@@ -1,3 +1,4 @@
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
@@ -211,6 +212,11 @@ describe('StationEncounter', () => {
     it('is reached through the campaign, after damage that persisted from the previous fight', () => {
         const { state, campaign, ships } = createCampaign();
         campaign.devLoadEncounter('skirmish');
+
+        // Damage to stabilised cards is critical, so lasts beyond the fight.
+        for (const card of ships[0].hullState.deck) {
+            card.addTrait('stabilised', ExtraTraitType.Normal);
+        }
         ships[0].hullState.adjustHealth(-3);
         for (const hostile of getHostileShips(state)) {
             hostile.destroy();

@@ -1,9 +1,14 @@
 import { CardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
+import { tunedReductionPercent } from 'common-data/features/ships/utils/shieldStats';
+import { systemEffectDefinitions } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { WarpAwayIcon } from '../../../icons/cards/WarpAway';
 import { default as ExampleIcon } from '../../../icons/exampleIcon.svg?react';
 import { Parameter } from '../components/Parameter';
 import { Trait } from '../components/Trait';
 import { CardDescription, UICardDefinition } from '../types/UICardDefinition';
+
+/** How long a hull card's shield tuning lasts. Every tuning lasts the same time. */
+const shieldTuningSeconds = systemEffectDefinitions.shieldReinforced.duration / 1000;
 
 function loadCardDefinitions() {
     const cardDescriptions: Record<CardType, CardDescription> = {
@@ -47,9 +52,43 @@ function loadCardDefinitions() {
             description: 'Deploy a smoke screen to obscure vision and provide cover.',
             image: <ExampleIcon />,
         },
-        hullChargeShields: {
-            name: 'Charge shields',
-            description: 'Charge the shields by the hull\'s power level.',
+        hullBare: {
+            name: 'Bare Hull',
+            description: 'Adds nothing to the shields, and leaves their tuning as it is when played.',
+            image: <ExampleIcon />,
+        },
+        hullShieldEmitter: {
+            name: 'Shield Emitter',
+            description: <>
+                While undamaged, adds
+                {' '}
+                <Parameter name="shieldCapacity" />
+                {' '}
+                to the shields' capacity.
+                {` When played, reinforces the shields for ${shieldTuningSeconds} seconds, so they drain less.`}
+            </>,
+            image: <ExampleIcon />,
+        },
+        hullVolatileEmitter: {
+            name: 'Volatile Emitter',
+            description: <>
+                While undamaged, adds
+                {' '}
+                <Parameter name="shieldCapacity" />
+                {' '}
+                to the shields' capacity.
+                {` When played, reinforces the shields for ${shieldTuningSeconds} seconds. All are damaged if one is, or if the shields collapse.`}
+            </>,
+            image: <ExampleIcon />,
+        },
+        hullShieldTuningEnergy: {
+            name: 'Energy Tuning',
+            description: `When played, tunes the shields for ${shieldTuningSeconds} seconds, so energy weapon hits do ${tunedReductionPercent}% less damage.`,
+            image: <ExampleIcon />,
+        },
+        hullShieldTuningTorpedo: {
+            name: 'Torpedo Tuning',
+            description: `When played, tunes the shields for ${shieldTuningSeconds} seconds, so torpedo hits do ${tunedReductionPercent}% less damage.`,
             image: <ExampleIcon />,
         },
         warpAway: {
@@ -699,11 +738,11 @@ function loadCardDefinitions() {
         tetryonScan: {
             name: 'Tetryon Scan',
             description: <>
-                Finding a vulnerability prevents the target ship's shields from regenerating for
+                Finding a vulnerability scrambles the target ship's shields, cancelling their tuning, and stopping the next
                 {' '}
-                <Parameter name="duration" />
+                <Parameter name="scrambleCards" />
                 {' '}
-                seconds.
+                hull cards that would tune them from doing so.
             </>,
             image: <ExampleIcon />,
         },

@@ -21,6 +21,16 @@ const helmCards = {
     ],
 } satisfies SystemCards;
 
+// A hull with every common card type, with an emitter and a bare hull card damaged: 75 shield capacity.
+const hullCards = {
+    hand: [],
+    deck: (['hullShieldEmitter', 'hullShieldTuningEnergy', 'hullShieldEmitter', 'hullBare', 'hullShieldEmitter', 'hullShieldTuningTorpedo'] as const)
+        .flatMap(type => [type, type])
+        .map((type, index) => index === 4 || index === 6
+            ? { id: 201 + index, type, extraTraits: { damaged: ExtraTraitType.Normal } }
+            : { id: 201 + index, type }),
+} satisfies SystemCards;
+
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Engineer/UI',
     component: Component,
@@ -175,12 +185,18 @@ export const UI: Story = {
         systems: [
             {
                 system: 'hull',
-                ...(noCards),
-                health: 15,
-                maxHealth: 18,
-                power: 5,
+                ...(hullCards),
+                health: 10,
+                maxHealth: 12,
+                shield: 62,
+                maxShield: 75,
+                power: 3,
                 generating: true,
                 effects: [
+                    {
+                        type: 'shieldTunedEnergy',
+                        progress: { startTime: Date.now(), endTime: Date.now() + 12000 },
+                    },
                     {
                         type: 'auxPower',
                         progress: { startTime: Date.now(), endTime: Date.now() + 30000 },
@@ -242,7 +258,7 @@ export const UI: Story = {
                         progress: { startTime: Date.now(), endTime: Date.now() + 20000 },
                     },
                     {
-                        type: 'shield',
+                        type: 'overcharge',
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                     {
@@ -284,7 +300,7 @@ export const UI: Story = {
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                     {
-                        type: 'shield',
+                        type: 'overcharge',
                         progress: { startTime: Date.now(), endTime: Date.now() + 20000 },
                     },
                     {
@@ -306,7 +322,7 @@ export const UI: Story = {
                         progress: { startTime: Date.now(), endTime: Date.now() + 30000 },
                     },
                     {
-                        type: 'shield',
+                        type: 'overcharge',
                         progress: { startTime: Date.now(), endTime: Date.now() + 20000 },
                     },
                     {

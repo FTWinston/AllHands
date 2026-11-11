@@ -7,7 +7,7 @@ import type { ObjectAppearance } from 'common-data/features/space/types/ObjectAp
 
 type ShieldOutlineProps = {
     appearance: ObjectAppearance;
-    /** Shield strength, 0-100. */
+    /** How full the shields are, as a percentage of their capacity. */
     level: number;
     className?: string;
 };
@@ -44,7 +44,7 @@ const ShieldOutline: FC<ShieldOutlineProps> = ({ appearance, level, className })
 
 type Props = {
     appearance: ObjectAppearance;
-    /** Shield strength, 0-100, or null to show no shield outline. */
+    /** How full the shields are, as a percentage of their capacity, or null to show no shield outline. */
     shield: number | null;
     /** Sizes the icon, which fills it. */
     className?: string;

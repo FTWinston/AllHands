@@ -23,3 +23,11 @@
     font-variant-numeric: tabular-nums;
     color: var(--text);
 }
+
+.note {
+    font-size: 0.6875em;
+    letter-spacing: 0.08em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--energy-light);
+}

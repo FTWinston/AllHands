@@ -97,13 +97,30 @@ export function removeEffectWithoutHandler(system: EngineerSystemTile, effectTyp
 
 function loadSystemEffectDefinitions() {
     const systemEffectFunctionalities: SystemEffectFunctionalityLookup = {
-        shield: {
+        // HullState switches the shields between these tunings as hull cards are played, and counts down any scrambling.
+        shieldReinforced: {
             apply: (system) => {
                 return system.system === 'hull';
             },
-            remove: () => {
-
+            remove: () => { },
+        },
+        shieldTunedEnergy: {
+            apply: (system) => {
+                return system.system === 'hull';
             },
+            remove: () => { },
+        },
+        shieldTunedTorpedo: {
+            apply: (system) => {
+                return system.system === 'hull';
+            },
+            remove: () => { },
+        },
+        shieldScrambled: {
+            apply: (system) => {
+                return system.system === 'hull';
+            },
+            remove: () => { },
         },
         auxPower: {
             apply: (system, _level) => {
@@ -288,19 +305,6 @@ function loadSystemEffectDefinitions() {
             onLevelChanged: (system, newLevel) => {
                 // addHandler replaces the old handler, so we can just call it again with the new level.
                 system.systemState.applyDamage.addHandler('antiprotonResidue', false, damage => damage * (1 + newLevel / 100));
-            },
-        },
-        tetryonAccumulation: {
-            apply: (system) => {
-                // Prevent this system from generating while this effect is active.
-                system.systemState.scheduledDraw.addInterceptor('tetryonAccumulation', () => {
-                    return true;
-                });
-                return true;
-            },
-            remove: (system) => {
-                // When removed, allow scheduled draw events to fire again.
-                system.systemState.scheduledDraw.removeInterceptor('tetryonAccumulation');
             },
         },
         chronitonSaturation: {

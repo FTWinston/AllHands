@@ -2,16 +2,37 @@ import { SystemEffectDefinition, SystemEffectCategory } from '../types/SystemEff
 
 export const MAX_POWER_LEVEL = 5;
 
+/** How long a shield tuning lasts after the hull card that set it is played, unless another hull card renews or replaces it. */
+const SHIELD_TUNING_DURATION = 12_000;
+
 // Enforce that values are of a system effect type, without widening the key type to "string".
 function defineSystemEffects<T extends Record<string, SystemEffectDefinition>>(defs: T) {
     return defs;
 }
 
 export const systemEffectDefinitions = defineSystemEffects({
-    shield: {
+    /** A shield tuning, set by playing an emitter: the shields are drained less by what they absorb (see shieldStats). */
+    shieldReinforced: {
         category: SystemEffectCategory.Positive,
+        usesLevels: false,
+        duration: SHIELD_TUNING_DURATION,
+    },
+    /** A shield tuning, set by playing an energy tuning card: hits from energy weapons do less damage. */
+    shieldTunedEnergy: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: false,
+        duration: SHIELD_TUNING_DURATION,
+    },
+    /** A shield tuning, set by playing a torpedo tuning card: torpedo hits do less damage. */
+    shieldTunedTorpedo: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: false,
+        duration: SHIELD_TUNING_DURATION,
+    },
+    /** How many more hull cards that would tune the shields must be played before they can tune them again. */
+    shieldScrambled: {
+        category: SystemEffectCategory.Negative,
         usesLevels: true,
-        maxLevel: 100,
     },
     auxPower: {
         category: SystemEffectCategory.Positive,
@@ -142,11 +163,6 @@ export const systemEffectDefinitions = defineSystemEffects({
         category: SystemEffectCategory.Negative,
         usesLevels: true,
         duration: 12_000,
-    },
-    tetryonAccumulation: {
-        category: SystemEffectCategory.Negative,
-        usesLevels: false,
-        duration: 8_000,
     },
     chronitonSaturation: {
         category: SystemEffectCategory.Negative,

@@ -6,7 +6,6 @@ import type { IRandom } from 'common-data/types/IRandom';
 
 export type EnemyRole = 'scout' | 'fighter' | 'heavy' | 'flagship';
 
-const shieldCards = (count: number) => Array<'hullChargeShields'>(count).fill('hullChargeShields');
 type ReactorCards = AiShipSetupInfo['reactor']['cards'];
 
 /**
@@ -21,11 +20,18 @@ const reactorCards = (sets: number, ...extra: ReactorCards) => [
 /** Systems aren't capped below the usual maximum: their power comes from the reactor deck. */
 const system = <T extends string>(cards: T[], initialHandSize = 1) => ({ cards, maxPowerLevel: MAX_POWER_LEVEL, initialHandSize });
 
+/*
+    Hull cards make up the hull's health, and each emitter adds 15 shield capacity, and each volatile emitter 45.
+    Emitters and tuning cards tune the shields when played. Bare hull cards do nothing but add health,
+    so the more of them a hull has, the less of the time its shields are tuned.
+*/
+
 /** The original "An Enemy" ship from the old default scenario; all other roles are tweaks of it. */
 const fighterTemplate: Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal'> = {
     appearance: 'swallowtail-interceptor',
     skill: 1,
-    hull: system(shieldCards(12), 0),
+    // 60 shield capacity, sometimes tuned against energy weapons.
+    hull: system(['hullShieldEmitter', 'hullShieldTuningEnergy', 'hullBare', 'hullShieldEmitter', 'hullShieldTuningEnergy', 'hullBare', 'hullShieldEmitter', 'hullShieldEmitter'], 0),
     // Loading a torpedo takes 3 tactical power.
     reactor: system(reactorCards(2, 'reactorPowerTactical'), 0),
     helm: system(['slowAndSteady', 'zigZag', 'strafe', 'slowAndSteady']),
@@ -37,7 +43,8 @@ const fighterTemplate: Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | '
 const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal'>> = {
     scout: {
         ...fighterTemplate,
-        hull: system(shieldCards(6), 0),
+        // A small shield (30), and a flimsy hull.
+        hull: system(['hullShieldEmitter', 'hullShieldTuningEnergy', 'hullBare', 'hullShieldEmitter', 'hullBare'], 0),
         reactor: system(reactorCards(2, 'reactorPowerTactical', 'reactorPowerHelm'), 0),
         helm: system(['zigZag', 'strafe', 'zigZag', 'slowAndSteady']),
         tactical: { ...system(['lowYield', 'lowYield', 'photonTorpedo']), numSlots: 1 },
@@ -46,7 +53,11 @@ const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' 
     fighter: fighterTemplate,
     heavy: {
         ...fighterTemplate,
-        hull: system(shieldCards(16), 0),
+        // A big shield (135), a third of it from a volatile emitter, sometimes tuned against torpedoes.
+        hull: system([
+            'hullShieldEmitter', 'hullVolatileEmitter', 'hullShieldTuningTorpedo', 'hullBare', 'hullShieldEmitter', 'hullShieldTuningTorpedo',
+            'hullBare', 'hullShieldEmitter', 'hullBare', 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldEmitter',
+        ], 0),
         reactor: system(reactorCards(2, 'reactorPowerTactical', 'reactorPowerHull', 'reactorPowerEngineer'), 0),
         tactical: { ...system(['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield']), numSlots: 2 },
         engineer: system(['auxPower', 'auxPower', 'distributePower', 'auxPower']),
@@ -54,7 +65,11 @@ const roleTemplates: Record<EnemyRole, Omit<AiShipSetupInfo, 'name' | 'faction' 
     },
     flagship: {
         ...fighterTemplate,
-        hull: system(shieldCards(24), 0),
+        // The biggest shield (210), with two volatile emitters, sometimes tuned against energy weapons or torpedoes.
+        hull: system([
+            'hullShieldEmitter', 'hullVolatileEmitter', 'hullShieldTuningEnergy', 'hullShieldTuningTorpedo', 'hullBare', 'hullShieldEmitter', 'hullVolatileEmitter', 'hullShieldTuningEnergy',
+            'hullShieldTuningTorpedo', 'hullBare', 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldEmitter',
+        ], 0),
         reactor: system(reactorCards(3, 'reactorPowerTactical', 'reactorPowerHull'), 0),
         tactical: { ...system(['photonTorpedo', 'lowYield', 'fullSpread', 'photonTorpedo', 'lowYield', 'fullSpread']), numSlots: 3 },
         engineer: system(['auxPower', 'auxPower', 'distributePower', 'auxPower', 'distributePower']),

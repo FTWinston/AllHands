@@ -10,6 +10,7 @@ import { ReadonlyKeyframes } from './Keyframes';
 import { ObjectAppearance } from './ObjectAppearance';
 import { Position } from './Position';
 import { RelationshipType } from './RelationshipType';
+import type { ShieldTuningEffect } from 'src/features/ships/utils/shieldStats';
 
 export type ObjectId = string;
 
@@ -157,8 +158,11 @@ export interface ScannedHullInfo {
     targetId: string;
     health: number;
     maxHealth: number;
-    /** Shield strength, 0-100. */
     shield: number;
+    /** The ship's shield capacity. */
+    maxShield: number;
+    /** The ship's current shield tuning, if any. */
+    shieldTuning: ShieldTuningEffect | null;
 }
 
 export interface ScienceSystemInfo extends CrewSystemInfo {
@@ -189,6 +193,19 @@ export interface EngineerSystemTileInfo {
     hand: IArray<CardInstance>;
     /** The system's own deck, in draw order. */
     deck: IArray<CardInstance>;
+}
+
+/** The hull's engineer tile, which also has the hull's shields. */
+export interface HullSystemTileInfo extends EngineerSystemTileInfo {
+    system: 'hull';
+    shield: number;
+    /** The hull's shield capacity, which stays known while the shields are down. */
+    maxShield: number;
+}
+
+/** Whether an engineer tile is the hull's, which always has the hull's extra fields. */
+export function isHullSystemTile<T extends { system: ShipSystem }>(tile: T): tile is T & Pick<HullSystemTileInfo, 'system' | 'shield' | 'maxShield'> {
+    return tile.system === 'hull';
 }
 
 export interface EngineerSystemInfo extends CrewSystemInfo {

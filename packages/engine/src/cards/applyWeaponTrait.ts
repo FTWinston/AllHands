@@ -5,6 +5,9 @@ import { CrewSystemState } from 'src/state/systems/CrewSystemState';
 import { SystemState } from 'src/state/systems/SystemState';
 
 const traitBehaviors: Record<WeaponTrait, (ship: Ship, targetSystem: SystemState) => void> = {
+    // These do nothing themselves, but shields can be tuned against them (see HullState).
+    energyWeapon: () => { },
+    torpedoWeapon: () => { },
     area: (_ship, _targetSystem) => {
         // TODO: implement this: damage nearby targets
     },

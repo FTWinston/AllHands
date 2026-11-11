@@ -1,18 +1,31 @@
 import { IArray } from '@colyseus/react';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
+import { isHullSystemTile } from 'common-data/features/space/types/GameObjectInfo';
 import { useState } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
 import { RepairIndicator } from './RepairIndicator';
-import { System, SystemInfo } from './System';
+import { HullSystemInfo, System, SystemInfo, TileShieldInfo } from './System';
 import { SystemCards, SystemCardsDialog } from './SystemCardsDialog';
 import styles from './SystemList.module.css';
 
 type Props = {
-    systems: IArray<SystemInfo & SystemCards>;
+    systems: IArray<(SystemInfo | HullSystemInfo) & SystemCards>;
     repairCapacity: number;
     maxRepairCapacity: number;
 };
+
+/** The hull's shields. Undefined for other systems. */
+function getShieldInfo(system: SystemInfo & SystemCards): TileShieldInfo | undefined {
+    if (!isHullSystemTile(system)) {
+        return undefined;
+    }
+
+    return {
+        level: system.shield,
+        max: system.maxShield,
+    };
+}
 
 export const SystemList = (props: Props) => {
     const activeCard = useActiveCard();
@@ -36,6 +49,7 @@ export const SystemList = (props: Props) => {
                     >
                         <System
                             {...system}
+                            shield={getShieldInfo(system)}
                             onViewCards={() => {
                                 setCardsSystem(system.system);
                                 setViewingCards(true);

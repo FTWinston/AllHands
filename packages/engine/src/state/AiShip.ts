@@ -12,8 +12,9 @@ export class AiShip extends Ship {
         super(gameState, setup);
         this.ai = new ShipAi(this, gameState, setup);
 
-        // AI ships only exist within an encounter, so they join it with their hands dealt.
+        // AI ships only exist within an encounter, so they join it with their hands dealt and their shields up.
         this.dealInitialHands();
+        this.hullState.restoreShields();
     }
 
     public override tick(deltaTime: number, currentTime: number): void {

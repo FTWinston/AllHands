@@ -1,3 +1,4 @@
+import { reinforcedDrainPercent, tunedReductionPercent } from 'common-data/features/ships/utils/shieldStats';
 import { systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { EffectLevel } from '../components/EffectLevelContext';
@@ -5,14 +6,29 @@ import { SystemEffectDescription, UISystemEffectDefinition } from '../types/UISy
 
 function loadEffectDefinitions() {
     const effectDescriptions: Record<SystemEffectType, SystemEffectDescription> = {
-        shield: {
-            name: 'Shields',
+        shieldReinforced: {
+            name: 'Reinforced',
+            description: <>{`A shield tuning: the shields are drained ${100 - reinforcedDrainPercent}% less by the damage they absorb. Set by playing a shield emitter, until it runs out or another tuning replaces it.`}</>,
+            image: ExampleIcon,
+        },
+        shieldTunedEnergy: {
+            name: 'Tuned: Energy',
+            description: <>{`A shield tuning: hits from energy weapons do ${tunedReductionPercent}% less damage. Set by playing an energy tuning card, until it runs out or another tuning replaces it.`}</>,
+            image: ExampleIcon,
+        },
+        shieldTunedTorpedo: {
+            name: 'Tuned: Torpedoes',
+            description: <>{`A shield tuning: torpedo hits do ${tunedReductionPercent}% less damage. Set by playing a torpedo tuning card, until it runs out or another tuning replaces it.`}</>,
+            image: ExampleIcon,
+        },
+        shieldScrambled: {
+            name: 'Shields Scrambled',
             description: <>
-                Protects the ship from damage. Recharged by hull energy level, each time the hull generates.
-                The higher the shield strength (currently at
+                The shields have been scrambled, so the next
                 {' '}
                 <EffectLevel />
-                %), the greater a proportion of damage it absorbs.
+                {' '}
+                hull cards that would tune them don't.
             </>,
             image: ExampleIcon,
         },
@@ -200,13 +216,6 @@ function loadEffectDefinitions() {
                 {' '}
                 <EffectLevel />
                 %.
-            </>,
-            image: ExampleIcon,
-        },
-        tetryonAccumulation: {
-            name: 'Tetryon Accumulation',
-            description: <>
-                An accumulation of tetryon particles from enemy sensors on the hull is preventing the shields from regenerating.
             </>,
             image: ExampleIcon,
         },

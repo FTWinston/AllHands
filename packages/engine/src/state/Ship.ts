@@ -260,6 +260,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this.reactorState.resetCardGeneration();
         this.clearCrewCardGeneration();
         this.dealInitialHands();
+        this.hullState.restoreShields();
 
         // Unconditional, as this runs just before the campaign enters the encounter phase.
         this.updateCrewCardGeneration();

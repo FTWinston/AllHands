@@ -171,3 +171,21 @@ describe('Initial hands', () => {
         expect(deckTypes(ship.tacticalState.hand)).toEqual(cards.slice(0, 2));
     });
 });
+
+describe('SystemState between encounters', () => {
+    it('stabilises damaged cards, but leaves critically damaged ones', () => {
+        const { ship, system } = createDeck();
+        system.adjustHealth(-2);
+
+        ship.cleanupAfterEncounter();
+        expect(system.health).toBe(5);
+        expect([...system.deck].filter(card => card.hasTrait('stabilised'))).toHaveLength(2);
+
+        // Damaging the stabilised cards again leaves them critically damaged, which they stay.
+        system.adjustHealth(-5);
+        ship.cleanupAfterEncounter();
+
+        expect(system.health).toBe(3);
+        expect([...system.deck].filter(card => card.hasTrait('critical'))).toHaveLength(2);
+    });
+});

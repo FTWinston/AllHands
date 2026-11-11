@@ -288,9 +288,31 @@ function loadCardDefinitions() {
                 console.log('played smokeScreen'); return true;
             },
         },
-        hullChargeShields: {
+        // Hull cards are played as soon as they're drawn. HullState adds up their shield capacity.
+        hullBare: {
+            play: () => true,
+        },
+        hullShieldEmitter: {
             play: (_gameState, ship) => {
-                ship.hullState.adjustEffectLevel('shield', ship.hullState.powerLevel);
+                ship.hullState.tuneShields('shieldReinforced');
+                return true;
+            },
+        },
+        hullVolatileEmitter: {
+            play: (_gameState, ship) => {
+                ship.hullState.tuneShields('shieldReinforced');
+                return true;
+            },
+        },
+        hullShieldTuningEnergy: {
+            play: (_gameState, ship) => {
+                ship.hullState.tuneShields('shieldTunedEnergy');
+                return true;
+            },
+        },
+        hullShieldTuningTorpedo: {
+            play: (_gameState, ship) => {
+                ship.hullState.tuneShields('shieldTunedTorpedo');
                 return true;
             },
         },
@@ -855,9 +877,9 @@ function loadCardDefinitions() {
                 ship.scienceState.subscribeToSystem(target, targetSystem);
                 return true;
             },
-            findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
+            findVulnerability: (_gameState, ship, target, targetSystem, parameters) => {
                 ship.scienceState.findVulnerability(target, targetSystem);
-                target.hullState.addEffect('tetryonAccumulation');
+                target.hullState.scrambleShields(parameters.scrambleCards);
                 return true;
             },
         },

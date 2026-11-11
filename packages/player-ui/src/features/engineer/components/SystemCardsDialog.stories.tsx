@@ -81,6 +81,25 @@ export const Reactor: Story = {
     },
 };
 
+/** Hull cards are played as they're drawn, so the hull has no hand either. Its shields are shown on its tile, not here. */
+export const Hull: Story = {
+    args: {
+        system: 'hull',
+        hand: [],
+        deck: [
+            ...createCards(['hullShieldEmitter', 'hullShieldTuningEnergy'], 1),
+            { id: 3, type: 'hullShieldEmitter', extraTraits: { damaged: ExtraTraitType.Normal } },
+            ...createCards(['hullVolatileEmitter', 'hullBare', 'hullShieldTuningTorpedo'], 4),
+        ],
+    },
+    play: async ({ canvasElement }) => {
+        const page = within(canvasElement.ownerDocument.body);
+        await expect(await page.findByText('Hull cards')).toBeInTheDocument();
+        await expect(page.queryByText('Hand')).not.toBeInTheDocument();
+        await expect(page.getByRole('list', { name: 'Deck' }).children).toHaveLength(6);
+    },
+};
+
 /**
  * As cards are drawn, the rest move up the deck. Those at the start of a row wrap around to the end of the row above.
  * The hand holds up to five cards, so it gets a second row on the second draw, and the deck below glides down to make room.

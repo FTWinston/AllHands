@@ -36,7 +36,7 @@ export const NoRevealedSystem: Story = {
 export const ScannedHull: Story = {
     args: {
         ...NoRevealedSystem.args,
-        scannedHull: { targetId: 'Enemy-01', health: 7, maxHealth: 12, shield: 55 },
+        scannedHull: { targetId: 'Enemy-01', health: 7, maxHealth: 12, shield: 55, maxShield: 80, shieldTuning: 'shieldTunedEnergy' },
     },
 };
 
@@ -44,7 +44,7 @@ export const ScannedHull_NoShields: Story = {
     args: {
         ...NoRevealedSystem.args,
         appearance: 'quad-nacelle-courier',
-        scannedHull: { targetId: 'Enemy-01', health: 2, maxHealth: 12, shield: 0 },
+        scannedHull: { targetId: 'Enemy-01', health: 2, maxHealth: 12, shield: 0, maxShield: 80, shieldTuning: null },
     },
 };
 

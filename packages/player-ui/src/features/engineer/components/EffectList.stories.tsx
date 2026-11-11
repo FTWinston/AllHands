@@ -34,7 +34,7 @@ export const EffectList: Story = {
             <div>
                 <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                     <Button onClick={() => {
-                        const effectList = ['auxPower', 'feedback', 'reducedPower', 'disruptGeneration', 'shield'];
+                        const effectList = ['auxPower', 'feedback', 'reducedPower', 'disruptGeneration', 'overcharge'];
                         const newEffect = {
                             type: effectList[nextId % effectList.length] as SystemEffectType,
                             progress: { startTime: Date.now(), endTime: Date.now() + 5000 } as Cooldown,
