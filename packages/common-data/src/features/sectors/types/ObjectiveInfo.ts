@@ -4,14 +4,14 @@
  * - survive: hold out for a set time.
  * - boss: defeat the sector's boss.
  * - protect: keep the named `subject` safe.
- * - shutDown: stop the named `subject`, without destroying it.
+ * - disable: stop the named `subject`, without destroying it.
  */
 export type ObjectiveInfo
     = | { type: 'clear' }
         | { type: 'survive'; durationMs: number }
         | { type: 'boss' }
         | { type: 'protect'; subject: string }
-        | { type: 'shutDown'; subject: string };
+        | { type: 'disable'; subject: string };
 
 export type ObjectiveType = ObjectiveInfo['type'];
 

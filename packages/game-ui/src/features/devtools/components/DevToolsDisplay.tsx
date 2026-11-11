@@ -27,7 +27,8 @@ type Props = {
     autoWin: boolean;
     setAutoWin: (enabled: boolean) => void;
     encounters: readonly DevEncounterInfo[];
-    loadEncounter: (encounterId: string) => void;
+    /** Starts the encounter standalone, in its elite form if asked for. */
+    loadEncounter: (encounterId: string, elite: boolean) => void;
     /** In the lobby there are no ships yet, so only the encounter selector is offered. */
     inLobby?: boolean;
 };
@@ -39,8 +40,8 @@ export const DevToolsDisplay: FC<Props> = (props) => {
     const encounterSelector = (
         <EncounterSelector
             encounters={props.encounters}
-            loadEncounter={(encounterId) => {
-                props.loadEncounter(encounterId);
+            loadEncounter={(encounterId, elite) => {
+                props.loadEncounter(encounterId, elite);
                 props.setOpen(false);
             }}
         />

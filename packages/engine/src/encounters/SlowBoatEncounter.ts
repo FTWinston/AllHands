@@ -1,17 +1,12 @@
-import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
-import { getHailDuration } from 'common-data/features/sectors/types/HailInfo';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { clampAngle, determineAngle, distance } from 'common-data/features/space/utils/vectors';
-import { CardState } from 'src/state/CardState';
-import { getPlayerShips } from 'src/utils/shipQueries';
 import { hostileToPlayer, playerFactionId } from '../campaign/factions';
-import { spawnEnemies } from './CombatEncounter';
-import { Encounter } from './Encounter';
-import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
+import { Encounter, type EncounterTimer } from './Encounter';
+
+import type { EncounterDefinition } from './EncounterDefinition';
 import type { Vector2D } from 'common-data/features/space/types/Vector2D';
 import type { AiShip } from 'src/state/AiShip';
 import type { GameObject } from 'src/state/GameObject';
-import type { GameState } from 'src/state/GameState';
 import type { RemovalReason } from 'src/types/RemovalReason';
 
 const clinic = 'clinic';
@@ -41,6 +36,8 @@ export const maxHarriers = 3;
 
 /** How long before Marrow reaches a waypoint it says which way it's about to turn. */
 export const turnWarningMs = 5000;
+/** A turn warning that can't be said within this long isn't said at all, as there'd be too little warning left for it to be any use. */
+const turnHailMaxDelayMs = 3000;
 /** Marrow says which harrier it's shooting at no more often than this. */
 const targetHailIntervalMs = 10_000;
 
@@ -79,24 +76,21 @@ const numberNames = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eig
  * Elite: a minute in, the harriers' leader offers to leave for a third of the clinic ship's stores. Neither answer is the right one.
  */
 export class SlowBoatEncounter extends Encounter {
-    protected override readonly sides = [
+    protected override readonly factions = [
         { id: clinic, relations: { [playerFactionId]: RelationshipType.Friendly, [stranded]: RelationshipType.Hostile } },
         hostileToPlayer(stranded),
     ];
 
     private marrow: AiShip | undefined;
-    private harriers: AiShip[] = [];
+    private readonly harriers = this.track<AiShip>();
+    /** Where Marrow starts from, and the points it turns at, the last being its jump point. */
+    private routeStart: Vector2D = { x: 0, y: 0 };
     private waypoints: Vector2D[] = [];
-    private startTime = 0;
     private harriersSpawned = 0;
-    private nextHarrierTime = 0;
+    private harrierArrivals: EncounterTimer | undefined;
     /** Whether Marrow has reached the end of its route, so its removal isn't a loss. */
     private arrived = false;
 
-    /** Whether the harriers' leader has made its offer, in the elite form. */
-    private offerMade = false;
-    /** Whether the harriers have been bought off, so no more will come. */
-    private harriersCalledOff = false;
     /** The most harriers that can be here at once. */
     private mostHarriers = maxHarriers;
     /** How much of the usual reward getting Marrow across is worth. */
@@ -110,37 +104,16 @@ export class SlowBoatEncounter extends Encounter {
     private nextTargetHailTime = 0;
     private fleeAnnounced = false;
 
-    constructor(state: GameState, node: SectorNodeInfo) {
-        super(state, { ...node, objective: { type: 'protect', subject: 'Marrow' } });
-    }
-
     override start(): void {
         super.start();
 
-        const now = this.state.currentTime;
-        this.startTime = now;
-        this.nextHarrierTime = now + harrierIntervalMs;
-        // Nothing else is said until there's been time to read the opening line.
-        this.nextTargetHailTime = now + getHailDuration(openingLine);
         this.hail(marrowName, openingLine);
 
-        this.dealExtendShields();
-    }
+        this.keepInHand('engineer', 'extendShields');
+        this.harrierArrivals = this.every(harrierIntervalMs, () => this.harrierArrives());
 
-    /**
-     * Each engineer holds an Extend Shields card for as long as the encounter runs, whenever their shields aren't already extended.
-     * It's used up when played, and dealt again once its effect has run out, so it never joins the deck, and can't be played twice over.
-     * Whatever's left goes when hands are cleared at the end of the encounter.
-     */
-    private dealExtendShields(): void {
-        for (const ship of getPlayerShips(this.state)) {
-            if (ship.hasExtendedShields || ship.engineerState.hand.some(card => card.type === 'extendShields')) {
-                continue;
-            }
-
-            const card = new CardState(ship.getCardId(), 'extendShields');
-            card.addTrait('expendable', ExtraTraitType.Normal);
-            ship.engineerState.addCardToHand(card);
+        if (this.node.elite) {
+            this.after(offerAtMs, () => this.makeOffer());
         }
     }
 
@@ -150,9 +123,10 @@ export class SlowBoatEncounter extends Encounter {
         const [first, second, third] = legLengths;
         const turn = { x: start.x + first, y: start.y };
         const turnBack = { x: turn.x + Math.cos(dogLegAngle) * second, y: turn.y - Math.sin(dogLegAngle) * second };
+        this.routeStart = start;
         this.waypoints = [turn, turnBack, { x: turnBack.x + third, y: turnBack.y }];
 
-        const [marrow] = spawnEnemies(this.state, clinic, [{
+        [this.marrow] = this.spawnShips(clinic, [{
             design: 'clinicShip',
             scenarioId: marrowScenarioId,
             name: marrowName,
@@ -161,15 +135,12 @@ export class SlowBoatEncounter extends Encounter {
             skill: marrowSkill,
         }]);
 
-        this.marrow = marrow;
-        this.spawnObjects([marrow]);
-
         // The first two come up from astern, one on each quarter.
         this.spawnHarrier(Math.PI * 0.75);
         this.spawnHarrier(-Math.PI * 0.75);
     }
 
-    override tick(_deltaTime: number): void {
+    protected override tick(): void {
         const marrow = this.marrow;
         if (this.isComplete || !marrow) {
             return;
@@ -180,60 +151,43 @@ export class SlowBoatEncounter extends Encounter {
             return;
         }
 
-        this.dealExtendShields();
-
         const now = this.state.currentTime;
 
-        this.announceTarget(marrow, now);
-        this.announceFleeing();
-        this.announceShields(marrow);
         this.announceTurn(marrow, now);
-
-        if (this.node.elite && !this.offerMade && now - this.startTime >= offerAtMs) {
-            this.makeOffer();
-        }
-
-        if (!this.harriersCalledOff && now >= this.nextHarrierTime) {
-            this.nextHarrierTime = now + harrierIntervalMs;
-
-            if (this.harriers.length < this.mostHarriers) {
-                this.spawnHarrier(this.state.random.getFloat(0, Math.PI * 2));
-            }
-        }
+        this.announceShields(marrow);
+        this.announceFleeing();
+        this.announceTarget(marrow, now);
     }
 
     /** The harriers' leader offers to leave for a share of what the clinic ship is carrying. Saying nothing is taken as a no. */
     private makeOffer(): void {
-        this.offerMade = true;
-        this.prompt(
+        this.ask(
             strandedLead,
             'There\'s two hundred of us on a dead hauler, and that ship\'s carrying antibiotics. A third of the stores and we\'re gone. Your call.',
-            [{ id: offerAnswers.handOver, label: 'Hand it over' }, { id: offerAnswers.refuse, label: 'Refuse' }],
-            offerTimeoutMs,
-            offerAnswers.refuse
+            [
+                { id: offerAnswers.handOver, label: 'Hand it over', onChosen: () => this.handOverStores() },
+                { id: offerAnswers.refuse, label: 'Refuse', onChosen: () => this.refuseOffer() },
+            ],
+            { timeoutMs: offerTimeoutMs, defaultAnswer: offerAnswers.refuse }
         );
     }
 
-    /**
-     * Handing the stores over ends the fighting: every harrier leaves, no more come, and the crossing is worth less for having been bought.
-     * Refusing brings another harrier straight away, and lets one more than before be here at once.
-     */
-    protected override onPromptAnswered(optionId: string): void {
-        if (optionId === offerAnswers.handOver) {
-            this.harriersCalledOff = true;
-            this.crossingScore = boughtCrossingScore;
-            this.sendHarriersAway();
-            this.hail(strandedLead, 'That\'ll keep us alive. We\'re gone.');
-        } else {
-            this.mostHarriers = maxHarriers + 1;
-            this.spawnHarrier(this.state.random.getFloat(0, Math.PI * 2));
-            this.hail(strandedLead, 'Then we\'ll take all of it.');
-        }
+    /** Handing the stores over ends the fighting: every harrier leaves, no more come, and the crossing is worth less for having been bought. */
+    private handOverStores(): void {
+        this.harrierArrivals?.cancel();
+        this.crossingScore = boughtCrossingScore;
+        this.sendHarriersAway();
+        this.hail(strandedLead, 'That\'ll keep us alive. We\'re gone.');
     }
 
-    override onObjectRemoved(object: GameObject, reason: RemovalReason): void {
-        this.harriers = this.harriers.filter(harrier => harrier !== object);
+    /** Refusing brings another harrier straight away, and lets one more than before be here at once. */
+    private refuseOffer(): void {
+        this.mostHarriers = maxHarriers + 1;
+        this.spawnHarrier(this.state.random.getFloat(0, Math.PI * 2));
+        this.hail(strandedLead, 'Then we\'ll take all of it.');
+    }
 
+    protected override onObjectRemoved(object: GameObject, reason: RemovalReason): void {
         if (object === this.marrow && !this.arrived && reason === 'destroyed') {
             // There's nothing left to take, and nothing to say.
             this.sendHarriersAway();
@@ -248,12 +202,19 @@ export class SlowBoatEncounter extends Encounter {
         this.sendHarriersAway();
         marrow.depart();
         this.complete('success', this.crossingScore);
-        this.hail(marrowName, 'Jump point. Forty patients say thank you, and so do I.');
+        this.hail(marrowName, 'Jump point. Forty patients say thank you, and so do I.', { urgent: true });
     }
 
     private sendHarriersAway(): void {
         for (const harrier of this.harriers) {
             harrier.ai.commander.withdraw();
+        }
+    }
+
+    /** Another harrier arrives, if there's room for one. */
+    private harrierArrives(): void {
+        if (this.harriers.size < this.mostHarriers) {
+            this.spawnHarrier(this.state.random.getFloat(0, Math.PI * 2));
         }
     }
 
@@ -271,7 +232,7 @@ export class SlowBoatEncounter extends Encounter {
             angle: bearing + Math.PI,
         };
 
-        const [harrier] = spawnEnemies(this.state, stranded, [{
+        const [harrier] = this.spawnShips(stranded, [{
             design: 'harrier',
             name: `Harrier ${numberNames[this.harriersSpawned] ?? this.harriersSpawned + 1}`,
             position,
@@ -280,14 +241,16 @@ export class SlowBoatEncounter extends Encounter {
         }]);
 
         this.harriersSpawned++;
-        this.harriers.push(harrier);
-        this.spawnObjects([harrier]);
+        this.harriers.add(harrier);
     }
 
-    /** Marrow says which harrier it's shooting at, whenever that changes, so the crew knows to take the others. */
+    /**
+     * Marrow says which harrier it's shooting at, whenever that changes, so the crew knows to take the others.
+     * That's only worth saying straight away, so it waits for a gap in what's being said, rather than queueing.
+     */
     private announceTarget(marrow: AiShip, now: number): void {
         const { targetId } = marrow.ai.blackboard;
-        if (targetId === null || targetId === this.announcedTargetId || now < this.nextTargetHailTime) {
+        if (targetId === null || targetId === this.announcedTargetId || now < this.nextTargetHailTime || this.isHailing) {
             return;
         }
 
@@ -328,7 +291,7 @@ export class SlowBoatEncounter extends Encounter {
         }
     }
 
-    /** Marrow says which way it's about to turn, a little before it gets to each waypoint but the last. */
+    /** Marrow says which way it's about to turn, a little before it gets to each waypoint but the last. It's no use late, so it's urgent. */
     private announceTurn(marrow: AiShip, now: number): void {
         const index = marrow.ai.commander.waypointsReached;
         if (index !== this.turnsAnnounced || index >= this.waypoints.length - 1) {
@@ -340,10 +303,20 @@ export class SlowBoatEncounter extends Encounter {
             return;
         }
 
-        const from = index === 0 ? marrow.getPosition(this.startTime) : this.waypoints[index - 1];
+        const from = index === 0 ? this.routeStart : this.waypoints[index - 1];
         const turn = clampAngle(determineAngle(waypoint, this.waypoints[index + 1]) - determineAngle(from, waypoint));
 
         this.turnsAnnounced++;
-        this.hail(marrowName, `Coming about to ${turn > 0 ? 'port' : 'starboard'} in five.`);
+        this.hail(marrowName, `Coming about to ${turn > 0 ? 'port' : 'starboard'} in five.`, { urgent: true, maxDelayMs: turnHailMaxDelayMs });
     }
 }
+
+export const slowBoatDefinition: EncounterDefinition = {
+    id: 'slowBoat',
+    name: 'Slow Boat',
+    kind: 'combat',
+    objective: { type: 'protect', subject: 'Marrow' },
+    defaultEnvironment: 'asteroidField',
+    request: { from: marrowName, subject: 'escort request', text: 'Full ward, forty beds. We\'re crossing the Shallows drift and something\'s been shadowing us since the last beacon.' },
+    create: (state, node) => new SlowBoatEncounter(state, node),
+};

@@ -621,8 +621,7 @@ function loadCardDefinitions() {
                     return false;
                 }
 
-                // Playing it again while it's running starts its time over.
-                hull.removeEffect('shieldsExtended', false);
+                // Playing it again while it's running starts its time over, as adding an effect that's already there does.
                 hull.addEffect('shieldsExtended');
                 return true;
             },

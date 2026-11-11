@@ -35,3 +35,18 @@
     font-weight: 400;
     opacity: 0.85;
 }
+
+.item {
+    display: flex;
+    gap: 0.5em;
+}
+
+.item .encounter {
+    flex: 1;
+    min-width: 0;
+}
+
+.elite {
+    flex: none;
+    border-radius: 0.75em;
+}

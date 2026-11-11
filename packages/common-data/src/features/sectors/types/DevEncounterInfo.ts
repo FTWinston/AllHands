@@ -8,4 +8,6 @@ export interface DevEncounterInfo {
     kind: SectorNodeKind;
     environment?: EnvironmentType;
     objective?: ObjectiveInfo;
+    /** Whether it has an elite form, which dev tools can launch it in. */
+    hasElite: boolean;
 }

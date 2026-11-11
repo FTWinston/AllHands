@@ -40,7 +40,7 @@ export class AiShip extends Ship {
      */
     depart(): void {
         // Before removal, while those who can see the ship still know of it.
-        this.showWarpOut();
+        this.showWarpAway();
         this.scienceState.unsubscribeFromShip();
         this.gameState.remove(this, 'departed');
     }

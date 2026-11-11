@@ -170,7 +170,7 @@ export const sounds = {
     },
 
     /** Another ship jumps to warp: a short rush as it gathers itself, then a pew as it goes. A smaller, quieter take on our own (see `warp`). */
-    shipWarpedOut() {
+    shipWarpedAway() {
         playNoise({ filterType: 'bandpass', filterFrequency: 300, endFilterFrequency: 3000, envelope: 'gate', attack: 0.3, duration: 0.5, volume: 0.2 });
         playTone({ frequency: 2000, endFrequency: 300, delay: 0.5, duration: 0.25, volume: 0.25, envelope: 'decay' });
         playNoise({ filterFrequency: 3500, endFilterFrequency: 300, delay: 0.5, duration: 0.2, volume: 0.2 });

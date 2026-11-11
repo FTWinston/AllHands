@@ -1,10 +1,10 @@
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
+import { getHailDuration } from 'common-data/features/sectors/types/HailInfo';
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { playerFactionId } from 'src/campaign/factions';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
-import { getDefaultNode } from 'src/encounters/EncounterRegistry';
 import { offerAnswers, offerAtMs } from 'src/encounters/SlowBoatEncounter';
 import { DEV_TOOLS_ENABLED } from 'src/generated/devtools';
 import { CrewState } from 'src/state/CrewState';
@@ -14,7 +14,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { startCountdownDuration, type GameRoom } from './GameRoom';
 import type { IArray } from '@colyseus/react';
 import type { ColyseusTestServer } from '@colyseus/testing';
-import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { EngineWeaponSlotCardDefinition } from 'src/cards/EngineCardDefinition';
 import type { PlayerShip } from 'src/state/PlayerShip';
 import type { HullSystemTile } from 'src/state/systems/engineer/HullSystemTile';
@@ -275,7 +274,7 @@ describe('GameRoom campaign messages', () => {
     }
 });
 
-describe('GameRoom encounter sides', () => {
+describe('GameRoom encounter factions', () => {
     it('clients see who is hostile for as long as the encounter lasts, through the player faction they already hold', async () => {
         const { room, state, ship, shipClient, clients } = await startGame();
         const getRelations = (client: TestClient) => (client.state as GameRoom['state']).factions.get(playerFactionId)?.relations;
@@ -287,13 +286,13 @@ describe('GameRoom encounter sides', () => {
         await send(room, clients.tactical, 'dismissMessage');
         expect(state.campaign!.devLoadEncounter('skirmish')).toBe(true);
 
-        const [side] = [...state.factions.keys()].filter(id => id !== playerFactionId);
-        expect(side).toBeDefined();
+        const [faction] = [...state.factions.keys()].filter(id => id !== playerFactionId);
+        expect(faction).toBeDefined();
 
         await vi.waitFor(() => {
             for (const client of [shipClient, clients.helm, clients.tactical]) {
-                expect(getRelations(client)?.get(side)).toBe(RelationshipType.Hostile);
-                // Only the player faction is ever sent: the side itself stays on the server.
+                expect(getRelations(client)?.get(faction)).toBe(RelationshipType.Hostile);
+                // Only the player faction is ever sent: the encounter's faction stays on the server.
                 expect([...(client.state as GameRoom['state']).factions.keys()]).toEqual([playerFactionId]);
             }
         });
@@ -329,6 +328,12 @@ describe('GameRoom viewscreen readouts', () => {
             hostile.destroy();
         }
 
+        // Whoever asked for help has the last word, once everything else has been read.
+        for (let lines = 0; lines < 5 && state.hail?.speaker !== 'Hauler Local 12'; lines++) {
+            state.currentTime += getHailDuration(state.hail!.text);
+            state.campaign!.tick(0);
+        }
+
         await vi.waitFor(() => {
             expect(getState().encounterOutcome).toBe('success');
             expect(getState().hail).toMatchObject({ speaker: 'Hauler Local 12' });
@@ -345,13 +350,15 @@ describe('GameRoom viewscreen readouts', () => {
 });
 
 describe('GameRoom comms prompts', () => {
-    it('everyone is sent what is being asked, but only tactical can answer it', async () => {
-        const { room, state, shipClient, clients } = await startGame();
-        const getPrompt = (client: TestClient) => (client.state as GameRoom['state']).prompt ?? null;
+    it('the viewscreen and tactical are sent what is being asked, and only tactical can answer it', async () => {
+        const { room, state, ship, shipClient, clients } = await startGame();
+        const getShip = (client: TestClient) => (client.state as GameRoom['state']).objects.get(ship.id) as PlayerShip | undefined;
+        const getPrompt = (client: TestClient) => getShip(client)?.comms?.prompt ?? null;
 
         // The elite form of Slow Boat, whose harriers make an offer a minute in.
         await send(room, clients.tactical, 'dismissMessage');
-        (state.campaign as unknown as { startEncounter(node: SectorNodeInfo): void }).startEncounter({ ...getDefaultNode('slowBoat'), elite: true });
+        await send(room, shipClient, 'devLoadEncounter', { encounterId: 'slowBoat', elite: true });
+        expect(state.encounter).toMatchObject({ encounterId: 'slowBoat' });
         state.currentTime += offerAtMs;
         state.campaign!.tick(0);
         expect(state.prompt).not.toBeNull();
@@ -362,6 +369,12 @@ describe('GameRoom comms prompts', () => {
                 expect(getPrompt(client)!.options.map(option => option.id)).toEqual([offerAnswers.handOver, offerAnswers.refuse]);
             }
         });
+
+        // Nobody else needs it, as they can't answer it, and the viewscreen shows it to them.
+        for (const role of ['helm', 'science', 'engineer'] as const) {
+            expect(getShip(clients[role])).toBeDefined();
+            expect(getShip(clients[role])!.comms).toBeUndefined();
+        }
 
         for (const role of ['helm', 'science', 'engineer'] as const) {
             await send(room, clients[role], 'answerPrompt', { optionId: offerAnswers.handOver });

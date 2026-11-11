@@ -1,10 +1,11 @@
-import { getShopRole, isStationKind } from 'common-data/features/sectors/utils/isStationKind';
+import { getShopRole, isStationKind, stationKinds } from 'common-data/features/sectors/utils/isStationKind';
 import { crewRoleNames } from 'common-data/features/ships/types/CrewRole';
 import { getPlayerShips } from 'src/utils/shipQueries';
 import { createShopCards } from '../campaign/stationShop';
 import { createDeliveryCards } from '../campaign/workOrders';
 import { Encounter } from './Encounter';
-import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { EncounterDefinition } from './EncounterDefinition';
+import type { EncounterId, SectorNodeInfo, StationKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameState } from 'src/state/GameState';
 
 /**
@@ -49,3 +50,27 @@ export class StationEncounter extends Encounter {
         this.start();
     }
 }
+
+/** The encounter for each kind of station. */
+export const stationEncounterIds: Readonly<Record<StationKind, EncounterId>> = {
+    repair: 'repairStation',
+    navigationBeacon: 'navigationBeacon',
+    armsDealer: 'armsDealer',
+    salvageYard: 'salvageYard',
+    researchOutpost: 'researchOutpost',
+};
+
+const stationNames: Readonly<Record<StationKind, string>> = {
+    repair: 'Repair Station',
+    navigationBeacon: 'Navigation Beacon',
+    armsDealer: 'Arms Dealer',
+    salvageYard: 'Salvage Yard',
+    researchOutpost: 'Research Outpost',
+};
+
+export const stationDefinitions: readonly EncounterDefinition[] = stationKinds.map(kind => ({
+    id: stationEncounterIds[kind],
+    name: stationNames[kind],
+    kind,
+    create: (state, node) => new StationEncounter(state, node),
+}));

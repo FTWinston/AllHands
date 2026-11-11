@@ -1,12 +1,14 @@
 import { hostileToPlayer } from '../campaign/factions';
-import { hostileSide, spawnEnemies, type EnemySpawn } from './CombatEncounter';
+import { hostileFaction } from './CombatEncounter';
 import { Encounter } from './Encounter';
+import type { EncounterDefinition } from './EncounterDefinition';
 import type { ShipDesign } from '../campaign/shipDesigns';
-import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { EnvironmentType } from 'common-data/features/sectors/types/EnvironmentType';
+import type { EncounterId, SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameObject } from 'src/state/GameObject';
 import type { GameState } from 'src/state/GameState';
 
-/** The scenario id the boss ship is spawned with, which the encounter watches. */
+/** The scenario id the boss ship is spawned with, which its escorts guard. */
 export const bossScenarioId = 'boss';
 
 export interface BossConfig {
@@ -18,34 +20,34 @@ export interface BossConfig {
 
 /** A flagship plus escorts; complete when the flagship is destroyed (the escorts may still be alive). */
 export class BossEncounter extends Encounter {
-    protected override readonly sides = [hostileToPlayer(hostileSide)];
+    protected override readonly factions = [hostileToPlayer(hostileFaction)];
     private boss: GameObject | undefined;
 
     constructor(state: GameState, node: SectorNodeInfo, private readonly config: BossConfig) {
-        super(state, { ...node, kind: 'boss', objective: { type: 'boss' } });
+        super(state, node);
     }
 
     protected populate(): void {
-        const spawns: EnemySpawn[] = [
+        [this.boss] = this.spawnShips(hostileFaction, [
             { design: 'flagship', scenarioId: bossScenarioId, name: this.config.bossName },
-            ...this.config.escorts.map((design): EnemySpawn => ({ design, guards: bossScenarioId })),
-        ];
-
-        this.spawnObjects(spawnEnemies(this.state, hostileSide, spawns));
+            ...this.config.escorts.map(design => ({ design, guards: bossScenarioId })),
+        ]);
     }
 
-    override start(): void {
-        super.start();
-
-        this.boss = this.state.getObjectByScenarioId(bossScenarioId);
-        if (!this.boss) {
-            throw new Error('Boss encounter requires a ship spawned with the boss scenario id');
-        }
-    }
-
-    override onObjectRemoved(object: GameObject): void {
+    protected override onObjectRemoved(object: GameObject): void {
         if (object === this.boss) {
             this.complete();
         }
     }
 }
+
+function bossDefinition(id: EncounterId, name: string, defaultEnvironment: EnvironmentType, config: BossConfig): EncounterDefinition {
+    return { id, name, kind: 'boss', objective: { type: 'boss' }, defaultEnvironment, create: (state, node) => new BossEncounter(state, node, config) };
+}
+
+/** Placeholder bosses, one per sector, until the campaign is written. */
+export const bossDefinitions: readonly EncounterDefinition[] = [
+    bossDefinition('bossA', 'Placeholder Boss A', 'asteroidField', { bossName: 'Boss A', escorts: ['harrier', 'harrier'] }),
+    bossDefinition('bossB', 'Placeholder Boss B', 'nebula', { bossName: 'Boss B', escorts: ['fighter', 'harrier'] }),
+    bossDefinition('bossC', 'Placeholder Boss C', 'deepSpace', { bossName: 'Boss C', escorts: ['bulwark', 'fighter'] }),
+];

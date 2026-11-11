@@ -4,6 +4,7 @@ import { isKnowableCardType } from 'common-data/features/cards/utils/getKnowable
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownShipClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { PlayerShipInfo, PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { CommsState } from './CommsState';
 import { CrewState } from './CrewState';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
@@ -41,6 +42,9 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
     }
 
     @view(ownShipClientRole) @type(ViewState) readonly viewState: ViewState = new ViewState();
+
+    /** What's coming in over comms that the crew has to deal with. Only the viewscreen and tactical are sent it. */
+    @view(ownShipClientRole | ownTacticalClientRole) @type(CommsState) readonly comms = new CommsState();
 
     /** Earned by completing encounters, and spent at stations. */
     @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)

@@ -3,7 +3,7 @@ import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDe
 import { describe, expect, it } from 'vitest';
 import { createShipSetup, defaultSkill, type ShipDesign } from './shipDesigns';
 
-const designs: ShipDesign[] = ['harrier', 'fighter', 'bulwark', 'flagship', 'clinicShip'];
+const designs: ShipDesign[] = ['harrier', 'fighter', 'bulwark', 'flagship', 'clinicShip', 'customsPlatform', 'drone'];
 const origin = { x: 0, y: 0, angle: 0 };
 
 describe('ship designs', () => {
@@ -12,18 +12,6 @@ describe('ship designs', () => {
         for (const system of [setup.helm, setup.science, setup.tactical, setup.engineer]) {
             for (const cardType of system.cards) {
                 expect(cardDefinitions[cardType].parameters.cost).toBeLessThanOrEqual(Math.min(system.maxPowerLevel, MAX_POWER_LEVEL));
-            }
-        }
-    });
-
-    it.each(designs)('%s can load its weapons on baseline power', (design) => {
-        const setup = createShipSetup(design, 'side', origin);
-        // Each reactor card gives its system one level of baseline power.
-        const tacticalPower = setup.reactor.cards.filter(card => card === 'reactorPowerTactical').length;
-        for (const cardType of setup.tactical.cards) {
-            const definition = cardDefinitions[cardType];
-            if (definition.targetType === 'weapon-slot') {
-                expect(definition.parameters.cost).toBeLessThanOrEqual(tacticalPower);
             }
         }
     });

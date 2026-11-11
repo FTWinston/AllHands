@@ -35,8 +35,7 @@ export const Tactical = (props: Props) => {
     const shop = useShop(props.room, 'tactical', localShip?.tacticalState, localShip?.antimatter ?? 0);
     const orders = useOrders(props.room, 'tactical', localShip?.tacticalState, localShip);
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
-
-    const prompt = (useRoomState(props.room, state => state.prompt) ?? null) as unknown as PromptInfo | null;
+    const prompt = (localShip?.comms?.prompt ?? null) as unknown as PromptInfo | null;
 
     const answerPrompt = useCallback((optionId: string) => {
         props.room.send('answerPrompt', { optionId });

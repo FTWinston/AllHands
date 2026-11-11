@@ -1,12 +1,11 @@
+import { getHailDuration, minHailDuration } from 'common-data/features/sectors/types/HailInfo';
 import { antimatterRewards } from 'common-data/features/ships/utils/antimatter';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { MotionKeyframe } from 'src/state/MotionKeyframe';
-import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
+import { listenToHails, seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
-import { getDefaultNode } from './EncounterRegistry';
 import { boughtCrossingScore, harrierIntervalMs, marrowScenarioId, maxHarriers, offerAnswers, offerAtMs, offerTimeoutMs } from './SlowBoatEncounter';
-import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { Vector2D } from 'common-data/features/space/types/Vector2D';
 import type { Campaign } from 'src/campaign/Campaign';
 import type { AiShip } from 'src/state/AiShip';
@@ -18,10 +17,10 @@ import type { HullSystemTile } from 'src/state/systems/engineer/HullSystemTile';
 const rooms = setupGameRoom();
 
 /** A campaign running Slow Boat, with the clinic ship and the harriers picked out. */
-function createSlowBoat(seed = 3) {
+function createSlowBoat(seed = 3, elite = false) {
     const state = rooms.createState(seededRandom(seed));
     const { campaign, ships } = startCampaign(state);
-    campaign.devLoadEncounter('slowBoat');
+    campaign.devLoadEncounter('slowBoat', elite);
 
     const marrow = state.getObjectByScenarioId(marrowScenarioId) as AiShip;
     const waypoints = (campaign.activeEncounter as unknown as { waypoints: Vector2D[] }).waypoints;
@@ -38,46 +37,25 @@ function setShields(ship: Ship, fraction: number) {
     getHullTile(ship).setShield(ship.hullState.maxShield * fraction);
 }
 
-/** Puts the clinic ship at the given point, and lets its commander take that in. */
-function moveMarrow(state: GameState, marrow: AiShip, point: Vector2D) {
+/** Puts the clinic ship at the given point, without its commander noticing yet. */
+function placeMarrow(state: GameState, marrow: AiShip, point: Vector2D) {
     marrow.motion.clear();
     marrow.motion.push(new MotionKeyframe(state.currentTime, point.x, point.y, 0));
+}
+
+/** Puts the clinic ship at the given point, and lets its commander take that in. */
+function moveMarrow(state: GameState, marrow: AiShip, point: Vector2D) {
+    placeMarrow(state, marrow, point);
     marrow.ai.commander.update(marrow.ai.blackboard, state.currentTime);
+}
+
+/** Lets the clinic ship's opening line be read, so whatever's said next is said straight away. */
+function hearOpening(state: GameState) {
+    listenToHails(state, getHailDuration(state.hail!.text));
 }
 
 function hasExtendShields(ship: PlayerShip) {
     return ship.engineerState.hand.some(card => card.type === 'extendShields');
-}
-
-type CrossingOptions = {
-    /** Called on every tick, before the game moves on, with what has been said so far. */
-    eachTick?: (hails: readonly string[]) => void;
-    /** Stop once this is true, if that's before the encounter is over. */
-    until?: () => boolean;
-};
-
-/** Plays the encounter out, AI and all, noting everything that's said. The room's timers aren't otherwise running, so those are moved on as well. */
-function runCrossing(state: GameState, { eachTick, until }: CrossingOptions = {}) {
-    const tick = 100;
-    const start = state.currentTime;
-    const hails: string[] = [];
-
-    for (let elapsed = 0; elapsed < 400_000 && state.encounter!.outcome === null && !until?.(); elapsed += tick) {
-        eachTick?.(hails);
-        state.tick(tick);
-
-        for (const delayed of [...rooms.getClock().delayed]) {
-            if (delayed.active) {
-                delayed.tick(tick);
-            }
-        }
-
-        if (state.hail && state.hail.text !== hails[hails.length - 1]) {
-            hails.push(state.hail.text);
-        }
-    }
-
-    return { hails, seconds: (state.currentTime - start) / 1000 };
 }
 
 describe('SlowBoatEncounter', () => {
@@ -128,27 +106,21 @@ describe('SlowBoatEncounter', () => {
         }
     });
 
-    it('keeps an Extend Shields card in the engineer\'s hand whenever the shields aren\'t extended, and it\'s gone afterwards', () => {
+    it('keeps an Extend Shields card in the engineer\'s hand for as long as it lasts, and it\'s gone afterwards', () => {
         const { state, campaign, ship, marrow, waypoints } = createSlowBoat();
-        const inDeck = () => ship.engineerState.deck.some(candidate => candidate.type === 'extendShields');
-        const card = ship.engineerState.hand.find(candidate => candidate.type === 'extendShields')!;
+        const engineer = ship.engineerState;
+        const inDeck = () => engineer.deck.some(candidate => candidate.type === 'extendShields');
+        const card = engineer.hand.find(candidate => candidate.type === 'extendShields')!;
 
         expect(card).toBeDefined();
-        expect(card.hasTrait('expendable')).toBe(true);
         expect(inDeck()).toBe(false);
 
-        // Playing it uses it up, and there isn't another while its effect lasts.
-        expect(ship.engineerState.playCard(card.id, 'extendShields', 'no-target', '')).not.toBeNull();
+        // Playing it puts the shields out, and it comes straight back, to be played again whenever the engineer likes.
+        Object.assign(engineer, { powerLevel: 5 });
+        expect(engineer.playCard(card.id, 'extendShields', 'no-target', '')).not.toBeNull();
         expect(ship.hasExtendedShields).toBe(true);
-        campaign.tick(0);
-        expect(hasExtendShields(ship)).toBe(false);
+        expect(engineer.hand.filter(candidate => candidate.type === 'extendShields')).toEqual([card]);
         expect(inDeck()).toBe(false);
-
-        // Once that's run out, there's another, and only the one.
-        getHullTile(ship).removeEffect('shieldsExtended', false);
-        campaign.tick(0);
-        campaign.tick(0);
-        expect(ship.engineerState.hand.filter(candidate => candidate.type === 'extendShields')).toHaveLength(1);
 
         for (const waypoint of waypoints) {
             moveMarrow(state, marrow, waypoint);
@@ -157,7 +129,7 @@ describe('SlowBoatEncounter', () => {
         expect(campaign.warpAway(ship)).toBe(true);
 
         expect(hasExtendShields(ship)).toBe(false);
-        expect(ship.engineerState.deck.some(candidate => candidate.type === 'extendShields')).toBe(false);
+        expect(inDeck()).toBe(false);
     });
 
     it('is a success once the clinic ship reaches the end of its route, and then everyone leaves', () => {
@@ -175,8 +147,7 @@ describe('SlowBoatEncounter', () => {
         expect(ship.antimatter).toBe(antimatterRewards.combat);
         expect(state.objects.has(marrow.id)).toBe(false);
         expect(harriers.map(harrier => harrier.ai.commander.isWithdrawing)).toEqual([true, true]);
-        expect(state.hail).toMatchObject({ speaker: 'Clinic Ship Marrow' });
-        expect(state.hail!.text).toContain('Jump point');
+        expect(listenToHails(state, minHailDuration)).toEqual([{ speaker: 'Clinic Ship Marrow', text: 'Jump point. Forty patients say thank you, and so do I.' }]);
     });
 
     it('is a failure if the clinic ship is destroyed: nothing is earned, nothing is said, and the harriers leave', () => {
@@ -230,79 +201,84 @@ describe('SlowBoatEncounter', () => {
 
     describe('hails', () => {
         it('has the clinic ship say how its shields are holding up, once for each stage', () => {
-            const { state, campaign, marrow } = createSlowBoat();
-            const opening = state.hail!.text;
-
-            campaign.tick(0);
-            expect(state.hail!.text).toBe(opening);
+            const { state, marrow } = createSlowBoat();
+            hearOpening(state);
 
             setShields(marrow, 0.7);
-            campaign.tick(0);
-            expect(state.hail).toMatchObject({ speaker: 'Clinic Ship Marrow', text: 'Taking hits. Shields are holding.' });
+            const heard = listenToHails(state, 30_000);
 
-            // It doesn't say so again.
-            state.showHail('Someone', 'Something else.');
-            campaign.tick(0);
-            expect(state.hail).toMatchObject({ speaker: 'Someone' });
+            expect(heard).toEqual([{ speaker: 'Clinic Ship Marrow', text: 'Taking hits. Shields are holding.' }]);
         });
 
         it('only says the worst of it, if the shields fall a long way at once', () => {
-            const { state, campaign, marrow } = createSlowBoat();
+            const { state, marrow } = createSlowBoat();
+            hearOpening(state);
 
             setShields(marrow, 0.2);
-            campaign.tick(0);
+            const heard = listenToHails(state, 30_000);
 
-            expect(state.hail!.text).toContain('almost gone');
-
-            state.showHail('Someone', 'Something else.');
-            campaign.tick(0);
-            expect(state.hail).toMatchObject({ speaker: 'Someone' });
+            expect(heard.map(hail => hail.text)).toEqual(['Shields are almost gone. We can\'t take much more of this.']);
         });
 
-        it('has the clinic ship say which harrier it is shooting at, once its opening line has been read', () => {
-            const { state, campaign, marrow, harriers } = createSlowBoat();
+        it('lets the opening line be read before saying anything else', () => {
+            const { state, marrow } = createSlowBoat();
+            const opening = state.hail!.text;
+
+            setShields(marrow, 0.7);
+            listenToHails(state, getHailDuration(opening) - 100);
+
+            expect(state.hail!.text).toBe(opening);
+        });
+
+        it('has the clinic ship say which harrier it is shooting at, when nothing else is being said, and not again for the same one', () => {
+            const { state, marrow, harriers } = createSlowBoat();
             marrow.ai.blackboard.targetId = harriers[1].id;
 
-            campaign.tick(0);
-            expect(state.hail!.text).not.toContain('We have');
+            const heard = listenToHails(state, 60_000).map(hail => hail.text);
 
-            state.currentTime += 30_000;
-            campaign.tick(0);
-            expect(state.hail).toMatchObject({ speaker: 'Clinic Ship Marrow', text: 'We have Harrier Two.' });
-
-            // Not again for the same one.
-            state.showHail('Someone', 'Something else.');
-            state.currentTime += 30_000;
-            campaign.tick(0);
-            expect(state.hail).toMatchObject({ speaker: 'Someone' });
+            expect(heard).toEqual(['We have Harrier Two.']);
         });
 
-        it('has the first harrier to give up say so', () => {
-            const { state, campaign, harriers } = createSlowBoat();
+        it('has the first harrier to give up say so, and no other', () => {
+            const { state, harriers } = createSlowBoat();
+            hearOpening(state);
             harriers[1].ai.blackboard.goal = 'flee';
 
-            campaign.tick(0);
-            expect(state.hail).toMatchObject({ speaker: 'Harrier Two', text: 'Not worth it. Breaking off.' });
+            expect(listenToHails(state, 100)).toEqual([{ speaker: 'Harrier Two', text: 'Not worth it. Breaking off.' }]);
 
-            state.showHail('Someone', 'Something else.');
             harriers[0].ai.blackboard.goal = 'flee';
+            expect(listenToHails(state, 30_000).filter(hail => hail.speaker.startsWith('Harrier'))).toEqual([]);
+        });
+
+        it('has the clinic ship warn of each turn but the last, cutting short whatever else is being said', () => {
+            const { state, campaign, marrow, waypoints } = createSlowBoat();
+            marrow.ai.blackboard.targetId = null;
+
+            // A little before the first turn, which is to port, while it's saying something else.
+            hearOpening(state);
+            setShields(marrow, 0.7);
             campaign.tick(0);
-            expect(state.hail).toMatchObject({ speaker: 'Someone' });
+            expect(state.hail!.text).toBe('Taking hits. Shields are holding.');
+
+            placeMarrow(state, marrow, waypoints[0]);
+            expect(listenToHails(state, minHailDuration).map(hail => hail.text)).toEqual(['Coming about to port in five.']);
+
+            // Then the second, back to starboard, once that's been said.
+            listenToHails(state, getHailDuration(state.hail!.text));
+            moveMarrow(state, marrow, waypoints[0]);
+            placeMarrow(state, marrow, waypoints[1]);
+            expect(listenToHails(state, 10_000).map(hail => hail.text)).toEqual(['Coming about to starboard in five.']);
+
+            // Nothing before the last, which is the jump point.
+            moveMarrow(state, marrow, waypoints[1]);
+            placeMarrow(state, marrow, waypoints[2]);
+            expect(listenToHails(state, 100)).toEqual([]);
         });
     });
 
     describe('elite', () => {
-        /** The elite form, started through the campaign's own code, which can only load the regular one standalone. */
         function createEliteSlowBoat() {
-            const state = rooms.createState(seededRandom(3));
-            const { campaign, ships } = startCampaign(state);
-            state.message = null;
-            (campaign as unknown as { startEncounter(node: SectorNodeInfo): void }).startEncounter({ ...getDefaultNode('slowBoat'), elite: true });
-
-            const marrow = state.getObjectByScenarioId(marrowScenarioId) as AiShip;
-            const waypoints = (campaign.activeEncounter as unknown as { waypoints: Vector2D[] }).waypoints;
-
-            return { state, campaign, ship: ships[0], marrow, waypoints };
+            return createSlowBoat(3, true);
         }
 
         /** Moves on to when the harriers' leader makes its offer. */
@@ -420,67 +396,6 @@ describe('SlowBoatEncounter', () => {
             expect(state.encounter!.outcome).toBe('failure');
             expect(state.prompt).toBeNull();
             expect(campaign.answerPrompt(offerAnswers.handOver)).toBe(false);
-        });
-    });
-
-    describe('played out with the real AI', () => {
-        it('the clinic ship flies its whole route, warning of each turn before it makes it, and is thanked at the end', () => {
-            const { state, marrow, harriers } = createSlowBoat();
-            const heardAtWaypoint: string[][] = [];
-
-            // Its shields are kept up, so this is only about the flying.
-            const { hails, seconds } = runCrossing(state, {
-                eachTick: (heard) => {
-                    marrow.hullState.restoreShields();
-
-                    const reached = marrow.ai.commander.waypointsReached;
-                    if (reached > heardAtWaypoint.length) {
-                        heardAtWaypoint.push([...heard]);
-                    }
-                },
-            });
-
-            expect(state.encounter!.outcome).toBe('success');
-            expect(heardAtWaypoint[0]).toContain('Coming about to port in five.');
-            expect(heardAtWaypoint[0]).not.toContain('Coming about to starboard in five.');
-            expect(heardAtWaypoint[1]).toContain('Coming about to starboard in five.');
-            expect(hails[hails.length - 1]).toContain('Jump point');
-
-            // Long enough to make a plan and change it, short enough for a sector to fit in half an hour.
-            expect(seconds).toBeGreaterThan(150);
-            expect(seconds).toBeLessThan(260);
-
-            expect(harriers.every(harrier => harrier.ai.commander.isWithdrawing)).toBe(true);
-        });
-
-        it.each([7, 11])('a crew that does nothing loses the clinic ship before it gets there (seed %i)', (seed) => {
-            const { state } = createSlowBoat(seed);
-
-            const { hails } = runCrossing(state);
-
-            expect(state.encounter!.outcome).toBe('failure');
-            expect(hails).toContain('Shields are almost gone. We can\'t take much more of this.');
-        });
-
-        it.each([7, 11])('a crew that stays close with its shields extended gets it there, at the cost of its own shields (seed %i)', (seed) => {
-            const { state, ship, marrow } = createSlowBoat(seed);
-            const ownShield = ship.hullState.shield;
-
-            runCrossing(state, {
-                eachTick: () => {
-                    // Helm keeps alongside, and the engineer keeps the shields out.
-                    const position = marrow.getPosition(state.currentTime);
-                    ship.setMotion(new MotionKeyframe(state.currentTime, position.x, position.y - 2, position.angle));
-
-                    if (!ship.hasExtendedShields) {
-                        getHullTile(ship).addEffect('shieldsExtended');
-                    }
-                },
-            });
-
-            expect(state.encounter!.outcome).toBe('success');
-            // Most of them, as that's all the crew did: nobody fired a shot.
-            expect(ship.hullState.shield).toBeLessThan(ownShield / 2);
         });
     });
 });

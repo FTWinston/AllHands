@@ -17,8 +17,8 @@ export class FactionRegistry {
 
     readonly relationsChanged = new InterceptableAction();
 
-    /** Ids of the sides declared by the running encounter, which last only as long as it does. */
-    private readonly encounterSides = new Set<string>();
+    /** Ids of the factions declared by the running encounter, which last only as long as it does. */
+    private readonly encounterFactions = new Set<string>();
 
     /** Adds the factions that last for the whole game. */
     init(configs: readonly FactionConfig[]): void {
@@ -26,11 +26,11 @@ export class FactionRegistry {
     }
 
     /**
-     * Replaces the sides that the previous encounter declared (if any) with these, along with their relations.
+     * Replaces the factions that the previous encounter declared (if any) with these, along with their relations.
      * Factions added by `init` stay, keeping only their relations to each other.
      */
-    setEncounterSides(configs: readonly FactionConfig[]): void {
-        for (const id of this.encounterSides) {
+    setEncounterFactions(configs: readonly FactionConfig[]): void {
+        for (const id of this.encounterFactions) {
             this.factions.delete(id);
 
             for (const faction of this.factions.values()) {
@@ -38,11 +38,11 @@ export class FactionRegistry {
             }
         }
 
-        this.encounterSides.clear();
+        this.encounterFactions.clear();
 
         for (const config of configs) {
             if (!this.factions.has(config.id)) {
-                this.encounterSides.add(config.id);
+                this.encounterFactions.add(config.id);
             }
         }
 

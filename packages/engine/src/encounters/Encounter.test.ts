@@ -1,6 +1,7 @@
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { antimatterRewards } from 'common-data/features/ships/utils/antimatter';
 import { playerFactionId } from 'src/campaign/factions';
+import { HailState } from 'src/state/HailState';
 import { ObjectiveState } from 'src/state/ObjectiveState';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
@@ -37,9 +38,18 @@ function totalMaxHealth(ship: Ship) {
 describe('encounter registry', () => {
     it('registers the expected encounters', () => {
         expect(getEncounterIds().sort()).toEqual([
-            'ambush', 'armsDealer', 'assault', 'bossA', 'bossB', 'bossC', 'escort', 'navigationBeacon', 'repairStation', 'researchOutpost', 'salvageYard', 'skirmish', 'slowBoat', 'survive', 'tollCollectors',
+            'ambush', 'armsDealer', 'assault', 'bossA', 'bossB', 'bossC', 'escort', 'navigationBeacon', 'repairStation', 'researchOutpost', 'salvageYard', 'skirmish', 'slowBoat', 'standingOrders', 'survive', 'tollCollectors',
         ]);
         expect(getDevEncounterList().map(info => info.id)).toEqual(getEncounterIds());
+    });
+
+    it('offers the elite form of every request, and of nothing else', () => {
+        const withElite = getDevEncounterList().filter(info => info.hasElite).map(info => info.id);
+
+        expect(withElite).toEqual(getEncounterIds().filter(id => getEncounterDefinition(id).kind === 'combat'));
+        expect(withElite).toContain('slowBoat');
+        expect(getDefaultNode('slowBoat', true).elite).toBe(true);
+        expect(getDefaultNode('repairStation', true).elite).toBeUndefined();
     });
 });
 
@@ -79,6 +89,16 @@ describe('devLoadEncounter', () => {
         expect(campaign.devLoadEncounter('ambush')).toBe(true);
         expect(getHostileShips(state)).toHaveLength(3);
         expect(state.objects.size).toBe(ships.length + 3);
+    });
+
+    it('starts the elite form when asked for it', () => {
+        const { state, campaign } = createCampaign();
+
+        expect(campaign.devLoadEncounter('ambush', true)).toBe(true);
+        expect(getHostileShips(state)).toHaveLength(4);
+
+        expect(campaign.devLoadEncounter('ambush')).toBe(true);
+        expect(getHostileShips(state)).toHaveLength(3);
     });
 
     it('rejects unknown encounters', () => {
@@ -281,7 +301,7 @@ describe('what the viewscreen is told', () => {
     it('forgets whatever was being said once the crew has left', () => {
         const { state, campaign, ships } = createCampaign();
         campaign.devLoadEncounter('skirmish');
-        state.showHail('Someone', 'Something.');
+        state.hail = new HailState({ speaker: 'Someone', text: 'Something.' });
 
         for (const hostile of getHostileShips(state)) {
             hostile.destroy();
@@ -329,7 +349,7 @@ describe('warping away', () => {
         expect(campaign.warpAway(ships[0])).toBe(true);
 
         expect(effects).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
-            type: 'warpOut',
+            type: 'warpAway',
             sourceId: ships[0].id,
             appearance: ships[0].appearance,
             position: ships[0].getPosition(state.currentTime),
@@ -357,7 +377,7 @@ describe('warping away', () => {
     });
 });
 
-describe('encounter sides', () => {
+describe('encounter factions', () => {
     it('exist only for as long as the encounter does', () => {
         const { state, campaign, ships } = createCampaign();
         const playerRelations = state.factions.get(playerFactionId)!.relations;

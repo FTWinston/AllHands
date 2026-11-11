@@ -34,8 +34,8 @@ export const Protect: Story = {
     args: { objective: { type: 'protect', subject: 'Marrow' } },
 };
 
-export const ShutDown: Story = {
-    args: { objective: { type: 'shutDown', subject: 'Customs Platform 7' } },
+export const Disable: Story = {
+    args: { objective: { type: 'disable', subject: 'Customs Platform 7' } },
 };
 
 export const Complete: Story = {

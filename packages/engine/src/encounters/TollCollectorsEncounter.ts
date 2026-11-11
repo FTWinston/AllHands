@@ -1,14 +1,14 @@
 import { hostileToPlayer } from '../campaign/factions';
-import { noHostilesRemain, spawnEnemies } from './CombatEncounter';
+import { noHostilesRemain } from './CombatEncounter';
 import { Encounter } from './Encounter';
-import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { EncounterDefinition } from './EncounterDefinition';
 import type { AiShip } from 'src/state/AiShip';
 import type { GameObject } from 'src/state/GameObject';
-import type { GameState } from 'src/state/GameState';
 import type { RemovalReason } from 'src/types/RemovalReason';
 
 const wardens = 'wardens';
 const assize = 'Warden Cruiser Assize';
+const haulers = 'Hauler Local 12';
 
 /** The scenario id of the cruiser holding the jump point, which its escorts guard. */
 export const tollCruiserScenarioId = 'tollCruiser';
@@ -32,31 +32,28 @@ const skill = 0.7;
  * Elite: a second cruiser arrives after a while, unless the first has gone by then.
  */
 export class TollCollectorsEncounter extends Encounter {
-    protected override readonly sides = [hostileToPlayer(wardens)];
+    protected override readonly factions = [hostileToPlayer(wardens)];
 
     private firstCruiser: AiShip | undefined;
-    private cruisers: AiShip[] = [];
-    private escorts: AiShip[] = [];
-    private startTime = 0;
+    private readonly cruisers = this.track<AiShip>();
+    private readonly escorts = this.track<AiShip>();
     /** Whether the first cruiser has withdrawn or been destroyed. */
     private firstCruiserGone = false;
-    private reinforced = false;
-
-    constructor(state: GameState, node: SectorNodeInfo) {
-        super(state, { ...node, objective: { type: 'clear' } });
-    }
 
     override start(): void {
         super.start();
-        this.startTime = this.state.currentTime;
         this.hail(assize, 'Unregistered vessel. Transit duty is forty percent of cargo. Heave to for assessment.');
+
+        if (this.node.elite) {
+            this.after(eliteReinforcementMs, () => this.reinforce());
+        }
     }
 
     protected populate(): void {
         // The player ships start at the origin facing along the x axis, and these face back at them.
         const position = (y: number) => ({ x: jumpPointDistance, y, angle: Math.PI });
 
-        const [cruiser, ...escorts] = spawnEnemies(this.state, wardens, [
+        const [cruiser, ...escorts] = this.spawnShips(wardens, [
             {
                 design: 'bulwark',
                 scenarioId: tollCruiserScenarioId,
@@ -70,12 +67,11 @@ export class TollCollectorsEncounter extends Encounter {
         ]);
 
         this.firstCruiser = cruiser;
-        this.cruisers = [cruiser];
-        this.escorts = escorts;
-        this.spawnObjects([cruiser, ...escorts]);
+        this.cruisers.add(cruiser);
+        this.escorts.add(...escorts);
     }
 
-    override tick(_deltaTime: number): void {
+    protected override tick(): void {
         if (this.isComplete) {
             return;
         }
@@ -85,16 +81,9 @@ export class TollCollectorsEncounter extends Encounter {
                 this.withdraw(cruiser);
             }
         }
-
-        if (this.node.elite && !this.reinforced && !this.firstCruiserGone && this.state.currentTime - this.startTime >= eliteReinforcementMs) {
-            this.reinforce();
-        }
     }
 
-    override onObjectRemoved(object: GameObject, reason: RemovalReason): void {
-        this.cruisers = this.cruisers.filter(cruiser => cruiser !== object);
-        this.escorts = this.escorts.filter(escort => escort !== object);
-
+    protected override onObjectRemoved(object: GameObject, reason: RemovalReason): void {
         if (object === this.firstCruiser) {
             this.firstCruiserGone = true;
 
@@ -106,15 +95,16 @@ export class TollCollectorsEncounter extends Encounter {
                     escort.ai.commander.standFast();
                 }
 
-                if (this.escorts.length > 0) {
-                    this.hail(this.escorts[0].name, 'Assize is gone. No quarter.');
+                const [escort] = this.escorts.all;
+                if (escort) {
+                    this.hail(escort.name, 'Assize is gone. No quarter.');
                 }
             }
         }
 
         if (noHostilesRemain(this.state)) {
             this.complete();
-            this.hail('Hauler Local 12', 'Point\'s clear. We\'ll take it from here. Drinks are on the Local.');
+            this.hail(haulers, 'Point\'s clear. We\'ll take it from here. Drinks are on the Local.');
         }
     }
 
@@ -134,16 +124,27 @@ export class TollCollectorsEncounter extends Encounter {
         }
     }
 
-    /** A second cruiser arrives behind the player ships, and comes after them. */
+    /** A second cruiser arrives behind the player ships, and comes after them, unless the first has already gone. */
     private reinforce(): void {
-        this.reinforced = true;
+        if (this.firstCruiserGone) {
+            return;
+        }
 
-        const [cruiser] = spawnEnemies(this.state, wardens, [
+        const [cruiser] = this.spawnShips(wardens, [
             { design: 'bulwark', name: 'Warden Cruiser Tithe', position: { x: -jumpPointDistance, y: 0, angle: 0 }, skill },
         ]);
 
-        this.cruisers.push(cruiser);
-        this.spawnObjects([cruiser]);
+        this.cruisers.add(cruiser);
         this.hail(cruiser.name, 'Assize, we have your signal. Engaging.');
     }
 }
+
+export const tollCollectorsDefinition: EncounterDefinition = {
+    id: 'tollCollectors',
+    name: 'Toll Collectors',
+    kind: 'combat',
+    objective: { type: 'clear' },
+    defaultEnvironment: 'deepSpace',
+    request: { from: haulers, subject: 'toll dispute', text: 'Wardens on the Kessin jump point, charging forty percent. We can\'t pay it and we can\'t go round.' },
+    create: (state, node) => new TollCollectorsEncounter(state, node),
+};

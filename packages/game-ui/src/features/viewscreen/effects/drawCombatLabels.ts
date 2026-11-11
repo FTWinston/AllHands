@@ -7,7 +7,7 @@ import { ObjectTracker } from './objectTracker';
 const tagDuration = 1100;
 const destroyedDuration = 3600;
 /** How long the tag saying that a ship has jumped to warp shows for, in milliseconds. */
-export const warpedOutTagDuration = 3600;
+export const warpedAwayTagDuration = 3600;
 
 const missColor = '#9fb4bf';
 const shieldColor = '#7fe3ff';
@@ -73,12 +73,12 @@ export function drawCombatLabels(ctx: CanvasRenderingContext2D, effects: readonl
         if (effect.type === 'explosion') {
             const name = tracker.get(effect.sourceId)?.name ?? 'Target';
             drawTag(effect.sourceId, `${name.toUpperCase()} DESTROYED`, damageColor, dt, destroyedDuration);
-        } else if (effect.type === 'warpOut') {
+        } else if (effect.type === 'warpAway') {
             const source = tracker.get(effect.sourceId);
 
             // There's nobody left to read it if it was us that jumped.
             if (source && source.relationship !== RelationshipType.Self) {
-                drawTag(effect.sourceId, `${source.name.toUpperCase()} WARPED OUT`, missColor, dt, warpedOutTagDuration);
+                drawTag(effect.sourceId, `${source.name.toUpperCase()} WARPED AWAY`, missColor, dt, warpedAwayTagDuration);
             }
         } else if (effect.type === 'impact') {
             // Once a ship has gone, that's all there is to say about it.

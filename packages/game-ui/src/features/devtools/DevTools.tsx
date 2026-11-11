@@ -39,8 +39,8 @@ export const DevTools: FC<Props> = ({ room, encounters, inLobby }) => {
         setServerAutoWin(enabled);
     }, [room]);
 
-    const loadEncounter = useCallback((encounterId: EncounterId) => {
-        room?.send('devLoadEncounter', { encounterId });
+    const loadEncounter = useCallback((encounterId: EncounterId, elite: boolean) => {
+        room?.send('devLoadEncounter', { encounterId, elite });
     }, [room]);
 
     const [showTools, setShowTools] = useState(false);

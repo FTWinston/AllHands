@@ -452,6 +452,10 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             startTime: this.getGameState().currentTime,
         });
 
+        if (target instanceof Ship) {
+            target.deflectorReceived.triggerListeners({ source: this.getShip(), cardType: this.deflectorCard.type as EnemyTargetedCardType });
+        }
+
         // The main deflector card has been played, and should be expended.
         this.handlePlayedCard(this.deflectorCard, -1, false);
 
@@ -464,6 +468,19 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.deflectorCard = new CardState(this.deflectorCardId, cardType, this.deflectorCard.modifiers);
 
         return cardDefinition;
+    }
+
+    /**
+     * Load the deflector directly, with nothing in its slots. This is for a ship whose deflector is there to be read by whoever scans it.
+     * It lasts until something is played into a slot, or the deflector is used.
+     */
+    presetDeflector(modifier: DeflectorEffectModifier | null, substance: DeflectorEffectSubstance | null, delivery: DeflectorEffectDelivery | null) {
+        const cardType = this.determineDeflectorCardType(modifier, substance, delivery);
+
+        if (this.deflectorCard.type !== cardType) {
+            this.deflectorCard = new CardState(this.deflectorCardId, cardType, this.deflectorCard.modifiers);
+            this.scienceScanDataChanged.invoke();
+        }
     }
 
     unmountModifierCard() {

@@ -48,14 +48,14 @@ export interface ExplosionEffect {
 }
 
 /** How long a ship gathers itself before it jumps to warp, in game-time milliseconds. Our own ship's jump is timed to land as the screen fades out. */
-export const warpOutWindUp = 500;
+export const warpAwayWindUp = 500;
 
 /**
  * A ship jumping to warp, leaving the encounter in one piece. Everything needed to draw it is included, as most ships are removed straight away.
  * A player ship isn't, though: it's still there until the scene changes, so clients hide it once its jump starts.
  */
-export interface WarpOutEffect {
-    type: 'warpOut';
+export interface WarpAwayEffect {
+    type: 'warpAway';
     /** The object ID of the ship that jumped, which may no longer exist. */
     sourceId: ObjectId;
     appearance: ObjectAppearance;
@@ -66,4 +66,4 @@ export interface WarpOutEffect {
 }
 
 /** Something to be displayed on SpaceMap clients. */
-export type WeaponEffect = ShotEffect | ImpactEffect | ExplosionEffect | WarpOutEffect;
+export type WeaponEffect = ShotEffect | ImpactEffect | ExplosionEffect | WarpAwayEffect;

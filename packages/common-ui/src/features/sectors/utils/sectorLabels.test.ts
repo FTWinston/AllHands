@@ -24,6 +24,6 @@ describe('getObjectiveLabel', () => {
 
     it('names who or what the objective is about, where it is about something', () => {
         expect(getObjectiveLabel({ type: 'protect', subject: 'Marrow' })).toBe('Protect Marrow');
-        expect(getObjectiveLabel({ type: 'shutDown', subject: 'Customs Platform 7' })).toBe('Shut down Customs Platform 7');
+        expect(getObjectiveLabel({ type: 'disable', subject: 'Customs Platform 7' })).toBe('Disable Customs Platform 7');
     });
 });

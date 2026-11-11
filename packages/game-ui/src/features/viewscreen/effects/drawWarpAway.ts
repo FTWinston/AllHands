@@ -1,4 +1,4 @@
-import { WarpOutEffect, WeaponEffect, warpOutWindUp } from 'common-data/features/space/types/WeaponEffect';
+import { WarpAwayEffect, WeaponEffect, warpAwayWindUp } from 'common-data/features/space/types/WeaponEffect';
 import { getSvgBitmap } from 'common-ui/features/spacemap/utils/svgBitmapCache';
 import { getBlastSize } from './blastSize';
 import { glow, line } from './light';
@@ -8,23 +8,23 @@ import { warpColor } from './objectTracker';
 const jumpDuration = 450;
 
 /** How long a jump to warp takes to play out altogether, in milliseconds. */
-export const warpOutDuration = warpOutWindUp + jumpDuration + 350;
+export const warpAwayDuration = warpAwayWindUp + jumpDuration + 350;
 
 /**
  * How long a ship that has jumped to warp stays hidden for, if it's still there, in milliseconds. Our own ship is,
  * until the scene changes, which is well within this. It isn't much longer than that, so the ship is back for the next encounter.
  */
-export const warpOutHideDuration = 2000;
+export const warpAwayHideDuration = 2000;
 
 /** How far a ship is drawn travelling before it's gone, in world units. */
 const jumpDistance = 70;
 
 /** The IDs of the ships that have jumped to warp, so shouldn't be drawn any more, even if they're still there. */
-export function getWarpedOutIds(effects: readonly WeaponEffect[], time: number) {
+export function getWarpedAwayIds(effects: readonly WeaponEffect[], time: number) {
     const ids = new Set<string>();
 
     for (const effect of effects) {
-        if (effect.type === 'warpOut' && time >= effect.startTime && time <= effect.startTime + warpOutHideDuration) {
+        if (effect.type === 'warpAway' && time >= effect.startTime && time <= effect.startTime + warpAwayHideDuration) {
             ids.add(effect.sourceId);
         }
     }
@@ -37,8 +37,8 @@ export function getWarpedOutIds(effects: readonly WeaponEffect[], time: number) 
  * the way it was facing, leaving a trail that fades and (unless flashes are to be avoided) a flash where it was.
  * The ship itself is no longer drawn by now, so this draws it.
  */
-export function drawWarpOut(ctx: CanvasRenderingContext2D, effect: WarpOutEffect, dt: number, allowFlash: boolean) {
-    if (dt < 0 || dt > warpOutDuration) {
+export function drawWarpAway(ctx: CanvasRenderingContext2D, effect: WarpAwayEffect, dt: number, allowFlash: boolean) {
+    if (dt < 0 || dt > warpAwayDuration) {
         return;
     }
 
@@ -48,8 +48,8 @@ export function drawWarpOut(ctx: CanvasRenderingContext2D, effect: WarpOutEffect
     const forwardY = -Math.sin(angle);
 
     // Before the jump, the ship stretches a little. During it, it stretches a lot, and covers a lot of ground.
-    const windUp = Math.min(1, dt / warpOutWindUp);
-    const jump = Math.max(0, Math.min(1, (dt - warpOutWindUp) / jumpDuration));
+    const windUp = Math.min(1, dt / warpAwayWindUp);
+    const jump = Math.max(0, Math.min(1, (dt - warpAwayWindUp) / jumpDuration));
     const stretch = 1 + windUp * windUp * 0.6 + jump * jump * 30;
     const travelled = jump * jump * jumpDistance;
 
@@ -73,8 +73,8 @@ export function drawWarpOut(ctx: CanvasRenderingContext2D, effect: WarpOutEffect
     }
 
     if (jump > 0) {
-        const sinceJump = dt - warpOutWindUp;
-        const fade = Math.max(0, 1 - sinceJump / (warpOutDuration - warpOutWindUp));
+        const sinceJump = dt - warpAwayWindUp;
+        const fade = Math.max(0, 1 - sinceJump / (warpAwayDuration - warpAwayWindUp));
 
         // The trail it leaves, from where it was to where it's got to.
         line(ctx, x, y, x + forwardX * travelled, y + forwardY * travelled, 0.12 * size * fade, warpColor, fade * 0.9);

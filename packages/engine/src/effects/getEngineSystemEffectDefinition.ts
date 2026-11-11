@@ -221,6 +221,19 @@ function loadSystemEffectDefinitions() {
             apply: system => system.system === 'hull',
             remove: () => {},
         },
+        // These do nothing: they're only there to be read, by whoever is working out how a customs platform is keyed.
+        phasedPing: {
+            apply: () => true,
+            remove: () => {},
+        },
+        coherentPing: {
+            apply: () => true,
+            remove: () => {},
+        },
+        invertedPing: {
+            apply: () => true,
+            remove: () => {},
+        },
         shieldReduced: {
             apply: (system) => {
                 if (system.system === 'hull') {

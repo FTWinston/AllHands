@@ -533,7 +533,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             console.log(`[dev] ${client.sessionId} devAutoWin ${this.state.devAutoWin ? 'on' : 'off'}`);
         });
 
-        this.onMessage('devLoadEncounter', (client, message: { encounterId: EncounterId }) => {
+        this.onMessage('devLoadEncounter', (client, message: { encounterId: EncounterId; elite?: boolean }) => {
             if (client.userData?.type !== 'ship') {
                 console.error('Dev commands can only be sent by ship clients');
                 return;
@@ -551,12 +551,14 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 this.startOrResume();
             }
 
-            if (this.state.gameStatus === 'ended' || !this.state.campaign?.devLoadEncounter(message.encounterId)) {
+            const elite = message.elite === true;
+
+            if (this.state.gameStatus === 'ended' || !this.state.campaign?.devLoadEncounter(message.encounterId, elite)) {
                 console.error(`[dev] Could not load encounter ${message.encounterId}`);
                 return;
             }
 
-            console.log(`[dev] ${client.sessionId} devLoadEncounter ${message.encounterId}`);
+            console.log(`[dev] ${client.sessionId} devLoadEncounter ${message.encounterId}${elite ? ' (elite)' : ''}`);
         });
     }
 

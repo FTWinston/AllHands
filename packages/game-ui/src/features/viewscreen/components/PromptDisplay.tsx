@@ -13,7 +13,7 @@ type Props = {
 
 /**
  * What's being asked over comms, for the whole bridge to see: who's asking, what, what the answers could be, and how long is left.
- * It takes the place of anything that's just being said. Only tactical can answer, so everyone else's part is to say what they think.
+ * Only tactical can answer, so everyone else's part is to say what they think.
  */
 export const PromptDisplay: FC<Props> = ({ prompt }) => {
     const typed = useTypeOn(prompt.text);

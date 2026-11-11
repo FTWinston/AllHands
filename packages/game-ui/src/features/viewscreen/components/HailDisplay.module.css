@@ -1,17 +1,10 @@
-/* Along the bottom of the viewscreen, sized with it, and big enough to read from across a room. */
+/* Placed by CommsDisplay, which sizes it with the viewscreen. */
 .hail {
-    position: fixed;
-    left: 50%;
-    bottom: 3em;
-    transform: translateX(-50%);
-    width: min(60em, 86vw);
     padding: 0.9em 1.5em 1.1em;
     border: 0.094em solid color-mix(in oklch, var(--primary-light) 55%, transparent);
     border-left-width: 0.5em;
     border-radius: 0 1em 0 1em;
     background-color: color-mix(in oklch, var(--space) 88%, transparent);
-    pointer-events: none;
-    font-size: min(1vw, 1.78vh);
     animation: arrive 0.25s ease-out both;
 }
 
@@ -48,7 +41,7 @@
 @keyframes arrive {
     from {
         opacity: 0;
-        transform: translateX(-50%) translateY(1em);
+        transform: translateY(1em);
     }
 }
 

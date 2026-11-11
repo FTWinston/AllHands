@@ -1,5 +1,5 @@
 import { entity, type, view } from '@colyseus/schema';
-import { CardType, UntargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { CardType, EnemyTargetedCardType, UntargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ownShipClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole, CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
@@ -9,6 +9,7 @@ import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameOb
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { distanceSq } from 'common-data/features/space/utils/vectors';
 import { applyWeaponTrait } from 'src/cards/applyWeaponTrait';
+import { ListenableEvent } from 'src/classes/ListenableEvent';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { MobileObject } from './MobileObject';
@@ -71,6 +72,9 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
         this.updateCardGeneration();
     }
+
+    /** Fired whenever another ship's deflector is used on this one, with which ship it was and what its deflector was loaded with. */
+    readonly deflectorReceived = new ListenableEvent<{ source: Ship; cardType: EnemyTargetedCardType }>();
 
     private nextCardId = 1;
 
@@ -278,9 +282,9 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     }
 
     /** Show this ship jumping to warp, to everyone who can see it. That's all this does: whether the ship then goes anywhere is up to the caller. */
-    showWarpOut() {
+    showWarpAway() {
         this.gameState.broadcastWeaponEffect({
-            type: 'warpOut',
+            type: 'warpAway',
             sourceId: this.id,
             appearance: this.appearance,
             position: this.getPosition(this.gameState.currentTime),
