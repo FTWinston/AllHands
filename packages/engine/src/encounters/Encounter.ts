@@ -1,5 +1,7 @@
 import { ListenableEvent } from 'src/classes/ListenableEvent';
+import { PromptState } from 'src/state/PromptState';
 import type { EncounterOutcome } from 'common-data/features/sectors/types/ObjectiveInfo';
+import type { PromptOptionInfo } from 'common-data/features/sectors/types/PromptInfo';
 import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { FactionConfig } from 'common-data/features/space/types/FactionConfig';
 import type { GameObject } from 'src/state/GameObject';
@@ -14,6 +16,8 @@ import type { RemovalReason } from 'src/types/RemovalReason';
 export abstract class Encounter {
     private _outcome: EncounterOutcome | null = null;
     private _score = 1;
+    /** The answer that the prompt which is waiting gets if its time runs out, or null when nothing is being asked. */
+    private promptDefault: string | null = null;
 
     /** Fired once, when the encounter becomes complete. */
     readonly onComplete = new ListenableEvent();
@@ -69,6 +73,8 @@ export abstract class Encounter {
 
         this._outcome = outcome;
         this._score = Math.max(0, Math.min(1, score));
+        // There's nothing left to decide, so nothing left to ask.
+        this.clearPrompt();
         this.onComplete.triggerListeners();
     }
 
@@ -83,6 +89,42 @@ export abstract class Encounter {
     /** Cuts off whatever is being said over comms. */
     protected silence(): void {
         this.state.hail = null;
+    }
+
+    /**
+     * Has someone ask the crew something over comms. The viewscreen shows it to the whole bridge, and tactical answers by picking an option.
+     * If nobody has by the time it runs out, it's answered with the default. Either way `onPromptAnswered` is then called, once.
+     * Only one thing can be asked at a time: this replaces anything that's still waiting for its answer, which then never gets one.
+     */
+    protected prompt(speaker: string, text: string, options: readonly PromptOptionInfo[], timeoutMs: number, defaultOptionId: string): void {
+        const now = this.state.currentTime;
+        this.promptDefault = defaultOptionId;
+        this.state.prompt = new PromptState(speaker, text, options, now, now + timeoutMs);
+    }
+
+    /**
+     * Answers what's being asked, if anything is, and that's one of its options. Null gives its default answer, as running out of time does.
+     * Returns whether the answer was accepted.
+     */
+    answerPrompt(optionId: string | null): boolean {
+        const prompt = this.state.prompt;
+        const answer = optionId ?? this.promptDefault;
+
+        if (!prompt || answer === null || !prompt.options.some(option => option.id === answer)) {
+            return false;
+        }
+
+        this.clearPrompt();
+        this.onPromptAnswered(answer);
+        return true;
+    }
+
+    /** Called with the option that was picked, or the default if time ran out, once a prompt has its answer. */
+    protected onPromptAnswered(_optionId: string): void {}
+
+    private clearPrompt(): void {
+        this.promptDefault = null;
+        this.state.prompt = null;
     }
 
     /** Creates the encounter's initial objects. */

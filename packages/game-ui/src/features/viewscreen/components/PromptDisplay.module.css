@@ -1,0 +1,49 @@
+/* A hail that wants an answer: the same panel, in the color of something that needs attention. */
+.prompt {
+    border-color: color-mix(in oklch, var(--energy-light) 70%, transparent);
+}
+
+.prompt h2 {
+    color: var(--energy-light);
+}
+
+.options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75em;
+    margin: 0.9em 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.option {
+    padding: 0.25em 0.9em;
+    border: 0.094em solid color-mix(in oklch, var(--energy-light) 60%, transparent);
+    border-radius: 999px;
+    font-family: var(--readout-font-family);
+    font-size: 1.25em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--energy-light);
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    gap: 1.25em;
+    margin-top: 0.9em;
+}
+
+.hint {
+    flex-shrink: 0;
+    font-family: var(--readout-font-family);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* Fills up as the time to answer runs out. */
+.countdown {
+    color: var(--energy-light);
+    background-color: color-mix(in oklch, var(--energy-light) 15%, transparent);
+}

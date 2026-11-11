@@ -335,6 +335,22 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             }
         });
 
+        this.onMessage('answerPrompt', (client, message: { optionId: string }) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship || clientRole !== ownTacticalClientRole) {
+                console.error('Only tactical can answer what is asked over comms');
+                return;
+            }
+
+            if (!this.state.campaign?.answerPrompt(message?.optionId)) {
+                console.warn(`Rejected prompt answer ${message?.optionId} from ${client.sessionId}`);
+            }
+        });
+
         this.onMessage('playNonEncounterCard', (client, message: { cardId: number }) => {
             if (this.state.gameStatus !== 'active') {
                 return;

@@ -15,6 +15,7 @@ import { FactionState } from './FactionState';
 import { GameObject } from './GameObject';
 import { HailState } from './HailState';
 import { ObjectiveState } from './ObjectiveState';
+import { PromptState } from './PromptState';
 import { SectorMapState } from './SectorMapState';
 import { SectorMessageState } from './SectorMessageState';
 import type { Campaign } from '../campaign/Campaign';
@@ -46,6 +47,8 @@ export class GameState extends Schema {
     @type('string') encounterOutcome: EncounterOutcome | null = null;
     /** What's being said over comms, for the viewscreen to show; null when nobody is speaking. See `showHail`. */
     @type(HailState) hail: HailState | null = null;
+    /** What's being asked over comms, for the viewscreen to show and tactical to answer; null when nothing is. See `Encounter.prompt`. */
+    @type(PromptState) prompt: PromptState | null = null;
     /** Server-only. Summary of the running encounter; null outside the encounter phase. */
     encounter: EncounterSummaryState | null = null;
     @view() @type({ map: GameObject }) objects = new MapSchema<GameObject>();

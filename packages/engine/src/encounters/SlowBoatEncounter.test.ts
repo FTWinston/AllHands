@@ -4,8 +4,11 @@ import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
-import { harrierIntervalMs, marrowScenarioId, maxHarriers } from './SlowBoatEncounter';
+import { getDefaultNode } from './EncounterRegistry';
+import { boughtCrossingScore, harrierIntervalMs, marrowScenarioId, maxHarriers, offerAnswers, offerAtMs, offerTimeoutMs } from './SlowBoatEncounter';
+import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { Vector2D } from 'common-data/features/space/types/Vector2D';
+import type { Campaign } from 'src/campaign/Campaign';
 import type { AiShip } from 'src/state/AiShip';
 import type { GameState } from 'src/state/GameState';
 import type { PlayerShip } from 'src/state/PlayerShip';
@@ -285,6 +288,138 @@ describe('SlowBoatEncounter', () => {
             harriers[0].ai.blackboard.goal = 'flee';
             campaign.tick(0);
             expect(state.hail).toMatchObject({ speaker: 'Someone' });
+        });
+    });
+
+    describe('elite', () => {
+        /** The elite form, started through the campaign's own code, which can only load the regular one standalone. */
+        function createEliteSlowBoat() {
+            const state = rooms.createState(seededRandom(3));
+            const { campaign, ships } = startCampaign(state);
+            state.message = null;
+            (campaign as unknown as { startEncounter(node: SectorNodeInfo): void }).startEncounter({ ...getDefaultNode('slowBoat'), elite: true });
+
+            const marrow = state.getObjectByScenarioId(marrowScenarioId) as AiShip;
+            const waypoints = (campaign.activeEncounter as unknown as { waypoints: Vector2D[] }).waypoints;
+
+            return { state, campaign, ship: ships[0], marrow, waypoints };
+        }
+
+        /** Moves on to when the harriers' leader makes its offer. */
+        function hearOffer(state: GameState, campaign: Campaign) {
+            state.currentTime += offerAtMs;
+            campaign.tick(0);
+        }
+
+        it('is asked nothing in the regular form', () => {
+            const { state, campaign } = createSlowBoat();
+
+            state.currentTime += offerAtMs * 2;
+            campaign.tick(0);
+
+            expect(state.prompt).toBeNull();
+        });
+
+        it('has the harriers\' leader offer to leave for a share of the stores, a minute in', () => {
+            const { state, campaign } = createEliteSlowBoat();
+
+            state.currentTime += offerAtMs - 1;
+            campaign.tick(0);
+            expect(state.prompt).toBeNull();
+
+            state.currentTime += 1;
+            campaign.tick(0);
+
+            expect(state.prompt).toMatchObject({ speaker: 'Stranded Lead' });
+            expect(state.prompt!.options.map(option => option.id)).toEqual([offerAnswers.handOver, offerAnswers.refuse]);
+            expect(state.prompt!.countdown.endTime - state.prompt!.countdown.startTime).toBe(offerTimeoutMs);
+        });
+
+        it('only makes the offer once', () => {
+            const { state, campaign } = createEliteSlowBoat();
+            hearOffer(state, campaign);
+            expect(campaign.answerPrompt(offerAnswers.refuse)).toBe(true);
+
+            state.currentTime += offerAtMs;
+            campaign.tick(0);
+
+            expect(state.prompt).toBeNull();
+        });
+
+        it('ends the fighting if the stores are handed over, for half the reward', () => {
+            const { state, campaign, ship, marrow, waypoints } = createEliteSlowBoat();
+            hearOffer(state, campaign);
+            const harriers = getHostileShips(state);
+
+            expect(campaign.answerPrompt(offerAnswers.handOver)).toBe(true);
+
+            expect(state.prompt).toBeNull();
+            expect(harriers.every(harrier => harrier.ai.commander.isWithdrawing)).toBe(true);
+            expect(state.hail).toMatchObject({ speaker: 'Stranded Lead' });
+
+            // No more come, however long the rest of the crossing takes.
+            state.currentTime += harrierIntervalMs * 3;
+            campaign.tick(0);
+            expect(getHostileShips(state)).toHaveLength(harriers.length);
+
+            for (const waypoint of waypoints) {
+                moveMarrow(state, marrow, waypoint);
+            }
+            campaign.tick(0);
+
+            expect(state.encounter!.outcome).toBe('success');
+            expect(ship.antimatter).toBe(antimatterRewards.elite * boughtCrossingScore);
+        });
+
+        it('brings another harrier at once if the offer is refused, and lets one more be here than before', () => {
+            const { state, campaign, ship, marrow, waypoints } = createEliteSlowBoat();
+            hearOffer(state, campaign);
+            const before = getHostileShips(state).length;
+
+            expect(campaign.answerPrompt(offerAnswers.refuse)).toBe(true);
+
+            expect(getHostileShips(state)).toHaveLength(before + 1);
+            expect(state.hail).toMatchObject({ speaker: 'Stranded Lead' });
+
+            state.currentTime += harrierIntervalMs * 3;
+            campaign.tick(0);
+            state.currentTime += harrierIntervalMs;
+            campaign.tick(0);
+            expect(getHostileShips(state)).toHaveLength(maxHarriers + 1);
+
+            // Seeing it through regardless is worth the whole reward.
+            for (const waypoint of waypoints) {
+                moveMarrow(state, marrow, waypoint);
+            }
+            campaign.tick(0);
+            expect(ship.antimatter).toBe(antimatterRewards.elite);
+        });
+
+        it('takes silence for a refusal, once the time to answer has run out', () => {
+            const { state, campaign } = createEliteSlowBoat();
+            hearOffer(state, campaign);
+            const before = getHostileShips(state).length;
+
+            state.currentTime += offerTimeoutMs - 1;
+            campaign.tick(0);
+            expect(state.prompt).not.toBeNull();
+
+            state.currentTime += 1;
+            campaign.tick(0);
+
+            expect(state.prompt).toBeNull();
+            expect(getHostileShips(state)).toHaveLength(before + 1);
+        });
+
+        it('withdraws the offer if the clinic ship is destroyed while it stands', () => {
+            const { state, campaign, marrow } = createEliteSlowBoat();
+            hearOffer(state, campaign);
+
+            marrow.destroy();
+
+            expect(state.encounter!.outcome).toBe('failure');
+            expect(state.prompt).toBeNull();
+            expect(campaign.answerPrompt(offerAnswers.handOver)).toBe(false);
         });
     });
 
