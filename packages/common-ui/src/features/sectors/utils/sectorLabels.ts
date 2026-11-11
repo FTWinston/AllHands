@@ -29,13 +29,6 @@ const shopLabels: Record<CrewRoleName, string> = {
     engineer: 'Engineer cards',
 };
 
-/** Placeholder names, until the factions are written. */
-const factionLabels: Record<string, string> = {
-    factionA: 'Faction A',
-    factionB: 'Faction B',
-    factionC: 'Faction C',
-};
-
 export function getEnvironmentLabel(environment: EnvironmentType): string {
     return environmentLabels[environment];
 }
@@ -46,8 +39,8 @@ export function getNodeKindLabel(kind: SectorNodeKind, elite = false): string {
 
 export function getObjectiveLabel(objective: ObjectiveInfo): string {
     switch (objective.type) {
-        case 'destroyAll':
-            return 'Destroy all hostiles';
+        case 'clear':
+            return 'Clear the area';
         case 'survive':
             return `Survive for ${formatDuration(objective.durationMs)}`;
         case 'boss':
@@ -55,11 +48,6 @@ export function getObjectiveLabel(objective: ObjectiveInfo): string {
         default:
             throw new Error(`Objective type not found: ${objective satisfies never}`);
     }
-}
-
-/** Falls back to the id itself for a faction without a predefined label. */
-export function getFactionLabel(factionId: string): string {
-    return factionLabels[factionId] ?? factionId;
 }
 
 function formatDuration(durationMs: number): string {

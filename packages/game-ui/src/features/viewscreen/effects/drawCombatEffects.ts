@@ -3,10 +3,11 @@ import { ImpactEffect, ShotEffect, WeaponEffect } from 'common-data/features/spa
 import { getSvgBitmap } from 'common-ui/features/spacemap/utils/svgBitmapCache';
 import { getWeaponVisual } from 'common-ui/features/spacemap/utils/weaponVisuals';
 import { getBlastSize } from './blastSize';
-import { drawCombatLabels } from './drawCombatLabels';
+import { drawCombatLabels, warpedOutTagDuration } from './drawCombatLabels';
 import { drawExplosion, drawWreck, wreckDuration } from './drawExplosion';
 import { drawHullHit, drawShieldHit, hullFireDuration } from './drawImpacts';
 import { drawBeam, drawDeflector, drawProjectile } from './drawShots';
+import { drawWarpOut, warpOutDuration, warpOutHideDuration } from './drawWarpOut';
 import { getEngineOffset } from './engineOffset';
 import { getLayer, glow } from './light';
 import { ObjectTracker, TrackedObject, litShipColor } from './objectTracker';
@@ -25,6 +26,9 @@ function getExpiry(effect: WeaponEffect) {
             return effect.startTime + getWeaponVisual(effect.weapon).duration + shotLinger;
         case 'impact':
             return effect.startTime + hullFireDuration;
+        case 'warpOut':
+            // Kept for as long as its tag shows, and as its ship stays hidden.
+            return effect.startTime + Math.max(warpOutDuration, warpOutHideDuration, warpedOutTagDuration);
         default:
             return effect.startTime + wreckDuration;
     }
@@ -238,6 +242,8 @@ function drawActiveEffects(ctx: CanvasRenderingContext2D, effects: readonly Weap
             drawShot(energyCtx, effect, effects, tracker, time);
         } else if (effect.type === 'impact') {
             drawImpact(energyCtx, effect, tracker, time);
+        } else if (effect.type === 'warpOut') {
+            drawWarpOut(energyCtx, effect, time - effect.startTime, allowFlashes);
         } else {
             drawExplosion(energyCtx, effect, time - effect.startTime, allowFlashes);
         }

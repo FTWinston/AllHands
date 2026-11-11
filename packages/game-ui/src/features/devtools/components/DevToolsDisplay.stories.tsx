@@ -17,10 +17,10 @@ const meta: Meta<typeof Component> = {
         setAutoWin: fn(),
         loadEncounter: fn(),
         encounters: [
-            { id: 'skirmish', name: 'Skirmish', kind: 'combat', environment: 'deepSpace', factionId: 'factionA', objective: { type: 'destroyAll' } },
-            { id: 'survive', name: 'Hold the Line', kind: 'combat', environment: 'asteroidField', factionId: 'factionB', objective: { type: 'survive', durationMs: 90000 } },
+            { id: 'skirmish', name: 'Skirmish', kind: 'combat', environment: 'deepSpace', objective: { type: 'clear' } },
+            { id: 'survive', name: 'Hold the Line', kind: 'combat', environment: 'asteroidField', objective: { type: 'survive', durationMs: 90000 } },
             { id: 'repairStation', name: 'Repair Station', kind: 'repair' },
-            { id: 'bossA', name: 'Placeholder Boss A', kind: 'boss', environment: 'nebula', factionId: 'factionA', objective: { type: 'boss' } },
+            { id: 'bossA', name: 'Placeholder Boss A', kind: 'boss', environment: 'nebula', objective: { type: 'boss' } },
         ],
     },
 };

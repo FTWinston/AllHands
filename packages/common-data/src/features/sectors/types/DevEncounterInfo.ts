@@ -7,6 +7,5 @@ export interface DevEncounterInfo {
     name: string;
     kind: SectorNodeKind;
     environment?: EnvironmentType;
-    factionId?: string;
     objective?: ObjectiveInfo;
 }

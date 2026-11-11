@@ -2,6 +2,7 @@ import { BossAEncounter, BossBEncounter, BossCEncounter } from './bosses';
 import { AmbushEncounter, AssaultEncounter, EscortEncounter, SkirmishEncounter } from './CombatEncounter';
 import { StationEncounter } from './StationEncounter';
 import { defaultSurviveDurationMs, SurviveEncounter } from './SurviveEncounter';
+import { TollCollectorsEncounter } from './TollCollectorsEncounter';
 import type { Encounter } from './Encounter';
 import type { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
 import type { EnvironmentType } from 'common-data/features/sectors/types/EnvironmentType';
@@ -15,26 +16,26 @@ export interface EncounterDefinition {
     kind: SectorNodeKind;
     /** Absent for encounters without an objective. */
     objective?: ObjectiveInfo;
-    /** Environment and faction used when launched standalone from dev tools. */
+    /** Environment used when launched standalone from dev tools. */
     defaultEnvironment?: EnvironmentType;
-    defaultFactionId?: string;
     create(state: GameState, node: SectorNodeInfo): Encounter;
 }
 
 const definitions: readonly EncounterDefinition[] = [
-    { id: 'skirmish', name: 'Skirmish', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'deepSpace', defaultFactionId: 'factionA', create: (state, node) => new SkirmishEncounter(state, node) },
-    { id: 'ambush', name: 'Ambush', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'asteroidField', defaultFactionId: 'factionA', create: (state, node) => new AmbushEncounter(state, node) },
-    { id: 'assault', name: 'Assault', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'nebula', defaultFactionId: 'factionB', create: (state, node) => new AssaultEncounter(state, node) },
-    { id: 'escort', name: 'Escorted Cruiser', kind: 'combat', objective: { type: 'destroyAll' }, defaultEnvironment: 'gasGiant', defaultFactionId: 'factionC', create: (state, node) => new EscortEncounter(state, node) },
-    { id: 'survive', name: 'Hold Out', kind: 'combat', objective: { type: 'survive', durationMs: defaultSurviveDurationMs }, defaultEnvironment: 'asteroidField', defaultFactionId: 'factionA', create: (state, node) => new SurviveEncounter(state, node) },
+    { id: 'skirmish', name: 'Skirmish', kind: 'combat', objective: { type: 'clear' }, defaultEnvironment: 'deepSpace', create: (state, node) => new SkirmishEncounter(state, node) },
+    { id: 'ambush', name: 'Ambush', kind: 'combat', objective: { type: 'clear' }, defaultEnvironment: 'asteroidField', create: (state, node) => new AmbushEncounter(state, node) },
+    { id: 'assault', name: 'Assault', kind: 'combat', objective: { type: 'clear' }, defaultEnvironment: 'nebula', create: (state, node) => new AssaultEncounter(state, node) },
+    { id: 'escort', name: 'Escorted Cruiser', kind: 'combat', objective: { type: 'clear' }, defaultEnvironment: 'gasGiant', create: (state, node) => new EscortEncounter(state, node) },
+    { id: 'survive', name: 'Hold Out', kind: 'combat', objective: { type: 'survive', durationMs: defaultSurviveDurationMs }, defaultEnvironment: 'asteroidField', create: (state, node) => new SurviveEncounter(state, node) },
+    { id: 'tollCollectors', name: 'Toll Collectors', kind: 'combat', objective: { type: 'clear' }, defaultEnvironment: 'deepSpace', create: (state, node) => new TollCollectorsEncounter(state, node) },
     { id: 'repairStation', name: 'Repair Station', kind: 'repair', create: (state, node) => new StationEncounter(state, node) },
     { id: 'navigationBeacon', name: 'Navigation Beacon', kind: 'navigationBeacon', create: (state, node) => new StationEncounter(state, node) },
     { id: 'armsDealer', name: 'Arms Dealer', kind: 'armsDealer', create: (state, node) => new StationEncounter(state, node) },
     { id: 'salvageYard', name: 'Salvage Yard', kind: 'salvageYard', create: (state, node) => new StationEncounter(state, node) },
     { id: 'researchOutpost', name: 'Research Outpost', kind: 'researchOutpost', create: (state, node) => new StationEncounter(state, node) },
-    { id: 'bossA', name: 'Placeholder Boss A', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'asteroidField', defaultFactionId: 'factionA', create: (state, node) => new BossAEncounter(state, node) },
-    { id: 'bossB', name: 'Placeholder Boss B', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'nebula', defaultFactionId: 'factionB', create: (state, node) => new BossBEncounter(state, node) },
-    { id: 'bossC', name: 'Placeholder Boss C', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'deepSpace', defaultFactionId: 'factionC', create: (state, node) => new BossCEncounter(state, node) },
+    { id: 'bossA', name: 'Placeholder Boss A', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'asteroidField', create: (state, node) => new BossAEncounter(state, node) },
+    { id: 'bossB', name: 'Placeholder Boss B', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'nebula', create: (state, node) => new BossBEncounter(state, node) },
+    { id: 'bossC', name: 'Placeholder Boss C', kind: 'boss', objective: { type: 'boss' }, defaultEnvironment: 'deepSpace', create: (state, node) => new BossCEncounter(state, node) },
 ];
 
 const registry = new Map<EncounterId, EncounterDefinition>(definitions.map(definition => [definition.id, definition]));
@@ -70,7 +71,6 @@ export function getDefaultNode(id: EncounterId): SectorNodeInfo {
         name: definition.name,
         gridReference: 'A1',
         environment: definition.defaultEnvironment,
-        factionId: definition.defaultFactionId,
         objective: definition.objective,
         x: 0,
         y: 0,
@@ -86,7 +86,6 @@ export function getDevEncounterList(): DevEncounterInfo[] {
             name: node.name,
             kind: node.kind,
             environment: node.environment,
-            factionId: node.factionId,
             objective: node.objective,
         };
     });

@@ -8,8 +8,6 @@ export interface SectorTheme {
     introMessage: string;
     outroMessage: string;
     defeatMessage: string;
-    /** Hostile faction that populates the sector's combat nodes and boss. */
-    factionId: string;
     environments: readonly EnvironmentType[];
     bossEncounterId: EncounterId;
 }
@@ -22,7 +20,6 @@ export const sectorThemes: readonly SectorTheme[] = [
         introMessage: 'Placeholder intro message for sector 1.',
         outroMessage: 'Placeholder outro message for sector 1.',
         defeatMessage: 'Placeholder defeat message for sector 1.',
-        factionId: 'factionA',
         environments: ['asteroidField', 'deepSpace', 'nebula'],
         bossEncounterId: 'bossA',
     },
@@ -32,7 +29,6 @@ export const sectorThemes: readonly SectorTheme[] = [
         introMessage: 'Placeholder intro message for sector 2.',
         outroMessage: 'Placeholder outro message for sector 2.',
         defeatMessage: 'Placeholder defeat message for sector 2.',
-        factionId: 'factionB',
         environments: ['nebula', 'gasGiant', 'deepSpace'],
         bossEncounterId: 'bossB',
     },
@@ -42,7 +38,6 @@ export const sectorThemes: readonly SectorTheme[] = [
         introMessage: 'Placeholder intro message for sector 3.',
         outroMessage: 'Placeholder outro message for sector 3.',
         defeatMessage: 'Placeholder defeat message for sector 3.',
-        factionId: 'factionC',
         environments: ['deepSpace', 'gasGiant', 'asteroidField'],
         bossEncounterId: 'bossC',
     },

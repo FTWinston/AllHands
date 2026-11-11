@@ -12,6 +12,9 @@ export const litShipColor = '#ffd9b0';
 /** The colors of a ship's drawing, once it's a wreck. */
 export const wreckColors = ['#3a1a14', '#6b3320'] as const;
 
+/** The color of a ship's drawing as it jumps to warp, and of the light it leaves behind. */
+export const warpColor = '#cfe3ff';
+
 /** What's known about an object, including for a little while after it's gone. */
 export type TrackedObject = Position & {
     name: string;
@@ -53,6 +56,7 @@ export function trackObjects(tracker: ObjectTracker, objects: Record<string, Gam
             // These bitmaps load asynchronously, so get them ready before they're needed.
             getSvgBitmap(object.appearance, litShipColor, litShipColor);
             getSvgBitmap(object.appearance, wreckColors[0], wreckColors[1]);
+            getSvgBitmap(object.appearance, warpColor, warpColor);
         }
 
         tracker.set(object.id, {

@@ -1,31 +1,44 @@
 import { ListenableEvent } from 'src/classes/ListenableEvent';
+import type { EncounterOutcome } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { FactionConfig } from 'common-data/features/space/types/FactionConfig';
 import type { GameObject } from 'src/state/GameObject';
 import type { GameState } from 'src/state/GameState';
-
-/** The faction used when a node does not name one (e.g. standalone dev launches). */
-export const defaultEnemyFactionId = 'factionA';
+import type { RemovalReason } from 'src/types/RemovalReason';
 
 /**
- * One node's worth of gameplay: spawns what it needs, decides when its objective is met, and reports
- * completion via `onComplete`. The `Campaign` owns the lifecycle (start, tick, removal notifications)
+ * One node's worth of gameplay: spawns what it needs, decides when its objective is met or failed, and reports
+ * that via `onComplete`. The `Campaign` owns the lifecycle (start, tick, removal notifications)
  * and the environment is purely informational (it is carried to clients through the encounter summary).
  */
 export abstract class Encounter {
-    private _isComplete = false;
+    private _outcome: EncounterOutcome | null = null;
+    private _score = 1;
 
     /** Fired once, when the encounter becomes complete. */
     readonly onComplete = new ListenableEvent();
 
     constructor(protected readonly state: GameState, public readonly node: SectorNodeInfo) {}
 
-    get factionId(): string {
-        return this.node.factionId ?? defaultEnemyFactionId;
+    /**
+     * Everyone here other than the player ships, and how they relate to each other and to the player faction (see `playerFactionId`).
+     * They only exist for as long as the encounter does: nothing relates to anything else from one encounter to the next.
+     */
+    protected readonly sides: readonly FactionConfig[] = [];
+
+    /** True once the encounter's objective has been met or failed. */
+    get isComplete(): boolean {
+        return this._outcome !== null;
     }
 
-    /** True once the encounter's objective has been met. */
-    get isComplete(): boolean {
-        return this._isComplete;
+    /** Whether the objective was met or failed, or null while the encounter is still undecided. */
+    get outcome(): EncounterOutcome | null {
+        return this._outcome;
+    }
+
+    /** How well a completed encounter went, from 0 to 1. Always 1 unless it's one that grades its outcome. */
+    get score(): number {
+        return this._score;
     }
 
     /** Game time (ms) at which a timed objective completes, or 0. */
@@ -33,8 +46,9 @@ export abstract class Encounter {
         return 0;
     }
 
-    /** Spawns the encounter's objects. Subclasses override this to also evaluate their objective. */
+    /** Declares the encounter's sides and spawns its objects. Subclasses override this to also evaluate their objective. */
     start(): void {
+        this.state.factionRegistry.setEncounterSides(this.sides);
         this.populate();
     }
 
@@ -45,15 +59,16 @@ export abstract class Encounter {
 
     tick(_deltaTime: number): void {}
 
-    onObjectRemoved(_object: GameObject): void {}
+    onObjectRemoved(_object: GameObject, _reason: RemovalReason): void {}
 
-    /** Marks the encounter complete and fires `onComplete`; does nothing if already complete. */
-    protected complete(): void {
-        if (this._isComplete) {
+    /** Marks the encounter complete and fires `onComplete`; does nothing if already complete. Only encounters that grade their outcome pass a score. */
+    protected complete(outcome: EncounterOutcome = 'success', score = 1): void {
+        if (this._outcome !== null) {
             return;
         }
 
-        this._isComplete = true;
+        this._outcome = outcome;
+        this._score = Math.max(0, Math.min(1, score));
         this.onComplete.triggerListeners();
     }
 

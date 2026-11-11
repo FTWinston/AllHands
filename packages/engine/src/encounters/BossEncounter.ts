@@ -1,6 +1,7 @@
-import { spawnEnemies, type EnemySpawn } from './CombatEncounter';
+import { hostileToPlayer } from '../campaign/factions';
+import { hostileSide, spawnEnemies, type EnemySpawn } from './CombatEncounter';
 import { Encounter } from './Encounter';
-import type { EnemyRole } from '../campaign/enemyTemplates';
+import type { ShipDesign } from '../campaign/shipDesigns';
 import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { GameObject } from 'src/state/GameObject';
 import type { GameState } from 'src/state/GameState';
@@ -12,11 +13,12 @@ export interface BossConfig {
     /** The boss ship's name. */
     bossName: string;
     /** Ships that guard the boss; they hunt the player if it dies. */
-    escorts: readonly EnemyRole[];
+    escorts: readonly ShipDesign[];
 }
 
 /** A flagship plus escorts; complete when the flagship is destroyed (the escorts may still be alive). */
 export class BossEncounter extends Encounter {
+    protected override readonly sides = [hostileToPlayer(hostileSide)];
     private boss: GameObject | undefined;
 
     constructor(state: GameState, node: SectorNodeInfo, private readonly config: BossConfig) {
@@ -25,11 +27,11 @@ export class BossEncounter extends Encounter {
 
     protected populate(): void {
         const spawns: EnemySpawn[] = [
-            { role: 'flagship', scenarioId: bossScenarioId, name: this.config.bossName },
-            ...this.config.escorts.map((role): EnemySpawn => ({ role, guards: bossScenarioId })),
+            { design: 'flagship', scenarioId: bossScenarioId, name: this.config.bossName },
+            ...this.config.escorts.map((design): EnemySpawn => ({ design, guards: bossScenarioId })),
         ];
 
-        this.spawnObjects(spawnEnemies(this.state, this.factionId, spawns));
+        this.spawnObjects(spawnEnemies(this.state, hostileSide, spawns));
     }
 
     override start(): void {

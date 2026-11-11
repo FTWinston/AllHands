@@ -26,7 +26,7 @@ function completeEncounter(state: GameState) {
         case 'boss':
             state.getObjectByScenarioId('boss')!.destroy();
             break;
-        case 'destroyAll':
+        case 'clear':
             for (const hostile of getHostileShips(state)) {
                 hostile.destroy();
             }
@@ -39,7 +39,7 @@ function completeEncounter(state: GameState) {
             break;
     }
 
-    expect(state.encounter!.objectiveMet).toBe(true);
+    expect(state.encounter!.outcome).toBe('success');
 }
 
 /** Dismisses the intro, then flies the first available route to the boss. Leaves the game at the sector outro. */
@@ -111,7 +111,7 @@ describe('Campaign phase flow', () => {
         expect(destinations.map(destination => destination.id).sort()).toEqual([...available].sort());
         for (const destination of destinations) {
             const node = state.map!.getNode(destination.id)!;
-            expect(destination).toMatchObject({ kind: node.kind, name: node.name, environment: node.environment, factionId: node.factionId });
+            expect(destination).toMatchObject({ kind: node.kind, name: node.name, environment: node.environment });
         }
 
         expect(ship.scienceState.nonEncounterCards).toHaveLength(0);
@@ -192,7 +192,7 @@ describe('Campaign phase flow', () => {
         expect(state.map!.currentNodeId).toBe(nodeId);
         expect([...state.map!.visitedNodeIds]).toEqual([state.map!.startNodeId, nodeId]);
         expect([...state.map!.availableNodeIds]).toEqual([...node.next]);
-        expect(state.encounter).toMatchObject({ encounterId: node.encounterId, name: node.name, objectiveMet: false });
+        expect(state.encounter).toMatchObject({ encounterId: node.encounterId, name: node.name, outcome: null });
 
         // The route choice is final, and cannot be repeated.
         expect(campaign.selectRoute(ships[0], node.next[0])).toBe(false);
@@ -296,7 +296,7 @@ describe('Campaign phase flow', () => {
 
         while (state.phase === 'map') {
             expect(campaign.selectRoute(ship, state.map!.availableNodeIds[0])).toBe(true);
-            expect(state.encounter!.objectiveMet).toBe(true);
+            expect(state.encounter!.outcome).toBe('success');
             expect(state.encounter!.objectiveEndTime).toBe(0);
             expect([...state.objects.values()].every(object => object instanceof PlayerShip)).toBe(true);
             expect(ship.helmState.hand.some(card => card.type === 'warpAway')).toBe(true);
@@ -478,7 +478,7 @@ describe('Campaign stations', () => {
     it('gives helm Warp Away on arriving at a repair station, ready to leave straight away', () => {
         const { state, campaign, ships: [ship] } = createAtStation();
 
-        expect(state.encounter!.objectiveMet).toBe(true);
+        expect(state.encounter!.outcome).toBe('success');
         expect(ship.helmState.hand.map(card => card.type)).toEqual(['warpAway']);
 
         expect(campaign.warpAway(ship)).toBe(true);
@@ -587,7 +587,7 @@ describe('Campaign shop stations', () => {
 
         expect(ship.tacticalState.shopCards.length).toBe(shopCardCount);
         expect(ship.hullState.health).toBe(ship.hullState.maxHealth);
-        expect(state.encounter!.objectiveMet).toBe(true);
+        expect(state.encounter!.outcome).toBe('success');
     });
 
     it('stocks no shop at a repair station', () => {
@@ -664,7 +664,7 @@ describe('Campaign station departure', () => {
         const { state, campaign, ships: [ship] } = createAtShop('navigationBeacon');
         const helm = ship.helmState;
 
-        expect(state.encounter!.objectiveMet).toBe(true);
+        expect(state.encounter!.outcome).toBe('success');
         expect(helm.shopCards.length).toBe(shopCardCount);
         expect(helm.hand.map(card => card.type)).toEqual(['warpAway']);
 
@@ -678,7 +678,7 @@ describe('Campaign station departure', () => {
         campaign.dismissMessage();
         campaign.devLoadEncounter('repairStation');
 
-        expect(state.encounter!.objectiveMet).toBe(true);
+        expect(state.encounter!.outcome).toBe('success');
         expect(hasWarpCard(ship)).toBe(true);
     });
 

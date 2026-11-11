@@ -331,4 +331,97 @@ describe('Commander', () => {
         expect(bb.lastKnownTargetPosition).not.toBeNull();
         expect(bb.destination).toBe(bb.lastKnownTargetPosition);
     });
+
+    it('flees for good once told to withdraw, whatever the state of its hull', () => {
+        const state = createWorld();
+        const setup = { ...aiSetup(), fleeThreshold: 0 };
+        const ai = new AiShip(state, setup);
+        state.add(ai);
+        const bb = createBlackboard({ type: 'search-and-destroy' });
+        const commander = new Commander(ai, state, resolveAiConfig(setup as never));
+
+        commander.update(bb, 0);
+        expect(bb.goal).toBe('search-and-destroy');
+        expect(commander.isWithdrawing).toBe(false);
+
+        commander.withdraw();
+        commander.update(bb, 0);
+        expect(commander.isWithdrawing).toBe(true);
+        expect(bb.goal).toBe('flee');
+        expect(bb.stance).toBe('withdrawing');
+
+        // Still at full health, and it stays gone.
+        commander.update(bb, 0);
+        expect(bb.goal).toBe('flee');
+    });
+
+    it('no longer flees from damage once told to stand fast, and comes back if it already was', () => {
+        const state = createWorld();
+        const ai = new AiShip(state, aiSetup());
+        state.add(ai);
+        const bb = createBlackboard({ type: 'search-and-destroy' });
+        const commander = new Commander(ai, state, resolveAiConfig(aiSetup() as never));
+
+        ai.hullState.adjustHealth(-80);
+        commander.update(bb, 0);
+        expect(bb.goal).toBe('flee');
+
+        commander.standFast();
+        commander.update(bb, 0);
+        expect(bb.goal).toBe('search-and-destroy');
+    });
+
+    it('standing fast does not hold back a ship that is withdrawing', () => {
+        const state = createWorld();
+        const ai = new AiShip(state, aiSetup());
+        state.add(ai);
+        const bb = createBlackboard({ type: 'search-and-destroy' });
+        const commander = new Commander(ai, state, resolveAiConfig(aiSetup() as never));
+
+        commander.withdraw();
+        commander.standFast();
+        commander.update(bb, 0);
+
+        expect(bb.goal).toBe('flee');
+    });
+
+    it('goes back to its goal when a withdrawal is called off', () => {
+        const state = createWorld();
+        const ai = new AiShip(state, aiSetup());
+        state.add(ai);
+        const bb = createBlackboard({ type: 'search-and-destroy' });
+        const commander = new Commander(ai, state, resolveAiConfig(aiSetup() as never));
+
+        commander.withdraw();
+        commander.update(bb, 0);
+        expect(bb.goal).toBe('flee');
+
+        commander.rally();
+        commander.update(bb, 0);
+        expect(commander.isWithdrawing).toBe(false);
+        expect(bb.goal).toBe('search-and-destroy');
+    });
+
+    it('a withdrawing ship runs from hostiles outside the area it was defending', () => {
+        const state = createWorld();
+        const setup = aiSetup({ goal: { type: 'defend-position', position: { x: 0, y: 0, angle: 0 }, radius: 5 } });
+        const ai = new AiShip(state, setup);
+        state.add(ai);
+        const intruder = new AiShip(state, { ...shipSetup('player', 20, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
+        state.add(intruder);
+        ai.updateKnownObjects(0);
+
+        const bb = createBlackboard(setup.goal);
+        const commander = new Commander(ai, state, resolveAiConfig(setup as never));
+
+        // It ignores the intruder while defending, as that's outside its radius.
+        commander.update(bb, 0);
+        expect(bb.targetId).toBeNull();
+
+        commander.withdraw();
+        commander.update(bb, 0);
+
+        expect(bb.destination).not.toBeNull();
+        expect(bb.destination!.x).toBeLessThan(0);
+    });
 });

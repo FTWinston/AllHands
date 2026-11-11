@@ -1,10 +1,13 @@
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
+import { antimatterRewards } from 'common-data/features/ships/utils/antimatter';
+import { playerFactionId } from 'src/campaign/factions';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createEncounter, getDefaultNode, getDevEncounterList, getEncounterIds, stationEncounterIds } from './EncounterRegistry';
 import { StationEncounter } from './StationEncounter';
 import { defaultSurviveDurationMs } from './SurviveEncounter';
+import type { Campaign } from 'src/campaign/Campaign';
 import type { Ship } from 'src/state/Ship';
 
 const rooms = setupGameRoom();
@@ -33,7 +36,7 @@ function totalMaxHealth(ship: Ship) {
 describe('encounter registry', () => {
     it('registers the expected encounters', () => {
         expect(getEncounterIds().sort()).toEqual([
-            'ambush', 'armsDealer', 'assault', 'bossA', 'bossB', 'bossC', 'escort', 'navigationBeacon', 'repairStation', 'researchOutpost', 'salvageYard', 'skirmish', 'survive',
+            'ambush', 'armsDealer', 'assault', 'bossA', 'bossB', 'bossC', 'escort', 'navigationBeacon', 'repairStation', 'researchOutpost', 'salvageYard', 'skirmish', 'survive', 'tollCollectors',
         ]);
         expect(getDevEncounterList().map(info => info.id)).toEqual(getEncounterIds());
     });
@@ -51,11 +54,11 @@ describe('devLoadEncounter', () => {
         const hostiles = getHostileShips(state);
         if (Object.values(stationEncounterIds).includes(encounterId)) {
             expect(hostiles).toHaveLength(0);
-            expect(state.encounter!.objectiveMet).toBe(true);
+            expect(state.encounter!.outcome).toBe('success');
             expect(hasWarpCard(ships[0])).toBe(true);
         } else {
             expect(hostiles.length).toBeGreaterThan(0);
-            expect(state.encounter!.objectiveMet).toBe(false);
+            expect(state.encounter!.outcome).toBeNull();
         }
 
         // The dev encounter can be left again, back to the map of the sector that was running.
@@ -105,14 +108,14 @@ describe('devLoadEncounter', () => {
             hostile.destroy();
         }
 
-        expect(state.encounter!.objectiveMet).toBe(true);
+        expect(state.encounter!.outcome).toBe('success');
         expect(campaign.warpAway(ships[0])).toBe(true);
         expect(state.phase).toBe('map');
     });
 });
 
 describe('objectives', () => {
-    it('destroyAll completes only when every hostile is gone', () => {
+    it('clear completes only when every hostile is gone', () => {
         const { state, campaign, ships } = createCampaign();
         campaign.devLoadEncounter('skirmish');
 
@@ -120,14 +123,14 @@ describe('objectives', () => {
         expect(rest.length).toBeGreaterThan(0);
 
         first.destroy();
-        expect(state.encounter!.objectiveMet).toBe(false);
+        expect(state.encounter!.outcome).toBeNull();
         expect(hasWarpCard(ships[0])).toBe(false);
 
         for (const hostile of rest) {
             hostile.destroy();
         }
 
-        expect(state.encounter!.objectiveMet).toBe(true);
+        expect(state.encounter!.outcome).toBe('success');
         expect(hasWarpCard(ships[0])).toBe(true);
     });
 
@@ -140,12 +143,12 @@ describe('objectives', () => {
 
         state.currentTime += defaultSurviveDurationMs - 1;
         campaign.tick(0);
-        expect(state.encounter!.objectiveMet).toBe(false);
+        expect(state.encounter!.outcome).toBeNull();
         expect(hasWarpCard(ships[0])).toBe(false);
 
         state.currentTime += 1;
         campaign.tick(0);
-        expect(state.encounter!.objectiveMet).toBe(true);
+        expect(state.encounter!.outcome).toBe('success');
         expect(hasWarpCard(ships[0])).toBe(true);
         expect(getHostileShips(state).length).toBeGreaterThan(0);
 
@@ -161,16 +164,129 @@ describe('objectives', () => {
         const escorts = getHostileShips(state).filter(ship => ship !== boss);
         expect(boss).toBeDefined();
         expect(escorts.length).toBeGreaterThan(0);
-        expect(state.encounter!.objectiveMet).toBe(false);
+        expect(state.encounter!.outcome).toBeNull();
 
         // Killing escorts alone does not finish it.
         escorts[0].destroy();
-        expect(state.encounter!.objectiveMet).toBe(false);
+        expect(state.encounter!.outcome).toBeNull();
 
         boss.destroy();
-        expect(state.encounter!.objectiveMet).toBe(true);
+        expect(state.encounter!.outcome).toBe('success');
         expect(hasWarpCard(ships[0])).toBe(true);
         expect(getHostileShips(state).length).toBeGreaterThan(0);
+    });
+});
+
+describe('outcomes', () => {
+    /** Ends the running encounter as its own rules would, with the given outcome. */
+    function conclude(campaign: Campaign, ...outcome: ['success' | 'failure', number?]) {
+        (campaign.activeEncounter as unknown as { complete(...args: typeof outcome): void }).complete(...outcome);
+    }
+
+    it('a failed objective pays nothing, but the crew can still leave and carry on', () => {
+        const { state, campaign, ships } = createCampaign();
+        campaign.devLoadEncounter('skirmish');
+
+        conclude(campaign, 'failure');
+
+        expect(campaign.activeEncounter!.outcome).toBe('failure');
+        expect(state.encounter!.outcome).toBe('failure');
+        expect(ships[0].antimatter).toBe(0);
+        expect(state.gameStatus).not.toBe('ended');
+        expect(getHostileShips(state).length).toBeGreaterThan(0);
+
+        expect(hasWarpCard(ships[0])).toBe(true);
+        expect(campaign.warpAway(ships[0])).toBe(true);
+        expect(state.phase).toBe('map');
+    });
+
+    it('a met objective pays in full', () => {
+        const { campaign, ships } = createCampaign();
+        campaign.devLoadEncounter('skirmish');
+
+        conclude(campaign, 'success');
+
+        expect(campaign.activeEncounter!.score).toBe(1);
+        expect(ships[0].antimatter).toBe(antimatterRewards.combat);
+    });
+
+    it('a graded success pays in proportion to its score', () => {
+        const { campaign, ships } = createCampaign();
+        campaign.devLoadEncounter('skirmish');
+
+        conclude(campaign, 'success', 0.5);
+
+        expect(ships[0].antimatter).toBe(antimatterRewards.combat / 2);
+    });
+
+    it('an outcome is final', () => {
+        const { state, campaign, ships } = createCampaign();
+        campaign.devLoadEncounter('skirmish');
+
+        conclude(campaign, 'failure');
+        conclude(campaign, 'success');
+
+        expect(state.encounter!.outcome).toBe('failure');
+        expect(ships[0].antimatter).toBe(0);
+    });
+});
+
+describe('warping away', () => {
+    it('shows the player ship jumping to warp from where it is, as it leaves a fight', () => {
+        const { state, campaign, ships } = createCampaign();
+        campaign.devLoadEncounter('skirmish');
+        for (const hostile of getHostileShips(state)) {
+            hostile.destroy();
+        }
+
+        const effects = vi.spyOn(state, 'broadcastWeaponEffect');
+        expect(campaign.warpAway(ships[0])).toBe(true);
+
+        expect(effects).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+            type: 'warpOut',
+            sourceId: ships[0].id,
+            appearance: ships[0].appearance,
+            position: ships[0].getPosition(state.currentTime),
+        }));
+    });
+
+    it('shows nothing when leaving a station, as there is no space view there', () => {
+        const { state, campaign, ships } = createCampaign();
+        campaign.devLoadEncounter('repairStation');
+
+        const effects = vi.spyOn(state, 'broadcastWeaponEffect');
+        expect(campaign.warpAway(ships[0])).toBe(true);
+
+        expect(effects).not.toHaveBeenCalled();
+    });
+
+    it('shows nothing when the card is refused', () => {
+        const { state, campaign, ships } = createCampaign();
+        campaign.devLoadEncounter('skirmish');
+
+        const effects = vi.spyOn(state, 'broadcastWeaponEffect');
+        expect(campaign.warpAway(ships[0])).toBe(false);
+
+        expect(effects).not.toHaveBeenCalled();
+    });
+});
+
+describe('encounter sides', () => {
+    it('exist only for as long as the encounter does', () => {
+        const { state, campaign, ships } = createCampaign();
+        const playerRelations = state.factions.get(playerFactionId)!.relations;
+        expect(playerRelations.size).toBe(0);
+
+        campaign.devLoadEncounter('skirmish');
+        expect(playerRelations.size).toBe(1);
+
+        for (const hostile of getHostileShips(state)) {
+            hostile.destroy();
+        }
+        campaign.warpAway(ships[0]);
+
+        expect(playerRelations.size).toBe(0);
+        expect([...state.factions.keys()]).toEqual([playerFactionId]);
     });
 });
 

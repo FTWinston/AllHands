@@ -243,6 +243,17 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         super.destroy();
     }
 
+    /** Show this ship jumping to warp, to everyone who can see it. That's all this does: whether the ship then goes anywhere is up to the caller. */
+    showWarpOut() {
+        this.gameState.broadcastWeaponEffect({
+            type: 'warpOut',
+            sourceId: this.id,
+            appearance: this.appearance,
+            position: this.getPosition(this.gameState.currentTime),
+            startTime: this.gameState.currentTime,
+        });
+    }
+
     /**
      * Update the card generation timers displayed for each crew system. No cards are drawn outside an encounter, so there are no timers then.
      */

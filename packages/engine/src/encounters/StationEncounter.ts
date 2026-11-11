@@ -14,7 +14,7 @@ import type { GameState } from 'src/state/GameState';
  */
 export class StationEncounter extends Encounter {
     constructor(state: GameState, node: SectorNodeInfo) {
-        super(state, { ...node, kind: isStationKind(node.kind) ? node.kind : 'repair', objective: undefined, factionId: undefined });
+        super(state, { ...node, kind: isStationKind(node.kind) ? node.kind : 'repair', objective: undefined });
     }
 
     protected populate(): void {

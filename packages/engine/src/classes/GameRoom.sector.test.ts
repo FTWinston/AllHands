@@ -1,6 +1,8 @@
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
+import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
+import { playerFactionId } from 'src/campaign/factions';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { DEV_TOOLS_ENABLED } from 'src/generated/devtools';
 import { CrewState } from 'src/state/CrewState';
@@ -173,7 +175,7 @@ describe('GameRoom campaign messages', () => {
             hostile.destroy();
         }
         // Survive and boss objectives are not met by clearing hostiles, so finish those directly.
-        if (!state.encounter!.objectiveMet) {
+        if (state.encounter!.outcome === null) {
             state.currentTime += state.campaign!.activeEncounter!.objectiveEndTime;
             state.campaign!.tick(0);
         }
@@ -268,6 +270,42 @@ describe('GameRoom campaign messages', () => {
             expect(room.state.encounter?.encounterId).toBeUndefined();
         });
     }
+});
+
+describe('GameRoom encounter sides', () => {
+    it('clients see who is hostile for as long as the encounter lasts, through the player faction they already hold', async () => {
+        const { room, state, ship, shipClient, clients } = await startGame();
+        const getRelations = (client: TestClient) => (client.state as GameRoom['state']).factions.get(playerFactionId)?.relations;
+
+        await vi.waitFor(() => {
+            expect(getRelations(shipClient)?.size).toBe(0);
+        });
+
+        await send(room, clients.tactical, 'dismissMessage');
+        expect(state.campaign!.devLoadEncounter('skirmish')).toBe(true);
+
+        const [side] = [...state.factions.keys()].filter(id => id !== playerFactionId);
+        expect(side).toBeDefined();
+
+        await vi.waitFor(() => {
+            for (const client of [shipClient, clients.helm, clients.tactical]) {
+                expect(getRelations(client)?.get(side)).toBe(RelationshipType.Hostile);
+                // Only the player faction is ever sent: the side itself stays on the server.
+                expect([...(client.state as GameRoom['state']).factions.keys()]).toEqual([playerFactionId]);
+            }
+        });
+
+        for (const hostile of getHostileShips(state)) {
+            hostile.destroy();
+        }
+        expect(state.campaign!.warpAway(ship)).toBe(true);
+
+        await vi.waitFor(() => {
+            for (const client of [shipClient, clients.helm, clients.tactical]) {
+                expect(getRelations(client)?.size).toBe(0);
+            }
+        });
+    });
 });
 
 describe('GameRoom engineer system cards', () => {

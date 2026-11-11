@@ -32,8 +32,8 @@ export const EncounterSelector: FC<Props> = ({ encounters, loadEncounter }) => {
                         <h4 className={styles.groupHeader}>{getNodeKindLabel(kind)}</h4>
                         <ul className={styles.list}>
                             {group.map((encounter) => {
-                                const { environment, faction, objective } = describeEncounter(encounter);
-                                const details = [environment, faction, objective].filter(Boolean).join(' · ');
+                                const { environment, objective } = describeEncounter(encounter);
+                                const details = [environment, objective].filter(Boolean).join(' · ');
 
                                 return (
                                     <li key={encounter.id}>

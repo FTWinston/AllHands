@@ -4,18 +4,18 @@ import type { GameState } from 'src/state/GameState';
 
 export class BossAEncounter extends BossEncounter {
     constructor(state: GameState, node: SectorNodeInfo) {
-        super(state, node, { bossName: 'Boss A', escorts: ['scout', 'scout'] });
+        super(state, node, { bossName: 'Boss A', escorts: ['harrier', 'harrier'] });
     }
 }
 
 export class BossBEncounter extends BossEncounter {
     constructor(state: GameState, node: SectorNodeInfo) {
-        super(state, node, { bossName: 'Boss B', escorts: ['fighter', 'scout'] });
+        super(state, node, { bossName: 'Boss B', escorts: ['fighter', 'harrier'] });
     }
 }
 
 export class BossCEncounter extends BossEncounter {
     constructor(state: GameState, node: SectorNodeInfo) {
-        super(state, node, { bossName: 'Boss C', escorts: ['heavy', 'fighter'] });
+        super(state, node, { bossName: 'Boss C', escorts: ['bulwark', 'fighter'] });
     }
 }

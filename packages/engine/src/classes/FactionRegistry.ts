@@ -17,9 +17,44 @@ export class FactionRegistry {
 
     readonly relationsChanged = new InterceptableAction();
 
-    init(configs: FactionConfig[]): void {
+    /** Ids of the sides declared by the running encounter, which last only as long as it does. */
+    private readonly encounterSides = new Set<string>();
+
+    /** Adds the factions that last for the whole game. */
+    init(configs: readonly FactionConfig[]): void {
+        this.addFactions(configs);
+    }
+
+    /**
+     * Replaces the sides that the previous encounter declared (if any) with these, along with their relations.
+     * Factions added by `init` stay, keeping only their relations to each other.
+     */
+    setEncounterSides(configs: readonly FactionConfig[]): void {
+        for (const id of this.encounterSides) {
+            this.factions.delete(id);
+
+            for (const faction of this.factions.values()) {
+                faction.relations.delete(id);
+            }
+        }
+
+        this.encounterSides.clear();
+
         for (const config of configs) {
-            this.factions.set(config.id, new FactionState(config.id));
+            if (!this.factions.has(config.id)) {
+                this.encounterSides.add(config.id);
+            }
+        }
+
+        this.addFactions(configs);
+        this.relationsChanged.invoke();
+    }
+
+    private addFactions(configs: readonly FactionConfig[]): void {
+        for (const config of configs) {
+            if (!this.factions.has(config.id)) {
+                this.factions.set(config.id, new FactionState(config.id));
+            }
         }
 
         // Apply declared relations symmetrically; where both sides declare, the more hostile wins.

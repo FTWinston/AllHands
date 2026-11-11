@@ -5,6 +5,7 @@ import { FactionConfig } from 'common-data/features/space/types/FactionConfig';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { IRandom } from 'common-data/types/IRandom';
 import { IdProvider } from 'src/types/IdProvider';
+import { RemovalReason } from 'src/types/RemovalReason';
 import { FactionRegistry } from '../classes/FactionRegistry';
 import { GameStatus } from '../types/GameStatus';
 import { CrewState } from './CrewState';
@@ -85,12 +86,12 @@ export class GameState extends Schema {
         return id !== undefined ? this.objects.get(id) : undefined;
     }
 
-    public initFactions(configs: FactionConfig[], playerFaction: string) {
+    public initFactions(configs: readonly FactionConfig[], playerFaction: string) {
         this.factionRegistry.init(configs);
         this.playerFaction = playerFaction;
     }
 
-    public remove(object: GameObject) {
+    public remove(object: GameObject, reason: RemovalReason = 'destroyed') {
         // Views must be updated while the object is still attached to `objects`; once it's
         // deleted its parent link is gone and the view can't queue the DELETE for clients.
         if (this.gameStatus === 'active') {
@@ -107,7 +108,7 @@ export class GameState extends Schema {
 
         this.idPool.releaseId(object.id);
 
-        this.campaign?.onObjectRemoved(object);
+        this.campaign?.onObjectRemoved(object, reason);
     }
 
     /**
@@ -160,7 +161,7 @@ export class GameState extends Schema {
      * Send a weapon effect message to all crews that have visibility of either object involved.
      */
     public broadcastWeaponEffect(effect: WeaponEffect) {
-        const targetId = effect.type === 'explosion' ? undefined : effect.targetId;
+        const targetId = 'targetId' in effect ? effect.targetId : undefined;
 
         for (const crew of this.crews.values()) {
             const ship = crew.ship;

@@ -12,6 +12,7 @@ import { FC, RefObject, PropsWithChildren, useCallback, useRef } from 'react';
 import { getCombatShake } from '../effects/combatShake';
 import { drawCombatEffects } from '../effects/drawCombatEffects';
 import { drawSpaceBackground } from '../effects/drawSpaceBackground';
+import { getWarpedOutIds } from '../effects/drawWarpOut';
 import { ObjectTracker, trackObjects } from '../effects/objectTracker';
 import { useCombatLabels, useShakeAndFlashes } from '../utils/combatEffectSettings';
 import styles from './ViewscreenDisplay.module.css';
@@ -45,7 +46,13 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
 
     const cellRadius = 32; // TODO: make this controllable? automatic?
 
-    const { objects, weaponEffectsRef, viewer } = props;
+    const { weaponEffectsRef, viewer } = props;
+
+    // A ship that has jumped to warp is drawn by that effect from then on, even if it's still there, as our own ship is until the scene changes.
+    const warpedOutIds = getWarpedOutIds(weaponEffectsRef.current, currentTime);
+    const objects = warpedOutIds.size === 0
+        ? props.objects
+        : Object.fromEntries(Object.entries(props.objects).filter(([id]) => !warpedOutIds.has(id)));
 
     const showLabels = useCombatLabels();
     const shakeAndFlashes = useShakeAndFlashes();
@@ -99,7 +106,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
             <SpaceMap
                 className={styles.spaceMap}
                 center={{ x: centerVector.x + shake.x / cellRadius, y: centerVector.y + shake.y / cellRadius }}
-                objects={props.objects}
+                objects={objects}
                 viewer={props.viewer}
                 cellRadius={cellRadius}
                 gridColor={gridColor}
