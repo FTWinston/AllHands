@@ -126,3 +126,24 @@ export function shipSetup(faction: string | undefined, x = 0, y = 0): ShipSetupI
         engineer: { ...minimalSystemSetup },
     };
 }
+
+/**
+ * Lets game time pass in small steps, as the campaign would see it, and returns everything said over comms in that time, in order.
+ * Only the campaign is ticked, not the objects in the game, so nothing moves.
+ */
+export function listenToHails(state: GameState, durationMs: number, stepMs = 100): { speaker: string; text: string }[] {
+    const heard: { speaker: string; text: string }[] = [];
+    let current = state.hail;
+
+    for (let elapsed = 0; elapsed < durationMs; elapsed += stepMs) {
+        state.currentTime += stepMs;
+        state.campaign?.tick(stepMs);
+
+        if (state.hail && state.hail !== current) {
+            heard.push({ speaker: state.hail.speaker, text: state.hail.text });
+        }
+        current = state.hail;
+    }
+
+    return heard;
+}

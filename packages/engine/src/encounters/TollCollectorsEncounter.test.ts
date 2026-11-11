@@ -1,8 +1,8 @@
+import { getHailDuration } from 'common-data/features/sectors/types/HailInfo';
 import { antimatterRewards } from 'common-data/features/ships/utils/antimatter';
-import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
+import { listenToHails, seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it, vi } from 'vitest';
-import { createEncounter, getDefaultNode } from './EncounterRegistry';
 import { eliteReinforcementMs, tollCruiserScenarioId } from './TollCollectorsEncounter';
 import type { AiShip } from 'src/state/AiShip';
 import type { GameState } from 'src/state/GameState';
@@ -11,12 +11,17 @@ import type { HullSystemTile } from 'src/state/systems/engineer/HullSystemTile';
 const rooms = setupGameRoom();
 
 /** A campaign running Toll Collectors, with its cruiser and escorts picked out. */
-function createTollCollectors() {
+function createTollCollectors(elite = false) {
     const state = rooms.createState(seededRandom(3));
     const { campaign, ships } = startCampaign(state);
-    campaign.devLoadEncounter('tollCollectors');
+    campaign.devLoadEncounter('tollCollectors', elite);
 
     return { state, campaign, ships, ...findWardens(state) };
+}
+
+/** Lets the cruiser's opening demand be read, so whatever's said next is said straight away. */
+function hearOpening(state: GameState) {
+    listenToHails(state, getHailDuration(state.hail!.text));
 }
 
 function findWardens(state: GameState) {
@@ -77,7 +82,7 @@ describe('TollCollectorsEncounter', () => {
 
     it('is cleared just the same when they leave instead', () => {
         const { state, campaign, ships, cruiser, escorts } = createTollCollectors();
-        const onObjectRemoved = vi.spyOn(campaign.activeEncounter!, 'onObjectRemoved');
+        const onObjectRemoved = vi.spyOn(campaign.activeEncounter!, 'objectRemoved');
 
         escorts[0].depart();
         expect(onObjectRemoved).toHaveBeenLastCalledWith(escorts[0], 'departed');
@@ -189,6 +194,7 @@ describe('TollCollectorsEncounter', () => {
 
         it('has the cruiser say so when it withdraws', () => {
             const { state, campaign, cruiser } = createTollCollectors();
+            hearOpening(state);
 
             dropShields(cruiser);
             campaign.tick(0);
@@ -198,20 +204,23 @@ describe('TollCollectorsEncounter', () => {
 
         it('has an escort swear revenge when the cruiser is destroyed', () => {
             const { state, cruiser, escorts } = createTollCollectors();
+            hearOpening(state);
 
             cruiser.destroy();
 
             expect(state.hail).toMatchObject({ speaker: escorts[0].name, text: 'Assize is gone. No quarter.' });
         });
 
-        it('ends with thanks from whoever asked for help', () => {
+        it('ends with thanks from whoever asked for help, once everything else has been said', () => {
             const { state, cruiser, escorts } = createTollCollectors();
 
+            dropShields(cruiser);
+            listenToHails(state, 100);
             for (const ship of [...escorts, cruiser]) {
-                ship.destroy();
+                ship.depart();
             }
 
-            expect(state.hail).toMatchObject({ speaker: 'Hauler Local 12' });
+            expect(listenToHails(state, 30_000).map(hail => hail.speaker)).toEqual(['Warden Cruiser Assize', 'Hauler Local 12']);
         });
     });
 
@@ -225,25 +234,25 @@ describe('TollCollectorsEncounter', () => {
     });
 
     describe('elite', () => {
-        /** The elite form, run directly rather than through the campaign, which only loads the regular one standalone. */
         function createElite() {
-            const state = rooms.createState(seededRandom(3));
-            startCampaign(state);
-            const encounter = createEncounter(state, { ...getDefaultNode('tollCollectors'), elite: true });
-            encounter.start();
+            const { state, campaign, cruiser, escorts } = createTollCollectors(true);
 
-            return { state, encounter, ...findWardens(state) };
+            /** Moves game time on, and has the encounter catch up. */
+            const wait = (ms: number) => {
+                state.currentTime += ms;
+                campaign.tick(0);
+            };
+
+            return { state, wait, cruiser, escorts };
         }
 
         it('brings a second cruiser after a while, which hunts the player', () => {
-            const { state, encounter } = createElite();
+            const { state, wait } = createElite();
 
-            state.currentTime += eliteReinforcementMs - 1;
-            encounter.tick(0);
+            wait(eliteReinforcementMs - 1);
             expect(getHostileShips(state)).toHaveLength(3);
 
-            state.currentTime += 1;
-            encounter.tick(0);
+            wait(1);
             const hostiles = getHostileShips(state);
             expect(hostiles).toHaveLength(4);
 
@@ -252,20 +261,18 @@ describe('TollCollectorsEncounter', () => {
             expect(state.hail).toMatchObject({ speaker: 'Warden Cruiser Tithe' });
 
             // Only the one.
-            state.currentTime += eliteReinforcementMs;
-            encounter.tick(0);
+            wait(eliteReinforcementMs);
             expect(getHostileShips(state)).toHaveLength(4);
         });
 
         it('the second cruiser withdraws alone when its own shields are knocked out', () => {
-            const { state, encounter, cruiser, escorts } = createElite();
+            const { state, wait, cruiser, escorts } = createElite();
 
-            state.currentTime += eliteReinforcementMs;
-            encounter.tick(0);
+            wait(eliteReinforcementMs);
             const second = getHostileShips(state).find(ship => ship.name === 'Warden Cruiser Tithe')!;
 
             dropShields(second);
-            encounter.tick(0);
+            wait(0);
 
             expect(second.ai.commander.isWithdrawing).toBe(true);
             expect(cruiser.ai.commander.isWithdrawing).toBe(false);
@@ -273,25 +280,22 @@ describe('TollCollectorsEncounter', () => {
         });
 
         it('brings no second cruiser if the first has already withdrawn', () => {
-            const { state, encounter, cruiser } = createElite();
+            const { state, wait, cruiser } = createElite();
 
             dropShields(cruiser);
-            encounter.tick(0);
+            wait(0);
 
-            state.currentTime += eliteReinforcementMs;
-            encounter.tick(0);
+            wait(eliteReinforcementMs);
 
             expect(getHostileShips(state)).toHaveLength(3);
         });
 
         it('brings no second cruiser if the first has already been destroyed', () => {
-            const { state, encounter, cruiser } = createElite();
+            const { state, wait, cruiser } = createElite();
 
             cruiser.destroy();
-            encounter.onObjectRemoved(cruiser, 'destroyed');
 
-            state.currentTime += eliteReinforcementMs;
-            encounter.tick(0);
+            wait(eliteReinforcementMs);
 
             expect(getHostileShips(state)).toHaveLength(2);
         });

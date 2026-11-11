@@ -1,10 +1,10 @@
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
+import { getHailDuration } from 'common-data/features/sectors/types/HailInfo';
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { playerFactionId } from 'src/campaign/factions';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
-import { getDefaultNode } from 'src/encounters/EncounterRegistry';
 import { offerAnswers, offerAtMs } from 'src/encounters/SlowBoatEncounter';
 import { DEV_TOOLS_ENABLED } from 'src/generated/devtools';
 import { CrewState } from 'src/state/CrewState';
@@ -14,7 +14,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { startCountdownDuration, type GameRoom } from './GameRoom';
 import type { IArray } from '@colyseus/react';
 import type { ColyseusTestServer } from '@colyseus/testing';
-import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { EngineWeaponSlotCardDefinition } from 'src/cards/EngineCardDefinition';
 import type { PlayerShip } from 'src/state/PlayerShip';
 import type { HullSystemTile } from 'src/state/systems/engineer/HullSystemTile';
@@ -329,6 +328,12 @@ describe('GameRoom viewscreen readouts', () => {
             hostile.destroy();
         }
 
+        // Whoever asked for help has the last word, once everything else has been read.
+        for (let lines = 0; lines < 5 && state.hail?.speaker !== 'Hauler Local 12'; lines++) {
+            state.currentTime += getHailDuration(state.hail!.text);
+            state.campaign!.tick(0);
+        }
+
         await vi.waitFor(() => {
             expect(getState().encounterOutcome).toBe('success');
             expect(getState().hail).toMatchObject({ speaker: 'Hauler Local 12' });
@@ -352,7 +357,8 @@ describe('GameRoom comms prompts', () => {
 
         // The elite form of Slow Boat, whose harriers make an offer a minute in.
         await send(room, clients.tactical, 'dismissMessage');
-        (state.campaign as unknown as { startEncounter(node: SectorNodeInfo): void }).startEncounter({ ...getDefaultNode('slowBoat'), elite: true });
+        await send(room, shipClient, 'devLoadEncounter', { encounterId: 'slowBoat', elite: true });
+        expect(state.encounter).toMatchObject({ encounterId: 'slowBoat' });
         state.currentTime += offerAtMs;
         state.campaign!.tick(0);
         expect(state.prompt).not.toBeNull();

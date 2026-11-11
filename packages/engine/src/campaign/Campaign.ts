@@ -91,13 +91,7 @@ export class Campaign {
             return;
         }
 
-        // Whatever's being asked over comms is answered for the crew, if they've run out of time to answer it.
-        const prompt = this.state.prompt;
-        if (prompt && this.state.currentTime >= prompt.countdown.endTime) {
-            this.encounter.answerPrompt(null);
-        }
-
-        this.encounter.tick(deltaTime);
+        this.encounter.update(deltaTime);
     }
 
     /** Tactical answers what's being asked over comms, by picking one of its options. */
@@ -126,7 +120,7 @@ export class Campaign {
         }
 
         if (this.state.phase === 'encounter' && this.encounter) {
-            this.encounter.onObjectRemoved(object, reason);
+            this.encounter.objectRemoved(object, reason);
         }
     }
 
@@ -311,8 +305,8 @@ export class Campaign {
         return true;
     }
 
-    /** Dev tools: abandon whatever is running and start the given encounter standalone with repaired ships. */
-    devLoadEncounter(encounterId: EncounterId): boolean {
+    /** Dev tools: abandon whatever is running and start the given encounter standalone with repaired ships, in its elite form if asked for and it has one. */
+    devLoadEncounter(encounterId: EncounterId, elite = false): boolean {
         if (this.state.phase === null || this.isEnded || !hasEncounter(encounterId)) {
             return false;
         }
@@ -324,7 +318,7 @@ export class Campaign {
         }
 
         this.state.message = null;
-        this.startEncounter(getDefaultNode(encounterId));
+        this.startEncounter(getDefaultNode(encounterId, elite === true));
         return true;
     }
 

@@ -13,9 +13,19 @@ export default defineConfig({
                 test: {
                     name: 'unit',
                     include: ['packages/*/src/**/*.test.{js,ts,jsx,tsx}'],
-                    exclude: ['packages/*/src/**/*.data.test.ts'],
+                    exclude: ['packages/*/src/**/*.data.test.ts', 'packages/*/src/**/*.balance.test.ts'],
                     environment: 'node',
                     // Colyseus calls process.send(), which breaks vitest's child-process (forks) pool.
+                    pool: 'threads',
+                },
+            },
+            {
+                // Simulations that play encounters out to see whether they're tuned right. They're slow, and fail when tuning changes, so aren't run on CI.
+                ...viteConfig,
+                test: {
+                    name: 'balance',
+                    include: ['packages/*/src/**/*.balance.test.ts'],
+                    environment: 'node',
                     pool: 'threads',
                 },
             },

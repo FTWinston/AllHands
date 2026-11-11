@@ -20,9 +20,12 @@ export const signalSubstances: readonly DeflectorEffectSubstance[] = ['Graviton'
 /** Every delivery but the default: a signal always has one of these. */
 export const signalDeliveries: readonly Exclude<DeflectorEffectDelivery, 'Field'>[] = ['Beam', 'Pulse', 'Burst'];
 
-/** A scan card that provides each part, for making up what a science deck lacks. Each goes into one slot, so one that names two parts still only provides one. */
+/**
+ * A scan card that provides each part, for making up what a science deck lacks. Each goes into one slot, so one that names two parts still only provides one.
+ * No two parts share a card, so a kit never needs two of the same: a primary card only comes back to a hand without another copy (see `CardTrait`).
+ */
 const kitCards: Record<Slot, Record<string, CardType>> = {
-    modifier: { Phased: 'phasedBurstScan', Coherent: 'coherentBeamScan', Inverted: 'invertedPulseScan' },
+    modifier: { Phased: 'phasedPolaronScan', Coherent: 'coherentTetryonScan', Inverted: 'invertedAntiprotonScan' },
     substance: { Antiproton: 'antiprotonScan', Tetryon: 'tetryonScan', Chroniton: 'chronitonScan', Polaron: 'polaronScan' },
     delivery: { Beam: 'coherentBeamScan', Pulse: 'invertedPulseScan', Burst: 'phasedBurstScan' },
 };

@@ -1,16 +1,14 @@
-import { getHailDuration } from 'common-data/features/sectors/types/HailInfo';
+import { getHailDuration, minHailDuration } from 'common-data/features/sectors/types/HailInfo';
 import { isCrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { antimatterRewards } from 'common-data/features/ships/utils/antimatter';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { MotionKeyframe } from 'src/state/MotionKeyframe';
-import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
+import { listenToHails, seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
-import { getDefaultNode } from '../EncounterRegistry';
-import { canBuildSignal, getSignalCardType, type InspectionSignal } from './inspectionSignal';
+import { canBuildSignal, getSignalCardType } from './inspectionSignal';
 import { dronesPerWrongSignal, maxDrones, pingIntervalMs, pingRange, platformScenarioId, rekeyIntervalMs, type StandingOrdersEncounter } from './StandingOrdersEncounter';
-import type { CardType, EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
-import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import type { SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import type { Campaign } from 'src/campaign/Campaign';
 import type { AiShip } from 'src/state/AiShip';
@@ -23,12 +21,11 @@ const rooms = setupGameRoom();
 
 const pings: SystemEffectType[] = ['phasedPing', 'coherentPing', 'invertedPing'];
 
-/** A campaign running Standing Orders, with the platform picked out. The elite form is started through the campaign's own code, which can only load the regular one standalone. */
+/** A campaign running Standing Orders, with the platform picked out. */
 function createStandingOrders({ seed = 3, elite = false } = {}) {
     const state = rooms.createState(seededRandom(seed));
     const { campaign, ships } = startCampaign(state);
-    state.message = null;
-    (campaign as unknown as { startEncounter(node: SectorNodeInfo): void }).startEncounter({ ...getDefaultNode('standingOrders'), elite });
+    campaign.devLoadEncounter('standingOrders', elite);
 
     const encounter = campaign.activeEncounter as StandingOrdersEncounter;
     const platform = state.getObjectByScenarioId(platformScenarioId) as AiShip;
@@ -49,9 +46,9 @@ function send(platform: AiShip, ship: PlayerShip, cardType: EnemyTargetedCardTyp
     platform.deflectorReceived.triggerListeners({ source: ship, cardType });
 }
 
-/** Keys the platform to the given signal, as its own code would. */
-function rekeyTo(encounter: StandingOrdersEncounter, signal: InspectionSignal, kit: CardType[] = []) {
-    Object.assign(encounter as unknown as { signal: InspectionSignal; kit: CardType[] }, { signal, kit });
+/** What the platform says over the next few seconds: long enough for anything urgent to have been said. */
+function hearPlatform(state: GameState) {
+    return listenToHails(state, minHailDuration).filter(hail => hail.speaker === 'Customs Platform 7').map(hail => hail.text);
 }
 
 function getPings(ship: PlayerShip) {
@@ -111,7 +108,7 @@ describe('StandingOrdersEncounter', () => {
     describe('the ping', () => {
         it('leaves the mark of the modifier on one crew system of a ship that is close enough', () => {
             const { state, campaign, encounter, ship } = createStandingOrders();
-            rekeyTo(encounter, { modifier: 'Inverted', substance: 'Tetryon', delivery: 'Pulse' });
+            encounter.keyTo({ modifier: 'Inverted', substance: 'Tetryon', delivery: 'Pulse' });
 
             // Where it starts is too far away.
             waitForPing(state, campaign);
@@ -128,7 +125,7 @@ describe('StandingOrdersEncounter', () => {
 
         it.each([['Phased', 'phasedPing'], ['Coherent', 'coherentPing']] as const)('is a %s one when that is the modifier', (modifier, effect) => {
             const { state, campaign, encounter, ship } = createStandingOrders();
-            rekeyTo(encounter, { modifier, substance: 'Tetryon', delivery: 'Pulse' });
+            encounter.keyTo({ modifier, substance: 'Tetryon', delivery: 'Pulse' });
             moveShip(state, ship, 5);
 
             waitForPing(state, campaign);
@@ -138,7 +135,7 @@ describe('StandingOrdersEncounter', () => {
 
         it('never comes when the modifier is the default, which is how the crew knows', () => {
             const { state, campaign, encounter, ship } = createStandingOrders();
-            rekeyTo(encounter, { modifier: 'Modulated', substance: 'Tetryon', delivery: 'Pulse' });
+            encounter.keyTo({ modifier: 'Modulated', substance: 'Tetryon', delivery: 'Pulse' });
             moveShip(state, ship, 5);
 
             waitForPing(state, campaign);
@@ -153,7 +150,7 @@ describe('StandingOrdersEncounter', () => {
             const { state, encounter, ship, platform } = createStandingOrders();
 
             send(platform, ship, getSignalCardType(encounter.inspectionSignal));
-            expect(state.hail).toMatchObject({ speaker: 'Customs Platform 7', text: 'Signal not received.' });
+            expect(hearPlatform(state)).toEqual(['Signal not received.']);
             expect(state.encounter!.outcome).toBeNull();
 
             send(platform, ship, 'deflectorModulatedGravitonField');
@@ -191,7 +188,7 @@ describe('StandingOrdersEncounter', () => {
             dropShields(platform);
 
             send(platform, ship, 'deflectorModulatedGravitonField');
-            expect(state.hail).toMatchObject({ speaker: 'Customs Platform 7', text: 'Inspection signal invalid. Enforcement dispatched.' });
+            expect(hearPlatform(state)).toEqual(['Inspection signal invalid. Enforcement dispatched.']);
             expect(getHostileShips(state).filter(hostile => hostile !== platform).map(drone => drone.name)).toEqual(['Drone 1', 'Drone 2']);
             expect(state.encounter!.outcome).toBeNull();
 
@@ -238,26 +235,37 @@ describe('StandingOrdersEncounter', () => {
 
     it('keeps science supplied with whatever scan cards their deck lacks for the signal, and they\'re gone afterwards', () => {
         const { campaign, encounter, ship } = createStandingOrders();
-        const kitInHand = () => ship.scienceState.hand.filter(card => card.type === 'coherentBeamScan');
+        const science = ship.scienceState;
+        const kitInHand = () => science.hand.filter(card => card.type === 'coherentTetryonScan');
         expect(kitInHand()).toHaveLength(0);
 
-        // The starting deck has no beam.
-        rekeyTo(encounter, { modifier: 'Inverted', substance: 'Tetryon', delivery: 'Beam' }, ['coherentBeamScan']);
-        campaign.tick(0);
-        campaign.tick(0);
+        // The starting deck's only coherent card is also its only beam, and one card can only go in one slot.
+        encounter.keyTo({ modifier: 'Coherent', substance: 'Tetryon', delivery: 'Beam' });
 
         expect(kitInHand()).toHaveLength(1);
-        expect(kitInHand()[0].hasTrait('expendable')).toBe(true);
-        expect(ship.scienceState.deck.some(card => card.type === 'coherentBeamScan')).toBe(false);
+        expect(science.deck.some(card => card.type === 'coherentTetryonScan')).toBe(false);
 
-        // Using it up brings another.
-        ship.scienceState.hand.splice(ship.scienceState.hand.indexOf(kitInHand()[0]), 1);
-        campaign.tick(0);
+        // Using it doesn't use it up.
+        const [kit] = kitInHand();
+        Object.assign(science, { powerLevel: 5 });
+        expect(science.playCard(kit.id, kit.type, 'scan', 'deflector/modifier')).not.toBeNull();
+        expect(kitInHand()).toHaveLength(0);
+        science.unmountModifierCard();
+        expect(kitInHand()).toEqual([kit]);
+
+        // Keying the platform to something else that needs it keeps it there, but something that doesn't takes it away.
+        encounter.keyTo({ modifier: 'Coherent', substance: 'Antiproton', delivery: 'Beam' });
         expect(kitInHand()).toHaveLength(1);
+        expect(science.hand.filter(card => card.type === 'antiprotonScan')).toHaveLength(1);
 
+        encounter.keyTo({ modifier: 'Inverted', substance: 'Tetryon', delivery: 'Pulse' });
+        expect(kitInHand()).toHaveLength(0);
+        expect(science.hand.filter(card => card.type === 'antiprotonScan')).toHaveLength(0);
+
+        encounter.keyTo({ modifier: 'Coherent', substance: 'Tetryon', delivery: 'Beam' });
         campaign.devLoadEncounter('skirmish');
         expect(kitInHand()).toHaveLength(0);
-        expect(ship.scienceState.deck.some(card => card.type === 'coherentBeamScan')).toBe(false);
+        expect(science.deck.some(card => card.type === 'coherentTetryonScan')).toBe(false);
     });
 
     describe('elite', () => {

@@ -9,7 +9,7 @@ export const getTraitDescription = (trait: DisplayableTrait): string => {
         case 'critical':
             return 'Card cannot be used and cannot be stabilised.';
         case 'primary':
-            return 'Card returns to hand when played (if no other primary card in hand)';
+            return 'Card returns to hand when played, unless another copy of it is already there.';
         case 'expendable':
             return 'Card is destroyed when played (not added to the deck).';
         case 'unstable':

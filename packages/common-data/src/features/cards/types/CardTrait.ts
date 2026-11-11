@@ -31,7 +31,9 @@ export type WeaponTrait
  * - damaged: Card cannot be used.
  * - stabilised: Card functionality has been restored after being damaged.
  * - critical: Card cannot be used and cannot be stabilised.
- * - primary: Card returns to hand when played (if no other primary card in hand).
+ * - primary: Card returns to hand when played, or when it's used up from a slot, rather than going to the deck.
+ *   Not if another primary card of the same type is already in the hand, though: then it goes to the deck as normal.
+ *   An encounter can deal one that's also expendable, to keep it in a crew member's hand for as long as the encounter lasts.
  * - expendable: Card is destroyed when played (not added to the deck).
  * - unstable: Card shuffles back into the deck when played, instead of going on the end.
  * - rechargeable: A weapon with this trait can be topped up with one more card after it has been fully charged. Doing so removes the trait.

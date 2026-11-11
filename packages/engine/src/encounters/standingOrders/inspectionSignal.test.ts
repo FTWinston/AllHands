@@ -102,6 +102,14 @@ describe('getKitCards', () => {
         }
     });
 
+    it('never needs two of the same card, as a kept card only comes back to a hand without another copy', () => {
+        for (const signal of everySignal) {
+            const kit = getKitCards(signal, []);
+
+            expect(new Set(kit).size).toBe(kit.length);
+        }
+    });
+
     it('is only what the deck lacks', () => {
         const signal: InspectionSignal = { modifier: 'Inverted', substance: 'Tetryon', delivery: 'Beam' };
 

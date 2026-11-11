@@ -742,7 +742,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
      * Handle where a played card goes based on its traits.
      * - expendable: Card is destroyed (not added anywhere)
      * - unstable: Card shuffles back into the deck when played, instead of going on the end.
-     * - primary: Card returns to hand (if no other primary card in hand), otherwise goes to the deck
+     * - primary: Card returns to hand, unless the hand already holds another primary card of the same type (see `CardTrait`)
      */
     protected handlePlayedCard(card: CardState, cardIndex: number, playedIntoSlot: boolean): void {
         // The "reduced cost of next card" effect should be removed after a card is played.
@@ -755,10 +755,8 @@ export abstract class SystemState extends Schema implements SystemInfo {
         if (playedIntoSlot) {
             // If playing into a slot, it leaves the hand
             addToDeck = false;
-        } else if (card.hasTrait('primary') && !this.hand.some((handCard) => {
-            return handCard.hasTrait('primary') ?? false;
-        })) {
-            // Primary cards stay in the hand if no other primary card is already there.
+        } else if (card.hasTrait('primary') && !this.hand.some(handCard => handCard !== card && handCard.type === card.type && handCard.hasTrait('primary'))) {
+            // Primary cards stay in (or come back to) the hand, unless another copy is already there.
             removeFromHand = false;
             addToDeck = false;
         } else if (card.hasTrait('expendable')) {
@@ -772,9 +770,9 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         // Any extra traits are removed from a card when it is played, unless it was going into a slot.
         if (!playedIntoSlot) {
-            // Get only the assigned extra traits whose value indicates they should be removed on play.
+            // Get only the assigned extra traits whose type says they should be removed on play.
             const traitsToRemove = Array.from(card.extraTraits)
-                .filter(([, removeOnPlay]) => removeOnPlay)
+                .filter(([, type]) => type === ExtraTraitType.RemoveOnPlay)
                 .map(([trait]) => trait);
 
             for (const trait of traitsToRemove) {
