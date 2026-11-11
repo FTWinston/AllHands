@@ -32,7 +32,7 @@ const skill = 0.7;
  * Elite: a second cruiser arrives after a while, unless the first has gone by then.
  */
 export class TollCollectorsEncounter extends Encounter {
-    protected override readonly sides = [hostileToPlayer(wardens)];
+    protected override readonly factions = [hostileToPlayer(wardens)];
 
     private firstCruiser: AiShip | undefined;
     private cruisers: AiShip[] = [];

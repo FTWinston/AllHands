@@ -12,7 +12,7 @@ import { FC, RefObject, PropsWithChildren, useCallback, useRef } from 'react';
 import { getCombatShake } from '../effects/combatShake';
 import { drawCombatEffects } from '../effects/drawCombatEffects';
 import { drawSpaceBackground } from '../effects/drawSpaceBackground';
-import { getWarpedOutIds } from '../effects/drawWarpOut';
+import { getWarpedAwayIds } from '../effects/drawWarpAway';
 import { ObjectTracker, trackObjects } from '../effects/objectTracker';
 import { useCombatLabels, useShakeAndFlashes } from '../utils/combatEffectSettings';
 import styles from './ViewscreenDisplay.module.css';
@@ -49,10 +49,10 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
     const { weaponEffectsRef, viewer } = props;
 
     // A ship that has jumped to warp is drawn by that effect from then on, even if it's still there, as our own ship is until the scene changes.
-    const warpedOutIds = getWarpedOutIds(weaponEffectsRef.current, currentTime);
-    const objects = warpedOutIds.size === 0
+    const warpedAwayIds = getWarpedAwayIds(weaponEffectsRef.current, currentTime);
+    const objects = warpedAwayIds.size === 0
         ? props.objects
-        : Object.fromEntries(Object.entries(props.objects).filter(([id]) => !warpedOutIds.has(id)));
+        : Object.fromEntries(Object.entries(props.objects).filter(([id]) => !warpedAwayIds.has(id)));
 
     const showLabels = useCombatLabels();
     const shakeAndFlashes = useShakeAndFlashes();

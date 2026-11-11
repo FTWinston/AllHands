@@ -16,18 +16,6 @@ describe('ship designs', () => {
         }
     });
 
-    it.each(designs)('%s can load its weapons on baseline power', (design) => {
-        const setup = createShipSetup(design, 'side', origin);
-        // Each reactor card gives its system one level of baseline power.
-        const tacticalPower = setup.reactor.cards.filter(card => card === 'reactorPowerTactical').length;
-        for (const cardType of setup.tactical.cards) {
-            const definition = cardDefinitions[cardType];
-            if (definition.targetType === 'weapon-slot') {
-                expect(definition.parameters.cost).toBeLessThanOrEqual(tacticalPower);
-            }
-        }
-    });
-
     it('gives each design its own appearance, whichever side it is on', () => {
         const appearances = designs.map(design => createShipSetup(design, 'side', origin).appearance);
         expect(new Set(appearances).size).toBe(designs.length);

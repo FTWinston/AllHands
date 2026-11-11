@@ -38,6 +38,11 @@
 .text {
     line-height: 1.5;
     color: var(--grey-lightest);
+    white-space: pre-line;
+}
+
+.text:empty {
+    display: none;
 }
 
 .options {

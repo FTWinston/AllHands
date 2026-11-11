@@ -282,9 +282,9 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     }
 
     /** Show this ship jumping to warp, to everyone who can see it. That's all this does: whether the ship then goes anywhere is up to the caller. */
-    showWarpOut() {
+    showWarpAway() {
         this.gameState.broadcastWeaponEffect({
-            type: 'warpOut',
+            type: 'warpAway',
             sourceId: this.id,
             appearance: this.appearance,
             position: this.getPosition(this.gameState.currentTime),

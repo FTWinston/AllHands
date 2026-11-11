@@ -9,7 +9,7 @@ import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { ComponentProps, RefObject, useEffect, useMemo, useState } from 'react';
 import { fn } from 'storybook/test';
 import { setCombatLabels } from '../utils/combatEffectSettings';
-import { HailDisplay } from './HailDisplay';
+import { CommsDisplay } from './CommsDisplay';
 import { LowHullWarning } from './LowHullWarning';
 import { ObjectiveDisplay } from './ObjectiveDisplay';
 import { ViewscreenDisplay as Component } from './ViewscreenDisplay';
@@ -219,7 +219,7 @@ export const CombatWithHailAndObjective: Story = {
     render: args => (
         <CombatStory {...args} showLabels>
             <ObjectiveDisplay objective={{ type: 'clear' }} outcome={null} />
-            <HailDisplay hail={{ speaker: 'Warden Cruiser Assize', text: 'Unregistered vessel. Transit duty is forty percent of cargo. Heave to for assessment.' }} />
+            <CommsDisplay hail={{ speaker: 'Warden Cruiser Assize', text: 'Unregistered vessel. Transit duty is forty percent of cargo. Heave to for assessment.' }} prompt={null} />
         </CombatStory>
     ),
 };
@@ -229,7 +229,7 @@ export const CombatWithEverything: Story = {
     render: args => (
         <CombatStory {...args} showLabels>
             <ObjectiveDisplay objective={{ type: 'protect', subject: 'Marrow' }} outcome="failure" />
-            <HailDisplay hail={{ speaker: 'Clinic Ship Marrow', text: 'We can\'t take much more of this.' }} />
+            <CommsDisplay hail={{ speaker: 'Clinic Ship Marrow', text: 'We can\'t take much more of this.' }} prompt={null} />
             <LowHullWarning health={18} maxHealth={100} />
         </CombatStory>
     ),
@@ -246,7 +246,7 @@ function useScriptedWarps(effects: RefObject<WeaponEffect[]>) {
             const ship = combatObjects[warpOrder[step++ % warpOrder.length]];
 
             effects.current.push({
-                type: 'warpOut',
+                type: 'warpAway',
                 sourceId: ship.id,
                 appearance: ship.appearance,
                 position: interpolatePosition(ship.motion, now),
@@ -258,7 +258,7 @@ function useScriptedWarps(effects: RefObject<WeaponEffect[]>) {
     }, [effects]);
 }
 
-const WarpOutStory = (args: ComponentProps<typeof Component>) => {
+const WarpAwayStory = (args: ComponentProps<typeof Component>) => {
     const weaponEffectsRef = useWeaponEffects(null);
     useScriptedWarps(weaponEffectsRef);
 
@@ -279,6 +279,6 @@ const WarpOutStory = (args: ComponentProps<typeof Component>) => {
  * Ships jumping to warp in turn: a small one, a big one, then our own. Each is hidden once it goes.
  * In the game it would then be gone for good, but here it's still there, so it comes back for the next round.
  */
-export const WarpOut: Story = {
-    render: args => <WarpOutStory {...args} />,
+export const WarpAway: Story = {
+    render: args => <WarpAwayStory {...args} />,
 };

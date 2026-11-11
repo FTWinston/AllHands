@@ -23,16 +23,16 @@ export interface EnemySpawn {
     skill?: number;
 }
 
-/** The one side in an encounter that is nothing but a fight: whoever the player ships are up against. */
-export const hostileSide = 'hostiles';
+/** The one faction in an encounter that is nothing but a fight: whoever the player ships are up against. */
+export const hostileFaction = 'hostiles';
 
-/** Spawns the given ships on one side. Those without a position are evenly spread around the player, starting from a random bearing. */
-export function spawnEnemies(state: GameState, side: string, spawns: readonly EnemySpawn[]): AiShip[] {
+/** Spawns the given ships in one faction. Those without a position are evenly spread around the player, starting from a random bearing. */
+export function spawnEnemies(state: GameState, faction: string, spawns: readonly EnemySpawn[]): AiShip[] {
     const startAngle = state.random.getFloat(0, Math.PI * 2);
 
     return spawns.map((spawn, index) => new AiShip(state, createShipSetup(
         spawn.design,
-        side,
+        faction,
         spawn.position ?? ringPosition(state.random, startAngle + (index * Math.PI * 2) / spawns.length),
         {
             scenarioId: spawn.scenarioId,
@@ -58,7 +58,7 @@ export function noHostilesRemain(state: GameState): boolean {
 
 /** A fixed set of enemies that must all be destroyed or driven off; subclasses only differ in composition. */
 export abstract class CombatEncounter extends Encounter {
-    protected override readonly sides = [hostileToPlayer(hostileSide)];
+    protected override readonly factions = [hostileToPlayer(hostileFaction)];
     protected abstract readonly composition: readonly EnemySpawn[];
 
     constructor(state: GameState, node: SectorNodeInfo) {
@@ -66,7 +66,7 @@ export abstract class CombatEncounter extends Encounter {
     }
 
     protected populate(): void {
-        this.spawnObjects(spawnEnemies(this.state, hostileSide, withEliteReinforcements(this.node, this.composition)));
+        this.spawnObjects(spawnEnemies(this.state, hostileFaction, withEliteReinforcements(this.node, this.composition)));
     }
 
     override start(): void {

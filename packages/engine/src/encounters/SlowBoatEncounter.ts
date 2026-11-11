@@ -79,7 +79,7 @@ const numberNames = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eig
  * Elite: a minute in, the harriers' leader offers to leave for a third of the clinic ship's stores. Neither answer is the right one.
  */
 export class SlowBoatEncounter extends Encounter {
-    protected override readonly sides = [
+    protected override readonly factions = [
         { id: clinic, relations: { [playerFactionId]: RelationshipType.Friendly, [stranded]: RelationshipType.Hostile } },
         hostileToPlayer(stranded),
     ];

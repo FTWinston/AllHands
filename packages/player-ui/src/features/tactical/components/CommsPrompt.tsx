@@ -4,8 +4,11 @@ import { FC } from 'react';
 import styles from './CommsPrompt.module.css';
 import type { PromptInfo } from 'common-data/features/sectors/types/PromptInfo';
 
+/** What's being asked. Without a countdown, it waits for as long as it takes to answer. */
+export type CommsPromptContent = Omit<PromptInfo, 'countdown'> & Partial<Pick<PromptInfo, 'countdown'>>;
+
 type Props = {
-    prompt: PromptInfo;
+    prompt: CommsPromptContent;
     onAnswer: (optionId: string) => void;
 };
 
@@ -27,7 +30,7 @@ export const CommsPrompt: FC<Props> = ({ prompt, onAnswer }) => (
                 ))}
             </div>
 
-            <LinearProgress className={styles.countdown} progress={prompt.countdown} direction="right" title="Time used" />
+            {prompt.countdown && <LinearProgress className={styles.countdown} progress={prompt.countdown} direction="right" title="Time used" />}
         </section>
     </div>
 );

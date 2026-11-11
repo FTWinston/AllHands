@@ -47,8 +47,8 @@ export class GameState extends Schema {
     @type('string') encounterOutcome: EncounterOutcome | null = null;
     /** What's being said over comms, for the viewscreen to show; null when nobody is speaking. See `showHail`. */
     @type(HailState) hail: HailState | null = null;
-    /** What's being asked over comms, for the viewscreen to show and tactical to answer; null when nothing is. See `Encounter.prompt`. */
-    @type(PromptState) prompt: PromptState | null = null;
+    /** Server-only. What's being asked over comms; null when nothing is. See `Encounter.prompt`. */
+    private _prompt: PromptState | null = null;
     /** Server-only. Summary of the running encounter; null outside the encounter phase. */
     encounter: EncounterSummaryState | null = null;
     @view() @type({ map: GameObject }) objects = new MapSchema<GameObject>();
@@ -58,6 +58,19 @@ export class GameState extends Schema {
     public readonly factionRegistry = new FactionRegistry(this.factions);
     public playerFaction: string | null = null;
     public campaign: Campaign | null = null;
+
+    /** What's being asked over comms; null when nothing is. See `Encounter.prompt`. */
+    get prompt(): PromptState | null {
+        return this._prompt;
+    }
+
+    /** Each crew's ship carries it to that crew's viewscreen and tactical, as nobody else needs it (see `PlayerShip.comms`). */
+    set prompt(prompt: PromptState | null) {
+        this._prompt = prompt;
+        for (const crew of this.crews.values()) {
+            crew.setPrompt(prompt);
+        }
+    }
 
     /** The current scaled game time, in milliseconds. Use this instead of clock.currentTime for all game logic. */
     public currentTime: number;

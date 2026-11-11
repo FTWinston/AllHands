@@ -189,7 +189,7 @@ export class Campaign {
 
         // There's no space view to show it in at a station.
         if (!this.isAtStation) {
-            ship.showWarpOut();
+            ship.showWarpAway();
         }
 
         this.leaveIfAllDeparted();
@@ -495,7 +495,7 @@ export class Campaign {
         }
 
         // Nothing relates to anything else from one encounter to the next.
-        this.state.factionRegistry.setEncounterSides([]);
+        this.state.factionRegistry.setEncounterFactions([]);
 
         for (const ship of getPlayerShips(this.state)) {
             ship.cleanupAfterEncounter();

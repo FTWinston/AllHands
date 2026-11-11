@@ -28,7 +28,7 @@ export abstract class Encounter {
      * Everyone here other than the player ships, and how they relate to each other and to the player faction (see `playerFactionId`).
      * They only exist for as long as the encounter does: nothing relates to anything else from one encounter to the next.
      */
-    protected readonly sides: readonly FactionConfig[] = [];
+    protected readonly factions: readonly FactionConfig[] = [];
 
     /** True once the encounter's objective has been met or failed. */
     get isComplete(): boolean {
@@ -50,9 +50,9 @@ export abstract class Encounter {
         return 0;
     }
 
-    /** Declares the encounter's sides and spawns its objects. Subclasses override this to also evaluate their objective. */
+    /** Declares the encounter's factions and spawns its objects. Subclasses override this to also evaluate their objective. */
     start(): void {
-        this.state.factionRegistry.setEncounterSides(this.sides);
+        this.state.factionRegistry.setEncounterFactions(this.factions);
         this.populate();
     }
 

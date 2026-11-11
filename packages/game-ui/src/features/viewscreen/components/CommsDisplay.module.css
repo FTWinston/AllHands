@@ -1,0 +1,13 @@
+/* Along the bottom of the viewscreen, sized with it, and big enough to read from across a room. */
+.comms {
+    position: fixed;
+    left: 50%;
+    bottom: 3em;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    width: min(60em, 86vw);
+    pointer-events: none;
+    font-size: min(1vw, 1.78vh);
+}

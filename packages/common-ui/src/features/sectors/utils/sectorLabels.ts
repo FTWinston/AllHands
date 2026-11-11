@@ -47,8 +47,8 @@ export function getObjectiveLabel(objective: ObjectiveInfo): string {
             return 'Defeat the boss';
         case 'protect':
             return `Protect ${objective.subject}`;
-        case 'shutDown':
-            return `Shut down ${objective.subject}`;
+        case 'disable':
+            return `Disable ${objective.subject}`;
         default:
             throw new Error(`Objective type not found: ${objective satisfies never}`);
     }

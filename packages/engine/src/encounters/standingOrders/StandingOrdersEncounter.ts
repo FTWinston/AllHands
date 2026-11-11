@@ -3,13 +3,13 @@ import { getHailDuration } from 'common-data/features/sectors/types/HailInfo';
 import { isCrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { distance } from 'common-data/features/space/utils/vectors';
+import { hostileToPlayer, playerFactionId } from 'src/campaign/factions';
+import { createShipSetup } from 'src/campaign/shipDesigns';
 import { AiShip } from 'src/state/AiShip';
 import { CardState } from 'src/state/CardState';
 import { getPlayerShips } from 'src/utils/shipQueries';
-import { hostileToPlayer, playerFactionId } from '../campaign/factions';
-import { createShipSetup } from '../campaign/shipDesigns';
-import { spawnEnemies } from './CombatEncounter';
-import { Encounter } from './Encounter';
+import { spawnEnemies } from '../CombatEncounter';
+import { Encounter } from '../Encounter';
 import { chooseSignal, defaultSignal, getKitCards, getSignalCardType, signalModifiers, signalSubstances, type InspectionSignal } from './inspectionSignal';
 import type { DeflectorEffectDelivery, DeflectorEffectModifier } from 'common-data/features/cards/types/CardDefinition';
 import type { CardType, EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
@@ -23,7 +23,7 @@ import type { RemovalReason } from 'src/types/RemovalReason';
 
 const customs = 'customs';
 
-/** The scenario id of the platform that has to be shut down. */
+/** The scenario id of the platform that has to be disabled. */
 export const platformScenarioId = 'customsPlatform';
 const platformName = 'Customs Platform 7';
 const clerk = 'Dock Clerk, Tessaly Yard';
@@ -66,7 +66,7 @@ const armaments: Record<Exclude<DeflectorEffectDelivery, 'Field'>, AiShipSetupIn
 type QueuedHail = { time: number; speaker: string; text: string };
 
 /**
- * An old customs platform has impounded a supply run, and has to be shut down without being destroyed, as the dock it guards is wanted.
+ * An old customs platform has impounded a supply run, and has to be disabled without being destroyed, as the dock it guards is wanted.
  * It stands down for one deflector signal, of three parts, and each part can be found out by a different seat:
  * - The substance is what its own deflector is loaded with, which science sees by scanning its science system.
  * - The modifier is the mark its ping leaves on one of the player ship's systems, which the engineer sees. It only pings a ship that's close.
@@ -78,7 +78,7 @@ type QueuedHail = { time: number; speaker: string; text: string };
  * Elite: once its shields are down, the platform changes its modifier or its substance every so often, so what the crew worked out goes stale.
  */
 export class StandingOrdersEncounter extends Encounter {
-    protected override readonly sides = [hostileToPlayer(customs)];
+    protected override readonly factions = [hostileToPlayer(customs)];
 
     private platform: AiShip | undefined;
     private drones: AiShip[] = [];
@@ -91,7 +91,7 @@ export class StandingOrdersEncounter extends Encounter {
     private queuedHails: QueuedHail[] = [];
 
     constructor(state: GameState, node: SectorNodeInfo) {
-        super(state, { ...node, objective: { type: 'shutDown', subject: platformName } });
+        super(state, { ...node, objective: { type: 'disable', subject: platformName } });
     }
 
     /** What the platform is keyed to just now. */

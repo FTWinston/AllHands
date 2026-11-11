@@ -7,6 +7,7 @@ import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { PlayerShip } from './PlayerShip';
+import { PromptState } from './PromptState';
 import { Ship } from './Ship';
 
 export class CrewState extends Schema {
@@ -40,6 +41,26 @@ export class CrewState extends Schema {
     }
 
     ship: PlayerShip | null = null;
+
+    /**
+     * Puts what's being asked over comms on this crew's ship, for its viewscreen and tactical, and nobody else (see `PlayerShip.comms`).
+     * Those clients already see the ship, but not a new prompt on it until it's added to their views.
+     */
+    setPrompt(prompt: PromptState | null) {
+        if (!this.ship) {
+            return;
+        }
+
+        this.ship.comms.prompt = prompt;
+
+        if (!prompt || !this.clients) {
+            return;
+        }
+
+        for (const clientId of [this.shipClientId, this.tacticalClientId]) {
+            this.clients.getById(clientId)?.view?.add(prompt);
+        }
+    }
 
     @type('string') shipId: string | null = null;
 

@@ -2,6 +2,7 @@ import { IArray, IMap } from '@colyseus/react';
 import { CardInstance } from 'src/features/cards/types/CardInstance';
 import { NonEncounterCardInfo } from 'src/features/cards/types/NonEncounterCardInfo';
 import { CardType, EnemyTargetedCardType, UntargetedCardType } from 'src/features/cards/utils/cardDefinitions';
+import { CommsInfo } from 'src/features/sectors/types/CommsInfo';
 import { SectorDestinationInfo } from 'src/features/sectors/types/SectorDestinationInfo';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'src/features/ships/types/SystemEffectDefinition';
@@ -237,6 +238,9 @@ export interface PlayerShipInfo extends ShipInfo {
      * The game client adds new ones to its known cards. Only synced to the ship's game client.
      */
     seenCardTypes: IArray<CardType>;
+
+    /** What's coming in over comms that the crew has to deal with. Only synced to the ship's game client and tactical. */
+    comms: CommsInfo;
 }
 
 export interface SystemSetupInfo {

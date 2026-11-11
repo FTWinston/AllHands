@@ -16,7 +16,7 @@ const rooms = setupGameRoom();
 function createState() {
     const state = rooms.createState();
     state.initFactions([{ id: 'player' }], 'player');
-    state.factionRegistry.setEncounterSides([
+    state.factionRegistry.setEncounterFactions([
         { id: 'clinic', relations: { player: RelationshipType.Friendly, raiders: RelationshipType.Hostile } },
         { id: 'bystanders' },
         { id: 'raiders', relations: { player: RelationshipType.Hostile } },
@@ -25,8 +25,8 @@ function createState() {
 }
 
 /** A ship that never acts, at the given distance from the origin. */
-function addShip(state: GameState, design: ShipDesign, side: string, x: number) {
-    const ship = new AiShip(state, { ...createShipSetup(design, side, { x, y: 0, angle: 0 }), priorities: { helm: 0, tactical: 0, science: 0, engineer: 0 } });
+function addShip(state: GameState, design: ShipDesign, faction: string, x: number) {
+    const ship = new AiShip(state, { ...createShipSetup(design, faction, { x, y: 0, angle: 0 }), priorities: { helm: 0, tactical: 0, science: 0, engineer: 0 } });
     state.add(ship);
     return ship;
 }
@@ -87,10 +87,10 @@ describe('extended shields', () => {
         expect(ward.hullState.shield).toBeLessThan(wardShield);
     });
 
-    it.each(['bystanders', 'raiders'])('don\'t cover a ship of the %s, who aren\'t friends', (side) => {
+    it.each(['bystanders', 'raiders'])('don\'t cover a ship of the %s, who aren\'t friends', (faction) => {
         const state = createState();
         const extender = addShip(state, 'clinicShip', 'clinic', 0);
-        const other = addShip(state, 'fighter', side, 1);
+        const other = addShip(state, 'fighter', faction, 1);
         const otherShield = other.hullState.shield;
         extendShields(extender);
 
@@ -131,5 +131,24 @@ describe('extended shields', () => {
         const hull = ship.engineerState.systems.find(tile => tile.system === 'hull')!;
         expect(hull.effects.find(effect => effect.type === 'shieldsExtended')).toBeDefined();
         expect(extendedShieldsDuration).toBeGreaterThan(0);
+    });
+
+    it('start their time over if the card is played again while they are extended', () => {
+        const state = createState();
+        const ship = new PlayerShip(state, playerShipSetup);
+        state.add(ship);
+        ship.startEncounter();
+        const hull = ship.engineerState.systems.find(tile => tile.system === 'hull')!;
+        const endTime = () => hull.effects.find(effect => effect.type === 'shieldsExtended')?.progress?.endTime;
+
+        for (const delay of [0, 4000]) {
+            state.currentTime += delay;
+            const card = new CardState(ship.getCardId(), 'extendShields');
+            ship.engineerState.addCardToHand(card);
+            expect(ship.engineerState.playCard(card.id, 'extendShields', 'no-target', '')).not.toBeNull();
+            expect(endTime()).toBe(state.currentTime + extendedShieldsDuration);
+        }
+
+        expect(hull.effects.filter(effect => effect.type === 'shieldsExtended')).toHaveLength(1);
     });
 });

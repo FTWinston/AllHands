@@ -3,9 +3,6 @@ import type { AiGoalInfo, AiShipSetupInfo } from 'common-data/features/space/typ
 import type { Position } from 'common-data/features/space/types/Position';
 import type { IRandom } from 'common-data/types/IRandom';
 
-/** A kind of AI ship. Each has its own appearance, so the same shape always means the same kind of ship, whichever side it's on. */
-export type ShipDesign = 'harrier' | 'fighter' | 'bulwark' | 'flagship' | 'clinicShip' | 'customsPlatform' | 'drone';
-
 type ReactorCards = AiShipSetupInfo['reactor']['cards'];
 
 /**
@@ -42,7 +39,12 @@ const fighterTemplate: DesignTemplate = {
     engineer: system(['auxPower', 'auxPower', 'distributePower']),
 };
 
-const designTemplates: Record<ShipDesign, DesignTemplate> = {
+// Enforce that values are design templates, without widening the key type to "string".
+function defineDesignTemplates<T extends Record<string, DesignTemplate>>(templates: T) {
+    return templates;
+}
+
+const designTemplates = defineDesignTemplates({
     harrier: {
         ...fighterTemplate,
         appearance: 'dart-fighter',
@@ -114,7 +116,10 @@ const designTemplates: Record<ShipDesign, DesignTemplate> = {
         tactical: { ...system(['lowYield', 'lowYield', 'photonTorpedo']), numSlots: 1 },
         fleeThreshold: 0,
     },
-};
+});
+
+/** A kind of AI ship. Each has its own appearance, so the same shape always means the same kind of ship, whichever faction it's in. */
+export type ShipDesign = keyof typeof designTemplates;
 
 /** What a ship of each design is called, unless the encounter names it. */
 const designNames: Record<ShipDesign, string> = {
@@ -137,12 +142,12 @@ export interface ShipSetupOptions {
     skill?: number;
 }
 
-/** The setup for a ship of the given design, on one of the sides that the encounter spawning it declares (see `Encounter.sides`). */
-export function createShipSetup(design: ShipDesign, side: string, position: Position, options: ShipSetupOptions = {}): AiShipSetupInfo {
+/** The setup for a ship of the given design, in one of the factions that the encounter spawning it declares (see `Encounter.factions`). */
+export function createShipSetup(design: ShipDesign, faction: string, position: Position, options: ShipSetupOptions = {}): AiShipSetupInfo {
     return {
         ...designTemplates[design],
         name: options.name ?? designNames[design],
-        faction: side,
+        faction,
         position,
         goal: options.goal ?? { type: 'search-and-destroy' },
         skill: options.skill ?? defaultSkill,

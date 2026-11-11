@@ -329,7 +329,7 @@ describe('warping away', () => {
         expect(campaign.warpAway(ships[0])).toBe(true);
 
         expect(effects).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
-            type: 'warpOut',
+            type: 'warpAway',
             sourceId: ships[0].id,
             appearance: ships[0].appearance,
             position: ships[0].getPosition(state.currentTime),
@@ -357,7 +357,7 @@ describe('warping away', () => {
     });
 });
 
-describe('encounter sides', () => {
+describe('encounter factions', () => {
     it('exist only for as long as the encounter does', () => {
         const { state, campaign, ships } = createCampaign();
         const playerRelations = state.factions.get(playerFactionId)!.relations;

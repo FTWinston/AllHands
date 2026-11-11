@@ -1,7 +1,7 @@
 import { BossAEncounter, BossBEncounter, BossCEncounter } from './bosses';
 import { AmbushEncounter, AssaultEncounter, EscortEncounter, SkirmishEncounter } from './CombatEncounter';
 import { SlowBoatEncounter } from './SlowBoatEncounter';
-import { StandingOrdersEncounter } from './StandingOrdersEncounter';
+import { StandingOrdersEncounter } from './standingOrders/StandingOrdersEncounter';
 import { StationEncounter } from './StationEncounter';
 import { defaultSurviveDurationMs, SurviveEncounter } from './SurviveEncounter';
 import { TollCollectorsEncounter } from './TollCollectorsEncounter';
@@ -68,7 +68,7 @@ const definitions: readonly EncounterDefinition[] = [
         id: 'standingOrders',
         name: 'Standing Orders',
         kind: 'combat',
-        objective: { type: 'shutDown', subject: 'Customs Platform 7' },
+        objective: { type: 'disable', subject: 'Customs Platform 7' },
         defaultEnvironment: 'deepSpace',
         request: { from: 'Dock Clerk, Tessaly Yard', subject: 'impounded cargo', text: 'The old customs platform\'s had our supply run for three weeks. I\'ve found its manual. I need someone with a deflector dish.' },
         create: (state, node) => new StandingOrdersEncounter(state, node),

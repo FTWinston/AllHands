@@ -9,10 +9,9 @@ import { useWakeLock } from 'common-ui/hooks/useWakeLock';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { FC, PropsWithChildren, useEffect, useRef } from 'react';
 import { addKnownCardTypes } from '../cardCompendium/utils/knownCardStorage';
-import { HailDisplay } from './components/HailDisplay';
+import { CommsDisplay } from './components/CommsDisplay';
 import { LowHullWarning } from './components/LowHullWarning';
 import { ObjectiveDisplay } from './components/ObjectiveDisplay';
-import { PromptDisplay } from './components/PromptDisplay';
 import { StationDisplay } from './components/StationDisplay';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import { ViewscreenPhaseDisplay } from './components/ViewscreenPhaseDisplay';
@@ -22,7 +21,6 @@ import type { Room } from '@colyseus/sdk';
 import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { HailInfo } from 'common-data/features/sectors/types/HailInfo';
 import type { EncounterOutcome, ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
-import type { PromptInfo } from 'common-data/features/sectors/types/PromptInfo';
 import type { SectorMapInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMessageInfo';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
@@ -72,7 +70,6 @@ const ViewscreenScene: FC<Props> = (props) => {
     const objective = (useRoomState(props.room, state => state.objective) ?? null) as unknown as ObjectiveInfo | null;
     const encounterOutcome = (useRoomState(props.room, state => state.encounterOutcome) ?? null) as EncounterOutcome | null;
     const hail = (useRoomState(props.room, state => state.hail) ?? null) as unknown as HailInfo | null;
-    const prompt = (useRoomState(props.room, state => state.prompt) ?? null) as unknown as PromptInfo | null;
 
     useViewscreenEffects(props.room, props.shipId, phase, isEnded ? outcome : null);
     useBridgeChatter(!isEnded && phase !== null);
@@ -87,6 +84,7 @@ const ViewscreenScene: FC<Props> = (props) => {
 
     // Whatever the crew sees this game becomes known on this device, for the card compendium.
     const seenCardTypes = (localShip as PlayerShipInfo | undefined)?.seenCardTypes;
+    const prompt = (localShip as PlayerShipInfo | undefined)?.comms?.prompt ?? null;
     useEffect(() => {
         if (seenCardTypes) {
             addKnownCardTypes(seenCardTypes);
@@ -141,7 +139,7 @@ const ViewscreenScene: FC<Props> = (props) => {
         >
             {props.children}
             {objective && <ObjectiveDisplay objective={objective} outcome={encounterOutcome} />}
-            {prompt ? <PromptDisplay prompt={prompt} /> : <HailDisplay hail={hail} />}
+            <CommsDisplay hail={hail} prompt={prompt} />
             {hull && <LowHullWarning health={hull.health} maxHealth={hull.maxHealth} />}
         </ViewscreenDisplay>
     );

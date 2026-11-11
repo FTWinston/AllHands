@@ -6,7 +6,7 @@ import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
-import { getDefaultNode } from './EncounterRegistry';
+import { getDefaultNode } from '../EncounterRegistry';
 import { canBuildSignal, getSignalCardType, type InspectionSignal } from './inspectionSignal';
 import { dronesPerWrongSignal, maxDrones, pingIntervalMs, pingRange, platformScenarioId, rekeyIntervalMs, type StandingOrdersEncounter } from './StandingOrdersEncounter';
 import type { CardType, EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
@@ -71,7 +71,7 @@ describe('StandingOrdersEncounter', () => {
     it('has a hostile platform ahead of the player ship, holding its position', () => {
         const { state, ship, platform } = createStandingOrders();
 
-        expect(state.encounter!.objective).toEqual({ type: 'shutDown', subject: 'Customs Platform 7' });
+        expect(state.encounter!.objective).toEqual({ type: 'disable', subject: 'Customs Platform 7' });
         expect(platform.name).toBe('Customs Platform 7');
         expect(state.factionRegistry.areHostile(platform, ship)).toBe(true);
         expect(platform.ai.blackboard.goal).toBe('defend-position');
