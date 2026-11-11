@@ -28,6 +28,7 @@ export const ScanHelmSystem = (props: Props) => {
         <ScanBase
             system="helm"
             power={props.power}
+            hand={props.hand}
             vulnerability={props.vulnerability}
             targetName={props.name}
             targetId={props.targetId}

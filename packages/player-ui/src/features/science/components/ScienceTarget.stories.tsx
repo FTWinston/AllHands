@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { fn } from 'storybook/test';
 import { ScienceTarget as Component } from './ScienceTarget';
@@ -54,6 +55,7 @@ export const Helm_NoManeuver: Story = {
         scannedHelm: {
             targetId: 'Enemy-01',
             power: 3,
+            hand: null,
             activeManeuver: null,
             maneuverProgress: null,
             evasionChance: 0,
@@ -67,6 +69,7 @@ export const Helm_HasManeuver: Story = {
         scannedHelm: {
             targetId: 'Enemy-01',
             power: 3,
+            hand: null,
             activeManeuver: {
                 id: 42,
                 type: 'slowAndSteady',
@@ -83,6 +86,7 @@ export const Helm_LongManeuverName: Story = {
         scannedHelm: {
             targetId: 'Enemy-01',
             power: 3,
+            hand: null,
             activeManeuver: {
                 id: 42,
                 type: 'exampleNoTarget',
@@ -99,6 +103,7 @@ export const Engineer: Story = {
         scannedEngineer: {
             targetId: 'Enemy-01',
             power: 3,
+            hand: null,
             engineerTiles: [
                 { system: 'hull', power: 1, health: 5 },
                 { system: 'reactor', power: 2, health: 4 },
@@ -117,6 +122,7 @@ export const Tactical_NoWeapons: Story = {
         scannedTactical: {
             targetId: 'Enemy-01',
             power: 3,
+            hand: null,
             weaponSlots: [
                 { id: 'slot-1', card: null, charge: 0, modifierCard: null },
                 { id: 'slot-2', card: null, charge: 0, modifierCard: null },
@@ -131,6 +137,7 @@ export const Tactical_OneWeapon: Story = {
         scannedTactical: {
             targetId: 'Enemy-01',
             power: 3,
+            hand: null,
             weaponSlots: [
                 { id: 'slot-1', card: { id: 3, type: 'phaserStrip' }, charge: 2, modifierCard: null },
                 { id: 'slot-2', card: null, charge: 0, modifierCard: null },
@@ -145,6 +152,7 @@ export const Tactical_TwoWeapons: Story = {
         scannedTactical: {
             targetId: 'Enemy-01',
             power: 3,
+            hand: null,
             weaponSlots: [
                 { id: 'slot-1', card: { id: 3, type: 'phaserStrip' }, charge: 2, modifierCard: 'overcharge' },
                 { id: 'slot-2', card: { id: 4, type: 'photonTorpedo' }, charge: 1, modifierCard: null },
@@ -159,6 +167,7 @@ export const Science_Empty: Story = {
         scannedScience: {
             targetId: 'Enemy-01',
             power: 3,
+            hand: null,
             scanSystem: null,
             deflectorCard: null,
         },
@@ -171,6 +180,7 @@ export const Science_DeflectorCard: Story = {
         scannedScience: {
             targetId: 'Enemy-01',
             power: 3,
+            hand: null,
             scanSystem: null,
             deflectorCard: {
                 id: 7,
@@ -186,6 +196,7 @@ export const Science_ScanTarget: Story = {
         scannedScience: {
             targetId: 'Enemy-01',
             power: 3,
+            hand: null,
             deflectorCard: null,
             scanSystem: 'helm',
         },
@@ -198,6 +209,7 @@ export const Science_Both: Story = {
         scannedScience: {
             targetId: 'Enemy-01',
             power: 3,
+            hand: null,
             deflectorCard: {
                 id: 7,
                 type: 'deflectorCoherentAntiprotonPulse',
@@ -213,9 +225,64 @@ export const Science_Vulnerability: Story = {
         scannedScience: {
             targetId: 'Enemy-01',
             power: 3,
+            hand: null,
             scanSystem: null,
             deflectorCard: null,
         },
         identifiedVulnerability: 'exampleEnemyTarget',
+    },
+};
+
+export const Helm_HandRead: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        scannedHelm: {
+            ...Helm_HasManeuver.args!.scannedHelm!,
+            hand: [
+                { id: 51, type: 'strafe' },
+                { id: 52, type: 'zigZag' },
+                { id: 53, type: 'slowAndSteady' },
+            ],
+        },
+    },
+};
+
+export const Helm_HandReadEmpty: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        scannedHelm: {
+            ...Helm_HasManeuver.args!.scannedHelm!,
+            hand: [],
+        },
+    },
+};
+
+/** The most a scan of one system can show: two weapons, a full hand with a damaged card, and a vulnerability. */
+export const Tactical_HandAndVulnerability: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        scannedTactical: {
+            ...Tactical_TwoWeapons.args!.scannedTactical!,
+            hand: [
+                { id: 61, type: 'photonTorpedo' },
+                { id: 62, type: 'phaserStrip', extraTraits: { damaged: ExtraTraitType.Normal } },
+                { id: 63, type: 'weaponOvercharge' },
+                { id: 64, type: 'fullSpread' },
+                { id: 65, type: 'lowYield' },
+            ],
+        },
+        identifiedVulnerability: 'exampleEnemyTarget',
+    },
+};
+
+export const Engineer_HandRead: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        scannedEngineer: {
+            ...Engineer.args!.scannedEngineer!,
+            hand: [
+                { id: 71, type: 'auxPower' },
+            ],
+        },
     },
 };

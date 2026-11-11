@@ -60,6 +60,7 @@ export const ScanEngineerSystem = (props: Props) => {
             contentClassName={styles.root}
             system="engineer"
             power={props.power}
+            hand={props.hand}
             vulnerability={props.vulnerability}
             targetName={props.name}
             targetId={props.targetId}

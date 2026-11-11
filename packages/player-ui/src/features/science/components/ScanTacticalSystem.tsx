@@ -59,6 +59,7 @@ export const ScanTacticalSystem = (props: Props) => {
         <ScanBase
             system="tactical"
             power={props.power}
+            hand={props.hand}
             vulnerability={props.vulnerability}
             targetName={props.name}
             targetId={props.targetId}

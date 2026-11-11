@@ -69,6 +69,7 @@ export const UI: Story = {
         scannedHelm: {
             targetId: 'target1',
             power: 4,
+            hand: null,
             activeManeuver: null,
             maneuverProgress: null,
             evasionChance: 0,

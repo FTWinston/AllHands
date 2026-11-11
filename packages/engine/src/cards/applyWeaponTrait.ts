@@ -50,6 +50,9 @@ const traitBehaviors: Record<WeaponTrait, (ship: Ship, targetSystem: SystemState
             }
         }
 
+        // A scan that has read the hand shows its cards are now unstable.
+        targetSystem.scienceScanDataChanged.invoke();
+
         for (const card of targetSystem.deck) {
             if (numFromDeck <= 0) {
                 break;

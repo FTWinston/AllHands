@@ -85,6 +85,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         this._ship.markCardTypesSeen([card.type]);
         this.cardAddedToHand.triggerListeners(card);
+        this.handChanged();
     }
 
     /**
@@ -139,19 +140,26 @@ export abstract class SystemState extends Schema implements SystemInfo {
     discard(number = 1) {
         const random = this.getShip().random;
 
+        let discarded = false;
+
         for (let i = 0; i < number; i++) {
             // Campaign cards (e.g. Warp Away) are never discarded at random.
             const candidates = this.hand.filter(card => !card.hasTrait('priority'));
             if (candidates.length === 0) {
-                return;
+                break;
             }
 
             const card = random.pick(candidates);
             this.hand.splice(this.hand.indexOf(card), 1);
+            discarded = true;
 
             if (!card.hasTrait('expendable')) {
                 this.deck.push(card);
             }
+        }
+
+        if (discarded) {
+            this.handChanged();
         }
     }
 
@@ -172,6 +180,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
             this.deck.push(card);
         }
 
+        this.handChanged();
         return true;
     }
 
@@ -203,6 +212,9 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
     /** Called as each of this system's cards is damaged, before its health is updated. */
     protected cardDamaged(_card: CardState) { }
+
+    /** Called after cards join or leave the hand, or the cards in it change, e.g. their cost. */
+    protected handChanged() { }
 
     /**
      * Link this system to an EngineerSystemTile so that power, health,
@@ -430,6 +442,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         // And clear the hand, so that it can be repopulated.
         this.hand.clear();
+        this.handChanged();
 
         for (const card of this.cardPool) {
             card.modifiers.clear();
@@ -646,6 +659,13 @@ export abstract class SystemState extends Schema implements SystemInfo {
                     return null;
                 }
                 played = this.playScanCardIdentify(cardDefinition, targetIdParts[1], system, parameters);
+            } else if (targetIdParts[0] === 'hand') {
+                const system = targetIdParts[2];
+                if (targetIdParts.length < 3 || !isCrewSystem(system)) {
+                    console.error('unhandled scan card hand target:' + targetId);
+                    return null;
+                }
+                played = this.playScanCardReadHand(targetIdParts[1], system);
             } else if (targetIdParts[0] === 'deflector') {
                 if (targetIdParts.length < 2) {
                     console.error('unhandled scan card deflector target:' + targetId);
@@ -698,6 +718,11 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }
 
     protected playScanCardIdentify(_cardDefinition: EngineScanTargetCardDefinition, _targetId: string, _system: CrewRoleName, _parameters: CardParameters): boolean {
+        console.warn('non-science system trying to play scan card');
+        return false;
+    }
+
+    protected playScanCardReadHand(_targetId: string, _system: CrewRoleName): boolean {
         console.warn('non-science system trying to play scan card');
         return false;
     }
@@ -783,10 +808,12 @@ export abstract class SystemState extends Schema implements SystemInfo {
         if (removeFromHand) {
             if (cardIndex !== -1) {
                 this.hand.splice(cardIndex, 1);
+                this.handChanged();
             }
         } else if (cardIndex === -1) {
             // Don't remove it from the hand ... but it's not already there. Probably it's in a slot. Add it back into the hand!
             this.hand.push(card);
+            this.handChanged();
         }
 
         if (addToDeck) {
@@ -885,5 +912,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
         for (const card of this.deck) {
             card.modifyParameter('cost', amount);
         }
+
+        this.handChanged();
     }
 }

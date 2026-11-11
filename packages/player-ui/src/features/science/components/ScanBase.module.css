@@ -1,4 +1,5 @@
 .root {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 0.625em;
@@ -94,15 +95,17 @@
     height: 1.125em;
 }
 
+/* Scrolls if a read hand and a vulnerability leave too little room for the whole readout. */
 .content {
     flex-grow: 1;
     min-height: 0;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
 }
 
-/* A new scan result prints on a row at a time, as if from the ship's computer, then any vulnerability it found. */
-.content > *, .vulnerability {
+/* A new scan result prints on a row at a time, as if from the ship's computer, then any vulnerability it found. A hand prints on once it's read. */
+.content > *, .hand, .vulnerability {
     /* Hidden while waiting its turn, but not clipped once printed, so focus rings still show. */
     animation: print-on 0.4s steps(16) backwards;
 }
@@ -129,7 +132,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .content > *, .vulnerability {
+    .content > *, .hand, .vulnerability {
         animation: none;
     }
 }
@@ -174,4 +177,72 @@
     font-weight: 700;
     text-transform: lowercase;
     color: var(--text);
+}
+
+/* Halves to drop a scan card on, shown over the readout only while dragging one. Once the hand is read, finding a vulnerability takes the whole space. */
+.secondScans {
+    position: absolute;
+    inset: 0.5em;
+    display: flex;
+    gap: 0.5em;
+    pointer-events: none;
+
+    /* Hide the readout between the halves while they show. */
+    &:has(.secondScanCouldDrop, .secondScanDropping) {
+        background-color: var(--panel);
+    }
+}
+
+.secondScan {
+    flex: 1 1 0;
+    min-width: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.375em;
+    padding: 0.5em;
+    pointer-events: auto;
+    border: 0.125em dashed color-mix(in oklch, var(--primary-light) 60%, transparent);
+    border-radius: 0 1em 0 1em;
+    corner-shape: bevel;
+    background-color: color-mix(in oklch, var(--primary-darkest) 85%, var(--panel));
+    color: var(--text);
+    text-align: center;
+}
+
+.secondScanCouldDrop {
+    display: flex;
+}
+
+.secondScanDropping {
+    display: flex;
+    z-index: 1;
+    border-style: solid;
+    border-color: var(--text);
+    background: var(--primary-darkest);
+    box-shadow: 0 0 0 0.25em color-mix(in oklch, var(--primary-light) 25%, transparent);
+}
+
+.secondScanIcon {
+    width: 2.125em;
+    height: 2.125em;
+    color: var(--primary-light);
+}
+
+.secondScanName, .secondScanHint {
+    max-width: 100%;
+}
+
+.secondScanName {
+    font-size: 0.9375em;
+    font-weight: 700;
+}
+
+.secondScanHint {
+    font-size: 0.75em;
+    letter-spacing: 0.14em;
+    font-family: var(--readout-font-family);
+    text-transform: uppercase;
+    color: var(--label);
 }

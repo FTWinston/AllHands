@@ -125,6 +125,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         }
 
         this.hand.splice(index, 1);
+        this.handChanged();
         return true;
     }
 
@@ -203,6 +204,16 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         super.adjustPowerLevel(adjustment);
 
         // Scans show each system's power.
+        this.scienceScanDataChanged.invoke();
+    }
+
+    protected override handChanged() {
+        // A scan that has read this system's hand shows the cards in it.
+        this.scienceScanDataChanged.invoke();
+    }
+
+    protected override healthChanged() {
+        // Damaging or repairing cards changes those in the hand, which a scan that has read it shows.
         this.scienceScanDataChanged.invoke();
     }
 

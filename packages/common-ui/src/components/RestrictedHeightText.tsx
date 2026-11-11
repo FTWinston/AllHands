@@ -4,6 +4,8 @@ import styles from './RestrictedHeightText.module.css';
 type Props<T extends ElementType> = {
     as?: T;
     className?: string;
+    /** Also shrink until no word is wider than the container, e.g. a long word in a narrow space. */
+    fitWidth?: boolean;
     children: ReactNode;
 } & Omit<ComponentPropsWithoutRef<T>, 'as' | 'className' | 'children'>;
 
@@ -23,7 +25,7 @@ type Props<T extends ElementType> = {
  * The binary search runs inside useLayoutEffect — synchronously before the browser
  * paints — so there is no visible intermediate state.
  */
-export const RestrictedHeightText = <T extends ElementType = 'div'>({ as, className, children }: Props<T>) => {
+export const RestrictedHeightText = <T extends ElementType = 'div'>({ as, className, fitWidth, children }: Props<T>) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const innerRef = useRef<HTMLDivElement>(null);
 
@@ -33,13 +35,15 @@ export const RestrictedHeightText = <T extends ElementType = 'div'>({ as, classN
         if (!container || !inner) return;
 
         const containerHeight = container.clientHeight;
+        const containerWidth = container.clientWidth;
+        const fits = () => inner.scrollHeight <= containerHeight && (!fitWidth || inner.scrollWidth <= containerWidth);
 
         // Reset to full size before measuring — a stale, previously-computed
         // shrunk font-size could still be applied from an earlier run, which
         // would make the content appear to fit when it wouldn't at full size.
         inner.style.fontSize = '';
 
-        if (inner.scrollHeight <= containerHeight) {
+        if (fits()) {
             return;
         }
 
@@ -47,14 +51,14 @@ export const RestrictedHeightText = <T extends ElementType = 'div'>({ as, classN
         for (let i = 0; i < 10; i++) {
             const mid = (lo + hi) / 2;
             inner.style.fontSize = `${mid}em`;
-            if (inner.scrollHeight <= containerHeight) {
+            if (fits()) {
                 lo = mid;
             } else {
                 hi = mid;
             }
         }
         inner.style.fontSize = `${lo}em`;
-    }, [children]);
+    }, [children, fitWidth]);
 
     const OuterElement = (as ?? 'div') as ElementType;
 

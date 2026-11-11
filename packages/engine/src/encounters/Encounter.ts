@@ -334,10 +334,7 @@ export abstract class Encounter {
             this.keptCards.delete(card);
             card.removeTrait('primary');
 
-            const index = system.hand.indexOf(card);
-            if (index !== -1) {
-                system.hand.splice(index, 1);
-            }
+            system.removeCard(card.id);
         }
     }
 }

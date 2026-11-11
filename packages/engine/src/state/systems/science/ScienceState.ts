@@ -18,6 +18,7 @@ import { SectorDestinationState } from 'src/state/SectorDestinationState';
 import { Ship } from 'src/state/Ship';
 import { CrewSystemState } from '../CrewSystemState';
 import { HullSystemTile } from '../engineer/HullSystemTile';
+import { mirrorCards } from '../engineer/mirrorCards';
 import { ScannedEngineerState } from './ScannedEngineerState';
 import { ScannedEngineerTileState } from './ScannedEngineerTileState';
 import { ScannedHelmState } from './ScannedHelmState';
@@ -26,6 +27,8 @@ import { ScannedScienceState } from './ScannedScienceState';
 import { ScannedSystemOrderState } from './ScannedSystemOrderState';
 import { ScannedTacticalState } from './ScannedTacticalState';
 import { ScannedWeaponSlotState } from './ScannedWeaponSlotState';
+
+type ScannedSystemState = ScannedHelmState | ScannedTacticalState | ScannedScienceState | ScannedEngineerState;
 
 export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, initialPowerLevel: number, getCardId: () => number) {
@@ -234,6 +237,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
                 for (const tile of this.scannedShip.engineerState.systems) {
                     tile.scienceScanDataChanged.removeListener(thisShipId);
                 }
+                this.scannedShip.engineerState.scienceScanDataChanged.removeListener(thisShipId);
             }
         }
     }
@@ -300,6 +304,8 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         for (const tile of source.systems) {
             tile.scienceScanDataChanged.addListener(myId, callback);
         }
+        // The tiles have every system's power and health, but the engineer's own hand changes on the engineer system itself.
+        source.scienceScanDataChanged.addListener(myId, callback);
         this.scannedEngineer = state;
     }
 
@@ -342,8 +348,16 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         state.shieldTuning = shieldTuningEffects.find(tuning => source.hasEffect(tuning)) ?? null;
     }
 
+    /** Once science has read a scanned system's hand, it sees each card as it's drawn or played. */
+    private copyHand(state: ScannedSystemState, source: CrewSystemState): void {
+        if (state.hand) {
+            mirrorCards(source.hand, state.hand);
+        }
+    }
+
     private copyHelmData(state: ScannedHelmState, source: Ship['helmState']): void {
         state.power = source.powerLevel;
+        this.copyHand(state, source);
         state.activeManeuver = source.activeManeuver?.card?.cloneCard() ?? null;
         state.maneuverProgress = source.activeManeuver
             ? new CooldownState(source.activeManeuver.startTime, source.activeManeuver.endTime)
@@ -353,6 +367,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
 
     private copyTacticalData(state: ScannedTacticalState, source: Ship['tacticalState']): void {
         state.power = source.powerLevel;
+        this.copyHand(state, source);
 
         // Make the slots be the same length.
         while (state.weaponSlots.length < source.slots.length) {
@@ -378,11 +393,13 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
 
     private copyScienceData(state: ScannedScienceState, source: Ship['scienceState']): void {
         state.power = source.powerLevel;
+        this.copyHand(state, source);
         state.deflectorCard = source.deflectorCard.cloneCard() ?? null;
     }
 
     private copyEngineerData(state: ScannedEngineerState, source: Ship['engineerState']): void {
         state.power = source.powerLevel;
+        this.copyHand(state, source);
 
         // Make the tiles be the same length.
         while (state.engineerTiles.length < source.systems.length) {
@@ -553,6 +570,50 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         return true;
     }
 
+    override playScanCardReadHand(targetId: string, system: CrewRoleName): boolean {
+        const target = this.resolveTarget(targetId);
+        if (!target || !(target instanceof Ship)) {
+            console.warn('invalid scan hand target: ' + targetId);
+            return false;
+        }
+
+        if (!this.readHand(target, system)) {
+            console.log('cannot read hand of ' + system);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Read the hand of a system that science is scanning, so it can see the cards that system will play next.
+     * It's only seen while science goes on scanning that system. Returns false if science isn't scanning it, or has already read its hand.
+     */
+    readHand(target: Ship, system: CrewRoleName): boolean {
+        const scanned = this.getScannedSystem(system);
+        if (!scanned || scanned.targetId !== target.id || scanned.hand) {
+            return false;
+        }
+
+        scanned.hand = new ArraySchema<CardState>();
+        this.copyHand(scanned, target.getCrewSystem(system));
+        return true;
+    }
+
+    /** The scan of one of the scanned ship's systems, or null if science isn't scanning that system. */
+    private getScannedSystem(system: CrewRoleName): ScannedSystemState | null {
+        switch (system) {
+            case 'helm':
+                return this.scannedHelm;
+            case 'tactical':
+                return this.scannedTactical;
+            case 'science':
+                return this.scannedScience;
+            case 'engineer':
+                return this.scannedEngineer;
+        }
+    }
+
     findVulnerability(_target: Ship, _targetSystem: ShipSystem) {
         // TODO: actually identify a vulnerability on the target system, indicate what exposing it will do
         this.identifiedVulnerability = 'deflectorPhasedGravitonBurst';
@@ -592,6 +653,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             // Return the displaced card to the hand.
             this.markCardUnslotted(previousCard);
             this.hand.push(previousCard);
+            this.handChanged();
         }
 
         this[slot] = card;

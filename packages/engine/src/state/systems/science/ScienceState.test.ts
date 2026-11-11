@@ -1,3 +1,4 @@
+import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { AiShip } from 'src/state/AiShip';
@@ -26,6 +27,9 @@ function createWorld() {
     const targetSetup = shipSetup('player', 5, 0);
     // Shield capacity comes only from hull cards: 5 emitters give 75.
     targetSetup.hull = { ...targetSetup.hull, cards: Array(5).fill('hullShieldEmitter') };
+    // The target's helm holds its first two cards, with two more to draw. Its engineer holds one.
+    targetSetup.helm = { ...targetSetup.helm, cards: ['exampleNoTarget', 'slowAndSteady', 'zigZag', 'strafe'], initialHandSize: 2 };
+    targetSetup.engineer = { ...targetSetup.engineer, cards: ['exampleNoTarget', 'exampleNoTarget'], initialHandSize: 1 };
     const target = new AiShip(state, { ...targetSetup, goal: { type: 'search-and-destroy' }, skill: 1 });
     state.add(target);
     // AI ships start with full shields: empty them, so tests can set them.
@@ -204,5 +208,210 @@ describe('ScienceState scanned systems', () => {
         target.helmState.setActiveManeuver(new CardCooldownState(new CardState(998, 'slowAndSteady'), 100, 600, 1));
 
         expect(scanner.scienceState.scannedHelm!.maneuverProgress).toMatchObject({ startTime: 100, endTime: 600 });
+    });
+});
+
+describe('ScienceState reading a hand', () => {
+    function scan(scanner: AiShip, target: AiShip, scannedSystemIndex: number) {
+        const card = scanner.scienceState.hand[0];
+        return scanner.scienceState.playCard(card.id, card.type, 'scan', `target/${target.id}/${scannedSystemIndex}`);
+    }
+
+    function readHand(scanner: AiShip, target: AiShip, system: CrewRoleName) {
+        const card = scanner.scienceState.hand[0];
+        return scanner.scienceState.playCard(card.id, card.type, 'scan', `hand/${target.id}/${system}`);
+    }
+
+    function cardTypes(cards: Iterable<CardState> | null | undefined) {
+        return cards ? [...cards].map(card => card.type) : null;
+    }
+
+    it('doesn\'t show a scanned system\'s hand until it\'s read', () => {
+        const { scanner, target } = createWorld();
+
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+
+        expect(scanner.scienceState.scannedHelm!.hand).toBeNull();
+    });
+
+    it('shows the cards in a scanned system\'s hand once it\'s read, using up the scan card', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        const card = scanner.scienceState.hand[0];
+
+        const played = readHand(scanner, target, 'helm');
+
+        expect(played).not.toBeNull();
+        expect(cardTypes(scanner.scienceState.scannedHelm!.hand)).toEqual(['exampleNoTarget', 'slowAndSteady']);
+        expect(scanner.scienceState.hand).not.toContain(card);
+        expect(scanner.scienceState.deck).toContain(card);
+    });
+
+    it('shows the hand as read but empty when the system holds no cards', () => {
+        const { scanner, target } = createWorld();
+        target.helmState.discard(2);
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+
+        readHand(scanner, target, 'helm');
+
+        expect(scanner.scienceState.scannedHelm!.hand).not.toBeNull();
+        expect(scanner.scienceState.scannedHelm!.hand).toHaveLength(0);
+    });
+
+    it('shows copies of the cards, with their traits', () => {
+        const { scanner, target } = createWorld();
+        target.helmState.adjustHealth(-target.helmState.maxHealth);
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+
+        readHand(scanner, target, 'helm');
+
+        const shown = scanner.scienceState.scannedHelm!.hand![0];
+        expect(shown).not.toBe(target.helmState.hand[0]);
+        expect(shown.id).toBe(target.helmState.hand[0].id);
+        expect(shown.isDamaged).toBe(true);
+    });
+
+    it('keeps the hand up to date as the target draws and plays cards', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        readHand(scanner, target, 'helm');
+        const shown = scanner.scienceState.scannedHelm!;
+
+        target.helmState.drawFromTop();
+        expect(cardTypes(shown.hand)).toEqual(['exampleNoTarget', 'slowAndSteady', 'zigZag']);
+
+        target.helmState.adjustPowerLevel(5);
+        const played = target.helmState.playCard(target.helmState.hand[0].id, 'exampleNoTarget', 'no-target', '');
+        expect(played).not.toBeNull();
+        expect(cardTypes(shown.hand)).toEqual(['slowAndSteady', 'zigZag']);
+
+        target.helmState.discard(2);
+        expect(shown.hand).toHaveLength(0);
+    });
+
+    it('shows when cards in the hand are damaged', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        readHand(scanner, target, 'helm');
+
+        target.helmState.adjustHealth(-target.helmState.maxHealth);
+
+        expect([...scanner.scienceState.scannedHelm!.hand!].every(card => card.isDamaged)).toBe(true);
+    });
+
+    it('keeps an engineer\'s hand up to date', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.engineerState.scannedSystemIndex);
+        readHand(scanner, target, 'engineer');
+        expect(scanner.scienceState.scannedEngineer!.hand).toHaveLength(1);
+
+        target.engineerState.drawFromTop();
+
+        expect(scanner.scienceState.scannedEngineer!.hand).toHaveLength(2);
+    });
+
+    it('stops showing the hand when science scans another system, and has to read it again on coming back', () => {
+        const { scanner, target } = createWorld();
+        scanner.scienceState.drawFromTop(2);
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        readHand(scanner, target, 'helm');
+
+        scan(scanner, target, target.tacticalState.scannedSystemIndex);
+        expect(scanner.scienceState.scannedHelm).toBeNull();
+        expect(scanner.scienceState.scannedTactical!.hand).toBeNull();
+
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        expect(scanner.scienceState.scannedHelm!.hand).toBeNull();
+    });
+
+    it('stops showing the hand when science scans another ship', () => {
+        const { state, scanner, target } = createWorld();
+        const other = new AiShip(state, { ...shipSetup('player', 0, 5), goal: { type: 'search-and-destroy' }, skill: 1 });
+        state.add(other);
+        scanner.updateKnownObjects(0);
+        scanner.scienceState.drawFromTop();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        readHand(scanner, target, 'helm');
+
+        scan(scanner, other, other.helmState.scannedSystemIndex);
+
+        expect(scanner.scienceState.scannedHelm!.targetId).toBe(other.id);
+        expect(scanner.scienceState.scannedHelm!.hand).toBeNull();
+        // Science no longer follows the first target's hand.
+        target.helmState.drawFromTop();
+        expect(scanner.scienceState.scannedHelm!.hand).toBeNull();
+    });
+
+    it('stops showing the hand when the scan is closed, or the target is lost', () => {
+        const { scanner, target } = createWorld();
+        scanner.scienceState.drawFromTop(2);
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        readHand(scanner, target, 'helm');
+
+        scanner.scienceState.closeScan();
+        expect(scanner.scienceState.scannedHelm).toBeNull();
+
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        expect(scanner.scienceState.scannedHelm!.hand).toBeNull();
+        readHand(scanner, target, 'helm');
+        scanner.scienceState.unsubscribeFromShip(target.id);
+        expect(scanner.scienceState.scannedHelm).toBeNull();
+    });
+
+    it('can\'t read the hand of a system that isn\'t being scanned, leaving the card in hand', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        const card = scanner.scienceState.hand[0];
+
+        expect(readHand(scanner, target, 'tactical')).toBeNull();
+
+        expect(scanner.scienceState.hand).toContain(card);
+        expect(scanner.scienceState.scannedTactical).toBeNull();
+        expect(scanner.scienceState.scannedHelm!.hand).toBeNull();
+    });
+
+    it('can\'t read a hand before any of the ship\'s systems are scanned', () => {
+        const { scanner, target } = createWorld();
+
+        expect(readHand(scanner, target, 'helm')).toBeNull();
+        expect(scanner.scienceState.hand).toHaveLength(2);
+    });
+
+    it('doesn\'t use up a second card reading a hand that\'s already read', () => {
+        const { scanner, target } = createWorld();
+        scanner.scienceState.drawFromTop();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        readHand(scanner, target, 'helm');
+        const card = scanner.scienceState.hand[0];
+
+        expect(readHand(scanner, target, 'helm')).toBeNull();
+        expect(scanner.scienceState.hand).toContain(card);
+    });
+
+    it('still finds a vulnerability on a scanned system, without reading its hand', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        const card = scanner.scienceState.hand[0];
+
+        const played = scanner.scienceState.playCard(card.id, card.type, 'scan', `vuln/${target.id}/helm`);
+
+        expect(played).not.toBeNull();
+        expect(scanner.scienceState.identifiedVulnerability).not.toBeNull();
+        expect(scanner.scienceState.scannedHelm!.hand).toBeNull();
+    });
+
+    it('has no side effect, whichever scan card reads the hand', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        // An inverted chroniton scan draws science's whole hand from the bottom of the deck when it finds a vulnerability.
+        const card = new CardState(997, 'invertedChronitonScan');
+        scanner.scienceState.addCardToHand(card);
+        const handBefore = scanner.scienceState.hand.length;
+
+        scanner.scienceState.playCard(card.id, card.type, 'scan', `hand/${target.id}/helm`);
+
+        expect(scanner.scienceState.scannedHelm!.hand).not.toBeNull();
+        expect(scanner.scienceState.hand).toHaveLength(handBefore - 1);
+        expect(scanner.scienceState.identifiedVulnerability).toBeNull();
     });
 });

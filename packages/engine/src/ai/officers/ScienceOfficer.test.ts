@@ -56,6 +56,23 @@ describe('ScienceOfficer', () => {
         expect(playSpy).toHaveBeenCalledWith(expect.any(Number), 'passiveScan', 'enemy', `target/${enemy.id}/1`);
     });
 
+    it('carries on scanning unidentified slots while reading a hand, and never reads one itself', () => {
+        const { ship, enemy, officer, bb } = createWorld();
+        officer.think(bb, 0); // identifies slot 0
+        const scanned = enemy.helmState.scannedSystemIndex === 0 ? 'helm'
+            : enemy.scienceState.scannedSystemIndex === 0 ? 'science'
+                : enemy.tacticalState.scannedSystemIndex === 0 ? 'tactical'
+                    : 'engineer';
+        const card = ship.scienceState.hand[0];
+        expect(ship.scienceState.playCard(card.id, card.type, 'scan', `hand/${enemy.id}/${scanned}`)).not.toBeNull();
+
+        const playSpy = vi.spyOn(ship.scienceState, 'playCard');
+        officer.think(bb, 1000);
+
+        expect(playSpy).toHaveBeenCalledWith(expect.any(Number), 'passiveScan', 'enemy', `target/${enemy.id}/1`);
+        expect(playSpy).not.toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.anything(), expect.stringMatching(/^hand\//));
+    });
+
     it('does not waste scans without a target', () => {
         const { ship, officer, bb } = createWorld();
         bb.targetId = null;

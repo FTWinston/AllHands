@@ -76,13 +76,15 @@ function getHumIntensity(powerLevel: number): HumIntensity {
     return 0;
 }
 
-/** How many of the scanned ship's systems are being watched, plus whether a vulnerability has been identified. */
+/** How many of the scanned ship's systems are being watched, plus whether a vulnerability has been identified, and whether the watched system's hand has been read. */
 function countScans(science: Snapshot<ScienceSystemInfo> | undefined) {
     if (!science) {
         return 0;
     }
 
-    return [science.scannedHelm, science.scannedTactical, science.scannedScience, science.scannedEngineer, science.identifiedVulnerability]
+    const scannedSystems = [science.scannedHelm, science.scannedTactical, science.scannedScience, science.scannedEngineer];
+
+    return [...scannedSystems, ...scannedSystems.map(scan => scan?.hand), science.identifiedVulnerability]
         .filter(scan => scan)
         .length;
 }

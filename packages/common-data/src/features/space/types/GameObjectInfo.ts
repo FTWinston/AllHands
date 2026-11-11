@@ -132,6 +132,11 @@ export interface ScannedBaseInfo {
     targetId: string;
     /** The scanned system's current power level. */
     power: number;
+    /**
+     * The cards in the scanned system's hand, once science has read it (with a scan card dropped on a revealed system), kept up to date as they're drawn and played.
+     * Null while the hand hasn't been read: reading it lasts only as long as science goes on scanning this system.
+     */
+    hand: IArray<CardInstance> | null;
 }
 
 export interface ScannedHelmInfo extends ScannedBaseInfo {
