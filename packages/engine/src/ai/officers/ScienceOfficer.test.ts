@@ -73,6 +73,20 @@ describe('ScienceOfficer', () => {
         expect(playSpy).not.toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.anything(), expect.stringMatching(/^hand\//));
     });
 
+    it('plays any scan card it holds, with whatever that card does when it reveals a system', () => {
+        const { ship, enemy, officer, bb } = createWorld();
+        const science = ship.scienceState;
+        science.discard(science.hand.length);
+        science.addCard('antiprotonScan');
+        Object.assign(science, { powerLevel: 5 });
+
+        officer.think(bb, 0);
+
+        expect(science.hand.some(card => card.type === 'antiprotonScan')).toBe(false);
+        expect(science.systemOrderByTarget.get(enemy.id)?.order.some(system => system !== 0)).toBe(true);
+        expect([...enemy.engineerState.systems].some(tile => tile.hasEffect('antiprotonResidue'))).toBe(true);
+    });
+
     it('does not waste scans without a target', () => {
         const { ship, officer, bb } = createWorld();
         bb.targetId = null;
