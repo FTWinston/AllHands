@@ -19,6 +19,4 @@ export type SystemEffectInstance = {
     type: SystemEffectType;
     progress: Cooldown | null;
     level?: number;
-    /** Set when this effect's max level varies by ship, rather than being fixed by its definition. */
-    maxLevel?: number;
 };

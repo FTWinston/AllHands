@@ -188,7 +188,7 @@ export const UI: Story = {
                 ],
             },
         ],
-        scannedHull: { targetId: 'target1', health: 9, maxHealth: 14, shield: 70, maxShield: 80, shieldTuning: ['energy'] },
+        scannedHull: { targetId: 'target1', health: 9, maxHealth: 14, shield: 70, maxShield: 80, shieldTuning: 'shieldTunedEnergy' },
         subTargetsByTarget: {
             target2: { subTargets: [] },
             target3: { subTargets: [{ id: 'helm', system: 'helm', aspect: Math.PI }] },

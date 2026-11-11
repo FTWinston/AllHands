@@ -89,7 +89,7 @@ export const Hull: Story = {
         deck: [
             ...createCards(['hullShieldEmitter', 'hullShieldTuningEnergy'], 1),
             { id: 3, type: 'hullShieldEmitter', extraTraits: { damaged: ExtraTraitType.Normal } },
-            ...createCards(['hullVolatileEmitter', 'hullPlating', 'hullShieldTuningTorpedo'], 4),
+            ...createCards(['hullVolatileEmitter', 'hullBare', 'hullShieldTuningTorpedo'], 4),
         ],
     },
     play: async ({ canvasElement }) => {

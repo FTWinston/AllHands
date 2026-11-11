@@ -1,15 +1,13 @@
 import { IArray } from '@colyseus/react';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'common-data/features/ships/types/SystemEffectDefinition';
-import { getShieldAbsorption, getShieldDrainPercent } from 'common-data/features/ships/utils/shieldStats';
+import { getShieldAbsorption, getShieldDrainPercent, shieldCollapsePercent } from 'common-data/features/ships/utils/shieldStats';
 import { HullSystemTileInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Button } from 'common-ui/components/Button';
-import { EffectLevelContext } from 'common-ui/components/EffectLevelContext';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
 import { default as HealthIcon } from 'common-ui/icons/health.svg?react';
 import { ShieldsIcon, SystemIcon } from 'common-ui/icons/systems';
 import { classNames } from 'common-ui/utils/classNames';
-import { getSystemEffectDefinition } from 'common-ui/utils/getUiSystemEffectDefinition.js';
 import { PropsWithChildren } from 'react';
 import { default as PowerIcon } from '../../header/assets/power.svg?react';
 import { default as CardDrawIcon } from '../assets/card-draw.svg?react';
@@ -26,8 +24,8 @@ export type SystemInfo = {
     effects?: IArray<SystemEffectInstance>;
 };
 
-/** The hull's tile, which also has the hull's shield capacity (see `isHullSystemTile`). */
-export type HullSystemInfo = SystemInfo & Pick<HullSystemTileInfo, 'system' | 'maxShield'>;
+/** The hull's tile, which also has the hull's shields (see `isHullSystemTile`). */
+export type HullSystemInfo = SystemInfo & Pick<HullSystemTileInfo, 'system' | 'shield' | 'maxShield'>;
 
 export type TileShieldInfo = {
     level: number;
@@ -35,7 +33,7 @@ export type TileShieldInfo = {
 };
 
 type Props = SystemInfo & {
-    /** The hull's shields, shown along the tile's border and with its name or stats, instead of as an effect. */
+    /** The hull's shields, shown along the tile's border, and with its name or stats. */
     shield?: TileShieldInfo;
     /** Opens a view of all of this system's cards. */
     onViewCards: () => void;
@@ -49,30 +47,25 @@ type ShieldReadoutProps = PropsWithChildren<TileShieldInfo & {
 }>;
 
 /** One of the tile's shield readouts, which opens a description of the shields, and what they'd do to a hit right now. */
-const ShieldReadout = (props: ShieldReadoutProps) => {
-    const definition = getSystemEffectDefinition('shield');
-
-    return (
-        <InfoPopup
-            className={classNames(styles.shieldReadout, props.className)}
-            name={`${definition.name} (${props.level}/${props.max})`}
-            description={(
-                <EffectLevelContext.Provider value={{ level: props.level, maxLevel: props.max, category: definition.category }}>
-                    {definition.description}
-                    {props.power > 0
-                        ? ` At ${props.power} hull power${props.reinforced ? ', while reinforced' : ''}, they absorb ${getShieldAbsorption(props.power)}% of each hit, and are drained by ${getShieldDrainPercent(props.power, props.reinforced)}% of what they absorb.`
-                        : ' The hull has no power, so they absorb nothing.'}
-                </EffectLevelContext.Provider>
-            )}
-        >
-            {props.children}
-        </InfoPopup>
-    );
-};
+const ShieldReadout = (props: ShieldReadoutProps) => (
+    <InfoPopup
+        className={classNames(styles.shieldReadout, props.className)}
+        name={`Shields (${props.level}/${props.max})`}
+        description={(
+            <>
+                {`Protects the ship from damage. The shields absorb a share of each hit, which drains them. More hull power means they absorb more, for less drain. They collapse if a hit leaves them below ${shieldCollapsePercent}%, and recharge between encounters.`}
+                {props.power > 0
+                    ? ` At ${props.power} hull power${props.reinforced ? ', while reinforced' : ''}, they absorb ${getShieldAbsorption(props.power)}% of each hit, and are drained by ${getShieldDrainPercent(props.power, props.reinforced)}% of what they absorb.`
+                    : ' The hull has no power, so they absorb nothing.'}
+            </>
+        )}
+    >
+        {props.children}
+    </InfoPopup>
+);
 
 export const System = (props: Props) => {
-    const { shield } = props;
-    const effects = shield ? props.effects?.filter(effect => effect.type !== 'shield') : props.effects;
+    const { shield, effects } = props;
 
     const hasShield = !!shield && shield.max > 0;
     const shieldReadout = hasShield

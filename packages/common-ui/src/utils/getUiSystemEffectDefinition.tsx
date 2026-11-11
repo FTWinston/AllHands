@@ -1,48 +1,34 @@
-import { reinforcedDrainPercent, shieldCollapsePercent, tunedReductionPercent } from 'common-data/features/ships/utils/shieldStats';
+import { reinforcedDrainPercent, tunedReductionPercent } from 'common-data/features/ships/utils/shieldStats';
 import { systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
-import { EffectLevel, EffectMaxLevel } from '../components/EffectLevelContext';
+import { EffectLevel } from '../components/EffectLevelContext';
 import { SystemEffectDescription, UISystemEffectDefinition } from '../types/UISystemEffectDefinition';
 
 function loadEffectDefinitions() {
     const effectDescriptions: Record<SystemEffectType, SystemEffectDescription> = {
-        shield: {
-            name: 'Shields',
-            description: <>
-                Protects the ship from damage, currently at
-                {' '}
-                <EffectLevel />
-                {' '}
-                of
-                {' '}
-                <EffectMaxLevel />
-                {`. The shields absorb a share of each hit, which drains them. More hull power means they absorb more, for less drain. They collapse if a hit leaves them below ${shieldCollapsePercent}%, and only recharge between encounters.`}
-            </>,
-            image: ExampleIcon,
-        },
         shieldReinforced: {
             name: 'Reinforced',
-            description: <>{`A shield mode: the shields are drained ${100 - reinforcedDrainPercent}% less by the damage they absorb. Set by drawing a shield emitter, until it runs out or another mode replaces it.`}</>,
+            description: <>{`A shield tuning: the shields are drained ${100 - reinforcedDrainPercent}% less by the damage they absorb. Set by playing a shield emitter, until it runs out or another tuning replaces it.`}</>,
             image: ExampleIcon,
         },
         shieldTunedEnergy: {
             name: 'Tuned: Energy',
-            description: <>{`A shield mode: hits from energy weapons do ${tunedReductionPercent}% less damage. Set by drawing an energy tuning card, until it runs out or another mode replaces it.`}</>,
+            description: <>{`A shield tuning: hits from energy weapons do ${tunedReductionPercent}% less damage. Set by playing an energy tuning card, until it runs out or another tuning replaces it.`}</>,
             image: ExampleIcon,
         },
         shieldTunedTorpedo: {
             name: 'Tuned: Torpedoes',
-            description: <>{`A shield mode: torpedo hits do ${tunedReductionPercent}% less damage. Set by drawing a torpedo tuning card, until it runs out or another mode replaces it.`}</>,
+            description: <>{`A shield tuning: torpedo hits do ${tunedReductionPercent}% less damage. Set by playing a torpedo tuning card, until it runs out or another tuning replaces it.`}</>,
             image: ExampleIcon,
         },
         shieldScrambled: {
             name: 'Shields Scrambled',
             description: <>
-                The shields have been scrambled, so drawing hull cards sets no shield mode until
+                The shields have been scrambled, so the next
                 {' '}
                 <EffectLevel />
                 {' '}
-                more are drawn.
+                hull cards that would tune them don't.
             </>,
             image: ExampleIcon,
         },

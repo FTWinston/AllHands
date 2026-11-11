@@ -16,8 +16,6 @@ type Props = {
     hidden?: boolean;
     progress?: Cooldown | null;
     level?: number;
-    /** Set when the effect's max level varies by ship, such as shields. */
-    maxLevel?: number;
 };
 
 function getPaletteForCategory(category: SystemEffectCategory): 'good' | 'grey' | 'danger' {
@@ -30,11 +28,10 @@ function getPaletteForCategory(category: SystemEffectCategory): 'good' | 'grey' 
 export const EffectIndicator = (props: Props) => {
     const Image = props.image;
 
-    const levelText = props.level && props.maxLevel ? `${props.level}/${props.maxLevel}` : props.level;
-    const title = `${props.name}${levelText ? ` (${levelText})` : ''}`;
+    const title = `${props.name}${props.level ? ` (${props.level})` : ''}`;
 
     return (
-        <EffectLevelContext.Provider value={{ level: props.level ?? 1, maxLevel: props.maxLevel, category: props.category }}>
+        <EffectLevelContext.Provider value={{ level: props.level ?? 1, category: props.category }}>
             <InfoPopup
                 className={classNames(styles.effect, props.hidden ? styles.hidden : undefined, props.className)}
                 name={title}

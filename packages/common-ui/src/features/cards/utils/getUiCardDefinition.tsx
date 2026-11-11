@@ -7,8 +7,8 @@ import { Parameter } from '../components/Parameter';
 import { Trait } from '../components/Trait';
 import { CardDescription, UICardDefinition } from '../types/UICardDefinition';
 
-/** How long a hull card's shield mode lasts. Every mode lasts the same time. */
-const shieldModeSeconds = systemEffectDefinitions.shieldReinforced.duration / 1000;
+/** How long a hull card's shield tuning lasts. Every tuning lasts the same time. */
+const shieldTuningSeconds = systemEffectDefinitions.shieldReinforced.duration / 1000;
 
 function loadCardDefinitions() {
     const cardDescriptions: Record<CardType, CardDescription> = {
@@ -52,9 +52,9 @@ function loadCardDefinitions() {
             description: 'Deploy a smoke screen to obscure vision and provide cover.',
             image: <ExampleIcon />,
         },
-        hullPlating: {
-            name: 'Hull Plating',
-            description: 'Adds nothing to the shields, and leaves their mode as it is when drawn.',
+        hullBare: {
+            name: 'Bare Hull',
+            description: 'Adds nothing to the shields, and leaves their tuning as it is when played.',
             image: <ExampleIcon />,
         },
         hullShieldEmitter: {
@@ -65,7 +65,7 @@ function loadCardDefinitions() {
                 <Parameter name="shieldCapacity" />
                 {' '}
                 to the shields' capacity.
-                {` When drawn, reinforces the shields for ${shieldModeSeconds} seconds, so they drain less.`}
+                {` When played, reinforces the shields for ${shieldTuningSeconds} seconds, so they drain less.`}
             </>,
             image: <ExampleIcon />,
         },
@@ -77,18 +77,18 @@ function loadCardDefinitions() {
                 <Parameter name="shieldCapacity" />
                 {' '}
                 to the shields' capacity.
-                {` When drawn, reinforces the shields for ${shieldModeSeconds} seconds. All are damaged if one is, or if the shields collapse.`}
+                {` When played, reinforces the shields for ${shieldTuningSeconds} seconds. All are damaged if one is, or if the shields collapse.`}
             </>,
             image: <ExampleIcon />,
         },
         hullShieldTuningEnergy: {
             name: 'Energy Tuning',
-            description: `When drawn, tunes the shields for ${shieldModeSeconds} seconds, so energy weapon hits do ${tunedReductionPercent}% less damage.`,
+            description: `When played, tunes the shields for ${shieldTuningSeconds} seconds, so energy weapon hits do ${tunedReductionPercent}% less damage.`,
             image: <ExampleIcon />,
         },
         hullShieldTuningTorpedo: {
             name: 'Torpedo Tuning',
-            description: `When drawn, tunes the shields for ${shieldModeSeconds} seconds, so torpedo hits do ${tunedReductionPercent}% less damage.`,
+            description: `When played, tunes the shields for ${shieldTuningSeconds} seconds, so torpedo hits do ${tunedReductionPercent}% less damage.`,
             image: <ExampleIcon />,
         },
         warpAway: {
@@ -738,11 +738,11 @@ function loadCardDefinitions() {
         tetryonScan: {
             name: 'Tetryon Scan',
             description: <>
-                Finding a vulnerability scrambles the target ship's shields, cancelling their mode, and stopping them entering another for
+                Finding a vulnerability scrambles the target ship's shields, cancelling their tuning, and stopping the next
                 {' '}
-                <Parameter name="scrambleDraws" />
+                <Parameter name="scrambleCards" />
                 {' '}
-                more hull card draws.
+                hull cards that would tune them from doing so.
             </>,
             image: <ExampleIcon />,
         },

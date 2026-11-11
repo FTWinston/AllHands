@@ -195,13 +195,6 @@ export abstract class SystemState extends Schema implements SystemInfo {
         }
     }
 
-    /**
-     * The max level of a leveled effect on this system, where that varies by ship rather than being fixed by the effect's definition.
-     */
-    getEffectMaxLevel(_effectType: LeveledSystemEffectType): number | undefined {
-        return undefined;
-    }
-
     /** Called after a card joins or leaves the card pool, e.g. when bought or sold at a station. */
     protected cardPoolChanged() { }
 

@@ -1,6 +1,6 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
-import { isLeveledSystemEffectType, LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { EngineerSystemTileInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { InterceptableAction } from 'src/classes/InterceptableAction';
 import { getSystemEffectDefinition } from 'src/effects/getEngineSystemEffectDefinition';
@@ -81,10 +81,6 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         } else {
             effect = new SystemEffect(effectType, cooldown, level);
 
-            if (isLeveledSystemEffectType(effectType)) {
-                effect.maxLevel = this.systemState.getEffectMaxLevel(effectType);
-            }
-
             if (definition.tickInterval) {
                 effect.lastTickTime = startTime;
             }
@@ -155,7 +151,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         }
 
         const def = getSystemEffectDefinition(effectType);
-        const maxLevel = this.getEffectMaxLevel(effectType);
+        const maxLevel = def.maxLevel ?? 255;
 
         const effect = this.effects.find(e => e.type === effectType);
         if (effect) {
@@ -174,41 +170,11 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
                 return false;
             }
         } else if (adjustment > 0) {
-            if (maxLevel <= 0) {
-                return true;
-            }
-
             const level = Math.min(adjustment, maxLevel);
             this.addEffect(effectType, level);
             return level >= maxLevel;
         } else {
             return false;
-        }
-    }
-
-    /** The max level of a leveled effect on this system, which can vary by ship. */
-    getEffectMaxLevel(effectType: LeveledSystemEffectType): number {
-        return this.systemState.getEffectMaxLevel(effectType)
-            ?? getSystemEffectDefinition(effectType).maxLevel
-            ?? 255;
-    }
-
-    /**
-     * Update a leveled effect to match a change in its max level, reducing its level if it's now above that.
-     */
-    refreshEffectMaxLevel(effectType: LeveledSystemEffectType) {
-        const effect = this.effects.find(e => e.type === effectType);
-        if (!effect) {
-            return;
-        }
-
-        const maxLevel = this.getEffectMaxLevel(effectType);
-        effect.maxLevel = this.systemState.getEffectMaxLevel(effectType);
-
-        if (effect.level > maxLevel) {
-            this.adjustEffectLevel(effectType, maxLevel - effect.level);
-        } else {
-            this.scienceScanDataChanged.invoke();
         }
     }
 }

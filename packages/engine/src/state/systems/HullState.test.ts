@@ -1,5 +1,6 @@
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { isWeaponTrait } from 'src/cards/applyWeaponTrait';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
@@ -15,7 +16,7 @@ const setup: PlayerShipSetupInfo = {
     ...baseSetup,
     hull: {
         ...baseSetup.hull,
-        cards: ['hullShieldEmitter', 'hullShieldTuningEnergy', 'hullVolatileEmitter', 'hullShieldEmitter', 'hullPlating', 'hullVolatileEmitter', 'hullShieldTuningTorpedo'],
+        cards: ['hullShieldEmitter', 'hullShieldTuningEnergy', 'hullVolatileEmitter', 'hullShieldEmitter', 'hullBare', 'hullVolatileEmitter', 'hullShieldTuningTorpedo'],
     },
 };
 
@@ -34,8 +35,13 @@ function getHullTile(ship: PlayerShip) {
     return ship.engineerState.systems.find(tile => tile.system === 'hull') as HullSystemTile;
 }
 
-function hit(ship: PlayerShip, amount: number, weaponType?: 'energy' | 'torpedo') {
-    return ship.hullState.damageShields({ amount, traits: [], weaponType, targetSystem: 'hull' });
+function hit(ship: PlayerShip, amount: number, weaponTrait?: 'energyWeapon' | 'torpedoWeapon') {
+    return ship.hullState.damageShields({ amount, traits: weaponTrait ? [weaponTrait] : [], targetSystem: 'hull' });
+}
+
+function drainShields(ship: PlayerShip, amount: number) {
+    const tile = getHullTile(ship);
+    tile.setShield(tile.shield - amount);
 }
 
 describe('HullState shield capacity', () => {
@@ -50,13 +56,13 @@ describe('HullState shield capacity', () => {
         expect(ship.hullState.maxShield).toBe(105);
     });
 
-    it('has no shields at all when there are only plating cards', () => {
-        const ship = createShip(['hullPlating', 'hullPlating', 'hullPlating']);
+    it('has no shields at all when there are only bare hull cards', () => {
+        const ship = createShip(['hullBare', 'hullBare', 'hullBare']);
 
         ship.startEncounter();
 
         expect(ship.hullState.maxShield).toBe(0);
-        expect(getHullTile(ship).hasEffect('shield')).toBe(false);
+        expect(ship.hullState.shield).toBe(0);
     });
 
     it('fills the shields at the start of an encounter, and they can\'t exceed their capacity', () => {
@@ -65,9 +71,8 @@ describe('HullState shield capacity', () => {
         ship.startEncounter();
         expect(ship.hullState.shield).toBe(120);
 
-        getHullTile(ship).adjustEffectLevel('shield', 10);
+        getHullTile(ship).setShield(130);
         expect(ship.hullState.shield).toBe(120);
-        expect(getHullTile(ship).effects.find(effect => effect.type === 'shield')?.maxLevel).toBe(120);
     });
 
     it('keeps the hull tile\'s capacity up to date, even while the shields are down', () => {
@@ -76,8 +81,8 @@ describe('HullState shield capacity', () => {
         expect(tile.maxShield).toBe(120);
 
         ship.hullState.restoreShields();
-        tile.adjustEffectLevel('shield', -120);
-        expect(tile.hasEffect('shield')).toBe(false);
+        tile.setShield(0);
+        expect(tile.shield).toBe(0);
         expect(tile.maxShield).toBe(120);
 
         // Damages the first card in the deck, an emitter.
@@ -131,7 +136,7 @@ describe('HullState absorbing damage', () => {
     it('absorbs the same share however empty the shields are', () => {
         const ship = createShip();
         ship.hullState.restoreShields();
-        getHullTile(ship).adjustEffectLevel('shield', -60);
+        drainShields(ship, 60);
 
         expect(hit(ship, 20)).toBe(4);
         expect(ship.hullState.shield).toBe(47);
@@ -159,12 +164,11 @@ describe('HullState absorbing damage', () => {
     it('collapses shields that a hit leaves below a tenth of their capacity', () => {
         const ship = createShip();
         ship.hullState.restoreShields();
-        getHullTile(ship).adjustEffectLevel('shield', -100);
+        drainShields(ship, 100);
 
         // Drained by 13, to 7 of 120.
         expect(hit(ship, 20)).toBe(4);
         expect(ship.hullState.shield).toBe(0);
-        expect(getHullTile(ship).hasEffect('shield')).toBe(false);
     });
 });
 
@@ -174,67 +178,67 @@ function drawHullCards(ship: PlayerShip, count: number) {
     }
 }
 
-/** The shield mode effects on the ship's hull. */
-function shieldModes(ship: PlayerShip) {
+/** The shield tuning effects on the ship's hull. */
+function shieldTunings(ship: PlayerShip) {
     return getHullTile(ship).effects
-        .filter(effect => effect.type !== 'shield' && effect.type !== 'shieldScrambled')
+        .filter(effect => effect.type !== 'shieldScrambled')
         .map(effect => effect.type);
 }
 
-describe('HullState shield modes', () => {
-    it('switches to the mode of each emitter or tuning card drawn, replacing the last one', () => {
+describe('HullState shield tunings', () => {
+    it('switches to the tuning of each emitter or tuning card played, replacing the last one', () => {
         const ship = createShip();
 
         drawHullCards(ship, 1);
-        expect(shieldModes(ship)).toEqual(['shieldReinforced']);
+        expect(shieldTunings(ship)).toEqual(['shieldReinforced']);
 
         drawHullCards(ship, 1);
-        expect(shieldModes(ship)).toEqual(['shieldTunedEnergy']);
+        expect(shieldTunings(ship)).toEqual(['shieldTunedEnergy']);
 
         // A volatile emitter.
         drawHullCards(ship, 1);
-        expect(shieldModes(ship)).toEqual(['shieldReinforced']);
+        expect(shieldTunings(ship)).toEqual(['shieldReinforced']);
 
-        // An emitter, plating and a volatile emitter, then a torpedo tuning card.
+        // An emitter, bare hull and a volatile emitter, then a torpedo tuning card.
         drawHullCards(ship, 4);
-        expect(shieldModes(ship)).toEqual(['shieldTunedTorpedo']);
+        expect(shieldTunings(ship)).toEqual(['shieldTunedTorpedo']);
     });
 
-    it('keeps the current mode when plating or a damaged card is drawn', () => {
-        const ship = createShip(['hullShieldTuningEnergy', 'hullPlating', 'hullShieldEmitter']);
+    it('keeps the current tuning when bare hull or a damaged card is drawn', () => {
+        const ship = createShip(['hullShieldTuningEnergy', 'hullBare', 'hullShieldEmitter']);
         ship.hullState.deck[2].addTrait('damaged', ExtraTraitType.Normal);
 
         drawHullCards(ship, 3);
 
-        expect(shieldModes(ship)).toEqual(['shieldTunedEnergy']);
+        expect(shieldTunings(ship)).toEqual(['shieldTunedEnergy']);
     });
 
-    it('lasts for a while, starting again when the same mode is drawn', () => {
+    it('lasts for a while, starting again when the same tuning is played', () => {
         const { state, ship } = createShipInState(['hullShieldEmitter', 'hullShieldEmitter']);
 
         drawHullCards(ship, 1);
-        const mode = getHullTile(ship).effects.find(effect => effect.type === 'shieldReinforced')!;
-        expect(mode.progress!.endTime - mode.progress!.startTime).toBe(12_000);
+        const tuning = getHullTile(ship).effects.find(effect => effect.type === 'shieldReinforced')!;
+        expect(tuning.progress!.endTime - tuning.progress!.startTime).toBe(12_000);
 
         state.currentTime += 5_000;
         drawHullCards(ship, 1);
 
-        expect(shieldModes(ship)).toEqual(['shieldReinforced']);
-        expect(mode.progress!.startTime).toBe(state.currentTime);
+        expect(shieldTunings(ship)).toEqual(['shieldReinforced']);
+        expect(tuning.progress!.startTime).toBe(state.currentTime);
     });
 
-    it('reduces every hit of the weapon type the shields are tuned against, but not others', () => {
+    it('reduces every hit with the weapon trait the shields are tuned against, but not others', () => {
         const ship = createShip();
         ship.hullState.restoreShields();
         drawHullCards(ship, 2);
 
         // 40% less makes it a hit of 12, of which 10 is absorbed.
-        expect(hit(ship, 20, 'energy')).toBe(2);
-        expect(hit(ship, 20, 'energy')).toBe(2);
+        expect(hit(ship, 20, 'energyWeapon')).toBe(2);
+        expect(hit(ship, 20, 'energyWeapon')).toBe(2);
         expect(ship.hullState.shield).toBe(104);
 
-        expect(hit(ship, 20, 'torpedo')).toBe(4);
-        expect(shieldModes(ship)).toEqual(['shieldTunedEnergy']);
+        expect(hit(ship, 20, 'torpedoWeapon')).toBe(4);
+        expect(shieldTunings(ship)).toEqual(['shieldTunedEnergy']);
     });
 
     it('drains reinforced shields less', () => {
@@ -247,42 +251,61 @@ describe('HullState shield modes', () => {
         expect(ship.hullState.shield).toBe(110);
     });
 
-    it('knows that phasers are energy weapons', () => {
+    it('reduces phaser hits, as their energy weapon trait is passed on to the damage they do', () => {
         const { state, ship } = createShipInState();
         ship.hullState.restoreShields();
         ship.hullState.adjustPowerLevel(2);
         drawHullCards(ship, 2);
 
+        // Tactical fires a weapon with the weapon traits from its card, as here.
         const phaser = getCardDefinition('phaserCannon');
-        phaser.fire(state, ship, ship, { cost: 0, damage: 20 }, 100, []);
+        const traits = (phaser.traits ?? []).filter(isWeaponTrait);
+        expect(traits).toContain('energyWeapon');
+        phaser.fire(state, ship, ship, { cost: 0, damage: 20 }, 100, traits);
 
         // Tuning makes it a hit of 12, all of which is absorbed at full power, for 60% drain.
         expect(ship.hullState.shield).toBe(113);
     });
 
-    it('cancels the mode when scrambled, and sets none until enough hull cards are drawn', () => {
+    it('cancels the tuning when scrambled, and sets none until enough hull cards have tried to', () => {
         const ship = createShip();
         const tile = getHullTile(ship);
         drawHullCards(ship, 2);
 
         ship.hullState.scrambleShields(2);
-        expect(shieldModes(ship)).toEqual([]);
+        expect(shieldTunings(ship)).toEqual([]);
         expect(tile.getEffectLevel('shieldScrambled')).toBe(2);
 
         drawHullCards(ship, 2);
         expect(tile.hasEffect('shieldScrambled')).toBe(false);
-        expect(shieldModes(ship)).toEqual([]);
+        expect(shieldTunings(ship)).toEqual([]);
 
-        // Plating, then a volatile emitter.
+        // Bare hull, then a volatile emitter.
         drawHullCards(ship, 2);
-        expect(shieldModes(ship)).toEqual(['shieldReinforced']);
+        expect(shieldTunings(ship)).toEqual(['shieldReinforced']);
     });
 
-    it('clears the mode and scrambling at the start of an encounter', () => {
+    it('stays scrambled while bare hull cards are drawn, as they wouldn\'t tune the shields anyway', () => {
+        const ship = createShip(['hullBare', 'hullShieldEmitter', 'hullShieldEmitter']);
+        const tile = getHullTile(ship);
+        ship.hullState.scrambleShields(1);
+
+        drawHullCards(ship, 1);
+        expect(tile.getEffectLevel('shieldScrambled')).toBe(1);
+
+        drawHullCards(ship, 1);
+        expect(tile.hasEffect('shieldScrambled')).toBe(false);
+        expect(shieldTunings(ship)).toEqual([]);
+
+        drawHullCards(ship, 1);
+        expect(shieldTunings(ship)).toEqual(['shieldReinforced']);
+    });
+
+    it('clears the tuning and scrambling at the start of an encounter', () => {
         const ship = createShip();
         drawHullCards(ship, 2);
         ship.hullState.restoreShields();
-        expect(shieldModes(ship)).toEqual([]);
+        expect(shieldTunings(ship)).toEqual([]);
 
         ship.hullState.scrambleShields(2);
         ship.hullState.restoreShields();
@@ -306,7 +329,7 @@ describe('HullState volatile emitters', () => {
     it('damages every volatile emitter when the shields are knocked out', () => {
         const ship = createShip();
         ship.hullState.restoreShields();
-        getHullTile(ship).adjustEffectLevel('shield', -110);
+        drainShields(ship, 110);
 
         hit(ship, 100);
 
@@ -318,7 +341,7 @@ describe('HullState volatile emitters', () => {
     it('doesn\'t damage volatile emitters when hit while the shields are already down', () => {
         const ship = createShip();
         ship.hullState.restoreShields();
-        getHullTile(ship).adjustEffectLevel('shield', -120);
+        drainShields(ship, 120);
 
         hit(ship, 100);
 

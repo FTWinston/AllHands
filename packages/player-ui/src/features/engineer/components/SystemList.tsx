@@ -15,14 +15,14 @@ type Props = {
     maxRepairCapacity: number;
 };
 
-/** The hull's shields, from its capacity and shield effect. Undefined for other systems. */
+/** The hull's shields. Undefined for other systems. */
 function getShieldInfo(system: SystemInfo & SystemCards): TileShieldInfo | undefined {
     if (!isHullSystemTile(system)) {
         return undefined;
     }
 
     return {
-        level: system.effects?.find(effect => effect.type === 'shield')?.level ?? 0,
+        level: system.shield,
         max: system.maxShield,
     };
 }

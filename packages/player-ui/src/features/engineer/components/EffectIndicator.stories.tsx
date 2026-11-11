@@ -1,6 +1,6 @@
 import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { Cooldown } from 'common-data/types/Cooldown';
-import { EffectLevel, EffectMaxLevel } from 'common-ui/components/EffectLevelContext';
+import { EffectLevel } from 'common-ui/components/EffectLevelContext';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { useEffect, useState } from 'react';
 import { EffectIndicator as Component } from './EffectIndicator';
@@ -46,26 +46,6 @@ export const WithLevel: Story = {
             .
         </>,
         level: 3,
-    },
-};
-
-export const WithMaxLevel: Story = {
-    args: {
-        category: SystemEffectCategory.Positive,
-        image: ExampleIcon,
-        name: 'Leveled effect',
-        description: <>
-            An effect whose max level varies by ship, such as shields. This one is level
-            {' '}
-            <EffectLevel />
-            {' '}
-            of
-            {' '}
-            <EffectMaxLevel />
-            .
-        </>,
-        level: 38,
-        maxLevel: 60,
     },
 };
 

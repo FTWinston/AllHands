@@ -9,9 +9,13 @@
  * - penetrating: partly bypasses shields.
  * - disrupting: Adds a disrupted card to target system hand. Card deals damage when played.
  * - destabilizing: adds an unstable effect to cards in the target system's hand.
+ * - energyWeapon: A group of tactical weapon cards. Some charge cards only target cards with this trait, and shields can be tuned against it.
+ * - torpedoWeapon: A group of tactical weapon cards. Some charge cards only target cards with this trait, and shields can be tuned against it.
  */
 export type WeaponTrait
-    = 'area'
+    = 'energyWeapon'
+        | 'torpedoWeapon'
+        | 'area'
         | 'cumbersome'
         | 'draining'
         | 'dampening'
@@ -30,10 +34,8 @@ export type WeaponTrait
  * - primary: Card returns to hand when played (if no other primary card in hand).
  * - expendable: Card is destroyed when played (not added to the deck).
  * - unstable: Card shuffles back into the deck when played, instead of going on the end.
- * - energyWeapon: A group of tactical weapon cards. Some charge cards only target cards with this trait.
- * - torpedoWeapon: A group of tactical weapon cards. Some charge cards only target cards with this trait.
  * - rechargeable: A weapon with this trait can be topped up with one more card after it has been fully charged. Doing so removes the trait.
  * - priority: Cannot be discarded or used for charging, can only be played.
  * - unplayable: Card cannot be played or discarded.
  */
-export type CardTrait = WeaponTrait | 'damaged' | 'stabilised' | 'critical' | 'primary' | 'expendable' | 'unstable' | 'energyWeapon' | 'torpedoWeapon' | 'rechargeable' | 'priority' | 'unplayable';
+export type CardTrait = WeaponTrait | 'damaged' | 'stabilised' | 'critical' | 'primary' | 'expendable' | 'unstable' | 'rechargeable' | 'priority' | 'unplayable';

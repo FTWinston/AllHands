@@ -5,8 +5,13 @@ import { CardCooldownState } from 'src/state/CardCooldownState';
 import { CardState } from 'src/state/CardState';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
+import type { HullSystemTile } from '../engineer/HullSystemTile';
 
 const rooms = setupGameRoom();
+
+function hullTile(ship: AiShip) {
+    return ship.engineerState.systems.find(tile => tile.system === 'hull') as HullSystemTile;
+}
 
 function createWorld() {
     const state = rooms.createState();
@@ -24,7 +29,7 @@ function createWorld() {
     const target = new AiShip(state, { ...targetSetup, goal: { type: 'search-and-destroy' }, skill: 1 });
     state.add(target);
     // AI ships start with full shields: empty them, so tests can set them.
-    target.engineerState.systems.find(tile => tile.system === 'hull')!.removeEffect('shield', false);
+    hullTile(target).setShield(0);
     scanner.updateKnownObjects(0);
     return { state, scanner, target };
 }
@@ -108,13 +113,9 @@ describe('ScienceState scanned systems', () => {
         expect(scanner.scienceState.scannedTactical!.weaponSlots[0].modifierCard).toBe('lowYield');
     });
 
-    function hullTile(ship: AiShip) {
-        return ship.engineerState.systems.find(tile => tile.system === 'hull')!;
-    }
-
     it('shows the scanned ship\'s hull health and shields, whichever system was scanned', () => {
         const { scanner, target } = createWorld();
-        hullTile(target).adjustEffectLevel('shield', 40);
+        hullTile(target).setShield(40);
 
         scan(scanner, target, target.helmState.scannedSystemIndex);
 
@@ -132,33 +133,32 @@ describe('ScienceState scanned systems', () => {
         scan(scanner, target, target.helmState.scannedSystemIndex);
         const healthBefore = target.hullState.health;
 
-        hullTile(target).adjustEffectLevel('shield', 60);
+        hullTile(target).setShield(60);
         expect(scanner.scannedHull.shield).toBe(60);
 
-        hullTile(target).adjustEffectLevel('shield', -25);
+        hullTile(target).setShield(35);
         expect(scanner.scannedHull.shield).toBe(35);
 
-        hullTile(target).removeEffect('shield', true);
+        hullTile(target).setShield(0);
         expect(scanner.scannedHull.shield).toBe(0);
 
         target.hullState.adjustHealth(-1);
         expect(scanner.scannedHull.health).toBe(healthBefore - 1);
     });
 
-    it('shows what the scanned ship\'s shields are tuned against', () => {
+    it('shows the scanned ship\'s shield tuning', () => {
         const { scanner, target } = createWorld();
         scan(scanner, target, target.helmState.scannedSystemIndex);
-        expect([...scanner.scannedHull.shieldTuning]).toEqual([]);
+        expect(scanner.scannedHull.shieldTuning).toBeNull();
 
-        hullTile(target).addEffect('shieldTunedTorpedo');
-        expect([...scanner.scannedHull.shieldTuning]).toEqual(['torpedo']);
+        target.hullState.tuneShields('shieldTunedTorpedo');
+        expect(scanner.scannedHull.shieldTuning).toBe('shieldTunedTorpedo');
 
-        hullTile(target).removeEffect('shieldTunedTorpedo', false);
-        hullTile(target).addEffect('shieldTunedEnergy');
-        expect([...scanner.scannedHull.shieldTuning]).toEqual(['energy']);
+        target.hullState.tuneShields('shieldReinforced');
+        expect(scanner.scannedHull.shieldTuning).toBe('shieldReinforced');
 
         target.hullState.scrambleShields(2);
-        expect([...scanner.scannedHull.shieldTuning]).toEqual([]);
+        expect(scanner.scannedHull.shieldTuning).toBeNull();
     });
 
     it('scrambles the target\'s shields when a tetryon scan finds a vulnerability', () => {
@@ -166,7 +166,7 @@ describe('ScienceState scanned systems', () => {
         hullTile(target).addEffect('shieldTunedEnergy');
 
         const card = getCardDefinition('tetryonScan');
-        card.findVulnerability(state, scanner, target, 'helm', { cost: 2, scrambleDraws: 3 });
+        card.findVulnerability(state, scanner, target, 'helm', { cost: 2, scrambleCards: 3 });
 
         expect(hullTile(target).hasEffect('shieldTunedEnergy')).toBe(false);
         expect(hullTile(target).getEffectLevel('shieldScrambled')).toBe(3);
@@ -177,12 +177,12 @@ describe('ScienceState scanned systems', () => {
         scan(scanner, target, target.helmState.scannedSystemIndex);
         scanner.scienceState.closeScan();
 
-        hullTile(target).adjustEffectLevel('shield', 50);
+        hullTile(target).setShield(50);
         expect(scanner.scannedHull.shield).toBe(50);
 
         // The engineer scan listens to the same hull tile, so mustn't replace the hull's listener.
         scan(scanner, target, target.engineerState.scannedSystemIndex);
-        hullTile(target).adjustEffectLevel('shield', 10);
+        hullTile(target).setShield(60);
         expect(scanner.scannedHull.shield).toBe(60);
     });
 

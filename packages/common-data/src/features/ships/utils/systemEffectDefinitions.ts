@@ -2,8 +2,8 @@ import { SystemEffectDefinition, SystemEffectCategory } from '../types/SystemEff
 
 export const MAX_POWER_LEVEL = 5;
 
-/** How long a shield mode lasts after the hull card that set it is drawn, unless another draw renews or replaces it. */
-const SHIELD_MODE_DURATION = 12_000;
+/** How long a shield tuning lasts after the hull card that set it is played, unless another hull card renews or replaces it. */
+const SHIELD_TUNING_DURATION = 12_000;
 
 // Enforce that values are of a system effect type, without widening the key type to "string".
 function defineSystemEffects<T extends Record<string, SystemEffectDefinition>>(defs: T) {
@@ -11,30 +11,25 @@ function defineSystemEffects<T extends Record<string, SystemEffectDefinition>>(d
 }
 
 export const systemEffectDefinitions = defineSystemEffects({
-    /** Its max level is the hull's shield capacity, so it varies by ship (see HullState). */
-    shield: {
-        category: SystemEffectCategory.Positive,
-        usesLevels: true,
-    },
-    /** A shield mode, set by drawing an emitter: the shields are drained less by what they absorb (see shieldStats). */
+    /** A shield tuning, set by playing an emitter: the shields are drained less by what they absorb (see shieldStats). */
     shieldReinforced: {
         category: SystemEffectCategory.Positive,
         usesLevels: false,
-        duration: SHIELD_MODE_DURATION,
+        duration: SHIELD_TUNING_DURATION,
     },
-    /** A shield mode, set by drawing an energy tuning card: hits from energy weapons do less damage. */
+    /** A shield tuning, set by playing an energy tuning card: hits from energy weapons do less damage. */
     shieldTunedEnergy: {
         category: SystemEffectCategory.Positive,
         usesLevels: false,
-        duration: SHIELD_MODE_DURATION,
+        duration: SHIELD_TUNING_DURATION,
     },
-    /** A shield mode, set by drawing a torpedo tuning card: torpedo hits do less damage. */
+    /** A shield tuning, set by playing a torpedo tuning card: torpedo hits do less damage. */
     shieldTunedTorpedo: {
         category: SystemEffectCategory.Positive,
         usesLevels: false,
-        duration: SHIELD_MODE_DURATION,
+        duration: SHIELD_TUNING_DURATION,
     },
-    /** How many more hull cards must be drawn before they set shield modes again. */
+    /** How many more hull cards that would tune the shields must be played before they can tune them again. */
     shieldScrambled: {
         category: SystemEffectCategory.Negative,
         usesLevels: true,

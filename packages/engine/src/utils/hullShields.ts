@@ -1,13 +1,4 @@
-import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { getShieldAbsorption, getShieldDrainPercent, shieldCollapsePercent, ShieldModeEffect, tunedReductionPercent } from 'common-data/features/ships/utils/shieldStats';
-
-/** The hull cards that switch the shields into a mode when drawn, and the effect that mode is. Other hull cards leave the mode as it is. */
-export const shieldModeCards: Partial<Record<CardType, ShieldModeEffect>> = {
-    hullShieldEmitter: 'shieldReinforced',
-    hullVolatileEmitter: 'shieldReinforced',
-    hullShieldTuningEnergy: 'shieldTunedEnergy',
-    hullShieldTuningTorpedo: 'shieldTunedTorpedo',
-};
+import { getShieldAbsorption, getShieldDrainPercent, shieldCollapsePercent, tunedReductionPercent } from 'common-data/features/ships/utils/shieldStats';
 
 /** What's needed of a hull card, to work out what it contributes to the shields. */
 export interface ShieldStatCard {
@@ -28,9 +19,9 @@ export function getShieldCapacity(cards: Iterable<ShieldStatCard>): number {
     return Math.max(0, total);
 }
 
-/** What the shields' current mode does to a hit. */
+/** What the shields' current tuning does to a hit. */
 export interface ShieldHitModifiers {
-    /** Whether the shields are tuned against the hit's weapon type. */
+    /** Whether the shields are tuned against one of the hit's weapon traits. */
     tuned: boolean;
     reinforced: boolean;
 }
@@ -46,7 +37,7 @@ export interface ShieldHitResult {
 
 /**
  * Work out how a hit is split between the shields and what gets past them.
- * - Shields tuned against the hit's weapon type reduce the hit itself.
+ * - Shields tuned against one of the hit's weapon traits reduce the hit itself.
  * - The shields then absorb a share of what's left, set by the hull's power level. The rest gets past them.
  * - Absorbing drains the shields: by less at higher hull power, and by less again while they're reinforced.
  * - If that leaves the shields below `shieldCollapsePercent` of their capacity, they collapse, losing the rest.

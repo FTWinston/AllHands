@@ -97,15 +97,7 @@ export function removeEffectWithoutHandler(system: EngineerSystemTile, effectTyp
 
 function loadSystemEffectDefinitions() {
     const systemEffectFunctionalities: SystemEffectFunctionalityLookup = {
-        shield: {
-            apply: (system) => {
-                return system.system === 'hull';
-            },
-            remove: () => {
-
-            },
-        },
-        // HullState switches the shields between these modes as hull cards are drawn, and counts down any scrambling.
+        // HullState switches the shields between these tunings as hull cards are played, and counts down any scrambling.
         shieldReinforced: {
             apply: (system) => {
                 return system.system === 'hull';

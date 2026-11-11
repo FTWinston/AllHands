@@ -428,7 +428,7 @@ export const cardDefinitions = defineCardDefinitions({
         system: 'science',
         parameters: {
             cost: 2,
-            scrambleDraws: 3,
+            scrambleCards: 3,
         },
         deflectorSubstance: 'Tetryon',
     },
@@ -1007,7 +1007,7 @@ export const cardDefinitions = defineCardDefinitions({
         traits: ['expendable'],
         parameters: { cost: 3 },
     },
-    hullPlating: {
+    hullBare: {
         targetType: 'no-target',
         system: 'hull',
         parameters: { cost: 0 },

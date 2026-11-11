@@ -44,7 +44,6 @@ export const EffectList = (props: Props) => {
                             description={definition.description}
                             progress={effect.progress}
                             level={definition.usesLevels ? effect.level : undefined}
-                            maxLevel={definition.usesLevels ? effect.maxLevel || undefined : undefined}
                             hidden={removingItemIds.has(effect.type) || !currentItemIds.has(effect.type)}
                         />
                     </li>

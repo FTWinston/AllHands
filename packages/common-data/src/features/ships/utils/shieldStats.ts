@@ -1,32 +1,25 @@
-import { MAX_POWER_LEVEL } from './systemEffectDefinitions';
-import type { WeaponType } from 'src/features/space/types/Damage';
+import { MAX_POWER_LEVEL, SystemEffectType } from './systemEffectDefinitions';
+import type { WeaponTrait } from 'src/features/cards/types/CardTrait';
 
 /**
- * A type of weapon that a ship's shields can be tuned against.
- * Shields recharge only between encounters, but each hull card that's drawn can switch them into a mode for a while (see the engine's hullShields).
+ * The hull effects that are shield tunings. Shields recharge only between encounters, but each hull card that's played can tune them for a while.
+ * Playing one that sets a tuning replaces any other, so only one is ever active.
+ * Each lasts for its effect definition's duration, unless another hull card renews or replaces it.
  */
-export type ShieldTuning = WeaponType;
+export const shieldTuningEffects = ['shieldReinforced', 'shieldTunedEnergy', 'shieldTunedTorpedo'] as const satisfies readonly SystemEffectType[];
 
-export const shieldTunings: readonly ShieldTuning[] = ['energy', 'torpedo'];
+export type ShieldTuningEffect = typeof shieldTuningEffects[number];
 
-/** The hull effect that shows the shields are tuned against each weapon type. */
-export const shieldTuningEffects = {
-    energy: 'shieldTunedEnergy',
-    torpedo: 'shieldTunedTorpedo',
-} as const satisfies Record<ShieldTuning, string>;
-
-/**
- * The hull effects that are shield modes. Drawing a hull card that sets a mode replaces any other, so only one is ever active.
- * Each lasts for its effect definition's duration, unless another draw renews or replaces it.
- */
-export const shieldModeEffects = ['shieldReinforced', shieldTuningEffects.energy, shieldTuningEffects.torpedo] as const;
-
-export type ShieldModeEffect = typeof shieldModeEffects[number];
+/** The shield tuning that reduces hits from weapons with each weapon trait. */
+export const weaponTraitTunings: Partial<Record<WeaponTrait, ShieldTuningEffect>> = {
+    energyWeapon: 'shieldTunedEnergy',
+    torpedoWeapon: 'shieldTunedTorpedo',
+};
 
 /** While the shields are reinforced, they're drained by this percentage of what they otherwise would be. */
 export const reinforcedDrainPercent = 75;
 
-/** The percentage by which a hit is reduced, while the shields are tuned against its weapon type. */
+/** The percentage by which a hit is reduced, while the shields are tuned against one of its weapon traits. */
 export const tunedReductionPercent = 40;
 
 /** Shields that a hit leaves below this percentage of their capacity collapse, losing what's left. */

@@ -6,7 +6,7 @@ import { CardType, EnemyTargetedCardType } from 'common-data/features/cards/util
 import { SectorDestinationInfo } from 'common-data/features/sectors/types/SectorDestinationInfo';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { engineerSystem, helmSystem, scienceSystem, shipSystems, ShipSystem, tacticalSystem } from 'common-data/features/ships/types/ShipSystem';
-import { shieldTuningEffects, shieldTunings } from 'common-data/features/ships/utils/shieldStats';
+import { shieldTuningEffects } from 'common-data/features/ships/utils/shieldStats';
 import { SystemSetupInfo, ScienceSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition, EngineScanTargetCardDefinition, EngineEnemyTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
@@ -17,7 +17,7 @@ import { GameState } from 'src/state/GameState';
 import { SectorDestinationState } from 'src/state/SectorDestinationState';
 import { Ship } from 'src/state/Ship';
 import { CrewSystemState } from '../CrewSystemState';
-import { EngineerSystemTile } from '../engineer/EngineerSystemTile';
+import { HullSystemTile } from '../engineer/HullSystemTile';
 import { ScannedEngineerState } from './ScannedEngineerState';
 import { ScannedEngineerTileState } from './ScannedEngineerTileState';
 import { ScannedHelmState } from './ScannedHelmState';
@@ -176,7 +176,7 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             state.maxHealth = 0;
             state.shield = 0;
             state.maxShield = 0;
-            state.shieldTuning.clear();
+            state.shieldTuning = null;
         }
     }
 
@@ -334,13 +334,12 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.scannedSystemOrder[scannedSystemIndex] = systemId;
     }
 
-    private copyHullData(state: ScannedHullState, source: EngineerSystemTile): void {
+    private copyHullData(state: ScannedHullState, source: HullSystemTile): void {
         state.health = source.health;
         state.maxHealth = source.maxHealth;
-        state.shield = source.getEffectLevel('shield');
-        state.maxShield = source.getEffectMaxLevel('shield');
-        state.shieldTuning.clear();
-        state.shieldTuning.push(...shieldTunings.filter(tuning => source.hasEffect(shieldTuningEffects[tuning])));
+        state.shield = source.shield;
+        state.maxShield = source.maxShield;
+        state.shieldTuning = shieldTuningEffects.find(tuning => source.hasEffect(tuning)) ?? null;
     }
 
     private copyHelmData(state: ScannedHelmState, source: Ship['helmState']): void {
@@ -639,10 +638,11 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
 }
 
 /** The engineer's tile for a ship's hull, which carries its health and its shield effect. */
-function getHullTile(ship: Ship): EngineerSystemTile {
+function getHullTile(ship: Ship): HullSystemTile {
     const tile = ship.engineerState.systems.find(system => system.system === 'hull');
     if (!tile) {
         throw new Error(`Ship ${ship.id} has no hull tile`);
     }
-    return tile;
+    // EngineerState always creates the hull's tile as a HullSystemTile.
+    return tile as HullSystemTile;
 }
