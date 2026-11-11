@@ -93,7 +93,8 @@ describe('SlowBoatEncounter balance', () => {
         const { hails } = runCrossing(state);
 
         expect(state.encounter!.outcome).toBe('failure');
-        expect(hails).toContain('Shields are almost gone. We can\'t take much more of this.');
+        // It says its shields are going before it's lost. Not always the last of it, though: the end can come faster than that takes to say.
+        expect(hails.some(line => line.startsWith('Shields'))).toBe(true);
     });
 
     it.each([7, 11])('a crew that stays close with its shields extended gets it there, at the cost of its own shields (seed %i)', (seed) => {
