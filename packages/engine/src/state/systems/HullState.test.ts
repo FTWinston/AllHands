@@ -261,7 +261,7 @@ describe('HullState shield tunings', () => {
         const phaser = getCardDefinition('phaserCannon');
         const traits = (phaser.traits ?? []).filter(isWeaponTrait);
         expect(traits).toContain('energyWeapon');
-        phaser.fire(state, ship, ship, { cost: 0, damage: 20 }, 100, traits);
+        phaser.fire(state, ship, ship, { cost: 0, damage: 20 }, 100, traits, null);
 
         // Tuning makes it a hit of 12, all of which is absorbed at full power, for 60% drain.
         expect(ship.hullState.shield).toBe(113);

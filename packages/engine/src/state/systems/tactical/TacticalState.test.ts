@@ -4,7 +4,7 @@ import { RelationshipType } from 'common-data/features/space/types/RelationshipT
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
 import { AiShip } from 'src/state/AiShip';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 const rooms = setupGameRoom();
 
@@ -21,7 +21,7 @@ function createTactical(tacticalCards: string[]) {
 
     const tactical = ship.tacticalState;
     (tactical as { powerLevel: number }).powerLevel = 5;
-    return { state, tactical };
+    return { state, ship, tactical };
 }
 
 type Tactical = ReturnType<typeof createTactical>['tactical'];
@@ -258,5 +258,37 @@ describe('TacticalState weapon slot charging', () => {
 
         expect(slot.card).not.toBeNull();
         expect(slot.charge).toBe(1);
+    });
+});
+
+describe('TacticalState firing', () => {
+    it.each([
+        ['at a system', 'tactical'],
+        ['at nothing in particular', undefined],
+    ] as const)('fires every shot of a multi-shot weapon aimed %s', (_, aim) => {
+        const { state, ship, tactical } = createTactical(['phaserCannon']);
+        // Dead ahead, and in range.
+        const enemy = new AiShip(state, { ...shipSetup('player', 5, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
+        state.add(enemy);
+        ship.updateKnownObjects(0);
+        tactical.setSystemSubTargets(enemy.id, ['tactical', 'helm']);
+
+        const slot = loadWeapon(tactical);
+        slot.addCharge(slot.getParameter('totalCharge'), 0);
+        slot.adjustParameter('extraShots', 2);
+
+        const damage = vi.spyOn(enemy, 'damage').mockReturnValue(0);
+        const setTimeout = vi.spyOn(state, 'setTimeout');
+
+        expect(tactical.playWeapon(slot, 'phaserCannon', aim ? `${enemy.id}:${aim}` : enemy.id)).not.toBeNull();
+        for (const [fireExtraShot] of setTimeout.mock.calls) {
+            fireExtraShot();
+        }
+
+        expect(damage).toHaveBeenCalledTimes(3);
+        for (const [hit] of damage.mock.calls) {
+            expect(hit.targetSystem).toBe(aim);
+            expect(hit.sourceId).toBe(ship.id);
+        }
     });
 });

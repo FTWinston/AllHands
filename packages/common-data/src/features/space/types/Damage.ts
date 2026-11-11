@@ -5,4 +5,6 @@ export interface Damage {
     amount: number;
     traits: WeaponTrait[];
     targetSystem?: ShipSystem;
+    /** The id of the ship that fired. */
+    sourceId?: string;
 }

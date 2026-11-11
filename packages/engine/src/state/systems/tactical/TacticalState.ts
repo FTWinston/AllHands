@@ -210,13 +210,15 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
         const gameState = this.getGameState();
         const ship = this.getShip();
-        cardDef.fire(gameState, ship, target, slotParameters, accuracy, weaponTraits);
+        // Every shot lands on the system aimed at, if there is one.
+        const targetSystem = subTarget?.system ?? null;
+        cardDef.fire(gameState, ship, target, slotParameters, accuracy, weaponTraits, targetSystem);
 
         const extraShots = Math.max(0, Math.floor(slotParameters['extraShots'] ?? 0));
 
         for (let i = 1; i <= extraShots; i++) {
             gameState.setTimeout(() => {
-                cardDef.fire(gameState, ship, target, slotParameters, accuracy, weaponTraits);
+                cardDef.fire(gameState, ship, target, slotParameters, accuracy, weaponTraits, targetSystem);
             }, i * extraShotDelay);
         }
 

@@ -32,7 +32,7 @@ export type ChoiceTargetCardFunctionality = SharedEngineCardDefinition;
 
 export type WeaponSlotTargetCardFunctionality = SharedEngineCardDefinition & {
     load: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
-    fire: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters, accuracy: number, weaponTraits: WeaponTrait[]) => boolean;
+    fire: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters, accuracy: number, weaponTraits: WeaponTrait[], targetSystem: ShipSystem | null) => boolean;
 };
 
 export type WeaponTargetCardFunctionality = SharedEngineCardDefinition & {

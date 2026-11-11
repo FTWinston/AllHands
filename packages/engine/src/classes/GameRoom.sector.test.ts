@@ -558,7 +558,7 @@ describe('GameRoom player ship destruction', () => {
         shipClient.onMessage('weaponEffect', effect => effects.push(effect));
 
         const card = getCardDefinition('phaserCannon') as EngineWeaponSlotCardDefinition;
-        card.fire(state, ship, ship, { cost: 0, damage: 1 }, 100, []);
+        card.fire(state, ship, ship, { cost: 0, damage: 1 }, 100, [], null);
         await wait();
 
         expect(effects).toEqual([

@@ -12,6 +12,7 @@ import {
     WeaponTargetedCardType,
     cardDefinitions,
 } from 'common-data/features/cards/utils/cardDefinitions';
+import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { projectileFlightTime } from 'common-data/features/space/types/WeaponEffect';
@@ -157,6 +158,7 @@ function fireShot(
     accuracy: number,
     damageAmount: number | null | undefined,
     traits: WeaponTrait[],
+    targetSystem: ShipSystem | null,
     flightTime = 0
 ) {
     const hits = !!target && !!damageAmount && rollToHit(gameState.random, getTargetEvasion(target), accuracy);
@@ -180,10 +182,12 @@ function fireShot(
             return;
         }
 
-        // TODO: ability to target a specific system or vulnerability.
+        // An aimed shot lands on the system aimed at. Otherwise the target decides where it lands.
         const damage = target.damage({
             amount: damageAmount,
             traits,
+            targetSystem: targetSystem ?? undefined,
+            sourceId: ship.id,
         });
 
         if (isShip(target)) {
@@ -326,8 +330,8 @@ function loadCardDefinitions() {
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
-            fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
-                fireShot(gameState, ship, target, 'phaserCannon', accuracy, parameters.damage, weaponTraits);
+            fire: (gameState, ship, target, parameters, accuracy, weaponTraits, targetSystem) => {
+                fireShot(gameState, ship, target, 'phaserCannon', accuracy, parameters.damage, weaponTraits, targetSystem);
                 return true;
             },
         },
@@ -336,8 +340,8 @@ function loadCardDefinitions() {
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
-            fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
-                fireShot(gameState, ship, target, 'phaserStrip', accuracy, parameters.damage, weaponTraits);
+            fire: (gameState, ship, target, parameters, accuracy, weaponTraits, targetSystem) => {
+                fireShot(gameState, ship, target, 'phaserStrip', accuracy, parameters.damage, weaponTraits, targetSystem);
                 return true;
             },
         },
@@ -346,8 +350,8 @@ function loadCardDefinitions() {
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
-            fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
-                fireShot(gameState, ship, target, 'photonicCannon', accuracy, parameters.damage, weaponTraits);
+            fire: (gameState, ship, target, parameters, accuracy, weaponTraits, targetSystem) => {
+                fireShot(gameState, ship, target, 'photonicCannon', accuracy, parameters.damage, weaponTraits, targetSystem);
                 return true;
             },
         },
@@ -356,8 +360,8 @@ function loadCardDefinitions() {
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
-            fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
-                fireShot(gameState, ship, target, 'photonTorpedo', accuracy, parameters.damage, weaponTraits, projectileFlightTime);
+            fire: (gameState, ship, target, parameters, accuracy, weaponTraits, targetSystem) => {
+                fireShot(gameState, ship, target, 'photonTorpedo', accuracy, parameters.damage, weaponTraits, targetSystem, projectileFlightTime);
                 return true;
             },
         },
@@ -366,8 +370,8 @@ function loadCardDefinitions() {
             load: (_gameState, _ship, _slot) => {
                 return true;
             },
-            fire: (gameState, ship, target, parameters, accuracy, weaponTraits) => {
-                fireShot(gameState, ship, target, 'quantumTorpedo', accuracy, parameters.damage, weaponTraits, projectileFlightTime);
+            fire: (gameState, ship, target, parameters, accuracy, weaponTraits, targetSystem) => {
+                fireShot(gameState, ship, target, 'quantumTorpedo', accuracy, parameters.damage, weaponTraits, targetSystem, projectileFlightTime);
                 return true;
             },
         },

@@ -1,3 +1,4 @@
+import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { WeaponEffect, projectileFlightTime } from 'common-data/features/space/types/WeaponEffect';
 import { AiShip } from 'src/state/AiShip';
@@ -17,7 +18,13 @@ function createFight() {
 
     const setup = { ...shipSetup('raiders'), goal: { type: 'search-and-destroy' as const }, skill: 1 };
     const ship = new AiShip(state, setup);
-    const target = new AiShip(state, setup);
+    // The target has no shields, so every hit gets through, and enough cards in each system to take several.
+    const target = new AiShip(state, {
+        ...setup,
+        hull: { ...setup.hull, cards: Array(10).fill('hullBare') },
+        helm: { ...setup.helm, cards: Array(10).fill('exampleNoTarget') },
+        tactical: { ...setup.tactical, cards: Array(10).fill('exampleNoTarget') },
+    });
     state.add(ship);
     state.add(target);
 
@@ -28,14 +35,14 @@ function createFight() {
     const damage = vi.spyOn(target, 'damage');
     const setTimeout = vi.spyOn(state, 'setTimeout');
 
-    const fire = (weapon: string, accuracy: number) => {
+    const fire = (weapon: string, accuracy: number, targetSystem: ShipSystem | null = null) => {
         const card = getCardDefinition(weapon as never) as EngineWeaponSlotCardDefinition;
-        card.fire(state, ship, target, { cost: 0, damage: 5 }, accuracy, []);
+        card.fire(state, ship, target, { cost: 0, damage: 5 }, accuracy, [], targetSystem);
     };
 
     const landProjectile = () => setTimeout.mock.calls[0][0]();
 
-    return { target, effects, damage, setTimeout, fire, landProjectile };
+    return { state, ship, target, effects, damage, setTimeout, fire, landProjectile };
 }
 
 describe('firing weapons', () => {
@@ -91,5 +98,52 @@ describe('firing weapons', () => {
         expect(damage).not.toHaveBeenCalled();
         expect(setTimeout).not.toHaveBeenCalled();
         expect(effects).toEqual([expect.objectContaining({ type: 'shot', missed: true })]);
+    });
+
+    it.each(['phaserCannon', 'photonTorpedo'])('lands an aimed %s on the system aimed at, with 60%% of the damage there and the rest on the hull', (weapon) => {
+        const { target, fire, setTimeout } = createFight();
+
+        fire(weapon, 100, 'tactical');
+        for (const [land] of setTimeout.mock.calls) {
+            land();
+        }
+
+        // 5 damage: 3 to tactical, 2 to the hull.
+        expect(target.tacticalState.health).toBe(7);
+        expect(target.hullState.health).toBe(8);
+        expect(target.helmState.health).toBe(10);
+    });
+
+    it('leaves an unaimed shot to land on a system picked at random', () => {
+        const { state, target, fire } = createFight();
+        const pick = vi.spyOn(state.random, 'pick').mockReturnValueOnce('helm');
+
+        fire('phaserCannon', 100);
+
+        expect(pick).toHaveBeenCalledWith(shipSystems);
+        expect(target.helmState.health).toBe(7);
+        expect(target.hullState.health).toBe(8);
+        expect(target.tacticalState.health).toBe(10);
+    });
+
+    it('doesn\'t pick a system at random for an aimed shot', () => {
+        const { state, fire } = createFight();
+        const pick = vi.spyOn(state.random, 'pick');
+
+        fire('phaserCannon', 100, 'tactical');
+
+        expect(pick).not.toHaveBeenCalledWith(shipSystems);
+    });
+
+    it('says which ship fired, aimed or not', () => {
+        const { ship, damage, fire } = createFight();
+
+        fire('phaserCannon', 100, 'helm');
+        fire('phaserCannon', 100);
+
+        expect(damage).toHaveBeenCalledTimes(2);
+        for (const [hit] of damage.mock.calls) {
+            expect(hit.sourceId).toBe(ship.id);
+        }
     });
 });
