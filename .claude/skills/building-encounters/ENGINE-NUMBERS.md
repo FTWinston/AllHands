@@ -11,7 +11,7 @@ What a spec's numbers come to in the engine, and what each seat can really see. 
 - **Seeded runs drift wherever anything aims**, because an aimed shot skips the random pick. A balance test's numbers move when aiming does.
 - **To make something survive stray hits**, pad its hull with `hullBare`. The customs platform has 60, which is one or two hits after its shields go.
 - **Cards are damaged in the order the design lists them**, until repairs shuffle things. A damaged emitter takes its 15 off the shield capacity, so list a hull's bare cards before its emitters if its shields are meant to outlast its first hull damage.
-- **A system at 0 health can't play, load or charge anything**, but a weapon that's already loaded and charged goes on firing. A ship whose helm is at 0 slows to a stop within a second, whatever it was flying, and so does one that loses the power its manoeuvre needs.
+- **A system at 0 health does nothing.** It can't play, load or charge a card, and a tactical system at 0 can't fire a weapon it had already loaded, though it keeps it for when it's repaired. A ship whose helm is at 0 slows to a stop within a second, whatever it was flying, and so does one that loses the power its manoeuvre needs.
 
 ## Pace
 
