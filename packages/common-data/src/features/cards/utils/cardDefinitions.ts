@@ -1,4 +1,4 @@
-import { extendedShieldsDuration, extendedShieldsRange, systemEffectDefinitions, transferPowerDuration, transferPowerRange } from '../../../features/ships/utils/systemEffectDefinitions';
+import { extendedShieldsDuration, extendedShieldsRange, flareDuration, runQuietPowerLoss, systemEffectDefinitions, transferPowerDuration, transferPowerRange } from '../../../features/ships/utils/systemEffectDefinitions';
 import { CardDefinition, CardMotionSegmentFacing } from '../types/CardDefinition';
 import { CardTargetType } from '../types/CardTargetType';
 
@@ -42,7 +42,7 @@ export const cardDefinitions = defineCardDefinitions({
     flare: {
         targetType: 'no-target',
         system: 'tactical',
-        parameters: { cost: 2 },
+        parameters: { cost: 2, duration: flareDuration / 1000 },
     },
     smokeScreen: {
         targetType: 'no-target',
@@ -348,6 +348,11 @@ export const cardDefinitions = defineCardDefinitions({
         targetType: 'no-target',
         system: 'engineer',
         parameters: { cost: 4, duration: transferPowerDuration / 1000, range: transferPowerRange },
+    },
+    runQuiet: {
+        targetType: 'system',
+        system: 'engineer',
+        parameters: { cost: 1, powerChange: runQuietPowerLoss },
     },
     relocateSystem: {
         targetType: 'system',

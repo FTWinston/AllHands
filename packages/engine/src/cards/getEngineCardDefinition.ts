@@ -283,8 +283,15 @@ function loadCardDefinitions() {
             },
         },
         flare: {
-            play: (_ship) => {
-                console.log('played flare'); return true;
+            play: (_gameState, ship) => {
+                const tactical = ship.engineerState.systems.find(tile => tile.system === 'tactical');
+                if (!tactical) {
+                    return false;
+                }
+
+                // Launching another while one is burning starts its time over, as adding an effect that's already there does.
+                tactical.addEffect('flareBurning');
+                return true;
             },
         },
         smokeScreen: {
@@ -640,6 +647,14 @@ function loadCardDefinitions() {
                 // Playing it again while it's running starts its time over, as adding an effect that's already there does.
                 hull.addEffect('powerReceived');
                 return true;
+            },
+        },
+        runQuiet: {
+            play: (_gameState, _ship, system) => {
+                // The same card brings it back.
+                return system.hasEffect('runningQuiet')
+                    ? system.removeEffect('runningQuiet', true)
+                    : system.addEffect('runningQuiet');
             },
         },
         focusShields: {

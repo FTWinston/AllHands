@@ -44,7 +44,13 @@ function loadCardDefinitions() {
         },
         flare: {
             name: 'Flare',
-            description: 'A bright flare that can be launched to illuminate an area or signal allies.',
+            description: <>
+                Launch a bright flare, which burns for
+                {' '}
+                <Parameter name="duration" />
+                {' '}
+                seconds and dazzles sensors nearby.
+            </>,
             image: <ExampleIcon />,
         },
         smokeScreen: {
@@ -604,6 +610,17 @@ function loadCardDefinitions() {
                 <Parameter name="range" />
                 {' '}
                 units is powered from yours.
+            </>,
+            image: <ExampleIcon />,
+        },
+        runQuiet: {
+            name: 'Run Quiet',
+            description: <>
+                This system runs
+                {' '}
+                <Parameter name="powerChange" />
+                {' '}
+                power lower. Play it again to bring it back.
             </>,
             image: <ExampleIcon />,
         },

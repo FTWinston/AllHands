@@ -1,4 +1,4 @@
-import { LeveledSystemEffectType, systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { LeveledSystemEffectType, runQuietPowerLoss, systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { EngineerSystemTile } from 'src/state/systems/engineer/EngineerSystemTile';
 import { EngineSystemEffectDefinition, SystemEffectFunctionality } from './EngineSystemEffectDefinition';
 
@@ -224,6 +224,20 @@ function loadSystemEffectDefinitions() {
         // Nothing to do here: an encounter that cares whether a ship is being powered looks for this on its hull.
         powerReceived: {
             apply: system => system.system === 'hull',
+            remove: () => {},
+        },
+        runningQuiet: {
+            apply: (system) => {
+                system.adjustSystemPowerLevel(-runQuietPowerLoss);
+                return true;
+            },
+            remove: (system) => {
+                system.adjustSystemPowerLevel(runQuietPowerLoss);
+            },
+        },
+        // Nothing to do here: an encounter that cares whether a flare is burning looks for this on a ship's tactical system.
+        flareBurning: {
+            apply: system => system.system === 'tactical',
             remove: () => {},
         },
         // These do nothing: they're only there to be read, by whoever is working out how a customs platform is keyed.
