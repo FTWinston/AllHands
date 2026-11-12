@@ -98,7 +98,7 @@ Objectives need objects: a module, a station, a relay. The engine's only objects
 
 `Encounter` gains `protected setObjective(objective: ObjectiveInfo)`, which replaces `state.objective` and the summary's. Only the boss uses it, once. The node keeps the objective it was made with.
 
-**As built:** only `recover`, for Dead Weight. `reach` and `setObjective` are left for the encounters that need them. `ObjectiveState` needed nothing, as it already carries any objective's `subject`.
+**As built:** `recover`, for Dead Weight, and `reach`, for Quiet Running, each shown as its label and subject ("Reach Ketch Relay"). `setObjective` is left for the boss. `ObjectiveState` needed nothing, as it already carries any objective's `subject`.
 
 ### M. Reading a hand, as built
 

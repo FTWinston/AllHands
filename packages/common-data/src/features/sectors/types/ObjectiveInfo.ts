@@ -6,6 +6,7 @@
  * - protect: keep the named `subject` safe.
  * - disable: stop the named `subject`, without destroying it.
  * - recover: get the named `subject` back from whoever has it.
+ * - reach: get to the named `subject`.
  */
 export type ObjectiveInfo
     = | { type: 'clear' }
@@ -13,7 +14,8 @@ export type ObjectiveInfo
         | { type: 'boss' }
         | { type: 'protect'; subject: string }
         | { type: 'disable'; subject: string }
-        | { type: 'recover'; subject: string };
+        | { type: 'recover'; subject: string }
+        | { type: 'reach'; subject: string };
 
 export type ObjectiveType = ObjectiveInfo['type'];
 
