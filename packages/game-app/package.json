@@ -17,8 +17,14 @@
   "build": {
     "appId": "com.ftwinston.allhands",
     "productName": "All Hands",
+    "directories": {
+      "output": "release"
+    },
     "files": [
-      "dist/**/*"
+      "dist/**/*",
+      "config/**/*",
+      "!node_modules/engine/src/**/*",
+      "!node_modules/engine/{build.mjs,.env.devtools,tsconfig.json,tsconfig.tsbuildinfo}"
     ],
     "extraResources": [
       {
