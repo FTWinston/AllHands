@@ -1,4 +1,4 @@
-import { extendedShieldsDuration, extendedShieldsRange, flareDuration, keyTurnedDuration, runQuietPowerLoss, systemEffectDefinitions, transferPowerDuration, transferPowerRange } from '../../../features/ships/utils/systemEffectDefinitions';
+import { extendedShieldsDuration, extendedShieldsRange, flareDuration, keyPowerDuration, keyTurnedDuration, runQuietPowerLoss, systemEffectDefinitions, transferPowerDuration, transferPowerRange } from '../../../features/ships/utils/systemEffectDefinitions';
 import { CardDefinition, CardMotionSegmentFacing } from '../types/CardDefinition';
 import { CardTargetType } from '../types/CardTargetType';
 
@@ -1077,6 +1077,13 @@ export const cardDefinitions = defineCardDefinitions({
         system: 'engineer',
         traits: ['priority'],
         parameters: { cost: 4, duration: keyTurnedDuration / 1000 },
+    },
+    // What the gate's keepers give the engineer to power the keys with. Aux Power can only be on one system at a time, and the keys need four.
+    keyPower: {
+        targetType: 'system',
+        system: 'engineer',
+        traits: ['priority'],
+        parameters: { cost: 1, powerGain: 1, duration: keyPowerDuration / 1000 },
     },
 } as const);
 

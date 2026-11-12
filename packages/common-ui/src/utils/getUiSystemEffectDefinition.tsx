@@ -99,6 +99,11 @@ function loadEffectDefinitions() {
             description: <>A flare launched from this ship is burning, dazzling sensors nearby.</>,
             image: ExampleIcon,
         },
+        keyPower: {
+            name: 'Key Power',
+            description: <>This system is running a level higher for a while, enough to turn its Shutdown Key.</>,
+            image: ExampleIcon,
+        },
         gatePulse: {
             name: 'Gate Pulse',
             description: <>A pulse from the quarantine gate has passed through this system. It does no harm.</>,

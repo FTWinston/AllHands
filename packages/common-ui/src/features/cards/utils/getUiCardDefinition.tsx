@@ -125,6 +125,23 @@ function loadCardDefinitions() {
         shutdownKeyScience: shutdownKey,
         shutdownKeyTactical: shutdownKey,
         shutdownKeyEngineer: shutdownKey,
+        keyPower: {
+            name: 'Key Power',
+            description: <>
+                <Trait trait="priority" />
+                {' '}
+                Increase a system's power level by
+                {' '}
+                <Parameter name="powerGain" />
+                {' '}
+                for
+                {' '}
+                <Parameter name="duration" />
+                {' '}
+                seconds. Every system can have it at once.
+            </>,
+            image: <ExampleIcon />,
+        },
         phaserCannon: {
             name: 'Phaser Cannon',
             description: <>

@@ -345,6 +345,10 @@ function loadCardDefinitions() {
         shutdownKeyScience: { play: turnKey('science') },
         shutdownKeyTactical: { play: turnKey('tactical') },
         shutdownKeyEngineer: { play: turnKey('engineer') },
+        keyPower: {
+            // Playing it again on a system that has it starts its time over, as adding an effect that's already there does.
+            play: (_gameState, _ship, system) => system.addEffect('keyPower'),
+        },
         phaserCannon: {
             aiEvaluator: weaponLoadEvaluator('phaserCannon'),
             load: (_gameState, _ship, _slot) => {
