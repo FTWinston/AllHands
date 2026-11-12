@@ -27,6 +27,12 @@ export class CardState extends Schema implements CardInstance {
     */
     @type({ map: 'number' }) readonly extraTraits = new MapSchema<ExtraTraitType, CardTrait>();
 
+    /**
+     * Called after this card's traits or modifiers change. The system that holds the card sets it, to announce a change to a card in its hand.
+     * Not synced, and not copied by `cloneCard`.
+     */
+    onChanged: ((card: CardState) => void) | null = null;
+
     getParameters(additionalModifiers?: IMap<string, number> | null): CardParameters {
         const definition = getCardDefinition(this.type);
 
@@ -52,10 +58,13 @@ export class CardState extends Schema implements CardInstance {
 
     addTrait(trait: CardTrait, type: ExtraTraitType) {
         this.extraTraits.set(trait, type);
+        this.onChanged?.(this);
     }
 
     removeTrait(trait: CardTrait) {
-        this.extraTraits.delete(trait);
+        if (this.extraTraits.delete(trait)) {
+            this.onChanged?.(this);
+        }
     }
 
     get isDamaged() {
@@ -76,6 +85,8 @@ export class CardState extends Schema implements CardInstance {
         } else {
             this.modifiers.set(parameter, adjusted);
         }
+
+        this.onChanged?.(this);
     }
 
     cloneCard(newId = this.id) {

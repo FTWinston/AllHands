@@ -40,6 +40,9 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         // Every card starts in the deck. Hands are only dealt when an encounter starts (see `dealInitialHand`).
         this.deck = new ArraySchema<CardState>(...cards);
+        for (const card of cards) {
+            this.holdCard(card);
+        }
 
         this.health = this.maxHealth = this.initializeCardPool(cards);
     }
@@ -77,6 +80,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
      * Put a card into the hand. Assumes that there is space, and that it's already been removed from wherever it was before. Does not check for duplicates.
      */
     addCardToHand(card: CardState) {
+        this.holdCard(card);
         this.hand.push(card);
         this.lastDrawnCard = card;
 
@@ -87,6 +91,18 @@ export abstract class SystemState extends Schema implements SystemInfo {
         this.cardAddedToHand.triggerListeners(card);
         this.handChanged();
     }
+
+    /** Have this system be told when the card's traits or modifiers change, wherever it goes among the system's cards. */
+    private holdCard(card: CardState) {
+        card.onChanged = this.heldCardChanged;
+    }
+
+    /** A card in the hand that changes is a change to the hand, which a scan that has read it shows. Cards elsewhere aren't seen that way. */
+    private readonly heldCardChanged = (card: CardState) => {
+        if (this.hand.includes(card)) {
+            this.handChanged();
+        }
+    };
 
     /**
      * Take card(s) from the front of the deck and add them to the hand.
@@ -506,6 +522,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
     /** Permanently add a card to the bottom of the deck and to the card pool (unless it's expendable), raising the system's max health. */
     addDeckCard(card: CardState) {
+        this.holdCard(card);
         this.deck.push(card);
         this._ship.markCardTypesSeen([card.type]);
 
@@ -812,7 +829,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
                 .map(([trait]) => trait);
 
             for (const trait of traitsToRemove) {
-                card.extraTraits.delete(trait);
+                card.removeTrait(trait);
             }
         }
 
@@ -923,7 +940,5 @@ export abstract class SystemState extends Schema implements SystemInfo {
         for (const card of this.deck) {
             card.modifyParameter('cost', amount);
         }
-
-        this.handChanged();
     }
 }

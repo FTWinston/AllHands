@@ -1,5 +1,7 @@
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
+import { applyWeaponTrait } from 'src/cards/applyWeaponTrait';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { AiShip } from 'src/state/AiShip';
 import { CardCooldownState } from 'src/state/CardCooldownState';
@@ -297,6 +299,59 @@ describe('ScienceState reading a hand', () => {
         target.helmState.adjustHealth(-target.helmState.maxHealth);
 
         expect([...scanner.scienceState.scannedHelm!.hand!].every(card => card.isDamaged)).toBe(true);
+    });
+
+    it('shows a trait added to or taken from a card in the hand, without the system being told', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        readHand(scanner, target, 'helm');
+        const shown = scanner.scienceState.scannedHelm!;
+
+        target.helmState.hand[1].addTrait('unstable', ExtraTraitType.RemoveOnPlay);
+        expect(shown.hand![1].hasTrait('unstable')).toBe(true);
+
+        target.helmState.hand[1].removeTrait('unstable');
+        expect(shown.hand![1].hasTrait('unstable')).toBe(false);
+    });
+
+    it('shows a change to the cost of a card in the hand', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        readHand(scanner, target, 'helm');
+        const card = target.helmState.hand[1];
+        const cost = card.getParameter('cost');
+
+        card.modifyParameter('cost', 1);
+
+        expect(scanner.scienceState.scannedHelm!.hand![1].getParameter('cost')).toBe(cost + 1);
+    });
+
+    it('shows the cards a destabilizing hit makes unstable', () => {
+        const { scanner, target } = createWorld();
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        readHand(scanner, target, 'helm');
+
+        applyWeaponTrait('destabilizing', scanner, target.helmState);
+
+        expect([...scanner.scienceState.scannedHelm!.hand!].every(card => card.hasTrait('unstable'))).toBe(true);
+    });
+
+    it('shows a card that stays in the hand when played losing the traits that go when it\'s played', () => {
+        const { scanner, target } = createWorld();
+        const card = new CardState(995, 'exampleNoTarget');
+        card.addTrait('primary', ExtraTraitType.Normal);
+        card.addTrait('unstable', ExtraTraitType.RemoveOnPlay);
+        target.helmState.addCardToHand(card);
+        target.helmState.adjustPowerLevel(5);
+        scan(scanner, target, target.helmState.scannedSystemIndex);
+        readHand(scanner, target, 'helm');
+        const shown = () => [...scanner.scienceState.scannedHelm!.hand!].find(other => other.id === card.id)!;
+        expect(shown().hasTrait('unstable')).toBe(true);
+
+        target.helmState.playCard(card.id, card.type, 'no-target', '');
+
+        expect(target.helmState.hand).toContain(card);
+        expect(shown().hasTrait('unstable')).toBe(false);
     });
 
     it('keeps an engineer\'s hand up to date', () => {
