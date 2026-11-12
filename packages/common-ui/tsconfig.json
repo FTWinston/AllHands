@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
+    "emitDeclarationOnly": true,
     "paths": {
       "common-data/*": ["../common-data/src/*"],
       "engine/*": ["../engine/src/*"],

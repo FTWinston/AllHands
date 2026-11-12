@@ -60,7 +60,7 @@ export function useRoomConnection(
                     setShipId(message.shipId);
                 });
 
-                if (import.meta.env.VITE_DEV_TOOLS) {
+                if (import.meta.env.DEV_TOOLS) {
                     joinedRoom.onMessage<DevEncounterInfo[]>('devEncounterList', (encounters) => {
                         setDevEncounters(encounters);
                     });

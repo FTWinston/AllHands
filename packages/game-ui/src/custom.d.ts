@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-    readonly VITE_DEV_TOOLS?: string;
+    readonly DEV_TOOLS?: string;
 }
 
 declare module '*.module.css' {

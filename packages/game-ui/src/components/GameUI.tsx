@@ -44,7 +44,7 @@ export const GameUI = () => {
         if (serverState === 'active' || serverState === 'ended') {
             if (room && shipId && timeProvider) {
                 // Add dev tools to the viewscreen only if enabled at build time.
-                const children = import.meta.env.VITE_DEV_TOOLS && (
+                const children = import.meta.env.DEV_TOOLS && (
                     <DevTools room={room} encounters={devEncounters} />
                 );
 
@@ -78,7 +78,7 @@ export const GameUI = () => {
                             allowMultipleCrews={allowMultipleCrews}
                             disconnect={disconnect}
                         />
-                        {import.meta.env.VITE_DEV_TOOLS && (
+                        {import.meta.env.DEV_TOOLS && (
                             <DevTools room={room} encounters={devEncounters} inLobby />
                         )}
                     </>

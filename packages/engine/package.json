@@ -4,20 +4,22 @@
   "private": true,
   "main": "dist/index.js",
   "scripts": {
-    "build": "node -e \"require('fs').mkdirSync('src/generated',{recursive:true});require('fs').writeFileSync('src/generated/devtools.ts','export const DEV_TOOLS_ENABLED = false;\\n');\" && tsc && tsc-alias",
-    "build:devtools": "node -e \"require('fs').mkdirSync('src/generated',{recursive:true});require('fs').writeFileSync('src/generated/devtools.ts','export const DEV_TOOLS_ENABLED = true;\\n');\" && tsc && tsc-alias"
+    "build": "tsc -b && node build.mjs",
+    "build:devtools": "tsc -b && node --env-file=.env.devtools build.mjs"
   },
   "dependencies": {
     "@colyseus/core": "^0.18.18",
+    "@colyseus/schema": "^5.0.35",
     "@colyseus/ws-transport": "^0.18.4",
     "colyseus": "^0.18.9",
-    "common-data": "1.0.0",
-    "express": "^5.1.0",
-    "nanoid": "^5.1.5"
+    "express": "^5.1.0"
   },
   "devDependencies": {
     "@colyseus/testing": "^0.18.6",
+    "@colyseus/timer": "^2.0.3",
     "@types/express": "^5.0.3",
-    "tsc-alias": "^1.8.16"
+    "common-data": "1.0.0",
+    "esbuild": "^0.28.2",
+    "nanoid": "^5.1.5"
   }
 }
