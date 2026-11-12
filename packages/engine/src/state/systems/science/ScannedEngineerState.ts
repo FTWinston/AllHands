@@ -8,7 +8,11 @@ import type { EngineerState } from '../engineer/EngineerState';
 export class ScannedEngineerState extends ScannedSystemState<EngineerState> implements ScannedEngineerInfo {
     @type([ScannedEngineerTileState]) engineerTiles = new ArraySchema<ScannedEngineerTileState>();
 
-    // The tiles have every system's power and health, but the engineer's own hand changes on the engineer system itself.
+    /**
+     * An engineer scan shows two things that change in different places, so it listens to both.
+     * Its tiles show each of the ship's systems' power and health, which each system's own tile announces as they change.
+     * The engineer's hand isn't on any tile: the engineer system announces changes to it, as every crew system does for its hand.
+     */
     protected override get changeEvents(): ListenableEvent[] {
         return [
             ...super.changeEvents,
