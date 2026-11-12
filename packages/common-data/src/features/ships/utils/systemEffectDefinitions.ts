@@ -20,6 +20,9 @@ export const runQuietPowerLoss = 2;
 /** How long a flare burns, once the Flare card is played. */
 export const flareDuration = 8000;
 
+/** How long the mark of the quarantine gate's pulse stays on the system it landed on. */
+export const gatePulseDuration = 4000;
+
 /** How long the mark of a customs platform's inspection ping stays on the system it landed on. */
 export const inspectionPingDuration = 8000;
 
@@ -104,6 +107,12 @@ export const systemEffectDefinitions = defineSystemEffects({
         category: SystemEffectCategory.Neutral,
         usesLevels: false,
         duration: flareDuration,
+    },
+    /** What the quarantine gate's pulse leaves behind, each time its master pylon changes its shields. It does nothing: when it lands is what matters. */
+    gatePulse: {
+        category: SystemEffectCategory.Neutral,
+        usesLevels: false,
+        duration: gatePulseDuration,
     },
     // What a customs platform's inspection ping leaves behind. They do nothing: which one it is says how the platform is keyed.
     phasedPing: {

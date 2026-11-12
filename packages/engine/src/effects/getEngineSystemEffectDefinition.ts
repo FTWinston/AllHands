@@ -240,6 +240,11 @@ function loadSystemEffectDefinitions() {
             apply: system => system.system === 'tactical',
             remove: () => {},
         },
+        // Nothing to do here either: the quarantine gate decides what this is worth.
+        gatePulse: {
+            apply: () => true,
+            remove: () => {},
+        },
         // These do nothing: they're only there to be read, by whoever is working out how a customs platform is keyed.
         phasedPing: {
             apply: () => true,

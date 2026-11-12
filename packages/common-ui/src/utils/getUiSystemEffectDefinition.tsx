@@ -99,6 +99,11 @@ function loadEffectDefinitions() {
             description: <>A flare launched from this ship is burning, dazzling sensors nearby.</>,
             image: ExampleIcon,
         },
+        gatePulse: {
+            name: 'Gate Pulse',
+            description: <>A pulse from the quarantine gate has passed through this system. It does no harm.</>,
+            image: ExampleIcon,
+        },
         phasedPing: {
             name: 'Phased Ping',
             description: <>Something has pinged this system with a phased signal. It does no harm.</>,
