@@ -462,7 +462,7 @@ describe('QuarantineGateEncounter', () => {
         });
 
         it('the boat flies in and docks, and the drones go after it', () => {
-            const run = createRun();
+            const run = createRun({ seed: 4 });
             toDoor(run);
             const boat = run.encounter.keepersBoat!;
             // Where a crew covering the boat would wait for it: the drones prefer the boat, though the crew is nearer.

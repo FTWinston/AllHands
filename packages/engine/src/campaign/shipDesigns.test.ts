@@ -38,7 +38,7 @@ describe('ships that do nothing', () => {
     const rooms = setupGameRoom();
 
     function createState() {
-        const state = rooms.createState(seededRandom(1));
+        const state = rooms.createState(seededRandom(2));
         state.initFactions([{ id: 'player' }], 'player');
         state.factionRegistry.setEncounterFactions([{ id: 'objects' }, { id: 'raiders', relations: { objects: RelationshipType.Hostile } }]);
         return state;

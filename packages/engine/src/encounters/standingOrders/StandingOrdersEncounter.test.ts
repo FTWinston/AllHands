@@ -322,7 +322,7 @@ describe('StandingOrdersEncounter', () => {
     describe('played out with the real AI', () => {
         it('the platform stays exactly where it is, turns to face the player ship, and fires on it', () => {
             // A seed that arms it with something other than a strip, whose arc is so wide it never has to turn.
-            const { state, ship, platform } = createStandingOrders({ seed: 4 });
+            const { state, ship, platform } = createStandingOrders({ seed: 6 });
             const start = platform.getPosition(state.currentTime);
             const ownShield = ship.hullState.shield;
 

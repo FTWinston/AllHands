@@ -17,6 +17,8 @@ const FLEE_DISTANCE = 50;
 const EVASIVE_HULL_FRACTION = 0.5;
 const WANDER_DISTANCE = 40;
 const WANDER_ARRIVAL_RADIUS = 5;
+/** The chance that, on taking a new target, the commander goes for its hull, firing plain shots, rather than for one of its systems. */
+export const HULL_FOCUS_CHANCE = 0.5;
 
 export class Commander {
     private activeGoal: AiGoalInfo;
@@ -29,6 +31,10 @@ export class Commander {
     private standingDown = false;
     /** Which of a `travel-route` goal's waypoints the ship is heading for. */
     private waypointIndex = 0;
+    /** Whether the ship goes for the hull of its current target, or for one of its systems. Decided on taking each new target, and kept while that target lasts. */
+    private goingForHull = false;
+    /** The target that `goingForHull` was decided for. */
+    private focusDecidedFor: string | null = null;
 
     constructor(
         private readonly ship: Ship,
@@ -329,9 +335,21 @@ export class Commander {
         }
     }
 
+    /**
+     * What tactical should aim at, short of an exposed vulnerability, which it always goes for first.
+     * On taking a new target the commander decides whether to go for its hull or its systems, and sticks to that while the target lasts.
+     * Going for the hull, there's no focus system, so tactical fires plain shots. Going for its systems, it's tactical first, then helm, once science has identified them.
+     */
     private updateFocusSystem(blackboard: Blackboard) {
         blackboard.focusSystem = null;
         if (blackboard.targetId === null) {
+            return;
+        }
+        if (this.focusDecidedFor !== blackboard.targetId) {
+            this.focusDecidedFor = blackboard.targetId;
+            this.goingForHull = this.gameState.random.getBoolean(HULL_FOCUS_CHANCE);
+        }
+        if (this.goingForHull) {
             return;
         }
         const subTargets = this.ship.tacticalState.subTargetsByTarget.get(blackboard.targetId)?.subTargets;
