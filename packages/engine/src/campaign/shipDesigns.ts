@@ -193,6 +193,16 @@ const designTemplates = defineDesignTemplates({
         tactical: { ...system(['phaserCannon', 'phaserCannon', 'phaserCannon']), numSlots: 1 },
         fleeThreshold: 0,
     },
+    // A fighter on watch: its shields and decks, but armed only with a cannon, so it has to close to 10 to hurt anything. Its reactor gives tactical 3, which the cannon needs.
+    // With the fighter's torpedo and Full Spread, six of them hunting killed the crew in most runs. It never runs.
+    picket: {
+        ...fighterTemplate,
+        appearance: 'wedge-destroyer',
+        tactical: { ...system(['phaserCannon', 'phaserCannon']), numSlots: 1 },
+        fleeThreshold: 0,
+    },
+    // Not a ship: a relay station, with nobody aboard to fly it or fight. 30 bare hull and no shields.
+    relay: inertTemplate('ring-vessel', Array<'hullBare'>(30).fill('hullBare')),
 });
 
 /** A kind of AI ship. Each has its own appearance, so the same shape always means the same kind of ship, whichever faction it's in. */
@@ -213,6 +223,8 @@ const designNames: Record<ShipDesign, string> = {
     miningStation: 'Mining Station',
     shuttle: 'Shuttle',
     gridFragment: 'Grid Fragment',
+    picket: 'Picket',
+    relay: 'Relay',
 };
 
 /** How well a ship plays (see `AiShipSetupInfo.skill`), unless the encounter says otherwise. */

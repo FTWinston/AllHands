@@ -9,7 +9,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createShipSetup, defaultSkill, inertPriorities, inertTemplate, type ShipDesign } from './shipDesigns';
 import type { AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 
-const designs: ShipDesign[] = ['harrier', 'fighter', 'bulwark', 'flagship', 'clinicShip', 'customsPlatform', 'hauler', 'drone', 'tug', 'waterModule', 'miningStation', 'shuttle', 'gridFragment'];
+const designs: ShipDesign[] = ['harrier', 'fighter', 'bulwark', 'flagship', 'clinicShip', 'customsPlatform', 'hauler', 'drone', 'tug', 'waterModule', 'miningStation', 'shuttle', 'gridFragment', 'picket', 'relay'];
 const origin = { x: 0, y: 0, angle: 0 };
 
 describe('ship designs', () => {
