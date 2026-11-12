@@ -1,4 +1,4 @@
-import { extendedShieldsDuration, extendedShieldsRange, flareDuration, runQuietPowerLoss, systemEffectDefinitions, transferPowerDuration, transferPowerRange } from '../../../features/ships/utils/systemEffectDefinitions';
+import { extendedShieldsDuration, extendedShieldsRange, flareDuration, keyTurnedDuration, runQuietPowerLoss, systemEffectDefinitions, transferPowerDuration, transferPowerRange } from '../../../features/ships/utils/systemEffectDefinitions';
 import { CardDefinition, CardMotionSegmentFacing } from '../types/CardDefinition';
 import { CardTargetType } from '../types/CardTargetType';
 
@@ -1052,6 +1052,31 @@ export const cardDefinitions = defineCardDefinitions({
         system: 'helm',
         traits: ['priority'],
         parameters: { cost: 0 },
+    },
+    // The quarantine gate's Shutdown Keys, one for each station, as every card belongs to one system. They're only ever handed out by the gate's keepers.
+    shutdownKeyHelm: {
+        targetType: 'no-target',
+        system: 'helm',
+        traits: ['priority'],
+        parameters: { cost: 4, duration: keyTurnedDuration / 1000 },
+    },
+    shutdownKeyScience: {
+        targetType: 'no-target',
+        system: 'science',
+        traits: ['priority'],
+        parameters: { cost: 4, duration: keyTurnedDuration / 1000 },
+    },
+    shutdownKeyTactical: {
+        targetType: 'no-target',
+        system: 'tactical',
+        traits: ['priority'],
+        parameters: { cost: 4, duration: keyTurnedDuration / 1000 },
+    },
+    shutdownKeyEngineer: {
+        targetType: 'no-target',
+        system: 'engineer',
+        traits: ['priority'],
+        parameters: { cost: 4, duration: keyTurnedDuration / 1000 },
     },
 } as const);
 

@@ -104,6 +104,11 @@ function loadEffectDefinitions() {
             description: <>A pulse from the quarantine gate has passed through this system. It does no harm.</>,
             image: ExampleIcon,
         },
+        keyTurned: {
+            name: 'Key Turned',
+            description: <>This station's Shutdown Key is turned. It turns back on its own.</>,
+            image: ExampleIcon,
+        },
         phasedPing: {
             name: 'Phased Ping',
             description: <>Something has pinged this system with a phased signal. It does no harm.</>,

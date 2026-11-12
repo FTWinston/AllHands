@@ -23,6 +23,9 @@ export const flareDuration = 8000;
 /** How long the mark of the quarantine gate's pulse stays on the system it landed on. */
 export const gatePulseDuration = 4000;
 
+/** How long a Shutdown Key stays turned, once it's played. */
+export const keyTurnedDuration = 5000;
+
 /** How long the mark of a customs platform's inspection ping stays on the system it landed on. */
 export const inspectionPingDuration = 8000;
 
@@ -113,6 +116,12 @@ export const systemEffectDefinitions = defineSystemEffects({
         category: SystemEffectCategory.Neutral,
         usesLevels: false,
         duration: gatePulseDuration,
+    },
+    /** This system's Shutdown Key is turned. It does nothing itself: the gate listens for all four of a ship's being turned at once. */
+    keyTurned: {
+        category: SystemEffectCategory.Neutral,
+        usesLevels: false,
+        duration: keyTurnedDuration,
     },
     // What a customs platform's inspection ping leaves behind. They do nothing: which one it is says how the platform is keyed.
     phasedPing: {

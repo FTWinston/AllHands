@@ -240,8 +240,12 @@ function loadSystemEffectDefinitions() {
             apply: system => system.system === 'tactical',
             remove: () => {},
         },
-        // Nothing to do here either: the quarantine gate decides what this is worth.
+        // Nothing to do here either: the quarantine gate decides what these are worth.
         gatePulse: {
+            apply: () => true,
+            remove: () => {},
+        },
+        keyTurned: {
             apply: () => true,
             remove: () => {},
         },
