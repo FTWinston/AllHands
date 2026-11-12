@@ -198,8 +198,11 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     }
 
     override damage(damage: Damage): number {
+        // An unaimed hit lands on a system picked at random. The pick is made for an aimed hit too, and not used,
+        // so that every hit uses up the same random numbers, and aiming doesn't change what comes out of the game's random after it.
+        const randomSystem = this.random.pick(shipSystems);
         if (!damage.targetSystem) {
-            damage.targetSystem = this.random.pick(shipSystems);
+            damage.targetSystem = randomSystem;
         }
 
         // A friendly ship that has extended its shields over this one takes the hit on them first. Whatever they let through then meets this ship's own.

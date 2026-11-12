@@ -1,16 +1,17 @@
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { WeaponEffect, projectileFlightTime } from 'common-data/features/space/types/WeaponEffect';
+import { IRandom } from 'common-data/types/IRandom';
 import { AiShip } from 'src/state/AiShip';
-import { setupGameRoom, shipSetup } from 'src/testUtils';
+import { seededRandom, setupGameRoom, shipSetup } from 'src/testUtils';
 import { describe, expect, it, vi } from 'vitest';
 import { getCardDefinition } from './getEngineCardDefinition';
 import type { EngineWeaponSlotCardDefinition } from './EngineCardDefinition';
 
 const rooms = setupGameRoom();
 
-function createFight() {
-    const state = rooms.createState();
+function createFight(random?: IRandom) {
+    const state = rooms.createState(random);
     state.initFactions([
         { id: 'player' },
         { id: 'raiders', relations: { player: RelationshipType.Hostile } },
@@ -126,13 +127,15 @@ describe('firing weapons', () => {
         expect(target.tacticalState.health).toBe(10);
     });
 
-    it('doesn\'t pick a system at random for an aimed shot', () => {
-        const { state, fire } = createFight();
-        const pick = vi.spyOn(state.random, 'pick');
+    it('uses up the same random numbers whether a shot is aimed or not, so aiming doesn\'t change what comes after it', () => {
+        const nextRandomAfter = (targetSystem: ShipSystem | null) => {
+            const random = seededRandom(7);
+            const { fire } = createFight(random);
+            fire('phaserCannon', 100, targetSystem);
+            return random.getFloat();
+        };
 
-        fire('phaserCannon', 100, 'tactical');
-
-        expect(pick).not.toHaveBeenCalledWith(shipSystems);
+        expect(nextRandomAfter('tactical')).toBe(nextRandomAfter(null));
     });
 
     it('says which ship fired, aimed or not', () => {
