@@ -1,6 +1,6 @@
 import { createShipSetup, ringPosition, type ShipDesign } from '../campaign/shipDesigns';
 import { AiShip } from '../state/AiShip';
-import type { AiGoalInfo } from 'common-data/features/space/types/GameObjectInfo';
+import type { AiGoalInfo, AiPriorities } from 'common-data/features/space/types/GameObjectInfo';
 import type { Position } from 'common-data/features/space/types/Position';
 import type { GameState } from 'src/state/GameState';
 
@@ -17,6 +17,8 @@ export interface ShipSpawn {
     /** Where the ship starts. Left out, it's spread around the player with the rest. */
     position?: Position;
     skill?: number;
+    /** Officers' priorities in place of the design's, such as 0 to switch one officer off on this ship. Those it leaves out are the design's. */
+    priorities?: AiPriorities;
 }
 
 /**
@@ -35,6 +37,7 @@ export function createShips(state: GameState, faction: string, spawns: readonly 
             name: spawn.name,
             goal: spawn.guards ? { type: 'guard-ship', shipId: spawn.guards } : spawn.goal,
             skill: spawn.skill,
+            priorities: spawn.priorities,
         }
     )));
 }
