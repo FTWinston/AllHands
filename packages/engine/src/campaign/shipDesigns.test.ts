@@ -6,10 +6,10 @@ import { RelationshipType } from 'common-data/features/space/types/RelationshipT
 import { AiShip } from 'src/state/AiShip';
 import { seededRandom, setupGameRoom } from 'src/testUtils';
 import { describe, expect, it, vi } from 'vitest';
-import { createShipSetup, defaultSkill, inertTemplate, type ShipDesign } from './shipDesigns';
+import { createShipSetup, defaultSkill, inertPriorities, inertTemplate, type ShipDesign } from './shipDesigns';
 import type { AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 
-const designs: ShipDesign[] = ['harrier', 'fighter', 'bulwark', 'flagship', 'clinicShip', 'customsPlatform', 'hauler', 'drone'];
+const designs: ShipDesign[] = ['harrier', 'fighter', 'bulwark', 'flagship', 'clinicShip', 'customsPlatform', 'hauler', 'drone', 'tug', 'waterModule'];
 const origin = { x: 0, y: 0, angle: 0 };
 
 describe('ship designs', () => {
@@ -99,5 +99,8 @@ describe('ships that do nothing', () => {
     it('can be made by switching off a ship\'s officers when it\'s spawned, without changing its design', () => {
         expect(createShipSetup('harrier', 'side', origin, { priorities: { helm: 0 } }).priorities).toEqual({ helm: 0 });
         expect(createShipSetup('harrier', 'side', origin).priorities).toBeUndefined();
+        // A tug's engineer is switched off by its design, and stays off when its helm is switched off too.
+        expect(createShipSetup('tug', 'side', origin, { priorities: { helm: 0 } }).priorities).toEqual({ engineer: 0, helm: 0 });
+        expect(createShipSetup('waterModule', 'side', origin).priorities).toEqual(inertPriorities);
     });
 });

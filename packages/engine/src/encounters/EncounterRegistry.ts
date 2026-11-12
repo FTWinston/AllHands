@@ -1,5 +1,6 @@
 import { bossDefinitions } from './BossEncounter';
 import { combatEncounterDefinitions } from './CombatEncounter';
+import { deadWeightDefinition } from './deadWeight/DeadWeightEncounter';
 import { feverShipDefinition } from './FeverShipEncounter';
 import { slowBoatDefinition } from './SlowBoatEncounter';
 import { standingOrdersDefinition } from './standingOrders/StandingOrdersEncounter';
@@ -23,6 +24,7 @@ const definitions: readonly EncounterDefinition[] = [
     slowBoatDefinition,
     standingOrdersDefinition,
     feverShipDefinition,
+    deadWeightDefinition,
     ...stationDefinitions,
     ...bossDefinitions,
 ];

@@ -84,6 +84,11 @@ function loadEffectDefinitions() {
             description: <>{`The shields are extended over friendly ships within ${extendedShieldsRange} units: hits on them drain these shields, not theirs.`}</>,
             image: ExampleIcon,
         },
+        powerReceived: {
+            name: 'Power Received',
+            description: <>Another ship is powering this one.</>,
+            image: ExampleIcon,
+        },
         phasedPing: {
             name: 'Phased Ping',
             description: <>Something has pinged this system with a phased signal. It does no harm.</>,

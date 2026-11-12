@@ -14,7 +14,7 @@ import {
 } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
-import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { LeveledSystemEffectType, SystemEffectType, transferPowerRange } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { projectileFlightTime } from 'common-data/features/space/types/WeaponEffect';
 import { IRandom } from 'common-data/types/IRandom';
 import { choiceEvaluator } from 'src/ai/evaluators';
@@ -627,6 +627,18 @@ function loadCardDefinitions() {
 
                 // Playing it again while it's running starts its time over, as adding an effect that's already there does.
                 hull.addEffect('shieldsExtended');
+                return true;
+            },
+        },
+        transferPower: {
+            play: (_gameState, ship) => {
+                const hull = ship.nearestFriendlyShip(transferPowerRange)?.engineerState.systems.find(tile => tile.system === 'hull');
+                if (!hull) {
+                    return false;
+                }
+
+                // Playing it again while it's running starts its time over, as adding an effect that's already there does.
+                hull.addEffect('powerReceived');
                 return true;
             },
         },

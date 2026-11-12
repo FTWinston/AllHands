@@ -221,6 +221,11 @@ function loadSystemEffectDefinitions() {
             apply: system => system.system === 'hull',
             remove: () => {},
         },
+        // Nothing to do here: an encounter that cares whether a ship is being powered looks for this on its hull.
+        powerReceived: {
+            apply: system => system.system === 'hull',
+            remove: () => {},
+        },
         // These do nothing: they're only there to be read, by whoever is working out how a customs platform is keyed.
         phasedPing: {
             apply: () => true,

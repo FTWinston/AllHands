@@ -155,6 +155,20 @@ const designTemplates = defineDesignTemplates({
         tactical: { ...system(['lowYield', 'lowYield', 'photonTorpedo']), numSlots: 1 },
         fleeThreshold: 0,
     },
+    // A working boat, with a strip for a gun. Every helm card is Slow and Steady, and there are a dozen, so its engines take several hits to put out.
+    // Its shields (30) are over 18 bare hull, which come first. Its engineer is switched off, so nothing aboard repairs anything. It never runs.
+    tug: {
+        ...fighterTemplate,
+        appearance: 'tug-and-tow',
+        hull: system([...Array<'hullBare'>(18).fill('hullBare'), 'hullShieldEmitter', 'hullShieldEmitter'], 0),
+        reactor: system(reactorCards(2), 0),
+        helm: system(Array<'slowAndSteady'>(12).fill('slowAndSteady')),
+        tactical: { ...system(['phaserStrip', 'phaserStrip']), numSlots: 1 },
+        fleeThreshold: 0,
+        priorities: { engineer: 0 },
+    },
+    // Not a ship at all: a station module, with nobody aboard and nothing to power it, so all it has is 40 bare hull and no shields. Whoever has it moves it.
+    waterModule: inertTemplate('mining-barge', Array<'hullBare'>(40).fill('hullBare')),
 });
 
 /** A kind of AI ship. Each has its own appearance, so the same shape always means the same kind of ship, whichever faction it's in. */
@@ -170,6 +184,8 @@ const designNames: Record<ShipDesign, string> = {
     customsPlatform: 'Customs Platform',
     hauler: 'Hauler',
     drone: 'Drone',
+    tug: 'Tug',
+    waterModule: 'Water Module',
 };
 
 /** How well a ship plays (see `AiShipSetupInfo.skill`), unless the encounter says otherwise. */

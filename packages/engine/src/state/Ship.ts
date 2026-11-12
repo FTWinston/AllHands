@@ -269,6 +269,29 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         return nearest;
     }
 
+    /** The nearest other ship within the given distance that this one is friendly with, if any. */
+    nearestFriendlyShip(range: number): Ship | undefined {
+        const currentTime = this.gameState.currentTime;
+        const ownPosition = this.getPosition(currentTime);
+        const registry = this.gameState.factionRegistry;
+        let nearest: Ship | undefined;
+        let nearestDistanceSq = range ** 2;
+
+        for (const other of this.gameState.objects.values()) {
+            if (other === this || !(other instanceof Ship) || registry.getRelationship(this, other) !== RelationshipType.Friendly) {
+                continue;
+            }
+
+            const otherDistanceSq = distanceSq(ownPosition, other.getPosition(currentTime));
+            if (otherDistanceSq <= nearestDistanceSq) {
+                nearest = other;
+                nearestDistanceSq = otherDistanceSq;
+            }
+        }
+
+        return nearest;
+    }
+
     /** Called whenever this ship is hit, just before the damage is applied. */
     protected wasHit(_hit: ShipHit) { }
 
