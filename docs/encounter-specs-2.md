@@ -63,6 +63,13 @@ An AI ship's goal is fixed when it spawns. Two additions to `Commander`:
 
 Tests: a guard given `search-and-destroy` hunts. A ship told to stand down doesn't fire at a hostile in its arc, and does again after `rally()`.
 
+**As built:**
+
+- As specified, with `Commander.goal` to read the goal a ship has now, and `isStandingDown`.
+- **A ship that stands down calls off any manoeuvre under way**, so it stops within a second rather than flying on to wherever it was going. Its officers still play cards on their own systems: tactical still loads and charges, with nothing to fire at.
+- **Fleeing wins over standing down.** A ship that's withdrawing, or fleeing from damage, goes on fleeing, and stands down if it comes back.
+- **A new goal takes effect on the ship's next update** (every half second, or longer at low skill), as the blackboard is the commander's to write. A target outside the new goal's scope is dropped then.
+
 ### K. Ships that do nothing
 
 Objectives need objects: a module, a station, a relay. The engine's only objects are ships, and a ship gives an object everything it needs for free: a hull to scan and shoot, a name, a faction, a shape. So an object is a ship whose officers are all switched off.
