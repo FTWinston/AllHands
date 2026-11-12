@@ -76,6 +76,12 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     /** Fired whenever another ship's deflector is used on this one, with which ship it was and what its deflector was loaded with. */
     readonly deflectorReceived = new ListenableEvent<{ source: Ship; cardType: EnemyTargetedCardType }>();
 
+    /**
+     * Fired whenever this ship is hit, once its shields (and any shields extended over it) have taken their share, and before the rest is applied.
+     * The damage says what hit it, who fired, and the system it landed on. `passedThrough` is how much got past the shields, which may be none.
+     */
+    readonly hitReceived = new ListenableEvent<{ damage: Damage; passedThrough: number }>();
+
     private nextCardId = 1;
 
     getCardId() {
@@ -203,6 +209,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
         // Before applying the damage, as that could destroy the ship.
         this.wasHit({ damage: remainingAmount });
+        this.hitReceived.triggerListeners({ damage, passedThrough: remainingAmount });
 
         let targetSystemDamage: number;
 
