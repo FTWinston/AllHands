@@ -7,7 +7,7 @@ description: Build or change an All Hands encounter (packages/engine/src/encount
 
 `docs/encounter-design.md` says why encounters are shaped as they are, and `docs/encounter-specs.md` and `docs/encounter-specs-2.md` say what to build. This skill holds what neither says: how each build actually went, and what had to be worked out every time.
 
-The one thing all three had in common: **the spec is a hypothesis.** Each was written from reading the engine, not running it, and each had three or more claims the engine contradicted. Slow Boat's ally was to have "a lot of hull" in a game where one hit past the shields ends a ship. Its route took 70 seconds, not 180. Standing Orders' platform couldn't turn, so it never fired. None of these showed up as a failing test. They showed up as an encounter that worked and asked nothing. So most of the work is before the encounter class: turning the spec into engine terms, and finding what it assumed.
+The one thing every build has had in common: **the spec is a hypothesis.** Each was written from reading the engine, not running it, and each had three or more claims the engine contradicted. Slow Boat's ally was to have "a lot of hull" in a game where one hit past the shields ends a ship. Its route took 70 seconds, not 180. Standing Orders' platform couldn't turn, so it never fired. None of these showed up as a failing test. They showed up as an encounter that worked and asked nothing. So most of the work is before the encounter class: turning the spec into engine terms, and finding what it assumed.
 
 ## Steps
 
@@ -43,7 +43,9 @@ Go through the spec's Ships, Rules and Tuning sections with [ENGINE-NUMBERS.md](
 - **Any card the AI is meant to play.** An `aiEvaluator` existing proves nothing. The scan cards all had one and the AI could play none of them. For each card the design relies on, write a test that watches the AI play it, and read its effect definition as well as its card definition: Overcharge damages what it boosts.
 - **Anything the spec says a ship does** ("it weaves", "it jams you", "its power spikes"). Each is a claim about the AI, and gets the same test.
 
-Write a throwaway played-out run now, before the encounter class exists: the ships as specced, a crew that does nothing, four minutes. It answers most of the above in one go, and it becomes the balance test in step 7. To get a running game with no class yet, `devLoadEncounter` any built encounter, remove its ships with the reason `'departed'`, set your own factions on the registry, and add your ships by hand. When the run needs a crew that moves, move it at the speed its cards give, a keyframe at a time. A crew jumped to a new position every tick is never where the AI aimed, and gave Dead Weight a result the real thing contradicted.
+Write a played-out run now, before the encounter has any rules: the ships as specced, a crew that does nothing, four minutes. It answers most of the above in one go, and it becomes the balance test in step 7. The cheapest way is a draft of the class with only `factions` and `populate`, registered, and loaded with `devLoadEncounter`. When the run needs a crew that moves, move it at the speed its cards give, a keyframe at a time. A crew jumped to a new position every tick is never where the AI aimed, and gave Dead Weight a result the real thing contradicted.
+
+Ask of that run: does the crew survive doing nothing? Losing the ship ends the whole game, so an encounter where an idle crew dies has no failure to fall forward from. Last Shuttle Out as specced killed the crew in 17 runs of 21, because every hunter that lost its target came for them.
 
 Done when every row of the Tuning table and every ship has been checked, each mismatch is settled (the number changes, or a missing piece joins step 4), and each behaviour the spec gives a ship is either watched in a test or listed, by name, as not watched. That list goes in the spec's "Still to check" in step 9.
 
@@ -61,7 +63,7 @@ Done when every clue has a named channel, seen by exactly the seats the spec say
 
 A new AI goal, card, effect, ship design or hook is its own piece of work with its own test file, finished before the encounter that uses it. Where each one goes:
 
-- **Ship design:** a template in `campaign/shipDesigns.ts`, a name in `designNames`, and the design added to the list in `shipDesigns.test.ts`. That test needs every design to have its own appearance and to afford its own cards. A design's `fleeThreshold` is 0.25 unless it says otherwise, so say.
+- **Ship design:** a template in `campaign/shipDesigns.ts`, a name in `designNames`, and the design added to the list in `shipDesigns.test.ts`. That test needs every design to have its own appearance. Its check that a design can afford its cards is against the most power a system can have, not what this ship's reactor gives it, so count the reactor cards against each card's cost yourself: a fragment with tactical at 2 could never load a cannon that costs 3. A design's `fleeThreshold` is 0.25 unless it says otherwise, so say.
 - **Card:** three places, by the same key: `common-data/.../cardDefinitions.ts`, `common-ui/.../getUiCardDefinition.tsx`, `engine/src/cards/getEngineCardDefinition.ts`. Each card belongs to one system.
 - **Status effect:** three places: `common-data/.../systemEffectDefinitions.ts`, `common-ui/src/utils/getUiSystemEffectDefinition.tsx`, `engine/src/effects/getEngineSystemEffectDefinition.ts`. One that only exists to be read has `apply: () => true` and an empty `remove`.
 - **Objective type:** `ObjectiveInfo.ts`, then `getObjectiveLabel` in `common-ui/.../sectorLabels.ts`, whose exhaustive switch finds the rest.
@@ -76,10 +78,10 @@ Done when each piece passes its own tests with no encounter involved.
 
 ### 5. Write the encounter
 
-One file, one class, and its definition exported beside it. The shape the three share:
+One file, one class, and its definition exported beside it. The shape they all share:
 
 - Names used in more than one place (who's speaking, the objective's subject, faction ids, scenario ids) are constants at the top. Tuning values are too, each with a comment saying what it is in the game's terms, and exported if a test needs it.
-- `factions` is a field. Groups are fields made with `this.track()`.
+- `factions` is a field, typed `FactionConfig[]` if none of its entries comes from `hostileToPlayer`. A faction that says nothing about the player is neutral to them: it won't shoot at the crew, the crew can still shoot at it, and it draws in the neutral colour, which may tell the crew it's harmless. Groups are fields made with `this.track()`.
 - `populate()` only places things. The player ships start at the origin facing along the x axis, with starboard towards positive y. Hails, timers, kept cards and questions start in `start()`, after `super.start()`.
 - The objective comes from the definition through the node, so there's no constructor.
 - `tick()` begins `if (this.isComplete || !thing) return;`, because the campaign keeps ticking after the outcome, so that last words get said.
@@ -100,8 +102,8 @@ Lines are how the crew learns everything it can't see. For each line decide:
 
 - **Is it a tell?** Then it's `urgent` with a `maxDelayMs`, because late is worse than never.
 - **Is it status?** Then say it once per stage, and if several stages passed at once, only the worst.
-- **Is it chatter?** Then it waits for `!this.isHailing` and is dropped otherwise.
-- **Is it the briefing?** Then it's the first thing queued, so it's read in full, and it states the rule once, in words a crew can act on. Nothing else in the game will.
+- **Is it chatter?** Then it waits for `!this.isHailing` and is dropped otherwise. A line that's the crew's only count of something (shuttles away, shuttles lost) isn't chatter, however small. It queues.
+- **Is it the briefing?** Then it's the first thing queued, so it's read in full, and it states the rule once, in words a crew can act on. Nothing else in the game will. Work out its reading time, and start nothing urgent until it's over: a 13-second briefing pushed Last Shuttle Out's first launch back from 10 seconds to 20.
 
 Speaker names are what the crew will say aloud, so they're short and distinct. A line of more than three sentences takes over ten seconds to read. The opposition gets a line when it arrives and one when it leaves.
 
@@ -119,7 +121,10 @@ Done when each line in the spec's Hails table has a trigger that fires once, and
 Things the test harness does that cost time to find:
 
 - Run npm scripts through Bash. Under PowerShell, `npm run test:unit -- --run` loses its `--`.
-- `rooms.createState()` returns the same room for the whole test. To try several seeds or several answers in one test, call `campaign.devLoadEncounter` again. Don't start another campaign, which adds another player ship.
+- `rooms.createState()` returns the same room for the whole test, so a second campaign in one test adds a second player ship, and the numbers go quietly wrong. This has caught two builds, one after reading this warning. Play each plan and seed in its own `it.each` case, and compare them in a later test from a shared map. Within one test, `campaign.devLoadEncounter` again is safe.
+- Build a scripted crew's behaviours fresh for each run. They keep counters, and one reused across seeds never fires in the later ones.
+- Use at least five seeds before believing a comparison. Three gave opposite answers about the same choice.
+- A commander can't notice a ship that has spawned since the last `state.tick`, as that's what updates what each ship knows of.
 - To get one particular random answer, reload until it comes up, or give the encounter a public method that sets it, as Standing Orders has `keyTo`.
 - `listenToHails` misses a line that goes up on the very tick that caused it. Read `state.hail` for those.
 - When the crew is destroyed `state.encounter` becomes null, so a played-out loop checks for that before reading its outcome.
@@ -135,7 +140,7 @@ npm run build:devtools
 node .claude/skills/building-encounters/run-encounter.cjs "Dead Weight" --out <a scratchpad folder>
 ```
 
-Add `--elite` for the elite form. It starts a game, joins four crew pages, loads the encounter from the dev tools, and saves a screenshot of the viewscreen and of each phone at 3, 12 and 40 seconds (`--at` changes those). Read the screenshots: the briefing, the objective line, each kept card in its hand, each ship where the spec puts it. Nobody plays it, so it shows that things arrive, not that they work. If it can't be run, say so in the spec's "Still to check".
+Add `--elite` for the elite form. It starts a game, joins four crew pages, loads the encounter from the dev tools, and saves a screenshot of the viewscreen and of each phone at 3, 12 and 40 seconds. Set `--at` to the seconds when this encounter's own events happen: its first spawn, its question, its second wave. Read the screenshots: the briefing, the objective line, each kept card in its hand, each ship where the spec puts it, in the colour the crew should read it as, inside the viewscreen's frame, with a label that doesn't sit on top of another's. Nobody plays it, so it shows that things arrive, not that they work. If it can't be run, say so in the spec's "Still to check".
 
 If the measurements contradict the spec's captain's call (one of its two options turns out to be plainly worse), that's a finding, not a tuning job. Record it under "Measured" with the numbers, and say it first in your report. Whether to retune or redesign is the designer's.
 
