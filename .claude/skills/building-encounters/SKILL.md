@@ -5,7 +5,7 @@ description: Build or change an All Hands encounter (packages/engine/src/encount
 
 # Building an encounter
 
-Three encounters are built: Toll Collectors, Slow Boat and Standing Orders. `docs/encounter-design.md` says why encounters are shaped as they are, and `docs/encounter-specs.md` and `docs/encounter-specs-2.md` say what to build. This skill holds what neither says: how each build actually went, and what had to be worked out every time.
+`docs/encounter-design.md` says why encounters are shaped as they are, and `docs/encounter-specs.md` and `docs/encounter-specs-2.md` say what to build. This skill holds what neither says: how each build actually went, and what had to be worked out every time.
 
 The one thing all three had in common: **the spec is a hypothesis.** Each was written from reading the engine, not running it, and each had three or more claims the engine contradicted. Slow Boat's ally was to have "a lot of hull" in a game where one hit past the shields ends a ship. Its route took 70 seconds, not 180. Standing Orders' platform couldn't turn, so it never fired. None of these showed up as a failing test. They showed up as an encounter that worked and asked nothing. So most of the work is before the encounter class: turning the spec into engine terms, and finding what it assumed.
 
@@ -20,6 +20,10 @@ Read the encounter's whole spec, its "Check first" list included, then the built
 | Ships that leave rather than die, a second wave on a timer | `TollCollectorsEncounter.ts` |
 | An ally with its own agenda, status said over comms, a question for the crew, a card kept in hand | `SlowBoatEncounter.ts` |
 | A hidden answer, a thing that must survive, a ship built by hand, an answer drawn from the crew's own decks | `standingOrders/` |
+| A system that has to be put out, a ship that mustn't repair itself, a wrong answer that costs | `FeverShipEncounter.ts` |
+| An opponent flying a route, an object that isn't a ship, something done after the outcome, a rule heard from hits | `deadWeight/` |
+
+The spec's "As built" for whichever was built last is worth reading whatever it's about. It has the newest findings about the AI.
 
 Then read `Encounter.ts` from top to bottom. It's short, and everything in section G of the first spec is there.
 
@@ -39,9 +43,9 @@ Go through the spec's Ships, Rules and Tuning sections with [ENGINE-NUMBERS.md](
 - **Any card the AI is meant to play.** An `aiEvaluator` existing proves nothing. The scan cards all had one and the AI could play none of them. For each card the design relies on, write a test that watches the AI play it, and read its effect definition as well as its card definition: Overcharge damages what it boosts.
 - **Anything the spec says a ship does** ("it weaves", "it jams you", "its power spikes"). Each is a claim about the AI, and gets the same test.
 
-Write a throwaway played-out run now, before the encounter class exists: the ships as specced, a crew that does nothing, four minutes. It answers most of the above in one go, and it becomes the balance test in step 7.
+Write a throwaway played-out run now, before the encounter class exists: the ships as specced, a crew that does nothing, four minutes. It answers most of the above in one go, and it becomes the balance test in step 7. To get a running game with no class yet, `devLoadEncounter` any built encounter, remove its ships with the reason `'departed'`, set your own factions on the registry, and add your ships by hand. When the run needs a crew that moves, move it at the speed its cards give, a keyframe at a time. A crew jumped to a new position every tick is never where the AI aimed, and gave Dead Weight a result the real thing contradicted.
 
-Done when every row of the Tuning table, every ship, and every behaviour the spec describes has been checked or watched, and each mismatch is settled: either the number changes, or a missing piece joins step 4.
+Done when every row of the Tuning table and every ship has been checked, each mismatch is settled (the number changes, or a missing piece joins step 4), and each behaviour the spec gives a ship is either watched in a test or listed, by name, as not watched. That list goes in the spec's "Still to check" in step 9.
 
 ### 3. Find the channel for every clue
 
@@ -81,6 +85,7 @@ One file, one class, and its definition exported beside it. The shape the three 
 - `tick()` begins `if (this.isComplete || !thing) return;`, because the campaign keeps ticking after the outcome, so that last words get said.
 - Removal arrives synchronously. `depart()` and `destroy()` call `onObjectRemoved` before they return, so set any "this was meant to happen" flag before calling them, as `arrive()` does in Slow Boat.
 - Ending has an order: tell the ships what to do, `complete()`, then speak. `complete()` cancels every timer and drops any question. A failure calls `silence()` first, and then says its one line or says nothing.
+- Anything that happens after the outcome (a ship that jumps away five seconds later) can't be a timer. Give it its own due time, and do it in `tick` above the `isComplete` return.
 - The elite form is `this.node.elite` in the same class. It twists the question. It never just adds ships.
 - Everything is in game time, through `after` and `every`.
 - Loop over `getPlayerShips(this.state)`. There can be more than one.
@@ -104,7 +109,7 @@ Done when each line in the spec's Hails table has a trigger that fires once, and
 
 ### 7. Test in two layers
 
-**Unit tests** (`<Name>Encounter.test.ts`) check that it works. Follow `SlowBoatEncounter.test.ts`: `setupGameRoom()`, a seeded random, `startCampaign`, then `campaign.devLoadEncounter(id, elite)`. Only the campaign is ticked (`state.currentTime += n; campaign.tick(0)`), so nothing moves or shoots by itself. Put ships where the test needs them by rewriting their motion, set shields through the hull tile, and call `commander.update` when the AI has to notice. `listenToHails` returns what was said. One test per rule in the spec, one per line of the Tests list, and for a failure: no reward, Warp Away still offered, and the run carries on.
+**Unit tests** (`<Name>Encounter.test.ts`) check that it works. Follow `SlowBoatEncounter.test.ts`: `setupGameRoom()`, a seeded random, `startCampaign`, then `campaign.devLoadEncounter(id, elite)`. Only the campaign is ticked (`state.currentTime += n; campaign.tick(0)`), so nothing moves or shoots by itself. Put ships where the test needs them by rewriting their motion, set shields through the hull tile, and call `commander.update` when the AI has to notice, thirty times over, as a commander below skill 1 skips some. `listenToHails` returns what was said. One test per rule in the spec, one per line of the Tests list, and for a failure: no reward, Warp Away still offered, and the run carries on.
 
 **A played-out test** runs the real AI with `state.tick`. Each encounter has needed at least one, because unit tests can't see an encounter that works and is wrong:
 
@@ -120,15 +125,28 @@ Things the test harness does that cost time to find:
 - When the crew is destroyed `state.encounter` becomes null, so a played-out loop checks for that before reading its outcome.
 - Vitest hides console output from passing tests. Write to a file in the scratchpad.
 
-Then launch it, and check each clue reaches the screen it's meant for. `npm run dev` runs the built app, so `npm run build:devtools` comes first, and nothing is served until Start is pressed in the Electron window. That needs a person, or a Playwright script that launches Electron, presses Start, joins four crew pages and loads the encounter from the dev tools. If you can't do it, say so in the spec's "Still to check": don't leave it implied.
+Then run it in the game, and look at what reaches each screen. Nothing is served until Start is pressed in the app's own window, so there's a script for it, beside this file:
 
-Done when the unit tests, `npm run typecheck` and `npx eslint` on the changed files pass, and the measurements are written down.
+```bash
+npm run build:devtools
+```
+
+```bash
+node .claude/skills/building-encounters/run-encounter.cjs "Dead Weight" --out <a scratchpad folder>
+```
+
+Add `--elite` for the elite form. It starts a game, joins four crew pages, loads the encounter from the dev tools, and saves a screenshot of the viewscreen and of each phone at 3, 12 and 40 seconds (`--at` changes those). Read the screenshots: the briefing, the objective line, each kept card in its hand, each ship where the spec puts it. Nobody plays it, so it shows that things arrive, not that they work. If it can't be run, say so in the spec's "Still to check".
+
+If the measurements contradict the spec's captain's call (one of its two options turns out to be plainly worse), that's a finding, not a tuning job. Record it under "Measured" with the numbers, and say it first in your report. Whether to retune or redesign is the designer's.
+
+Done when the unit tests, `npm run typecheck` and `npx eslint` on the changed files pass, the measurements are written down, and the screenshots have been looked at.
 
 ### 8. Register it
 
 - Add the definition to the list in `EncounterRegistry.ts`.
 - Add its id to a pool in `campaign/sectorThemes.ts`: `early` only if the spec's Pool row allows the first layers.
 - Add the id to the sorted list that `Encounter.test.ts` expects.
+- Run every other encounter's tests again. Adding to a pool changes the random numbers that every seeded campaign sees, so a test that leaned on one random answer may need a different seed. Standing Orders' played-out test did.
 
 ### 9. Write back to the spec
 
@@ -146,4 +164,4 @@ Done when someone reading only the spec would build what's now in the code.
 
 A spec has the same parts as the built ones, in the same order: the header table, factions, new engine pieces, ships and timeline, rules, what each station has with the captain's call, hails, expected talk, the elite form with its legacy, tuning, tests. Do steps 2 and 3 of this skill while writing it, so the numbers are already in engine units and every clue already has its channel. End it with **Check first**: each thing inferred from the code and not run, which the design depends on. That list is what step 2 starts from. Every behaviour the spec gives a ship goes on it unless a test has watched the AI do it: Fever Ship's list had one of its four tells on it, and three of the four were wrong.
 
-Say which of a speaker's lines are urgent one by one, and what a ship is called as against what it's called when it speaks. Where two rules can both apply (a system put out twice, an answer that changes while it's being acted on), say which wins.
+Say which of a speaker's lines are urgent one by one, and what a ship is called as against what it's called when it speaks. Where two rules can both apply (a system put out twice, an answer that changes while it's being acted on), say which wins. Give every ship its whole design, reactor included, since the reactor sets its pace. For each way the encounter can end, say the moment it's decided, what each ship then does, and which line is said. For a new card, say what it costs the ship that plays it, whether it works on another player ship, and whether shops sell it.
