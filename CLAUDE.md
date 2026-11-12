@@ -13,7 +13,7 @@ Build order: common-data → engine/common-ui → player-ui/game-ui → game-app
 
 ## Commands (run from repo root)
 - Build: `npm run build`; `npm run build:devtools` enables the dev tools (in-game encounter picker etc.), via `DEV_TOOLS=true` in `engine` and `game-ui`'s `.env.devtools`. The engine is bundled, with the `common-data` source it uses, into `engine/dist/index.js` by esbuild (`packages/engine/build.mjs`); `common-data` has no build of its own.
-- Typecheck: `npm run typecheck` (`tsc -b`). It only emits declarations for `engine` and `common-data`, so doesn't touch the engine bundle.
+- Typecheck: `npx tsc -b`. Apart from compiling `game-app`, it only emits declarations, so doesn't touch the engine bundle.
 - Unit tests: `npm run test:unit -- --run`; story tests: `npx vitest run --project storybook` (slow). Tests run with dev tools off unless `DEV_TOOLS=true` is set in the environment.
 - Balance simulations (`*.balance.test.ts`, encounters played out with the real AI to check their tuning): `npm run test:balance -- --run`. Not part of the unit tests, as they're slow and fail whenever tuning changes.
 - Lint: `npx eslint <files>` (`npm run lint` runs with --fix over everything)
