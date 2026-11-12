@@ -5,8 +5,8 @@ import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { playerFactionId } from 'src/campaign/factions';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
+import { DEV_TOOLS_ENABLED } from 'src/devTools';
 import { offerAnswers, offerAtMs } from 'src/encounters/SlowBoatEncounter';
-import { DEV_TOOLS_ENABLED } from 'src/generated/devtools';
 import { CrewState } from 'src/state/CrewState';
 import { setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
@@ -357,7 +357,8 @@ describe('GameRoom comms prompts', () => {
 
         // The elite form of Slow Boat, whose harriers make an offer a minute in.
         await send(room, clients.tactical, 'dismissMessage');
-        await send(room, shipClient, 'devLoadEncounter', { encounterId: 'slowBoat', elite: true });
+        // (Loaded directly, rather than with the devLoadEncounter message, which only works in dev tools builds.)
+        expect(state.campaign!.devLoadEncounter('slowBoat', true)).toBe(true);
         expect(state.encounter).toMatchObject({ encounterId: 'slowBoat' });
         state.currentTime += offerAtMs;
         state.campaign!.tick(0);

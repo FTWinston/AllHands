@@ -9,8 +9,10 @@
     "package": "electron-builder"
   },
   "dependencies": {
-    "common-data": "1.0.0",
     "engine": "1.0.0"
+  },
+  "devDependencies": {
+    "common-data": "1.0.0"
   },
   "build": {
     "appId": "com.ftwinston.allhands",
