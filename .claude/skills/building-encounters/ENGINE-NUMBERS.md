@@ -11,6 +11,7 @@ What a spec's numbers come to in the engine, how AI ships behave, and what each 
 - **Cards are damaged in the order the design lists them**, until repairs shuffle things. A damaged emitter takes its 15 off the shield capacity, so list a hull's bare cards before its emitters.
 - **A system at 0 health does nothing.** It can't play, load or charge a card. A tactical system at 0 can't fire what it had loaded. A ship whose helm is at 0 slows to a stop within a second.
 - **A repaired card is damaged for good the next time**, so a system put out, repaired and put out again stays out.
+- **A torpedo kills through shields that are up.** At hull power 3 the crew's shields let 8 of its 40 through, and an unaimed one puts all of that on the 12-card hull one time in six: two such and the ship is gone.
 
 ## Shields
 
@@ -30,7 +31,9 @@ What a spec's numbers come to in the engine, how AI ships behave, and what each 
 - **A card's cost is a level, not a price.** It can be played if its system's power is at least its cost, and playing it doesn't lower the power. "Costs more than the station normally has" means 4 or 5.
 - **A ship stops if its helm's power falls below the cost of the manoeuvre it's flying.** Speed doesn't otherwise change with power.
 - `adjustPowerLevel` keeps an underlying value, so a boost and a cut can overlap and each come off cleanly.
+- **Aux Power is only ever on one system.** Playing it takes it off whichever system had it, so it can't get two systems over their usual power at once.
 - **Effects are dropped when an encounter ends without being undone.** Power is put back to what the reactor gives. Anything else an effect changes has to be put back by whoever changed it.
+- **Timed effects only wear off in the ships' own tick** (`state.tick`), never in the campaign's, and the campaign ticks after the ships in each game tick: anything an encounter sets every tick is what every phone sees.
 
 ## Pace
 
@@ -73,6 +76,8 @@ How often things happen, which no table of amounts shows. It can only be measure
 
 - Only cards with an `aiEvaluator` in `getEngineCardDefinition.ts`, and having one doesn't mean it works. Watch it in a test.
 - **A modifier's evaluator doesn't check the weapon it's for.** Give a ship only modifiers that fit the weapons it carries.
+- **It never unloads a weapon.** A slot holding a cannon can't fire at anything beyond 10, so a ship with cannons and torpedoes in one slot is harmless past 10 whenever it last loaded a cannon.
+- **Charging spends other weapon cards from the hand**, so a design with as many slots as weapon cards loads them all and never fires.
 - **Its science officer scans only to reveal a system**, and stops once it has found all four. Scan cards that mark what they reveal land in the first minute and then stop.
 - **Its engineer only plays a power card when another officer has asked for power**, which happens when that officer holds a card it can't afford.
 - **Its engineer repairs for free, every second**, once a system is a fifth damaged, from a capacity of 50. To stop repairs alone, set `engineerState.repairCapacity` and `maxRepairCapacity` to 0. `priorities: { engineer: 0 }` stops its cards as well.
