@@ -23,7 +23,8 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
         if (this.activeManeuver) {
             if (currentTime >= this.activeManeuver.endTime) {
                 this.discardActiveManeuver();
-            } else if (this.cancellingManeuver || this.powerLevel < this.activeManeuver.power) {
+            } else if (this.cancellingManeuver || this.powerLevel < this.activeManeuver.power || this.health <= 0) {
+                // A ship can't finish a maneuver that it has called off, or no longer has the power for, or the helm to fly: one with every card damaged is out.
                 // End the current maneuver early by slowing to a stop, reaching where we would be in 0.25s over 0.75s instead.
                 // Keyframe times are in milliseconds. Start from a "now" keyframe, so the slowdown begins from where the ship currently is.
                 const ship = this.getShip();

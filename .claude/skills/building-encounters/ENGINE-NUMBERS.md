@@ -11,7 +11,7 @@ What a spec's numbers come to in the engine, and what each seat can really see. 
 - **Seeded runs drift wherever anything aims**, because an aimed shot skips the random pick. A balance test's numbers move when aiming does.
 - **To make something survive stray hits**, pad its hull with `hullBare`. The customs platform has 60, which is one or two hits after its shields go.
 - **Cards are damaged in the order the design lists them**, until repairs shuffle things. A damaged emitter takes its 15 off the shield capacity, so list a hull's bare cards before its emitters if its shields are meant to outlast its first hull damage.
-- **A system at 0 health can't play, load or charge anything**, but a weapon that's already loaded and charged goes on firing, and a manoeuvre under way runs to its end.
+- **A system at 0 health can't play, load or charge anything**, but a weapon that's already loaded and charged goes on firing. A ship whose helm is at 0 slows to a stop within a second, whatever it was flying, and so does one that loses the power its manoeuvre needs.
 
 ## Pace
 
@@ -52,7 +52,7 @@ How often things happen, which no table of amounts shows. Measure it for every a
 - The player ships start each encounter at the origin, facing along the x axis. Starboard is positive y.
 - **Angles are counter-clockwise with y pointing down** (`vectors.ts`: `getAngle` is `-atan2(dy, dx)`). A point at bearing `b` and distance `d` is `x + cos(b) * d, y - sin(b) * d`, and a positive turn is to port. Copy `SlowBoatEncounter.spawnHarrier` and `announceTurn`. `polarToCartesian` has the other sign.
 - **A ship's speed isn't constant.** Motion between two keyframes eases in and out, peaking at about one and a half times its average. Slow and Steady averages about 0.75 units a second and has no maximum distance, so an AI ship on a route plays one card to the next waypoint however far it is: about 5 units in its first 20 seconds, 1.1 a second halfway. Zig-zag and Sweep go forward at about 1 a second. Measure any ship that matters in a played-out test.
-- **A manoeuvre under way runs to its end** whatever happens to the helm. An encounter that needs a ship stopped has to stop it: see how Dead Weight halts its tug.
+- **A ship that has stopped because its helm is out can't flee or leave**, so it never departs. If it's meant to count as gone, count it when it gives up (`isWithdrawing`), as Dead Weight does its bailiffs, not when it's removed.
 - Weapon ranges: phaser strip 6, phaser cannon 10, photonic cannon and quantum torpedo 15, photon torpedo 20 (25 with Extended Range). Arcs are half-angles in radians: strip 3, cannon 1, the rest 0.5.
 - A ship knows of everything within 100 units (`Ship.updateKnownObjects`). There's no hiding by distance at encounter scale.
 
