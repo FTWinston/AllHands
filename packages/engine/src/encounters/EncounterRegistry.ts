@@ -3,6 +3,7 @@ import { combatEncounterDefinitions } from './CombatEncounter';
 import { deadWeightDefinition } from './deadWeight/DeadWeightEncounter';
 import { feverShipDefinition } from './FeverShipEncounter';
 import { lastShuttleOutDefinition } from './LastShuttleOutEncounter';
+import { quarantineGateDefinition } from './QuarantineGateEncounter';
 import { quietRunningDefinition } from './QuietRunningEncounter';
 import { slowBoatDefinition } from './SlowBoatEncounter';
 import { standingOrdersDefinition } from './standingOrders/StandingOrdersEncounter';
@@ -29,6 +30,7 @@ const definitions: readonly EncounterDefinition[] = [
     deadWeightDefinition,
     lastShuttleOutDefinition,
     quietRunningDefinition,
+    quarantineGateDefinition,
     ...stationDefinitions,
     ...bossDefinitions,
 ];

@@ -1,4 +1,4 @@
-import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
+import { cardDefinitions, type CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
 import { crewRoleNames } from 'common-data/features/ships/types/CrewRole';
 import { keyPowerDuration } from 'common-data/features/ships/utils/systemEffectDefinitions';
@@ -7,7 +7,6 @@ import { CardState } from 'src/state/CardState';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { setupGameRoom } from 'src/testUtils';
 import { describe, expect, it } from 'vitest';
-import type { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import type { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 
 const rooms = setupGameRoom();
