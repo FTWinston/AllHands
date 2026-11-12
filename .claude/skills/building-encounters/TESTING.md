@@ -11,7 +11,8 @@ Only the campaign is ticked (`state.currentTime += n; campaign.tick(0)`), so not
 - Move a ship by rewriting its motion.
 - Set shields through the hull tile.
 - When the AI has to notice something, call `commander.update` thirty times, as a commander below skill 1 skips some. If the thing it's to notice has only just spawned, give it one `state.tick` first: that's what updates what each ship knows of.
-- `listenToHails` returns what was said over a stretch of time. It misses a line that goes up on the very tick that caused it: read `state.hail` for those.
+- `listenToHails` returns what was said over a stretch of time. It misses a line that goes up on the very tick that caused it: read `state.hail` for those. Lines queue behind the briefing, so let the opening lines be heard in the setup, or `state.hail` will still be showing one of them.
+- Timed effects only wear off in `state.tick`. In a test that only ticks the campaign, take them off by hand.
 - To get one particular random answer, give the encounter a public method that sets it (Standing Orders has `keyTo`), or reload until it comes up.
 
 ## Behaviour tests
@@ -20,7 +21,7 @@ With the unit tests, but run with `state.tick`, so the real AI plays. One for ea
 
 ## Measurements
 
-`<Name>Encounter.balance.test.ts`, run with `npm run test:balance -- --run`. A scripted crew follows one plan, the real AI plays everything else, and the test asserts how it comes out. `deadWeight/DeadWeightEncounter.balance.test.ts` has a harness worth copying: `follow`, `shoot` and `torpedoOnce` behaviours passed to a `run`.
+`<Name>Encounter.balance.test.ts`, run with `npm run test:balance -- --run`. A scripted crew follows one plan, the real AI plays everything else, and the test asserts how it comes out. `deadWeight/DeadWeightEncounter.balance.test.ts` has a harness worth copying: `follow`, `shoot` and `torpedoOnce` behaviours passed to a `run`. `QuietRunningEncounter.balance.test.ts` adds a log of every hit, and reaches the running encounter through `campaign.activeEncounter`.
 
 The traps, each of which has cost a build a quarter of an hour or produced a false finding:
 
@@ -53,4 +54,4 @@ Read the screenshots and the text files:
 - each ship where the spec puts it, in the colour the crew should read it as, with a label that doesn't sit on another's;
 - the order ships come in on tactical's and science's target lists, which is the order they were spawned. One spawned apart from the rest stands out.
 
-Nobody plays it, so it shows that things arrive, not that they work. It doesn't move the ship or zoom, so anything more than about 30 units from where the crew starts is out of every view: say so under "Still to check". It closes the app when it's done. If it's interrupted, kill the process tree whose pid is in the output folder (`taskkill /T /F /PID <pid>`).
+Nobody plays it, so it shows that things arrive, not that they work, and it shows nothing past whatever the crew has to do first: for a boss, only its first phase. It doesn't move the ship or zoom, so anything more than about 30 units from where the crew starts is out of every view: say so under "Still to check". It closes the app when it's done. If it's interrupted, kill the process tree whose pid is in the output folder (`taskkill /T /F /PID <pid>`).
