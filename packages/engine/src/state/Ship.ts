@@ -9,6 +9,7 @@ import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameOb
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { distanceSq } from 'common-data/features/space/utils/vectors';
 import { applyWeaponTrait } from 'src/cards/applyWeaponTrait';
+import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { ListenableEvent } from 'src/classes/ListenableEvent';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
@@ -369,8 +370,16 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     cleanupAfterEncounter() {
         this.clearCrewCardGeneration();
 
+        // This drops every effect, and puts every system's power back to what the reactor gives it.
         for (const system of this.systems.values()) {
             system.cleanupAfterEncounter();
+        }
+
+        // A reactor card that's damaged for good still costs its system the power it gave, as it did from the moment it was damaged.
+        for (const card of this.reactorState.deck) {
+            if (card.hasTrait('critical')) {
+                getCardDefinition(card.type).damaged?.(this.gameState, this, card);
+            }
         }
     }
 
