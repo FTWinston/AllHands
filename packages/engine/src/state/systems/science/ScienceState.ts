@@ -12,23 +12,18 @@ import { EngineCardDefinition, EngineScanTargetCardDefinition, EngineEnemyTarget
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { resolveParameters } from 'src/cards/resolveParameters';
 import { CardState } from 'src/state/CardState';
-import { CooldownState } from 'src/state/CooldownState';
 import { GameState } from 'src/state/GameState';
 import { SectorDestinationState } from 'src/state/SectorDestinationState';
 import { Ship } from 'src/state/Ship';
 import { CrewSystemState } from '../CrewSystemState';
 import { HullSystemTile } from '../engineer/HullSystemTile';
-import { mirrorCards } from '../engineer/mirrorCards';
 import { ScannedEngineerState } from './ScannedEngineerState';
-import { ScannedEngineerTileState } from './ScannedEngineerTileState';
 import { ScannedHelmState } from './ScannedHelmState';
 import { ScannedHullState } from './ScannedHullState';
 import { ScannedScienceState } from './ScannedScienceState';
 import { ScannedSystemOrderState } from './ScannedSystemOrderState';
+import { ScannedSystemState } from './ScannedSystemState';
 import { ScannedTacticalState } from './ScannedTacticalState';
-import { ScannedWeaponSlotState } from './ScannedWeaponSlotState';
-
-type ScannedSystemState = ScannedHelmState | ScannedTacticalState | ScannedScienceState | ScannedEngineerState;
 
 export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, initialPowerLevel: number, getCardId: () => number) {
@@ -198,115 +193,50 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     }
 
     private unsubscribeFromHelm(): void {
-        if (this.scannedHelm) {
-            this.scannedHelm = null;
-
-            if (this.scannedShip) {
-                this.scannedShip.helmState.scienceScanDataChanged.removeListener(this.getShip().id);
-            }
-        }
+        this.scannedHelm?.stopListening();
+        this.scannedHelm = null;
     }
 
     private unsubscribeFromTactical(): void {
-        if (this.scannedTactical) {
-            this.scannedTactical = null;
-
-            if (this.scannedShip) {
-                this.scannedShip.tacticalState.scienceScanDataChanged.removeListener(this.getShip().id);
-            }
-        }
+        this.scannedTactical?.stopListening();
+        this.scannedTactical = null;
     }
 
     private unsubscribeFromScience(): void {
-        if (this.scannedScience) {
-            this.scannedScience = null;
-
-            if (this.scannedShip) {
-                this.scannedShip.scienceState.scienceScanDataChanged.removeListener(this.getShip().id);
-            }
-        }
+        this.scannedScience?.stopListening();
+        this.scannedScience = null;
     }
 
     private unsubscribeFromEngineer(): void {
-        if (this.scannedEngineer) {
-            this.scannedEngineer = null;
-
-            if (this.scannedShip) {
-                const thisShipId = this.getShip().id;
-
-                for (const tile of this.scannedShip.engineerState.systems) {
-                    tile.scienceScanDataChanged.removeListener(thisShipId);
-                }
-                this.scannedShip.engineerState.scienceScanDataChanged.removeListener(thisShipId);
-            }
-        }
+        this.scannedEngineer?.stopListening();
+        this.scannedEngineer = null;
     }
 
     private subscribeToHelm(targetShip: Ship): void {
         this.unsubscribeFromHelm();
-        const source = targetShip.helmState;
-        this.updateSystemOrder(targetShip.id, source.scannedSystemIndex, helmSystem);
-        const state = new ScannedHelmState();
-        state.targetId = targetShip.id;
-        this.copyHelmData(state, source);
-        source.scienceScanDataChanged.addListener(
-            this.getShip().id,
-            () => {
-                this.copyHelmData(this.scannedHelm!, source);
-            }
-        );
-        this.scannedHelm = state;
+        this.scannedHelm = this.startScan(new ScannedHelmState(targetShip.helmState, this.getShip().id), helmSystem);
     }
 
     private subscribeToTactical(targetShip: Ship): void {
         this.unsubscribeFromTactical();
-        const source = targetShip.tacticalState;
-        this.updateSystemOrder(targetShip.id, source.scannedSystemIndex, tacticalSystem);
-        const state = new ScannedTacticalState();
-        state.targetId = targetShip.id;
-        this.copyTacticalData(state, source);
-        source.scienceScanDataChanged.addListener(
-            this.getShip().id,
-            () => {
-                this.copyTacticalData(this.scannedTactical!, source);
-            }
-        );
-        this.scannedTactical = state;
+        this.scannedTactical = this.startScan(new ScannedTacticalState(targetShip.tacticalState, this.getShip().id), tacticalSystem);
     }
 
     private subscribeToScience(targetShip: Ship): void {
         this.unsubscribeFromScience();
-        const source = targetShip.scienceState;
-        this.updateSystemOrder(targetShip.id, source.scannedSystemIndex, scienceSystem);
-        const state = new ScannedScienceState();
-        state.targetId = targetShip.id;
-        this.copyScienceData(state, source);
-        source.scienceScanDataChanged.addListener(
-            this.getShip().id,
-            () => {
-                this.copyScienceData(this.scannedScience!, source);
-            }
-        );
-        this.scannedScience = state;
+        this.scannedScience = this.startScan(new ScannedScienceState(targetShip.scienceState, this.getShip().id), scienceSystem);
     }
 
     private subscribeToEngineer(targetShip: Ship): void {
         this.unsubscribeFromEngineer();
-        const source = targetShip.engineerState;
-        this.updateSystemOrder(targetShip.id, source.scannedSystemIndex, engineerSystem);
-        const state = new ScannedEngineerState();
-        state.targetId = targetShip.id;
-        this.copyEngineerData(state, source);
-        const myId = this.getShip().id;
-        const callback = () => {
-            this.copyEngineerData(this.scannedEngineer!, source);
-        };
-        for (const tile of source.systems) {
-            tile.scienceScanDataChanged.addListener(myId, callback);
-        }
-        // The tiles have every system's power and health, but the engineer's own hand changes on the engineer system itself.
-        source.scienceScanDataChanged.addListener(myId, callback);
-        this.scannedEngineer = state;
+        this.scannedEngineer = this.startScan(new ScannedEngineerState(targetShip.engineerState, this.getShip().id), engineerSystem);
+    }
+
+    /** Record where the scanned system sits in the target's scan order, and have its scan keep itself up to date. */
+    private startScan<T extends ScannedSystemState>(scan: T, systemId: number): T {
+        this.updateSystemOrder(scan.targetId, scan.scannedSystemIndex, systemId);
+        scan.startListening();
+        return scan;
     }
 
     private notifyTacticalSystemKnowledge(targetShip: Ship): void {
@@ -346,76 +276,6 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         state.shield = source.shield;
         state.maxShield = source.maxShield;
         state.shieldTuning = shieldTuningEffects.find(tuning => source.hasEffect(tuning)) ?? null;
-    }
-
-    /** Once science has read a scanned system's hand, it sees each card as it's drawn or played. */
-    private copyHand(state: ScannedSystemState, source: CrewSystemState): void {
-        if (state.hand) {
-            mirrorCards(source.hand, state.hand);
-        }
-    }
-
-    private copyHelmData(state: ScannedHelmState, source: Ship['helmState']): void {
-        state.power = source.powerLevel;
-        this.copyHand(state, source);
-        state.activeManeuver = source.activeManeuver?.card?.cloneCard() ?? null;
-        state.maneuverProgress = source.activeManeuver
-            ? new CooldownState(source.activeManeuver.startTime, source.activeManeuver.endTime)
-            : null;
-        state.evasionChance = source.activeManeuver?.card?.getParameter('evasion') ?? 0;
-    }
-
-    private copyTacticalData(state: ScannedTacticalState, source: Ship['tacticalState']): void {
-        state.power = source.powerLevel;
-        this.copyHand(state, source);
-
-        // Make the slots be the same length.
-        while (state.weaponSlots.length < source.slots.length) {
-            const src = source.slots[state.weaponSlots.length];
-            state.weaponSlots.push(new ScannedWeaponSlotState(src.id));
-        }
-        while (state.weaponSlots.length > source.slots.length) {
-            state.weaponSlots.pop();
-        }
-
-        for (let i = 0; i < source.slots.length; i++) {
-            const src = source.slots[i];
-            const dest = state.weaponSlots[i];
-            dest.charge = src.charge;
-            dest.card = src.card?.cloneCard() ?? null;
-            dest.modifierCard = src.modifierCard;
-            dest.modifiers.clear();
-            for (const [key, value] of src.modifiers) {
-                dest.modifiers.set(key, value);
-            }
-        }
-    }
-
-    private copyScienceData(state: ScannedScienceState, source: Ship['scienceState']): void {
-        state.power = source.powerLevel;
-        this.copyHand(state, source);
-        state.deflectorCard = source.deflectorCard.cloneCard() ?? null;
-    }
-
-    private copyEngineerData(state: ScannedEngineerState, source: Ship['engineerState']): void {
-        state.power = source.powerLevel;
-        this.copyHand(state, source);
-
-        // Make the tiles be the same length.
-        while (state.engineerTiles.length < source.systems.length) {
-            state.engineerTiles.push(new ScannedEngineerTileState('hull'));
-        }
-        while (state.engineerTiles.length > source.systems.length) {
-            state.engineerTiles.pop();
-        }
-
-        for (let i = 0; i < source.systems.length; i++) {
-            const src = source.systems[i];
-            const dest = state.engineerTiles[i];
-            dest.system = src.system;
-            dest.power = src.power;
-            dest.health = src.health;
-        }
     }
 
     public closeScan() {
@@ -591,13 +451,11 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
      */
     readHand(target: Ship, system: CrewRoleName): boolean {
         const scanned = this.getScannedSystem(system);
-        if (!scanned || scanned.targetId !== target.id || scanned.hand) {
+        if (!scanned || scanned.targetId !== target.id) {
             return false;
         }
 
-        scanned.hand = new ArraySchema<CardState>();
-        this.copyHand(scanned, target.getCrewSystem(system));
-        return true;
+        return scanned.readHand();
     }
 
     /** The scan of one of the scanned ship's systems, or null if science isn't scanning that system. */

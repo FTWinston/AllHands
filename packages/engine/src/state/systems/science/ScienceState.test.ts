@@ -377,6 +377,28 @@ describe('ScienceState reading a hand', () => {
         expect(scanner.scienceState.hand).toHaveLength(2);
     });
 
+    it.each(['helm', 'tactical', 'science', 'engineer'] as const)('shows a scanned %s system\'s power and hand, and stops listening to it once the scan is closed', (system) => {
+        const { scanner, target } = createWorld();
+        const source = target.getCrewSystem(system);
+        scanner.scienceState.drawFromTop();
+        scan(scanner, target, source.scannedSystemIndex);
+        readHand(scanner, target, system);
+        const shown = { helm: scanner.scienceState.scannedHelm, tactical: scanner.scienceState.scannedTactical, science: scanner.scienceState.scannedScience, engineer: scanner.scienceState.scannedEngineer }[system]!;
+
+        source.adjustPowerLevel(1);
+        source.addCardToHand(new CardState(996, 'exampleNoTarget'));
+
+        expect(shown.targetId).toBe(target.id);
+        expect(shown.power).toBe(source.powerLevel);
+        expect([...shown.hand!].map(card => card.id)).toEqual([...source.hand].map(card => card.id));
+
+        scanner.scienceState.closeScan();
+
+        // Nothing on the target is still listening for this scan.
+        expect(source.scienceScanDataChanged.hasListener(scanner.id)).toBe(false);
+        expect(target.engineerState.systems.some(tile => tile.scienceScanDataChanged.hasListener(scanner.id))).toBe(false);
+    });
+
     it('doesn\'t use up a second card reading a hand that\'s already read', () => {
         const { scanner, target } = createWorld();
         scanner.scienceState.drawFromTop();
