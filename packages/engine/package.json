@@ -3,9 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "main": "dist/index.js",
+  "types": "./dist/packages/engine/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/packages/engine/src/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "build": "tsc -b && node build.mjs",
-    "build:devtools": "tsc -b && node --env-file=.env.devtools build.mjs"
+    "build": "tsc -b --clean && tsc -b && node build.mjs",
+    "build:devtools": "tsc -b --clean && tsc -b && node --env-file=.env.devtools build.mjs"
   },
   "dependencies": {
     "@colyseus/core": "^0.18.18",

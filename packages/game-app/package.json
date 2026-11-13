@@ -4,7 +4,7 @@
   "private": true,
   "main": "dist/main.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -b --clean && tsc -b",
     "start": "electron .",
     "package": "electron-builder"
   },
