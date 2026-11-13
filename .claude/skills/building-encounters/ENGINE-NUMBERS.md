@@ -20,6 +20,8 @@ How often things happen, which no table of amounts shows. Measure it for every a
 - The reactor plays one of its cards every 8, 4, 2, 1, 0.5 or 0.25 seconds, at reactor power 0 to 5 (`ReactorState`). Each card played makes its own system draw one card. So a system draws once per pass through the reactor deck for each of its reactor cards in it.
 - Adding reactor cards for a system raises its power and its draw rate together. To raise power alone, use `adjustPowerLevel` after the ship is built. Three extra tactical reactor cards made a hauler lethal inside 90 seconds.
 - A weapon needs its own card, then enough other weapon cards spent on it to reach its `totalCharge`, before its first shot. A slow-drawing ship with an expensive weapon may never fire.
+- **For a hunter, the approach sets its first shot, not the charging.** It gets a helm card about every 13 seconds, so from 30 units it first fires 40 to 50 seconds after it spawns, loaded or not. A shuttle had cleared its 40-second lane by then, so each wave of hunters threatened the next shuttle, never its own.
+- A cannon's load is four shots in about four seconds. Against 120 shield that's two or three loads, however many "hits" a spec budgets for.
 - The player's science gets a card about every 6 seconds on top of the one it starts with.
 - The player's tactical draws at the same rate, from a 12-card deck with one phaser cannon and one photon torpedo. Its first cannon shot comes about 30 seconds in, a load is four shots, and the torpedo comes round about once a minute. A plan that needs two torpedoes needs two minutes.
 
@@ -62,6 +64,8 @@ How often things happen, which no table of amounts shows. Measure it for every a
 - **`defend-position`** ignores hostiles outside its radius. Use 30, which is past every weapon.
 - **`guard-ship`** only goes for hostiles within 30 of its ward. Once it has one, it leaves its ward to fight, and holds off at its own weapon's range: Dead Weight's bailiffs keep 12 to 20 units from a crew that chases them, where only a torpedo reaches.
 - **A ship that flees comes back** once its engineer has repaired it past twice its flee threshold. If fleeing is meant to count as gone, call `withdraw()` on it when it starts.
+- **A hunter whose preferred ship has gone hunts the nearest hostile**, which is usually the crew. Anything spawned to threaten something else becomes a threat to the crew the moment that thing leaves or dies.
+- **Ships flying identical routes fly them in step**, which gives away which ones are on a script. Vary the legs.
 - **Target choice:** score is 100 minus distance, plus 30 for the preferred ship, plus noise. A ship only switches to a target scoring 1.25 times its current one, which at encounter distances is almost never.
 - **Skill** (0 to 1, default 0.8): below 1, target scores get noise of up to 30 × (1 − skill), and the commander skips up to half its updates. The officers do the same with their own choices: at 0.7 each skips about one think in seven, and every card's score is off by up to 9.
 - **An AI science officer scans only to reveal a system**, and stops once it has found all four of its target's. So scan cards that mark what they reveal (Antiproton, Chroniton) land in the first minute and then stop. It never looks for a vulnerability or reads a hand.

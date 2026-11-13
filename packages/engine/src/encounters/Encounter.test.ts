@@ -38,7 +38,7 @@ function totalMaxHealth(ship: Ship) {
 describe('encounter registry', () => {
     it('registers the expected encounters', () => {
         expect(getEncounterIds().sort()).toEqual([
-            'ambush', 'armsDealer', 'assault', 'bossA', 'bossB', 'bossC', 'deadWeight', 'escort', 'feverShip', 'navigationBeacon', 'repairStation', 'researchOutpost', 'salvageYard', 'skirmish', 'slowBoat', 'standingOrders', 'survive', 'tollCollectors',
+            'ambush', 'armsDealer', 'assault', 'bossA', 'bossB', 'bossC', 'deadWeight', 'escort', 'feverShip', 'lastShuttleOut', 'navigationBeacon', 'repairStation', 'researchOutpost', 'salvageYard', 'skirmish', 'slowBoat', 'standingOrders', 'survive', 'tollCollectors',
         ]);
         expect(getDevEncounterList().map(info => info.id)).toEqual(getEncounterIds());
     });
@@ -68,7 +68,8 @@ describe('devLoadEncounter', () => {
             expect(state.encounter!.outcome).toBe('success');
             expect(hasWarpCard(ships[0])).toBe(true);
         } else {
-            expect(hostiles.length).toBeGreaterThan(0);
+            // Last Shuttle Out's only ships at the start are the station's, and the grid that comes later never fires on the crew.
+            expect(encounterId === 'lastShuttleOut' ? [...state.objects.values()].filter(object => !ships.includes(object as never)) : hostiles).not.toHaveLength(0);
             expect(state.encounter!.outcome).toBeNull();
         }
 

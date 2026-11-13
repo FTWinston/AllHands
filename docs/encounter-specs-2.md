@@ -6,7 +6,7 @@ The same rules hold. Every number is a starting value to tune in playtests. Ever
 
 These were written with the first three built, so the numbers are already in the engine's terms: hits are counted in cards, shields by hull power, clues by the field that carries them. Where a design in the plan depended on something the engine doesn't do, the spec says what it does instead, under **Changed from the plan**. Each spec still ends with **Check first**: what I read in the code and didn't run.
 
-**Status:** groundwork H is built, on `aimed-shots`, and so is reading a hand (M below), on `scan-hands`, stacked on it. Fever Ship is built, both forms, on `fever-ship`: see its "As built". It needed one shared fix, to the AI's scan evaluator, and nothing else shared. Groundwork I, K and the `recover` objective from L are built, on `dead-weight`, and so is Dead Weight, both forms, with a new card, Transfer Power: see each one's "As built". `setObjective` from L, and J, are not built yet, and nor are the encounters after Dead Weight.
+**Status:** groundwork H is built, on `aimed-shots`, and so is reading a hand (M below), on `scan-hands`, stacked on it. Fever Ship is built, both forms, on `fever-ship`: see its "As built". It needed one shared fix, to the AI's scan evaluator, and nothing else shared. Groundwork I, K and the `recover` objective from L are built, on `dead-weight`, and so is Dead Weight, both forms, with a new card, Transfer Power: see each one's "As built". Last Shuttle Out is built, both forms, on `last-shuttle-out`, with three new ship designs and nothing shared: see its "As built". Its grid never fires on the crew, which is the largest change from its spec. `setObjective` from L, and J, are not built yet, and nor are the encounters after Last Shuttle Out.
 
 ## Build order
 
@@ -704,6 +704,51 @@ The later question isn't asked.
 - Whether nine covered hits is too few or too many across six shuttles. It's the whole difficulty.
 - That a `shuttle` with tactical switched off, and a hull of 4, isn't destroyed by a single unaimed hit that lands on its hull: 2 of a cannon's 20 gets past its shields, so no.
 - Whether spawning up to 24 ships over four minutes troubles anything.
+
+### As built
+
+Both forms are built, on `last-shuttle-out`. The schedule, the lanes, the waves and the grading are as specified. What changed is who the grid shoots, and when.
+
+- **The grid never fires on the crew.** As specified, hostile to the crew, a live fragment whose shuttle had gone hunted the nearest hostile, which was usually the crew, and each one takes four shots a load. A crew that did nothing was destroyed at 105 to 110 seconds on seeds 3, 7 and 11, and one that covered and killed was destroyed on two seeds of three, at 100 and 170 seconds. Losing the ship ends the run, and the shields went on the crew's own defence, not on covering anyone. So the grid is a faction of its own, `{ id: 'grid' }`, and the shuttles declare it hostile: its targeting only knows what's launching from the station. The crew can still fire on it, as firing doesn't check whose a target is. Nothing in the game is hostile to the crew, so the crew's shields go only on Extend Shields, which is the spec's economy.
+- **A live fragment first fires 40 to 50 seconds after it arrives**, and a shuttle takes 41 seconds to fly its lane. So it almost never reaches its own shuttle: it fires on the next one. Its gun isn't what's slow: arriving with its cannon loaded and five of its eight charge made no difference. It's the approach from 30 units, at a helm card every 13 seconds, onto a shuttle that's leaving. So Shuttle One is almost always saved for nothing, and each wave's live fragments are the threat to the shuttles after it, "still there for the next launch" as the spec says. Science has a whole lane, about seven of its cards, to find a wave's live ones before they fire.
+- **A live fragment's slot holds a cannon from its first second** (it starts with one in hand, and loads it at once), and has one about 98% of the time after that. A dead one's never does. The tell works.
+- **Helm can guess, science is sure.** A live fragment jinks and turns after its shuttle; a dead one drifts in straight legs. With one waypoint, every dead fragment in a wave flew the same single Zig-zag in lockstep, which gave them away at a glance. So a dead fragment's drift is five legs, each up to 4 units off a straight line at random (`driftWander`), through its crossing point and out to twice as far. Its course still settles into straight legs after about 15 seconds, while a live one's keeps turning 70 to 110 degrees.
+- **The first launch is at 20 seconds, not 10**, so every time in the timeline is 10 seconds later: launches at 20, 60, 100, 140, 180 and 220, the question at 145, and in the elite form the question at 105, cold launches at 125, 150 and 175, and the reactor failing at 210. The briefing takes 13 seconds to read, and the first launch call is urgent, so at 5 seconds it would have cut it short.
+- **The designs.** `shuttle`: `ring-courier`, 3 bare hull cards then one emitter (the emitter first would lose its 15 shield with the first hull damage), reactor `reactorCards(2)` plus two hull, so hull power 4, four Slow and Steady, one strip it never loads, a fighter's science and engineer, `priorities: { tactical: 0, science: 0 }`, skill 1. `gridFragment`: `sentry-drone`, 2 bare then one emitter, a fighter's reactor (`reactorCards(2, 'reactorPowerTactical')`), as the cannon costs 3 and two reactor sets give tactical 2, the spec's helm, three cannons in one slot, skill 0.6. `miningStation`: `inertTemplate('drydock-tender', 30 bare)`.
+- **What a hit does, checked** (Check first): a shuttle alone keeps its hull through one cannon hit (2 of 4 cards gone if it lands on the hull) and is destroyed by the second. Under extended shields, a cannon hit costs the crew 10 to 13 of their 120 (10 while reinforced) and the shuttle at most 3 of its 15, and nothing reaches its hull. A fragment dies to one torpedo, or to two cannon hits, though one in six cannon hits that lands on its hull destroys it outright.
+- **A hunter whose shuttle has gone goes after the next shuttle** (Check first): with no hostile in reach it has no target, and once the next launches it's the only one there is.
+- **Extend Shields covers a shuttle** (Check first). It's kept in the engineer's hand.
+- **Thirty ships** in all (six shuttles, 23 fragments, the station) play out in about half a second of computer time per four minutes of game time, in a test with nothing drawing it.
+- **Lines.** The launch call is urgent with a `maxDelayMs` of 3 seconds. "Away" and "lost" both queue: the station's count is the only score, so neither is ever dropped. For two together it's "Shuttles Five and Six, port and centre lanes, in five." The shuttle that settles it gets the closing line in place of its own. With none saved nothing is said, and the last "lost" is dropped with it. The elite reactor failing, with a shuttle still unlaunched, is a line the spec didn't have: "Reactor's gone. Six won't be launching." (urgent).
+- **Sending both** cancels the schedule and calls both at once, launching 5 seconds later. **Launching cold** sets each later shuttle's shields to 0 as it launches. In the elite form the reactor fails at 210 seconds whichever was answered, and anything not yet launched counts as lost.
+- **Fragments are numbered across the whole encounter**, "Fragment One" to "Fragment Twenty-Three", as the expected talk has them. Shuttles are "Shuttle One" to "Shuttle Six". The station is "Corrie Deep Station", spawned with scenario id `corrieDeep`, and does nothing.
+- **`Encounter.test.ts`'s standalone check** expects something hostile at the start of every request. This one has nothing hostile at all, so it checks for something there instead.
+
+### Measured
+
+From `LastShuttleOutEncounter.balance.test.ts` (`npm run test:balance`), seeds 3, 7, 11, 13 and 17. The crew is a script: helm keeps 1.5 behind the newest shuttle at 1 unit a second and waits by the station between launches; the engineer keeps Extend Shields up; science finds out about the nearest unscanned fragment every 12 seconds; tactical lands a cannon hit on the nearest known live fragment every 16 seconds from 30 seconds in, and a torpedo every 70 from 40, only ever on live ones, and every shot hits. So these say what each plan comes to, not whether a crew can carry it out. Five seeds is rough: one shuttle more or less on one seed moves a mean by a fifth.
+
+- **Doing nothing:** 1 saved on every seed, Shuttle One. Over at about 225 seconds.
+- **Only covering:** 2 saved on every seed, and the crew's shields at 0 before Six launches, on every seed.
+- **Only killing:** 2 to 5 saved, mean 3.6, and no shields spent.
+- **Covering and killing:** 3 to 5, mean 4.2, with 0 to 120 of the shields left. With the cannon twice as often, 4 to 5, mean 4.6. Nothing saved all six on the schedule.
+- **Send both** (covering and killing): 3 to 6, mean 4.6, against 4.2 for holding, and over at 180 to 190 seconds against 225 to 260.
+- **Elite, nothing done:** 1 saved, over at 210 seconds when the reactor fails. **Keeping the checks:** 3 to 5, mean 4.0. **Launching cold:** 2 to 5, mean 3.8. Neither dominates.
+- **A live fragment's first shot** comes 40 to 50 seconds after it arrives, unless it arrived near the end of its shuttle's lane, which happened on one seed of three (seed 11, at 23 to 31 seconds). Measured on seeds 3, 7 and 11 before the dead fragments' drift had its five legs.
+- **With the grid shooting the crew, as specified:** the crew was destroyed in 17 of 21 runs over seven plans and seeds 3, 7 and 11, at 80 to 220 seconds, and in every run where it did nothing, at 105 to 110.
+
+So the encounter's central trade-off only partly holds. **The shields are a small part of it.** Covering alone spends all 120 and saves one more shuttle than doing nothing; killing alone saves two or three more and spends none; covering on top of killing adds about half a shuttle. A live fragment's load is four shots in four seconds, so the crew's shields absorb two or three loads, not nine separate hits spread across the evacuation. What decides the score is science finding the live fragments in the 40-odd seconds before they fire, and tactical killing them. The question it asks in practice is closer to Diagnose under a clock than to Endure.
+
+### Still to check, by playing it
+
+- Whether science reaches for fragments on the scan list fast enough. It holds five scan cards by the first launch, and the list starts with the station.
+- Whether helm reads live fragments from their motion before science does, and whether that's talk or a shortcut.
+- Whether the crew covers at all, given how little it buys, and whether the engineer's call ("this one or the next") ever comes up.
+- Whether blue (neutral) fragments read as harmless on the viewscreen, as the grid now never fires on the crew. A briefing line may need to say "they won't fire on you".
+- Whether Shuttle One being free makes the first forty seconds dull, or a useful time to scan.
+- The station's and a newly launched shuttle's labels overlap at the moment of launch.
+- Most fragments arrive outside the viewscreen's frame, so the first the room sees of a wave is on the phones.
+- Nobody has watched a scan of a live fragment's tactical system on a phone: it has been run in the game, both forms, built with dev tools, with four crew pages joined and nobody playing. The briefing, the objective "Protect the shuttles", the station to port, Shuttle One and Two launching down different lanes, the fragments, the targets on tactical's and science's lists, Extend Shields in the engineer's hand, and the elite question at 105 seconds all reach their screens.
 
 ---
 

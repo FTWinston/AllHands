@@ -169,6 +169,30 @@ const designTemplates = defineDesignTemplates({
     },
     // Not a ship at all: a station module, with nobody aboard and nothing to power it, so all it has is 40 bare hull and no shields. Whoever has it moves it.
     waterModule: inertTemplate('mining-barge', Array<'hullBare'>(40).fill('hullBare')),
+    // Not a ship either: a mining station that's being abandoned, with nobody left at the controls. 30 bare hull and no shields.
+    miningStation: inertTemplate('drydock-tender', Array<'hullBare'>(30).fill('hullBare')),
+    // An unarmed evacuation shuttle: all it can do is fly straight. Its shields (15) are fully powered, over 3 bare hull, which come first,
+    // so it survives one cannon hit and not a second. Nobody aboard shoots or scans. It never runs.
+    shuttle: {
+        ...fighterTemplate,
+        appearance: 'ring-courier',
+        hull: system(['hullBare', 'hullBare', 'hullBare', 'hullShieldEmitter'], 0),
+        reactor: system(reactorCards(2, 'reactorPowerHull', 'reactorPowerHull'), 0),
+        helm: system(['slowAndSteady', 'slowAndSteady', 'slowAndSteady', 'slowAndSteady']),
+        tactical: { ...system(['phaserStrip']), numSlots: 1 },
+        fleeThreshold: 0,
+        priorities: { tactical: 0, science: 0 },
+    },
+    // A piece of an old defence grid, with a cannon. Its shields (15) are over 2 bare hull, which come first. Its reactor gives tactical 3, which a cannon needs.
+    // Whoever spawns one decides whether its gun still works, by switching its tactical officer off. It never runs.
+    gridFragment: {
+        ...fighterTemplate,
+        appearance: 'sentry-drone',
+        hull: system(['hullBare', 'hullBare', 'hullShieldEmitter'], 0),
+        helm: system(['zigZag', 'strafe', 'slowAndSteady', 'slowAndSteady']),
+        tactical: { ...system(['phaserCannon', 'phaserCannon', 'phaserCannon']), numSlots: 1 },
+        fleeThreshold: 0,
+    },
 });
 
 /** A kind of AI ship. Each has its own appearance, so the same shape always means the same kind of ship, whichever faction it's in. */
@@ -186,6 +210,9 @@ const designNames: Record<ShipDesign, string> = {
     drone: 'Drone',
     tug: 'Tug',
     waterModule: 'Water Module',
+    miningStation: 'Mining Station',
+    shuttle: 'Shuttle',
+    gridFragment: 'Grid Fragment',
 };
 
 /** How well a ship plays (see `AiShipSetupInfo.skill`), unless the encounter says otherwise. */
