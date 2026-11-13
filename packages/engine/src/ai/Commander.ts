@@ -25,6 +25,8 @@ export class Commander {
     /** Hull fraction below which the ship flees. Starts as configured; `standFast` zeroes it. */
     private fleeThreshold: number;
     private withdrawing = false;
+    /** Whether the ship has been told to stop fighting where it is (see `standDown`). */
+    private standingDown = false;
     /** Which of a `travel-route` goal's waypoints the ship is heading for. */
     private waypointIndex = 0;
 
@@ -55,9 +57,42 @@ export class Commander {
         this.fleeThreshold = 0;
     }
 
-    /** Calls off a withdrawal: from its next update the ship goes back to its goal, unless it's damaged enough to flee anyway. */
+    /** Calls off a withdrawal or a stand-down: from its next update the ship goes back to its goal, unless it's damaged enough to flee anyway. */
     rally(): void {
         this.withdrawing = false;
+        this.standingDown = false;
+    }
+
+    /** What the ship is out to do: the goal it spawned with, unless it has been given another (see `setGoal`). */
+    get goal(): AiGoalInfo {
+        return this.activeGoal;
+    }
+
+    /**
+     * Gives the ship new orders, in place of the goal it spawned with. A route is flown from its first waypoint, a hunter that has nothing in sight
+     * picks somewhere new to look, and a `guard-ship` ward or a preferred target can be named by scenario id, as at spawn.
+     * A ship that's withdrawing or standing down carries on doing so, and follows the new goal once it's rallied.
+     */
+    setGoal(goal: AiGoalInfo): void {
+        this.activeGoal = goal;
+        this.waypointIndex = 0;
+        this.wanderDestination = null;
+        this.resolveScenarioReferences();
+    }
+
+    /** Whether the ship has been told to stop fighting where it is (see `standDown`). */
+    get isStandingDown(): boolean {
+        return this.standingDown;
+    }
+
+    /**
+     * Has the ship stop fighting where it is: from its next update it has no target and nowhere to go, so it neither shoots nor manoeuvres,
+     * and any manoeuvre under way is called off. It keeps its goal, and goes back to it when `rally` is called.
+     * For one ship of a faction going quiet while the rest fight on. Where a whole faction stops, change how it relates to the others instead.
+     * A ship that's fleeing, whether from damage or because it's withdrawing, goes on fleeing.
+     */
+    standDown(): void {
+        this.standingDown = true;
     }
 
     /**
@@ -129,6 +164,11 @@ export class Commander {
             blackboard.goal = this.activeGoal.type;
         }
 
+        if (this.standingDown && blackboard.goal !== 'flee') {
+            this.holdStill(blackboard);
+            return;
+        }
+
         const hostiles = this.getHostilesInScope(blackboard, currentTime);
 
         this.updateTarget(blackboard, hostiles, ownPosition, currentTime, skill);
@@ -137,6 +177,18 @@ export class Commander {
         blackboard.desiredRange = getDesiredRangeFromSlots(this.ship.tacticalState.slots) ?? { min: 2, max: 8 };
         this.updateDestination(blackboard, hostiles, ownPosition, currentTime);
         this.updateFocusSystem(blackboard);
+    }
+
+    /** Nothing to shoot at and nowhere to be, so the officers have nothing to act on but their own systems. */
+    private holdStill(blackboard: Blackboard) {
+        blackboard.targetId = null;
+        blackboard.focusSystem = null;
+        blackboard.destination = null;
+        blackboard.stance = 'holding';
+
+        if (this.ship.helmState.activeManeuver) {
+            this.ship.helmState.cancelActiveManeuver();
+        }
     }
 
     private prunePowerRequests(blackboard: Blackboard, currentTime: number) {

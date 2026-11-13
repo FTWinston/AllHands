@@ -27,7 +27,7 @@ export const sectorThemes: readonly SectorTheme[] = [
         outroMessage: 'Placeholder outro message for sector 1.',
         defeatMessage: 'Placeholder defeat message for sector 1.',
         environments: ['asteroidField', 'deepSpace', 'nebula'],
-        encounters: { early: [...earlyEncounters, 'tollCollectors'], late: [...lateEncounters, 'tollCollectors', 'slowBoat', 'standingOrders', 'feverShip', 'deadWeight', 'lastShuttleOut'] },
+        encounters: { early: [...earlyEncounters, 'tollCollectors'], late: [...lateEncounters, 'tollCollectors', 'slowBoat', 'standingOrders', 'feverShip', 'deadWeight', 'lastShuttleOut', 'quietRunning'] },
         bossEncounterId: 'bossA',
     },
     {

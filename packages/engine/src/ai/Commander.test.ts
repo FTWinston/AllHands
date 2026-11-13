@@ -508,6 +508,136 @@ describe('Commander', () => {
         });
     });
 
+    describe('new orders', () => {
+        it('a guard given search-and-destroy hunts a hostile its leash would have kept it from', () => {
+            const state = createWorld();
+            const ward = new AiShip(state, { ...shipSetup('raiders', 0, 0), id: 'ward', goal: { type: 'search-and-destroy' }, skill: 1 });
+            state.add(ward);
+            const setup = aiSetup({ goal: { type: 'guard-ship', shipId: 'ward' } });
+            const ai = new AiShip(state, setup);
+            state.add(ai);
+            const hostile = new AiShip(state, { ...shipSetup('player', 60, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
+            state.add(hostile);
+            ai.updateKnownObjects(0);
+
+            const bb = createBlackboard(setup.goal);
+            const commander = new Commander(ai, state, resolveAiConfig(setup as never));
+            commander.resolveScenarioReferences();
+            commander.update(bb, 0);
+            expect(bb.goal).toBe('guard-ship');
+            expect(bb.targetId).toBeNull();
+
+            commander.setGoal({ type: 'search-and-destroy' });
+            commander.update(bb, 0);
+
+            expect(commander.goal).toEqual({ type: 'search-and-destroy' });
+            expect(bb.goal).toBe('search-and-destroy');
+            expect(bb.targetId).toBe(hostile.id);
+            expect(bb.destination).toEqual(expect.objectContaining({ x: 60, y: 0 }));
+        });
+
+        it('a route is flown from its first waypoint, and a ward can be named by scenario id', () => {
+            const state = createWorld();
+            const ward = new AiShip(state, { ...shipSetup('raiders', 10, 10), id: 'ward', goal: { type: 'search-and-destroy' }, skill: 1 });
+            state.add(ward);
+            const setup = aiSetup({ goal: { type: 'travel-route', waypoints: [{ x: 0, y: 0 }, { x: 10, y: 0 }], arrivalRadius: 2 } });
+            const ai = new AiShip(state, setup);
+            state.add(ai);
+            const bb = createBlackboard(setup.goal);
+            const commander = new Commander(ai, state, resolveAiConfig(setup as never));
+
+            commander.update(bb, 0);
+            expect(commander.waypointsReached).toBe(1);
+
+            commander.setGoal({ type: 'travel-route', waypoints: [{ x: 0, y: -10 }], arrivalRadius: 2 });
+            commander.update(bb, 0);
+            expect(commander.waypointsReached).toBe(0);
+            expect(bb.destination).toEqual({ x: 0, y: -10 });
+
+            commander.setGoal({ type: 'guard-ship', shipId: 'ward' });
+            commander.update(bb, 0);
+            expect(commander.goal).toEqual({ type: 'guard-ship', shipId: ward.id });
+            expect(bb.destination).toEqual(expect.objectContaining({ x: 10, y: 10 }));
+        });
+
+        it('a ship that is withdrawing keeps withdrawing, and follows its new goal once rallied', () => {
+            const state = createWorld();
+            const ai = new AiShip(state, aiSetup());
+            state.add(ai);
+            const bb = createBlackboard({ type: 'search-and-destroy' });
+            const commander = new Commander(ai, state, resolveAiConfig(aiSetup() as never));
+
+            commander.withdraw();
+            commander.setGoal({ type: 'defend-position', position: { x: 5, y: 5, angle: 0 }, radius: 30 });
+            commander.update(bb, 0);
+            expect(bb.goal).toBe('flee');
+
+            commander.rally();
+            commander.update(bb, 0);
+            expect(bb.goal).toBe('defend-position');
+            expect(bb.destination).toEqual({ x: 5, y: 5, angle: 0 });
+        });
+
+        it('a ship told to stand down has no target and nowhere to go, until it rallies', () => {
+            const state = createWorld();
+            const ai = new AiShip(state, aiSetup());
+            state.add(ai);
+            const hostile = new AiShip(state, { ...shipSetup('player', 5, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
+            state.add(hostile);
+            ai.updateKnownObjects(0);
+            const bb = createBlackboard({ type: 'search-and-destroy' });
+            const commander = new Commander(ai, state, resolveAiConfig(aiSetup() as never));
+
+            commander.update(bb, 0);
+            expect(bb.targetId).toBe(hostile.id);
+
+            commander.standDown();
+            commander.update(bb, 0);
+            expect(commander.isStandingDown).toBe(true);
+            expect(bb.goal).toBe('search-and-destroy');
+            expect(bb.targetId).toBeNull();
+            expect(bb.destination).toBeNull();
+            expect(bb.stance).toBe('holding');
+
+            commander.rally();
+            commander.update(bb, 0);
+            expect(commander.isStandingDown).toBe(false);
+            expect(bb.targetId).toBe(hostile.id);
+        });
+
+        it('a ship told to stand down calls off the manoeuvre it was flying', () => {
+            const state = createWorld();
+            const setup = aiSetup({ helm: { cards: ['slowAndSteady'], maxPowerLevel: 5, initialHandSize: 1 } });
+            const ai = new AiShip(state, setup);
+            state.add(ai);
+            const card = ai.helmState.hand[0];
+            ai.helmState.playCard(card.id, card.type, 'location', '10,0');
+            expect(ai.helmState.activeManeuver).not.toBeNull();
+
+            const commander = new Commander(ai, state, resolveAiConfig(setup as never));
+            commander.standDown();
+            commander.update(createBlackboard({ type: 'search-and-destroy' }), 0);
+            ai.helmState.update(state.currentTime);
+
+            expect(ai.helmState.activeManeuver).toBeNull();
+        });
+
+        it('a ship that is fleeing goes on fleeing when told to stand down', () => {
+            const state = createWorld();
+            const ai = new AiShip(state, aiSetup());
+            state.add(ai);
+            const bb = createBlackboard({ type: 'search-and-destroy' });
+            const commander = new Commander(ai, state, resolveAiConfig(aiSetup() as never));
+
+            commander.withdraw();
+            commander.standDown();
+            commander.update(bb, 0);
+
+            expect(bb.goal).toBe('flee');
+            expect(bb.stance).toBe('withdrawing');
+        });
+    });
+
     describe('a preferred target', () => {
         function createHunt(preferredDistance: number, otherDistance: number) {
             const state = createWorld();

@@ -33,7 +33,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         super();
 
-        this.underlyingPowerLevel = this.powerLevel = initialPowerLevel;
+        this.underlyingPowerLevel = this.powerLevel = this.baselinePowerLevel = initialPowerLevel;
         this.maxPowerLevel = setup.maxPowerLevel;
 
         this.initialHandSize = setup.initialHandSize;
@@ -225,6 +225,8 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }
 
     private underlyingPowerLevel: number;
+    /** The power the reactor gives this system, which it has when no effect is raising or lowering it. */
+    private readonly baselinePowerLevel: number;
     @type('uint8') readonly powerLevel: number;
     maxPowerLevel: number;
 
@@ -448,7 +450,16 @@ export abstract class SystemState extends Schema implements SystemInfo {
             card.modifiers.clear();
         }
 
+        this.clearEffects();
+    }
+
+    /**
+     * Drops every effect, without anything they'd do as they ended, and puts the power back to what the reactor gives it.
+     * Effects that raise or lower power undo that as they end, so dropping them otherwise leaves the change behind for good.
+     */
+    private clearEffects() {
         this.getEffects().clear();
+        this.adjustPowerLevel(this.baselinePowerLevel - this.underlyingPowerLevel);
     }
 
     /**
@@ -577,7 +588,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         this.syncHealth();
 
-        this.getEffects().clear();
+        this.clearEffects();
     }
 
     /**

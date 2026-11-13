@@ -2,6 +2,7 @@ import { RelationshipType } from 'common-data/features/space/types/RelationshipT
 import { IRandom } from 'common-data/types/IRandom';
 import { AiShip } from 'src/state/AiShip';
 import { GameState } from 'src/state/GameState';
+import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { seededRandom, shipSetup, setupGameRoom, startCampaign } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
@@ -105,6 +106,24 @@ describe('AI ship integration', () => {
         run(state, FIVE_MINUTES, () => totalHealth(dummy) < before);
         expect(totalHealth(dummy)).toBeLessThan(before);
         // (Same set-B substitution applies if charging is stubbed.)
+    });
+
+    it('a ship told to stand down never fires on a hostile in its arc, and does again once it rallies', () => {
+        const { state, dummy, attacker } = createBattle(1);
+        // Right in front of it, inside torpedo range, so there's nothing to do but load and fire.
+        dummy.setMotion(new MotionKeyframe(state.currentTime, 8, 0, 0));
+        attacker.setMotion(new MotionKeyframe(state.currentTime, 0, 0, 0));
+        attacker.ai.commander.standDown();
+
+        const before = totalHealth(dummy);
+        run(state, 60_000);
+        expect(totalHealth(dummy)).toBe(before);
+        const { x, y } = attacker.getPosition(state.currentTime);
+        expect(Math.hypot(x, y)).toBeLessThan(0.001);
+
+        attacker.ai.commander.rally();
+        run(state, FIVE_MINUTES, () => totalHealth(dummy) < before);
+        expect(totalHealth(dummy)).toBeLessThan(before);
     });
 
     it('enemies from a real combat encounter close in, keep maneuvering, and damage the player', () => {

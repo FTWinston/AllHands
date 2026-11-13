@@ -14,6 +14,12 @@ export const transferPowerDuration = 20_000;
 /** How close a friendly ship has to be for Transfer Power to reach it, in world units. */
 export const transferPowerRange = 6;
 
+/** How much lower a system runs while it's running quiet (see the Run Quiet card). */
+export const runQuietPowerLoss = 2;
+
+/** How long a flare burns, once the Flare card is played. */
+export const flareDuration = 8000;
+
 /** How long the mark of a customs platform's inspection ping stays on the system it landed on. */
 export const inspectionPingDuration = 8000;
 
@@ -87,6 +93,17 @@ export const systemEffectDefinitions = defineSystemEffects({
         category: SystemEffectCategory.Positive,
         usesLevels: false,
         duration: transferPowerDuration,
+    },
+    /** This system runs lower until it's brought back (see the Run Quiet card). It has no time limit. */
+    runningQuiet: {
+        category: SystemEffectCategory.Neutral,
+        usesLevels: false,
+    },
+    /** On a ship's tactical system: a flare it launched is burning. It does nothing itself: an encounter decides what that's worth. */
+    flareBurning: {
+        category: SystemEffectCategory.Neutral,
+        usesLevels: false,
+        duration: flareDuration,
     },
     // What a customs platform's inspection ping leaves behind. They do nothing: which one it is says how the platform is keyed.
     phasedPing: {

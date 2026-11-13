@@ -1,5 +1,5 @@
 import { reinforcedDrainPercent, tunedReductionPercent } from 'common-data/features/ships/utils/shieldStats';
-import { extendedShieldsRange, systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { extendedShieldsRange, runQuietPowerLoss, systemEffectDefinitions, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { EffectLevel } from '../components/EffectLevelContext';
 import { SystemEffectDescription, UISystemEffectDefinition } from '../types/UISystemEffectDefinition';
@@ -87,6 +87,16 @@ function loadEffectDefinitions() {
         powerReceived: {
             name: 'Power Received',
             description: <>Another ship is powering this one.</>,
+            image: ExampleIcon,
+        },
+        runningQuiet: {
+            name: 'Running Quiet',
+            description: <>{`This system is running ${runQuietPowerLoss} power lower, until Run Quiet is played on it again.`}</>,
+            image: ExampleIcon,
+        },
+        flareBurning: {
+            name: 'Flare Burning',
+            description: <>A flare launched from this ship is burning, dazzling sensors nearby.</>,
             image: ExampleIcon,
         },
         phasedPing: {
