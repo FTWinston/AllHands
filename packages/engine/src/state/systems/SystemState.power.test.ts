@@ -1,4 +1,5 @@
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
+import { shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { playerShipSetup } from 'src/campaign/playerShipSetup';
 import { setupGameRoom } from 'src/testUtils';
 import { describe, expect, it } from 'vitest';
@@ -73,5 +74,61 @@ describe('SystemState power', () => {
         ship.fullyRepair();
 
         expect(ship.engineerState.powerLevel).toBe(3);
+    });
+
+    it('takes each effect off through its own handler, so the power it ends with follows whatever the reactor now gives, not what it gave at the start', () => {
+        const { ship, tile } = createShip();
+
+        // As if the reactor were changed to give helm another level.
+        ship.helmState.adjustPowerLevel(1);
+        tile('helm').addEffect('auxPower');
+        expect(ship.helmState.powerLevel).toBe(5);
+
+        ship.cleanupAfterEncounter();
+
+        expect(ship.helmState.powerLevel).toBe(4);
+    });
+
+    it('doesn\'t move a reduction in power to another system as it clears it', () => {
+        const { ship, tile } = createShip();
+
+        tile('science').addEffect('reducedPower', 2);
+        ship.cleanupAfterEncounter();
+
+        expect(ship.engineerState.systems.some(candidate => candidate.hasEffect('reducedPower'))).toBe(false);
+        for (const system of shipSystems.map(name => ship.getSystem(name))) {
+            expect(system.powerLevel).toBe(3);
+        }
+    });
+
+    it('undoes an effect on the cost of a system\'s cards before the cards are put back', () => {
+        const { ship } = createShip();
+        const costs = () => [...ship.scienceState.deck, ...ship.scienceState.hand].sort((a, b) => a.id - b.id).map(card => card.getParameter('cost'));
+        const before = costs();
+
+        ship.scienceState.addEffect('reducedCardCost');
+        ship.cleanupAfterEncounter();
+
+        expect(costs()).toEqual(before);
+    });
+
+    it('gives the power back from a reset that\'s under way', () => {
+        const { ship, tile } = createShip();
+
+        tile('tactical').addEffect('resetting');
+        expect(ship.tacticalState.powerLevel).toBe(0);
+        ship.cleanupAfterEncounter();
+
+        expect(ship.tacticalState.powerLevel).toBe(3);
+    });
+
+    it('doesn\'t set off a reactor breach that\'s counting down as the encounter ends', () => {
+        const { state, ship } = createShip();
+
+        ship.reactorState.adjustHealth(-ship.reactorState.health);
+        expect(ship.reactorState.hasEffect('reactorBreach')).toBe(true);
+        ship.cleanupAfterEncounter();
+
+        expect(state.objects.has(ship.id)).toBe(true);
     });
 });

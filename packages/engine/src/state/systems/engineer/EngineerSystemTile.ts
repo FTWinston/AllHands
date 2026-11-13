@@ -115,6 +115,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         return true;
     }
 
+    /** Remove every effect from this system early, as a reset does. Each does what it would if removed early, so this isn't for clearing them away: see `clearEffects`. */
     removeAllEffects() {
         for (const effect of this.effects) {
             getSystemEffectDefinition(effect.type)
@@ -122,6 +123,25 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         }
 
         this.effects.clear();
+        this.scienceScanDataChanged.invoke();
+    }
+
+    /**
+     * Clear every effect away, as at the end of an encounter or on a full repair. Each undoes whatever it did, such as raising or lowering the power,
+     * but doesn't do what it would if removed early, such as moving to another system: there's nowhere for it to go, as they're all being cleared.
+     */
+    clearEffects() {
+        while (this.effects.length > 0) {
+            const [effect] = this.effects.splice(0, 1);
+            const definition = getSystemEffectDefinition(effect.type);
+
+            if (definition.clear) {
+                definition.clear(this, effect.level);
+            } else {
+                definition.remove(this, false, effect.level);
+            }
+        }
+
         this.scienceScanDataChanged.invoke();
     }
 

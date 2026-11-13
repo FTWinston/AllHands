@@ -33,7 +33,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
         super();
 
-        this.underlyingPowerLevel = this.powerLevel = this.baselinePowerLevel = initialPowerLevel;
+        this.underlyingPowerLevel = this.powerLevel = initialPowerLevel;
         this.maxPowerLevel = setup.maxPowerLevel;
 
         this.initialHandSize = setup.initialHandSize;
@@ -241,8 +241,6 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }
 
     private underlyingPowerLevel: number;
-    /** The power the reactor gives this system, which it has when no effect is raising or lowering it. */
-    private readonly baselinePowerLevel: number;
     @type('uint8') readonly powerLevel: number;
     maxPowerLevel: number;
 
@@ -449,6 +447,9 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }
 
     cleanupAfterEncounter() {
+        // First, so that whatever an effect did to this system's cards, such as their cost, is undone before they're put back.
+        this.clearEffects();
+
         for (const card of [...this.slottedCards]) {
             this.markCardUnslotted(card);
         }
@@ -468,16 +469,13 @@ export abstract class SystemState extends Schema implements SystemInfo {
             card.modifiers.clear();
         }
 
+        // And again, for any that stabilising the damaged cards brought back, such as the mark of a damaged card on top of the deck.
         this.clearEffects();
     }
 
-    /**
-     * Drops every effect, without anything they'd do as they ended, and puts the power back to what the reactor gives it.
-     * Effects that raise or lower power undo that as they end, so dropping them otherwise leaves the change behind for good.
-     */
+    /** Remove every effect on this system, each undoing whatever it did, such as raising or lowering its power. */
     private clearEffects() {
-        this.getEffects().clear();
-        this.adjustPowerLevel(this.baselinePowerLevel - this.underlyingPowerLevel);
+        this.linkedEngineerSystemTile.clearEffects();
     }
 
     /**
