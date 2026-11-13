@@ -160,6 +160,12 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     }
 
     playWeapon(slot: WeaponSlotState, cardType: WeaponSlotTargetedCardType, targetId: string): EngineCardDefinition | null {
+        // With every tactical card damaged, the system is out, and that goes for a weapon that was loaded and charged before it happened.
+        if (this.health <= 0) {
+            console.warn('cannot fire: tactical is out');
+            return null;
+        }
+
         const splitPos = targetId.indexOf(':');
         let targetObjectId: string;
         let vulnerabilityId: string | null;

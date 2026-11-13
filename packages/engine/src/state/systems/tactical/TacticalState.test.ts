@@ -291,4 +291,32 @@ describe('TacticalState firing', () => {
             expect(hit.sourceId).toBe(ship.id);
         }
     });
+
+    it('can\'t fire a weapon that\'s loaded and charged once tactical is put out, and can again once it\'s repaired', () => {
+        const { state, ship, tactical } = createTactical(['phaserCannon', 'phaserStrip']);
+        const enemy = new AiShip(state, { ...shipSetup('player', 5, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
+        state.add(enemy);
+        ship.updateKnownObjects(0);
+
+        const slot = loadWeapon(tactical);
+        slot.addCharge(slot.getParameter('totalCharge'), 0);
+        const damage = vi.spyOn(enemy, 'damage').mockReturnValue(0);
+
+        // Damaged, but not out: the weapon in the slot is the last card to go.
+        tactical.adjustHealth(-1);
+        expect(tactical.health).toBeGreaterThan(0);
+        expect(tactical.playWeapon(slot, 'phaserCannon', enemy.id)).not.toBeNull();
+        expect(damage).toHaveBeenCalledTimes(1);
+
+        tactical.adjustHealth(-tactical.health);
+        expect(tactical.health).toBe(0);
+        expect(tactical.playWeapon(slot, 'phaserCannon', enemy.id)).toBeNull();
+        expect(damage).toHaveBeenCalledTimes(1);
+        // It's still loaded, and has lost none of its charge.
+        expect(slot.card).not.toBeNull();
+
+        tactical.adjustHealth(1);
+        expect(tactical.playWeapon(slot, 'phaserCannon', enemy.id)).not.toBeNull();
+        expect(damage).toHaveBeenCalledTimes(2);
+    });
 });
