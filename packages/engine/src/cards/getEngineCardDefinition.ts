@@ -632,7 +632,7 @@ function loadCardDefinitions() {
                     return false;
                 }
 
-                system.removeEffect(negativeEffect.type, true);
+                system.removeEffect(negativeEffect.type, 'early');
                 return true;
             },
         },
@@ -670,7 +670,7 @@ function loadCardDefinitions() {
             play: (_gameState, _ship, system) => {
                 // The same card brings it back.
                 return system.hasEffect('runningQuiet')
-                    ? system.removeEffect('runningQuiet', true)
+                    ? system.removeEffect('runningQuiet', 'early')
                     : system.addEffect('runningQuiet');
             },
         },
@@ -717,7 +717,7 @@ function loadCardDefinitions() {
                 const relocatingIndex = ship.engineerState.systems.indexOf(relocatingSystem);
                 ship.engineerState.systems[systemIndex] = relocatingSystem;
                 ship.engineerState.systems[relocatingIndex] = system;
-                relocatingSystem.removeEffect('relocating', true);
+                relocatingSystem.removeEffect('relocating', 'early');
                 return true;
             },
         },
@@ -866,10 +866,10 @@ function loadCardDefinitions() {
 
                 // Remove transferable effects from both systems (properly undoes power adjustments etc.)
                 for (const e of systemEffects) {
-                    system.removeEffect(e.type, false);
+                    system.removeEffect(e.type, 'expired');
                 }
                 for (const e of neighborEffects) {
-                    neighbor.removeEffect(e.type, false);
+                    neighbor.removeEffect(e.type, 'expired');
                 }
 
                 // Add neighbor's old effects to system (and vice versa), consolidating leveled effects.

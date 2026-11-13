@@ -89,7 +89,7 @@ describe('Run Quiet', () => {
         expect(ship.tacticalState.powerLevel).toBe(2);
 
         // The boost runs out while it's quiet, then it's brought back.
-        tile('tactical').removeEffect('auxPower', false);
+        tile('tactical').removeEffect('auxPower', 'expired');
         expect(ship.tacticalState.powerLevel).toBe(1);
         runQuiet('tactical');
         expect(ship.tacticalState.powerLevel).toBe(3);
@@ -102,8 +102,8 @@ describe('Run Quiet', () => {
         expect(ship.helmState.powerLevel).toBe(2);
         runQuiet('helm');
         expect(ship.helmState.powerLevel).toBe(4);
-        tile('helm').removeEffect('overcharge', false);
-        tile('helm').removeEffect('reducedPower', false);
+        tile('helm').removeEffect('overcharge', 'expired');
+        tile('helm').removeEffect('reducedPower', 'expired');
         expect(ship.helmState.powerLevel).toBe(3);
     });
 

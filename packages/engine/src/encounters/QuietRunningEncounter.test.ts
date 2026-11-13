@@ -318,13 +318,13 @@ describe('QuietRunningEncounter', () => {
             expect(ship.scienceState.scannedScience!.power).toBe(3);
 
             // Pushed down below nothing, it still reads true, and comes back right when what pushed it goes.
-            tile(picket, 'science').removeEffect('overcharge', false);
-            tile(picket, 'science').removeEffect('auxPower', false);
+            tile(picket, 'science').removeEffect('overcharge', 'expired');
+            tile(picket, 'science').removeEffect('auxPower', 'expired');
             tile(picket, 'science').addEffect('reducedPower', 5);
             wait(run, 100);
             expect(ship.scienceState.scannedScience!.power).toBe(3);
 
-            tile(picket, 'science').removeEffect('reducedPower', false);
+            tile(picket, 'science').removeEffect('reducedPower', 'expired');
             wait(run, 100);
             expect(ship.scienceState.scannedScience!.power).toBe(3);
 

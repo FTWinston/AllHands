@@ -112,7 +112,7 @@ function toDoor(run: Run) {
 /** The keys that are turned go back, as they do on their own after a few seconds of the game being played. */
 function lapse(ship: PlayerShip) {
     for (const tile of ship.engineerState.systems) {
-        tile.removeEffect('keyTurned', false);
+        tile.removeEffect('keyTurned', 'expired');
     }
 }
 

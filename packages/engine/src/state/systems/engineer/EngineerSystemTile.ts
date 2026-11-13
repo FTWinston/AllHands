@@ -9,6 +9,7 @@ import { CooldownState } from 'src/state/CooldownState';
 import { SystemState } from '../SystemState';
 import { mirrorCards } from './mirrorCards';
 import { SystemEffect } from './SystemEffect';
+import type { EffectRemoval } from 'src/effects/EngineSystemEffectDefinition';
 
 export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo {
     constructor(readonly systemState: SystemState, system: ShipSystem) {
@@ -100,7 +101,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
      * Remove a specific effect from this system.
      * Returns true if the effect was found and removed.
      */
-    removeEffect(effectType: SystemEffectType, early: boolean): boolean {
+    removeEffect(effectType: SystemEffectType, removal: EffectRemoval): boolean {
         const index = this.effects.findIndex(e => e.type === effectType);
         if (index === -1) {
             return false;
@@ -109,7 +110,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         this.effects.splice(index, 1);
 
         getSystemEffectDefinition(effectType)
-            .remove(this, early, level);
+            .remove(this, removal, level);
 
         this.scienceScanDataChanged.invoke();
         return true;
@@ -119,7 +120,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
     removeAllEffects() {
         for (const effect of this.effects) {
             getSystemEffectDefinition(effect.type)
-                .remove(this, true, effect.level);
+                .remove(this, 'early', effect.level);
         }
 
         this.effects.clear();
@@ -133,13 +134,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
     clearEffects() {
         while (this.effects.length > 0) {
             const [effect] = this.effects.splice(0, 1);
-            const definition = getSystemEffectDefinition(effect.type);
-
-            if (definition.clear) {
-                definition.clear(this, effect.level);
-            } else {
-                definition.remove(this, false, effect.level);
-            }
+            getSystemEffectDefinition(effect.type).remove(this, 'cleared', effect.level);
         }
 
         this.scienceScanDataChanged.invoke();
@@ -186,7 +181,7 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
                 this.scienceScanDataChanged.invoke();
                 return newLevel >= maxLevel;
             } else {
-                this.removeEffect(effectType, true);
+                this.removeEffect(effectType, 'early');
                 return false;
             }
         } else if (adjustment > 0) {

@@ -35,7 +35,7 @@ describe('chronitonSaturation', () => {
         const ship = createShip();
         const helm = ship.helmState;
         helm.addEffect('chronitonSaturation');
-        helm.removeEffect('chronitonSaturation', true);
+        helm.removeEffect('chronitonSaturation', 'early');
 
         expect(helm.scheduledDraw.invoke()).toBe(true);
         expect(helm.hand.length).toBe(1);
