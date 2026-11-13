@@ -55,7 +55,7 @@ export class HullState extends SystemState {
 
     /** Fully charge the shields, and clear any shield tuning and scrambling, e.g. at the start of an encounter. */
     restoreShields() {
-        this.hullTile.removeEffect('shieldScrambled', false);
+        this.hullTile.removeEffect('shieldScrambled', 'expired');
         this.clearShieldTuning();
         this.hullTile.setShield(this.maxShield);
     }
@@ -75,7 +75,7 @@ export class HullState extends SystemState {
 
         for (const effect of shieldTuningEffects) {
             if (effect !== tuning) {
-                tile.removeEffect(effect, true);
+                tile.removeEffect(effect, 'early');
             }
         }
 
@@ -85,7 +85,7 @@ export class HullState extends SystemState {
 
     private clearShieldTuning() {
         for (const effect of shieldTuningEffects) {
-            this.hullTile.removeEffect(effect, true);
+            this.hullTile.removeEffect(effect, 'early');
         }
     }
 

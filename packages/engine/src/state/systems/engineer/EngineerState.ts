@@ -74,7 +74,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
             for (let i = tile.effects.length - 1; i >= 0; i--) {
                 const effect = tile.effects[i];
                 if (effect.progress && currentTime >= effect.progress.endTime) {
-                    tile.removeEffect(effect.type, false);
+                    tile.removeEffect(effect.type, 'expired');
                 }
             }
         }

@@ -16,11 +16,11 @@ function createTransferHubEffect(spokeType: SystemEffectType, powerDirection: 1 
             system.adjustSystemPowerLevel(powerDirection * level);
             return true;
         },
-        remove: (system, early, level) => {
+        remove: (system, removal, level) => {
             system.adjustSystemPowerLevel(-powerDirection * level);
             for (const s of system.systemState.getShip().engineerState.systems) {
                 if (s !== system) {
-                    s.removeEffect(spokeType, early);
+                    s.removeEffect(spokeType, removal);
                 }
             }
         },
@@ -42,7 +42,7 @@ function createTransferSpokeEffect(hubType: LeveledSystemEffectType, powerDirect
             system.adjustSystemPowerLevel(powerDirection * level);
             return true;
         },
-        remove: (system, _early, level) => {
+        remove: (system, _removal, level) => {
             system.adjustSystemPowerLevel(-powerDirection * level);
             for (const s of system.systemState.getShip().engineerState.systems) {
                 if (s.hasEffect(hubType)) {
@@ -70,10 +70,10 @@ function createOneToOneTransferEffect(pairedType: SystemEffectType, powerDirecti
             system.adjustSystemPowerLevel(powerDirection * level);
             return true;
         },
-        remove: (system, early, level) => {
+        remove: (system, removal, level) => {
             system.adjustSystemPowerLevel(-powerDirection * level);
             for (const s of system.systemState.getShip().engineerState.systems) {
-                s.removeEffect(pairedType, early);
+                s.removeEffect(pairedType, removal);
             }
         },
         onLevelChanged: (system, newLevel, oldLevel) => {
@@ -127,14 +127,14 @@ function loadSystemEffectDefinitions() {
                 // Remove this effect from every other ship system.
                 system.systemState.getShip().engineerState.systems.forEach((s) => {
                     if (s.system !== system.system) {
-                        s.removeEffect('auxPower', true);
+                        s.removeEffect('auxPower', 'early');
                     }
                 });
 
                 system.adjustSystemPowerLevel(1);
                 return true;
             },
-            remove: (system, _early, _level) => {
+            remove: (system, _removal, _level) => {
                 system.adjustSystemPowerLevel(-1);
             },
         },
@@ -143,10 +143,10 @@ function loadSystemEffectDefinitions() {
                 system.adjustSystemPowerLevel(-level);
                 return true;
             },
-            remove: (system, early, level) => {
+            remove: (system, removal, level) => {
                 system.adjustSystemPowerLevel(level);
 
-                if (early) {
+                if (removal === 'early') {
                     // If removed early, add this effect to a different system instead.
                     const ship = system.systemState.getShip();
                     const anotherSystem = ship.random.pick(ship.engineerState.systems.filter(s => s.system !== system.system));
@@ -203,15 +203,15 @@ function loadSystemEffectDefinitions() {
                     return false;
                 }
 
-                system.removeEffect('shieldReduced', false);
+                system.removeEffect('shieldReduced', 'expired');
                 system.shieldPassThroughModifier -= 50;
                 return true;
             },
-            remove: (system, early) => {
+            remove: (system, removal) => {
                 system.shieldPassThroughModifier += 50;
-                if (early) {
+                if (removal === 'early') {
                     for (const s of system.systemState.getShip().engineerState.systems) {
-                        s.removeEffect('shieldReduced', false);
+                        s.removeEffect('shieldReduced', 'expired');
                     }
                 }
             },
@@ -278,15 +278,15 @@ function loadSystemEffectDefinitions() {
                     return false;
                 }
 
-                system.removeEffect('shieldFocus', false);
+                system.removeEffect('shieldFocus', 'expired');
                 system.shieldPassThroughModifier += 10;
                 return true;
             },
-            remove: (system, early) => {
+            remove: (system, removal) => {
                 system.shieldPassThroughModifier -= 10;
-                if (early) {
+                if (removal === 'early') {
                     for (const s of system.systemState.getShip().engineerState.systems) {
-                        s.removeEffect('shieldFocus', false);
+                        s.removeEffect('shieldFocus', 'expired');
                     }
                 }
             },
@@ -296,24 +296,25 @@ function loadSystemEffectDefinitions() {
                 system.adjustSystemPowerLevel(-100);
                 return true;
             },
-            remove: (system) => {
+            remove: (system, removal) => {
                 system.adjustSystemPowerLevel(100);
-                system.removeAllEffects();
-            },
-            // The other effects are being cleared away anyway, without moving anywhere as they would if the reset removed them.
-            clear: (system) => {
-                system.adjustSystemPowerLevel(100);
+
+                // When everything is being cleared away, the other effects are going anyway, without moving anywhere as they would if the reset removed them.
+                if (removal !== 'cleared') {
+                    system.removeAllEffects();
+                }
             },
         },
         reactorBreach: {
             apply: () => {
                 return true;
             },
-            remove: (system) => {
-                system.systemState.getShip().destroy();
+            remove: (system, removal) => {
+                // A breach that's still counting down as the encounter ends doesn't go off.
+                if (removal !== 'cleared') {
+                    system.systemState.getShip().destroy();
+                }
             },
-            // A breach that's still counting down as the encounter ends doesn't go off.
-            clear: () => { },
         },
         relocating: {
             apply: () => {
@@ -389,7 +390,7 @@ function loadSystemEffectDefinitions() {
                 system.adjustSystemPowerLevel(-level);
                 return true;
             },
-            remove: (system, _early, level) => {
+            remove: (system, _removal, level) => {
                 system.adjustSystemPowerLevel(level);
             },
             onLevelChanged: (system, newLevel, oldLevel) => {
@@ -410,7 +411,7 @@ function loadSystemEffectDefinitions() {
                 system.systemState.chanceToHitPercentageModifier += level;
                 return true;
             },
-            remove: (system, _early, level) => {
+            remove: (system, _removal, level) => {
                 system.systemState.chanceToHitPercentageModifier -= level;
             },
             onLevelChanged: (system, newLevel, oldLevel) => {

@@ -19,6 +19,7 @@ import { GameState } from '../GameState';
 import { SystemEffect } from './engineer/SystemEffect';
 import type { Ship } from '../Ship';
 import type { EngineerSystemTile } from './engineer/EngineerSystemTile';
+import type { EffectRemoval } from 'src/effects/EngineSystemEffectDefinition';
 
 export abstract class SystemState extends Schema implements SystemInfo {
     constructor(
@@ -129,7 +130,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
                 this.addEffect('damagedCard');
             }
         } else {
-            this.removeEffect('damagedCard', false);
+            this.removeEffect('damagedCard', 'expired');
         }
     }
 
@@ -799,7 +800,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
      */
     protected handlePlayedCard(card: CardState, cardIndex: number, playedIntoSlot: boolean): void {
         // The "reduced cost of next card" effect should be removed after a card is played.
-        this.removeEffect('reducedCardCost', true);
+        this.removeEffect('reducedCardCost', 'early');
 
         let removeFromHand = true;
         let addToDeck = true;
@@ -892,8 +893,8 @@ export abstract class SystemState extends Schema implements SystemInfo {
      * Remove a specific effect from this system.
      * Returns true if the effect was found and removed.
      */
-    removeEffect(effect: SystemEffectType, early: boolean): boolean {
-        return this.linkedEngineerSystemTile.removeEffect(effect, early);
+    removeEffect(effect: SystemEffectType, removal: EffectRemoval): boolean {
+        return this.linkedEngineerSystemTile.removeEffect(effect, removal);
     }
 
     adjustEffectLevel(effect: LeveledSystemEffectType, adjustment: number | undefined) {
