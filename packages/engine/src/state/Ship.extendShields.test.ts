@@ -1,4 +1,4 @@
-import { extendedShieldsDuration, extendedShieldsRange } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { extendedShieldsDuration, extendedShieldsRange } from 'common-data/features/ships/utils/extendedShields';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { playerShipSetup } from 'src/campaign/playerShipSetup';
 import { createShipSetup, type ShipDesign } from 'src/campaign/shipDesigns';

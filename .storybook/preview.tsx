@@ -1,6 +1,10 @@
 import type { Preview } from '@storybook/react-vite';
+import { uiContent } from '../content/content.ui';
+import { registerUiContent } from '../packages/common-ui/src/content/registerUiContent';
 import { TimeProviderContext } from '../packages/common-ui/src/contexts/TimeProviderContext';
 import '../packages/common-ui/src/baseline';
+
+registerUiContent(uiContent);
 
 const timeProvider = { getServerTime: () => Date.now() };
 

@@ -8,6 +8,7 @@ import importPlugin from 'eslint-plugin-import';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
+import { contentImportRules } from './eslint.content.js';
 
 export default defineConfig([
     globalIgnores([
@@ -17,7 +18,7 @@ export default defineConfig([
         'packages/engine/src/generated/', // Generated at build time.
     ]),
     {
-        files: ['packages/*/src/**/*.{js,mjs,cjs,ts,jsx,tsx}'],
+        files: ['packages/*/src/**/*.{js,mjs,cjs,ts,jsx,tsx}', 'content/**/*.{ts,tsx}'],
         languageOptions: {
             globals: globals.browser,
             parser: parserTs,
@@ -118,6 +119,8 @@ export default defineConfig([
         files: [
             'packages/engine/src/**/*.{js,ts}',
             'packages/game-app/src/**/*.{js,ts}',
+            'content/**/*.engine.ts',
+            'content/**/*.test.ts',
         ],
         languageOptions: {
             globals: {
@@ -133,4 +136,5 @@ export default defineConfig([
             'react-hooks/rules-of-hooks': 'off',
         },
     },
+    ...contentImportRules,
 ]);

@@ -1,15 +1,17 @@
 {
   "extends": "../../tsconfig.vite.json",
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": "../..",
     "outDir": "./dist",
     "emitDeclarationOnly": true,
     "paths": {
       "common-data/*": ["../common-data/src/*"],
       "engine/*": ["../engine/src/*"],
+      "common-ui/*": ["./src/*"],
+      "content/*": ["../../content/*"],
     }
   },
-  "include": ["src"],
+  "include": ["src", "../../content/**/*.ui.ts", "../../content/**/*.ui.tsx", "../../content/**/*.test.tsx"],
   "references": [
     { "path": "../common-data" },
     { "path": "../engine" }

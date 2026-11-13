@@ -1,7 +1,7 @@
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
 import { isCrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { antimatterRewards, baseOrderPrice, cardSellPrice, getAntimatterReward, getOrderPrice, minDeckSize, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
-import { boardingMs, QuarantineGateEncounter } from 'src/encounters/QuarantineGateEncounter';
+import { boardingMs, QuarantineGateEncounter } from 'content/sectors/1/quarantineGate/QuarantineGateEncounter.engine';
 import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';

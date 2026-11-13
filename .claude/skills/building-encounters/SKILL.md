@@ -1,6 +1,6 @@
 ---
 name: building-encounters
-description: Build or change an All Hands encounter (packages/engine/src/encounters) from its spec in docs/encounter-specs*.md. Use when implementing an encounter or its elite form, adding an engine piece an encounter needs (ship design, AI goal, card, status effect, objective type), or writing a new encounter spec.
+description: Build or change an All Hands encounter (content/sectors/<n>/<encounter>) from its spec in docs/encounter-specs*.md. Use when implementing an encounter or its elite form, adding an engine piece an encounter needs (ship design, AI goal, card, status effect, objective type), or writing a new encounter spec.
 ---
 
 # Building an encounter
@@ -75,9 +75,11 @@ Done when those crews are measured, each behaviour the spec claims is watched in
 
 A new AI goal, card, effect, ship design or hook is its own piece of work, with its own tests and its own commit, finished before the encounter that uses it.
 
-- **Ship design:** a template in `campaign/shipDesigns.ts`, a name in `designNames`, and the design added to the list in `shipDesigns.test.ts`, which needs each to have its own appearance. Give its `fleeThreshold`: it's 0.25 otherwise.
-- **Card:** three places, by the same key: `common-data/.../cardDefinitions.ts`, `common-ui/.../getUiCardDefinition.tsx`, `engine/src/cards/getEngineCardDefinition.ts`. Each card belongs to one system.
-- **Status effect:** three places: `common-data/.../systemEffectDefinitions.ts`, `common-ui/src/utils/getUiSystemEffectDefinition.tsx`, `engine/src/effects/getEngineSystemEffectDefinition.ts`.
+Cards, status effects and ship designs that only this encounter uses go in its own folder, `content/sectors/<n>/<encounter>/`, beside its class. Anything a second encounter needs moves to `content/systems/<system>/` (cards, and the effects they cause) or `content/general/` (other effects, ship designs). One encounter's folder never imports another's: lint stops it. `content/README.md` has how a folder's files fit together.
+
+- **Ship design:** in the `designs` of the folder's `<folder>.engine.ts`, with its `name`. `shipDesigns.test.ts` checks every design, and needs each to have its own appearance. Give its `fleeThreshold`: it's 0.25 otherwise.
+- **Card:** by the same key in three of the folder's files: its definition in `<folder>.shared.ts`, what it does in `<folder>.engine.ts`, and its name and description in `<folder>.ui.tsx`. Each card belongs to one system.
+- **Status effect:** the same three files, under `effects`.
 - **Objective type:** `ObjectiveInfo.ts`, then `getObjectiveLabel` in `common-ui/.../sectorLabels.ts`, whose exhaustive switch finds the rest.
 - **AI goal:** `AiGoalInfo`, then `Commander.ts`, and a stance in `ai/types.ts` if the helm has to fly differently.
 - **A hook on a ship:** a `ListenableEvent` on `Ship`, like `hitReceived`.
@@ -124,7 +126,7 @@ Done when the unit tests, `npm run test:balance`, `npm run typecheck` and `npx e
 
 ### 8. Register it
 
-- Add the definition to the list in `EncounterRegistry.ts`, its id to a pool in `campaign/sectorThemes.ts`, and the id to the sorted list `Encounter.test.ts` expects.
+- Add the definition to the `encounters` of the folder's `<folder>.engine.ts`, list that (and any shared and UI content) in the sector's `sector.*.ts` files, add its id to a pool in the sector's theme in `sector.engine.ts`, and add the id to the sorted list `Encounter.test.ts` expects. `content/registration.test.ts` fails until every piece is listed.
 - A boss replaces its sector's `bossEncounterId`. `Campaign.test`'s `completeEncounter` and `SectorGenerator.test`'s boss check both assume how a boss is won, and need telling.
 - Then run every other encounter's unit and balance tests. Adding to a pool changes the random numbers every seeded campaign sees, so a test that leaned on one random answer needs a new seed. If a simulation's "usually" turns out to depend on the seeds, widen it and correct that encounter's "Measured".
 

@@ -1,5 +1,6 @@
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { antimatterRewards } from 'common-data/features/ships/utils/antimatter';
+import { defaultSurviveDurationMs } from 'content/general/encounters/SurviveEncounter.engine';
 import { playerFactionId } from 'src/campaign/factions';
 import { HailState } from 'src/state/HailState';
 import { ObjectiveState } from 'src/state/ObjectiveState';
@@ -8,7 +9,6 @@ import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it, vi } from 'vitest';
 import { createEncounter, getDefaultNode, getDevEncounterList, getEncounterDefinition, getEncounterIds, getNodeName, stationEncounterIds } from './EncounterRegistry';
 import { StationEncounter } from './StationEncounter';
-import { defaultSurviveDurationMs } from './SurviveEncounter';
 import type { Campaign } from 'src/campaign/Campaign';
 import type { Ship } from 'src/state/Ship';
 

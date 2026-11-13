@@ -5,7 +5,7 @@ What a spec's numbers come to in the engine, how AI ships behave, and what each 
 ## Damage and health
 
 - **Health is a card count.** A system's health is how many of its cards are undamaged, and the hull's is the same (`SystemState`). A ship is destroyed when its hull reaches 0. Expendable cards, such as Aux Power, aren't counted.
-- **A hit that gets through damages that many cards.** Phaser strip 10, phaser cannon 20, photon torpedo 40, photonic cannon and quantum torpedo 60 (`cardDefinitions.ts`). A harrier's hull is 5 cards. So shields are the health bar, and what's under them is one or two hits.
+- **A hit that gets through damages that many cards.** Phaser strip 10, phaser cannon 20, photon torpedo 40, photonic cannon and quantum torpedo 60 (`content/systems/tactical/tactical.shared.ts`). A harrier's hull is 5 cards. So shields are the health bar, and what's under them is one or two hits.
 - **An aimed shot** puts 60% (rounded up) on the system aimed at and the rest on the hull. **An unaimed one** picks from all six systems at random: if that's the hull, all of it goes there, and otherwise it splits the same way (`Ship.damage`). Both use up the same random number, so aiming doesn't change what a seed does after it.
 - **To make something survive stray hits**, pad its hull with `hullBare`. The customs platform has 60.
 - **Cards are damaged in a random order**, picked when the ship is built, whatever order the design lists them in, with cards in a slot last. A damaged emitter takes its 15 off the shield capacity, and listing bare hull first doesn't protect it: only the share of emitters does.
@@ -76,7 +76,7 @@ How often things happen, which no table of amounts shows. It can only be measure
 
 **What it plays**
 
-- Only cards with an `aiEvaluator` in `getEngineCardDefinition.ts`, and having one doesn't mean it works. Watch it in a test.
+- Only cards with an `aiEvaluator` in their folder's `*.engine.ts`, and having one doesn't mean it works. Watch it in a test.
 - **A modifier's evaluator doesn't check the weapon it's for.** Give a ship only modifiers that fit the weapons it carries.
 - **It unloads a weapon it can't use**, 8 to 15 seconds after every slot is loaded and charged, none can reach the target, and one in hand could (`TacticalOfficer`). Until then a cannon holds its slot: a pylon with two cannons and two torpedoes in one slot fired at a crew 15 away about every 100 seconds, against every 45 with torpedoes alone.
 - **Charging spends other weapon cards from the hand**, so a design with as many slots as weapon cards loads them all and never fires.
