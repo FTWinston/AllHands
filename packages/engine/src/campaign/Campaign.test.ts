@@ -38,7 +38,7 @@ function openQuarantineGate(state: GameState, encounter: QuarantineGateEncounter
     state.campaign!.tick(0);
 }
 
-function createCampaign(shipCount = 1, seed = 1) {
+function createCampaign(shipCount = 1, seed = 11) {
     const state = rooms.createState(seededRandom(seed));
     return { state, ...startCampaign(state, shipCount) };
 }

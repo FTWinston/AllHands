@@ -277,6 +277,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
     /**
      * Populate this system's card pool from its underlying cards (skipping expendable ones),
      * and returning the number of cards in the pool, which is also the max health.
+     * Cards are damaged in a random order, whatever order they're drawn in.
      */
     private initializeCardPool(cards: readonly CardState[]): number {
         for (const card of cards) {
@@ -288,6 +289,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
             this.damageQueue.push(card);
         }
 
+        this.getGameState().random.shuffle(this.damageQueue);
         this.lastUnslottedIndex = this.damageQueue.length;
 
         return this.cardPool.size;

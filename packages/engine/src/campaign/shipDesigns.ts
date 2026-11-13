@@ -133,7 +133,7 @@ const designTemplates = defineDesignTemplates({
         fleeThreshold: 0,
     },
     // Not a warship: every system at 2, five cards in each crew system, and a strip for a gun. Its reactor runs at 3, so it draws often enough for that gun to be a threat.
-    // Its shields (60) are over 12 bare hull, and those come first, so hits to the hull don't cost it shield capacity until it's nearly gone. It never runs.
+    // Its shields (60) are over 12 bare hull, so most hits to the hull don't cost it shield capacity. It never runs.
     hauler: {
         ...fighterTemplate,
         appearance: 'armed-freighter',
@@ -156,7 +156,7 @@ const designTemplates = defineDesignTemplates({
         fleeThreshold: 0,
     },
     // A working boat, with a strip for a gun. Every helm card is Slow and Steady, and there are a dozen, so its engines take several hits to put out.
-    // Its shields (30) are over 18 bare hull, which come first. Its engineer is switched off, so nothing aboard repairs anything. It never runs.
+    // Its shields (30) are over 18 bare hull. Its engineer is switched off, so nothing aboard repairs anything. It never runs.
     tug: {
         ...fighterTemplate,
         appearance: 'tug-and-tow',
@@ -171,7 +171,7 @@ const designTemplates = defineDesignTemplates({
     waterModule: inertTemplate('mining-barge', Array<'hullBare'>(40).fill('hullBare')),
     // Not a ship either: a mining station that's being abandoned, with nobody left at the controls. 30 bare hull and no shields.
     miningStation: inertTemplate('drydock-tender', Array<'hullBare'>(30).fill('hullBare')),
-    // An unarmed evacuation shuttle: all it can do is fly straight. Its shields (15) are fully powered, over 3 bare hull, which come first,
+    // An unarmed evacuation shuttle: all it can do is fly straight. Its shields (15) are fully powered, over 3 bare hull,
     // so it survives one cannon hit and not a second. Nobody aboard shoots or scans. It never runs.
     shuttle: {
         ...fighterTemplate,
@@ -183,7 +183,7 @@ const designTemplates = defineDesignTemplates({
         fleeThreshold: 0,
         priorities: { tactical: 0, science: 0 },
     },
-    // A piece of an old defence grid, with a cannon. Its shields (15) are over 2 bare hull, which come first. Its reactor gives tactical 3, which a cannon needs.
+    // A piece of an old defence grid, with a cannon. Its shields (15) are over 2 bare hull. Its reactor gives tactical 3, which a cannon needs.
     // Whoever spawns one decides whether its gun still works, by switching its tactical officer off. It never runs.
     gridFragment: {
         ...fighterTemplate,
@@ -204,7 +204,7 @@ const designTemplates = defineDesignTemplates({
     // Not a ship: a relay station, with nobody aboard to fly it or fight. 30 bare hull and no shields.
     relay: inertTemplate('ring-vessel', Array<'hullBare'>(30).fill('hullBare')),
     // One of the quarantine gate's pylons: a customs platform in another shape. It turns but never moves, and its shields (90) are fully powered,
-    // over 60 bare hull, which come first, so hits that get through don't cost it shield. It has no tuning cards, as the gate sets its tuning.
+    // over 60 bare hull, so hits that get through seldom cost it shield. It has no tuning cards, as the gate sets its tuning.
     // Torpedoes only, so it reaches as far as any crew weapon, and can't be shelled from outside its reach. With a cannon in its one slot, it held it
     // and couldn't fire beyond 10. Its reactor feeds every other system as often as tactical, so it fires about every 45 seconds, and it starts with
     // nothing in hand, so a crew in reach has half a minute or more before the first. It never leaves.

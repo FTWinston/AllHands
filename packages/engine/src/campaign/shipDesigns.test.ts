@@ -118,7 +118,7 @@ describe('the quarantine gate\'s designs', () => {
         return ship;
     }
 
-    it('give a pylon 90 shield over 60 bare hull, which come first, fully powered, and torpedoes in one slot', () => {
+    it('give a pylon 90 shield over 60 bare hull, fully powered, and torpedoes in one slot', () => {
         const pylon = build('gatePylon');
 
         expect(pylon.hullState.maxShield).toBe(90);
@@ -130,11 +130,9 @@ describe('the quarantine gate\'s designs', () => {
         expect([...pylon.helmState.deck, ...pylon.helmState.hand].every(card => card.type === 'faceTarget')).toBe(true);
         expect(createShipSetup('gatePylon', 'side', origin).fleeThreshold).toBe(0);
 
-        // Damage that gets through takes the bare hull first, and only then the emitters.
-        pylon.hullState.applyDamage.invoke(60);
-        expect(pylon.hullState.maxShield).toBe(90);
-        pylon.hullState.applyDamage.invoke(1);
-        expect(pylon.hullState.maxShield).toBe(75);
+        // Damage that gets through takes cards at random, emitters as likely as bare hull.
+        pylon.hullState.applyDamage.invoke(66);
+        expect(pylon.hullState.maxShield).toBe(0);
     });
 
     it('give the keepers\' boat 75 fully powered shield over almost nothing, nothing but Slow and Steady, and nobody at its guns', () => {

@@ -1,6 +1,7 @@
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { setupGameRoom, shipSetup } from 'src/testUtils';
+import { IRandom } from 'common-data/types/IRandom';
+import { seededRandom, setupGameRoom, shipSetup } from 'src/testUtils';
 import { describe, expect, it } from 'vitest';
 import { AiShip } from '../AiShip';
 import { CardState } from '../CardState';
@@ -10,8 +11,8 @@ const rooms = setupGameRoom();
 
 const cards: CardType[] = ['phaserStrip', 'phaserCannon', 'photonTorpedo', 'lowYield', 'highYield'];
 
-function createDeck() {
-    const gameState = rooms.createState();
+function createDeck(random?: IRandom) {
+    const gameState = rooms.createState(random);
     const baseSetup = shipSetup(undefined);
     const setup: PlayerShipSetupInfo = {
         ...baseSetup,
@@ -187,5 +188,30 @@ describe('SystemState between encounters', () => {
 
         expect(system.health).toBe(3);
         expect([...system.deck].filter(card => card.hasTrait('critical'))).toHaveLength(2);
+    });
+});
+
+describe('SystemState damage', () => {
+    function damageOrder(random: IRandom) {
+        const { system } = createDeck(random);
+        const order: CardType[] = [];
+        for (let i = 0; i < cards.length; i++) {
+            system.adjustHealth(-1);
+            order.push(...[...system.deck].filter(card => card.isDamaged && !order.includes(card.type)).map(card => card.type));
+        }
+        return order;
+    }
+
+    it('damages cards in an order the game\'s random picks, not the order they\'re listed and drawn in', () => {
+        const reversing = Object.assign(seededRandom(1), { shuffle: (items: unknown[]) => items.reverse() });
+
+        expect(damageOrder(reversing)).toEqual([...cards].reverse());
+    });
+
+    it('damages them in a different order from one game to another', () => {
+        const orders = new Set([1, 2, 3, 4, 5].map(seed => damageOrder(seededRandom(seed)).join()));
+
+        expect(orders.size).toBeGreaterThan(1);
+        expect(orders.has(cards.join())).toBe(false);
     });
 });
