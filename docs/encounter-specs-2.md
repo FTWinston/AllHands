@@ -6,7 +6,7 @@ The same rules hold. Every number is a starting value to tune in playtests. Ever
 
 These were written with the first three built, so the numbers are already in the engine's terms: hits are counted in cards, shields by hull power, clues by the field that carries them. Where a design in the plan depended on something the engine doesn't do, the spec says what it does instead, under **Changed from the plan**. Each spec still ends with **Check first**: what I read in the code and didn't run.
 
-**Status:** groundwork H is built, on `aimed-shots`, and so is reading a hand (M below), on `scan-hands`, stacked on it. Fever Ship is built, both forms, on `fever-ship`: see its "As built". It needed one shared fix, to the AI's scan evaluator, and nothing else shared. Groundwork I, K and the `recover` objective from L are built, on `dead-weight`, and so is Dead Weight, both forms, with a new card, Transfer Power: see each one's "As built". Last Shuttle Out is built, both forms, on `last-shuttle-out`, with three new ship designs and nothing shared: see its "As built". Its grid never fires on the crew, which is the largest change from its spec. Groundwork J and the `reach` objective are built, on `quiet-running`, and so is Quiet Running, both forms, with a new card, Run Quiet, and the flare made real: see each one's "As built". It needed one shared fix, to power left behind by effects when an encounter ends. **Its captain's call doesn't hold as specified**: see its "Measured". `setObjective` from L is built, on `quarantine-gate`, and so is the boss, The Gate That Never Closed, with two ship designs, a Gate Pulse effect, four Shutdown Keys, and a fifth card the spec didn't have, Key Power, as Aux Power can only ever be on one system: see its "As built". **A careful crew survives it, but it kills any crew that guesses which pylon is the master, and its last captain's call doesn't hold**: see its "Measured".
+**Status:** groundwork H is built, on `aimed-shots`, and so is reading a hand (M below), on `scan-hands`, stacked on it. Fever Ship is built, both forms, on `fever-ship`: see its "As built". It needed one shared fix, to the AI's scan evaluator, and nothing else shared. Groundwork I, K and the `recover` objective from L are built, on `dead-weight`, and so is Dead Weight, both forms, with a new card, Transfer Power: see each one's "As built". Last Shuttle Out is built, both forms, on `last-shuttle-out`, with three new ship designs and nothing shared: see its "As built". Its grid never fires on the crew, which is the largest change from its spec. Groundwork J and the `reach` objective are built, on `quiet-running`, and so is Quiet Running, both forms, with a new card, Run Quiet, and the flare made real: see each one's "As built". It needed one shared fix, to power left behind by effects when an encounter ends. **Its captain's call doesn't hold as specified**: see its "Measured". `setObjective` from L is built, on `quarantine-gate`, and so is the boss, The Gate That Never Closed, with two ship designs, a Gate Pulse effect, four Shutdown Keys, and a fifth card the spec didn't have, Key Power, as Aux Power can only ever be on one system: see its "As built". **A careful crew survives it, but it kills any crew that guesses which pylon is the master, and its last captain's call doesn't hold**: see its "Measured". Since the review changes, a crew that guesses survives on two seeds of five.
 
 ## Build order
 
@@ -45,7 +45,7 @@ Tests: an aimed shot damages the system aimed at and the hull in a 60 to 40 spli
 - As specified. All five weapons pass the aim on, and a hit says who fired it.
 - **Slow Boat got harder.** A crew that does nothing loses *Marrow* at 77 and 104 seconds, where it was 87 and 120, because the harriers aim at its tactical system and then its helm. A crew that only extends its shields still gets it there on both seeds.
 - ***Marrow*'s shields can go from a third to nothing in one hit**, and the ship is lost before its last warning is said. The simulation that expected that line now expects any shield warning.
-- **Seeded runs drift wherever anything aims.** An unaimed shot uses a random number to pick its system and an aimed one doesn't, so everything random after it goes differently.
+- **Seeded runs drift wherever anything aims.** An unaimed shot uses a random number to pick its system and an aimed one doesn't, so everything random after it goes differently. (No longer: since the review, an aimed hit makes the same pick and doesn't use it.)
 - **Extended shields use the extender's own system.** A hit aimed at a covered ship's helm is scaled by the pass-through of the covering ship's helm. So the crew's Focus Shields changes what gets through to a ship it's covering.
 
 ### I. Hits can be heard
@@ -315,6 +315,11 @@ From `FeverShipEncounter.balance.test.ts` (`npm run test:balance`), one seed for
 
 So once the crew knows, strips win with room to spare. The question is how long knowing takes against a clock of about four minutes, or 85 seconds under torpedoes, and a wrong guess costs about 3 hull of 16 with her shields up.
 
+**Since the review changes** (an AI goes for its target's hull about half the time, cards are damaged in a random order, a damaged weapon leaves its slot, an AI unloads a weapon it can't use), on seeds 3, 7, 11, 13 and 17:
+
+- **A crew that does nothing no longer always lives.** With her tactical healthy it's destroyed in 4 runs of 15, at 150 to 226 seconds (two with the update in helm, one each in science and engineering). Those are the runs where she goes for its hull: her strips land on every system, the reactor and hull among them, so the crew's shields weaken as they go. Where she goes for its tactical system it ends at 30 to 32 of 120 shield, as before. With the update in her tactical: destroyed at 38 to 103 seconds.
+- **Knowing the answer:** success at 30 seconds with 13 of 16 hull, every seed and case, with 15 to 42 of her 60 shield. **One wrong guess first:** 60 seconds and 10 hull, every time. **Torpedoes only:** a failure at 30 seconds, every time. **Elite:** success at 60 seconds, with 10 or 13 hull.
+
 ### Still to check, by playing it
 
 - Whether a crew finds the engineer-scan shortcut, and whether, having found it, they ever pay for a hand.
@@ -524,6 +529,15 @@ From `deadWeight/DeadWeightEncounter.balance.test.ts` (`npm run test:balance`), 
 - **Elite, nothing done:** towed away with the module at 20 of 40. **One torpedo on the tug and nothing else:** the module is lost to its coolant at 160 seconds, just short of the marker. **One torpedo, then the cannon:** success at 38 seconds, the module at 16.
 
 So engines is the faster plan, at about a third of the clock, and the bailiffs are what staying close costs.
+
+**Since the review changes** (see Fever Ship's), on seeds 3, 5, 7, 9, 11, 13, 17, 19 and 23:
+
+- **Doing nothing:** towed away at 161 to 163 seconds, every time, but no longer always untouched: 30 to 60 of the crew's shield lost on four seeds.
+- **Engines at 1 unit a second:** success at 54 seconds every time, the tug at 9 or 10 of 20 (a hit that takes one of its emitters lets more through), and the crew at 45 to 90 shield, down from 90 to 120. **At 0.75:** success at 54 seconds, the crew at 11 to 101.
+- **Sitting at strip range:** the ship destroyed at 84 seconds on five seeds of nine; towed away on the rest, with 0 to 75 shield.
+- **One torpedo on a bailiff, then the cannon:** success on 7, 11 and 19 only, three of nine, where it was five; 17 and 23 now fail. The test uses 7 and 19.
+- **Two torpedoes:** success at 100 seconds every time. **A torpedo on the tug, then the cannon:** success at 38 seconds with the module at 20 of 40, every time.
+- **Elite:** unchanged. One torpedo on the tug and nothing else loses the module every time; one torpedo then the cannon wins at 38 seconds with the module at 16.
 
 ### Still to check, by playing it
 
@@ -746,6 +760,13 @@ From `LastShuttleOutEncounter.balance.test.ts` (`npm run test:balance`), seeds 3
 
 So the encounter's central trade-off only partly holds. **The shields are a small part of it.** Covering alone spends all 120 and saves one more shuttle than doing nothing; killing alone saves two or three more and spends none; covering on top of killing adds about half a shuttle. A live fragment's load is four shots in four seconds, so the crew's shields absorb two or three loads, not nine separate hits spread across the evacuation. What decides the score is science finding the live fragments in the 40-odd seconds before they fire, and tactical killing them. The question it asks in practice is closer to Diagnose under a clock than to Endure.
 
+**Since the review changes** (see Fever Ship's), on the same seeds:
+
+- **Doing nothing:** 0 to 2 saved (one on three seeds; none on seed 17, a failure). **Only covering:** 1 to 3, mean 2.0, the shields at 0 before Six launches on four seeds and 17 on the fifth. **Only killing:** 2 to 4, mean 3.4.
+- **Covering and killing:** 4 to 5, mean 4.2, with 20 to 120 shield left. **With the cannon twice as often:** 4 to 6, mean 5.0, and **all six saved on one seed** (7), which nothing managed before.
+- **Send both:** 4 to 6, mean 4.4, against 4.2 for holding, and over at 190 seconds against 225 to 261.
+- **Elite, nothing done:** 0 to 2. **Keeping the checks:** 3 to 4, mean 3.8. **Launching cold:** 4 to 5, mean 4.2. Still neither dominates.
+
 ### Still to check, by playing it
 
 - Whether science reaches for fragments on the scan list fast enough. It holds five scan cards by the first launch, and the list starts with the station.
@@ -961,6 +982,14 @@ From `QuietRunningEncounter.balance.test.ts` (`npm run test:balance`), seeds 3, 
 - **Elite, everything but helm quiet through a gap's middle:** seen on three seeds of five (the least allowed is 7.4 there), in every time. **All six quiet:** never seen, success at 90 to 101 seconds. Through the defector's place at full power: seen 29 to 48 units out, destroyed on two seeds, as the script flies on to its holding point before turning in.
 
 So **the captain's call doesn't hold.** "Go now through a gap that needs five dark, or wait for one that needs three" assumes five dark costs something. It costs nothing while nobody is shooting: science has nothing it needs to scan, tactical nothing it needs to load, and helm can keep its 3. A crew that takes every system but helm down and flies a gap's middle line gets through every time, without science reading anything, with 100 seconds of the window to spare; in the elite form, all six and Slow and Steady do the same. Waiting for the sensors is never better than that, and the window never comes close to closing on a crew that moves. What science picks is worth nothing; what the engineer takes down and the line helm holds are the whole of it. Whether to retune (an allowance whose floor is below what six systems at 1 show, a reason to want power during the crossing, such as a sensor sweep that has to be answered) or redesign is the designer's.
+
+**Since the review changes** (see Fever Ship's), on the same seeds, the call still doesn't hold: everything but helm quiet through a gap's middle is never seen, and succeeds at 68 to 79 seconds every time. What moved:
+
+- **Full power, straight at the relay, no longer always gets there:** seen 41 to 51 units out, at 19 to 29 seconds, and destroyed on one seed (7) at 66 seconds; the others arrive at 67 seconds with 10 to 120 shield. **Through a gap's middle at full power:** in every time, at 68 to 79 seconds, with 30 to 120 shield.
+- **Everything but helm quiet, straight at the relay:** seen on every seed, destroyed on one. **All six quiet, straight at the relay:** never seen, now on every seed. **All six through a gap's middle:** never seen, 90 to 106 seconds.
+- **Three quiet, waiting for threes:** seen on every seed, destroyed on one, where it was two. **One quiet, waiting for ones:** in on two seeds, where it was one.
+- **Flares:** in every time; seen about 28 units out on four seeds, and 44 on the fifth.
+- **Elite, everything but helm quiet through a gap's middle:** seen on three seeds, and **destroyed on one** (17), where before it got in every time. **All six:** never seen, 90 to 101 seconds. **Through the defector's place at full power:** destroyed on four seeds, where it was two; with three quiet, on three.
 
 ### Still to check, by playing it
 
@@ -1215,6 +1244,16 @@ Then the plans:
 - **Neither:** one to three boats lost on every seed; destroyed on two.
 
 So: **a careful crew survives**, with between an eighth and three quarters of its shield, and the encounter's first two questions hold (finding the master is decisively worth it, and the keys have to be turned in reach of the master's torpedoes). **Two wrong guesses in phase 1 are fatal on every seed**, which for a boss whose only failure is losing the ship ends the run. **The last captain's call doesn't hold**: taking *Tally*'s hits is never better than shooting the drones. Extend Shields moves every drone hit onto the crew's own shields, and with drones coming every 20 seconds that is all of them, while the scripted crew's cannon keeps the drones off the boat without any. Whether to make covering worth it (fewer, harder drones; the boat's shields weaker; Extend Shields cheaper to drop) or drop the call is the designer's.
+
+**Since the review changes** (see Fever Ship's), on the same seeds:
+
+- **Guessing is no longer fatal on every seed.** Trying the nearest pylon not yet tried, the crew is destroyed on three seeds, at 241 to 284 seconds, and **gets the boat in on two** (11 and 17, at 309 and 319 seconds, with 30 shield and 4 hull).
+- **Careful:** success on every seed, at 239 to 298 seconds. Shield at phase 2: 90, 75, 75, 105, 30. At phase 3: 90, 75, 75, 105, 4; at the end the same, and hull 2 to 10 of 12.
+- **Straight in:** destroyed at 78 to 79 seconds. **From inside the square:** destroyed on every seed, at 54 to 80 seconds. **Doing nothing:** untouched.
+- **Standing off at 15 with only the torpedo:** destroyed on every seed, at 198 to 490 seconds; on one it reached the door first.
+- **The last phase, covering only:** the crew's shield at 0 at the end on all five, and destroyed on one seed (17, which began phase 3 with 4 shield), losing three boats. **Drones only:** unchanged, success on every seed. **Neither:** boats lost on every seed, destroyed on two.
+
+So the last call still doesn't hold, and a careful crew still survives. What changed is the cost of guessing: two wrong pylons used to end the run every time, and now it's three seeds in five.
 
 ### Still to check, by playing it
 
