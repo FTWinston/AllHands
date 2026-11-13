@@ -2,13 +2,14 @@ import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType'
 import { getHailDuration } from 'common-data/features/sectors/types/HailInfo';
 import { ListenableEvent } from 'src/classes/ListenableEvent';
 import { CardState } from 'src/state/CardState';
+import { ObjectiveState } from 'src/state/ObjectiveState';
 import { PromptState } from 'src/state/PromptState';
 import { getPlayerShips } from 'src/utils/shipQueries';
 import { HailQueue, type HailOptions } from './HailQueue';
 import { createShips, type ShipSpawn } from './shipSpawns';
 import { TrackedObjects } from './TrackedObjects';
 import type { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import type { EncounterOutcome } from 'common-data/features/sectors/types/ObjectiveInfo';
+import type { EncounterOutcome, ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { PromptOptionInfo } from 'common-data/features/sectors/types/PromptInfo';
 import type { SectorNodeInfo } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
@@ -162,6 +163,18 @@ export abstract class Encounter {
         }
 
         this.onComplete.triggerListeners();
+    }
+
+    /**
+     * Changes what the crew is asked to do, from now on: the viewscreen shows the new objective in place of the old, and the outcome is shown against it.
+     * The node keeps the objective it was made with, as that's what the map said was there.
+     */
+    protected setObjective(objective: ObjectiveInfo): void {
+        this.state.objective = new ObjectiveState(objective);
+
+        if (this.state.encounter) {
+            this.state.encounter.objective = objective;
+        }
     }
 
     /** Has the callback called once, after this much game time. Timers only run while the encounter is undecided. */

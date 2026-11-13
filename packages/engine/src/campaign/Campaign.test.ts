@@ -1,5 +1,8 @@
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
+import { isCrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { antimatterRewards, baseOrderPrice, cardSellPrice, getAntimatterReward, getOrderPrice, minDeckSize, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
+import { boardingMs, QuarantineGateEncounter } from 'src/encounters/QuarantineGateEncounter';
+import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
@@ -10,8 +13,30 @@ import { sectorThemes } from './sectorThemes';
 import { shopCardCount } from './stationShop';
 import { deliveryCardCount } from './workOrders';
 import type { GameState } from 'src/state/GameState';
+import type { HullSystemTile } from 'src/state/systems/engineer/HullSystemTile';
 
 const rooms = setupGameRoom();
+
+/** Takes the gate's master's shields down, turns the keys beside it, and has the keepers' boat dock and stay docked, as a crew that knew what it was doing would. */
+function openQuarantineGate(state: GameState, encounter: QuarantineGateEncounter) {
+    const master = encounter.master!;
+    const at = master.getPosition(state.currentTime);
+    (master.engineerState.systems.find(tile => tile.system === 'hull') as HullSystemTile).setShield(0);
+    state.campaign!.tick(0);
+
+    for (const ship of [...state.objects.values()].filter((object): object is PlayerShip => object instanceof PlayerShip)) {
+        ship.setMotion(new MotionKeyframe(state.currentTime, at.x, at.y, 0));
+        for (const tile of ship.engineerState.systems.filter(candidate => isCrewRoleName(candidate.system))) {
+            tile.addEffect('keyTurned');
+        }
+    }
+    state.campaign!.tick(0);
+
+    encounter.keepersBoat!.setMotion(new MotionKeyframe(state.currentTime, at.x, at.y, 0));
+    state.campaign!.tick(0);
+    state.currentTime += boardingMs;
+    state.campaign!.tick(0);
+}
 
 function createCampaign(shipCount = 1, seed = 1) {
     const state = rooms.createState(seededRandom(seed));
@@ -36,6 +61,9 @@ function completeEncounter(state: GameState) {
             state.campaign!.tick(0);
             break;
         default:
+            if (encounter instanceof QuarantineGateEncounter) {
+                openQuarantineGate(state, encounter);
+            }
             break;
     }
 

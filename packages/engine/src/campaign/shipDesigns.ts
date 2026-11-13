@@ -203,6 +203,36 @@ const designTemplates = defineDesignTemplates({
     },
     // Not a ship: a relay station, with nobody aboard to fly it or fight. 30 bare hull and no shields.
     relay: inertTemplate('ring-vessel', Array<'hullBare'>(30).fill('hullBare')),
+    // One of the quarantine gate's pylons: a customs platform in another shape. It turns but never moves, and its shields (90) are fully powered,
+    // over 60 bare hull, which come first, so hits that get through don't cost it shield. It has no tuning cards, as the gate sets its tuning.
+    // Torpedoes only, so it reaches as far as any crew weapon, and can't be shelled from outside its reach. With a cannon in its one slot, it held it
+    // and couldn't fire beyond 10. Its reactor feeds every other system as often as tactical, so it fires about every 45 seconds, and it starts with
+    // nothing in hand, so a crew in reach has half a minute or more before the first. It never leaves.
+    gatePylon: {
+        ...fighterTemplate,
+        appearance: 'outrigger-pod-cruiser',
+        hull: system([...Array<'hullBare'>(60).fill('hullBare'), ...Array<'hullShieldEmitter'>(6).fill('hullShieldEmitter')], 0),
+        reactor: system(reactorCards(
+            2,
+            'reactorPowerHull', 'reactorPowerHull', 'reactorPowerHull', 'reactorPowerTactical',
+            'reactorPowerHelm', 'reactorPowerScience', 'reactorPowerEngineer', 'reactorPowerHelm', 'reactorPowerScience', 'reactorPowerEngineer'
+        ), 0),
+        helm: system(['faceTarget', 'faceTarget', 'faceTarget']),
+        tactical: { ...system(['photonTorpedo', 'photonTorpedo'], 0), numSlots: 1 },
+        fleeThreshold: 0,
+    },
+    // The relay keepers' boat: a clinic ship's hull, with fully powered shields (75) and almost nothing under them, and only Slow and Steady to fly with.
+    // Nobody aboard shoots. It never runs.
+    keeperBoat: {
+        ...fighterTemplate,
+        appearance: 'trimaran-cutter',
+        hull: system(['hullBare', 'hullBare', 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldEmitter'], 0),
+        reactor: system(reactorCards(2, 'reactorPowerHull', 'reactorPowerHull', 'reactorPowerHull'), 0),
+        helm: system(['slowAndSteady', 'slowAndSteady', 'slowAndSteady', 'slowAndSteady']),
+        tactical: { ...system(['phaserStrip']), numSlots: 1 },
+        fleeThreshold: 0,
+        priorities: { tactical: 0 },
+    },
 });
 
 /** A kind of AI ship. Each has its own appearance, so the same shape always means the same kind of ship, whichever faction it's in. */
@@ -225,6 +255,8 @@ const designNames: Record<ShipDesign, string> = {
     gridFragment: 'Grid Fragment',
     picket: 'Picket',
     relay: 'Relay',
+    gatePylon: 'Gate Pylon',
+    keeperBoat: 'Keeper Boat',
 };
 
 /** How well a ship plays (see `AiShipSetupInfo.skill`), unless the encounter says otherwise. */

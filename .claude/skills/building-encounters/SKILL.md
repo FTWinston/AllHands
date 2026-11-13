@@ -19,7 +19,7 @@ Beside this file:
 
 ### 1. Read
 
-Read the encounter's whole spec, its "Check first" list included. Read `Encounter.ts` top to bottom: it's short, and it's the whole toolkit. Read the "As built" and "Measured" of whichever encounter was built last, whatever it's about, as that's where the newest findings about the AI are.
+Read the encounter's whole spec, its "Check first" list included. Read `Encounter.ts` top to bottom: it's short, and it's the whole toolkit. Read the "As built" and "Measured" of whichever encounter was built last, whatever it's about, as that's where the newest findings about the AI are, and of any encounter whose ships this one reuses or resembles.
 
 Then read the built encounter that already does what this one needs, with its tests:
 
@@ -56,13 +56,13 @@ Done when every number is in engine units, the cheapest win is written down besi
 
 ### 3. Draft it, and measure
 
-Write a draft of the class with its factions, its ships and as much of its rules as decides who's in danger, register it, and play it out with the real AI. Rates only show when it runs: how often a ship draws, how long before its first shot, how much shield it takes off a crew a minute.
+Write a draft of the class with its factions, its ships and as much of its rules as decides who's in danger, register it, and play it out with the real AI. Keep each new card, effect and design in its own block of its own file as you draft, as step 4 commits them one at a time. Rates only show when it runs: how often a ship draws, how long before its first shot, how much shield it takes off a crew a minute.
 
 Measure a few scripted crews, five seeds each:
 
 - **One that does nothing.** If it's destroyed, there's no failure to fall forward from: losing the ship ends the whole game.
 - **One that tries the obvious thing and gets it wrong.** Same question.
-- **One that plays the cheapest win from step 2.** If it wins every time with room to spare, that's the finding.
+- **One that plays the cheapest win from step 2.** If it wins every time with room to spare, that's the finding. Then look for a cheaper one in what you've measured: the arithmetic assumes ships behave as the spec says, and the cheapest win has twice been something they turned out not to do.
 - **One for each side of the captain's call.** If one is plainly better, that's the finding.
 
 And for everything the spec says a ship does ("it weaves", "it jams you", "they go for the shuttle"), write a test that watches the AI do it. A card having an `aiEvaluator` proves nothing.
@@ -125,6 +125,7 @@ Done when the unit tests, `npm run test:balance`, `npm run typecheck` and `npx e
 ### 8. Register it
 
 - Add the definition to the list in `EncounterRegistry.ts`, its id to a pool in `campaign/sectorThemes.ts`, and the id to the sorted list `Encounter.test.ts` expects.
+- A boss replaces its sector's `bossEncounterId`. `Campaign.test`'s `completeEncounter` and `SectorGenerator.test`'s boss check both assume how a boss is won, and need telling.
 - Then run every other encounter's unit and balance tests. Adding to a pool changes the random numbers every seeded campaign sees, so a test that leaned on one random answer needs a new seed. If a simulation's "usually" turns out to depend on the seeds, widen it and correct that encounter's "Measured".
 
 ### 9. Write back to the spec

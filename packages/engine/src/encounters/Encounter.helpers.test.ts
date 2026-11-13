@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { Encounter } from './Encounter';
 import { getDefaultNode } from './EncounterRegistry';
 import type { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import type { ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import type { AiShip } from 'src/state/AiShip';
 import type { CardState } from 'src/state/CardState';
@@ -43,6 +44,10 @@ class HelpfulEncounter extends Encounter {
 
     finish() {
         this.complete();
+    }
+
+    changeObjective(objective: ObjectiveInfo) {
+        this.setObjective(objective);
     }
 
     protected override onObjectRemoved(object: { id: string }): void {
@@ -223,5 +228,28 @@ describe('Encounter cards kept in hand', () => {
 
         expect(ship.engineerState.hand).not.toContain(card);
         expect(ship.engineerState.deck).not.toContain(card);
+    });
+});
+
+describe('Encounter objective', () => {
+    it('can be changed: the viewscreen and the summary show the new one, and the node keeps the old', () => {
+        const { state, encounter } = createEncounter();
+        expect(state.objective?.type).toBe('clear');
+
+        encounter.changeObjective({ type: 'protect', subject: 'the keepers\' boat' });
+
+        expect({ type: state.objective?.type, subject: state.objective?.subject }).toEqual({ type: 'protect', subject: 'the keepers\' boat' });
+        expect(state.encounter?.objective).toEqual({ type: 'protect', subject: 'the keepers\' boat' });
+        expect(encounter.node.objective).toEqual({ type: 'clear' });
+    });
+
+    it('is the next encounter\'s own once this one is over', () => {
+        const { state, campaign, encounter } = createEncounter();
+        encounter.changeObjective({ type: 'protect', subject: 'the keepers\' boat' });
+
+        campaign.devLoadEncounter('skirmish');
+
+        expect(state.objective?.type).toBe('clear');
+        expect(state.objective?.subject).toBe('');
     });
 });

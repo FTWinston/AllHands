@@ -486,6 +486,8 @@ function createNode(random: IRandom, theme: SectorTheme, slot: NodeSlot, role: N
             name: definition.name,
             environment: random.pick(theme.environments),
             objective: definition.objective,
+            // A boss is named for what it is, not who called about it, but what they said can still be read on long range sensors.
+            ...(definition.request && { request: definition.request.text }),
         };
     }
 

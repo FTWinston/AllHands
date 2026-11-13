@@ -12,6 +12,7 @@ import {
     WeaponTargetedCardType,
     cardDefinitions,
 } from 'common-data/features/cards/utils/cardDefinitions';
+import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { LeveledSystemEffectType, SystemEffectType, transferPowerRange } from 'common-data/features/ships/utils/systemEffectDefinitions';
@@ -54,6 +55,14 @@ import type { WeaponSlotState } from 'src/state/systems/tactical/WeaponSlotState
 
 function isShip(object: GameObject): object is Ship {
     return 'helmState' in object;
+}
+
+/** A Shutdown Key's play: the key is turned on its own station's system, for a while. Playing it again while it's turned starts its time over. */
+function turnKey(role: CrewRoleName) {
+    return (_gameState: GameState, ship: Ship) => {
+        const tile = ship.engineerState.systems.find(candidate => candidate.system === role);
+        return tile ? tile.addEffect('keyTurned') : false;
+    };
 }
 
 /** Set total charge to exactly one use's worth. */
@@ -331,6 +340,14 @@ function loadCardDefinitions() {
             play: (gameState, ship) => {
                 return gameState.campaign?.warpAway(ship) === true;
             },
+        },
+        shutdownKeyHelm: { play: turnKey('helm') },
+        shutdownKeyScience: { play: turnKey('science') },
+        shutdownKeyTactical: { play: turnKey('tactical') },
+        shutdownKeyEngineer: { play: turnKey('engineer') },
+        keyPower: {
+            // Playing it again on a system that has it starts its time over, as adding an effect that's already there does.
+            play: (_gameState, _ship, system) => system.addEffect('keyPower'),
         },
         phaserCannon: {
             aiEvaluator: weaponLoadEvaluator('phaserCannon'),

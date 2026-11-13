@@ -11,6 +11,21 @@ import { CardDescription, UICardDefinition } from '../types/UICardDefinition';
 const shieldTuningSeconds = systemEffectDefinitions.shieldReinforced.duration / 1000;
 
 function loadCardDefinitions() {
+    // Every station's Shutdown Key reads the same: whose it is goes without saying.
+    const shutdownKey: CardDescription = {
+        name: 'Shutdown Key',
+        description: <>
+            <Trait trait="priority" />
+            {' '}
+            Turn your key. It stays turned for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds.
+        </>,
+        image: <ExampleIcon />,
+    };
+
     const cardDescriptions: Record<CardType, CardDescription> = {
         reactorPowerHull: {
             name: 'Hull Power',
@@ -105,6 +120,27 @@ function loadCardDefinitions() {
                 Leave the area and return to the sector map.
             </>,
             image: <WarpAwayIcon />,
+        },
+        shutdownKeyHelm: shutdownKey,
+        shutdownKeyScience: shutdownKey,
+        shutdownKeyTactical: shutdownKey,
+        shutdownKeyEngineer: shutdownKey,
+        keyPower: {
+            name: 'Key Power',
+            description: <>
+                <Trait trait="priority" />
+                {' '}
+                Increase a system's power level by
+                {' '}
+                <Parameter name="powerGain" />
+                {' '}
+                for
+                {' '}
+                <Parameter name="duration" />
+                {' '}
+                seconds. Every system can have it at once.
+            </>,
+            image: <ExampleIcon />,
         },
         phaserCannon: {
             name: 'Phaser Cannon',

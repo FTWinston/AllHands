@@ -9,7 +9,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createShipSetup, defaultSkill, inertPriorities, inertTemplate, type ShipDesign } from './shipDesigns';
 import type { AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 
-const designs: ShipDesign[] = ['harrier', 'fighter', 'bulwark', 'flagship', 'clinicShip', 'customsPlatform', 'hauler', 'drone', 'tug', 'waterModule', 'miningStation', 'shuttle', 'gridFragment', 'picket', 'relay'];
+const designs: ShipDesign[] = ['harrier', 'fighter', 'bulwark', 'flagship', 'clinicShip', 'customsPlatform', 'hauler', 'drone', 'tug', 'waterModule', 'miningStation', 'shuttle', 'gridFragment', 'picket', 'relay', 'gatePylon', 'keeperBoat'];
 const origin = { x: 0, y: 0, angle: 0 };
 
 describe('ship designs', () => {
@@ -102,5 +102,48 @@ describe('ships that do nothing', () => {
         // A tug's engineer is switched off by its design, and stays off when its helm is switched off too.
         expect(createShipSetup('tug', 'side', origin, { priorities: { helm: 0 } }).priorities).toEqual({ engineer: 0, helm: 0 });
         expect(createShipSetup('waterModule', 'side', origin).priorities).toEqual(inertPriorities);
+    });
+});
+
+describe('the quarantine gate\'s designs', () => {
+    const rooms = setupGameRoom();
+
+    function build(design: ShipDesign) {
+        const state = rooms.createState(seededRandom(1));
+        state.initFactions([{ id: 'player' }], 'player');
+        state.factionRegistry.setEncounterFactions([{ id: 'side' }]);
+        const ship = new AiShip(state, createShipSetup(design, 'side', origin));
+        state.add(ship);
+        ship.hullState.restoreShields();
+        return ship;
+    }
+
+    it('give a pylon 90 shield over 60 bare hull, which come first, fully powered, and torpedoes in one slot', () => {
+        const pylon = build('gatePylon');
+
+        expect(pylon.hullState.maxShield).toBe(90);
+        expect(pylon.hullState.maxHealth).toBe(66);
+        expect(pylon.hullState.powerLevel).toBe(5);
+        expect(pylon.tacticalState.powerLevel).toBe(3);
+        expect(pylon.tacticalState.slots).toHaveLength(1);
+        expect([...pylon.tacticalState.deck, ...pylon.tacticalState.hand].map(card => card.type)).toEqual(['photonTorpedo', 'photonTorpedo']);
+        expect([...pylon.helmState.deck, ...pylon.helmState.hand].every(card => card.type === 'faceTarget')).toBe(true);
+        expect(createShipSetup('gatePylon', 'side', origin).fleeThreshold).toBe(0);
+
+        // Damage that gets through takes the bare hull first, and only then the emitters.
+        pylon.hullState.applyDamage.invoke(60);
+        expect(pylon.hullState.maxShield).toBe(90);
+        pylon.hullState.applyDamage.invoke(1);
+        expect(pylon.hullState.maxShield).toBe(75);
+    });
+
+    it('give the keepers\' boat 75 fully powered shield over almost nothing, nothing but Slow and Steady, and nobody at its guns', () => {
+        const boat = build('keeperBoat');
+
+        expect(boat.hullState.maxShield).toBe(75);
+        expect(boat.hullState.maxHealth).toBe(7);
+        expect(boat.hullState.powerLevel).toBe(5);
+        expect([...boat.helmState.deck, ...boat.helmState.hand].every(card => card.type === 'slowAndSteady')).toBe(true);
+        expect(createShipSetup('keeperBoat', 'side', origin)).toMatchObject({ fleeThreshold: 0, priorities: { tactical: 0 } });
     });
 });

@@ -231,7 +231,7 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
             }
 
             if (node.kind === 'boss') {
-                expect(node.objective).toEqual({ type: 'boss' });
+                expect(node.objective).toEqual(getEncounterDefinition(theme.bossEncounterId).objective);
             } else if (node.encounterId === 'survive') {
                 expect(node.objective).toMatchObject({ type: 'survive' });
                 expect((node.objective as { durationMs: number }).durationMs).toBeGreaterThan(0);
@@ -254,6 +254,7 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
             expect(node.gridReference).toBe(gridReference);
             if (node.kind === 'boss') {
                 expect(node.name).toBe(getEncounterDefinition(theme.bossEncounterId).name);
+                expect(node.request).toBe(getEncounterDefinition(theme.bossEncounterId).request?.text);
             } else if (node.kind === 'combat') {
                 // Where someone has called for help, the node is named after who they are and what it's about.
                 const { request } = getEncounterDefinition(node.encounterId);
