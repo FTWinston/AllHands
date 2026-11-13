@@ -154,13 +154,25 @@ describe('DeadWeightEncounter balance', () => {
         expect(crew.ship.hullState.shield).toBeLessThanOrEqual(fullShield / 2);
     });
 
-    it.each([3, 7])('a crew that chases the bailiffs can\'t get its cannon on the second: it keeps its distance, and its engineer repairs it (seed %i)', (seed) => {
+    // Chasing the bailiffs with one torpedo and then the cannon is a gamble. The second one keeps its distance, and its engineer repairs it.
+    // But a ship whose helm is put out stops, so a cannon hit that lands on its helm leaves it where the next can reach, and it gives up.
+    it.each([3, 11, 13])('a crew that chases the bailiffs usually can\'t get its cannon on the second, and the tug gets away (seed %i)', (seed) => {
         const crew = createDeadWeight(seed);
 
         const { outcome } = run(crew, 300_000, follow(7, 1, chasing => aBailiff(chasing) ?? chasing.tug), torpedoOnce(aBailiff, 30_000), shoot(aBailiff, 'cannon', 40_000, 8000));
 
         expect(outcome).toBe('failure');
         expect(crew.bailiffs.filter(bailiff => crew.state.objects.has(bailiff.id))).toHaveLength(1);
+    });
+
+    it.each([7, 17])('a crew that chases the bailiffs sometimes stops the second in its tracks, and then it\'s as quick as going for the engines (seed %i)', (seed) => {
+        const crew = createDeadWeight(seed);
+
+        const { outcome, seconds } = run(crew, 300_000, follow(7, 1, chasing => aBailiff(chasing) ?? chasing.tug), torpedoOnce(aBailiff, 30_000), shoot(aBailiff, 'cannon', 40_000, 8000));
+
+        expect(outcome).toBe('success');
+        expect(seconds).toBeLessThan(70);
+        expect(crew.tug.hullState.health).toBe(crew.tug.hullState.maxHealth);
     });
 
     it.each([3, 7])('a crew that goes after the bailiffs with its one torpedo, twice, gets the module back late (seed %i)', (seed) => {

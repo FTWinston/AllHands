@@ -48,4 +48,40 @@ describe('HelmState', () => {
         // Then stays put.
         expect(ship.getPosition(cancelTime + 5000).x).toBeCloseTo(stopped.x);
     });
+
+    it('slows to a stop when the helm is put out, rather than finishing the maneuver it was flying', () => {
+        const { state, ship } = createMovingShip();
+        for (let t = 0; t < 10_000; t += 100) {
+            state.tick(100);
+        }
+        const hitTime = state.currentTime;
+        const before = ship.getPosition(hitTime);
+        expect(before.x).toBeLessThan(20);
+
+        // Every helm card damaged, the one being flown included.
+        ship.helmState.adjustHealth(-ship.helmState.health);
+        expect(ship.helmState.health).toBe(0);
+        state.tick(0);
+        expect(ship.helmState.activeManeuver).toBeNull();
+
+        // It drifts a little as it slows, and gets nowhere near where it was going.
+        const stopped = ship.getPosition(hitTime + 750);
+        expect(stopped.x).toBeGreaterThan(before.x);
+        expect(stopped.x).toBeLessThan(before.x + 2);
+        expect(ship.getPosition(hitTime + 60_000).x).toBeCloseTo(stopped.x);
+    });
+
+    it('carries on with a maneuver while the helm is only damaged', () => {
+        const { state, ship } = createMovingShip();
+        ship.helmState.addDeckCard(ship.helmState.hand[0]?.cloneCard() ?? ship.helmState.activeManeuver!.card.cloneCard());
+        for (let t = 0; t < 10_000; t += 100) {
+            state.tick(100);
+        }
+
+        ship.helmState.adjustHealth(-1);
+        expect(ship.helmState.health).toBeGreaterThan(0);
+        state.tick(0);
+
+        expect(ship.helmState.activeManeuver).not.toBeNull();
+    });
 });

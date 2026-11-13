@@ -1,7 +1,6 @@
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { distance } from 'common-data/features/space/utils/vectors';
 import { hostileToPlayer, playerFactionId } from 'src/campaign/factions';
-import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { Encounter } from '../Encounter';
 import { TowLink } from './TowLink';
 import type { EncounterDefinition } from '../EncounterDefinition';
@@ -167,7 +166,7 @@ export class DeadWeightEncounter extends Encounter {
         }
 
         if (tug.helmState.health <= 0) {
-            this.stopTug(tug);
+            this.stopTug();
             return;
         }
 
@@ -214,16 +213,9 @@ export class DeadWeightEncounter extends Encounter {
         }
     }
 
-    /** Its engines are out: it stops where it is, and lets go a few seconds later. */
-    private stopTug(tug: AiShip): void {
+    /** Its engines are out, so it has stopped where it is (as any ship does), and it lets go a few seconds later. */
+    private stopTug(): void {
         this.enginesOut = true;
-
-        // A manoeuvre that's under way would otherwise run to its end, which may be the end of its route. It slows to a stop instead.
-        const now = this.state.currentTime;
-        const here = tug.getPosition(now);
-        const ahead = tug.getPosition(now + 250);
-        tug.setMotion(new MotionKeyframe(now, here.x, here.y, here.angle), new MotionKeyframe(now + 750, ahead.x, ahead.y, ahead.angle));
-        tug.helmState.cancelActiveManeuver();
 
         this.hail(tugName, 'Drive\'s dead. Fine. Keep it. Cutting the line.', { urgent: true });
 
