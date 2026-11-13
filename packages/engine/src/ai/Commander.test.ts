@@ -3,8 +3,8 @@ import { IRandom } from 'common-data/types/IRandom';
 import { AiShip } from 'src/state/AiShip';
 import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
-import { describe, it, expect } from 'vitest';
-import { Commander, PREFER_BONUS } from './Commander';
+import { describe, it, expect, vi } from 'vitest';
+import { Commander, HULL_FOCUS_CHANCE, PREFER_BONUS } from './Commander';
 import { createBlackboard, resolveAiConfig } from './types';
 
 const rooms = setupGameRoom();
@@ -669,6 +669,68 @@ describe('Commander', () => {
             const { bb, other } = createHunt(PREFER_BONUS + 10, 5);
 
             expect(bb.targetId).toBe(other.id);
+        });
+    });
+
+    describe('what it goes for', () => {
+        function createFight() {
+            const state = createWorld();
+            const ai = new AiShip(state, aiSetup());
+            state.add(ai);
+            const first = new AiShip(state, { ...shipSetup('player', 5, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
+            state.add(first);
+            ai.updateKnownObjects(0);
+            ai.tacticalState.setSystemSubTargets(first.id, ['helm', 'tactical']);
+            const bb = createBlackboard({ type: 'search-and-destroy' });
+            const commander = new Commander(ai, state, resolveAiConfig(aiSetup() as never));
+            const goForHull = vi.spyOn(state.random, 'getBoolean');
+            return { state, ai, first, bb, commander, goForHull };
+        }
+
+        it('goes for the hull of a new target some of the time, with no system to focus on, so tactical fires plain shots', () => {
+            const { first, bb, commander, goForHull } = createFight();
+            goForHull.mockReturnValueOnce(true);
+
+            commander.update(bb, 0);
+
+            expect(bb.targetId).toBe(first.id);
+            expect(goForHull).toHaveBeenCalledWith(HULL_FOCUS_CHANCE);
+            expect(bb.focusSystem).toBeNull();
+        });
+
+        it('otherwise goes for its systems once science has identified them, tactical first and then helm', () => {
+            const { ai, first, bb, commander, goForHull } = createFight();
+            goForHull.mockReturnValueOnce(false);
+
+            commander.update(bb, 0);
+            expect(bb.focusSystem).toBe('tactical');
+
+            ai.tacticalState.setSystemSubTargets(first.id, ['helm']);
+            commander.update(bb, 100);
+            expect(bb.focusSystem).toBe('helm');
+        });
+
+        it('sticks to what it decided while the target lasts, and decides again for a new target', () => {
+            const { state, ai, first, bb, commander, goForHull } = createFight();
+            goForHull.mockReturnValueOnce(true).mockReturnValueOnce(false);
+
+            commander.update(bb, 0);
+            commander.update(bb, 100);
+            commander.update(bb, 200);
+            expect(goForHull).toHaveBeenCalledTimes(1);
+            expect(bb.focusSystem).toBeNull();
+
+            // The first target is lost, and another taken.
+            state.remove(first);
+            const second = new AiShip(state, { ...shipSetup('player', 6, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
+            state.add(second);
+            ai.updateKnownObjects(300);
+            ai.tacticalState.setSystemSubTargets(second.id, ['tactical']);
+            commander.update(bb, 300);
+
+            expect(bb.targetId).toBe(second.id);
+            expect(goForHull).toHaveBeenCalledTimes(2);
+            expect(bb.focusSystem).toBe('tactical');
         });
     });
 });

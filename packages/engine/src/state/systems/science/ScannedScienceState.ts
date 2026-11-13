@@ -1,13 +1,15 @@
-import { ArraySchema, Schema, type } from '@colyseus/schema';
+import { type } from '@colyseus/schema';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { ScannedScienceInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { CardState } from 'src/state/CardState';
+import { ScannedSystemState } from './ScannedSystemState';
+import type { ScienceState } from './ScienceState';
 
-export class ScannedScienceState extends Schema implements ScannedScienceInfo {
-    @type('string') targetId: string = '';
-    @type('uint8') power: number = 0;
-    /** Copies of the cards in the system's hand, once science has read it. Null until then. */
-    @type([CardState]) hand: ArraySchema<CardState> | null = null;
+export class ScannedScienceState extends ScannedSystemState<ScienceState> implements ScannedScienceInfo {
     @type(CardState) deflectorCard: CardState | null = null;
     @type('string') scanSystem: ShipSystem | null = null;
+
+    protected override copySystemData(source: ScienceState) {
+        this.deflectorCard = source.deflectorCard.cloneCard() ?? null;
+    }
 }

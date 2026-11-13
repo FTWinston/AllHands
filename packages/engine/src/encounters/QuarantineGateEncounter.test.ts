@@ -265,7 +265,9 @@ describe('QuarantineGateEncounter', () => {
             expect(run.encounter.outcome).toBe('success');
             expect(run.encounter.score).toBe(0.5);
             expect(run.ship.antimatter).toBe(antimatterRewards.boss / 2);
-            expect(listenToHails(run.state, 30_000).at(-1)?.text).toBe('Well. It\'s open. It won\'t ever close again, which isn\'t what we came for. But it\'s open.');
+            // Said straight away, or once whatever was being said has finished.
+            const said = [run.state.hail?.text, ...listenToHails(run.state, 30_000).map(line => line.text)];
+            expect(said.at(-1)).toBe('Well. It\'s open. It won\'t ever close again, which isn\'t what we came for. But it\'s open.');
         });
     });
 
@@ -462,7 +464,7 @@ describe('QuarantineGateEncounter', () => {
         });
 
         it('the boat flies in and docks, and the drones go after it', () => {
-            const run = createRun();
+            const run = createRun({ seed: 4 });
             toDoor(run);
             const boat = run.encounter.keepersBoat!;
             // Where a crew covering the boat would wait for it: the drones prefer the boat, though the crew is nearer.

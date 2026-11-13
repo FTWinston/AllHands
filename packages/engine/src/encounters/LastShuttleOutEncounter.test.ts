@@ -562,7 +562,7 @@ describe('LastShuttleOutEncounter', () => {
         });
 
         it('has live fragments fire on shuttles, and never on the crew, while dead ones never fire at all', () => {
-            const evacuation = createEvacuation();
+            const evacuation = createEvacuation({ seed: 4 });
             const { state, ship, encounter } = evacuation;
             const shots: { from: AiShip; at: string | undefined }[] = [];
             const spy = vi.spyOn(state, 'broadcastWeaponEffect').mockImplementation((effect: WeaponEffect) => {

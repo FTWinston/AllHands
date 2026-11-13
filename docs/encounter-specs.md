@@ -425,6 +425,8 @@ With a simulated crew, on a few random seeds, so treat these as rough. Two seeds
 - **A crew that does nothing loses *Marrow*** at 86, 120 and 188 seconds into the 197-second crossing.
 - **A crew that only stays alongside with shields extended the whole way, and never fires, gets it there** in five runs out of five, ending with between nothing and 36 of its own 120 shield.
 
+**Since the review changes** (an AI goes for its target's hull about half the time, cards are damaged in a random order, a damaged weapon leaves its slot, an AI unloads a weapon it can't use), on seeds 3, 7, 11, 13 and 17: a crew that does nothing loses *Marrow* at 87 to 124 seconds, every time; one that stays alongside with shields extended gets it there every time, ending with none of its own shield on all five.
+
 So extending shields alone is just about enough, and driving harriers off is what makes it comfortable. What a real crew manages, with a card that costs 3 power and a helm that has to keep within 4 units, is the thing to playtest.
 
 ### Still to check, by playing it

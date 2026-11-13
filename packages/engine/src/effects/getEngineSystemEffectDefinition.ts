@@ -300,6 +300,10 @@ function loadSystemEffectDefinitions() {
                 system.adjustSystemPowerLevel(100);
                 system.removeAllEffects();
             },
+            // The other effects are being cleared away anyway, without moving anywhere as they would if the reset removed them.
+            clear: (system) => {
+                system.adjustSystemPowerLevel(100);
+            },
         },
         reactorBreach: {
             apply: () => {
@@ -308,6 +312,8 @@ function loadSystemEffectDefinitions() {
             remove: (system) => {
                 system.systemState.getShip().destroy();
             },
+            // A breach that's still counting down as the encounter ends doesn't go off.
+            clear: () => { },
         },
         relocating: {
             apply: () => {

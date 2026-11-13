@@ -56,6 +56,14 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         return true;
     }
 
+    /** A weapon that's damaged in its slot comes out of it, losing its charge and any modifier, as if ejected. */
+    protected override cardDamaged(card: CardState) {
+        const slot = this.slots.find(candidate => candidate.card === card);
+        if (slot) {
+            this.ejectWeapon(slot.id);
+        }
+    }
+
     /** Put a card that has left a weapon slot back at the end of the deck. */
     private discardSlotCard(card: CardState) {
         this.markCardUnslotted(card);
@@ -160,7 +168,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     }
 
     playWeapon(slot: WeaponSlotState, cardType: WeaponSlotTargetedCardType, targetId: string): EngineCardDefinition | null {
-        // With every tactical card damaged, the system is out, and that goes for a weapon that was loaded and charged before it happened.
+        // With every tactical card damaged, the system is out. A damaged weapon has already left its slot, so this is a double check, which also covers one that can't be damaged, such as an expendable copy.
         if (this.health <= 0) {
             console.warn('cannot fire: tactical is out');
             return null;

@@ -3,7 +3,7 @@ import { PlayerShipSetupInfo } from 'common-data/features/space/types/GameObject
 import { isWeaponTrait } from 'src/cards/applyWeaponTrait';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { PlayerShip } from 'src/state/PlayerShip';
-import { shipSetup, setupGameRoom } from 'src/testUtils';
+import { seededRandom, shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
 import { HullSystemTile } from './engineer/HullSystemTile';
 
@@ -21,7 +21,8 @@ const setup: PlayerShipSetupInfo = {
 };
 
 function createShipInState(cards = setup.hull.cards) {
-    const state = rooms.createState();
+    // Cards are damaged in a random order. Here they're damaged in the order they're listed, so tests can say which goes.
+    const state = rooms.createState(Object.assign(seededRandom(1), { shuffle: () => { } }));
     const ship = new PlayerShip(state, { ...setup, hull: { ...setup.hull, cards } });
     state.add(ship);
     return { state, ship };

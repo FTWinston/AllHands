@@ -73,14 +73,25 @@ function shootAt(ship: PlayerShip, ostler: AiShip, systems: CrewRoleName[], weap
 
 /** What a played-out Fever Ship comes to, which says whether it's tuned right, rather than whether it works. */
 describe('FeverShipEncounter balance', () => {
-    it.each(['helm', 'science', 'engineer'] as const)('a crew that does nothing loses most of its shields to her strips in four minutes, but lives (%s infected)', (infected) => {
-        const { state, ship } = createFeverShip(infected);
+    const idleRuns = (['helm', 'science', 'engineer'] as const).flatMap(infected => [3, 7, 11, 13, 17].map(seed => [infected, seed] as const));
+    const idleOutcomes: ReturnType<typeof run>['outcome'][] = [];
+
+    it.each(idleRuns)('a crew that does nothing loses most of its shields to her strips in four minutes, and sometimes the ship (%s infected, seed %i)', (infected, seed) => {
+        const { state, ship } = createFeverShip(infected, { seed });
+        const startingShield = ship.hullState.shield;
 
         const { outcome } = run(state, 240_000);
+        idleOutcomes.push(outcome);
 
-        expect(outcome).toBeNull();
-        expect(ship.hullState.shield).toBeLessThan(ship.hullState.maxShield / 2);
-        expect(ship.hullState.shield).toBeGreaterThan(0);
+        expect([null, 'crew destroyed']).toContain(outcome);
+        expect(outcome === 'crew destroyed' ? 0 : ship.hullState.shield).toBeLessThan(startingShield / 2);
+    });
+
+    it('a crew that does nothing is destroyed in some of those runs: those where she goes for its hull rather than its tactical system', () => {
+        const destroyed = idleOutcomes.filter(outcome => outcome === 'crew destroyed').length;
+
+        expect(destroyed).toBeGreaterThanOrEqual(3);
+        expect(destroyed).toBeLessThan(idleRuns.length / 2);
     });
 
     it('science gets a new scan card every six seconds, on top of the one it starts with', () => {

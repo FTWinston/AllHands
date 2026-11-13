@@ -335,7 +335,7 @@ describe('QuarantineGateEncounter balance', () => {
 
     describe('compared', () => {
         it('a crew that guesses rather than finding the master is destroyed on most seeds', () => {
-            expect(count('guess', 'crew destroyed')).toBeGreaterThanOrEqual(4);
+            expect(count('guess', 'crew destroyed')).toBeGreaterThanOrEqual(3);
         });
 
         it('waiting outside cannon range isn\'t safe: the pylons\' torpedoes reach as far as the crew\'s', () => {

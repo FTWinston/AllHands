@@ -31,16 +31,21 @@ export function chargeScore(slot: WeaponSlotState, ctx: EvaluationContext): numb
     return 8;
 }
 
+/** How much more a weapon that would reach the target is worth loading than one that wouldn't. */
+const REACHES_TARGET_BONUS = 5;
+
 export function weaponLoadEvaluator(cardType: WeaponSlotTargetedCardType): CardEvaluator {
     return (card, ctx) => {
         const cost = card.getParameter('cost');
+        const range = targetRange(ctx);
+        const reaches = range !== null && range <= card.getParameter('maxRange') && range >= card.getParameter('minRange');
         const out: CandidatePlay[] = [];
         for (const slot of ctx.ship.tacticalState.slots) {
             if (slot.card) {
                 continue;
             }
             out.push({
-                score: ctx.blackboard.targetId !== null ? 45 : 30,
+                score: (ctx.blackboard.targetId !== null ? 45 : 30) + (reaches ? REACHES_TARGET_BONUS : 0),
                 cost,
                 action: { kind: 'playCard', cardId: card.id, cardType, targetType: 'weapon-slot', targetId: slot.id },
             });

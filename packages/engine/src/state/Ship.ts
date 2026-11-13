@@ -198,8 +198,11 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     }
 
     override damage(damage: Damage): number {
+        // An unaimed hit lands on a system picked at random. The pick is made for an aimed hit too, and not used,
+        // so that every hit uses up the same random numbers, and aiming doesn't change what comes out of the game's random after it.
+        const randomSystem = this.random.pick(shipSystems);
         if (!damage.targetSystem) {
-            damage.targetSystem = this.random.pick(shipSystems);
+            damage.targetSystem = randomSystem;
         }
 
         // A friendly ship that has extended its shields over this one takes the hit on them first. Whatever they let through then meets this ship's own.
@@ -370,12 +373,16 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     cleanupAfterEncounter() {
         this.clearCrewCardGeneration();
 
-        // This drops every effect, and puts every system's power back to what the reactor gives it.
+        // Every effect is cleared, undoing whatever it did, before any system is tidied up: repairing a reactor card changes the effects on the system it powers.
+        for (const tile of this.engineerState.systems) {
+            tile.clearEffects();
+        }
+
         for (const system of this.systems.values()) {
             system.cleanupAfterEncounter();
         }
 
-        // A reactor card that's damaged for good still costs its system the power it gave, as it did from the moment it was damaged.
+        // Clearing the effects gave back the power that a reactor card damaged for good took from its system. It's still damaged, so it takes that again.
         for (const card of this.reactorState.deck) {
             if (card.hasTrait('critical')) {
                 getCardDefinition(card.type).damaged?.(this.gameState, this, card);
