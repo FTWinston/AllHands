@@ -136,6 +136,9 @@ export abstract class Officer {
             case 'chargeWeaponSlot':
                 this.ship.tacticalState.chargeWeaponSlot(action.cardId, action.slotId);
                 break;
+            case 'ejectWeapon':
+                this.ship.tacticalState.ejectWeapon(action.slotId);
+                break;
         }
     }
 }
