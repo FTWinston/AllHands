@@ -3,6 +3,7 @@ import { FiringState } from 'common-data/features/space/types/FiringState';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
 import { AiShip } from 'src/state/AiShip';
+import { CardState } from 'src/state/CardState';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect, vi } from 'vitest';
 
@@ -308,15 +309,53 @@ describe('TacticalState firing', () => {
         expect(tactical.playWeapon(slot, 'phaserCannon', enemy.id)).not.toBeNull();
         expect(damage).toHaveBeenCalledTimes(1);
 
+        // Out: the weapon was the last card damaged, and that took it out of its slot.
         tactical.adjustHealth(-tactical.health);
         expect(tactical.health).toBe(0);
+        expect(slot.card).toBeNull();
         expect(tactical.playWeapon(slot, 'phaserCannon', enemy.id)).toBeNull();
         expect(damage).toHaveBeenCalledTimes(1);
-        // It's still loaded, and has lost none of its charge.
-        expect(slot.card).not.toBeNull();
+    });
+
+    it('takes a weapon that\'s damaged out of its slot, losing its charge and modifier, as if it were ejected', () => {
+        const { tactical } = createTactical(['photonTorpedo', 'lowYield']);
+        const slot = loadWeapon(tactical, 'photonTorpedo');
+        const weapon = slot.card!;
+        tactical.playCard(handCard(tactical, 'lowYield').id, 'lowYield', 'weapon', slot.id);
+        slot.addCharge(slot.getParameter('totalCharge'), 0);
+        expect(slot.modifierCard).toBe('lowYield');
+
+        tactical.adjustHealth(-tactical.health);
+
+        expect(weapon.isDamaged).toBe(true);
+        expect(slot.card).toBeNull();
+        expect(slot.charge).toBe(0);
+        expect(slot.modifierCard).toBeNull();
+        expect(slot.modifiers.size).toBe(0);
+        expect(tactical.deck).toContain(weapon);
+
+        // Repaired, it's in the deck, to be drawn and loaded again.
+        tactical.adjustHealth(tactical.maxHealth);
+        expect(weapon.isDamaged).toBe(false);
+        expect(slot.card).toBeNull();
+    });
+
+    it('still won\'t fire a weapon left in its slot once tactical is out, as one that\'s expendable is never damaged', () => {
+        const { state, ship, tactical } = createTactical(['phaserStrip']);
+        const enemy = new AiShip(state, { ...shipSetup('player', 5, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
+        state.add(enemy);
+        ship.updateKnownObjects(0);
+        tactical.addCardToHand(CardState.createExpendable('phaserCannon', 900));
+        const slot = loadWeapon(tactical);
+        slot.addCharge(slot.getParameter('totalCharge'), 0);
+        const damage = vi.spyOn(enemy, 'damage').mockReturnValue(0);
+
+        tactical.adjustHealth(-tactical.health);
+        expect(slot.card?.type).toBe('phaserCannon');
+        expect(tactical.playWeapon(slot, 'phaserCannon', enemy.id)).toBeNull();
 
         tactical.adjustHealth(1);
         expect(tactical.playWeapon(slot, 'phaserCannon', enemy.id)).not.toBeNull();
-        expect(damage).toHaveBeenCalledTimes(2);
+        expect(damage).toHaveBeenCalledTimes(1);
     });
 });
