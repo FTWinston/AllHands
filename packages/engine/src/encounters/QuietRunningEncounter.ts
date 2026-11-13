@@ -29,8 +29,11 @@ const picketSkill = 0.7;
 /** How far round each picket's own position it holds, until the crew is seen. Past every weapon's reach. */
 const postRadius = 30;
 
-/** How far a picket can see the crew from, however much power it shows. */
-export const sightRange = 24;
+/**
+ * How close the crew has to come to a picket to be watched at all. Once it's that close to any of them, the two pickets nearest it watch it,
+ * so a ship between two pickets is watched by both, however near one it flies. On a gap's middle line that's 15.5 units of flying (23.8 with eight pickets).
+ */
+export const sightRange = 16;
 /** How often each picket looks for the crew. */
 export const watchIntervalMs = 500;
 /** What a picket's sensors step through, one step every `sensorStepMs`, starting from a random point. It's the level its science system reads, on a scan. */
@@ -38,12 +41,28 @@ export const sensorCycle = [1, 3, 5, 3] as const;
 export const sensorStepMs = 10_000;
 /** What an elite form's defector's sensors read, always. */
 export const defectorSensor = 0;
+/** The highest a picket's sensors go. They see anything then. */
+export const highSensor = 5;
+
+/** The most power a picket can be shown without seeing it, with its sensors low (1) and middle (3). On high (5) it sees anything. */
+const allowances: Readonly<Record<number, number>> = { 1: 14, 3: 10 };
+
+/** One gap on the crew's side of the ring has its two pickets' sensors this close together in their cycles, so that it's open for 26 to 30 seconds of every 40. */
+export const inStepMs = 4_000;
+/**
+ * How far round the ring from the crew's straight line in that gap may be: its middle is within this angle of the line from the relay to where the crew starts.
+ * The elite form's defector is within it too.
+ */
+export const facingArc = 75 * Math.PI / 180;
 
 /** How long after a flare goes out every picket's sensors stay at their highest, before they pick up their cycle again. */
 export const alertMs = 20_000;
-export const alertSensor = 5;
-/** How many flares tactical is given. After that it has whatever it bought. */
-export const flaresGiven = 2;
+export const alertSensor = highSensor;
+/** How many flares tactical is given. After that it has whatever it bought. One, as two launched back to back cover a whole crossing. */
+export const flaresGiven = 1;
+
+/** What reaching the relay is worth if the crew was seen on the way. */
+export const seenScore = 0.5;
 
 /** How long the keeper can hold the relay's door open. */
 export const windowMs = 180_000;
@@ -58,29 +77,30 @@ export function signatureOf(ship: Ship): number {
     return signatureSystems.reduce((sum, system) => sum + ship.getSystem(system).powerLevel, 0);
 }
 
-/** The most power a picket can be shown, at this distance, with its sensors at this level, without seeing it. More is seen. */
-export function allowance(distanceToPicket: number, sensor: number): number {
-    return 6 + distanceToPicket / 2 + (3 - sensor) * 2;
+/** The most power a picket can be shown, with its sensors at this level, without seeing it. More is seen. On high, nothing is allowed. */
+export function allowance(sensor: number): number {
+    return allowances[sensor] ?? -Infinity;
 }
 
 const numberNames = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'];
 
-const briefing = 'They watch for power. The closer you pass, the less you can show. And their sensors breathe: up, down, up. Catch two of them low and go between. I can hold the door three minutes.';
+const briefing = 'They add up all your power. Their sensors breathe: low, middle, high, middle. High sees anything. Middle lets you show ten, low fourteen. Find two breathing together, and go between them as they drop. I can hold the door three minutes.';
 const eliteBriefing = `${briefing} One of them's stopped answering roll-call. I don't know which.`;
 
 /**
  * The keeper of a relay needs a part the crew is carrying, and the Wardens have a cordon of pickets round it, which mustn't see the crew arrive.
- * - The pickets sit on a ring round the relay, and aren't hostile. Each sees a player ship that's within its sight and showing more power than it allows.
- *   The closer the ship, the less it allows, and less again the harder its sensors are running. Those step up and down every ten seconds,
- *   and a scan of a picket's science system shows where they are.
- * - The engineer always has Run Quiet, which takes power from a system until it's played on it again. Tactical has a flare, twice:
- *   while one burns no picket sees anything, and when it goes out every picket's sensors run at their highest for a while.
+ * - The pickets sit on a ring round the relay, and aren't hostile. A player ship that comes within sight of one is watched by the two nearest it,
+ *   and seen if it's showing more power than either one's sensors allow just then: 14 on low, 10 on middle, and nothing on high.
+ *   Those step low, middle, high, middle, every ten seconds, and a scan of a picket's science system shows where they are.
+ *   So a gap can only be crossed while both its pickets are off high, and one gap facing the crew has its two in step.
+ * - The engineer always has Run Quiet, which takes power from a system until it's played on it again. Tactical has a flare, once:
+ *   while it burns no picket sees anything, and when it goes out every picket's sensors run at their highest for a while.
  * - Being seen, or firing on a picket, turns the Wardens hostile, and every picket hunts the crew.
- * - It's a success once a player ship reaches the relay, seen or not. The keeper can hold the door for three minutes, and says when one minute and twenty seconds are left.
- *   It's a failure when the door closes. Pickets that never saw the crew are still neutral then.
+ * - It's a success once a player ship reaches the relay, worth half if they were seen. The keeper can hold the door for three minutes,
+ *   and says when one minute and twenty seconds are left. It's a failure when the door closes. Pickets that never saw the crew are still neutral then.
  *
- * Elite: there are more pickets, closer together, and one has defected. Its sensors read nothing, and it never sees anything.
- * If the crew is seen it turns on the Wardens.
+ * Elite: there are more pickets, closer together, and one has defected. Its sensors read nothing, and it never sees anything,
+ * so the gaps either side of it have only one picket watching. No gap is put in step. If the crew is seen it turns on the Wardens.
  */
 export class QuietRunningEncounter extends Encounter {
     protected override readonly factions: readonly FactionConfig[] = [
@@ -97,6 +117,8 @@ export class QuietRunningEncounter extends Encounter {
     /** Where in its cycle each picket's sensors started, in game time. */
     private readonly sensorPhaseMs = new Map<AiShip, number>();
     private startTime = 0;
+    /** The two pickets either side of the gap whose sensors were put in step. None in the elite form. */
+    private inStepPair: readonly [AiShip, AiShip] | null = null;
 
     private seenBy: AiShip | null = null;
     private flareCards: CardState[] = [];
@@ -115,6 +137,11 @@ export class QuietRunningEncounter extends Encounter {
     /** Elite: the picket that won't see anything. */
     get defector(): AiShip | null {
         return this.defectorShip;
+    }
+
+    /** The two pickets either side of the gap whose sensors were put in step, in order round the ring. Null in the elite form. */
+    get inStepGap(): readonly [AiShip, AiShip] | null {
+        return this.inStepPair;
     }
 
     /** Whether a picket has seen the crew, or been fired on by them. */
@@ -141,12 +168,25 @@ export class QuietRunningEncounter extends Encounter {
         return sensorCycle[Math.floor(elapsed / sensorStepMs) % sensorCycle.length];
     }
 
+    /** Whether a picket watching a ship that shows this much power sees it, with its sensors where they are now. The defector never does. */
+    sees(picket: AiShip, signature: number): boolean {
+        return picket !== this.defectorShip && signature > allowance(this.sensorLevel(picket));
+    }
+
     /** Puts a picket's sensors at the start of a step at the given level, on the way up where there's a choice. For tests, and for nothing in the game. */
     setSensors(picket: AiShip, level: 1 | 3 | 5): void {
         const step = sensorCycle.indexOf(level);
         const cycleMs = sensorCycle.length * sensorStepMs;
         const phase = (step * sensorStepMs - (this.state.currentTime - this.startTime)) % cycleMs;
         this.sensorPhaseMs.set(picket, (phase + cycleMs) % cycleMs);
+        this.mirrorSensors();
+    }
+
+    /** Puts a picket's sensors this far behind another's in their cycle, or ahead if it's negative. The game does it once, for the gap it puts in step. */
+    putInStep(picket: AiShip, leader: AiShip, behindMs: number): void {
+        const cycleMs = sensorCycle.length * sensorStepMs;
+        const phase = (this.sensorPhaseMs.get(leader) ?? 0) - behindMs;
+        this.sensorPhaseMs.set(picket, (phase % cycleMs + cycleMs) % cycleMs);
         this.mirrorSensors();
     }
 
@@ -182,6 +222,8 @@ export class QuietRunningEncounter extends Encounter {
         const count = this.node.elite ? elitePicketCount : picketCount;
         const turn = this.state.random.getFloat(0, Math.PI * 2);
         const cycleMs = sensorCycle.length * sensorStepMs;
+        /** How far round the ring from the crew's straight line in a point at this bearing from the relay is. The crew comes from bearing pi. */
+        const offLine = (bearing: number) => Math.abs(Math.atan2(Math.sin(bearing - Math.PI), Math.cos(bearing - Math.PI)));
 
         const spawns = numberNames.slice(0, count).map((number, index) => {
             const bearing = turn + index * Math.PI * 2 / count;
@@ -197,8 +239,10 @@ export class QuietRunningEncounter extends Encounter {
         });
 
         // Elite: the defector stays in the ring, where it was, and looks like the rest. Only its side is different.
+        // It's one of those on the crew's side, as one on the far side of the ring would be too far round to reach before the door closes.
         // They're spawned one at a time, in order round the ring, as target lists show ships in the order they were spawned.
-        const defectorIndex = this.node.elite ? this.state.random.getInt(count) : -1;
+        const facingIndexes = spawns.map((_, index) => index).filter(index => offLine(turn + index * Math.PI * 2 / count) <= facingArc);
+        const defectorIndex = this.node.elite ? facingIndexes[this.state.random.getInt(facingIndexes.length)] : -1;
         const pickets = spawns.map((spawn, index) => this.spawnShips(index === defectorIndex ? defectors : wardens, [spawn])[0]);
         this.defectorShip = pickets[defectorIndex] ?? null;
 
@@ -211,6 +255,17 @@ export class QuietRunningEncounter extends Encounter {
                     this.firedOn(picket);
                 }
             });
+        }
+
+        // One gap on the crew's side has its two pickets in step, so that it's open for most of every cycle. Which one is random.
+        // The rest fall as they fall. The elite form has none: the defector's the way through.
+        if (!this.node.elite) {
+            const facing = pickets
+                .map((left, index) => ({ left, right: pickets[(index + 1) % count], middle: turn + (index + 0.5) * Math.PI * 2 / count }))
+                .filter(({ middle }) => offLine(middle) <= facingArc);
+            const { left, right } = facing[this.state.random.getInt(facing.length)];
+            this.putInStep(right, left, this.state.random.getFloat(-inStepMs, inStepMs));
+            this.inStepPair = [left, right];
         }
 
         this.mirrorSensors();
@@ -267,7 +322,7 @@ export class QuietRunningEncounter extends Encounter {
         this.flareWasBurning = burning;
     }
 
-    /** Each picket looks for each player ship, unless a flare is burning. The first to see one says so. */
+    /** The two pickets nearest a player ship watch it, once it's within sight of either, unless a flare is burning. The first to see one says so. */
     private watch(): void {
         if (this.isSeen || this.isFlareBurning) {
             return;
@@ -275,20 +330,22 @@ export class QuietRunningEncounter extends Encounter {
 
         const now = this.state.currentTime;
 
-        for (const picket of this.picketShips) {
-            if (picket === this.defectorShip) {
+        for (const ship of getPlayerShips(this.state)) {
+            const position = ship.getPosition(now);
+            const nearest = this.picketShips.all
+                .map(picket => ({ picket, range: distance(picket.getPosition(now), position) }))
+                .sort((a, b) => a.range - b.range)
+                .slice(0, 2);
+
+            if (nearest.length === 0 || nearest[0].range > sightRange) {
                 continue;
             }
 
-            const from = picket.getPosition(now);
-            const sensor = this.sensorLevel(picket);
-
-            for (const ship of getPlayerShips(this.state)) {
-                const range = distance(from, ship.getPosition(now));
-                if (range <= sightRange && signatureOf(ship) > allowance(range, sensor)) {
-                    this.seen(picket);
-                    return;
-                }
+            const signature = signatureOf(ship);
+            const seenBy = nearest.find(({ picket }) => this.sees(picket, signature));
+            if (seenBy) {
+                this.seen(seenBy.picket);
+                return;
             }
         }
     }
@@ -323,7 +380,7 @@ export class QuietRunningEncounter extends Encounter {
         this.hail(keeper, 'They\'ve seen you. Run for it. The door\'s open.');
     }
 
-    /** A player ship reached the relay. Whoever was hunting it loses it at the door. */
+    /** A player ship reached the relay, which is worth half if they were seen. Whoever was hunting it loses it at the door. */
     private arrive(): void {
         const seen = this.isSeen;
 
@@ -333,7 +390,7 @@ export class QuietRunningEncounter extends Encounter {
             }
         }
 
-        this.complete('success');
+        this.complete('success', seen ? seenScore : 1);
         this.hail(keeper, seen
             ? 'Subtle. Still, that\'s the coupler. Go on, before they work out where you went.'
             : 'I didn\'t see a thing, and neither did they. That\'s the coupler. Thank you.');

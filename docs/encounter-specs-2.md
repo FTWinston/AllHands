@@ -6,7 +6,7 @@ The same rules hold. Every number is a starting value to tune in playtests. Ever
 
 These were written with the first three built, so the numbers are already in the engine's terms: hits are counted in cards, shields by hull power, clues by the field that carries them. Where a design in the plan depended on something the engine doesn't do, the spec says what it does instead, under **Changed from the plan**. Each spec still ends with **Check first**: what I read in the code and didn't run.
 
-**Status:** groundwork H is built, on `aimed-shots`, and so is reading a hand (M below), on `scan-hands`, stacked on it. Fever Ship is built, both forms, on `fever-ship`: see its "As built". It needed one shared fix, to the AI's scan evaluator, and nothing else shared. Groundwork I, K and the `recover` objective from L are built, on `dead-weight`, and so is Dead Weight, both forms, with a new card, Transfer Power: see each one's "As built". Last Shuttle Out is built, both forms, on `last-shuttle-out`, with three new ship designs and nothing shared: see its "As built". Its grid never fires on the crew, which is the largest change from its spec. Groundwork J and the `reach` objective are built, on `quiet-running`, and so is Quiet Running, both forms, with a new card, Run Quiet, and the flare made real: see each one's "As built". It needed one shared fix, to power left behind by effects when an encounter ends. **Its captain's call doesn't hold as specified**: see its "Measured". `setObjective` from L is built, on `quarantine-gate`, and so is the boss, The Gate That Never Closed, with two ship designs, a Gate Pulse effect, four Shutdown Keys, and a fifth card the spec didn't have, Key Power, as Aux Power can only ever be on one system: see its "As built". **A careful crew survives it, but it kills any crew that guesses which pylon is the master, and its last captain's call doesn't hold**: see its "Measured". Since the review changes, a crew that guesses survives on two seeds of five.
+**Status:** groundwork H is built, on `aimed-shots`, and so is reading a hand (M below), on `scan-hands`, stacked on it. Fever Ship is built, both forms, on `fever-ship`: see its "As built". It needed one shared fix, to the AI's scan evaluator, and nothing else shared. Groundwork I, K and the `recover` objective from L are built, on `dead-weight`, and so is Dead Weight, both forms, with a new card, Transfer Power: see each one's "As built". Last Shuttle Out is built, both forms, on `last-shuttle-out`, with three new ship designs and nothing shared: see its "As built". Its grid never fires on the crew, which is the largest change from its spec. Groundwork J and the `reach` objective are built, on `quiet-running`, and so is Quiet Running, both forms, with a new card, Run Quiet, and the flare made real: see each one's "As built". It needed one shared fix, to power left behind by effects when an encounter ends. Its captain's call didn't hold as first specified, so it has been redesigned, on `quiet-running-redesign`: see its "Redesigned". The call now holds in shape, **but the flare tactical is given opens any gap in front of the crew**: see its "Measured". `setObjective` from L is built, on `quarantine-gate`, and so is the boss, The Gate That Never Closed, with two ship designs, a Gate Pulse effect, four Shutdown Keys, and a fifth card the spec didn't have, Key Power, as Aux Power can only ever be on one system: see its "As built". **A careful crew survives it, but it kills any crew that guesses which pylon is the master, and its last captain's call doesn't hold**: see its "Measured". Since the review changes, a crew that guesses survives on two seeds of five.
 
 ## Build order
 
@@ -793,7 +793,9 @@ So the encounter's central trade-off only partly holds. **The shields are a smal
 
 ### The idea
 
-A ring of pickets surrounds the relay. They're not hostile. Each sees the ship if it's close and showing too much power, and how much is too much depends on how close, and on how hard that picket's sensors are running at that moment. Getting through the ring means the engineer taking power away from people who want it, at a moment science picks, on a line helm holds. If they're seen, it's a run.
+A ring of pickets surrounds the relay. They're not hostile. They watch for power, and their sensors breathe: low, middle, high, middle, ten seconds each. On high they see any ship in sight; lower, they let some power past. So a gap can only be crossed while both its pickets are off high, and the crossing is as long as their cycles are in step. One gap facing the crew is in step; the rest fall as they fall. Science reads pickets to find two that breathe together and calls the moment they come down. The engineer takes power away from people who want it. Helm flies the crossing inside the window. If they're seen, it's a run, and the relay pays half.
+
+This is the redesign (see "Redesigned" under "As built"). The first version's distance-based allowance is gone.
 
 ### Factions
 
@@ -814,65 +816,70 @@ Being seen is `setRelationship('wardens', playerFactionId, RelationshipType.Host
 
 **An engineer card, `runQuiet`.** Targets a system. Cost 1. "This system runs 2 power lower. Play it again to bring it back." It puts a `runningQuiet` effect on the system, with no time limit, which takes 2 power while it's there. Played on a system that has it, it removes it. The encounter keeps one in the engineer's hand.
 
-**The `flare` card made real.** It exists, costs 2, and logs a line. It now puts `flareBurning` on its ship's tactical tile for 8 seconds. The encounter keeps one in tactical's hand until it has been used twice (see rule 5).
+**The `flare` card made real.** It exists, costs 2, and logs a line. It now puts `flareBurning` on its ship's tactical tile for 8 seconds. The encounter keeps one in tactical's hand until it has been used once (see rule 5).
 
 ### How a picket sees
 
-The ship's **signature** is the sum of its six systems' power: 18 as it arrives, and 6 with everything running quiet. Nothing displays it. The engineer can add it up.
+The ship's **signature** is the sum of its six systems' power: 18 as it arrives, 2 less for each system running quiet, and 6 with all of them. Nothing displays it. The engineer can add it up.
 
-Every `watchIntervalMs` (500), each picket checks each player ship. It sees one that is within `sightRange` (24) and whose signature is more than:
+Every `watchIntervalMs` (500), for each player ship: if it's within `sightRange` (16) of any picket, **the two pickets nearest it** watch it, and it's seen if its signature is more than either one allows with its sensors where they are:
 
-```
-6 + distance / 2 + (3 - sensor) * 2
-```
+| Sensors | Allows a signature up to |
+|---|---|
+| Low (1) | 14: helm, science and tactical lit, the rest quiet |
+| Middle (3) | 10: helm and one other lit |
+| High (5) | nothing: it sees any ship it's watching |
 
-`sensor` is that picket's sensor level: 1, 3 or 5. Each picket's steps 1, 3, 5, 3, 1 and round again, one step every `sensorStepMs` (10 seconds), each starting at a random point in the cycle. The encounter mirrors it onto the picket's science power every tick, so a scan of that picket's science system reads it, and nothing the picket's own engineer does can change what the scan shows.
+Each picket's sensors step 1, 3, 5, 3 and round again, one step every `sensorStepMs` (10 seconds), each starting at a random point in the cycle. The encounter mirrors the level onto the picket's science power every tick, so a scan of that picket's science system reads it, and nothing the picket's own engineer does can change what the scan shows. The elite form's defector reads 0 and never sees.
 
-Six pickets sit on a ring of radius 28 around the relay, turned by a random angle each time. The middle of a gap is 14.5 units from the picket on either side:
+Two pickets watch, not each picket alone, because alone a picket's sight leaves a lane: with six pickets on a ring of 28, a ship flying 2 or 3 units off a gap's middle line toward one picket is out of the other's 16 units, and in the first's for only 21.6 units of flying. That's one picket's 30-second window, every cycle, at any gap, and the pair's timing wouldn't matter. With the two nearest watching, flying nearer one picket only lengthens the crossing.
 
-| Both neighbours' sensors at | Signature has to be at most | Systems running quiet |
-|---|---|---|
-| 1 | 17 | one |
-| 3 | 13 | three |
-| 5 | 9 | five |
+**The crossing.** Six pickets sit on a ring of radius 28 around the relay, turned by a random angle each time. A gap's middle is 14.5 from the picket either side, and a ship on its middle line is in sight from 32 units out from the relay to 16.5: 15.5 units of flying, the shortest crossing there is. From a point a unit outside sight that's 16.5 seconds with helm at full power (1 unit a second) and 22 with helm running quiet (Slow and Steady, 0.75). Inside 16.5 units of the relay nobody sees anything.
 
-Off the middle of the gap it gets worse on one side faster than it gets better on the other.
+**The window.** A picket is off high for 30 seconds in every 40, so a gap whose two pickets' cycles are `d` seconds apart is open for `30 - d` seconds of every 40, and shut for the rest. At `populate`, after the random phases, the encounter picks one gap on the crew's side (its middle within `facingArc`, 75 degrees, of the line from the relay to where the crew starts: two or three gaps qualify), at random, and moves its second picket's cycle to within `inStepMs` (4 seconds) of the first's. The others fall as they fall:
 
-At full power the ship is first seen about 23 units from a picket whose sensors are at 3, and stays in somebody's sight until it's within 5 units of the relay. That's 40 units or so, which is several sensor steps. So no crossing is made on one reading: the crew goes in on a good one, a sensor rises while they're in the gap, science calls it, and the engineer takes another system down.
+| Pickets' cycles apart | Window | All dark (22 s) | Helm lit (16.5 s) |
+|---|---|---|---|
+| 0 to 4 s (the in-step gap) | 26 to 30 s | fits, 4 to 8 s to spare | fits, 9.5 to 13.5 to spare |
+| 4 to 8 s | 22 to 26 s | only just | fits |
+| 8 to 13.5 s ("tight") | 16.5 to 22 s | no | fits, 0 to 5.5 to spare |
+| over 13.5 s | under 16.5 s | no | no, without the flare |
+
+**The flare.** While one burns (8 seconds) no picket sees anything. When it goes out every picket is on high for `alertMs` (20 seconds), seeing anything it watches, so a ship still in sight then is seen. So a flare only helps at the end of a crossing: it carries a ship with helm lit through its last 8 units. Two launched back to back burn for 16 seconds, which is a whole crossing at full power: so tactical is given one.
 
 ### Ships and timeline
 
-The relay ("Ketch Relay") is 70 units ahead. The pickets ("Warden Picket One" to "Six") are on their ring around it, each with `defend-position` on its own position, radius 30.
+The relay ("Ketch Relay") is 70 units ahead. The pickets ("Warden Picket One" to "Six") are on their ring around it, each with `defend-position` on its own position, radius 30. Nothing can see the crew until it's within 44 units of the relay.
 
 The keeper can hold the relay's door for `windowMs` (180 seconds), and says so at the start, with a minute left, and with 20 seconds left.
 
 ### Rules
 
-1. **Success** when a player ship is within `arrivalRadius` (3) of the relay, seen or not.
+1. **Success** when a player ship is within `arrivalRadius` (3) of the relay. Unseen, it's `complete('success')`. **Seen, it's worth half:** `complete('success', seenScore)`, `seenScore` 0.5.
 2. **Failure** when the window closes. If they were never seen, the pickets are still neutral.
-3. **Seen:** the Wardens turn hostile, every picket is given `search-and-destroy` (groundwork J), and the picket that saw them says so. The window doesn't change.
+3. **Seen** (see "How a picket sees"): the Wardens turn hostile, every picket is given `search-and-destroy` (groundwork J), and the picket that saw them says so. The window doesn't change. On arrival, every picket stands down.
 4. **Firing on a picket** is being seen, at once (`hitReceived`, with the crew as its source).
-5. **A flare:** while one burns, no picket sees anything. When it goes out, every picket's sensors go to 5 for `alertMs` (20 seconds), then pick up their cycle. After the second flare, tactical isn't given another.
-6. The pickets go on watching inside the ring. The allowance rises with every unit the ship puts behind it, so the gap is the worst of it, and the last 5 units are out of everyone's sight.
+5. **A flare:** while one burns, no picket sees anything. When it goes out, every picket's sensors go to 5 for `alertMs` (20 seconds), then pick up their cycle. Tactical is given one, and not another once it's used. One bought from a shop still works.
+6. **One gap facing the crew is in step** (normal form only). Which, is random.
 
 ### What each station has
 
 | Station | Sees | Does |
 |---|---|---|
-| Engineer | Every system's power. Run Quiet | Adds up the signature. Decides who goes dark and when, and gives it back |
-| Science | One picket's science power at a time: 1, 3 or 5, stepping every ten seconds | Watches the two pickets either side of the gap, one at a time, and calls when both are low. Still needs 1 power to scan |
-| Helm | The flight picture | Holds the middle of the gap. On 1 power that's `slowAndSteady` and `strafe` and nothing else |
-| Tactical | Its weapons, and a flare | Holds fire. Keeps tactical at 2 power for the flare, which is 1 more signature than running it quiet, or gives it up |
+| Science | One picket's science power at a time: 1, 3 or 5, stepping every ten seconds | Reads pickets to find two whose cycles are together: watches one until it steps, then the next. Calls the moment both come off high. Still needs 1 power to scan: running quiet, only Passive Scan |
+| Engineer | Every system's power. Run Quiet | Adds up the signature. Decides who goes dark and when: helm lit for speed, then science (to go on reading) or tactical (for the flare), not both until the pickets are on low |
+| Helm | The flight picture | Gets the ship to the chosen gap out of sight, and crosses its middle line on the call, as fast as its power allows. On 1 power that's `slowAndSteady` and `strafe` and nothing else |
+| Tactical | Its weapons, and a flare | Holds fire. Keeps tactical lit for the flare (2 to launch), or gives it up to the engineer |
 
-What running quiet costs each system: helm loses every manoeuvre that costs 2. Science keeps only the basic scan. Tactical can't load anything, or light a flare. The hull's shields absorb 60% in place of 80%. The reactor deals every system its cards four times slower. The engineer can still play Run Quiet, and little else.
+What running quiet costs each system: helm loses every manoeuvre that costs 2, so it crosses at 0.75 in place of 1. Science keeps only the basic scan. Tactical can't load anything, or light a flare. The hull's shields absorb 60% in place of 80%, which matters if the crossing goes wrong. The reactor deals every system its cards four times slower. The engineer can still play Run Quiet, and little else.
 
-**Captain's call:** go now through a gap that needs five systems dark, or wait ten seconds for one that needs three, with the window running. And when to burn a flare, since it buys eight seconds and then makes the next twenty worse.
+**Captain's call:** the tight gap in front of us now, with helm lit and a second or two to spare, or the in-step gap a minute's flying round the ring, with time to spare in the gap and less on the door. And whether to keep tactical lit, for a flare that can rescue a crossing that's going wrong.
 
 ### Hails
 
 | When | Speaker | Line |
 |---|---|---|
-| Start | Keeper, Ketch Relay | "They watch for power. The closer you pass, the less you can show. And their sensors breathe: up, down, up. Catch two of them low and go between. I can hold the door three minutes." |
+| Start | Keeper, Ketch Relay | "They add up all your power. Their sensors breathe: low, middle, high, middle. High sees anything. Middle lets you show ten, low fourteen. Find two breathing together, and go between them as they drop. I can hold the door three minutes." |
 | Seen | Warden Picket Three (whichever) | "Contact in the cordon. Unregistered. All pickets, converge." |
 | After that | Keeper, Ketch Relay | "They've seen you. Run for it. The door's open." |
 | A minute left | Keeper, Ketch Relay | "One minute, then I have to go dark." |
@@ -881,21 +888,20 @@ What running quiet costs each system: helm loses every manoeuvre that costs 2. S
 | Success, seen | Keeper, Ketch Relay | "Subtle. Still, that's the coupler. Go on, before they work out where you went." |
 | Failure | Keeper, Ketch Relay | "That's my window. Going dark. Don't lead them here." |
 
-The time warnings are urgent.
+The briefing is 235 characters, read in 15.4 seconds; the elite one, with roll-call, in 18.9. The time warnings are urgent.
 
 ### Expected talk
 
-> **Science:** "Picket Two's at three. Going down next."
-> **Captain:** "And Four?"
-> **Science:** "I can't watch both. Switching. Four's at one."
-> **Engineer:** "At three and one I need us at fifteen. That's two systems. Tactical and science."
-> **Science:** "Not science, I'm the one telling you when."
-> **Helm:** "I need three power to make this turn."
-> **Engineer:** "You can have three until we're in the gap. Then you're on one. On my mark."
+> **Science:** "Two just went to three. Four's still on five."
+> **Science:** "Four's down. They're two seconds apart. That's our gap."
+> **Captain:** "How long?"
+> **Science:** "Twenty-eight seconds, from now. Then Two goes up."
+> **Engineer:** "Everything dark but helm, that's eight. On middle we can show ten: do you want science or tactical?"
+> **Captain:** "Tactical. Keep the flare. Helm, go."
 
 ### Elite form
 
-One picket has defected, and will let them past. There are eight pickets on the ring, so a gap's middle is 11 units from each side: two systems dark with both neighbours at 1, four with both at 3, and all six at 5. The defector's sensors read 0 and never change, and it never sees anything. Passing right by it leaves the real pickets on either side 21 units off, which takes one system dark with them at 3, and none at all at 1.
+One picket has defected, and will let them past. There are eight pickets on the ring, so a gap's middle is 10.9 units from each side, and in sight from 37.8 units out from the relay to 14.0: a crossing of 23.8 units. That's 24.8 seconds from a holding point with helm lit, and 33 with it quiet. No gap is put in step. The defector's sensors read 0 and never change, and it never sees anything, so each gap beside it is watched by one Warden: open for 30 seconds of every 40. **So beside the defector, helm has to be lit**, with 5 seconds to spare; all dark, it's seen as it leaves sight. Between two Wardens, it takes a pair whose cycles are within 5 seconds of each other. The defector is one of the pickets on the crew's side (within `facingArc` of the straight line in), as one on the far side is too far round to reach in the window.
 
 The defector is in its own faction, neutral to everyone. If the crew is seen, it turns on the Wardens (hostile to them, friendly to the crew), is given `search-and-destroy`, and says: "Picket Five to the unregistered ship. Go. I'll keep them looking at me."
 
@@ -908,36 +914,43 @@ The keeper's opening line gains: "One of them's stopped answering roll-call. I d
 | Constant | Value |
 |---|---|
 | `relayDistance` / `ringRadius` / pickets | 70 / 28 / 6 (elite: 8) |
-| `sightRange` | 24 |
-| Allowance | `6 + distance / 2 + (3 - sensor) * 2` |
+| `sightRange` | 16, from the nearest picket; the two nearest watch |
+| Allowance (low / middle / high) | 14 / 10 / nothing |
 | `sensorStepMs` / `watchIntervalMs` | 10 000 / 500 |
+| `inStepMs` / `facingArc` | 4 000 / 75 degrees |
 | `windowMs` | 180 000 |
 | `arrivalRadius` | 3 |
+| `seenScore` | 0.5 |
 | Run Quiet cost / power taken | 1 / 2 |
-| Flare cost / burn / `alertMs` / how many | 2 / 8 000 ms / 20 000 ms / 2 |
+| Flare cost / burn / `alertMs` / how many | 2 / 8 000 ms / 20 000 ms / 1 |
 
 `sensorStepMs` is the nearest thing here to a tell.
 
 ### Tests
 
-- A ship at full power is seen at 14.5 units from a picket whose sensors are at 3, and isn't with three systems quiet.
-- The allowance at each sensor level, at the middle of a gap, matches the table.
+- The allowance is 14 on low, 10 on middle and nothing on high. Helm and one other system lit is 10; helm and two is 12, past middle and inside low.
+- At a gap's middle, with its pickets at each pair of levels, a ship is seen exactly when its signature is past either one's allowance.
+- A ship near one picket, out of its neighbour's 16 units, is still seen by that neighbour on high.
+- A ship out of every picket's 16 units, inside the ring, isn't seen with everything lit and every picket on high.
+- One gap facing the crew has its pickets within `inStepMs` of each other; the elite form has none.
 - A picket's scanned science power is its sensor level, and stays so when its own engineer boosts it.
-- Seen: Wardens hostile, pickets hunting, and reaching the relay is still a success.
+- Seen: Wardens hostile, pickets hunting; reaching the relay is a success worth `seenScore`, and the pickets stand down. Unseen, it's worth 1.
 - A hit on a picket from the crew counts as being seen.
-- A flare stops every picket seeing for its burn, then puts them all at 5 for the alert. There's no third.
+- A flare stops every picket seeing for its burn, then puts them all at 5 for the alert. Tactical gets one, and no second.
 - The window closing is a failure: no reward, Warp Away offered, and pickets that never saw them are still neutral.
 - Run Quiet takes 2 power from a system and gives it back when played again, including on a system already at 1.
-- Elite: the defector never sees, and turns on the Wardens only if the crew is seen.
-- Balance: a crew that flies straight at the relay at full power is seen. A crew that waits outside the ring for both neighbours at 1 gets that chance at least twice in the window.
+- Elite: the defector never sees, a gap beside it has one watcher, it's on the crew's side, and it turns on the Wardens only if the crew is seen.
+- Balance: see "Measured".
 
 ### Changed from the plan
 
 - **Science reads a sensor level, not a "scan state".** A scan shows a system's power, so that's where the picket's attention is put.
-- **Being seen isn't the failure, and neither is being slow by itself.** The window is the one clock, and being seen makes it hard to beat.
+- **Being seen isn't the failure, and neither is being slow by itself.** The window is the one clock, and being seen halves what getting in is worth.
 - **The cordon is a ring, not a line**, so there's no way round it.
 
 ### Check first
+
+The first version's list, all answered in its "As built":
 
 - **What power does to a manoeuvre.** I've assumed it only decides which cards can be played. If speed scales with helm power too, running helm quiet costs more than the spec says, which is fine, but the 180 seconds needs checking against it.
 - That a system's power can be pushed below what Run Quiet leaves and come back right. `adjustPowerLevel` keeps an underlying value for this. Test it with a boost and Run Quiet together.
@@ -948,7 +961,7 @@ The keeper's opening line gains: "One of them's stopped answering roll-call. I d
 
 ### As built
 
-Both forms are built, on `quiet-running`. The rules, the numbers and the lines are as specified, except that the pickets carry only a cannon. What doesn't hold is the captain's call: see "Measured".
+Both forms were built, on `quiet-running`, as the first version specified, except that the pickets carry only a cannon, and its captain's call didn't hold: see "Measured, first version". The first build's notes follow, and still hold except where "Redesigned", after them, says otherwise.
 
 - **Power doesn't change a manoeuvre's speed** (Check first): `applyMotionCard` leaves that as a TODO. But a manoeuvre under way stops, the ship slowing to a halt within a second, as soon as helm's power drops below the card's cost (`HelmState.update`). So running helm quiet in the middle of a Zig-zag or Sweep stops the ship where it is. On 1 power helm has Slow and Steady (0.75 a second on average, one card to the relay), Strafe (4 units at most) and Face Target.
 - **Run Quiet and a boost together work, either way round, and below nothing** (Check first). `adjustPowerLevel`'s underlying value carries them: Aux Power then Run Quiet on 3 reads 2, and Run Quiet on a system pushed to 1 reads 0 and gives back exactly what it took.
@@ -967,9 +980,54 @@ Both forms are built, on `quiet-running`. The rules, the numbers and the lines a
 - **The designs**: `picket` is the fighter's hull, reactor (`reactorCards(2, 'reactorPowerTactical')`, so tactical 3), helm, science and engineer, with tactical two cannons in one slot, `wedge-destroyer`, `fleeThreshold: 0`, skill 0.7 from the encounter. `relay` is `inertTemplate('ring-vessel', 30 bare)`, in a faction of its own, friendly to the crew.
 - **`Encounter.test.ts`'s standalone check** expects something hostile at the start of every request; this has nothing hostile until the crew is seen, so it checks for something there instead, as Last Shuttle Out does.
 
+**Redesigned (2026-11-13).** The first version didn't ask its question (see "Measured, first version"): with every system but helm running quiet, the ship was never seen on any reading, so science's readings were worth nothing, waiting was never better than going, and the engineer's choice was "everything off". There were three faults under that. Going dark cost nothing while nobody was shooting. The sensors' timing didn't matter, because the darkest setting beat their worst reading. And being seen cost nothing that lasted, as shields are restored for the next encounter, so a crew that ran for it at full power usually got in and lost nothing. So:
+
+- **The distance term is gone.** A picket on high sees anything it's watching, so nothing gets past high, and a crossing is a window between two pickets' highs. Middle allows 10 and low 14, so going dark is still a choice: helm lit for speed, then science or tactical.
+- **`sightRange` is 16** (was 24), and **the two pickets nearest a ship watch it**, not each picket alone. The design as given had each picket see alone, which leaves a lane past every gap: a ship 2 or 3 units off the middle line toward one picket is out of the other's 16 units, and in the first's for 21.6 units, inside one picket's 30-second window, every cycle. Worked through, a lane like that always exists when one picket alone sees, and is at most 1.4 times the middle line's crossing, so no choice of sight range closes it while keeping a dark crossing inside the in-step window. With the two nearest watching, the gap's middle line is the shortest crossing and needs both pickets down.
+- **One gap facing the crew is put in step** (`inStepMs`, `facingArc`), so there's always a good one, and it's science's to find.
+- **Being seen halves the reward** (`seenScore`).
+- **Tactical is given one flare, not two.** A flare launched while one burns restarts the burn, so two back to back blind every picket for 16 seconds, which is the whole crossing at full power: measured, a crew that did that, reading nothing, got in unseen on every seed. With one, it's the last 8 units.
+- **The elite defector is placed on the crew's side.** Placed anywhere, it was 124 and 139 degrees round on two seeds of five, and a crew that had found it couldn't fly round to it and cross before the door closed.
+- **The briefing** says the rule with its numbers, in 15.4 seconds.
+
 ### Measured
 
-From `QuietRunningEncounter.balance.test.ts` (`npm run test:balance`), seeds 3, 7, 11, 13 and 17. The crew is a script: helm steers at 1 unit a second (0.75 with helm quiet) half a second at a time, straight at the relay, or to the middle line of the gap nearest the straight line in, outside everyone's sight, and then in along it. Run Quiet is played on the systems named at the start. Science is perfect: a plan that waits reads both of the gap's pickets at once. So these say what each plan comes to, not whether a crew can carry it out.
+From `QuietRunningEncounter.balance.test.ts` (`npm run test:balance`), seeds 3, 7, 11, 13 and 17, each plan and seed its own run. The crew is a script, and better than any crew: science watches every picket at once and knows each one's cycle once it has seen it go to high, so it has chosen its gap 22 to 39 seconds in; helm flies at exactly 1 unit a second (0.75 with helm quiet), half a second at a time, out of everyone's sight round the ring to the chosen gap's middle line, holds a unit outside sight, and goes when both pickets are off high with time to cross and a second to spare. It runs helm quiet only for the crossing, and the engineer brings everything back the moment the crew is seen.
+
+**Findings first.**
+
+- **The cheapest unseen win is the one the design meant**: science finds the in-step gap, the engineer takes everything but helm down (or helm too), and helm crosses on the call. Unseen on every seed, all dark and helm lit. Nothing cheaper wins every time: every plan that reads nothing is seen on every seed, and a crew 4 seconds late into a gap is seen on every seed.
+- **The captain's call holds in shape, but for a perfect crew going round costs little and the door doesn't bind.** Through a tight gap (cycles 12 seconds apart, an 18-second window) with helm lit, the script gets in unseen every time, with 1.5 seconds of window to spare; all dark there it's seen every time. Through the in-step gap it has 4 to 13.5 seconds to spare. But the in-step gap was 16 to 65 degrees round, and the script got in at 103 to 138 seconds, with 42 seconds of the door left at worst. What a crew that reads one picket at a time takes to find the gap is what decides whether the door binds, and only playing it will say.
+- **The flare is too good.** With helm and tactical lit (10), a crew that goes into the worst gap facing it (cycles 10 to 18 seconds apart, windows of 12 to 20 seconds) as both come down, and launches the flare as the first goes back up, gets in unseen on every seed. The flare covers 8 seconds of a 16.5-second crossing, and the worst gap is open for 10, so it opens every gap in front of the crew, and the tight-or-round call has a third answer that's always right while the flare is unused. A real crew's margin is the window less 8.5 seconds, 1.5 seconds at the worst gap. One flare bought from a shop as well gives the 16-second chain, which got in unseen at full power reading nothing. Whether to drop the given flare, let only one burn at a time, or have a flare in the cordon count as being seen for the score, is the designer's.
+
+The runs:
+
+| Plan | Seen | Outcome | In at (s) | Least shield |
+|---|---|---|---|---|
+| Nothing (both forms) | never | door closes at 180 | | 120 |
+| Full power, straight in | every seed, 26 to 34 s in, 36 to 44 from the relay | in, half, every seed | 67 | 30 to 120 |
+| Helm lit, rest dark, straight in, no reading | every seed, 27 to 39 s in | in, half, every seed | 67 | 75 to 120 |
+| All dark, straight in, no reading | every seed, 35 to 67 s in | in, half, on 3; destroyed on 2 (7, 17), its hull quiet when seen | 89 | 0 to 120 |
+| All dark, in-step gap, timed | never | in, full, every seed | 108 to 138 | 120 |
+| Helm lit, in-step gap, timed | never | in, full, every seed | 103 to 132 | 120 |
+| All dark, in-step gap, 4 s short | every seed, as it leaves sight | in, half | 119 to 146 | 120 |
+| Helm lit, tight gap (18 s window), timed | never | in, full, every seed | 103 to 120 | 120 |
+| Helm lit, tight gap, 4 s short | every seed | in, half | 109 to 125 | 120 |
+| All dark, tight gap, as they drop | every seed | in, half | 108 to 124 | 120 |
+| Helm and tactical lit, worst gap facing, flare | never | in, full, every seed | 91 to 117 | 120 |
+| Full power, two flares (one bought), no reading | never | in, full, every seed | 70 to 87 | 120 |
+| Elite: full power, straight in | every seed | in, half, on 4; destroyed on 1 (3) | 67 | 0 to 120 |
+| Elite: helm lit, beside the defector, timed | never | in, full, every seed | 83 to 125 | 120 |
+| Elite: all dark, beside the defector | every seed, as it leaves sight | in, half | 90 to 132 | 120 |
+| Elite: helm lit, best pair of Wardens facing | never | in, full, on 3 (pairs 0.9 to 2.8 s apart); door closed on 2 (best pairs 11 and 15.6 s apart) | 116 to 152 | 120 |
+
+So in the elite form, finding the defector is the way through: every time with helm lit. A pair of Wardens in step is a way through on some seeds only, and running dark is no way through at all.
+
+Being seen is now properly worse than getting through unseen: half the reward, and a crew seen with its hull running quiet was destroyed on two seeds of five even with the engineer bringing everything back at once.
+
+### Measured, first version
+
+The first version's findings, kept for the record: these were what the redesign answered. From the same file and seeds, before the redesign. The crew is a script: helm steers at 1 unit a second (0.75 with helm quiet) half a second at a time, straight at the relay, or to the middle line of the gap nearest the straight line in, outside everyone's sight, and then in along it. Run Quiet is played on the systems named at the start. Science is perfect: a plan that waits reads both of the gap's pickets at once. So these say what each plan comes to, not whether a crew can carry it out.
 
 - **Doing nothing:** a failure at 180 seconds, never seen, untouched, on every seed, both forms.
 - **Full power, straight at the relay:** seen on every seed, 45 to 52 units out, at 18 to 25 seconds. Reaches the relay at 67 seconds every time, with 75 to 120 of its shield left.
@@ -993,12 +1051,14 @@ So **the captain's call doesn't hold.** "Go now through a gap that needs five da
 
 ### Still to check, by playing it
 
-- Whether a crew works out "everything dark but helm" from the briefing, and how fast. It's the answer, so the rest of this list only matters if the trade-off is retuned.
-- Whether science can follow two pickets one at a time fast enough: each switch is a scan card, and science's are mostly 2 or more, so a science system running quiet can't do it at all.
+- **How long science takes to find the in-step gap**, reading one picket at a time, each switch a scan card. That's what decides whether the door binds on a crew that goes round, and so whether the captain's call has two sides for a real crew. The script knew every cycle by 39 seconds.
+- Whether a crew works out from the briefing that "two breathing together" means watching each picket step, and that the call to go is "both just came down".
+- How much entry error a crew has: the in-step gap allows 4 to 13.5 seconds, a tight one 1.5 or less. Whether the tight gap is ever taken, and how often it goes wrong.
+- Whether the flare is used as a rescue or as a way through any gap, and whether that's wanted (see "Measured").
 - Whether the engineer adds up six numbers, or needs the total shown.
-- Whether helm holds a gap's middle line with Slow and Steady, and what a drift of a unit or two costs: the allowance falls 0.5 a unit closer.
+- Whether helm holds a gap's middle line with Slow and Steady: off the line the crossing is longer, and the window doesn't stretch.
 - **Nobody sees the cordon at the start.** The relay is 70 units ahead, outside the viewscreen's frame and outside helm's view at its furthest zoom. The pickets are on tactical's and science's target lists, in order round the ring.
-- How neutral pickets look on the viewscreen and helm's view, and how they look once hostile. The game was run, both forms, built with dev tools, with four crew pages joined and nobody playing: the briefing (the elite one with roll-call), the objective "Reach Ketch Relay", Run Quiet in the engineer's hand, the flare in tactical's, every system reading 3 on the engineer's screen, and the pickets on the target lists all reach their screens. Nothing in the cordon came into any view, as the ship didn't move.
+- How neutral pickets look on the viewscreen and helm's view, and how they look once hostile. The redesign was run in the game, both forms, built with dev tools, with four crew pages joined and nobody playing: the new briefing fits the viewscreen's hail box in four lines (five in the elite form, with roll-call) and reads in full; the objective, Run Quiet in the engineer's hand, the flare in tactical's, and the pickets on tactical's and science's target lists in order round the ring (six, or eight) all reach their screens. Nothing in the cordon came into any view, as the ship didn't move.
 - Whether being seen in the elite form, with the defector turning, reads as help or as one more ship in the fight.
 
 ---

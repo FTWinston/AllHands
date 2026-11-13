@@ -44,6 +44,7 @@ How often things happen, which no table of amounts shows. It can only be measure
 - **Adding reactor cards raises a system's power and its draw rate together.** To raise power alone, use `adjustPowerLevel` once the ship is built.
 - A weapon needs its own card, then enough other weapon cards spent on it to reach its `totalCharge`, before its first shot. A cannon's load is four shots, fired within about four seconds.
 - **For a hunter, the approach sets its first shot, not the charging.** It gets a helm card about every 13 seconds, so from 30 units it first fires 40 to 50 seconds after it spawns.
+- **A flare launched while one burns restarts its 8 seconds**, so two back to back burn for 16: count what a crew can do with every copy it could hold at once.
 - Each of the crew's four systems gets a card about every 6 seconds. Tactical's 12-card starting deck has one phaser cannon and one photon torpedo: first cannon shot about 30 seconds in, and the torpedo about once a minute.
 
 ## Movement and space
