@@ -7,8 +7,8 @@ import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { listenToHails, seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
 import { describe, expect, it } from 'vitest';
 import {
-    alertMs, allowance, arrivalRadius, defectorSensor, elitePicketCount, flaresGiven, picketCount, relayDistance, relayScenarioId, ringRadius, sensorCycle, sensorStepMs,
-    sightRange, signatureOf, watchIntervalMs, windowMs,
+    alertMs, allowance, arrivalRadius, defectorSensor, elitePicketCount, facingArc, flaresGiven, inStepMs, picketCount, relayDistance, relayScenarioId, ringRadius,
+    seenScore, sensorCycle, sensorStepMs, sightRange, signatureOf, watchIntervalMs, windowMs,
     type QuietRunningEncounter,
 } from './QuietRunningEncounter';
 import type { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
@@ -20,7 +20,7 @@ import type { Ship } from 'src/state/Ship';
 const rooms = setupGameRoom();
 
 const keeper = 'Ketch Relay';
-const briefing = 'They watch for power. The closer you pass, the less you can show. And their sensors breathe: up, down, up. Catch two of them low and go between. I can hold the door three minutes.';
+const briefing = 'They add up all your power. Their sensors breathe: low, middle, high, middle. High sees anything. Middle lets you show ten, low fourteen. Find two breathing together, and go between them as they drop. I can hold the door three minutes.';
 
 function createRun({ elite = false, seed = 3 } = {}) {
     const state = rooms.createState(seededRandom(seed));
@@ -136,34 +136,76 @@ describe('QuietRunningEncounter', () => {
             expect(signatureOf(ship)).toBe(6);
         });
 
-        it.each([
-            [1, 17, 1],
-            [3, 13, 3],
-            [5, 9, 5],
-        ])('with both neighbours at %i, allows a signature of at most %i at the middle of a gap, which is %i systems running quiet', (sensor, most, quiet) => {
-            const allowed = allowance(14.5, sensor);
+        it('allows 14 on low, 10 on middle, and nothing on high, wherever the ship is', () => {
+            expect(allowance(1)).toBe(14);
+            expect(allowance(3)).toBe(10);
+            expect(allowance(5)).toBeLessThan(0);
+        });
 
-            expect(Math.floor(allowed)).toBe(most);
-            expect(18 - 2 * quiet).toBeLessThanOrEqual(allowed);
-            expect(18 - 2 * (quiet - 1)).toBeGreaterThan(allowed);
+        it('fits helm and one other system lit on middle, and helm and two on low', () => {
+            const { ship } = createRun();
+
+            runQuiet(ship, 'hull', 'reactor', 'tactical', 'engineer');
+            expect(signatureOf(ship)).toBe(allowance(3));
+
+            tile(ship, 'tactical').removeEffect('runningQuiet', 'early');
+            expect(signatureOf(ship)).toBeGreaterThan(allowance(3));
+            expect(signatureOf(ship)).toBeLessThanOrEqual(allowance(1));
         });
     });
 
     describe('being seen', () => {
-        it('sees a ship at full power 14.5 units from a picket whose sensors are at 3, and not one with three systems running quiet', () => {
-            for (const quiet of [[], ['tactical', 'science', 'hull']] as ShipSystem[][]) {
+        it.each([
+            ['both on middle, helm and science lit', 3, 3, ['hull', 'reactor', 'tactical', 'engineer'], false],
+            ['both on middle, helm, science and tactical lit', 3, 3, ['hull', 'reactor', 'engineer'], true],
+            ['both on low, helm, science and tactical lit', 1, 1, ['hull', 'reactor', 'engineer'], false],
+            ['one on low and one on middle, helm, science and tactical lit', 1, 3, ['hull', 'reactor', 'engineer'], true],
+            ['both on low, one system quiet', 1, 1, ['tactical'], true],
+            ['one on high, everything quiet', 1, 5, ['hull', 'reactor', 'helm', 'science', 'tactical', 'engineer'], true],
+        ] as [string, 1 | 3 | 5, 1 | 3 | 5, ShipSystem[], boolean][])('at the middle of a gap, with its pickets %s: seen %s', (_, left, right, quiet, seen) => {
+            const run = createRun();
+            const { state, ship, encounter } = run;
+            const [one, two] = encounter.pickets;
+            setSensors(encounter, [[one, left], [two, right]]);
+            runQuiet(ship, ...quiet);
+            place(state, ship, gapMiddle(run, one, two));
+            expect(distance(at(state, ship), at(state, one))).toBeCloseTo(14.5, 1);
+
+            wait(run, watchIntervalMs * 2);
+
+            expect(encounter.isSeen).toBe(seen);
+        });
+
+        it('has the two pickets nearest a ship watch it, even where only one of them is close enough to see it', () => {
+            for (const level of [3, 5] as const) {
                 const run = createRun();
                 const { state, ship, encounter } = run;
                 const [one, two] = encounter.pickets;
-                setSensors(encounter, [[one, 3], [two, 3]]);
-                runQuiet(ship, ...quiet);
-                place(state, ship, gapMiddle(run, one, two));
-                expect(distance(at(state, ship), at(state, one))).toBeCloseTo(14.5, 1);
+                setSensors(encounter, [[two, level]]);
+                runQuiet(ship, 'hull', 'reactor', 'helm', 'science', 'tactical', 'engineer');
+                // On the ring, close by One, and too far from Two for it to see the ship by itself.
+                const a = at(state, one);
+                const b = at(state, two);
+                place(state, ship, { x: a.x + (b.x - a.x) / 4, y: a.y + (b.y - a.y) / 4 });
+                expect(distance(at(state, ship), b)).toBeGreaterThan(sightRange);
 
                 wait(run, watchIntervalMs * 2);
 
-                expect(encounter.isSeen).toBe(quiet.length === 0);
+                expect(encounter.isSeen).toBe(level === 5);
             }
+        });
+
+        it('doesn\'t see a ship inside the ring that\'s out of every picket\'s sight, with everything lit and every picket on high', () => {
+            const run = createRun();
+            const { state, ship, encounter } = run;
+            setSensors(encounter, encounter.pickets.map(picket => [picket, 5]));
+            const centre = at(state, run.relay);
+            place(state, ship, { x: centre.x - ringRadius + sightRange + 0.5, y: centre.y });
+            expect(Math.min(...encounter.pickets.map(picket => distance(at(state, picket), at(state, ship))))).toBeGreaterThan(sightRange);
+
+            wait(run, 5000);
+
+            expect(encounter.isSeen).toBe(false);
         });
 
         it('doesn\'t see anything beyond its sight, however much power it shows', () => {
@@ -216,7 +258,7 @@ describe('QuietRunningEncounter', () => {
             expect(two.ai.commander.goal).toEqual({ type: 'search-and-destroy' });
         });
 
-        it('is still a success if the crew reaches the relay after being seen, and whoever was hunting it loses it at the door', () => {
+        it('is still a success if the crew reaches the relay after being seen, worth half, and whoever was hunting it loses it at the door', () => {
             const run = createRun();
             const { state, ship, encounter, relay } = run;
             encounter.pickets[0].damage({ amount: 10, traits: ['energyWeapon'], targetSystem: 'hull', sourceId: ship.id });
@@ -227,7 +269,8 @@ describe('QuietRunningEncounter', () => {
             const heard = listenToHails(state, 10_000);
 
             expect(state.encounter!.outcome).toBe('success');
-            expect(ship.antimatter).toBe(antimatterRewards.combat);
+            expect(encounter.score).toBe(seenScore);
+            expect(ship.antimatter).toBe(antimatterRewards.combat * seenScore);
             expect(heard).toContainEqual({ speaker: keeper, text: 'Subtle. Still, that\'s the coupler. Go on, before they work out where you went.' });
             for (const picket of encounter.pickets) {
                 expect(picket.ai.commander.isStandingDown).toBe(true);
@@ -299,6 +342,30 @@ describe('QuietRunningEncounter', () => {
             const { encounter } = createRun();
 
             expect(new Set(encounter.pickets.map(picket => encounter.sensorLevel(picket))).size).toBeGreaterThan(1);
+        });
+
+        it.each([3, 7, 11, 13, 17])('put one gap facing the crew in step (seed %i)', (seed) => {
+            const run = createRun({ seed });
+            const { state, encounter, relay } = run;
+            const [left, right] = encounter.inStepGap!;
+            const pickets = encounter.pickets;
+            expect(pickets[(pickets.indexOf(left) + 1) % pickets.length]).toBe(right);
+
+            // Its middle is on the crew's side: the crew comes from the relay's bearing pi.
+            const middle = gapMiddle(run, left, right);
+            const centre = at(state, relay);
+            const bearing = Math.atan2(-(middle.y - centre.y), middle.x - centre.x);
+            expect(Math.abs(Math.atan2(Math.sin(bearing - Math.PI), Math.cos(bearing - Math.PI)))).toBeLessThanOrEqual(facingArc);
+
+            // Through a whole cycle, one is on high without the other for no more than they're apart, either side.
+            let oneHigh = 0;
+            for (let elapsed = 0; elapsed < sensorCycle.length * sensorStepMs; elapsed += 100) {
+                if ((encounter.sensorLevel(left) === 5) !== (encounter.sensorLevel(right) === 5)) {
+                    oneHigh += 100;
+                }
+                wait(run, 100);
+            }
+            expect(oneHigh).toBeLessThanOrEqual(2 * inStepMs + 200);
         });
 
         it('are what a scan of the picket\'s science system reads, even when its own engineer boosts it', () => {
@@ -386,18 +453,17 @@ describe('QuietRunningEncounter', () => {
             expect(encounter.isSeen).toBe(true);
         });
 
-        it(`gives tactical ${flaresGiven}, and no third`, () => {
+        it('gives tactical one, and no second', () => {
             const run = createRun();
             const { ship } = run;
             const hasFlare = () => ship.tacticalState.hand.some(card => card.type === 'flare');
 
-            launch(run);
-            wait(run, 100);
+            expect(flaresGiven).toBe(1);
             expect(hasFlare()).toBe(true);
-            burnOut(run);
-
             launch(run);
             wait(run, 100);
+            expect(hasFlare()).toBe(false);
+            burnOut(run);
             expect(hasFlare()).toBe(false);
         });
     });
@@ -413,6 +479,8 @@ describe('QuietRunningEncounter', () => {
             const heard = listenToHails(state, 20_000);
 
             expect(state.encounter!.outcome).toBe('success');
+            expect(run.encounter.score).toBe(1);
+            expect(ship.antimatter).toBe(antimatterRewards.combat);
             expect(heard).toContainEqual({ speaker: keeper, text: 'I didn\'t see a thing, and neither did they. That\'s the coupler. Thank you.' });
             expect(isHostile(run, run.encounter.pickets[0].faction!)).toBe(false);
         });
@@ -474,29 +542,47 @@ describe('QuietRunningEncounter', () => {
 
         it('has a defector whose sensors read 0 and never change, and which never sees anything', () => {
             const run = createRun({ elite: true });
-            const { state, ship, encounter } = run;
+            const { ship, encounter } = run;
             const defector = encounter.defector!;
-            const others = encounter.pickets.filter(picket => picket !== defector);
+            const warden = encounter.pickets.find(picket => picket !== defector)!;
             ship.scienceState.subscribeToSystem(defector, 'science');
-
-            // Everyone else is far enough away to see nothing.
-            const centre = at(state, run.relay);
-            const position = at(state, defector);
-            place(state, ship, { x: position.x + (position.x - centre.x) * 0.05, y: position.y + (position.y - centre.y) * 0.05 });
-            expect(others.every(picket => distance(at(state, picket), at(state, ship)) > sightRange - 1 || encounter.sensorLevel(picket) >= 1)).toBe(true);
-
-            for (const picket of others) {
-                // Out of the way, so only the defector could see the crew.
-                picket.setMotion(new MotionKeyframe(state.currentTime, -500, -500, 0));
-            }
 
             for (let step = 0; step < 6; step++) {
                 expect(encounter.sensorLevel(defector)).toBe(defectorSensor);
                 expect(ship.scienceState.scannedScience!.power).toBe(0);
+                expect(encounter.sees(defector, signatureOf(ship))).toBe(false);
                 wait(run, sensorStepMs);
             }
 
-            expect(encounter.isSeen).toBe(false);
+            encounter.setSensors(warden, 5);
+            expect(encounter.sees(warden, 0)).toBe(true);
+        });
+
+        it('has only one picket watching each gap beside the defector', () => {
+            for (const level of [1, 5] as const) {
+                const run = createRun({ elite: true });
+                const { state, ship, encounter } = run;
+                const defector = encounter.defector!;
+                const pickets = encounter.pickets;
+                const neighbour = pickets[(pickets.indexOf(defector) + 1) % pickets.length];
+                setSensors(encounter, [[neighbour, level]]);
+                runQuiet(ship, 'hull', 'reactor');
+                place(state, ship, gapMiddle(run, defector, neighbour));
+
+                wait(run, watchIntervalMs * 2);
+
+                expect(encounter.isSeen).toBe(level === 5);
+            }
+        });
+
+        it.each([3, 7, 11, 13, 17])('has the defector on the crew\'s side of the ring (seed %i)', (seed) => {
+            const { state, encounter, relay } = createRun({ elite: true, seed });
+            const position = at(state, encounter.defector!);
+            const centre = at(state, relay);
+            const bearing = Math.atan2(-(position.y - centre.y), position.x - centre.x);
+
+            expect(Math.abs(Math.atan2(Math.sin(bearing - Math.PI), Math.cos(bearing - Math.PI)))).toBeLessThanOrEqual(facingArc);
+            expect(encounter.inStepGap).toBeNull();
         });
 
         it('has the defector turn on the Wardens only once the crew is seen, and say so', () => {

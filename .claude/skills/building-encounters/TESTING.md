@@ -32,6 +32,7 @@ The traps, each of which has cost a build a quarter of an hour or produced a fal
 - **A destroyed crew makes `state.encounter` null.** Check for that before reading its outcome.
 - **Vitest hides console output from passing tests.** Write to a file: `process.env.ENCOUNTER_LOG ?? path.join(os.tmpdir(), '<name>.log')`.
 - **The scripted crew always hits, and always knows where to look.** Say so in "Measured": the numbers are a ceiling.
+- **A scripted seat reads only what its phone would show.** A script that watches state the test itself has just set, such as a sensor a test hook jumped, gives results no crew could get.
 
 ## In the real game
 

@@ -48,7 +48,7 @@ Before any code, with ENGINE-NUMBERS.md open. Three passes.
 - Each AI ship's reactor against the cost of every card it carries, and each modifier against the weapons it carries.
 - Any AI choice the crew is told about: that ship plays at skill 1.
 
-**The cheapest win.** Find the cheapest plan the spec's own numbers let win every time, and hold the captain's call up against it. If one side of the call is never worth taking, or the answer can be had without the seat that's meant to find it, the encounter isn't asking its question. This is arithmetic, and ten minutes of it found that Quiet Running could be crossed unseen on any reading, with science doing nothing.
+**The cheapest win.** Find the cheapest plan the spec's own numbers let win every time, and hold the captain's call up against it. If one side of the call is never worth taking, or the answer can be had without the seat that's meant to find it, the encounter isn't asking its question. This is arithmetic, and ten minutes of it found that Quiet Running could be crossed unseen on any reading, with science doing nothing. Look especially for a way round the obstacle that faces less of it than intended: a line past one watcher where the design meant two, or a card that can be played twice back to back.
 
 **Channels.** For every row of "What each station has", name the synced field that puts that fact on that phone ("What each seat can see" in ENGINE-NUMBERS.md). If there's none, the encounter has to make one. Then check the other way: that no other seat or the viewscreen has it too, and that its own seat can't get it more cheaply. If acting on the answer needs particular cards, check the crew's real decks can do it, or keep them supplied.
 
@@ -137,5 +137,7 @@ The spec is the project's memory, and the next spec is written from it. Under th
 - **Still to check, by playing it:** what only people at a table can answer, and each behaviour or screen that wasn't watched.
 
 Add an "As built" under each shared piece you built, and update the Status paragraph at the top. Then add to ENGINE-NUMBERS.md any fact about the engine that cost you time and would cost the next build the same, as one line, where its subject is.
+
+When it's a built encounter being redesigned, keep its old "As built" and "Measured", marked as the first version's, and add a dated "Redesigned" note saying what was wrong and what changed. The reasons it failed are what the next spec is written from.
 
 Done when someone reading only the spec would build what's now in the code.
