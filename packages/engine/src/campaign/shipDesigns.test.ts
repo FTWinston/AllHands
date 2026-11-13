@@ -1,9 +1,15 @@
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
+import { crewRoleNames } from 'common-data/features/ships/types/CrewRole';
+import { shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
-import { describe, expect, it } from 'vitest';
-import { createShipSetup, defaultSkill, type ShipDesign } from './shipDesigns';
+import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
+import { AiShip } from 'src/state/AiShip';
+import { seededRandom, setupGameRoom } from 'src/testUtils';
+import { describe, expect, it, vi } from 'vitest';
+import { createShipSetup, defaultSkill, inertPriorities, inertTemplate, type ShipDesign } from './shipDesigns';
+import type { AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 
-const designs: ShipDesign[] = ['harrier', 'fighter', 'bulwark', 'flagship', 'clinicShip', 'customsPlatform', 'hauler', 'drone'];
+const designs: ShipDesign[] = ['harrier', 'fighter', 'bulwark', 'flagship', 'clinicShip', 'customsPlatform', 'hauler', 'drone', 'tug', 'waterModule'];
 const origin = { x: 0, y: 0, angle: 0 };
 
 describe('ship designs', () => {
@@ -25,5 +31,76 @@ describe('ship designs', () => {
     it('joins the given side, with the skill and name the encounter chooses', () => {
         expect(createShipSetup('harrier', 'wardens', origin)).toMatchObject({ faction: 'wardens', skill: defaultSkill, name: 'Harrier' });
         expect(createShipSetup('harrier', 'wardens', origin, { skill: 0.5, name: 'Escort One' })).toMatchObject({ skill: 0.5, name: 'Escort One' });
+    });
+});
+
+describe('ships that do nothing', () => {
+    const rooms = setupGameRoom();
+
+    function createState() {
+        const state = rooms.createState(seededRandom(1));
+        state.initFactions([{ id: 'player' }], 'player');
+        state.factionRegistry.setEncounterFactions([{ id: 'objects' }, { id: 'raiders', relations: { objects: RelationshipType.Hostile } }]);
+        return state;
+    }
+
+    const inertSetup = (position = origin): AiShipSetupInfo => ({
+        ...inertTemplate('mining-barge', Array<'hullBare'>(20).fill('hullBare')),
+        name: 'Module',
+        faction: 'objects',
+        position,
+        goal: { type: 'search-and-destroy' },
+        skill: 1,
+    });
+
+    it('have one card in each crew system, none in hand, nothing in the reactor, and no power anywhere', () => {
+        const state = createState();
+        const ship = new AiShip(state, inertSetup());
+
+        for (const role of crewRoleNames) {
+            const system = ship.getCrewSystem(role);
+            expect(system.maxHealth).toBe(1);
+            expect(system.hand).toHaveLength(0);
+            expect(system.powerLevel).toBe(0);
+        }
+
+        expect(ship.reactorState.deck).toHaveLength(0);
+        expect(ship.hullState.maxHealth).toBe(20);
+        expect(ship.hullState.maxShield).toBe(0);
+    });
+
+    it('play nothing and stay put for a minute beside a hostile', () => {
+        const state = createState();
+        const ship = new AiShip(state, inertSetup({ x: 3, y: 4, angle: 1 }));
+        // The hostile does everything but shoot, so the inert ship has something to react to, and is still there to watch.
+        const hostile = new AiShip(state, createShipSetup('fighter', 'raiders', { x: 8, y: 4, angle: Math.PI }, { priorities: { tactical: 0 } }));
+        state.add(ship);
+        state.add(hostile);
+
+        const cards = () => shipSystems.map(system => [...ship.getSystem(system).deck, ...ship.getSystem(system).hand].map(card => `${card.id}:${card.type}`));
+        const before = cards();
+        const shots = vi.spyOn(state, 'broadcastWeaponEffect');
+
+        for (let elapsed = 0; elapsed < 60_000; elapsed += 100) {
+            state.tick(100);
+        }
+
+        expect(state.factionRegistry.areHostile(ship, hostile)).toBe(true);
+        expect(hostile.getPosition(state.currentTime)).not.toMatchObject({ x: 8, y: 4 });
+        expect(ship.getPosition(state.currentTime)).toEqual({ x: 3, y: 4, angle: 1 });
+        expect(ship.helmState.activeManeuver).toBeNull();
+        expect(cards()).toEqual(before);
+        expect(shots.mock.calls.filter(([effect]) => effect.sourceId === ship.id)).toEqual([]);
+        for (const role of crewRoleNames) {
+            expect(ship.getCrewSystem(role).hand).toHaveLength(0);
+        }
+    });
+
+    it('can be made by switching off a ship\'s officers when it\'s spawned, without changing its design', () => {
+        expect(createShipSetup('harrier', 'side', origin, { priorities: { helm: 0 } }).priorities).toEqual({ helm: 0 });
+        expect(createShipSetup('harrier', 'side', origin).priorities).toBeUndefined();
+        // A tug's engineer is switched off by its design, and stays off when its helm is switched off too.
+        expect(createShipSetup('tug', 'side', origin, { priorities: { helm: 0 } }).priorities).toEqual({ engineer: 0, helm: 0 });
+        expect(createShipSetup('waterModule', 'side', origin).priorities).toEqual(inertPriorities);
     });
 });

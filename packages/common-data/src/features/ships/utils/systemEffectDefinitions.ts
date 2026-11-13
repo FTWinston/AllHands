@@ -8,6 +8,12 @@ export const extendedShieldsDuration = 10_000;
 /** How close a friendly ship has to be for extended shields to cover it, in world units. Staying that close is helm's job. */
 export const extendedShieldsRange = 4;
 
+/** How long a friendly ship is powered from another, once the Transfer Power card is played. */
+export const transferPowerDuration = 20_000;
+
+/** How close a friendly ship has to be for Transfer Power to reach it, in world units. */
+export const transferPowerRange = 6;
+
 /** How long the mark of a customs platform's inspection ping stays on the system it landed on. */
 export const inspectionPingDuration = 8000;
 
@@ -75,6 +81,12 @@ export const systemEffectDefinitions = defineSystemEffects({
         category: SystemEffectCategory.Positive,
         usesLevels: false,
         duration: extendedShieldsDuration,
+    },
+    /** On a ship's hull: another ship is powering this one (see the Transfer Power card). It does nothing itself: an encounter decides what that's worth. */
+    powerReceived: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: false,
+        duration: transferPowerDuration,
     },
     // What a customs platform's inspection ping leaves behind. They do nothing: which one it is says how the platform is keyed.
     phasedPing: {

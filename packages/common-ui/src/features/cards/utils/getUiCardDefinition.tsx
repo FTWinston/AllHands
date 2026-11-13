@@ -592,6 +592,21 @@ function loadCardDefinitions() {
             </>,
             image: <ExampleIcon />,
         },
+        transferPower: {
+            name: 'Transfer Power',
+            description: <>
+                For
+                {' '}
+                <Parameter name="duration" />
+                {' '}
+                seconds, the nearest friendly ship within
+                {' '}
+                <Parameter name="range" />
+                {' '}
+                units is powered from yours.
+            </>,
+            image: <ExampleIcon />,
+        },
         relocateSystem: {
             name: 'Relocate System',
             description: 'Mark a system for relocation. Adds a Relocate Here card to your hand to place it in any position.',

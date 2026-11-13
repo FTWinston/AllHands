@@ -5,13 +5,15 @@
  * - boss: defeat the sector's boss.
  * - protect: keep the named `subject` safe.
  * - disable: stop the named `subject`, without destroying it.
+ * - recover: get the named `subject` back from whoever has it.
  */
 export type ObjectiveInfo
     = | { type: 'clear' }
         | { type: 'survive'; durationMs: number }
         | { type: 'boss' }
         | { type: 'protect'; subject: string }
-        | { type: 'disable'; subject: string };
+        | { type: 'disable'; subject: string }
+        | { type: 'recover'; subject: string };
 
 export type ObjectiveType = ObjectiveInfo['type'];
 

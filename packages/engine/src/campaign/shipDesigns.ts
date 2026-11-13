@@ -1,5 +1,6 @@
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDefinitions';
-import type { AiGoalInfo, AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import type { AiGoalInfo, AiPriorities, AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import type { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
 import type { Position } from 'common-data/features/space/types/Position';
 import type { IRandom } from 'common-data/types/IRandom';
 
@@ -24,7 +25,32 @@ const system = <T extends string>(cards: T[], initialHandSize = 1) => ({ cards, 
 */
 
 /** Everything about a ship that its design decides. The rest comes from the encounter that spawns it. */
-type DesignTemplate = Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal' | 'skill'>;
+export type DesignTemplate = Omit<AiShipSetupInfo, 'name' | 'faction' | 'position' | 'goal' | 'skill'>;
+
+/** Every officer switched off: nobody aboard plays a card, moves, turns, shoots or repairs. */
+export const inertPriorities: Required<AiPriorities> = { helm: 0, tactical: 0, science: 0, engineer: 0 };
+
+/**
+ * A ship that does nothing: an object an encounter needs, such as a module or a relay, given a hull to scan and shoot, a name and a faction.
+ * Nobody aboard acts, and its reactor deck is empty, so nothing is ever drawn or played, and every system's power is 0.
+ * Each crew system has one card that never leaves the deck, so it's put out by one card's damage. Its hull is what matters.
+ * It never moves by itself: an encounter that wants it moved sets its motion.
+ */
+export function inertTemplate(appearance: ObjectAppearance, hull: AiShipSetupInfo['hull']['cards']): DesignTemplate {
+    const one = <T extends string>(card: T) => system([card], 0);
+
+    return {
+        appearance,
+        hull: system(hull, 0),
+        reactor: system([] as ReactorCards, 0),
+        helm: one('slowAndSteady'),
+        science: one('passiveScan'),
+        tactical: { ...one('phaserStrip'), numSlots: 1 },
+        engineer: one('distributePower'),
+        fleeThreshold: 0,
+        priorities: inertPriorities,
+    };
+}
 
 /** The original "An Enemy" ship from the old default scenario; all other designs are tweaks of it. */
 const fighterTemplate: DesignTemplate = {
@@ -129,6 +155,20 @@ const designTemplates = defineDesignTemplates({
         tactical: { ...system(['lowYield', 'lowYield', 'photonTorpedo']), numSlots: 1 },
         fleeThreshold: 0,
     },
+    // A working boat, with a strip for a gun. Every helm card is Slow and Steady, and there are a dozen, so its engines take several hits to put out.
+    // Its shields (30) are over 18 bare hull, which come first. Its engineer is switched off, so nothing aboard repairs anything. It never runs.
+    tug: {
+        ...fighterTemplate,
+        appearance: 'tug-and-tow',
+        hull: system([...Array<'hullBare'>(18).fill('hullBare'), 'hullShieldEmitter', 'hullShieldEmitter'], 0),
+        reactor: system(reactorCards(2), 0),
+        helm: system(Array<'slowAndSteady'>(12).fill('slowAndSteady')),
+        tactical: { ...system(['phaserStrip', 'phaserStrip']), numSlots: 1 },
+        fleeThreshold: 0,
+        priorities: { engineer: 0 },
+    },
+    // Not a ship at all: a station module, with nobody aboard and nothing to power it, so all it has is 40 bare hull and no shields. Whoever has it moves it.
+    waterModule: inertTemplate('mining-barge', Array<'hullBare'>(40).fill('hullBare')),
 });
 
 /** A kind of AI ship. Each has its own appearance, so the same shape always means the same kind of ship, whichever faction it's in. */
@@ -144,6 +184,8 @@ const designNames: Record<ShipDesign, string> = {
     customsPlatform: 'Customs Platform',
     hauler: 'Hauler',
     drone: 'Drone',
+    tug: 'Tug',
+    waterModule: 'Water Module',
 };
 
 /** How well a ship plays (see `AiShipSetupInfo.skill`), unless the encounter says otherwise. */
@@ -154,18 +196,23 @@ export interface ShipSetupOptions {
     goal?: AiGoalInfo;
     name?: string;
     skill?: number;
+    /** Officers' priorities to use in place of the design's, such as 0 to switch one officer off on this one ship. Those it leaves out are the design's. */
+    priorities?: AiPriorities;
 }
 
 /** The setup for a ship of the given design, in one of the factions that the encounter spawning it declares (see `Encounter.factions`). */
 export function createShipSetup(design: ShipDesign, faction: string, position: Position, options: ShipSetupOptions = {}): AiShipSetupInfo {
+    const template: DesignTemplate = designTemplates[design];
+
     return {
-        ...designTemplates[design],
+        ...template,
         name: options.name ?? designNames[design],
         faction,
         position,
         goal: options.goal ?? { type: 'search-and-destroy' },
         skill: options.skill ?? defaultSkill,
         ...(options.scenarioId !== undefined ? { id: options.scenarioId } : {}),
+        ...(options.priorities !== undefined ? { priorities: { ...template.priorities, ...options.priorities } } : {}),
     };
 }
 

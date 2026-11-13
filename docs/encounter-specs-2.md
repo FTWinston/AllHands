@@ -6,7 +6,7 @@ The same rules hold. Every number is a starting value to tune in playtests. Ever
 
 These were written with the first three built, so the numbers are already in the engine's terms: hits are counted in cards, shields by hull power, clues by the field that carries them. Where a design in the plan depended on something the engine doesn't do, the spec says what it does instead, under **Changed from the plan**. Each spec still ends with **Check first**: what I read in the code and didn't run.
 
-**Status:** groundwork H is built, on `aimed-shots`, and so is reading a hand (M below), on `scan-hands`, stacked on it. Fever Ship is built, both forms, on `fever-ship`: see its "As built". It needed one shared fix, to the AI's scan evaluator, and nothing else shared. The rest are not built yet.
+**Status:** groundwork H is built, on `aimed-shots`, and so is reading a hand (M below), on `scan-hands`, stacked on it. Fever Ship is built, both forms, on `fever-ship`: see its "As built". It needed one shared fix, to the AI's scan evaluator, and nothing else shared. Groundwork I, K and the `recover` objective from L are built, on `dead-weight`, and so is Dead Weight, both forms, with a new card, Transfer Power: see each one's "As built". `setObjective` from L, and J, are not built yet, and nor are the encounters after Dead Weight.
 
 ## Build order
 
@@ -52,6 +52,8 @@ Tests: an aimed shot damages the system aimed at and the hull in a 60 to 40 spli
 
 `Ship` gains `readonly hitReceived = new ListenableEvent<{ damage: Damage; passedThrough: number }>()`, fired from `Ship.damage` where `wasHit` is called now: after the shields have taken their share, before the damage is applied. Like `deflectorReceived`, it's for encounters. Dead Weight uses it to make torpedoes spill, and Quiet Running to notice that the crew has opened fire.
 
+**As built:** as specified. It fires once per hit, including a hit the shields take all of (`passedThrough` 0) and one that destroys the ship. By then an unaimed hit has had its system picked, so `damage.targetSystem` always says where it landed. A miss never reaches `Ship.damage`, so it isn't heard.
+
 ### J. New orders
 
 An AI ship's goal is fixed when it spawns. Two additions to `Commander`:
@@ -72,6 +74,12 @@ Objectives need objects: a module, a station, a relay. The engine's only objects
 
 `shipDesigns.test.ts` gains a case: an inert ship, ticked for a minute beside a hostile, plays nothing and stays put.
 
+**As built:**
+
+- **Officers switched off aren't enough.** A ship's reactor and hull play their own cards without any officer, so an inert ship with a working reactor still draws, tunes its shields and gets Aux Power. `inertTemplate(appearance, hullCards)` in `shipDesigns.ts` makes the whole design: `inertPriorities` (all four at 0), an empty reactor deck, so every system's power is 0 and nothing is ever drawn, and `fleeThreshold` 0.
+- **Its one card per crew system starts in the deck, not the hand** (initial hand size 0), so a hand read from it is empty. The cards are Slow and Steady, Passive Scan, Phaser Strip and Distribute Power. Not Aux Power: an expendable card isn't in a system's card pool, so it doesn't count towards health, and an engineer system holding only that has a health of 0.
+- `priorities` on `ShipSpawn` and `ShipSetupOptions` is merged over the design's, so switching one officer off leaves the others as the design had them.
+
 ### L. Objectives
 
 `ObjectiveInfo` gains:
@@ -82,6 +90,8 @@ Objectives need objects: a module, a station, a relay. The engine's only objects
 | `{ type: 'recover'; subject: string }` | "Recover *subject*" | Decided by the encounter |
 
 `Encounter` gains `protected setObjective(objective: ObjectiveInfo)`, which replaces `state.objective` and the summary's. Only the boss uses it, once. The node keeps the objective it was made with.
+
+**As built:** only `recover`, for Dead Weight. `reach` and `setObjective` are left for the encounters that need them. `ObjectiveState` needed nothing, as it already carries any objective's `subject`.
 
 ### M. Reading a hand, as built
 
@@ -468,6 +478,56 @@ Halden Ring's opening line gains: "Her coolant's going too. If you can spare her
 - That a tactical deck of two cards and an inert ship's one-card decks work at all.
 - The tug's real speed, and the crew's on its usual helm cards. If the crew is much faster the chase is nothing. If it's slower, the engines route can't be done at all.
 - Whether three aimed cannon hits in about 150 seconds is achievable with the starting tactical deck, which has one cannon.
+
+### As built
+
+Both forms are built, on `dead-weight`. The question held: the tug gets away on its own clock, the engines are a three-hit cannon job, and a torpedo on the tug costs half the module. What changed was the pace of the tow, and how the bailiffs fight.
+
+- **The tow is 130 units, not 150, and its pace isn't steady.** The AI flies the whole route on one Slow and Steady, which has no maximum distance, and motion between two keyframes eases in and out. So the tug covers its first 5 units in about 20 seconds, does 1.1 a second halfway, and averages 0.76. At 150 the tow took 197 seconds. At 130 it takes 161, with Halden Ring's third at about 70 seconds and two thirds at about 110.
+- **The crew's speeds:** Slow and Steady averages 0.75, and Zig-zag and Sweep go forward at 1 unit a second, as their sideways steps cost no time. As the tug starts slowly, a crew that goes straight after it is in cannon range for the first minute, even at 0.75.
+- **A manoeuvre under way runs to its end** (Check first): one Slow and Steady goes all the way to the marker, so putting the engines out alone would never stop the tug. The encounter slows it to a stop, the way a cancelled manoeuvre does, and cancels it.
+- **The tow line is exact on a straight course** (Check first). Each keyframe is moved back along its own heading, so through a quarter turn over 14 units the line goes from 1.8 to 2.7. The tug only turns once it has let go.
+- **Tactical can shoot the module** (Check first). Its target list is every object but its own ship, friendly ones included, and firing doesn't check whose a target is. Left in, as a second way to lose it. Science can scan the module too, which is the only way to see its hull.
+- **Three aimed cannon hits are one load** (Check first). The cannon is the fourth card of the starting tactical deck, which draws about every 6 seconds, so it's loaded at about 18 seconds and charged at about 30. A full charge is four shots. They land as the spec's table says: engines 12, 8, 4, 0, and the tug's hull 20, 18, 16, 10.
+- **A tactical deck of two strips, and an inert ship's one-card decks, work** (Check first). The strips load. Nobody has watched the tug fire them.
+- **The bailiffs come out to fight.** A guard goes for any hostile within 30 of what it guards, and flies at it, not beside its ward, so they leave the tug for a crew that's close. That's the spec's "trying to make it turn".
+- **The bailiffs can only be driven off with torpedoes.** With a torpedo loaded they hold 12 to 20 units from a crew that chases them, outside cannon range, and their engineers repair what does land. One torpedo takes a bailiff's shields and all but one hull card, and it flees. The crew's deck has one torpedo, back round in about a minute. So "bailiffs first" is two torpedoes, and is the slow way, not the safe one.
+- **A bailiff that flees is gone for good:** the encounter has it withdraw, and the first one says its line. "Both gone" is each one destroyed, departed or withdrawing. Otherwise a fleeing bailiff would come back once its engineer had repaired it, and leaving takes about 20 seconds.
+- **With both bailiffs gone the tug cuts the line at once**, and withdraws.
+- **The tug jumps away 5 seconds after the line is cut, from `tick`**, as the outcome comes with the cut and `complete()` cancels every timer.
+- **The tug destroyed while towing destroys the module**, so it's the module's failure, with its line, "...That was the water.". The spec had no line for it.
+- **Spill is a hit on the module's hull** through `Ship.damage`, half the torpedo's amount, rounded, so shields extended over the module would take it.
+- **The tug is called "Tug Lien"**, as a ship and as a speaker: "Receivership Tug Lien" is long on the target lists. The module is "Water Module", in the ring's faction, spawned in its own batch. The bailiffs are "Bailiff One" and "Bailiff Two".
+- **The tug's design:** 18 bare hull cards then 2 emitters, reactor `reactorCards(2)`, 12 Slow and Steady, 2 strips in one slot, science and engineer as a fighter's, `priorities: { engineer: 0 }`. Its skill, 0.7, comes from the encounter. The water module is `inertTemplate('mining-barge', 40 bare)`.
+- **Transfer Power** is an engineer card with no target, cost 4, 20 seconds, 6 units. It puts Power Received on the nearest friendly ship's hull tile (`Ship.nearestFriendlyShip`), and won't play with none in range. It's in the engineer's shop pool, as Extend Shields is, where it does nothing.
+- **Elite: the coolant fails whether or not the line is attached**, until the outcome. The briefing is five sentences, about 17 seconds to read.
+- **Adding Dead Weight to the pool shifts every seeded test** that starts a campaign, as the sector is generated from the same random numbers. Standing Orders' played-out test now uses seed 2: with seed 3 its platform is armed with a strip, whose arc is so wide that it never has to turn.
+
+### Measured
+
+From `deadWeight/DeadWeightEncounter.balance.test.ts` (`npm run test:balance`), seeds 3 and 7. The crew is a script: helm steers straight for a point behind its target every half second, and every shot lands. So these say what each plan costs, not whether a crew can carry it out.
+
+- **A crew that does nothing:** towed away at 161 seconds on both seeds, with its shields untouched: once the tug is 30 away, the bailiffs go back to it.
+- **Engines, at 1 unit a second, 7 behind the tug, a cannon hit every 8 seconds from 35:** success at 54 seconds, the tug at 10 of 20 hull, the module untouched, the crew at 90 to 120 shield.
+- **The same at 0.75:** success at 54 seconds, but the crew down to 30 to 75 shield, as it's slower to leave the bailiffs behind.
+- **Sitting at strip range (4) for the whole tow, shooting nothing:** half the crew's shields or more, and on one seed the ship.
+- **One torpedo on a bailiff, then the cannon on the other:** failure. The second never comes within 10.
+- **A torpedo on each bailiff, a minute apart, chasing them:** success at about 100 seconds, the tug untouched.
+- **A torpedo on the tug at 25 seconds, then the cannon:** success inside 50 seconds, with the module at 20 of 40.
+- **Elite, nothing done:** towed away with the module at 20 of 40. **One torpedo on the tug and nothing else:** the module is lost to its coolant at 160 seconds, just short of the marker. **One torpedo, then the cannon:** success at 38 seconds, the module at 16.
+
+So engines is the faster plan, at about a third of the clock, and the bailiffs are what staying close costs.
+
+### Still to check, by playing it
+
+- Whether a helm holds cannon range on a tug that's speeding up, and whether its slow start reads as a chance to close.
+- Whether bailiffs that come out to fight feel like escorts, and whether a crew ever goes after them, with only torpedoes that reach.
+- Whether anyone shoots the module by mistake, now that it's on tactical's list.
+- The viewscreen draws the module's and tug's labels over each other at 2.5 units, and the `tug-and-tow` shape may already show a tow, so the module looks doubled.
+- Elite: whether the engineer finds Transfer Power's 6 units and its cost of 4 (Aux Power first), and whether anyone watches the module's hull, which costs science the tug's.
+- Whether the elite briefing, at about 17 seconds, gets read.
+- The tug firing its strips.
+- It has been run in the game, both forms, built with dev tools, with four crew pages joined and nobody playing: the briefing, the objective "Recover the water module", the module towed astern, the bailiffs leaving the tug for an idle crew, the module on tactical's and science's target lists, and Transfer Power in the elite engineer's hand all reach their screens.
 
 ---
 

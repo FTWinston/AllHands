@@ -4,7 +4,7 @@ What a spec's numbers come to in the engine, and what each seat can really see. 
 
 ## Damage and health
 
-- **Health is a card count.** A system's health is how many of its cards are undamaged (`SystemState`). The hull's is the same, and a ship is destroyed when its hull reaches 0 (`HullState.adjustHealth`).
+- **Health is a card count.** A system's health is how many of its cards are undamaged (`SystemState`). The hull's is the same, and a ship is destroyed when its hull reaches 0 (`HullState.adjustHealth`). Expendable cards, such as Aux Power, aren't counted.
 - **A hit that gets through damages that many cards.** Weapons do 10 to 60 (`cardDefinitions.ts`: phaser strip 10, phaser cannon 20, photon torpedo 40, photonic cannon and quantum torpedo 60). A harrier's hull is 5 cards. So shields are the health bar, and what's under them is one or two hits.
 - **Where a hit lands** (`Ship.damage`): on a system picked at random from all six, hull included. If that's the hull, all of it goes there. Otherwise 60% (rounded up) goes to the system and the rest to the hull.
 - **An aimed shot lands on the system aimed at**: 60% to it, the rest to the hull. AI tactical officers aim whenever their science has identified a system, at tactical first and then helm. So anything the AI shoots at loses its weapons before its hull.
@@ -21,6 +21,7 @@ How often things happen, which no table of amounts shows. Measure it for every a
 - Adding reactor cards for a system raises its power and its draw rate together. To raise power alone, use `adjustPowerLevel` after the ship is built. Three extra tactical reactor cards made a hauler lethal inside 90 seconds.
 - A weapon needs its own card, then enough other weapon cards spent on it to reach its `totalCharge`, before its first shot. A slow-drawing ship with an expensive weapon may never fire.
 - The player's science gets a card about every 6 seconds on top of the one it starts with.
+- The player's tactical draws at the same rate, from a 12-card deck with one phaser cannon and one photon torpedo. Its first cannon shot comes about 30 seconds in, a load is four shots, and the torpedo comes round about once a minute. A plan that needs two torpedoes needs two minutes.
 
 ## Shields
 
@@ -48,7 +49,8 @@ How often things happen, which no table of amounts shows. Measure it for every a
 
 - The player ships start each encounter at the origin, facing along the x axis. Starboard is positive y.
 - **Angles are counter-clockwise with y pointing down** (`vectors.ts`: `getAngle` is `-atan2(dy, dx)`). A point at bearing `b` and distance `d` is `x + cos(b) * d, y - sin(b) * d`, and a positive turn is to port. Copy `SlowBoatEncounter.spawnHarrier` and `announceTurn`. `polarToCartesian` has the other sign.
-- *Marrow* on nothing but `slowAndSteady` covers about 0.87 units a second. Measure any other ship in a played-out test.
+- **A ship's speed isn't constant.** Motion between two keyframes eases in and out, peaking at about one and a half times its average. Slow and Steady averages about 0.75 units a second and has no maximum distance, so an AI ship on a route plays one card to the next waypoint however far it is: about 5 units in its first 20 seconds, 1.1 a second halfway. Zig-zag and Sweep go forward at about 1 a second. Measure any ship that matters in a played-out test.
+- **A manoeuvre under way runs to its end** whatever happens to the helm. An encounter that needs a ship stopped has to stop it: see how Dead Weight halts its tug.
 - Weapon ranges: phaser strip 6, phaser cannon 10, photonic cannon and quantum torpedo 15, photon torpedo 20 (25 with Extended Range). Arcs are half-angles in radians: strip 3, cannon 1, the rest 0.5.
 - A ship knows of everything within 100 units (`Ship.updateKnownObjects`). There's no hiding by distance at encounter scale.
 
@@ -58,7 +60,8 @@ How often things happen, which no table of amounts shows. Measure it for every a
 
 - **Goals:** `search-and-destroy` (with an optional `prefer`), `defend-position`, `guard-ship`, `travel-route`. A goal is set at spawn. Nothing changes it later except a guard whose ward dies, which hunts.
 - **`defend-position`** ignores hostiles outside its radius. Use 30, which is past every weapon.
-- **`guard-ship`** only goes for hostiles within 30 of its ward.
+- **`guard-ship`** only goes for hostiles within 30 of its ward. Once it has one, it leaves its ward to fight, and holds off at its own weapon's range: Dead Weight's bailiffs keep 12 to 20 units from a crew that chases them, where only a torpedo reaches.
+- **A ship that flees comes back** once its engineer has repaired it past twice its flee threshold. If fleeing is meant to count as gone, call `withdraw()` on it when it starts.
 - **Target choice:** score is 100 minus distance, plus 30 for the preferred ship, plus noise. A ship only switches to a target scoring 1.25 times its current one, which at encounter distances is almost never.
 - **Skill** (0 to 1, default 0.8): below 1, target scores get noise of up to 30 × (1 − skill), and the commander skips up to half its updates. The officers do the same with their own choices: at 0.7 each skips about one think in seven, and every card's score is off by up to 9.
 - **An AI science officer scans only to reveal a system**, and stops once it has found all four of its target's. So scan cards that mark what they reveal (Antiproton, Chroniton) land in the first minute and then stop. It never looks for a vulnerability or reads a hand.
@@ -78,7 +81,7 @@ The channels a clue can travel by. If the fact isn't in one of these, the seat c
 | Science | For one system of one ship at a time, after finding which of four shuffled scan slots it is: its power level, and for helm the manoeuvre under way and its progress; for tactical each weapon slot's card, charge and modifier; for science the loaded deflector card; for engineer every system's power and health | `ScienceState.copy*Data`, `Scanned*Info` |
 | Science, for a second scan card | That system's hand, live, until they scan anything else. Or a vulnerability. One card buys one | `Scanned*Info.hand` (null until read), `ScienceState.readHand` |
 | Science and tactical | The scanned ship's hull: health, shield, capacity and current tuning. It follows whichever ship science last scanned | `Ship.scannedHull` |
-| Tactical | The systems science has identified on a target, as sub-targets, which stay known. Its own weapons and whether each can fire | `TacticalState.subTargetsByTarget` |
+| Tactical | Every object but its own ship as a target, friendly ones included: nothing stops the crew shooting an ally. The systems science has identified on a target, as sub-targets, which stay known. Its own weapons and whether each can fire | `TacticalState.subTargetsByTarget` |
 | Engineer | Every status effect on its own ship's systems, by name. Each system's power, health, hand and deck | `EngineerSystemTile` |
 | Helm | Where everything is and which way it faces | `GameObject.motion` |
 | Viewscreen | The same picture, shots and who fired them, the objective line, hails, questions | `GameState` |

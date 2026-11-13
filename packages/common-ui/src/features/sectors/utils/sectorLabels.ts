@@ -49,6 +49,8 @@ export function getObjectiveLabel(objective: ObjectiveInfo): string {
             return `Protect ${objective.subject}`;
         case 'disable':
             return `Disable ${objective.subject}`;
+        case 'recover':
+            return `Recover ${objective.subject}`;
         default:
             throw new Error(`Objective type not found: ${objective satisfies never}`);
     }
