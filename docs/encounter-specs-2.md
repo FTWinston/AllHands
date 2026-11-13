@@ -6,7 +6,7 @@ The same rules hold. Every number is a starting value to tune in playtests. Ever
 
 These were written with the first three built, so the numbers are already in the engine's terms: hits are counted in cards, shields by hull power, clues by the field that carries them. Where a design in the plan depended on something the engine doesn't do, the spec says what it does instead, under **Changed from the plan**. Each spec still ends with **Check first**: what I read in the code and didn't run.
 
-**Status:** groundwork H is built, on `aimed-shots`, and so is reading a hand (M below), on `scan-hands`, stacked on it. No encounter here is built yet.
+**Status:** groundwork H is built, on `aimed-shots`, and so is reading a hand (M below), on `scan-hands`, stacked on it. Fever Ship is built, both forms, on `fever-ship`: see its "As built". It needed one shared fix, to the AI's scan evaluator, and nothing else shared. The rest are not built yet.
 
 ## Build order
 
@@ -263,6 +263,50 @@ Only the power moves, not the deck, so the second time there's no hint, and a ha
 - That an AI science officer playing `antiprotonScan` and the others puts their effects on the player ship. `scanEvaluator` exists for each. I haven't traced what it plays them as.
 - That a healthy system's power stays near 2. *Ostler*'s engineer gets an `auxPower` card whenever the reactor offers one, and plays it. A reading of 3 is expected. A healthy 5 would break the tell, so if it happens, switch her engineer off (`priorities: { engineer: 0 }`) when engineering isn't the infected system.
 - How long it takes science to find and read one system, in cards and seconds. If it's under five seconds the captain's call disappears, and if it's over twenty the crew will always guess.
+
+### As built
+
+Both forms are built, on `fever-ship`. The design held, but the clock and three of the four tells needed changing to work with the real AI. Only the helm's is as planned.
+
+- **The update raises its system's power by 3 directly, rather than with three reactor cards**, so it draws no faster than the rest. With the cards, an infected tactical drew four times as often, and destroyed a crew that did nothing at 90 and 110 seconds. In the elite form only the power moves anyway.
+- ***Ostler*'s reactor runs at 3, not 2** (`reactorCards(2, 'reactorPowerReactor')`). At 2 a healthy tactical drew a card every 15 seconds, needed four to load and charge a strip, and took 10 of the crew's 120 shield a minute: no clock at all. At 3 it takes about 22 a minute. Her crew systems still run at 2. The reactor isn't a crew system, though a scan of her engineer system shows it.
+- **Her hull lists its 12 bare cards before its 4 emitters.** A hull takes damage in the order its design lists the cards, and a damaged emitter takes its 15 off the shields' capacity, so with emitters first her first few hull hits would have taken her shields with them.
+- **Her engineer can't repair anything** (`repairCapacity` and `maxRepairCapacity` set to 0). An AI engineer repairs without a card, on every think (one a second), whenever a system is a fifth damaged. It would undo each strip hit before the next landed, so no system could be put out with small weapons, and her hull would count double. With nothing repairing her, the encounter can check each system's health in `tick`, as nothing can bring it back within a tick.
+- **A healthy system that's put out comes back 20 seconds later** (`rerouteMs`): the update reroutes around it. With nothing repairing her, a healthy tactical put out would disarm her for good, and "shoot tactical first" would cost a few hull and end the clock. Coming back repairs its cards, which leaves them stabilised, so a system put out twice stays out.
+- **The infected tactical is torpedo, cannon, torpedo, cannon, torpedo, in one slot**, with no Full Spread or High Yield. The spec's deck in two slots destroyed an idle crew at 74 and 110 seconds. This one does it at 85. The AI also tried to put the torpedo modifiers on the cannon, as `weaponModifierEvaluator` ignores `requiredWeaponTrait`.
+- **The infected science is Antiproton Scan × 3 and Chroniton Scan × 2.** The AI only ever scans to reveal a system, and only those two leave a mark when they reveal (Antiproton Residue, Chroniton Saturation). It stops once it has found all four of the crew's systems, so the marks land in the first minute and are gone by the second.
+- **The AI couldn't play any scan card but Passive Scan.** `scanEvaluator` named every card it scored as `passiveScan`, and `playCard` refuses a type that doesn't match. It now names the card itself. No other design carries any other scan card, so nothing else plays differently.
+- **The infected engineer gives no hint.** An AI engineer only plays power cards on a system that has asked for power, and none of a hauler's cards cost more than 2, so nothing asks. If one did (say a crew shot to her reactor lowered its power), Overcharge would answer it, and Overcharge burns a card of its target every second for 15 seconds: the update would put out its own system, and that counts as a healthy one put out. So engineering is the case with only the two readings, power and hand. Its hand is still three Overcharges.
+- **Digging in doesn't make her hit harder.** Her healthy cards all cost 2 or less, so more power changes nothing they do. What it changes is the reading: healthy systems read 3 after one wrong guess and 4 after two, and an Aux Power from her reactor can then make one read 5.
+- **A scan of her engineer system shows every system's power at once**, which ENGINE-NUMBERS says and this spec didn't. So the quick reading is "find the infected slot or the engineer slot", one card in two on average.
+- **A put-out system still fires a weapon that was already loaded and charged** (`playWeapon` doesn't check), and a manoeuvre under way finishes. It can't play, load or charge anything from its hand.
+- **Elite: the system the update leaves stays out**, so nothing it does afterwards points back at it. Its power drops by 3 from wherever digging in had taken it, so after two wrong guesses it reads 4, not 2.
+- ***Ostler*'s opening line isn't urgent**, so the briefing is read in full first. Every other line of hers is urgent, and so is her crew's reply to each.
+- She's called "Hauler Ostler", which is also how she's heard. The objective's subject is "Ostler".
+
+### Measured
+
+From `FeverShipEncounter.balance.test.ts` (`npm run test:balance`), one seed for most cases, with the crew's shots landed directly on the system aimed at, every one a hit. So these are rough, and they say nothing about aiming or about her evasion.
+
+- **A crew that does nothing**, with her tactical healthy: 120 shield down to 32 after four minutes, hull untouched, the same with the update in helm, science or engineering. With it in her tactical: destroyed at 85 seconds, on two seeds.
+- **A crew that knows the answer** and lands a strip on it every 10 seconds: success at 30 seconds (three hits), with *Ostler* at 13 of 16 hull and 42 of 60 shield. The same in all four cases.
+- **One wrong guess first:** success at 60 seconds, with 10 hull left. The wrong system's loss raised the other two healthy ones to 3.
+- **Torpedoes only:** two wrong systems put out with one torpedo each, and the third torpedo, on the right system, destroys her.
+- **Elite, a crew that follows the update:** success at 60 seconds, with 10 hull left.
+- **Science gets a card every six seconds**, after the one it starts with. So the power reading takes 0 to 17 seconds, and a hand reading another 6. That's inside the five-to-twenty window.
+- **Her healthy systems read 2 throughout**, in all eight idle runs of four minutes. Nothing ever asked for power, so her engineer never played anything.
+
+So once the crew knows, strips win with room to spare. The question is how long knowing takes against a clock of about four minutes, or 85 seconds under torpedoes, and a wrong guess costs about 3 hull of 16 with her shields up.
+
+### Still to check, by playing it
+
+- Whether a crew finds the engineer-scan shortcut, and whether, having found it, they ever pay for a hand.
+- Whether anyone notices the science marks in the first minute, or the helm jinking, or connects either to her.
+- Whether the engineer case, with no hint, feels like the hard case or just an unfair one.
+- Whether 20 seconds back is right for a healthy system put out, and whether crews start knocking out her tactical on purpose to buy quiet.
+- Whether a crew under torpedoes reacts in time. Idle, it's dead at 85 seconds, and losing the crew ends the run.
+- Whether the hull budget is too generous: with strips her shields last about ten hits, so two or three wrong guesses fit before they go, against the plan's "about two".
+- Each clue on its screen. It hasn't been run in the game yet: the dev build only serves the game once Start is pressed in the Electron main menu.
 
 ---
 

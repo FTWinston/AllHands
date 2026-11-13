@@ -49,12 +49,12 @@ export const scanEvaluator: CardEvaluator = (card, ctx) => {
             out.push({
                 score: 50 - slot, // slight ordering bias keeps the choice stable
                 cost,
-                action: { kind: 'playCard', cardId: card.id, cardType: 'passiveScan', targetType: 'enemy', targetId: `target/${targetId}/${slot}` },
+                action: { kind: 'playCard', cardId: card.id, cardType: card.type, targetType: 'enemy', targetId: `target/${targetId}/${slot}` },
             });
         }
     }
 
-    out.push(...deflectorSlotCandidates(card.id, 'passiveScan', cost, ctx));
+    out.push(...deflectorSlotCandidates(card.id, card.type, cost, ctx));
     return out;
 };
 

@@ -38,7 +38,7 @@ function totalMaxHealth(ship: Ship) {
 describe('encounter registry', () => {
     it('registers the expected encounters', () => {
         expect(getEncounterIds().sort()).toEqual([
-            'ambush', 'armsDealer', 'assault', 'bossA', 'bossB', 'bossC', 'escort', 'navigationBeacon', 'repairStation', 'researchOutpost', 'salvageYard', 'skirmish', 'slowBoat', 'standingOrders', 'survive', 'tollCollectors',
+            'ambush', 'armsDealer', 'assault', 'bossA', 'bossB', 'bossC', 'escort', 'feverShip', 'navigationBeacon', 'repairStation', 'researchOutpost', 'salvageYard', 'skirmish', 'slowBoat', 'standingOrders', 'survive', 'tollCollectors',
         ]);
         expect(getDevEncounterList().map(info => info.id)).toEqual(getEncounterIds());
     });

@@ -34,15 +34,20 @@ Go through the spec's Ships, Rules and Tuning sections with [ENGINE-NUMBERS.md](
 - **Any radius against any weapon range.** A ship that defends a position ignores everything outside its radius, so a radius inside torpedo range lets the crew shell it for free.
 - **Any AI choice the crew is told about or relies on.** Skill below 1 adds noise to target choice, and makes the commander skip updates. An ally whose target is announced plays at skill 1.
 - **Any "switches to", "prefers", "unless".** Find the comparison in `Commander.ts` and put the encounter's real distances through it. Slow Boat's harriers were meant to switch to a crew that got close. With a bonus of 30 and a switching factor of 1.25, they never do.
-- **Any ship that has to shoot.** Check its helm deck can bring its weapons' arcs to bear, and that every card it holds has an `aiEvaluator`, since the AI never plays one without.
+- **Any ship that has to shoot.** Check its helm deck can bring its weapons' arcs to bear.
+- **Any rate.** Amounts are easy to check from the tables, and it's rates that have broken encounters: how often a ship draws, how long before its first shot, how much shield it takes off the crew a minute. They come from the reactor deck, and can only be measured. Fever Ship's hit table was right to the card, and its ship was no threat at all until its reactor was raised.
+- **Any card the AI is meant to play.** An `aiEvaluator` existing proves nothing. The scan cards all had one and the AI could play none of them. For each card the design relies on, write a test that watches the AI play it, and read its effect definition as well as its card definition: Overcharge damages what it boosts.
+- **Anything the spec says a ship does** ("it weaves", "it jams you", "its power spikes"). Each is a claim about the AI, and gets the same test.
 
-Done when every row of the Tuning table and every ship in the spec has been checked, and each mismatch is settled: either the number changes, or a missing piece joins step 4.
+Write a throwaway played-out run now, before the encounter class exists: the ships as specced, a crew that does nothing, four minutes. It answers most of the above in one go, and it becomes the balance test in step 7.
+
+Done when every row of the Tuning table, every ship, and every behaviour the spec describes has been checked or watched, and each mismatch is settled: either the number changes, or a missing piece joins step 4.
 
 ### 3. Find the channel for every clue
 
 The design depends on each station seeing something the others can't. "Science sees X" is only true if X is in what a scan sends. For every row of "What each station has", name the **channel**: the synced field that puts that fact on that phone. The channels that exist are listed in ENGINE-NUMBERS.md, under "What each seat can see". If a clue has no channel, the encounter has to make one, the way Standing Orders set the platform's deflector directly and invented a status effect for the engineer to read.
 
-Check the other direction too: that the clue isn't also on the viewscreen or another phone. The hull of the scanned ship goes to tactical as well as science.
+Check the other direction too: that the clue isn't also on the viewscreen or another phone, and that the seat it belongs to can't get it more cheaply some other way. The hull of the scanned ship goes to tactical as well as science. A scan of a ship's engineer system shows every system's power at once, which undercuts any design that has science read systems' power one by one.
 
 Then check the answer is reachable. If acting on the answer needs particular cards, read the crew's real decks (they change at every shop) and choose the answer from what they can do, or keep them supplied with `keepInHand`. Standing Orders does both.
 
@@ -106,7 +111,16 @@ Done when each line in the spec's Hails table has a trigger that fires once, and
 - A behaviour test, where the rule depends on what the AI really does (the platform turns, stays put and fires). This stays with the unit tests.
 - Measurements: a crew that does nothing, and a crew that does the one obvious thing. If doing nothing wins, or the obvious thing wins every time with room to spare, the encounter isn't asking its question. These go in `<Name>Encounter.balance.test.ts`, run with `npm run test:balance`.
 
-Then launch it: `npm run dev`, and in the dev tools' encounter list start it in both forms. Check each clue reaches the screen it's meant for.
+Things the test harness does that cost time to find:
+
+- Run npm scripts through Bash. Under PowerShell, `npm run test:unit -- --run` loses its `--`.
+- `rooms.createState()` returns the same room for the whole test. To try several seeds or several answers in one test, call `campaign.devLoadEncounter` again. Don't start another campaign, which adds another player ship.
+- To get one particular random answer, reload until it comes up, or give the encounter a public method that sets it, as Standing Orders has `keyTo`.
+- `listenToHails` misses a line that goes up on the very tick that caused it. Read `state.hail` for those.
+- When the crew is destroyed `state.encounter` becomes null, so a played-out loop checks for that before reading its outcome.
+- Vitest hides console output from passing tests. Write to a file in the scratchpad.
+
+Then launch it, and check each clue reaches the screen it's meant for. `npm run dev` runs the built app, so `npm run build:devtools` comes first, and nothing is served until Start is pressed in the Electron window. That needs a person, or a Playwright script that launches Electron, presses Start, joins four crew pages and loads the encounter from the dev tools. If you can't do it, say so in the spec's "Still to check": don't leave it implied.
 
 Done when the unit tests, `npm run typecheck` and `npx eslint` on the changed files pass, and the measurements are written down.
 
@@ -130,4 +144,6 @@ Done when someone reading only the spec would build what's now in the code.
 
 ## Writing a spec
 
-A spec has the same parts as the built ones, in the same order: the header table, factions, new engine pieces, ships and timeline, rules, what each station has with the captain's call, hails, expected talk, the elite form with its legacy, tuning, tests. Do steps 2 and 3 of this skill while writing it, so the numbers are already in engine units and every clue already has its channel. End it with **Check first**: each thing inferred from the code and not run, which the design depends on. That list is what step 2 starts from.
+A spec has the same parts as the built ones, in the same order: the header table, factions, new engine pieces, ships and timeline, rules, what each station has with the captain's call, hails, expected talk, the elite form with its legacy, tuning, tests. Do steps 2 and 3 of this skill while writing it, so the numbers are already in engine units and every clue already has its channel. End it with **Check first**: each thing inferred from the code and not run, which the design depends on. That list is what step 2 starts from. Every behaviour the spec gives a ship goes on it unless a test has watched the AI do it: Fever Ship's list had one of its four tells on it, and three of the four were wrong.
+
+Say which of a speaker's lines are urgent one by one, and what a ship is called as against what it's called when it speaks. Where two rules can both apply (a system put out twice, an answer that changes while it's being acted on), say which wins.

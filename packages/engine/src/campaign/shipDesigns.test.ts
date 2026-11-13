@@ -3,7 +3,7 @@ import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/systemEffectDe
 import { describe, expect, it } from 'vitest';
 import { createShipSetup, defaultSkill, type ShipDesign } from './shipDesigns';
 
-const designs: ShipDesign[] = ['harrier', 'fighter', 'bulwark', 'flagship', 'clinicShip', 'customsPlatform', 'drone'];
+const designs: ShipDesign[] = ['harrier', 'fighter', 'bulwark', 'flagship', 'clinicShip', 'customsPlatform', 'hauler', 'drone'];
 const origin = { x: 0, y: 0, angle: 0 };
 
 describe('ship designs', () => {
