@@ -3,7 +3,7 @@ import { CardType, EnemyTargetedCardType, UntargetedCardType } from 'common-data
 import { ownShipClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole, ownEngineerClientRole, CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { ShipSystem, shipSystems } from 'common-data/features/ships/types/ShipSystem';
-import { extendedShieldsRange } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { extendedShieldsRange } from 'common-data/features/ships/utils/extendedShields';
 import { Damage } from 'common-data/features/space/types/Damage';
 import { ShipInfo, ShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';

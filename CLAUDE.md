@@ -4,12 +4,15 @@ Multiplayer co-op starship bridge game. npm workspaces monorepo (TypeScript, Rea
 
 ## Packages (`packages/`)
 - `common-data` – shared types/data (cards, sectors, messages, `*Info` interfaces). Dependency-free; no UI.
-- `engine` – server-side simulation: `state/` (synced schema classes), `campaign/` (sector map, encounters flow), `encounters/`, `utils/` (e.g. `shipQueries.ts`).
+- `engine` – server-side simulation: `state/` (synced schema classes), `campaign/` (sector map, encounters flow), `encounters/` (the `Encounter` base class, and stations), `utils/` (e.g. `shipQueries.ts`).
 - `common-ui` – shared React components, labels and card UI definitions (e.g. predefined sector/faction labels).
 - `player-ui` – per-crew-station client (helm, science, tactical, engineer); `features/<name>/`.
 - `game-ui` – main viewscreen client. `game-app` – app/packaging. `renderer` – rendering.
 
 Build order: common-data → engine/common-ui → player-ui/game-ui → game-app.
+
+## Content (`content/`)
+Cards, status effects, ship designs, encounters and sectors live in `content/`, not the packages: `systems/<system>/` (each system's cards), `general/` (other effects, ship designs, placeholder encounters) and `sectors/<n>/<encounter>/` (an encounter with everything only it uses). Each folder's files are split by suffix: `*.shared.ts` (data, type-checked by common-data), `*.engine.ts` and `*.test.ts` (engine), `*.ui.tsx` and `*.test.tsx` (common-ui). `content/README.md` has the rest; `eslint.content.js` enforces what may import what.
 
 ## Commands (run from repo root)
 - Build: `npm run build`; `npm run build:devtools` enables the dev tools (in-game encounter picker etc.), via `DEV_TOOLS=true` in `engine` and `game-ui`'s `.env.devtools`. The engine is bundled, with the `common-data` source it uses, into `engine/dist/index.js` by esbuild (`packages/engine/build.mjs`); `common-data` has no build of its own.

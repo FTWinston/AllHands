@@ -1,4 +1,5 @@
-import { MAX_POWER_LEVEL, SystemEffectType } from './systemEffectDefinitions';
+import { MAX_POWER_LEVEL } from './powerLevel';
+import type { SystemEffectType } from './systemEffectDefinitions';
 import type { WeaponTrait } from 'src/features/cards/types/CardTrait';
 
 /**

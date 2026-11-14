@@ -6,10 +6,11 @@ import { RelationshipType } from 'common-data/features/space/types/RelationshipT
 import { AiShip } from 'src/state/AiShip';
 import { seededRandom, setupGameRoom } from 'src/testUtils';
 import { describe, expect, it, vi } from 'vitest';
-import { createShipSetup, defaultSkill, inertPriorities, inertTemplate, type ShipDesign } from './shipDesigns';
+import { createShipSetup, defaultSkill, getShipDesigns, inertPriorities, inertTemplate, type ShipDesign } from './shipDesigns';
 import type { AiShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 
-const designs: ShipDesign[] = ['harrier', 'fighter', 'bulwark', 'flagship', 'clinicShip', 'customsPlatform', 'hauler', 'drone', 'tug', 'waterModule', 'miningStation', 'shuttle', 'gridFragment', 'picket', 'relay', 'gatePylon', 'keeperBoat'];
+/** Every design, wherever its content folder is. */
+const designs = getShipDesigns();
 const origin = { x: 0, y: 0, angle: 0 };
 
 describe('ship designs', () => {

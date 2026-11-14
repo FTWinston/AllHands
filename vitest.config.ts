@@ -12,8 +12,9 @@ export default defineConfig({
                 ...viteConfig,
                 test: {
                     name: 'unit',
-                    include: ['packages/*/src/**/*.test.{js,ts,jsx,tsx}'],
-                    exclude: ['packages/*/src/**/*.data.test.ts', 'packages/*/src/**/*.balance.test.ts'],
+                    include: ['packages/*/src/**/*.test.{js,ts,jsx,tsx}', 'content/**/*.test.{ts,tsx}'],
+                    exclude: ['**/*.data.test.ts', '**/*.balance.test.ts'],
+                    setupFiles: ['vitest.setup.ts'],
                     environment: 'node',
                     // Colyseus calls process.send(), which breaks vitest's child-process (forks) pool.
                     pool: 'threads',
@@ -24,7 +25,8 @@ export default defineConfig({
                 ...viteConfig,
                 test: {
                     name: 'balance',
-                    include: ['packages/*/src/**/*.balance.test.ts'],
+                    include: ['packages/*/src/**/*.balance.test.ts', 'content/**/*.balance.test.ts'],
+                    setupFiles: ['vitest.setup.ts'],
                     environment: 'node',
                     pool: 'threads',
                 },
@@ -34,7 +36,8 @@ export default defineConfig({
                 ...viteConfig,
                 test: {
                     name: 'data',
-                    include: ['packages/*/src/**/*.data.test.ts'],
+                    include: ['packages/*/src/**/*.data.test.ts', 'content/**/*.data.test.ts'],
+                    setupFiles: ['vitest.setup.ts'],
                     environment: 'node',
                     pool: 'threads',
                 },

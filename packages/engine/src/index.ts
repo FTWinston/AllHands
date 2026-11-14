@@ -2,9 +2,11 @@ import path from 'path';
 import { WebSocketTransport } from '@colyseus/ws-transport';
 import { Server } from 'colyseus';
 import { roomIdentifier } from 'common-data/utils/constants';
+import { engineContent } from 'content/content.engine';
 import { app as electronApp } from 'electron';
 import express from 'express';
 import { GameRoom } from './classes/GameRoom';
+import { registerEngineContent } from './content/registerEngineContent';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
 
 function getPlayerUiAppPath(): string {
@@ -12,6 +14,8 @@ function getPlayerUiAppPath(): string {
         ? path.join(process.resourcesPath, 'app', 'player-ui')
         : path.join(__dirname, '..', '..', 'player-ui', 'dist');
 }
+
+registerEngineContent(engineContent);
 
 export async function startServer(config: ServerConfig) {
     const playerUiAppPath = getPlayerUiAppPath();

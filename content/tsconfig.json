@@ -1,0 +1,24 @@
+{
+  // Content files are type-checked by the package that uses them: *.shared.ts by common-data, *.engine.ts and *.test.ts by engine,
+  // and *.ui.ts(x) and *.test.tsx by common-ui (see each one's "include"). This file only tells editors to look there,
+  // and gives esbuild and Vite, which use the nearest tsconfig.json to a file, its aliases and decorator settings.
+  "extends": "../tsconfig.node.json",
+  "compilerOptions": {
+    // esbuild bundles the engine, so it resolves imports as a bundler does, which content files (in an ES module package) need.
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "paths": {
+      "common-data/*": ["../packages/common-data/src/*"],
+      "common-ui/*": ["../packages/common-ui/src/*"],
+      "engine/*": ["../packages/engine/src/*"],
+      "content/*": ["./*"]
+    }
+  },
+  "files": [],
+  "references": [
+    { "path": "../packages/common-data" },
+    { "path": "../packages/engine" },
+    { "path": "../packages/common-ui" }
+  ]
+}
