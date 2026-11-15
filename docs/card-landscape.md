@@ -8,6 +8,7 @@ The deck styles each crew station can be built towards, and the cards that belon
 - Each station has three styles: one **reliable** (steady value, few ways to go wrong), one **risky** (a bigger payoff with a way to lose it), and one **technical** (strong in the right situation, and usually the one that leans on another station).
 - Most styles are built around a **resource**: a levelled status effect that builder cards raise and payoff cards spend. Resources are named so they can be said aloud ("I've got three Charge on tactical").
 - Each card's **synergy tags** (its engine definition's `synergy`) follow its style: builders provide the style's tag and payoffs want it, so a work order for one offers the other. Work orders only match cards of the same station, so cross-station pairs (below) are left to the crew to find.
+- **Rarity** sets how often a shop offers a card and its price (common 15, uncommon 25, rare 40 antimatter; a rare card is offered a quarter as often as a common one). Builders stay common, a style's payoffs are uncommon, and only game-changing cards are rare (Extreme Measures, Relocate System, Alpha Strike, Photonic Cannon, Coherent Chroniton Scan). Uncommon and rare cards are marked with one or two diamonds.
 - Existing cards are listed under the style they already fit, so the starter deck can stay mostly neutral and the shop and rewards can pull a deck one way.
 - Status: **built** cards exist in `content/systems/`; **planned** ones don't yet.
 

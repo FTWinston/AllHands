@@ -1,3 +1,4 @@
+import { getShopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { Button } from 'common-ui/components/Button';
 import { getNodeKindLabel, getShopLabel } from 'common-ui/features/sectors/utils/sectorLabels';
 import { default as AntimatterIcon } from 'common-ui/icons/antimatter.svg?react';
@@ -10,10 +11,10 @@ import type { ShopModel } from '../types/ShopModel';
 
 /**
  * A station's shop, shown on the crew member's display throughout their stay: cards to buy for antimatter, which go to the bottom of their deck.
- * The ship's antimatter is shown in the crew header.
+ * Each card's price depends on its rarity. The ship's antimatter is shown in the crew header.
  */
-export const ShopPanel: FC<ShopModel> = ({ stationKind, cards, price, antimatter, buyCard }) => {
-    const canAfford = antimatter >= price;
+export const ShopPanel: FC<ShopModel> = ({ stationKind, cards, antimatter, buyCard }) => {
+    const canAffordAny = cards.some(card => antimatter >= getShopCardPrice(card.type));
 
     return (
         <section className={classNames(styles.panel, cardGridStyles.scale)} aria-label="Buy cards">
@@ -21,7 +22,7 @@ export const ShopPanel: FC<ShopModel> = ({ stationKind, cards, price, antimatter
 
             <p className={styles.instructions}>
                 {`${getShopLabel(stationKind)} are available to buy at this ${getNodeKindLabel(stationKind).toLowerCase()}. Choose a card to buy it. Bought cards go to the bottom of your deck.`}
-                {!canAfford && cards.length > 0 && (
+                {!canAffordAny && cards.length > 0 && (
                     <strong className={styles.blocked}>You don&apos;t have enough antimatter to buy any.</strong>
                 )}
             </p>
@@ -29,25 +30,29 @@ export const ShopPanel: FC<ShopModel> = ({ stationKind, cards, price, antimatter
             {cards.length > 0
                 ? (
                     <ul className={classNames(cardGridStyles.grid, cardGridStyles.centred)} aria-label="Cards for sale">
-                        {cards.map(card => (
-                            <li key={card.id} className={cardGridStyles.item}>
-                                {/* Its button only shows once it's focused, as it would otherwise be covered by the zoomed-in card. */}
-                                <GridCard
-                                    card={card}
-                                    action={(
-                                        <Button
-                                            palette="good"
-                                            disabled={!canAfford}
-                                            onClick={() => buyCard(card.id)}
-                                            aria-label={`Buy for ${price} antimatter`}
-                                            endIcon={<AntimatterIcon />}
-                                        >
-                                            {`Buy ${price}`}
-                                        </Button>
-                                    )}
-                                />
-                            </li>
-                        ))}
+                        {cards.map((card) => {
+                            const price = getShopCardPrice(card.type);
+
+                            return (
+                                <li key={card.id} className={cardGridStyles.item}>
+                                    {/* Its button only shows once it's focused, as it would otherwise be covered by the zoomed-in card. */}
+                                    <GridCard
+                                        card={card}
+                                        action={(
+                                            <Button
+                                                palette="good"
+                                                disabled={antimatter < price}
+                                                onClick={() => buyCard(card.id)}
+                                                aria-label={`Buy for ${price} antimatter`}
+                                                endIcon={<AntimatterIcon />}
+                                            >
+                                                {`Buy ${price}`}
+                                            </Button>
+                                        )}
+                                    />
+                                </li>
+                            );
+                        })}
                     </ul>
                 )
                 : <p className={styles.soldOut}>Sold out.</p>}

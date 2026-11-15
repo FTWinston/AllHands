@@ -38,6 +38,7 @@ export const cards = defineCards({
     },
     photonicCannon: {
         targetType: 'weapon-slot',
+        rarity: 'rare',
         system: 'tactical',
         traits: ['energyWeapon'],
         parameters: {
@@ -64,6 +65,7 @@ export const cards = defineCards({
     },
     quantumTorpedo: {
         targetType: 'weapon-slot',
+        rarity: 'uncommon',
         system: 'tactical',
         traits: ['torpedoWeapon'],
         parameters: {
@@ -101,6 +103,7 @@ export const cards = defineCards({
     },
     fullSpread: {
         targetType: 'weapon',
+        rarity: 'uncommon',
         system: 'tactical',
         requiredWeaponTrait: 'torpedoWeapon',
         parameters: { cost: 4, damageReduction: 4, chargeMultiplier: 250, accuracyReduction: 15, extraShots: 2 },
@@ -131,6 +134,7 @@ export const cards = defineCards({
     },
     weaponOvercharge: {
         targetType: 'weapon',
+        rarity: 'uncommon',
         system: 'tactical',
         requiredWeaponTrait: 'energyWeapon',
         parameters: { cost: 4, damageIncrease: 4, chargeIncrease: 2, totalChargeIncrease: 4, selfDamage: 2 },
@@ -170,6 +174,7 @@ export const cards = defineCards({
     },
     alphaStrike: {
         targetType: 'no-target',
+        rarity: 'rare',
         system: 'tactical',
         parameters: { cost: 3, damagePerLock: 5 },
     },
@@ -187,6 +192,7 @@ export const cards = defineCards({
     },
     tractorBeam: {
         targetType: 'enemy',
+        rarity: 'uncommon',
         system: 'tactical',
         parameters: {
             cost: 3,
@@ -199,6 +205,7 @@ export const cards = defineCards({
     },
     exploit: {
         targetType: 'weapon',
+        rarity: 'uncommon',
         system: 'tactical',
         parameters: { cost: 2, damagePerNegativeEffect: 6 },
     },

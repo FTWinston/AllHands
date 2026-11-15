@@ -1,6 +1,7 @@
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { CardType } from '../utils/cardDefinitions';
 import { CardParameters } from './CardParameters';
+import { CardRarity } from './CardRarity';
 import { CardTargetType } from './CardTargetType';
 import { CardTrait } from './CardTrait';
 
@@ -9,6 +10,8 @@ interface CommonCardDefinition {
     system: ShipSystem;
     parameters: CardParameters;
     traits?: CardTrait[];
+    /** How seldom shops offer this card, and how much it costs there. Common when not given. */
+    rarity?: CardRarity;
 }
 
 export type NoTargetCardDefinition = CommonCardDefinition & {

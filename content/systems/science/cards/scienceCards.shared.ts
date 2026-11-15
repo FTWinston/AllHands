@@ -100,6 +100,7 @@ export const cards = defineCards({
     },
     coherentChronitonScan: {
         targetType: 'scan',
+        rarity: 'rare',
         system: 'science',
         parameters: {
             cost: 4,
@@ -121,6 +122,7 @@ export const cards = defineCards({
     },
     invertedChronitonScan: {
         targetType: 'scan',
+        rarity: 'uncommon',
         system: 'science',
         parameters: {
             cost: 3,
@@ -147,6 +149,7 @@ export const cards = defineCards({
     },
     eureka: {
         targetType: 'no-target',
+        rarity: 'uncommon',
         system: 'science',
         parameters: {
             cost: 1,
@@ -155,6 +158,7 @@ export const cards = defineCards({
     },
     predictiveModel: {
         targetType: 'no-target',
+        rarity: 'uncommon',
         system: 'science',
         parameters: {
             cost: 1,
@@ -165,6 +169,7 @@ export const cards = defineCards({
     },
     catalyse: {
         targetType: 'no-target',
+        rarity: 'uncommon',
         system: 'science',
         parameters: {
             cost: 2,
@@ -181,6 +186,7 @@ export const cards = defineCards({
     },
     crossReaction: {
         targetType: 'no-target',
+        rarity: 'uncommon',
         system: 'science',
         parameters: {
             cost: 2,
@@ -190,6 +196,7 @@ export const cards = defineCards({
     },
     saturate: {
         targetType: 'no-target',
+        rarity: 'uncommon',
         system: 'science',
         parameters: {
             cost: 2,

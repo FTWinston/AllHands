@@ -1,3 +1,6 @@
+import { getCardRarity } from 'src/features/cards/utils/getCardRarity';
+import type { CardRarity } from 'src/features/cards/types/CardRarity';
+import type { CardType } from 'src/features/cards/utils/cardDefinitions';
 import type { SectorNodeInfo } from 'src/features/sectors/types/SectorNodeInfo';
 
 /** Antimatter awarded to each player ship on completing an encounter, by the kind of node it was. Repair stations award nothing. */
@@ -30,8 +33,17 @@ export function canSellFromDeck(deckSize: number): boolean {
     return deckSize > minDeckSize;
 }
 
-/** Antimatter spent to buy a card from a shop station. */
-export const shopCardPrice = 20;
+/** Antimatter spent to buy a card of each rarity from a shop station. */
+export const shopCardPrices: Readonly<Record<CardRarity, number>> = {
+    common: 15,
+    uncommon: 25,
+    rare: 40,
+};
+
+/** Antimatter spent to buy a card of the given type from a shop station, which depends on its rarity. */
+export function getShopCardPrice(type: CardType): number {
+    return shopCardPrices[getCardRarity(type)];
+}
 
 /** Antimatter spent on a ship's first work order. Each later order from the same ship costs more (see `getOrderPrice`). */
 export const baseOrderPrice = 45;

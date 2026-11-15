@@ -1,4 +1,5 @@
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
+import { expect, within } from 'storybook/test';
 import { Card as Component } from './Card';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -59,5 +60,47 @@ export const CriticalTactical: Story = {
         extraTraits: {
             critical: ExtraTraitType.Normal,
         },
+    },
+};
+
+/** An uncommon card is marked with one diamond. */
+export const UncommonTactical: Story = {
+    args: {
+        type: 'tractorBeam',
+    },
+    play: async ({ canvasElement }) => {
+        const marker = within(canvasElement).getByRole('img', { name: 'Uncommon' });
+        await expect(marker).toHaveTextContent('◆');
+    },
+};
+
+/** A rare card is marked with two diamonds. */
+export const RareTactical: Story = {
+    args: {
+        type: 'alphaStrike',
+    },
+    play: async ({ canvasElement }) => {
+        const marker = within(canvasElement).getByRole('img', { name: 'Rare' });
+        await expect(marker).toHaveTextContent('◆◆');
+    },
+};
+
+/** A card that also costs Insight to play, as well as power. */
+export const InsightCostScience: Story = {
+    args: {
+        type: 'eureka',
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await expect(canvas.getByRole('img', { name: 'Costs 3 Insight' })).toHaveTextContent('3');
+        await expect(canvas.getByText(/Insight/)).toBeInTheDocument();
+    },
+};
+
+/** The same card when science hasn't enough Insight to play it, as the science display shows it. */
+export const InsightCostScienceUnplayable: Story = {
+    args: {
+        type: 'eureka',
+        disabled: true,
     },
 };

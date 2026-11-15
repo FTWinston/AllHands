@@ -6,11 +6,16 @@
   gap: 0.25em;
 }
 
+/* A card that can't be used right now: dimmed and drained of colour, so it reads as unavailable at a glance. */
 .disabled {
   border: solid var(--grey-dark) 0.2em !important;
+  filter: grayscale(0.85) brightness(0.55);
 }
 
 .image {
+  /* Placed explicitly, so the rarity marker can share its grid cell. */
+  grid-row: 1;
+  grid-column: 1;
   background-color: var(--grey-darkest);
   overflow: hidden;
   border: solid var(--grey-darkest) 0.1em;
@@ -115,6 +120,55 @@
   right: 0.3em;
   width: 1.6em;
   height: 1.6em;
+}
+
+/* Sits in the picture's grid cell, centred on its bottom edge, so it covers as little of the picture as possible. */
+.rarity {
+  grid-row: 1;
+  grid-column: 1;
+  align-self: end;
+  justify-self: center;
+  translate: 0 50%;
+  position: relative;
+  z-index: 2;
+  padding: 0 0.5em;
+  font-size: 0.9em;
+  line-height: 1.2em;
+  letter-spacing: 0.15em;
+  background-color: var(--grey-darkest);
+  border: solid var(--grey-mid) 0.08em;
+  border-radius: 0.6em;
+  pointer-events: none;
+}
+
+.uncommon {
+  color: var(--grey-lightest);
+}
+
+.rare {
+  color: var(--energy-light);
+  border-color: var(--energy-mid);
+}
+
+/* Centred on the card's top border, just right of the power cost, and shaped like a lit pip of science's Insight meter. */
+.insightCost {
+  position: absolute;
+  top: -0.64em;
+  left: 1.45em;
+  min-width: 1.6em;
+  height: 1.15em;
+  padding: 0 0.25em;
+  font-size: 1.5em;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--grey-darkest);
+  background-color: var(--primary-light);
+  border: solid var(--primary-lightest) 0.06em;
+  corner-shape: bevel;
+  border-radius: 0.35em 0;
+  box-shadow: 0 0 0.3em color-mix(in oklch, var(--primary-light) 60%, transparent);
 }
 
 .insufficientPower .cost {

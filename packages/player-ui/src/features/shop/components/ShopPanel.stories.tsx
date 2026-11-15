@@ -1,4 +1,4 @@
-import { shopCardPrice } from 'common-data/features/ships/utils/antimatter';
+import { getShopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { ShopPanel as Component } from './ShopPanel';
@@ -20,8 +20,7 @@ const meta: Meta<typeof Component> = {
     args: {
         stationKind: 'navigationBeacon',
         cards: helmCards,
-        price: shopCardPrice,
-        antimatter: 50,
+        antimatter: 40,
         buyCard: fn(),
     },
     render: (args) => {
@@ -35,8 +34,9 @@ const meta: Meta<typeof Component> = {
                 cards={cards}
                 antimatter={antimatter}
                 buyCard={(cardId) => {
+                    const bought = cards.find(card => card.id === cardId);
                     setCards(cards => cards.filter(card => card.id !== cardId));
-                    setAntimatter(antimatter => antimatter - args.price);
+                    setAntimatter(antimatter => antimatter - (bought ? getShopCardPrice(bought.type) : 0));
                     args.buyCard(cardId);
                 }}
             />
@@ -58,7 +58,7 @@ export const Affordable: Story = {
         await expect(args.buyCard).toHaveBeenCalledWith(101);
         await expect(canvas.getAllByRole('listitem')).toHaveLength(4);
 
-        // 50 - 20 leaves enough for one more, but not two.
+        // Each is common, so 40 - 15 leaves enough for one more, but not two.
         await userEvent.click(canvas.getByText('Strafe'));
         await userEvent.click(canvas.getByRole('button', { name: /Buy/ }));
         await userEvent.click(canvas.getByText('Sweep'));
@@ -98,5 +98,29 @@ export const ArmsDealer: Story = {
             { id: 204, type: 'highIntensity' },
             { id: 205, type: 'flare' },
         ],
+    },
+};
+
+/** Cards of each rarity, priced differently and marked on the card. */
+export const Rarities: Story = {
+    args: {
+        stationKind: 'armsDealer',
+        antimatter: 30,
+        cards: [
+            { id: 301, type: 'phaserStrip' },
+            { id: 302, type: 'tractorBeam' },
+            { id: 303, type: 'alphaStrike' },
+        ],
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await expect(canvas.getByLabelText('Rare')).toBeInTheDocument();
+        await expect(canvas.getByLabelText('Uncommon')).toBeInTheDocument();
+
+        // 30 antimatter buys the uncommon card, but not the rare one.
+        await userEvent.click(canvas.getByText('Tractor Beam'));
+        await expect(canvas.getByRole('button', { name: /Buy/ })).toBeEnabled();
+        await userEvent.click(canvas.getByText('Alpha Strike'));
+        await expect(canvas.getByRole('button', { name: /Buy for 40/ })).toBeDisabled();
     },
 };

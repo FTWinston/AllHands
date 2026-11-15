@@ -1,6 +1,6 @@
 import { getShopRole, isStationKind } from 'common-data/features/sectors/utils/isStationKind';
 import { crewRoleNames, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
-import { canSellFromDeck, cardSellPrice, getAntimatterReward, getOrderPrice, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
+import { canSellFromDeck, cardSellPrice, getAntimatterReward, getOrderPrice, getShopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { getPlayerShips } from 'src/utils/shipQueries';
 import { getSynergyCardTypes } from '../cards/cardSynergies';
 import { createEncounter, getDefaultNode, hasEncounter } from '../encounters/EncounterRegistry';
@@ -238,7 +238,8 @@ export class Campaign {
 
     /** A crew member buys a card from their shop, at a shop station for their role. It goes to the bottom of their deck. */
     buyShopCard(ship: PlayerShip, system: CrewSystemState, cardId: number): boolean {
-        if (this.shopRole !== system.system || !system.shopCards.some(card => card.id === cardId) || !ship.trySpendAntimatter(shopCardPrice)) {
+        const shopCard = system.shopCards.find(card => card.id === cardId);
+        if (this.shopRole !== system.system || !shopCard || !ship.trySpendAntimatter(getShopCardPrice(shopCard.type))) {
             return false;
         }
 

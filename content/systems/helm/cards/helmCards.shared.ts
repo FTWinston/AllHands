@@ -103,6 +103,7 @@ export const cards = defineCards({
     },
     flyby: {
         targetType: 'location',
+        rarity: 'uncommon',
         system: 'helm',
         // Rotate to face target first, then move straight towards it
         startFacing: CardMotionSegmentFacing.FinalVector,
@@ -115,6 +116,7 @@ export const cards = defineCards({
     },
     hardBrake: {
         targetType: 'no-target',
+        rarity: 'uncommon',
         system: 'helm',
         // evasionPerMomentum: evasion gained for each level of Momentum spent; duration: how long that lasts, in seconds
         parameters: { cost: 1, evasionPerMomentum: 10, duration: hardBrakeDuration / 1000 },
@@ -159,6 +161,7 @@ export const cards = defineCards({
     },
     slingshot: {
         targetType: 'choice',
+        rarity: 'uncommon',
         system: 'helm',
         cards: ['slingshotLeft', 'slingshotRight'],
         // The same as its options have: the evasion of a maneuver is read from the card that was played, which is this one
@@ -202,6 +205,7 @@ export const cards = defineCards({
     },
     lockOn: {
         targetType: 'no-target',
+        rarity: 'uncommon',
         system: 'helm',
         // duration: how long the ship keeps turning to face the closest hostile ship, in seconds
         parameters: { cost: 2, evasion: 0, duration: 8 },

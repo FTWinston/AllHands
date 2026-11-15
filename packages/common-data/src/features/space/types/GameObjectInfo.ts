@@ -60,7 +60,7 @@ export interface CrewSystemInfo extends SystemInfo {
     cardGeneration: Cooldown | null;
     /** Shown instead of the system's display while outside an encounter; empty during one (see `NonEncounterCardInfo`). */
     nonEncounterCards: IArray<NonEncounterCardInfo>;
-    /** Cards on sale to this crew member at a shop station for their role (see `getShopRole`), each for `shopCardPrice`. Empty elsewhere. */
+    /** Cards on sale to this crew member at a shop station for their role (see `getShopRole`), each for its price (see `getShopCardPrice`). Empty elsewhere. */
     shopCards: IArray<CardInstance>;
     /** The type of the deck card this crew member placed a work order for, which is delivered at the next station. Null when there's none. */
     pendingOrder: CardType | null;

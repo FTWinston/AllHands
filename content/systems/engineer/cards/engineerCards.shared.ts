@@ -101,6 +101,7 @@ export const cards = defineCards({
     },
     transferPower: {
         targetType: 'no-target',
+        rarity: 'uncommon',
         system: 'engineer',
         parameters: { cost: 4, duration: transferPowerDuration / 1000, range: transferPowerRange },
     },
@@ -111,6 +112,7 @@ export const cards = defineCards({
     },
     relocateSystem: {
         targetType: 'system',
+        rarity: 'rare',
         system: 'engineer',
         parameters: { cost: 5 },
     },
@@ -137,6 +139,7 @@ export const cards = defineCards({
     },
     divertAllPower: {
         targetType: 'system',
+        rarity: 'uncommon',
         system: 'engineer',
         parameters: { cost: 4, lossPerSystem: 1, duration: 20, targetGain: 5 },
     },
@@ -188,11 +191,13 @@ export const cards = defineCards({
     },
     discharge: {
         targetType: 'system',
+        rarity: 'uncommon',
         system: 'engineer',
         parameters: { cost: 1, powerGain: dischargePowerPerLevel, duration: dischargeDuration / 1000 },
     },
     surgeDraw: {
         targetType: 'system',
+        rarity: 'uncommon',
         system: 'engineer',
         parameters: { cost: 1, cardsPerLevel: 1 },
     },
@@ -208,6 +213,7 @@ export const cards = defineCards({
     },
     railFeed: {
         targetType: 'system',
+        rarity: 'uncommon',
         system: 'engineer',
         parameters: { cost: 3, powerGain: railFeedPowerGain, duration: railFeedDuration / 1000 },
     },
@@ -218,6 +224,7 @@ export const cards = defineCards({
     },
     buffer: {
         targetType: 'system',
+        rarity: 'uncommon',
         system: 'engineer',
         parameters: { cost: 2, charge: 1 },
     },
@@ -228,6 +235,7 @@ export const cards = defineCards({
     },
     extremeMeasures: {
         targetType: 'choice',
+        rarity: 'rare',
         system: 'engineer',
         cards: ['autoDestruct', 'cannibalise', 'emergencyPower'],
         parameters: { cost: 4 },

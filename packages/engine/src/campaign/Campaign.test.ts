@@ -1,6 +1,6 @@
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
 import { isCrewRoleName } from 'common-data/features/ships/types/CrewRole';
-import { antimatterRewards, baseOrderPrice, cardSellPrice, getAntimatterReward, getOrderPrice, minDeckSize, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
+import { antimatterRewards, baseOrderPrice, cardSellPrice, getAntimatterReward, getOrderPrice, getShopCardPrice, minDeckSize, shopCardPrices } from 'common-data/features/ships/utils/antimatter';
 import { boardingMs, QuarantineGateEncounter } from 'content/sectors/sector1/quarantineGate/quarantineGate.engine';
 import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { PlayerShip } from 'src/state/PlayerShip';
@@ -637,7 +637,7 @@ describe('Campaign shop stations', () => {
 
         expect(campaign.buyShopCard(ship, helm, card.id)).toBe(true);
 
-        expect(ship.antimatter).toBe(50 - shopCardPrice);
+        expect(ship.antimatter).toBe(50 - getShopCardPrice(card.type));
         expect(helm.deck.length).toBe(deckSize + 1);
         expect(helm.deck[helm.deck.length - 1]).toBe(card);
         expect(helm.maxHealth).toBe(maxHealth + 1);
@@ -650,13 +650,14 @@ describe('Campaign shop stations', () => {
     });
 
     it('rejects buying without enough antimatter', () => {
-        const { campaign, ships: [ship] } = createAtShop('navigationBeacon', shopCardPrice - 1);
+        // Even the cheapest card costs more than this.
+        const { campaign, ships: [ship] } = createAtShop('navigationBeacon', shopCardPrices.common - 1);
         const helm = ship.helmState;
         const deckSize = helm.deck.length;
 
         expect(campaign.buyShopCard(ship, helm, helm.shopCards[0].id)).toBe(false);
 
-        expect(ship.antimatter).toBe(shopCardPrice - 1);
+        expect(ship.antimatter).toBe(shopCardPrices.common - 1);
         expect(helm.deck.length).toBe(deckSize);
         expect(helm.shopCards.length).toBe(shopCardCount);
     });
