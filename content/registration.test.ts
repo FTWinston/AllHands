@@ -12,11 +12,11 @@ function exportedContent(modules: Modules, side: string) {
         .map(([name, value]) => ({ name: `${name} (${file})`, value })));
 }
 
-/** The cards and effects that a folder's `cards/` and `effects/` files export, which its content puts together. */
-function exportedPieces(modules: Modules) {
+/** The pieces that a folder's `cards/`, `effects/` and `ships/` files (and `general/ships` and `general/appearances`) export, which its content puts together. */
+function exportedPieces<TKind extends string>(modules: Modules, kinds: readonly TKind[]) {
     return Object.entries(modules)
-        .filter(([file]) => /\/(cards|effects)\/[^/]+$/.test(file))
-        .flatMap(([file, exports]) => (['cards', 'effects'] as const)
+        .filter(([file]) => /\/(cards|effects|ships|appearances)\/[^/]+$/.test(file))
+        .flatMap(([file, exports]) => kinds
             .filter(kind => kind in exports)
             .map(kind => ({ name: `${kind} (${file})`, kind, value: exports[kind] })));
 }
@@ -34,19 +34,37 @@ describe('content registration', () => {
         expect(engineContent).toContain(value);
     });
 
-    it.each(exportedPieces(sharedModules))('puts $name into content listed in content.shared.ts', ({ kind, value }) => {
+    it.each(exportedPieces(sharedModules, ['cards', 'effects', 'appearances'] as const))('puts $name into content listed in content.shared.ts', ({ kind, value }) => {
         expect(sharedContent.some(content => content[kind] === value)).toBe(true);
     });
 
-    it.each(exportedPieces(engineModules))('puts $name into content listed in content.engine.ts', ({ kind, value }) => {
+    it.each(exportedPieces(engineModules, ['cards', 'effects', 'designs'] as const))('puts $name into content listed in content.engine.ts', ({ kind, value }) => {
         expect(engineContent.some(content => content[kind] === value)).toBe(true);
     });
 
     it('gives each piece of shared content its behaviour in the engine, once', () => {
         for (const shared of sharedContent) {
-            expect(engineContent.filter(content => content.shared === shared)).toHaveLength(1);
+            const engine = engineContent.filter(content => content.shared === shared);
+            // Shared content with only ship drawings (such as the unused ones in general/appearances) needs nothing from the engine.
+            const needsBehaviour = Object.keys(shared.cards).length > 0 || Object.keys(shared.effects).length > 0;
+            expect(engine.length).toBe(needsBehaviour ? 1 : engine.length && 1);
         }
     });
+
+    it.each(engineContent.flatMap(content => Object.entries(content.designs).map(([design, definition]) => ({ design, definition, content }))))(
+        'draws the $design design with a drawing in its own folder',
+        ({ definition, content }) => {
+            expect(Object.keys(content.shared?.appearances ?? {})).toContain(definition.appearance);
+        }
+    );
+
+    it.each(engineContent.flatMap(content => Object.keys(content.shared?.appearances ?? {}).map(appearance => ({ appearance, content }))))(
+        'uses the $appearance drawing for one of the designs beside it',
+        ({ appearance, content }) => {
+            // Drawings that no design uses yet go in content/general/appearances, which has no engine content.
+            expect(Object.values(content.designs).map(design => design.appearance)).toContain(appearance);
+        }
+    );
 
     it('lists each piece of content once', () => {
         expect(new Set(sharedContent).size).toBe(sharedContent.length);

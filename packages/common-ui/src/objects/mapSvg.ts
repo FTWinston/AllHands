@@ -1,4 +1,4 @@
-import { shipAppearances, type ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
+import { isShipAppearance, type ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
 
 /**
  * How to draw ship designs on a space map, where a wireframe is too fine for the size it's drawn at, moving and turning.
@@ -18,7 +18,7 @@ const shipMapStyles: Record<ShipMapStyle, string> = {
 
 /** The svg to draw an object on a space map. Only ship designs have map styles; other objects are drawn as they are. */
 export function getMapSvg(raw: string, appearance: ObjectAppearance, style: ShipMapStyle): string {
-    if (!(shipAppearances as readonly ObjectAppearance[]).includes(appearance)) {
+    if (!isShipAppearance(appearance)) {
         return raw;
     }
 

@@ -1,62 +1,30 @@
-/** Wireframe ship designs, drawn nose-right in the style of the film's tactical schematics. Each is a file of the same name in common-ui. */
-export const smallCraftAppearances = [
-    'box-wing-patrol',
-    'chevron-patrol',
-    'crab-gunboat',
-    'dart-fighter',
-    'hammerhead-patrol',
-    'hornet-bomber',
-    'kite-scout',
-    'lance-interceptor',
-    'mantis-drone',
-    'quad-nacelle-courier',
-    'ring-courier',
-    'swallowtail-interceptor',
-    'trident-raider',
-    'trimaran-cutter',
-] as const;
+import { sharedContent } from 'content/content.shared';
+import { mergeSharedContent, type MergedAppearances } from '../../../content/SharedContent';
+import type { ShipSize } from './AppearanceDefinition';
 
-export const capitalShipAppearances = [
-    'arrowhead-battlecruiser',
-    'brick-battleship',
-    'crescent-battlecruiser',
-    'diamond-monitor',
-    'drop-bay-troopship',
-    'drydock-tender',
-    'flight-deck-carrier',
-    'hammerhead-cruiser',
-    'manta-command-ship',
-    'outrigger-pod-cruiser',
-    'ring-spine-tender',
-    'segmented-battleship',
-    'spinal-gun-dreadnought',
-    'trimaran-frigate',
-    'twin-hangar-carrier',
-    'wedge-destroyer',
-] as const;
+type AllAppearances = MergedAppearances<(typeof sharedContent)[number]>;
 
-/** Haulers, pirates, aliens, mines and other oddities. */
-export const unusualShipAppearances = [
-    'armed-freighter',
-    'cobbled-pirate',
-    'crescent-lancer',
-    'mining-barge',
-    'net-sweeper',
-    'ramscoop-collector',
-    'ring-vessel',
-    'salvage-hauler',
-    'seed-pod-alien',
-    'segmented-crawler',
-    'sentry-drone',
-    'smuggler-runner',
-    'spiked-mine',
-    'tri-radial-alien',
-    'tug-and-tow',
-] as const;
+/**
+ * Every ship drawing there is, with its size. Each is defined in the `ships/*.shared.ts` file of the content folder whose designs use it
+ * (or `content/general/appearances` for those no design uses yet), with an svg of the same name beside it.
+ */
+export const shipAppearanceDefinitions = mergeSharedContent(sharedContent, 'appearances') as AllAppearances;
 
-export const shipAppearances = [...smallCraftAppearances, ...capitalShipAppearances, ...unusualShipAppearances] as const;
+/** The name of a ship drawing, which a ship design uses as its appearance. */
+export type ShipAppearance = Extract<keyof AllAppearances, string>;
 
-export type ShipAppearance = typeof shipAppearances[number];
+/** Every ship drawing's name. */
+export const shipAppearances = Object.keys(shipAppearanceDefinitions) as ShipAppearance[];
 
-/** A chevron for the crew's own ship, a circle for anything without a shape of its own, or a ship design. */
+/** A chevron for the crew's own ship, a circle for anything without a shape of its own, or a ship drawing. */
 export type ObjectAppearance = 'chevron' | 'circle' | ShipAppearance;
+
+/** Whether the given appearance is a ship drawing, rather than the crew's chevron or a plain circle. */
+export function isShipAppearance(appearance: string): appearance is ShipAppearance {
+    return Object.hasOwn(shipAppearanceDefinitions, appearance);
+}
+
+/** How big a ship of the given appearance is, or undefined for anything that isn't a ship drawing. */
+export function getShipSize(appearance: ObjectAppearance): ShipSize | undefined {
+    return isShipAppearance(appearance) ? shipAppearanceDefinitions[appearance].size : undefined;
+}

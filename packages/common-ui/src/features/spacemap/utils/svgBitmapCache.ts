@@ -1,5 +1,5 @@
 import { getMapSvg, type ShipMapStyle } from '../../../objects/mapSvg';
-import { svgStrings } from '../../../objects/strings';
+import { getSvgString } from '../../../objects/strings';
 import type { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
 
 const BITMAP_SIZE = 128;
@@ -37,7 +37,7 @@ async function loadBitmap(
     key: string
 ): Promise<void> {
     try {
-        const raw = getMapSvg(svgStrings[appearance], appearance, shipStyle);
+        const raw = getMapSvg(getSvgString(appearance), appearance, shipStyle);
         const colored = raw
             .replace('<svg ', `<svg width="${BITMAP_SIZE}" height="${BITMAP_SIZE}" `)
             .replace(/currentColor/g, mainColor)

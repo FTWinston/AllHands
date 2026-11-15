@@ -1,22 +1,23 @@
-import { shipAppearances, type ObjectAppearance, type ShipAppearance } from 'common-data/features/space/types/ObjectAppearance';
+import { isShipAppearance, type ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
 import chevronRaw from './chevron.svg?raw';
 import circleRaw from './circle.svg?raw';
+import { getShipDrawing } from './shipDrawings';
 
-/** Every ship design's file, by its name: the same as its appearance. */
-const shipFiles = import.meta.glob<string>('./ships/*/*.svg', { query: '?raw', import: 'default', eager: true });
-
-const shipStrings = Object.fromEntries(
-    Object.entries(shipFiles).map(([path, raw]) => [path.replace(/^.*\/(.+)\.svg$/, '$1'), raw])
-) as Partial<Record<ShipAppearance, string>>;
-
-for (const appearance of shipAppearances) {
-    if (!shipStrings[appearance]) {
-        throw new Error(`No ship design file for appearance: ${appearance}`);
-    }
-}
-
-export const svgStrings: Record<ObjectAppearance, string> = {
+const coreStrings = {
     chevron: chevronRaw,
     circle: circleRaw,
-    ...shipStrings as Record<ShipAppearance, string>,
 };
+
+/** The svg for the given appearance, as text: the crew's chevron, a plain circle, or a registered ship drawing. */
+export function getSvgString(appearance: ObjectAppearance): string {
+    if (!isShipAppearance(appearance)) {
+        return coreStrings[appearance];
+    }
+
+    const drawing = getShipDrawing(appearance);
+    if (!drawing) {
+        throw new Error(`No ship drawing registered for appearance: ${appearance}`);
+    }
+
+    return drawing.svg;
+}

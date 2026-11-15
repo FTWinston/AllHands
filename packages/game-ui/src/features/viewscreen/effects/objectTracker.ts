@@ -1,5 +1,5 @@
 import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
-import { ObjectAppearance, shipAppearances } from 'common-data/features/space/types/ObjectAppearance';
+import { isShipAppearance, type ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
 import { Position } from 'common-data/features/space/types/Position';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { getDisplayRelationship } from 'common-data/features/space/utils/getDisplayRelationship';
@@ -66,7 +66,7 @@ export function trackObjects(tracker: ObjectTracker, objects: Record<string, Gam
             name: object.name,
             appearance: object.appearance,
             relationship: getDisplayRelationship(object, viewer),
-            isShip: object.appearance === 'chevron' || (shipAppearances as readonly ObjectAppearance[]).includes(object.appearance),
+            isShip: object.appearance === 'chevron' || isShipAppearance(object.appearance),
             speed: Math.hypot(next.x - position.x, next.y - position.y) * 20,
             isPresent: true,
             lastSeenTime: time,

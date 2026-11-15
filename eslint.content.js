@@ -23,7 +23,7 @@ const restrictions = {
         { regex: '^react(-dom)?(/|$)', message: 'Shared content is data that the engine and the clients both use, so it can only import common-data.' },
         { regex: '\\.(engine|ui)$', message: 'Shared content can only import other shared content.' },
         {
-            regex: '^common-data/features/(cards/utils/cardDefinitions|ships/utils/systemEffectDefinitions)$',
+            regex: '^common-data/features/(cards/utils/cardDefinitions|ships/utils/systemEffectDefinitions|space/types/ObjectAppearance)$',
             allowTypeImports: true,
             message: 'These are put together from the shared content, so shared content can only import types from them. Import from the content file that defines the value instead.',
         },
@@ -112,6 +112,7 @@ const packages = {
 const entryPoints = [
     'packages/common-data/src/features/cards/utils/cardDefinitions.ts',
     'packages/common-data/src/features/ships/utils/systemEffectDefinitions.ts',
+    'packages/common-data/src/features/space/types/ObjectAppearance.ts',
     'packages/engine/src/index.ts',
     'packages/game-ui/src/main.tsx',
     'packages/player-ui/src/main.tsx',
