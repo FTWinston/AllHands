@@ -55,4 +55,49 @@ export const effects = defineUiEffects(sharedEffects, {
         </>,
         image: ExampleIcon,
     },
+    insight: {
+        name: 'Insight',
+        description: <>
+            Science has learned
+            {' '}
+            <EffectLevel />
+            {' '}
+            Insight from its scans, which some of its cards spend. Revealing a system or reading a hand gains 1, and finding a vulnerability gains 2, up to 5.
+        </>,
+        image: ExampleIcon,
+    },
+    predictiveModel: {
+        name: 'Predictive Model',
+        description: <>
+            Enemy sensors are predicting this ship's fire: its shots are
+            {' '}
+            <EffectLevel />
+            % less accurate.
+        </>,
+        image: ExampleIcon,
+    },
+    gravitonDrag: {
+        name: 'Graviton Drag',
+        description: <>
+            Gravitons from enemy sensors are dragging on this ship: manoeuvres it starts are
+            {' '}
+            <EffectLevel />
+            % slower.
+        </>,
+        image: ExampleIcon,
+    },
+    halfLife: {
+        name: 'Half-life',
+        description: <>
+            Enemy sensors are holding this system's particles in place: its particle effects don't run down.
+        </>,
+        image: ExampleIcon,
+    },
+    crossReaction: {
+        name: 'Cross-reaction',
+        description: <>
+            The particles on this system are reacting with each other: it has no power.
+        </>,
+        image: ExampleIcon,
+    },
 });

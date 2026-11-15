@@ -81,6 +81,8 @@ export function applyMotionCard(
     }
 
     if (totalMoveDistance > 0.001 && cardDefinition.baseSpeed > 0) {
+        // Anything speeding the helm's maneuvers up or slowing them down (e.g. Momentum) changes how long the move takes.
+        const speed = cardDefinition.baseSpeed * ship.helmState.maneuverSpeedMultiplier;
         const stepCount = cardDefinition.perpendicularPositionOffsets?.length ?? 0;
 
         if (stepCount > 0) {
@@ -90,8 +92,8 @@ export function applyMotionCard(
             // Get the unit vector for the direction of movement, then get the perpendicular equivalent.
             const perpendicularUnit = perpendicular(unit(prevKeyframe, location));
 
-            // TODO: apply helm power (or other ship movement modifiers) to the base speed here.
-            const stepMoveDuration = totalMoveDistance / (stepCount + 1) / cardDefinition.baseSpeed * 1000;
+            // TODO: apply helm power to the speed here.
+            const stepMoveDuration = totalMoveDistance / (stepCount + 1) / speed * 1000;
 
             // Add a keyframe for each intermediate step
             for (let stepIndex = 0; stepIndex < stepCount; stepIndex++) {
@@ -124,8 +126,8 @@ export function applyMotionCard(
             prevKeyframe = endKeyframe;
         } else {
             // Straight line movement with no intermediate steps
-            // TODO: apply helm power (or other ship movement modifiers) to the base speed here.
-            const moveDuration = (totalMoveDistance / cardDefinition.baseSpeed) * 1000;
+            // TODO: apply helm power to the speed here.
+            const moveDuration = (totalMoveDistance / speed) * 1000;
 
             const movedKeyframe = new MotionKeyframe(
                 prevKeyframe.time + moveDuration,

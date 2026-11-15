@@ -9,6 +9,7 @@ import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';
 import { EngineerSystemTile } from 'src/state/systems/engineer/EngineerSystemTile';
 import { WeaponSlotState } from 'src/state/systems/tactical/WeaponSlotState';
+import type { CardSynergy } from './CardSynergy';
 import type { CardEvaluator } from 'src/ai/types';
 
 /**
@@ -19,6 +20,8 @@ import type { CardEvaluator } from 'src/ai/types';
  */
 export type SharedEngineCardDefinition = {
     aiEvaluator?: CardEvaluator;
+    /** What this card provides for, and wants from, other cards of its station, to match it with them for work orders (see cardSynergies.ts). */
+    synergy?: CardSynergy;
     draw?: (gameState: GameState, ship: Ship, card: CardState) => void;
     damaged?: (gameState: GameState, ship: Ship, card: CardState) => void;
     repaired?: (gameState: GameState, ship: Ship, card: CardState) => void;

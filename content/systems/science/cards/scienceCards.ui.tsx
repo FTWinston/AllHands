@@ -142,4 +142,101 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
+    deepScan: {
+        name: 'Deep Scan',
+        description: <>
+            Scanning a system also reads its hand.
+        </>,
+        image: <ExampleIcon />,
+    },
+    gravitonScan: {
+        name: 'Graviton Scan',
+        description: <>
+            Scanning a system makes manoeuvres the target ship starts
+            {' '}
+            <Parameter name="effectLevel" />
+            % slower, for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds.
+        </>,
+        image: <ExampleIcon />,
+    },
+    eureka: {
+        name: 'Eureka',
+        description: <>
+            Spend
+            {' '}
+            <Parameter name="insightCost" />
+            {' '}
+            Insight: find a vulnerability on the system being scanned.
+        </>,
+        image: <ExampleIcon />,
+    },
+    predictiveModel: {
+        name: 'Predictive Model',
+        description: <>
+            Spend
+            {' '}
+            <Parameter name="insightCost" />
+            {' '}
+            Insight: the scanned ship's shots are
+            {' '}
+            <Parameter name="accuracyReduction" />
+            % less accurate for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds.
+        </>,
+        image: <ExampleIcon />,
+    },
+    catalyse: {
+        name: 'Catalyse',
+        description: <>
+            Remove every particle effect from the system being scanned. It takes
+            {' '}
+            <Parameter name="damagePerEffect" />
+            {' '}
+            damage for each one removed.
+        </>,
+        image: <ExampleIcon />,
+    },
+    halfLife: {
+        name: 'Half-life',
+        description: <>
+            For
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, particle effects on the system being scanned don't run down.
+        </>,
+        image: <ExampleIcon />,
+    },
+    crossReaction: {
+        name: 'Cross-reaction',
+        description: <>
+            If the system being scanned has
+            {' '}
+            <Parameter name="effectsNeeded" />
+            {' '}
+            different particle effects, it loses all its power for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds.
+        </>,
+        image: <ExampleIcon />,
+    },
+    saturate: {
+        name: 'Saturate',
+        description: <>
+            Multiply the level of the strongest particle effect on the system being scanned by
+            {' '}
+            <Parameter name="multiplier" />
+            .
+        </>,
+        image: <ExampleIcon />,
+    },
 });

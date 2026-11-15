@@ -109,6 +109,8 @@ export const Tactical = (props: Props) => {
                 ejectWeapon={ejectWeapon}
                 cardGeneration={tacticalState.cardGeneration}
                 viewer={viewer}
+                lockTargetId={tacticalState.lockTargetId}
+                lockLevel={tacticalState.lockLevel}
             />
         </>
     );

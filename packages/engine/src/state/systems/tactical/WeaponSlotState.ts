@@ -81,14 +81,35 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
             this.card.removeTrait('rechargeable');
         }
 
+        this.receiveCharge(amount, currentTime);
+    }
+
+    /**
+     * Take in charge moved from another weapon (up to the weapon's total charge), and return how much of it fitted.
+     * Unlike charging with a card, this works on a weapon that has been fully charged, and leaves its rechargeable trait alone.
+     */
+    receiveCharge(amount: number, currentTime: number): number {
+        if (!this.card) {
+            return 0;
+        }
+
         const totalCharge = this.getParameter('totalCharge');
-        this.charge = Math.min(this.charge + amount, totalCharge);
+        const received = Math.max(0, Math.min(amount, totalCharge - this.charge));
+        this.charge += received;
 
         if (!this.hasBeenFullyCharged && this.charge >= totalCharge) {
             this.hasBeenFullyCharged = true;
             this.decayDuration = 30000;
             this.decay = new CooldownState(currentTime, currentTime + this.decayDuration);
         }
+
+        return received;
+    }
+
+    /** Take charge out of the weapon. Return true if the weapon was discarded: one that has been fully charged is used up when it runs out. */
+    removeCharge(amount: number): boolean {
+        this.charge = Math.max(0, this.charge - amount);
+        return this.hasBeenFullyCharged && this.discardIfEmpty();
     }
 
     /** Consume one use's charge & reset charge decay. Return true if the weapon was discarded for running out of charge. */

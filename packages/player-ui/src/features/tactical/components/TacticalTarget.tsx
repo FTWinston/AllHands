@@ -8,6 +8,7 @@ import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { ScannedShieldReadout } from 'src/features/shields/components/ScannedShieldReadout';
 import { ShieldedObjectIcon } from 'src/features/shields/components/ShieldedObjectIcon';
 import { getShieldPercentage } from 'src/features/shields/utils/getShieldPercentage';
+import { getLockPips, maxLockLevel } from '../utils/lockPips';
 import { SubTargetList } from './SubTargetList';
 import styles from './TacticalTarget.module.css';
 
@@ -19,6 +20,8 @@ type Props = GameObjectInfo & {
     targetAspect?: number;
     /** This target's hull, if science is scanning it. */
     scannedHull?: ScannedHullInfo | null;
+    /** How much Lock is held against this target. Zero for every target but the locked one. */
+    lockLevel?: number;
 };
 
 export const TacticalTarget = (props: Props) => {
@@ -56,6 +59,12 @@ export const TacticalTarget = (props: Props) => {
                     className={styles.image}
                 />
             </div>
+
+            {props.lockLevel !== undefined && props.lockLevel > 0 && (
+                <TargetReadout label="Lock" side="start" className={styles.lockReadout}>
+                    <span role="img" aria-label={`${props.lockLevel} of ${maxLockLevel}`}>{getLockPips(props.lockLevel)}</span>
+                </TargetReadout>
+            )}
 
             {props.scannedHull && (
                 <>

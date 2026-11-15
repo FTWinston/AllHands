@@ -296,6 +296,17 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         return nearest;
     }
 
+    /** Every other ship within the given distance, whatever its relationship to this one. */
+    shipsWithin(range: number): Ship[] {
+        const currentTime = this.gameState.currentTime;
+        const ownPosition = this.getPosition(currentTime);
+        const rangeSq = range ** 2;
+
+        return [...this.gameState.objects.values()].filter((other): other is Ship => other !== this
+            && other instanceof Ship
+            && distanceSq(ownPosition, other.getPosition(currentTime)) <= rangeSq);
+    }
+
     /** Called whenever this ship is hit, just before the damage is applied. */
     protected wasHit(_hit: ShipHit) { }
 

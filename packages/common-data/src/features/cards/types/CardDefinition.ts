@@ -34,6 +34,8 @@ export type WeaponSlotTargetCardDefinition = CommonCardDefinition & {
 export type WeaponTargetCardDefinition = CommonCardDefinition & {
     targetType: 'weapon';
     requiredWeaponTrait?: CardTrait;
+    /** Whether the card acts on a weapon once, rather than staying on it as its modifier. Such a card can be played on a weapon that already has a modifier, and doesn't stop it taking one. */
+    instant?: boolean;
 };
 
 export type EnemyTargetCardDefinition = CommonCardDefinition & {
@@ -55,7 +57,8 @@ export type AssignableDeflectorEffectDelivery = Exclude<DeflectorEffectDelivery,
 export type ScanTargetCardDefinition = CommonCardDefinition & {
     targetType: 'scan';
     deflectorModifier?: AssignableDeflectorEffectModifier;
-    deflectorSubstance?: AssignableDeflectorEffectSubstance;
+    // Graviton is what an empty substance slot gives, but a card can carry it too.
+    deflectorSubstance?: DeflectorEffectSubstance;
     deflectorDelivery?: AssignableDeflectorEffectDelivery;
 };
 

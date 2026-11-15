@@ -20,7 +20,7 @@ export const cards = defineCards({
         parameters: {
             cost: 2,
             effectLevel: 25,
-            duration: effects.antiprotonResidue.duration,
+            duration: effects.antiprotonResidue.duration / 1000,
         },
         deflectorSubstance: 'Antiproton',
     },
@@ -38,7 +38,7 @@ export const cards = defineCards({
         system: 'science',
         parameters: {
             cost: 2,
-            duration: effects.chronitonSaturation.duration,
+            duration: effects.chronitonSaturation.duration / 1000,
         },
         deflectorSubstance: 'Chroniton',
     },
@@ -48,7 +48,7 @@ export const cards = defineCards({
         parameters: {
             cost: 2,
             effectLevel: 1,
-            duration: effects.polaronBombardment.duration,
+            duration: effects.polaronBombardment.duration / 1000,
         },
         deflectorSubstance: 'Polaron',
     },
@@ -84,7 +84,7 @@ export const cards = defineCards({
         system: 'science',
         parameters: {
             cost: 3,
-            duration: 6,
+            duration: effects.polaronAccumulation.duration / 1000,
         },
         deflectorModifier: 'Phased',
         deflectorSubstance: 'Polaron',
@@ -114,7 +114,7 @@ export const cards = defineCards({
         parameters: {
             cost: 3,
             effectLevel: 15,
-            duration: effects.antiprotonResidue.duration,
+            duration: effects.antiprotonResidue.duration / 1000,
         },
         deflectorModifier: 'Inverted',
         deflectorSubstance: 'Antiproton',
@@ -127,5 +127,73 @@ export const cards = defineCards({
         },
         deflectorModifier: 'Inverted',
         deflectorSubstance: 'Chroniton',
+    },
+    deepScan: {
+        targetType: 'scan',
+        system: 'science',
+        parameters: {
+            cost: 3,
+        },
+    },
+    gravitonScan: {
+        targetType: 'scan',
+        system: 'science',
+        parameters: {
+            cost: 2,
+            effectLevel: 40,
+            duration: effects.gravitonDrag.duration / 1000,
+        },
+        deflectorSubstance: 'Graviton',
+    },
+    eureka: {
+        targetType: 'no-target',
+        system: 'science',
+        parameters: {
+            cost: 1,
+            insightCost: 3,
+        },
+    },
+    predictiveModel: {
+        targetType: 'no-target',
+        system: 'science',
+        parameters: {
+            cost: 1,
+            insightCost: 2,
+            accuracyReduction: 30,
+            duration: effects.predictiveModel.duration / 1000,
+        },
+    },
+    catalyse: {
+        targetType: 'no-target',
+        system: 'science',
+        parameters: {
+            cost: 2,
+            damagePerEffect: 2,
+        },
+    },
+    halfLife: {
+        targetType: 'no-target',
+        system: 'science',
+        parameters: {
+            cost: 1,
+            duration: effects.halfLife.duration / 1000,
+        },
+    },
+    crossReaction: {
+        targetType: 'no-target',
+        system: 'science',
+        parameters: {
+            cost: 2,
+            effectsNeeded: 2,
+            duration: effects.crossReaction.duration / 1000,
+        },
+    },
+    saturate: {
+        targetType: 'no-target',
+        system: 'science',
+        parameters: {
+            cost: 2,
+            multiplier: 2,
+        },
     },
 });

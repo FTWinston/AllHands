@@ -1,9 +1,9 @@
-import { AssignableDeflectorEffectDelivery, AssignableDeflectorEffectSubstance, AssignableDeflectorEffectModifier } from 'common-data/features/cards/types/CardDefinition';
+import { AssignableDeflectorEffectDelivery, DeflectorEffectSubstance, AssignableDeflectorEffectModifier } from 'common-data/features/cards/types/CardDefinition';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 
 export type DisplayableTrait = CardTrait
     | AssignableDeflectorEffectModifier
-    | AssignableDeflectorEffectSubstance
+    | DeflectorEffectSubstance
     | AssignableDeflectorEffectDelivery;
 
 /**
@@ -67,6 +67,8 @@ export function getTraitDisplayName(trait: DisplayableTrait): string {
             return 'Substance: Tetryon';
         case 'Chroniton':
             return 'Substance: Chroniton';
+        case 'Graviton':
+            return 'Substance: Graviton';
         case 'Polaron':
             return 'Substance: Polaron';
         case 'Beam':

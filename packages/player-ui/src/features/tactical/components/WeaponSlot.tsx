@@ -21,6 +21,7 @@ import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { ActiveCardInfo, useActiveCard } from 'src/features/cardui/components/DragCardProvider';
 import { DraggableCard } from 'src/features/cardui/components/DraggableCard';
 import { mergeModifiers } from '../utils/mergeModifiers';
+import { canPlayOnWeapon } from '../utils/weaponCards';
 import styles from './WeaponSlot.module.css';
 
 type Props = Snapshot<WeaponSlotInfo> & {
@@ -102,11 +103,10 @@ export const WeaponSlot = (props: Props) => {
 
     const slotCardDefinition = card ? getCardDefinition(card.type) : null;
 
-    const weaponTraitMismatch = activeCardDefinition !== null
-        && slotCardDefinition !== null
-        && !modified
-        && activeCardDefinition.requiredWeaponTrait !== undefined
-        && (slotCardDefinition.traits === undefined || !slotCardDefinition.traits.includes(activeCardDefinition.requiredWeaponTrait));
+    // While a weapon-target card is being dragged, the weapon only takes it if it can be played here. Otherwise, it takes a modifier while it has none.
+    const canModify = activeCardDefinition !== null
+        ? canPlayOnWeapon(activeCardDefinition, { card, modified })
+        : !!card && !modified;
 
     const slotParameters = slotCardDefinition && card ? resolveParameters(slotCardDefinition.parameters, card.modifiers, modifiers) : {} as CardParameters;
 
@@ -183,7 +183,7 @@ export const WeaponSlot = (props: Props) => {
     return (
         <li className={classNames(styles.slot, colorPalletes[mainPallete], card ? null : styles.empty, mainPallete === 'primary' ? null : styles.alert, firingState === FiringState.CanFire ? styles.ready : null)}>
             <div className={styles.body}>
-                {getCardWrapper(props, slotCardDefinition, isFullyCharged, !!card && !modified && !weaponTraitMismatch)}
+                {getCardWrapper(props, slotCardDefinition, isFullyCharged, canModify)}
 
                 <CardDropTarget
                     className={styles.chargeTarget}

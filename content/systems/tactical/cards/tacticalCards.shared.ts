@@ -1,4 +1,5 @@
 import { defineCards } from 'common-data/content/SharedContent';
+import { effects } from 'content/systems/tactical/effects/tacticalEffects.shared';
 
 /** How long a flare burns, once the Flare card is played. */
 export const flareDuration = 8000;
@@ -161,6 +162,45 @@ export const cards = defineCards({
         targetType: 'weapon',
         system: 'tactical',
         parameters: { cost: 2 },
+    },
+    acquireLock: {
+        targetType: 'enemy',
+        system: 'tactical',
+        parameters: { cost: 1, lockGain: 1, accuracyPerLevel: 10, fadeSeconds: 8 },
+    },
+    alphaStrike: {
+        targetType: 'no-target',
+        system: 'tactical',
+        parameters: { cost: 3, damagePerLock: 5 },
+    },
+    powerCell: {
+        targetType: 'weapon',
+        system: 'tactical',
+        instant: true,
+        parameters: { cost: 1, charge: 1, chargeValue: 5 },
+    },
+    hotSwap: {
+        targetType: 'weapon',
+        system: 'tactical',
+        instant: true,
+        parameters: { cost: 1 },
+    },
+    tractorBeam: {
+        targetType: 'enemy',
+        system: 'tactical',
+        parameters: {
+            cost: 3,
+            duration: effects.heldByTractorBeam.duration / 1000,
+            range: 8,
+            targetSlowdown: 60,
+            ownSlowdown: 25,
+            lockGain: 1,
+        },
+    },
+    exploit: {
+        targetType: 'weapon',
+        system: 'tactical',
+        parameters: { cost: 2, damagePerNegativeEffect: 6 },
     },
     exampleEnemyTarget: {
         targetType: 'enemy',

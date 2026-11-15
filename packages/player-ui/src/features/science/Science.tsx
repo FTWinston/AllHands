@@ -115,6 +115,7 @@ export const Science = (props: Props) => {
             playCard={playCard}
             cardGeneration={scienceState.cardGeneration}
             viewer={viewer}
+            insight={scienceState.insight}
             closeRevealedSystem={closeRevealedSystem}
             unmountDeflectorDelivery={unmountDeflectorDelivery}
             unmountDeflectorModifier={unmountDeflectorModifier}

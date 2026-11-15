@@ -37,6 +37,13 @@ export const ScannedHull: Story = {
     },
 };
 
+export const Locked: Story = {
+    args: {
+        ...ScannedHull.args,
+        lockLevel: 3,
+    },
+};
+
 export const ScannedHull_NoSubTargets: Story = {
     args: {
         ...ScannedHull.args,

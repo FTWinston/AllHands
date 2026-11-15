@@ -13,10 +13,14 @@ type Props = {
     onVisibleTargetChange: (index: number) => void;
     targetAspect?: number;
     viewer: RelationshipViewer;
+    /** The id of the ship that Lock is held against. Empty while there's no Lock. */
+    lockTargetId: string;
+    /** How many levels of Lock are held against that ship. */
+    lockLevel: number;
 };
 
 export const TacticalTargetList = (props: Props) => {
-    const { targets, targetAspect, subTargetsByTarget, scannedHull, onVisibleTargetChange, viewer } = props;
+    const { targets, targetAspect, subTargetsByTarget, scannedHull, onVisibleTargetChange, viewer, lockTargetId, lockLevel } = props;
 
     // Handler for HorizontalScroll's onScrollFractionChange
     const handleScrollFractionChange = (fraction: number) => {
@@ -53,6 +57,7 @@ export const TacticalTargetList = (props: Props) => {
                         targetNumber={index + 1}
                         targetAspect={targetAspect}
                         totalTargets={targets.length}
+                        lockLevel={lockTargetId === target.id ? lockLevel : 0}
                     />
                 </li>
             ))}

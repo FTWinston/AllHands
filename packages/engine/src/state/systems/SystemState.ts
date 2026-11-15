@@ -447,6 +447,41 @@ export abstract class SystemState extends Schema implements SystemInfo {
         this.syncHealth();
     }
 
+    /**
+     * Fully repair up to that many damaged cards, picked as `adjustHealth` would pick them, then critically damaged ones: unlike that, they aren't left stabilised.
+     * Returns how many were repaired.
+     */
+    fullyRepairCards(count: number): number {
+        const cards = [
+            ...this.repairQueue,
+            ...[...this.cardPool].filter(card => card.hasTrait('critical')),
+        ].slice(0, Math.max(0, count));
+
+        for (const card of cards) {
+            const repairIndex = this.repairQueue.indexOf(card);
+            if (repairIndex !== -1) {
+                this.repairQueue.splice(repairIndex, 1);
+            }
+
+            card.removeTrait('damaged');
+            card.removeTrait('critical');
+
+            if (this.slottedCards.has(card)) {
+                this.damageQueue.push(card);
+            } else {
+                this.insertUnslotted(card);
+            }
+
+            getCardDefinition(card.type)?.repaired?.(this._gameState, this._ship, card);
+        }
+
+        if (cards.length > 0) {
+            this.syncHealth();
+        }
+
+        return cards.length;
+    }
+
     cleanupAfterEncounter() {
         // First, so that whatever an effect did to this system's cards, such as their cost, is undone before they're put back.
         this.clearEffects();

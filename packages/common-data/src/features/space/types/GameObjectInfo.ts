@@ -109,6 +109,10 @@ export interface TargetSubTargets {
 export interface TacticalSystemInfo extends CrewSystemInfo {
     subTargetsByTarget: IMap<string, TargetSubTargets>;
     slots: IArray<WeaponSlotInfo>;
+    /** The id of the ship that Lock is held against. Empty while there's no Lock. */
+    lockTargetId: string;
+    /** How many levels of Lock are held against that ship: the level of the `lock` effect on the tactical system. */
+    lockLevel: number;
 }
 
 export interface ScannedManeuverInfo {
@@ -187,6 +191,8 @@ export interface ScienceSystemInfo extends CrewSystemInfo {
     scannedEngineer: ScannedEngineerInfo | null;
     /** Long range sensor readings of the nodes the ship can travel to next; empty except on the sector map. */
     destinations: IArray<SectorDestinationInfo>;
+    /** How much Insight science holds, which some of its cards spend. */
+    insight: number;
 }
 
 export interface EngineerSystemTileInfo {

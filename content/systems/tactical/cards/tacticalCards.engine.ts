@@ -1,7 +1,12 @@
 import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
+import { FiringState } from 'common-data/features/space/types/FiringState';
 import { projectileFlightTime } from 'common-data/features/space/types/WeaponEffect';
+import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
+import { getFiringState } from 'common-data/features/space/utils/getFiringState';
+import { engageTractorBeam } from 'content/systems/tactical/effects/tacticalEffects.engine';
+import { effects as sharedEffects } from 'content/systems/tactical/effects/tacticalEffects.shared';
 import { weaponLoadEvaluator, weaponModifierEvaluator } from 'engine/ai/evaluators/tactical';
 import { defineEngineCards } from 'engine/content/EngineContent';
 import { GameObject } from 'engine/state/GameObject';
@@ -10,6 +15,9 @@ import type { IRandom } from 'common-data/types/IRandom';
 import type { GameState } from 'engine/state/GameState';
 import type { Ship } from 'engine/state/Ship';
 import type { WeaponSlotState } from 'engine/state/systems/tactical/WeaponSlotState';
+
+/** The most Lock that can be held against a ship. */
+const maxLockLevel = sharedEffects.lock.maxLevel;
 
 function isShip(object: GameObject): object is Ship {
     return 'helmState' in object;
@@ -137,6 +145,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     phaserCannon: {
+        synergy: { provides: ['energyWeapon'] },
         aiEvaluator: weaponLoadEvaluator('phaserCannon'),
         load: (_gameState, _ship, _slot) => {
             return true;
@@ -147,6 +156,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     phaserStrip: {
+        synergy: { provides: ['energyWeapon'] },
         aiEvaluator: weaponLoadEvaluator('phaserStrip'),
         load: (_gameState, _ship, _slot) => {
             return true;
@@ -157,6 +167,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     photonicCannon: {
+        synergy: { provides: ['energyWeapon'], wants: ['weaponCharge'] },
         aiEvaluator: weaponLoadEvaluator('photonicCannon'),
         load: (_gameState, _ship, _slot) => {
             return true;
@@ -167,6 +178,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     photonTorpedo: {
+        synergy: { provides: ['torpedoWeapon'] },
         aiEvaluator: weaponLoadEvaluator('photonTorpedo'),
         load: (_gameState, _ship, _slot) => {
             return true;
@@ -177,6 +189,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     quantumTorpedo: {
+        synergy: { provides: ['torpedoWeapon'] },
         aiEvaluator: weaponLoadEvaluator('quantumTorpedo'),
         load: (_gameState, _ship, _slot) => {
             return true;
@@ -187,6 +200,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     lowYield: {
+        synergy: { wants: ['torpedoWeapon'] },
         aiEvaluator: weaponModifierEvaluator('lowYield'),
         prime: (_gameState, _ship, slot, parameters) => {
             slot.adjustParameter('damage', -(parameters.damageReduction ?? 6));
@@ -196,6 +210,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     highYield: {
+        synergy: { wants: ['torpedoWeapon'] },
         aiEvaluator: weaponModifierEvaluator('highYield'),
         prime: (_gameState, _ship, slot, parameters) => {
             slot.adjustParameter('damage', parameters.damageIncrease ?? 12);
@@ -205,6 +220,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     extendedRange: {
+        synergy: { wants: ['torpedoWeapon'] },
         aiEvaluator: weaponModifierEvaluator('extendedRange'),
         prime: (_gameState, _ship, slot, parameters) => {
             slot.adjustParameter('damage', -(parameters.damageReduction ?? 2));
@@ -214,6 +230,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     projectileManoeuvrability: {
+        synergy: { wants: ['torpedoWeapon'] },
         aiEvaluator: weaponModifierEvaluator('projectileManoeuvrability'),
         prime: (_gameState, _ship, slot, parameters) => {
             adjustChargePerUse(slot, parameters.chargeIncrease ?? 1);
@@ -223,6 +240,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     fullSpread: {
+        synergy: { wants: ['torpedoWeapon', 'lock'] },
         aiEvaluator: weaponModifierEvaluator('fullSpread', 2),
         prime: (_gameState, _ship, slot, parameters) => {
             slot.adjustParameter('damage', -(parameters.damageReduction ?? 4));
@@ -235,6 +253,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     highIntensity: {
+        synergy: { wants: ['energyWeapon'] },
         aiEvaluator: weaponModifierEvaluator('highIntensity'),
         prime: (_gameState, _ship, slot, parameters) => {
             slot.adjustParameter('damage', parameters.damageIncrease ?? 4);
@@ -246,6 +265,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     lensingEnhancement: {
+        synergy: { wants: ['energyWeapon'] },
         aiEvaluator: weaponModifierEvaluator('lensingEnhancement'),
         prime: (_gameState, _ship, slot, parameters) => {
             slot.adjustParameter('firingArc', parameters.firingArcIncrease ?? 0.5);
@@ -255,6 +275,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     precisionFocus: {
+        synergy: { wants: ['energyWeapon'] },
         aiEvaluator: weaponModifierEvaluator('precisionFocus'),
         prime: (_gameState, _ship, slot, parameters) => {
             slot.adjustParameter('damage', parameters.damageIncrease ?? 2);
@@ -264,6 +285,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     subCritical: {
+        synergy: { provides: ['weaponCharge'], wants: ['energyWeapon'] },
         aiEvaluator: weaponModifierEvaluator('subCritical', -10),
         prime: (_gameState, _ship, slot, parameters) => {
             scaleParameter(slot, 'damage', parameters.damageMultiplier ?? 75);
@@ -273,6 +295,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     weaponOvercharge: {
+        synergy: { wants: ['energyWeapon', 'weaponCharge'] },
         aiEvaluator: weaponModifierEvaluator('weaponOvercharge'),
         prime: (_gameState, _ship, slot, parameters) => {
             slot.adjustParameter('damage', parameters.damageIncrease ?? 4);
@@ -283,6 +306,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     rapidFire: {
+        synergy: { wants: ['energyWeapon', 'lock'] },
         aiEvaluator: weaponModifierEvaluator('rapidFire', 2),
         prime: (_gameState, _ship, slot, parameters) => {
             slot.adjustParameter('damage', -(parameters.damageReduction ?? 4));
@@ -294,6 +318,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     ionicSurge: {
+        synergy: { wants: ['energyWeapon'] },
         aiEvaluator: weaponModifierEvaluator('ionicSurge'),
         prime: (_gameState, _ship, slot, parameters) => {
             slot.adjustParameter('damage', -(parameters.damageReduction ?? 2));
@@ -304,6 +329,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     extendedUse: {
+        synergy: { provides: ['weaponCharge'] },
         aiEvaluator: weaponModifierEvaluator('extendedUse'),
         prime: (_gameState, _ship, slot, parameters) => {
             slot.adjustParameter('totalCharge', parameters.totalChargeIncrease ?? 3);
@@ -311,6 +337,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     efficiency: {
+        synergy: { provides: ['weaponCharge'] },
         aiEvaluator: weaponModifierEvaluator('efficiency'),
         prime: (_gameState, _ship, slot, parameters) => {
             adjustChargePerUse(slot, -(parameters.chargeReduction ?? 1));
@@ -321,6 +348,123 @@ export const cards = defineEngineCards(sharedCards, {
         aiEvaluator: weaponModifierEvaluator('rechargeable'),
         prime: (_gameState, _ship, slot) => {
             slot.card?.addTrait('rechargeable', ExtraTraitType.RemoveOnPlay);
+            return true;
+        },
+    },
+    acquireLock: {
+        synergy: { provides: ['lock'] },
+        aiEvaluator: (card, ctx) => {
+            const targetId = ctx.blackboard.targetId;
+            const target = targetId !== null && ctx.ship.knownObjects.has(targetId) ? ctx.gameState.objects.get(targetId) : undefined;
+            const tactical = ctx.ship.tacticalState;
+            // Not worth playing with no ship to lock, or with as much Lock on it as there can be.
+            if (!targetId || !target || !isShip(target) || (tactical.lockTargetId === targetId && tactical.lockLevel >= maxLockLevel)) {
+                return [];
+            }
+
+            return [{
+                score: 35,
+                cost: card.getParameter('cost'),
+                action: { kind: 'playCard', cardId: card.id, cardType: 'acquireLock', targetType: 'enemy', targetId },
+            }];
+        },
+        play: (_gameState, ship, target, _targetSystem, parameters) => {
+            return !!target && ship.tacticalState.addLock(target, parameters.lockGain ?? 1);
+        },
+    },
+    alphaStrike: {
+        synergy: { wants: ['lock', 'weaponCharge'] },
+        aiEvaluator: (card, ctx) => {
+            const tactical = ctx.ship.tacticalState;
+            const target = tactical.lockLevel > 0 && ctx.ship.knownObjects.has(tactical.lockTargetId) ? ctx.gameState.objects.get(tactical.lockTargetId) : undefined;
+            if (!target) {
+                return [];
+            }
+
+            // Worth it once the volley is more than a single ordinary shot: with two weapons to fire, or one and Lock built up.
+            const solution = getFiringSolution(ctx.ship.motion, target.motion, ctx.currentTime);
+            const ready = tactical.slots.filter(slot => getFiringState(solution, slot.hasBeenFullyCharged, slot.charge, slot.getParameters()) === FiringState.CanFire).length;
+            if (ready === 0 || (ready === 1 && tactical.lockLevel < 2)) {
+                return [];
+            }
+
+            return [{
+                score: 90,
+                cost: card.getParameter('cost'),
+                action: { kind: 'playCard', cardId: card.id, cardType: 'alphaStrike', targetType: 'no-target', targetId: '' },
+            }];
+        },
+        play: (_gameState, ship, parameters) => {
+            return ship.tacticalState.fireVolley(parameters.damagePerLock ?? 5) > 0;
+        },
+    },
+    // No evaluators for these two: the AI doesn't play them, but still spends them as charge.
+    powerCell: {
+        synergy: { provides: ['weaponCharge'] },
+        prime: (gameState, _ship, slot, parameters) => {
+            if (!slot.canBeCharged()) {
+                return false;
+            }
+
+            slot.addCharge(parameters.charge ?? 1, gameState.currentTime);
+            return true;
+        },
+    },
+    hotSwap: {
+        synergy: { provides: ['weaponCharge'] },
+        // The weapon it's played on takes all the other weapon's charge.
+        prime: (_gameState, ship, slot) => {
+            const source = ship.tacticalState.getOtherLoadedSlot(slot.id);
+            return !!source && ship.tacticalState.moveCharge(source.id, slot.id);
+        },
+    },
+    tractorBeam: {
+        synergy: { provides: ['lock'] },
+        aiEvaluator: (card, ctx) => {
+            const targetId = ctx.blackboard.targetId;
+            const target = targetId !== null && ctx.ship.knownObjects.has(targetId) ? ctx.gameState.objects.get(targetId) : undefined;
+            // Only worth playing on a ship in range that isn't already held.
+            if (!targetId || !target || !isShip(target) || target.engineerState.systems.some(tile => tile.system === 'helm' && tile.hasEffect('heldByTractorBeam'))) {
+                return [];
+            }
+
+            const { range } = getFiringSolution(ctx.ship.motion, target.motion, ctx.currentTime);
+            if (range > card.getParameter('range')) {
+                return [];
+            }
+
+            return [{
+                score: 30,
+                cost: card.getParameter('cost'),
+                action: { kind: 'playCard', cardId: card.id, cardType: 'tractorBeam', targetType: 'enemy', targetId },
+            }];
+        },
+        play: (gameState, ship, target, _targetSystem, parameters) => {
+            if (!target || !isShip(target) || !engageTractorBeam(ship, target, parameters.range ?? 8, parameters.targetSlowdown ?? 60, parameters.ownSlowdown ?? 25)) {
+                return false;
+            }
+
+            // Clients draw this as a beam from the ship to its target.
+            gameState.broadcastWeaponEffect({
+                type: 'shot',
+                weapon: 'tractorBeam',
+                sourceId: ship.id,
+                targetId: target.id,
+                targetPosition: getTargetPosition(target, gameState.currentTime),
+                startTime: gameState.currentTime,
+            });
+
+            // A ship held steady is easy to lock onto.
+            ship.tacticalState.addLock(target, parameters.lockGain ?? 1);
+            return true;
+        },
+    },
+    exploit: {
+        // The AI doesn't aim at systems for the effects on them, so it rates this below its other modifiers.
+        aiEvaluator: weaponModifierEvaluator('exploit', -20),
+        prime: (_gameState, _ship, slot, parameters) => {
+            // The tactical system adds this to an aimed shot's damage as the weapon fires.
+            slot.adjustParameter('damagePerNegativeEffect', parameters.damagePerNegativeEffect ?? 6);
             return true;
         },
     },

@@ -7,7 +7,7 @@ import { getSystemEffectDefinition } from 'engine/effects/getEngineSystemEffectD
 import { CardState } from 'engine/state/CardState';
 import { CooldownState } from 'engine/state/CooldownState';
 import { EngineerSystemTile } from 'engine/state/systems/engineer/EngineerSystemTile';
-import { transferPowerRange, cards as sharedCards } from './engineerCards.shared';
+import { chargeMaxLevel, transferPowerRange, cards as sharedCards } from './engineerCards.shared';
 
 /**
  * Apply a set of saved effects onto a system, consolidating leveled effects where they already exist.
@@ -39,6 +39,20 @@ function applySwappedEffects(
                 added.progress = saved.progress;
             }
         }
+    }
+}
+
+/** Take all the Charge from a system, and return how much there was. */
+function spendAllCharge(system: EngineerSystemTile): number {
+    const level = system.getEffectLevel('charge');
+    system.removeEffect('charge', 'expired');
+    return level;
+}
+
+/** Have a system draw that many cards from its deck, as it does when the reactor powers it. */
+function drawCards(system: EngineerSystemTile, count: number) {
+    for (let i = 0; i < count; i++) {
+        system.systemState.scheduledDraw.invoke();
     }
 }
 
@@ -93,6 +107,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     purge: {
+        synergy: { wants: ['flux'] },
         play: (_gameState, _ship, system) => {
             const negativeEffect = system.effects.find(
                 e => getSystemEffectDefinition(e.type).category === SystemEffectCategory.Negative
@@ -107,6 +122,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     reset: {
+        synergy: { wants: ['flux'] },
         play: (_gameState, _ship, system) => {
             system.addEffect('resetting');
             return true;
@@ -137,6 +153,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     runQuiet: {
+        synergy: { provides: ['charge'] },
         play: (_gameState, _ship, system) => {
             // The same card brings it back.
             return system.hasEffect('runningQuiet')
@@ -316,7 +333,11 @@ export const cards = defineEngineCards(sharedCards, {
             const neighborIndex = systemIndex ^ 1;
             const neighbor = ship.engineerState.systems[neighborIndex];
 
-            const UNTRANSFERABLE: ReadonlySet<SystemEffectType> = new Set(['resetting', 'reactorBreach', 'relocating']);
+            // Banking power, emergency power and an auto-destruct countdown do something when they're removed, vented shields are only ever the hull's,
+            // and a cannibalised system is where its parts came from, so none of them can move.
+            const UNTRANSFERABLE: ReadonlySet<SystemEffectType> = new Set([
+                'resetting', 'reactorBreach', 'relocating', 'bankingPower', 'shieldsVented', 'autoDestructing', 'cannibalised', 'emergencyPower',
+            ]);
 
             // Save transferable effects from both systems.
             type SavedEffect = { type: SystemEffectType; level: number; progress: CooldownState | null };
@@ -366,6 +387,180 @@ export const cards = defineEngineCards(sharedCards, {
             // Recalculate each system's card generation cooldowns after modifying the reactor deck.
             ship.updateCardGeneration();
 
+            return true;
+        },
+    },
+    trickleCharge: {
+        synergy: { provides: ['charge'] },
+        play: (_gameState, _ship, system, parameters) => {
+            // A system that's already full has no room for more.
+            if (system.getEffectLevel('charge') >= chargeMaxLevel) {
+                return false;
+            }
+
+            system.adjustEffectLevel('charge', parameters['charge'] ?? 1);
+            return true;
+        },
+    },
+    bankPower: {
+        synergy: { provides: ['charge'] },
+        play: (_gameState, _ship, system) => {
+            // Playing it again while it's running would only start its time over.
+            if (system.hasEffect('bankingPower')) {
+                return false;
+            }
+
+            return system.addEffect('bankingPower');
+        },
+    },
+    discharge: {
+        synergy: { wants: ['charge'] },
+        play: (_gameState, _ship, system) => {
+            const level = spendAllCharge(system);
+            if (level <= 0) {
+                return false;
+            }
+
+            // Adds to a discharge that's already running, and starts its time over.
+            system.adjustEffectLevel('discharging', level);
+            system.addEffect('discharging');
+            return true;
+        },
+    },
+    surgeDraw: {
+        synergy: { wants: ['charge'] },
+        play: (_gameState, _ship, system, parameters) => {
+            const level = spendAllCharge(system);
+            if (level <= 0) {
+                return false;
+            }
+
+            drawCards(system, level * (parameters['cardsPerLevel'] ?? 1));
+            return true;
+        },
+    },
+    redline: {
+        synergy: { provides: ['flux'] },
+        play: (_gameState, _ship, system) => {
+            // The same card stops it.
+            return system.hasEffect('redlining')
+                ? system.removeEffect('redlining', 'early')
+                : system.addEffect('redlining');
+        },
+    },
+    vent: {
+        synergy: { wants: ['flux'] },
+        play: (_gameState, ship) => {
+            const hull = ship.engineerState.systems.find(tile => tile.system === 'hull');
+            const fluxedSystems = ship.engineerState.systems.filter(tile => tile.hasEffect('flux'));
+
+            // With no Flux anywhere, there's nothing to vent.
+            if (!hull || fluxedSystems.length === 0) {
+                return false;
+            }
+
+            for (const system of fluxedSystems) {
+                system.removeEffect('flux', 'early');
+            }
+
+            hull.addEffect('shieldsVented');
+            return true;
+        },
+    },
+    railFeed: {
+        play: (_gameState, ship, system) => {
+            // The grid is 2 wide and 3 tall, numbered along each row in turn, so a column is every system whose index has the same parity as this one's.
+            const column = ship.engineerState.systems.indexOf(system) % 2;
+
+            ship.engineerState.systems
+                .filter((_tile, index) => index % 2 === column)
+                .forEach(tile => tile.addEffect('railFeed'));
+            return true;
+        },
+    },
+    priorityFeed: {
+        play: (_gameState, _ship, system, parameters) => {
+            drawCards(system, parameters['cards'] ?? 1);
+            return true;
+        },
+    },
+    buffer: {
+        synergy: { wants: ['charge'] },
+        play: (_gameState, _ship, system) => {
+            if (system.hasEffect('buffered')) {
+                return false;
+            }
+
+            return system.addEffect('buffered');
+        },
+    },
+    hotStart: {
+        synergy: { provides: ['flux'] },
+        play: (_gameState, _ship, system, parameters) => {
+            drawCards(system, parameters['cards'] ?? 2);
+            system.adjustEffectLevel('flux', parameters['flux'] ?? 1);
+            return true;
+        },
+    },
+    extremeMeasures: {
+        synergy: { provides: ['flux'] },
+    },
+    autoDestruct: {
+        play: (_gameState, ship) => {
+            const engineer = ship.engineerState.systems.find(tile => tile.system === 'engineer');
+            if (!engineer || engineer.hasEffect('autoDestructing')) {
+                return false;
+            }
+
+            engineer.addEffect('autoDestructing');
+
+            // Room is made for it, so the countdown can always be stopped.
+            ship.engineerState.addCard('abortAutoDestruct', true);
+            return true;
+        },
+    },
+    abortAutoDestruct: {
+        play: (_gameState, ship) => {
+            const engineer = ship.engineerState.systems.find(tile => tile.system === 'engineer');
+            return engineer?.removeEffect('autoDestructing', 'early') === true;
+        },
+    },
+    cannibalise: {
+        play: (_gameState, ship, system) => {
+            // The hull can't be stripped: with every card of it damaged, the ship is destroyed.
+            const alreadyCannibalised = ship.engineerState.systems.some(tile => tile.hasEffect('cannibalised'));
+            const damaged = system.systemState.health;
+            if (system.system === 'hull' || alreadyCannibalised || damaged <= 0) {
+                return false;
+            }
+
+            system.adjustSystemHealth(-damaged);
+            system.adjustEffectLevel('cannibalised', damaged);
+            ship.engineerState.addCard('graft');
+            return true;
+        },
+    },
+    graft: {
+        play: (_gameState, ship, system) => {
+            if (system.hasEffect('cannibalised')) {
+                return false;
+            }
+
+            const cannibalisedSystem = ship.engineerState.systems.find(tile => tile.hasEffect('cannibalised'));
+            if (!cannibalisedSystem || system.systemState.health >= system.systemState.maxHealth) {
+                return false;
+            }
+
+            system.systemState.fullyRepairCards(cannibalisedSystem.getEffectLevel('cannibalised'));
+            cannibalisedSystem.removeEffect('cannibalised', 'early');
+            return true;
+        },
+    },
+    emergencyPower: {
+        play: (_gameState, ship) => {
+            for (const tile of ship.engineerState.systems) {
+                tile.addEffect('emergencyPower');
+            }
             return true;
         },
     },

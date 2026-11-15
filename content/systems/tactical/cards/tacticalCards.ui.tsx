@@ -381,6 +381,90 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
+    acquireLock: {
+        name: 'Acquire Lock',
+        description: <>
+            Gain
+            {' '}
+            <Parameter name="lockGain" />
+            {' '}
+            Lock on a ship, losing any held on another. Each level makes every shot at it
+            {' '}
+            <Parameter name="accuracyPerLevel" />
+            % more accurate. Lock fades by a level every
+            {' '}
+            <Parameter name="fadeSeconds" />
+            s since it was last gained.
+        </>,
+        image: <ExampleIcon />,
+    },
+    alphaStrike: {
+        name: 'Alpha Strike',
+        description: <>
+            Fire every weapon that can fire at the locked ship, at once, using each one up. Spend all Lock: each shot does
+            {' '}
+            <Parameter name="damagePerLock" />
+            {' '}
+            more damage per level.
+        </>,
+        image: <ExampleIcon />,
+    },
+    powerCell: {
+        name: 'Power Cell',
+        description: <>
+            Give a weapon
+            {' '}
+            <Parameter name="charge" />
+            {' '}
+            charge, without modifying it. Spent as charge instead, it's worth
+            {' '}
+            <Parameter name="chargeValue" />
+            .
+        </>,
+        image: <ExampleIcon />,
+    },
+    hotSwap: {
+        name: 'Hot Swap',
+        description: <>
+            Take all the charge from your other weapon, as far as this one can hold it, without modifying it.
+        </>,
+        image: <ExampleIcon />,
+    },
+    tractorBeam: {
+        name: 'Tractor Beam',
+        description: <>
+            Hold a ship within
+            {' '}
+            <Parameter name="range" />
+            {' '}
+            in a tractor beam for
+            {' '}
+            <Parameter name="duration" />
+            s, cancelling its manoeuvre and slowing its manoeuvres by
+            {' '}
+            <Parameter name="targetSlowdown" />
+            %. Your own manoeuvres are slowed by
+            {' '}
+            <Parameter name="ownSlowdown" />
+            % while it holds. Gain
+            {' '}
+            <Parameter name="lockGain" />
+            {' '}
+            Lock on the ship. The beam breaks if the ship gets out of range.
+        </>,
+        image: <ExampleIcon />,
+    },
+    exploit: {
+        name: 'Exploit',
+        description: <>
+            A weapon's shots aimed at a system do
+            {' '}
+            <Parameter name="damagePerNegativeEffect" />
+            {' '}
+            more damage for each negative effect on that system.
+        </>,
+        image: <ExampleIcon />,
+    },
     exampleEnemyTarget: {
         name: 'Example Enemy Target',
         description: 'An example card that targets an enemy.',

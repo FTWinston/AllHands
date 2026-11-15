@@ -71,9 +71,12 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
      */
     private removeExpiredEffects(currentTime: number) {
         for (const tile of this.systems) {
-            for (let i = tile.effects.length - 1; i >= 0; i--) {
-                const effect = tile.effects[i];
-                if (effect.progress && currentTime >= effect.progress.endTime) {
+            // Removing one effect can add or remove others on the same tile (e.g. Emergency Power leaves Flux, which can damage a card), so find them all first.
+            const expired = tile.effects.filter(effect => effect.progress && currentTime >= effect.progress.endTime);
+
+            for (let i = expired.length - 1; i >= 0; i--) {
+                const effect = expired[i];
+                if (tile.effects.includes(effect)) {
                     tile.removeEffect(effect.type, 'expired');
                 }
             }

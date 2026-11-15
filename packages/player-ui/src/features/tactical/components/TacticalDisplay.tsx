@@ -12,6 +12,7 @@ import { ComponentProps, PropsWithChildren, useCallback, useState } from 'react'
 import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
+import { canPlayOnWeapon } from '../utils/weaponCards';
 import { TacticalTargetList } from './TacticalTargetList';
 import { WeaponSlots } from './WeaponSlots';
 
@@ -27,10 +28,14 @@ type Props = PropsWithChildren<Omit<ComponentProps<typeof CrewHeader>, 'crew' | 
     /** The hull of the ship science is scanning, if any. */
     scannedHull: ScannedHullInfo | null;
     viewer: RelationshipViewer;
+    /** The id of the ship that Lock is held against. Empty while there's no Lock. */
+    lockTargetId: string;
+    /** How many levels of Lock are held against that ship. */
+    lockLevel: number;
 }>;
 
 export const TacticalDisplay = (props: Props) => {
-    const { cards, slots, playCard, ejectWeapon, targets, subTargetsByTarget, scannedHull, viewer, children, ...headerProps } = props;
+    const { cards, slots, playCard, ejectWeapon, targets, subTargetsByTarget, scannedHull, viewer, lockTargetId, lockLevel, children, ...headerProps } = props;
 
     useRootClassName(crewStyles.tactical);
 
@@ -45,24 +50,11 @@ export const TacticalDisplay = (props: Props) => {
         ? null
         : getFiringSolution(props.shipMotion, currentTarget.motion, currentTime);
 
-    // A card is highlighted if it can prime at least one unprimed weapon slot.
+    // A card is highlighted if it can be played on at least one loaded weapon: one with no modifier yet, or any at all for an instant card.
     const isCardHighlighted = useCallback(
         (card: Snapshot<CardInstance>) => {
             const definition = getCardDefinition(card.type);
-            if (definition.targetType !== 'weapon') {
-                return false;
-            }
-
-            const { requiredWeaponTrait } = definition;
-            return slots.some((slot) => {
-                if (!slot.card || slot.modified) {
-                    return false;
-                }
-                if (requiredWeaponTrait === undefined) {
-                    return true;
-                }
-                return getCardDefinition(slot.card.type).traits?.includes(requiredWeaponTrait) ?? false;
-            });
+            return definition.targetType === 'weapon' && slots.some(slot => canPlayOnWeapon(definition, slot));
         },
         [slots]
     );
@@ -87,6 +79,8 @@ export const TacticalDisplay = (props: Props) => {
                     onVisibleTargetChange={setCurrentTargetIndex}
                     targetAspect={firingSolution?.targetAspect}
                     viewer={viewer}
+                    lockTargetId={lockTargetId}
+                    lockLevel={lockLevel}
                 />
 
                 <WeaponSlots slots={slots} firingSolution={firingSolution} onEject={ejectWeapon} />

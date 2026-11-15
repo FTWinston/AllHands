@@ -4,13 +4,15 @@ import { CardTargetType } from 'common-data/features/cards/types/CardTargetType'
 import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import { CardType, WeaponSlotTargetedCardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
+import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { FiringState } from 'common-data/features/space/types/FiringState';
 import { TacticalSystemInfo, TacticalSystemSetupInfo, SubTargetInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
 import { isWeaponTrait } from 'src/cards/applyWeaponTrait';
-import { EngineCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
+import { EngineCardDefinition, EngineEnemyTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineWeaponTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
+import { getSystemEffectDefinition } from 'src/effects/getEngineSystemEffectDefinition';
 import { CardState } from 'src/state/CardState';
 import { GameObject } from 'src/state/GameObject';
 import { GameState } from 'src/state/GameState';
@@ -22,6 +24,12 @@ import { WeaponSlotState } from './WeaponSlotState';
 
 /** Game-time delay between each shot of a multi-shot weapon, in ms. */
 const extraShotDelay = 200;
+
+/** Percentage points of accuracy that every shot at the locked ship gains, for each level of Lock. */
+export const lockAccuracyPerLevel = 10;
+
+/** How long after Lock was last gained it fades by a level, and then by each further level, in ms. */
+export const lockFadeInterval = 8000;
 
 export class TacticalState extends CrewSystemState implements TacticalSystemInfo {
     constructor(setup: TacticalSystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, initialPowerLevel: number, getCardId: () => number) {
@@ -35,12 +43,85 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     @type({ map: TargetSubTargetsState }) subTargetsByTarget = new MapSchema<TargetSubTargetsState>();
     @type([WeaponSlotState]) slots = new ArraySchema<WeaponSlotState>();
 
+    /** The id of the ship that Lock is held against. Empty while there's no Lock. */
+    @type('string') lockTargetId = '';
+
+    /** The level of the `lock` effect on this system, which sets it (see `lockLevelChanged`). Held here too as tactical's own client can't see the system's effects. */
+    @type('uint8') lockLevel = 0;
+
+    /** When Lock next fades by a level. Null while there's no Lock. */
+    private lockFadeTime: number | null = null;
+
     update(currentTime: number) {
         for (const slot of this.slots) {
             const slotCard = slot.card;
             if (slot.update(currentTime) && slotCard) {
                 this.discardSlotCard(slotCard);
             }
+        }
+
+        this.updateLock(currentTime);
+    }
+
+    /**
+     * Raise Lock against a ship by the given number of levels, up to the `lock` effect's most. Locking a different ship drops any Lock held against the last one first.
+     * Returns false if no Lock was gained: the target isn't another ship, or Lock on it is already as high as it goes.
+     */
+    addLock(target: GameObject, levels: number): boolean {
+        if (!(target instanceof Ship) || target === this.getShip() || levels <= 0) {
+            return false;
+        }
+
+        if (this.lockTargetId !== target.id) {
+            this.dropLock();
+        }
+
+        const previousLevel = this.lockLevel;
+        this.adjustEffectLevel('lock', levels);
+
+        if (this.lockLevel <= previousLevel) {
+            return false;
+        }
+
+        this.lockTargetId = target.id;
+        // Gaining Lock starts its time over.
+        this.lockFadeTime = this.getGameState().currentTime + lockFadeInterval;
+        return true;
+    }
+
+    /** Lose all Lock, and the ship it was held against. */
+    dropLock() {
+        // Removing the effect clears the level and the target (see `lockLevelChanged`). This also covers there being no effect to remove.
+        this.removeEffect('lock', 'early');
+        this.lockLevelChanged(0);
+    }
+
+    /** Called by the `lock` effect whenever its level changes, to keep this system's Lock in step with it. With no levels left, the locked ship is forgotten. */
+    lockLevelChanged(level: number) {
+        this.lockLevel = level;
+
+        if (level <= 0) {
+            this.lockTargetId = '';
+            this.lockFadeTime = null;
+        }
+    }
+
+    /** Lock is dropped once the locked ship is destroyed or out of sensor range, and fades a level each time `lockFadeInterval` passes without any being gained. */
+    private updateLock(currentTime: number) {
+        if (this.lockLevel <= 0) {
+            return;
+        }
+
+        if (!this.resolveTarget(this.lockTargetId)) {
+            this.dropLock();
+            return;
+        }
+
+        if (this.lockFadeTime === null) {
+            this.lockFadeTime = currentTime + lockFadeInterval;
+        } else if (currentTime >= this.lockFadeTime) {
+            this.lockFadeTime += lockFadeInterval;
+            this.adjustEffectLevel('lock', -1);
         }
     }
 
@@ -120,8 +201,8 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             return false;
         }
 
-        const { requiredWeaponTrait } = cardDefinition;
-        if (slot.modified) {
+        const { requiredWeaponTrait, instant } = cardDefinition;
+        if (slot.modified && !instant) {
             console.log('weapon is already modified');
             return false;
         }
@@ -139,13 +220,26 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             return false;
         }
 
-        slot.modified = true;
-        slot.modifierCard = cardType;
+        // An instant card has done all it does, so the weapon is still free to take a modifier.
+        if (!instant) {
+            slot.modified = true;
+            slot.modifierCard = cardType;
+        }
+
         this.scienceScanDataChanged.invoke();
         return true;
     }
 
-    /** Spend a hand card to charge a weapon slot by the card's power cost. Only weapon and weapon slot cards can be spent this way. */
+    /** A card played on a ship can be dropped on one of its sub-targets, which is taken as the ship itself. */
+    protected override playEnemyCard(cardDefinition: EngineEnemyTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+        const splitPos = targetId.indexOf(':');
+        return super.playEnemyCard(cardDefinition, splitPos === -1 ? targetId : targetId.substring(0, splitPos), parameters);
+    }
+
+    /**
+     * Spend a hand card to charge a weapon slot by the card's power cost, or by its `chargeValue` parameter if it has one.
+     * Only weapon and weapon slot cards can be spent this way.
+     */
     chargeWeaponSlot(cardId: number, slotId: string): boolean {
         const slot = this.resolveWeaponSlot(slotId);
         if (!slot?.canBeCharged()) {
@@ -161,7 +255,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             return false;
         }
 
-        slot.addCharge(found.cost, this.getGameState().currentTime);
+        slot.addCharge(found.card.getParameter('chargeValue') || found.cost, this.getGameState().currentTime);
         this.handlePlayedCard(found.card, found.cardIndex, false);
         this.scienceScanDataChanged.invoke();
         return true;
@@ -207,16 +301,96 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             }
         }
 
-        const cardDef = getCardDefinition(cardType);
-        const currentTime = this.getGameState().currentTime;
-        const slotParameters = slot.getParameters();
-        const firingSolution = getFiringSolution(this.getShip().motion, target.motion, currentTime);
-        const firingState = getFiringState(firingSolution, slot.hasBeenFullyCharged, slot.charge, slotParameters, subTarget);
+        const firingState = this.getSlotFiringState(slot, target, subTarget);
 
         if (firingState !== FiringState.CanFire) {
             console.warn(`cannot fire: firingState=${firingState}`);
             return null;
         }
+
+        const cardDef = this.fireSlot(slot, cardType, target, subTarget, 0, false);
+
+        this.scienceScanDataChanged.invoke();
+        return cardDef;
+    }
+
+    /**
+     * Fire every weapon that can fire at the locked ship, at once. Each does extra damage for every level of Lock, and is used up, whatever charge it had left.
+     * All Lock is then spent. Returns how many weapons fired: if none could, nothing happens, and Lock is kept.
+     */
+    fireVolley(damagePerLockLevel: number): number {
+        const target = this.lockLevel > 0 ? this.resolveTarget(this.lockTargetId) : null;
+        if (!target || this.health <= 0) {
+            return 0;
+        }
+
+        const extraDamage = this.lockLevel * damagePerLockLevel;
+        let fired = 0;
+
+        for (const slot of this.slots) {
+            if (slot.card && this.getSlotFiringState(slot, target, undefined) === FiringState.CanFire) {
+                this.fireSlot(slot, slot.card.type as WeaponSlotTargetedCardType, target, undefined, extraDamage, true);
+                fired++;
+            }
+        }
+
+        if (fired > 0) {
+            this.dropLock();
+            this.scienceScanDataChanged.invoke();
+        }
+
+        return fired;
+    }
+
+    /**
+     * Move all of one weapon's charge to another, up to what that one can hold: any more stays where it was.
+     * A weapon left with no charge is used up, if it had been fully charged. Returns false if no charge could be moved.
+     */
+    moveCharge(fromSlotId: string, toSlotId: string): boolean {
+        const from = this.resolveWeaponSlot(fromSlotId);
+        const to = this.resolveWeaponSlot(toSlotId);
+        const fromCard = from?.card;
+        if (!from || !to || from === to || !fromCard) {
+            return false;
+        }
+
+        const moved = to.receiveCharge(from.charge, this.getGameState().currentTime);
+        if (moved <= 0) {
+            return false;
+        }
+
+        if (from.removeCharge(moved)) {
+            this.discardSlotCard(fromCard);
+        }
+
+        this.scienceScanDataChanged.invoke();
+        return true;
+    }
+
+    /** The loaded weapon slot other than the given one. Null if there's no other weapon loaded. */
+    getOtherLoadedSlot(slotId: string): WeaponSlotState | null {
+        return this.slots.find(slot => slot.id !== slotId && slot.card !== null) ?? null;
+    }
+
+    private getSlotFiringState(slot: WeaponSlotState, target: GameObject, subTarget: SubTargetInfo | undefined): FiringState {
+        const firingSolution = getFiringSolution(this.getShip().motion, target.motion, this.getGameState().currentTime);
+        return getFiringState(firingSolution, slot.hasBeenFullyCharged, slot.charge, slot.getParameters(), subTarget);
+    }
+
+    /**
+     * Fire the weapon in a slot at a target, without checking whether it can. Extra damage is added to each of its shots.
+     * It then uses up one use's charge, or everything it has if it's emptying, in which case it's discarded.
+     */
+    private fireSlot(slot: WeaponSlotState, cardType: WeaponSlotTargetedCardType, target: GameObject, subTarget: SubTargetInfo | undefined, extraDamage: number, empties: boolean): EngineWeaponSlotCardDefinition {
+        const cardDef = getCardDefinition(cardType);
+        const currentTime = this.getGameState().currentTime;
+        // Every shot lands on the system aimed at, if there is one.
+        const targetSystem = subTarget?.system ?? null;
+        extraDamage += this.getAimedDamageBonus(slot, target, targetSystem);
+
+        const slotParameters = extraDamage
+            ? { ...slot.getParameters(), damage: slot.getParameter('damage') + extraDamage }
+            : slot.getParameters();
 
         const slotCard = slot.card;
         const accuracy = this.determineAccuracy(target, subTarget, slotParameters['accuracy'] ?? 0);
@@ -224,8 +398,6 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
         const gameState = this.getGameState();
         const ship = this.getShip();
-        // Every shot lands on the system aimed at, if there is one.
-        const targetSystem = subTarget?.system ?? null;
         cardDef.fire(gameState, ship, target, slotParameters, accuracy, weaponTraits, targetSystem);
 
         const extraShots = Math.max(0, Math.floor(slotParameters['extraShots'] ?? 0));
@@ -236,7 +408,11 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             }, i * extraShotDelay);
         }
 
-        if (slotCard && slot.afterFiring(currentTime)) {
+        if (empties) {
+            slot.clear();
+        }
+
+        if (slotCard && (empties || slot.afterFiring(currentTime))) {
             this.discardSlotCard(slotCard);
         }
 
@@ -245,23 +421,42 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             this.adjustHealth(-selfDamage);
         }
 
-        this.scienceScanDataChanged.invoke();
         return cardDef;
     }
 
+    /**
+     * The extra damage a weapon with a `damagePerNegativeEffect` parameter does to a ship's system it's aimed at: that much for each negative effect on the system.
+     * A shot that isn't aimed gets none, as the system it will land on isn't known until it does.
+     */
+    private getAimedDamageBonus(slot: WeaponSlotState, target: GameObject, targetSystem: ShipSystem | null): number {
+        const damagePerEffect = slot.getParameter('damagePerNegativeEffect');
+        if (!damagePerEffect || !targetSystem || !(target instanceof Ship)) {
+            return 0;
+        }
+
+        const tile = target.engineerState.systems.find(candidate => candidate.system === targetSystem);
+        const negativeEffects = tile?.effects.filter(effect => getSystemEffectDefinition(effect.type).category === SystemEffectCategory.Negative) ?? [];
+        return negativeEffects.length * damagePerEffect;
+    }
+
     private determineAccuracy(target: GameObject, subTarget: SubTargetInfo | undefined, weaponAccuracy: number) {
-        let accuracy = 100 + weaponAccuracy;
+        // The way this ship is being flown can steady its weapons, or throw them off.
+        let accuracy = 100 + weaponAccuracy + this.getShip().helmState.weaponAccuracyModifier;
 
         if (target instanceof Ship) {
             // Adjust accuracy based on the target's evasion, if applicable.
             const targetHelm = target.helmState;
-            const targetEvasion = targetHelm.activeManeuver?.card?.getParameter('evasion') ?? 0;
-            accuracy -= targetEvasion;
+            accuracy -= targetHelm.evasion;
 
             if (subTarget?.system) {
                 // Adjust accuracy based on the sub-targeted system, if applicable.
                 accuracy += target.getSystem(subTarget.system).chanceToHitPercentageModifier;
             }
+        }
+
+        // Every level of Lock held against the target makes each shot at it more accurate.
+        if (this.lockLevel > 0 && target.id === this.lockTargetId) {
+            accuracy += this.lockLevel * lockAccuracyPerLevel;
         }
 
         // Clamp accuracy to [0, 100] range.
@@ -346,5 +541,8 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             slot.clear();
         }
         super.cleanupAfterEncounter();
+
+        // Clearing the system's effects has already dropped any Lock: this covers a system with none to clear.
+        this.lockLevelChanged(0);
     }
 }

@@ -1,48 +1,18 @@
 import { cardDefinitions, type CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
 import { isCrewRoleName } from 'common-data/features/ships/types/CrewRole';
+import { getCardDefinition } from './getEngineCardDefinition';
+import type { CardSynergy, SynergyTag } from './CardSynergy';
 import type { CardDefinition } from 'common-data/features/cards/types/CardDefinition';
 
-/**
- * What links cards that work well together, for work orders: a card that "wants" a tag is a good match for one that "provides" it, and vice versa.
- * Tags live only in the engine, and are never sent to clients. Extend this as cards that need new tags arrive.
- */
-export type SynergyTag = 'zeroCost' | 'energyWeapon' | 'torpedoWeapon';
-
-/** The synergy tags of one card type. Each card should have at most two in all: usually one thing it provides, and at most one it wants. */
-export type CardSynergy = {
-    provides?: readonly SynergyTag[];
-    wants?: readonly SynergyTag[];
-};
+export type { CardSynergy, SynergyTag } from './CardSynergy';
 
 /**
- * The synergy tags of each card type. Untagged cards never match anything.
+ * Every synergy tag of a card type, from its engine definition's `synergy`. Untagged cards never match anything.
  * Every enabler and payoff should be tagged; generic staples can stay untagged, as they're found in the random shop.
  */
-export const cardSynergies: Partial<Record<CardType, CardSynergy>> = {
-    phaserCannon: { provides: ['energyWeapon'] },
-    phaserStrip: { provides: ['energyWeapon'] },
-    photonicCannon: { provides: ['energyWeapon'] },
-    highIntensity: { wants: ['energyWeapon'] },
-    lensingEnhancement: { wants: ['energyWeapon'] },
-    precisionFocus: { wants: ['energyWeapon'] },
-    subCritical: { wants: ['energyWeapon'] },
-    weaponOvercharge: { wants: ['energyWeapon'] },
-    rapidFire: { wants: ['energyWeapon'] },
-    ionicSurge: { wants: ['energyWeapon'] },
-
-    photonTorpedo: { provides: ['torpedoWeapon'] },
-    quantumTorpedo: { provides: ['torpedoWeapon'] },
-    lowYield: { wants: ['torpedoWeapon'] },
-    highYield: { wants: ['torpedoWeapon'] },
-    extendedRange: { wants: ['torpedoWeapon'] },
-    projectileManoeuvrability: { wants: ['torpedoWeapon'] },
-    fullSpread: { wants: ['torpedoWeapon'] },
-};
-
-/** Every synergy tag of a card type (see `cardSynergies`). */
 export function getCardSynergy(type: CardType): Required<CardSynergy> {
-    const synergy = cardSynergies[type];
+    const synergy = getCardDefinition(type).synergy;
     return { provides: synergy?.provides ?? [], wants: synergy?.wants ?? [] };
 }
 
