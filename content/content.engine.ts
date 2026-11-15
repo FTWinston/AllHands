@@ -1,9 +1,7 @@
-import { effectsEngine } from './general/effects/effects.engine';
-import { encountersEngine } from './general/encounters/encounters.engine';
-import { shipsEngine } from './general/ships/ships.engine';
-import { sector1EngineContent } from './sectors/1/sector.engine';
-import { sector2EngineContent } from './sectors/2/sector.engine';
-import { sector3EngineContent } from './sectors/3/sector.engine';
+import { generalEngine } from './general/general.engine';
+import { sector1EngineContent } from './sectors/sector1/sector.engine';
+import { sector2EngineContent } from './sectors/sector2/sector.engine';
+import { sector3EngineContent } from './sectors/sector3/sector.engine';
 import { engineerEngine } from './systems/engineer/engineer.engine';
 import { helmEngine } from './systems/helm/helm.engine';
 import { hullEngine } from './systems/hull/hull.engine';
@@ -25,9 +23,7 @@ export const engineContent = [
     scienceEngine,
     deflectorsEngine,
     engineerEngine,
-    effectsEngine,
-    shipsEngine,
-    encountersEngine,
+    ...generalEngine,
     ...sector1EngineContent,
     ...sector2EngineContent,
     ...sector3EngineContent,

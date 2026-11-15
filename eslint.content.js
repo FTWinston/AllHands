@@ -6,11 +6,13 @@
 // - *.ui.ts(x), and *.test.tsx, are for the clients (type-checked as part of common-ui).
 // Each may only import what that part of the game has. On top of that:
 // - Content folders reach each other through `content/...`, never `../`, so these rules can see where an import goes.
-// - Nothing outside a sector's folder imports from it, and a folder within a sector imports nothing from another one:
-//   something two encounters both need belongs in content/general or content/systems.
+// - Nothing outside a sector's folder imports from it, and an encounter's folder imports nothing from another one (though it can reach
+//   its own subfolders, such as its cards and effects, by its `content/sectors/...` path): something two encounters both need belongs
+//   in content/general or content/systems.
 //   So the manifests (content/content.*.ts) are the only way in to a sector, and leaving one out of them leaves it out of the build.
 // - The packages only import the content manifests, and only where content is registered (or where common-data puts the shared content together).
 //   Anywhere else, content is reached through the registries (`getCardDefinition` and the like). Types can be imported from anywhere.
+import fs from 'node:fs';
 import tseslint from '@typescript-eslint/eslint-plugin';
 
 const rule = '@typescript-eslint/no-restricted-imports';
@@ -78,9 +80,24 @@ const sides = {
     ui: { files: '**/*.{ui.ts,ui.tsx,test.tsx}', restrictions: restrictions.uiSide },
 };
 
+/** Each encounter's folder, as `<sector>/<encounter>`: what's in one may only reach into itself, by its `content/sectors/...` path. */
+const encounterFolders = fs.readdirSync(new URL('./content/sectors', import.meta.url), { withFileTypes: true })
+    .filter(sector => sector.isDirectory())
+    .flatMap(sector => fs.readdirSync(new URL(`./content/sectors/${sector.name}`, import.meta.url), { withFileTypes: true })
+        .filter(encounter => encounter.isDirectory())
+        .map(encounter => `${sector.name}/${encounter.name}`));
+
+const escape = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const places = {
-    outsideSectors: { files: 'content/{*,general/**/*,systems/**/*}', restrictions: restrictions.outsideSectors },
-    insideSectors: { files: 'content/sectors/**/*', restrictions: restrictions.insideSectors },
+    // Everything but the sectors: the manifests, general and the systems.
+    outsideSectors: { files: 'content/**/*', ignores: ['content/sectors/**'], restrictions: restrictions.outsideSectors },
+    // A sector's own files, which reach its encounters with relative paths.
+    sectors: { files: 'content/sectors/*/*', restrictions: restrictions.insideSectors },
+    ...Object.fromEntries(encounterFolders.map(folder => [folder, {
+        files: `content/sectors/${folder}/**/*`,
+        restrictions: [{ ...restrictions.insideSectors[0], regex: `^content/sectors(?!/${escape(folder)}/)(/|$)` }],
+    }])),
 };
 
 const packages = {
@@ -104,8 +121,10 @@ const testFiles = '**/*.{test,stories}.{ts,tsx}';
 
 export const contentImportRules = [
     ...Object.entries(sides).flatMap(([side, { files, restrictions: sideRestrictions }]) =>
-        Object.entries(places).map(([place, { files: placeFiles, restrictions: placeRestrictions }]) =>
-            restrict(`content/${side}/${place}`, [placeFiles, files], sideRestrictions, restrictions.contentFolders, placeRestrictions))),
+        Object.entries(places).map(([place, { files: placeFiles, ignores, restrictions: placeRestrictions }]) => ({
+            ...restrict(`content/${side}/${place}`, [placeFiles, files], sideRestrictions, restrictions.contentFolders, placeRestrictions),
+            ...(ignores && { ignores }),
+        }))),
     ...Object.entries(packages).flatMap(([pkg, packageRestrictions]) => [
         {
             ...restrict(`packages/${pkg}`, [`packages/${pkg}/src/**/*.{ts,tsx}`], packageRestrictions, restrictions.packages),

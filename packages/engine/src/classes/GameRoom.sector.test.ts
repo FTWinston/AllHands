@@ -3,7 +3,7 @@ import { getHailDuration } from 'common-data/features/sectors/types/HailInfo';
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
-import { offerAnswers, offerAtMs } from 'content/sectors/1/slowBoat/SlowBoatEncounter.engine';
+import { offerAnswers, offerAtMs } from 'content/sectors/sector1/slowBoat/slowBoat.engine';
 import { playerFactionId } from 'src/campaign/factions';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { DEV_TOOLS_ENABLED } from 'src/devTools';

@@ -1,5 +1,7 @@
-import { effectsUi } from './general/effects/effects.ui';
-import { sector1UiContent } from './sectors/1/sector.ui';
+import { generalUi } from './general/general.ui';
+import { sector1UiContent } from './sectors/sector1/sector.ui';
+import { sector2UiContent } from './sectors/sector2/sector.ui';
+import { sector3UiContent } from './sectors/sector3/sector.ui';
 import { engineerUi } from './systems/engineer/engineer.ui';
 import { helmUi } from './systems/helm/helm.ui';
 import { hullUi } from './systems/hull/hull.ui';
@@ -20,6 +22,8 @@ export const uiContent = [
     scienceUi,
     deflectorsUi,
     engineerUi,
-    effectsUi,
+    ...generalUi,
     ...sector1UiContent,
+    ...sector2UiContent,
+    ...sector3UiContent,
 ] as const;

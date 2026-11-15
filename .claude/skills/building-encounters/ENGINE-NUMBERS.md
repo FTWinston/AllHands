@@ -5,7 +5,7 @@ What a spec's numbers come to in the engine, how AI ships behave, and what each 
 ## Damage and health
 
 - **Health is a card count.** A system's health is how many of its cards are undamaged, and the hull's is the same (`SystemState`). A ship is destroyed when its hull reaches 0. Expendable cards, such as Aux Power, aren't counted.
-- **A hit that gets through damages that many cards.** Phaser strip 10, phaser cannon 20, photon torpedo 40, photonic cannon and quantum torpedo 60 (`content/systems/tactical/tactical.shared.ts`). A harrier's hull is 5 cards. So shields are the health bar, and what's under them is one or two hits.
+- **A hit that gets through damages that many cards.** Phaser strip 10, phaser cannon 20, photon torpedo 40, photonic cannon and quantum torpedo 60 (`content/systems/tactical/cards/tacticalCards.shared.ts`). A harrier's hull is 5 cards. So shields are the health bar, and what's under them is one or two hits.
 - **An aimed shot** puts 60% (rounded up) on the system aimed at and the rest on the hull. **An unaimed one** picks from all six systems at random: if that's the hull, all of it goes there, and otherwise it splits the same way (`Ship.damage`). Both use up the same random number, so aiming doesn't change what a seed does after it.
 - **To make something survive stray hits**, pad its hull with `hullBare`. The customs platform has 60.
 - **Cards are damaged in a random order**, picked when the ship is built, whatever order the design lists them in, with cards in a slot last. A damaged emitter takes its 15 off the shield capacity, and listing bare hull first doesn't protect it: only the share of emitters does.

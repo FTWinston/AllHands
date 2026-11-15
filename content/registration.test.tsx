@@ -12,12 +12,25 @@ function exportedContent(modules: Modules, side: string) {
         .map(([name, value]) => ({ name: `${name} (${file})`, value })));
 }
 
+/** The cards and effects that a folder's `cards/` and `effects/` files export, which its content puts together. */
+function exportedPieces(modules: Modules) {
+    return Object.entries(modules)
+        .filter(([file]) => /\/(cards|effects)\/[^/]+$/.test(file))
+        .flatMap(([file, exports]) => (['cards', 'effects'] as const)
+            .filter(kind => kind in exports)
+            .map(kind => ({ name: `${kind} (${file})`, kind, value: exports[kind] })));
+}
+
 // Every content file, whether or not anything imports it.
 const uiModules: Modules = import.meta.glob('/content/**/*.ui.{ts,tsx}', { eager: true });
 
 describe('UI content registration', () => {
     it.each(exportedContent(uiModules, 'ui'))('lists $name in content.ui.ts', ({ value }) => {
         expect(uiContent).toContain(value);
+    });
+
+    it.each(exportedPieces(uiModules))('puts $name into content listed in content.ui.ts', ({ kind, value }) => {
+        expect(uiContent.some(content => content[kind] === value)).toBe(true);
     });
 
     it('describes each piece of shared content in the clients, once', () => {

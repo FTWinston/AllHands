@@ -1,5 +1,6 @@
 import type { AnySharedContent } from 'common-data/content/SharedContent';
 import type { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
+import type { SystemEffectDefinition } from 'common-data/features/ships/types/SystemEffectDefinition';
 import type { SectorTheme } from 'src/campaign/sectorThemes';
 import type { DesignTemplate } from 'src/campaign/shipDesigns';
 import type {
@@ -44,6 +45,19 @@ export type EngineCards<TCards extends CardsLike> = {
 /** What each of the given status effects does to the system it's on, keyed by effect type. */
 export type EngineEffects<TEffects> = { [K in keyof TEffects]: SystemEffectFunctionality };
 
+/**
+ * What each of a content folder's cards does, checked against those cards' shared definitions (its `cards/*.shared.ts`):
+ * every card must be covered, and each one's functions are given the parameters its target type has.
+ */
+export function defineEngineCards<TCards extends CardsLike>(_shared: TCards, cards: NoInfer<EngineCards<TCards>>): EngineCards<TCards> {
+    return cards;
+}
+
+/** What each of a content folder's status effects does, checked against those effects' shared definitions (its `effects/*.shared.ts`): every effect must be covered. */
+export function defineEngineEffects<TEffects extends Readonly<Record<string, SystemEffectDefinition>>>(_shared: TEffects, effects: NoInfer<EngineEffects<TEffects>>): EngineEffects<TEffects> {
+    return effects;
+}
+
 /** A kind of AI ship, which an encounter spawns with `createShipSetup`. */
 export interface ShipDesignDefinition extends DesignTemplate {
     /** What a ship of this design is called, unless the encounter names it. */
@@ -73,8 +87,8 @@ interface EngineContentParts<TDesigns> {
 
 /** The behaviour of every card and effect in the shared content: required where it has any. */
 type SharedBehaviour<TShared extends AnySharedContent>
-    = (keyof TShared['cards'] extends never ? { cards?: undefined } : { cards: EngineCards<TShared['cards']> })
-        & (keyof TShared['effects'] extends never ? { effects?: undefined } : { effects: EngineEffects<TShared['effects']> });
+    = (keyof TShared['cards'] extends never ? { cards?: EngineCards<TShared['cards']> } : { cards: EngineCards<TShared['cards']> })
+        & (keyof TShared['effects'] extends never ? { effects?: EngineEffects<TShared['effects']> } : { effects: EngineEffects<TShared['effects']> });
 
 export function defineEngineContent<TShared extends AnySharedContent, TDesigns extends Record<string, ShipDesignDefinition> = Record<never, ShipDesignDefinition>>(
     content: { shared: TShared } & SharedBehaviour<TShared> & EngineContentParts<TDesigns>

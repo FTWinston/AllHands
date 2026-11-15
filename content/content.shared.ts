@@ -1,5 +1,7 @@
-import { effectsShared } from './general/effects/effects.shared';
-import { sector1SharedContent } from './sectors/1/sector.shared';
+import { generalShared } from './general/general.shared';
+import { sector1SharedContent } from './sectors/sector1/sector.shared';
+import { sector2SharedContent } from './sectors/sector2/sector.shared';
+import { sector3SharedContent } from './sectors/sector3/sector.shared';
 import { engineerShared } from './systems/engineer/engineer.shared';
 import { helmShared } from './systems/helm/helm.shared';
 import { hullShared } from './systems/hull/hull.shared';
@@ -20,6 +22,8 @@ export const sharedContent = [
     scienceShared,
     deflectorsShared,
     engineerShared,
-    effectsShared,
+    ...generalShared,
     ...sector1SharedContent,
+    ...sector2SharedContent,
+    ...sector3SharedContent,
 ] as const;

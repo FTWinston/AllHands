@@ -1,6 +1,6 @@
 ---
 name: building-encounters
-description: Build or change an All Hands encounter (content/sectors/<n>/<encounter>) from its spec in docs/encounter-specs*.md. Use when implementing an encounter or its elite form, adding an engine piece an encounter needs (ship design, AI goal, card, status effect, objective type), or writing a new encounter spec.
+description: Build or change an All Hands encounter (content/sectors/sector<n>/<encounter>) from its spec in docs/encounter-specs*.md. Use when implementing an encounter or its elite form, adding an engine piece an encounter needs (ship design, AI goal, card, status effect, objective type), or writing a new encounter spec.
 ---
 
 # Building an encounter
@@ -75,10 +75,10 @@ Done when those crews are measured, each behaviour the spec claims is watched in
 
 A new AI goal, card, effect, ship design or hook is its own piece of work, with its own tests and its own commit, finished before the encounter that uses it.
 
-Cards, status effects and ship designs that only this encounter uses go in its own folder, `content/sectors/<n>/<encounter>/`, beside its class. Anything a second encounter needs moves to `content/systems/<system>/` (cards, and the effects they cause) or `content/general/` (other effects, ship designs). One encounter's folder never imports another's: lint stops it. `content/README.md` has how a folder's files fit together.
+Cards, status effects and ship designs that only this encounter uses go in its own folder, `content/sectors/sector<n>/<encounter>/`, beside its class. Anything a second encounter needs moves to `content/systems/<system>/` (cards, and the effects they cause) or `content/general/` (other effects, ship designs). One encounter's folder never imports another's: lint stops it. `content/README.md` has how a folder's files fit together.
 
 - **Ship design:** in the `designs` of the folder's `<folder>.engine.ts`, with its `name`. `shipDesigns.test.ts` checks every design, and needs each to have its own appearance. Give its `fleeThreshold`: it's 0.25 otherwise.
-- **Card:** by the same key in three of the folder's files: its definition in `<folder>.shared.ts`, what it does in `<folder>.engine.ts`, and its name and description in `<folder>.ui.tsx`. Each card belongs to one system.
+- **Card:** by the same key in the three files in the folder's `cards/`: its definition in `<folder>Cards.shared.ts`, what it does in `<folder>Cards.engine.ts` (`defineEngineCards`), and its name and description in `<folder>Cards.ui.tsx` (`defineUiCards`). The folder's top-level `<folder>.shared.ts`, `.engine.ts` and `.ui.tsx` pass them on. Each card belongs to one system.
 - **Status effect:** the same three files, under `effects`.
 - **Objective type:** `ObjectiveInfo.ts`, then `getObjectiveLabel` in `common-ui/.../sectorLabels.ts`, whose exhaustive switch finds the rest.
 - **AI goal:** `AiGoalInfo`, then `Commander.ts`, and a stance in `ai/types.ts` if the helm has to fly differently.

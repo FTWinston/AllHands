@@ -1,6 +1,6 @@
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { antimatterRewards } from 'common-data/features/ships/utils/antimatter';
-import { defaultSurviveDurationMs } from 'content/general/encounters/SurviveEncounter.engine';
+import { defaultSurviveDurationMs } from 'content/general/general.engine';
 import { playerFactionId } from 'src/campaign/factions';
 import { HailState } from 'src/state/HailState';
 import { ObjectiveState } from 'src/state/ObjectiveState';
