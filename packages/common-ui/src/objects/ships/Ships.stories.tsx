@@ -1,4 +1,4 @@
-import { capitalShipAppearances, smallCraftAppearances, unusualShipAppearances, type ShipAppearance } from 'common-data/features/space/types/ObjectAppearance';
+import { shipAppearanceDefinitions, shipAppearances, type ShipAppearance } from 'common-data/features/space/types/ObjectAppearance';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { FC, useEffect, useRef } from 'react';
 import { ObjectIcon } from '..';
@@ -9,9 +9,9 @@ import type { ShipMapStyle } from '../mapSvg';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const families: { label: string; appearances: readonly ShipAppearance[] }[] = [
-    { label: 'Small craft', appearances: smallCraftAppearances },
-    { label: 'Capital and medium ships', appearances: capitalShipAppearances },
-    { label: 'Unusual and non-military', appearances: unusualShipAppearances },
+    { label: 'Small craft', appearances: shipAppearances.filter(appearance => shipAppearanceDefinitions[appearance].size === 'small') },
+    { label: 'Capital and medium ships', appearances: shipAppearances.filter(appearance => shipAppearanceDefinitions[appearance].size === 'capital') },
+    { label: 'Unusual and non-military', appearances: shipAppearances.filter(appearance => shipAppearanceDefinitions[appearance].size === 'unusual') },
 ];
 
 /** A ship's size on a map at its usual zoom, and at the helm's furthest out. */

@@ -65,7 +65,15 @@ export interface ShipDesignDefinition extends DesignTemplate {
 }
 
 /**
- * What a content folder adds to the engine: how its shared cards and status effects behave, and any ship designs, encounters and sectors it defines.
+ * A content folder's ship designs (its `ships/*.engine.ts`), keeping each design's name, which `ShipDesign` is worked out from.
+ * Each design's appearance is a drawing in the same folder's `ships/` (see `content/registration.test.ts`).
+ */
+export function defineDesigns<TDesigns extends Record<string, ShipDesignDefinition>>(designs: TDesigns): TDesigns {
+    return designs;
+}
+
+/**
+ * What a content folder adds to the engine: how its shared cards and status effects behave, and any ship designs (using its shared appearances), encounters and sectors it defines.
  * Every one is listed in `content/content.engine.ts`, which the engine registers when it starts (see `registerEngineContent`).
  */
 export interface EngineContent<TDesigns extends Record<string, ShipDesignDefinition> = Record<string, ShipDesignDefinition>> {

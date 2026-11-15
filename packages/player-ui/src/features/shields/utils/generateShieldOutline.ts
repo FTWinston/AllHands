@@ -3,7 +3,7 @@ import { svgPathProperties } from 'svg-path-properties';
 
 /**
  * Builds the outline that a ship's shields are drawn along: one closed path around its whole hull, a little way out from it.
- * This only runs in tests, which write the results to shieldOutlines.generated.ts (npm run generate:shield-outlines), so the game never loads the geometry libraries it uses.
+ * This only runs in tests, which write the results beside each content folder's drawings, to shieldOutlines.generated.ui.ts (npm run generate:shield-outlines), so the game never loads the geometry libraries it uses.
  */
 
 /** How far the outline sits outside the hull's lines, in the ship drawings' units (each is 512 across). */

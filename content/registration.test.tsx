@@ -12,11 +12,11 @@ function exportedContent(modules: Modules, side: string) {
         .map(([name, value]) => ({ name: `${name} (${file})`, value })));
 }
 
-/** The cards and effects that a folder's `cards/` and `effects/` files export, which its content puts together. */
+/** The pieces that a folder's `cards/`, `effects/` and `ships/` files (and `general/ships` and `general/appearances`) export, which its content puts together. */
 function exportedPieces(modules: Modules) {
     return Object.entries(modules)
-        .filter(([file]) => /\/(cards|effects)\/[^/]+$/.test(file))
-        .flatMap(([file, exports]) => (['cards', 'effects'] as const)
+        .filter(([file]) => /\/(cards|effects|ships|appearances)\/[^/]+$/.test(file))
+        .flatMap(([file, exports]) => (['cards', 'effects', 'drawings'] as const)
             .filter(kind => kind in exports)
             .map(kind => ({ name: `${kind} (${file})`, kind, value: exports[kind] })));
 }

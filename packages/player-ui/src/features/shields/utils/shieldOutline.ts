@@ -1,5 +1,5 @@
-import { shipAppearances, type ObjectAppearance, type ShipAppearance } from 'common-data/features/space/types/ObjectAppearance';
-import { shieldOutlines } from './shieldOutlines.generated';
+import { isShipAppearance, type ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
+import { getShipDrawing } from 'common-ui/objects/shipDrawings';
 
 /** How many dots go round a ship's shield outline, so each one stands for an equal share of its shields. */
 export const shieldDotCount = 60;
@@ -15,8 +15,8 @@ export const shieldOverhang = 16;
 
 /** The outline that a ship's shields are drawn along, or null for anything that isn't a ship design. */
 export function getShieldPath(appearance: ObjectAppearance): string | null {
-    return (shipAppearances as readonly ObjectAppearance[]).includes(appearance)
-        ? shieldOutlines[appearance as ShipAppearance]
+    return isShipAppearance(appearance)
+        ? getShipDrawing(appearance)?.shieldOutline ?? null
         : null;
 }
 

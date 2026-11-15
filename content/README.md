@@ -1,10 +1,10 @@
 # Content
 
-Everything the game is played with, as opposed to how it's played: cards, status effects, ship designs, encounters and sectors.
+Everything the game is played with, as opposed to how it's played: cards, status effects, ship designs and their drawings, encounters and sectors.
 Each content folder holds one piece of the game, and everything that piece needs, for every part of the game.
 
 - `systems/<system>/` – one ship system's module (`engineer`, `helm`, `hull`, `reactor`, `science`, `tactical`): its cards, and the status effects they cause. Science's deflector cards have a module of their own, `systems/science/deflectors/`.
-- `general/` – status effects that the engine itself causes, ship designs used by more than one encounter, and the placeholder encounters. `general.<part>.ts` lists its pieces.
+- `general/` – status effects that the engine itself causes, ship designs used by more than one encounter (`general/ships/`, with their drawings), ship drawings that no design uses yet (`general/appearances/`), and the placeholder encounters. `general.<part>.ts` lists its pieces.
 - `sectors/sector<n>/` – one sector: `sector.engine.ts` has its theme, and `sector.<part>.ts` lists its content. Each encounter has a module of its own inside it, with anything that only it uses.
 
 Something a second encounter needs moves out of the first one's folder, to `general/` or `systems/`: no encounter's folder imports from another's.
@@ -15,17 +15,21 @@ A module's top-level files put together its content for each part of the game, w
 
 | File | Has | Type-checked by |
 | --- | --- | --- |
-| `<module>.shared.ts` | Card and status effect definitions, which the engine and the clients both use: `defineSharedContent`. | common-data |
+| `<module>.shared.ts` | Card, status effect and ship drawing (appearance) definitions, which the engine and the clients both use: `defineSharedContent`. | common-data |
 | `<module>.engine.ts` | What those cards and effects do, and any ship designs and encounters: `defineEngineContent`. | engine |
-| `<module>.ui.tsx` | What those cards and effects are called, and how they're described and drawn: `defineUiContent`. | common-ui |
+| `<module>.ui.tsx` | What those cards and effects are called, how they're described and drawn, and the ship drawings: `defineUiContent`. | common-ui |
 
-The cards and effects themselves are in `cards/` and `effects/`, one file per part, each exporting `cards` or `effects`:
+The cards, effects and ships themselves are in `cards/`, `effects/` and `ships/`, one file per part:
 
-| File | Defined with |
-| --- | --- |
-| `cards/<module>Cards.shared.ts`, `effects/<module>Effects.shared.ts` | `defineCards`, `defineEffects` (common-data) |
-| `cards/<module>Cards.engine.ts`, `effects/<module>Effects.engine.ts` | `defineEngineCards`, `defineEngineEffects` (engine) |
-| `cards/<module>Cards.ui.tsx`, `effects/<module>Effects.ui.tsx` | `defineUiCards`, `defineUiEffects` (common-ui) |
+| File | Exports | Defined with |
+| --- | --- | --- |
+| `cards/<module>Cards.shared.ts`, `effects/<module>Effects.shared.ts`, `ships/<module>Ships.shared.ts` | `cards`, `effects`, `appearances` | `defineCards`, `defineEffects`, `defineAppearances` (common-data) |
+| `cards/<module>Cards.engine.ts`, `effects/<module>Effects.engine.ts`, `ships/<module>Ships.engine.ts` | `cards`, `effects`, `designs` | `defineEngineCards`, `defineEngineEffects`, `defineDesigns` (engine) |
+| `cards/<module>Cards.ui.tsx`, `effects/<module>Effects.ui.tsx`, `ships/<module>Ships.ui.tsx` | `cards`, `effects`, `drawings` | `defineUiCards`, `defineUiEffects`, `defineUiShips` (common-ui) |
+
+A `ships/` folder also holds its drawings: an svg for each appearance, named after it, drawn nose-right, and `shieldOutlines.generated.ui.ts`, the outline each one's shields are drawn along.
+Run `npm run generate:shield-outlines` after adding or changing a drawing: `shieldOutlines.test.ts` fails until the generated files match.
+A design's appearance is a drawing in its own folder's `ships/`, and every drawing there is some design's appearance: drawings that no design uses yet are in `general/appearances/`, and move to the folder of the first design that does. A drawing that designs in more than one encounter use moves to `general/ships/`, with them.
 
 The engine and UI definers take the shared definitions they're for, so each file has to cover every card or effect in them, and each card's functions get the parameters its target type has:
 
@@ -44,19 +48,19 @@ export const cards = defineEngineCards(sharedCards, {
 Other `*.engine.ts` files hold encounter classes and their helpers; `*.test.ts` files are type-checked with the engine, and `*.test.tsx` files with common-ui.
 
 Each part's content is listed in a manifest: `content.shared.ts`, `content.engine.ts` or `content.ui.ts`, which take in `general.<part>.ts` and each sector's `sector.<part>.ts` list.
-common-data builds `cardDefinitions` and `systemEffectDefinitions` from the shared manifest. The engine (in `index.ts`) and each client (in `main.tsx`) register the other two when they start, as do Storybook and the test setup (`vitest.setup.ts`).
-After that, content is reached through the registries: `getCardDefinition`, `getSystemEffectDefinition`, `createShipSetup`, `getEncounterDefinition` and `sectorThemes`.
+common-data builds `cardDefinitions`, `systemEffectDefinitions` and `shipAppearanceDefinitions` (in `ObjectAppearance.ts`) from the shared manifest. The engine (in `index.ts`) and each client (in `main.tsx`) register the other two when they start, as do Storybook and the test setup (`vitest.setup.ts`).
+After that, content is reached through the registries: `getCardDefinition`, `getSystemEffectDefinition`, `createShipSetup`, `getShipDrawing`, `getEncounterDefinition` and `sectorThemes`.
 
 ## What can import what
 
 `eslint.content.js` checks that:
 
 - each file only imports what its part of the game has (shared content: only common-data; engine content: no UI; UI content: only the engine's types),
-- content files import other folders (even a module's own `cards/` and `effects/`) by their `content/...` path, never `../`,
+- content files import other folders (even a module's own `cards/`, `effects/` and `ships/`) by their `content/...` path, never `../`,
 - nothing imports from a sector except the manifests, and nothing in an encounter's folder imports from another encounter's,
 - the packages only import the manifests where content is registered, and otherwise only import content's types.
 
-`registration.test.ts` and `registration.test.tsx` check that every piece of content that a content file exports is in its manifest, that every `cards` and `effects` a module's `cards/` and `effects/` files export is put into content in its manifest, and that each piece of shared content is given its behaviour and its look exactly once.
+`registration.test.ts` and `registration.test.tsx` check that every piece of content that a content file exports is in its manifest, that every `cards`, `effects`, `appearances`, `designs` and `drawings` a module's `cards/`, `effects/` and `ships/` files export is put into content in its manifest, that each piece of shared content is given its behaviour (where it has cards or effects) and its look exactly once, and that designs and drawings sit together as above.
 
 ## Leaving a sector out
 

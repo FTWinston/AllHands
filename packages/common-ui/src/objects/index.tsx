@@ -1,18 +1,17 @@
-import { CSSProperties, FC, SVGProps } from 'react';
+import { isShipAppearance, type ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
+import { CSSProperties, FC } from 'react';
 import { default as ChevronIcon } from './chevron.svg?react';
 import { default as CircleIcon } from './circle.svg?react';
-import type { ObjectAppearance } from 'common-data/features/space/types/ObjectAppearance';
+import { getShipDrawing, type SvgComponent } from './shipDrawings';
 
-type SvgComponent = FC<SVGProps<SVGSVGElement>>;
+/** The icon for an appearance: the crew's chevron, a plain circle, or a registered ship drawing. */
+function getIcon(appearance: ObjectAppearance): SvgComponent | undefined {
+    if (isShipAppearance(appearance)) {
+        return getShipDrawing(appearance)?.Icon;
+    }
 
-/** Every ship design's file, by its name: the same as its appearance. */
-const shipFiles = import.meta.glob<SvgComponent>('./ships/*/*.svg', { query: '?react', import: 'default', eager: true });
-
-const icons: Partial<Record<ObjectAppearance, SvgComponent>> = {
-    chevron: ChevronIcon,
-    circle: CircleIcon,
-    ...Object.fromEntries(Object.entries(shipFiles).map(([path, icon]) => [path.replace(/^.*\/(.+)\.svg$/, '$1'), icon])),
-};
+    return appearance === 'chevron' ? ChevronIcon : CircleIcon;
+}
 
 type IconProps = {
     appearance: ObjectAppearance;
@@ -56,6 +55,6 @@ export const ObjectIcon: FC<IconProps> = ({ className, appearance, offsetX, offs
         style['--highlight'] = highlightColor;
     }
 
-    const Icon = icons[appearance];
+    const Icon = getIcon(appearance);
     return Icon ? <Icon className={className} style={style} /> : null;
 };
