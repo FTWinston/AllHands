@@ -1,13 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": "../..",
     "outDir": "./dist",
     "declaration": true,
     "emitDeclarationOnly": true,
     "paths": {
-      "src/*": ["./src/*"]
+      "src/*": ["./src/*"],
+      "common-data/*": ["./src/*"],
+      "content/*": ["../../content/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "../../content/**/*.shared.ts"]
 }

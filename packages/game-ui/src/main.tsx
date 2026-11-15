@@ -1,4 +1,6 @@
 import { ErrorBoundary } from 'common-ui/components/ErrorBoundary';
+import { registerUiContent } from 'common-ui/content/registerUiContent';
+import { uiContent } from 'content/content.ui';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -20,6 +22,8 @@ declare global {
         };
     }
 }
+
+registerUiContent(uiContent);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <StrictMode>

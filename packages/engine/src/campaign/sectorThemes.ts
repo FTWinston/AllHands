@@ -1,7 +1,7 @@
 import type { EnvironmentType } from 'common-data/features/sectors/types/EnvironmentType';
 import type { EncounterId } from 'common-data/features/sectors/types/SectorNodeInfo';
 
-/** Authored content for one sector; the generator turns it into a map. */
+/** Authored content for one sector; the generator turns it into a map. Each is defined in its own folder under `content/sectors`. */
 export interface SectorTheme {
     id: string;
     name: string;
@@ -14,40 +14,17 @@ export interface SectorTheme {
     bossEncounterId: EncounterId;
 }
 
-/** Placeholder fights, which every sector has for now. */
-const earlyEncounters: readonly EncounterId[] = ['skirmish', 'ambush', 'survive'];
-const lateEncounters: readonly EncounterId[] = ['assault', 'escort', 'survive', 'ambush'];
+const registeredThemes: SectorTheme[] = [];
 
-// All content below is placeholder text, until the campaign is written.
-export const sectorThemes: readonly SectorTheme[] = [
-    {
-        id: 'sector1',
-        name: 'Placeholder Sector 1',
-        introMessage: 'Placeholder intro message for sector 1.',
-        outroMessage: 'Placeholder outro message for sector 1.',
-        defeatMessage: 'Placeholder defeat message for sector 1.',
-        environments: ['asteroidField', 'deepSpace', 'nebula'],
-        encounters: { early: [...earlyEncounters, 'tollCollectors'], late: [...lateEncounters, 'tollCollectors', 'slowBoat', 'standingOrders', 'feverShip', 'deadWeight', 'lastShuttleOut', 'quietRunning'] },
-        bossEncounterId: 'quarantineGate',
-    },
-    {
-        id: 'sector2',
-        name: 'Placeholder Sector 2',
-        introMessage: 'Placeholder intro message for sector 2.',
-        outroMessage: 'Placeholder outro message for sector 2.',
-        defeatMessage: 'Placeholder defeat message for sector 2.',
-        environments: ['nebula', 'gasGiant', 'deepSpace'],
-        encounters: { early: earlyEncounters, late: lateEncounters },
-        bossEncounterId: 'bossB',
-    },
-    {
-        id: 'sector3',
-        name: 'Placeholder Sector 3',
-        introMessage: 'Placeholder intro message for sector 3.',
-        outroMessage: 'Placeholder outro message for sector 3.',
-        defeatMessage: 'Placeholder defeat message for sector 3.',
-        environments: ['deepSpace', 'gasGiant', 'asteroidField'],
-        encounters: { early: earlyEncounters, late: lateEncounters },
-        bossEncounterId: 'bossC',
-    },
-];
+/** Every registered sector, in the order they're played. Filled by `registerEngineContent`. */
+export const sectorThemes: readonly SectorTheme[] = registeredThemes;
+
+/** Register the given sectors, after any already registered. */
+export function registerSectors(themes: readonly SectorTheme[]) {
+    for (const theme of themes) {
+        if (registeredThemes.some(existing => existing.id === theme.id)) {
+            throw new Error(`Sector registered twice: ${theme.id}`);
+        }
+        registeredThemes.push(theme);
+    }
+}

@@ -1,15 +1,4 @@
-import { bossDefinitions } from './BossEncounter';
-import { combatEncounterDefinitions } from './CombatEncounter';
-import { deadWeightDefinition } from './deadWeight/DeadWeightEncounter';
-import { feverShipDefinition } from './FeverShipEncounter';
-import { lastShuttleOutDefinition } from './LastShuttleOutEncounter';
-import { quarantineGateDefinition } from './QuarantineGateEncounter';
-import { quietRunningDefinition } from './QuietRunningEncounter';
-import { slowBoatDefinition } from './SlowBoatEncounter';
-import { standingOrdersDefinition } from './standingOrders/StandingOrdersEncounter';
 import { stationDefinitions } from './StationEncounter';
-import { surviveDefinition } from './SurviveEncounter';
-import { tollCollectorsDefinition } from './TollCollectorsEncounter';
 import type { Encounter } from './Encounter';
 import type { EncounterDefinition } from './EncounterDefinition';
 import type { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
@@ -19,27 +8,22 @@ import type { GameState } from 'src/state/GameState';
 export { getNodeName, type EncounterDefinition, type EncounterRequest } from './EncounterDefinition';
 export { stationEncounterIds } from './StationEncounter';
 
-/** Every encounter there is. Each one's definition is exported from its own file. */
-const definitions: readonly EncounterDefinition[] = [
-    ...combatEncounterDefinitions,
-    surviveDefinition,
-    tollCollectorsDefinition,
-    slowBoatDefinition,
-    standingOrdersDefinition,
-    feverShipDefinition,
-    deadWeightDefinition,
-    lastShuttleOutDefinition,
-    quietRunningDefinition,
-    quarantineGateDefinition,
-    ...stationDefinitions,
-    ...bossDefinitions,
-];
+/** Every encounter there is: the stations, which are part of every campaign, and those registered by `registerEngineContent`. */
+const definitions: EncounterDefinition[] = [];
+const registry = new Map<EncounterId, EncounterDefinition>();
 
-const registry = new Map<EncounterId, EncounterDefinition>(definitions.map(definition => [definition.id, definition]));
-
-if (registry.size !== definitions.length) {
-    throw new Error('Two encounters have the same id');
+/** Register the given encounters. */
+export function registerEncounters(newDefinitions: readonly EncounterDefinition[]) {
+    for (const definition of newDefinitions) {
+        if (registry.has(definition.id)) {
+            throw new Error(`Encounter registered twice: ${definition.id}`);
+        }
+        registry.set(definition.id, definition);
+        definitions.push(definition);
+    }
 }
+
+registerEncounters(stationDefinitions);
 
 export function getEncounterDefinition(id: EncounterId): EncounterDefinition {
     const definition = registry.get(id);

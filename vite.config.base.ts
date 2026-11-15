@@ -35,6 +35,10 @@ export const baseViteConfig = {
     resolve: {
         alias: {
             'common-ui': path.resolve(__dirname, './packages/common-ui/src'),
+            // Content files import every package by name, whichever package's build they're part of.
+            'common-data': path.resolve(__dirname, './packages/common-data/src'),
+            'engine': path.resolve(__dirname, './packages/engine/src'),
+            'content': path.resolve(__dirname, './content'),
         },
     },
 

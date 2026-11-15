@@ -1,16 +1,21 @@
 {
   "extends": "../../tsconfig.node.json",
   "compilerOptions": {
-    "rootDir": "./src",
+    // esbuild bundles the engine, so it resolves imports as a bundler does, which content files (in an ES module package) need.
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "rootDir": "../..",
     "outDir": "./dist",
     "declaration": true,
     "emitDeclarationOnly": true,
     "paths": {
       "common-data/*": ["../common-data/src/*"],
-      "src/*": ["./src/*"]
+      "src/*": ["./src/*"],
+      "engine/*": ["./src/*"],
+      "content/*": ["../../content/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "../../content/**/*.engine.ts", "../../content/**/*.test.ts"],
   "references": [
     { "path": "../common-data" }
   ]
