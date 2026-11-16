@@ -28,10 +28,9 @@ describe('getShopCardTypes', () => {
         }
     });
 
-    it('excludes campaign, placeholder and choice option cards', () => {
+    it('excludes campaign and choice option cards', () => {
         const helm = getShopCardTypes('helm');
         expect(helm).not.toContain('warpAway');
-        expect(helm).not.toContain('exampleNoTarget');
         expect(helm).not.toContain('sweepLeft');
         expect(helm).toContain('sweep');
     });

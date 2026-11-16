@@ -19,6 +19,7 @@ import { ListenableEvent } from 'src/classes/ListenableEvent';
 import { CardState } from '../CardState';
 import { GameObject } from '../GameObject';
 import { GameState } from '../GameState';
+import { SensorGhost } from '../SensorGhost';
 import { SystemEffect } from './engineer/SystemEffect';
 import type { Ship } from '../Ship';
 import type { EngineerSystemTile } from './engineer/EngineerSystemTile';
@@ -711,7 +712,13 @@ export abstract class SystemState extends Schema implements SystemInfo {
         let played: boolean;
         let slotted: boolean = false;
 
-        if (cardDefinition.targetType === 'no-target') {
+        // A card played on a sensor ghost is spent, finding nothing there, and the ghost vanishes. A ship card is the exception: to those it fools, the ghost is a ship to fly relative to.
+        const ghost = this.findGhostTarget(cardDefinition.targetType, targetId);
+
+        if (ghost) {
+            this.exposeGhost(ghost);
+            played = true;
+        } else if (cardDefinition.targetType === 'no-target') {
             played = this.playNoTargetCard(cardDefinition, card, parameters);
         } else if (cardDefinition.targetType === 'weapon-slot') {
             played = this.playWeaponSlotCard(cardDefinition, card, targetId, parameters);
@@ -787,6 +794,35 @@ export abstract class SystemState extends Schema implements SystemInfo {
         return true;
     }
 
+    /**
+     * The sensor ghost that a card of the given target type is being played on, if it is: one that a scan, or a card played on an enemy, was aimed at.
+     * Cards that aren't played on an object (including those played on a weapon, system or place) never are.
+     */
+    private findGhostTarget(cardTargetType: CardTargetType, targetId: string): SensorGhost | null {
+        let objectId: string;
+
+        if (cardTargetType === 'enemy') {
+            // An enemy can be aimed at a sub-target, which is taken as the ship itself.
+            objectId = targetId.split(':')[0];
+        } else if (cardTargetType === 'scan') {
+            const [kind, id] = targetId.split('/');
+            if (kind !== 'target' && kind !== 'vuln' && kind !== 'hand') {
+                return null;
+            }
+            objectId = id;
+        } else {
+            return null;
+        }
+
+        const target = this.resolveTarget(objectId);
+        return target instanceof SensorGhost ? target : null;
+    }
+
+    /** Called when a card is played on a sensor ghost, in place of what it would do. The ghost vanishes. */
+    protected exposeGhost(ghost: SensorGhost) {
+        ghost.expose();
+    }
+
     protected playWeaponSlotCard(_cardDefinition: EngineWeaponSlotCardDefinition, _card: CardState, _targetId: string, _parameters: CardParameters): boolean {
         console.warn('non-tactical system trying to play weapon slot card');
         return false;
@@ -860,22 +896,24 @@ export abstract class SystemState extends Schema implements SystemInfo {
         return true;
     }
 
-    /** The ship with the given id, if this ship knows of it, and it's one that a card wanting the given relationship can be played on. */
-    resolveShipTarget(targetId: string, relationship?: ShipTargetRelationship): Ship | null {
+    /**
+     * The ship with the given id, if this ship knows of it, and it's one that a card wanting the given relationship can be played on.
+     * A sensor ghost counts as a ship to a ship it fools, which is hostile to it, but to nobody else.
+     */
+    resolveShipTarget(targetId: string, relationship?: ShipTargetRelationship): GameObject | null {
         const target = this.resolveTarget(targetId);
+        const ship = this.getShip();
 
         // Ship can't be imported as a value here, as it imports this, so ships are told apart by their helm.
-        if (!target || !('helmState' in target)) {
+        if (!target || (!('helmState' in target) && !(target instanceof SensorGhost && target.isTakenForShipBy(ship)))) {
             return null;
         }
 
-        const ship = this.getShip();
-        const targetShip = target as Ship;
-        const targetRelationship = targetShip === ship
+        const targetRelationship = target === ship
             ? RelationshipType.Self
-            : this.getGameState().factionRegistry.getRelationship(ship, targetShip);
+            : this.getGameState().factionRegistry.getRelationship(ship, target);
 
-        return isEligibleShipTarget(targetRelationship, relationship) ? targetShip : null;
+        return isEligibleShipTarget(targetRelationship, relationship) ? target : null;
     }
 
     /**

@@ -14,6 +14,17 @@ The deck styles each crew station can be built towards, and the cards that belon
 
 A station's starter deck should hold the neutral cards plus one builder from each of two styles, so that the first shop visit is already a choice of direction.
 
+## Starting decks
+
+Each station starts with 8 cards, and a system's maximum health is its card count, so this also sets each station's durability. A card can be sold back at a station for 10 antimatter, down to a floor of 6 cards (`minDeckSize`), so each station can trim 2 of its starting cards. Each deck is staples plus one builder from each of two styles.
+
+| Station | Deck | Styles |
+|---|---|---|
+| Helm | Slow & Steady, Face Target, Strafe, Zig-zag × 2, Sweep, Burn, Hold Steady | Gun Platform (Hold Steady) and Slipstream (Burn) |
+| Tactical | Phaser Strip × 2, Phaser Cannon, Photon Torpedo, Efficiency, High Yield, Power Cell, Acquire Lock | Gun Line (Power Cell) and Alpha Strike (Acquire Lock) |
+| Science | Passive Scan, Antiproton Scan, Polaron Scan, Tetryon Scan, Coherent Beam Scan, Phased Burst Scan, Cross-reference, Graviton Scan | Analyst (Cross-reference) and Catalyst (Graviton Scan) |
+| Engineer | Jury-rig, Purge, Focus Shields, Swap Systems, Priority Feed, Trickle Charge, Redline, Run Quiet | Reserve (Trickle Charge, Run Quiet) and Redline (Redline) |
+
 ## Engineer
 
 The engineer's job is deciding which system gets to be good right now. The systems sit in a grid two wide and three tall, so a column (three systems) is a bigger deal than a row (two).
@@ -47,7 +58,7 @@ Aux Power is not part of this style: it's a free, expendable card that the react
 | Coolant Flush | Release | Move a system's Flux to the hull, where it can still overload a hull card. |
 | Burnout | Payoff | Spend all of a system's Flux: +2 power per level for 8s, then the system resets. |
 
-Flux at 3 damages a random card in that system and drops back to 0. The engineer's Overcharge overlaps Redline, and shares a name with tactical's Overcharge, but it stays for now: the Fever Ship encounter is built around it (three Overcharges in the infected engineer's hand are the tell). Divert All Power, Reset and Purge fit here.
+Flux at 3 damages a random card in that system and drops back to 0. The engineer once had an Overcharge that did the same job and shared a name with tactical's, so it's gone: the Fever Ship encounter gives its infected engineer three Redlines instead, which the AI never plays, so the hand is the tell. Divert All Power, Reset and Purge fit here.
 
 ### Rewire (built)
 

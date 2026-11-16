@@ -8,8 +8,10 @@ import { LocationTargetCardFunctionality } from 'engine/cards/EngineCardDefiniti
 import { defineEngineCards } from 'engine/content/EngineContent';
 import { CardCooldownState } from 'engine/state/CardCooldownState';
 import { CardState } from 'engine/state/CardState';
+import { GameObject } from 'engine/state/GameObject';
 import { GameState } from 'engine/state/GameState';
 import { MotionKeyframe } from 'engine/state/MotionKeyframe';
+import { SensorGhost } from 'engine/state/SensorGhost';
 import { Ship } from 'engine/state/Ship';
 import { cards as sharedCards } from './helmCards.shared';
 
@@ -83,14 +85,14 @@ function startPosture(gameState: GameState, ship: Ship, card: CardState, paramet
     ship.helmState.setActiveManeuver(new CardCooldownState(card, startTime, endTime, parameters['cost']));
 }
 
-/** The ship hostile to the given one that is closest to where it is, at the given time, if there are any. */
-function findClosestHostile(gameState: GameState, ship: Ship, position: Vector2D, time: number): Ship | undefined {
+/** The ship hostile to the given one that is closest to where it is, at the given time, if there are any. A sensor ghost counts as one: it looks like a ship to those it's hostile to. */
+function findClosestHostile(gameState: GameState, ship: Ship, position: Vector2D, time: number): GameObject | undefined {
     const registry = gameState.factionRegistry;
-    let closest: Ship | undefined;
+    let closest: GameObject | undefined;
     let closestDistanceSq = Infinity;
 
     for (const other of gameState.objects.values()) {
-        if (other === ship || !(other instanceof Ship) || !registry.areHostile(ship, other)) {
+        if (other === ship || !(other instanceof Ship || other instanceof SensorGhost) || !registry.areHostile(ship, other)) {
             continue;
         }
 
@@ -190,7 +192,7 @@ function steerToStation(gameState: GameState, ship: Ship, endTime: number, plan:
 function startRelativeManeuver(
     gameState: GameState,
     ship: Ship,
-    target: Ship,
+    target: GameObject,
     parameters: CardParameters,
     card: CardState,
     makePlan: (startTime: number) => StationPlan | null

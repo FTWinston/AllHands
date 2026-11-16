@@ -23,7 +23,7 @@ describe('SystemState power', () => {
         const { ship, tile } = createShip();
 
         tile('helm').addEffect('auxPower');
-        tile('tactical').addEffect('overcharge');
+        tile('tactical').addEffect('divertAllPowerGain', 3);
         tile('science').addEffect('reducedPower', 2);
         expect(ship.helmState.powerLevel).toBe(4);
         expect(ship.tacticalState.powerLevel).toBe(5);

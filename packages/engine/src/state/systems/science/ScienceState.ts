@@ -14,6 +14,7 @@ import { resolveParameters } from 'src/cards/resolveParameters';
 import { CardState } from 'src/state/CardState';
 import { GameState } from 'src/state/GameState';
 import { SectorDestinationState } from 'src/state/SectorDestinationState';
+import { SensorGhost } from 'src/state/SensorGhost';
 import { Ship } from 'src/state/Ship';
 import { CrewSystemState } from '../CrewSystemState';
 import { HullSystemTile } from '../engineer/HullSystemTile';
@@ -75,6 +76,18 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
      * The effect sets this (see `insightLevelChanged`). It's held here too as science's own client can't see the system's effects.
      */
     @type('uint8') insight = 0;
+
+    /**
+     * The game time at which science last found a sensor ghost where it expected a ship, by playing a scan or its deflector on it. Zero until it does.
+     * Its client shows a message for a short while after (see `exposeGhost`).
+     */
+    @type('number') ghostExposedTime = 0;
+
+    /** Whatever science played on a sensor ghost found nothing there, which its client is told, as well as the ghost vanishing. */
+    protected override exposeGhost(ghost: SensorGhost) {
+        super.exposeGhost(ghost);
+        this.ghostExposedTime = this.getGameState().currentTime;
+    }
 
     /** Called by the `insight` effect whenever its level changes, to keep this system's Insight in step with it. */
     insightLevelChanged(level: number) {
@@ -382,7 +395,10 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             return null;
         }
 
-        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, null, parameters)) {
+        // The deflector finds nothing at a sensor ghost, which vanishes, but is used as it is on anything else.
+        if (target instanceof SensorGhost) {
+            this.exposeGhost(target);
+        } else if (!cardDefinition.play(this.getGameState(), this.getShip(), target, null, parameters)) {
             console.log('deflector card refused to play');
             return null;
         }

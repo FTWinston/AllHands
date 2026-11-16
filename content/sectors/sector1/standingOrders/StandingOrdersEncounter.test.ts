@@ -254,13 +254,13 @@ describe('StandingOrdersEncounter', () => {
         expect(kitInHand()).toEqual([kit]);
 
         // Keying the platform to something else that needs it keeps it there, but something that doesn't takes it away.
-        encounter.keyTo({ modifier: 'Coherent', substance: 'Antiproton', delivery: 'Beam' });
+        encounter.keyTo({ modifier: 'Coherent', substance: 'Chroniton', delivery: 'Beam' });
         expect(kitInHand()).toHaveLength(1);
-        expect(science.hand.filter(card => card.type === 'antiprotonScan')).toHaveLength(1);
+        expect(science.hand.filter(card => card.type === 'chronitonScan')).toHaveLength(1);
 
         encounter.keyTo({ modifier: 'Inverted', substance: 'Tetryon', delivery: 'Pulse' });
         expect(kitInHand()).toHaveLength(0);
-        expect(science.hand.filter(card => card.type === 'antiprotonScan')).toHaveLength(0);
+        expect(science.hand.filter(card => card.type === 'chronitonScan')).toHaveLength(0);
 
         encounter.keyTo({ modifier: 'Coherent', substance: 'Tetryon', delivery: 'Beam' });
         campaign.devLoadEncounter('skirmish');

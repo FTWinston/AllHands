@@ -89,7 +89,7 @@ export const Helm_LongManeuverName: Story = {
             hand: null,
             activeManeuver: {
                 id: 42,
-                type: 'exampleNoTarget',
+                type: 'holdSteady',
             },
             maneuverProgress: { startTime: Date.now() - 1000, endTime: Date.now() + 9000 },
             evasionChance: 5,
@@ -154,7 +154,7 @@ export const Tactical_TwoWeapons: Story = {
             power: 3,
             hand: null,
             weaponSlots: [
-                { id: 'slot-1', card: { id: 3, type: 'phaserStrip' }, charge: 2, modifierCard: 'overcharge' },
+                { id: 'slot-1', card: { id: 3, type: 'phaserStrip' }, charge: 2, modifierCard: 'weaponOvercharge' },
                 { id: 'slot-2', card: { id: 4, type: 'photonTorpedo' }, charge: 1, modifierCard: null },
             ],
         },
@@ -229,7 +229,7 @@ export const Science_Vulnerability: Story = {
             scanSystem: null,
             deflectorCard: null,
         },
-        identifiedVulnerability: 'exampleEnemyTarget',
+        identifiedVulnerability: 'acquireLock',
     },
 };
 
@@ -271,7 +271,7 @@ export const Tactical_HandAndVulnerability: Story = {
                 { id: 65, type: 'lowYield' },
             ],
         },
-        identifiedVulnerability: 'exampleEnemyTarget',
+        identifiedVulnerability: 'acquireLock',
     },
 };
 

@@ -25,7 +25,7 @@ const meta: Meta<typeof Component> = {
             cards: args.cards || [],
             createCard: (id: number) => ({
                 id,
-                type: 'exampleNoTarget',
+                type: 'jam',
             }),
         });
 
@@ -59,7 +59,7 @@ export const UI: Story = {
             },
             {
                 id: 3,
-                type: 'exampleNoTarget',
+                type: 'jam',
             },
         ],
         systemOrderByTarget: {

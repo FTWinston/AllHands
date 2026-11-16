@@ -49,11 +49,6 @@ export const effects = defineUiEffects(sharedEffects, {
         description: <>This system is marked for relocation. Play the Relocate Here card to move it to a new position.</>,
         image: ExampleIcon,
     },
-    overcharge: {
-        name: 'Overcharge',
-        description: <>This system is overcharged, gaining 3 power but taking damage every second.</>,
-        image: ExampleIcon,
-    },
     distributePowerLoss: {
         name: 'Distributing Power',
         description: <>

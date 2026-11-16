@@ -17,6 +17,7 @@ import { getSystemEffectDefinition } from 'src/effects/getEngineSystemEffectDefi
 import { CardState } from 'src/state/CardState';
 import { GameObject } from 'src/state/GameObject';
 import { GameState } from 'src/state/GameState';
+import { SensorGhost } from 'src/state/SensorGhost';
 import { Ship } from 'src/state/Ship';
 import { CrewSystemState } from '../CrewSystemState';
 import { SubTargetState } from './SubTargetState';
@@ -526,7 +527,23 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
         const gameState = this.getGameState();
         const ship = this.getShip();
-        cardDef.fire(gameState, ship, target, slotParameters, accuracy, weaponTraits, targetSystem);
+
+        // A shot at a sensor ghost is used up like any other, but passes through, and the ghost vanishes: there's nothing there to hurt, hold or lock onto.
+        const ghost = target instanceof SensorGhost ? target : null;
+        if (ghost) {
+            gameState.broadcastWeaponEffect({
+                type: 'shot',
+                weapon: cardType,
+                sourceId: ship.id,
+                targetId: ghost.id,
+                targetPosition: ghost.getPosition(currentTime),
+                missed: true,
+                startTime: currentTime,
+            });
+            ghost.expose();
+        } else {
+            cardDef.fire(gameState, ship, target, slotParameters, accuracy, weaponTraits, targetSystem);
+        }
 
         // Anything that only lasted until this shot has done its work.
         slot.endNextShot();
@@ -537,7 +554,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             this.removeEffect('calledShot', 'early');
         }
 
-        const extraShots = Math.max(0, Math.floor(slotParameters['extraShots'] ?? 0));
+        const extraShots = ghost ? 0 : Math.max(0, Math.floor(slotParameters['extraShots'] ?? 0));
 
         for (let i = 1; i <= extraShots; i++) {
             gameState.setTimeout(() => {

@@ -149,7 +149,7 @@ describe('the disrupting weapon trait', () => {
         const { target, hit } = createWorld();
         const science = target.scienceState;
         while (science.hand.length < science.maxHandSize) {
-            science.addCardToHand(new CardState(target.getCardId(), 'exampleNoTarget'));
+            science.addCardToHand(new CardState(target.getCardId(), 'jam'));
         }
 
         hit('science', 'disrupting');

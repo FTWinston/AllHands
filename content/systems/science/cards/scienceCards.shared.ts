@@ -6,15 +6,10 @@ import { effects } from 'content/systems/science/effects/scienceEffects.shared';
 export const pingDuration = 10_000;
 /** How long (in ms) Passive Listen takes to reveal a system. */
 export const passiveListenDelay = 3_000;
-/** How long (in ms) the false contact that Sensor Ghost leaves lasts. */
+/** How long (in ms) the ghost that Sensor Ghost leaves lasts. */
 export const sensorGhostDuration = 15_000;
 
 export const cards = defineCards({
-    exampleNoTarget: {
-        targetType: 'no-target',
-        system: 'science',
-        parameters: { cost: 2 },
-    },
     passiveScan: {
         targetType: 'scan',
         system: 'science',

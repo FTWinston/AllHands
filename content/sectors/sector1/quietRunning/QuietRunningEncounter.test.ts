@@ -228,7 +228,10 @@ describe('QuietRunningEncounter', () => {
             const { state, ship, encounter } = run;
             const [one, two] = encounter.pickets;
             setSensors(encounter, [[one, 5]]);
-            place(state, ship, gapMiddle(run, one, two));
+            // Just on the first picket's side of the middle, so it's the nearest and the one that sees, not tied with the second.
+            const middle = gapMiddle(run, one, two);
+            const first = at(state, one);
+            place(state, ship, { x: middle.x + (first.x - middle.x) * 0.05, y: middle.y + (first.y - middle.y) * 0.05 });
             // The briefing is cut short, as being seen is urgent.
             const heard = listenToHails(state, watchIntervalMs * 2);
 
@@ -379,13 +382,13 @@ describe('QuietRunningEncounter', () => {
             expect(ship.scienceState.scannedScience!.power).toBe(3);
 
             tile(picket, 'science').addEffect('auxPower');
-            tile(picket, 'science').addEffect('overcharge');
+            tile(picket, 'science').addEffect('divertAllPowerGain', 3);
             wait(run, 100);
             expect(picket.scienceState.powerLevel).toBe(3);
             expect(ship.scienceState.scannedScience!.power).toBe(3);
 
             // Pushed down below nothing, it still reads true, and comes back right when what pushed it goes.
-            tile(picket, 'science').removeEffect('overcharge', 'expired');
+            tile(picket, 'science').removeEffect('divertAllPowerGain', 'expired');
             tile(picket, 'science').removeEffect('auxPower', 'expired');
             tile(picket, 'science').addEffect('reducedPower', 5);
             wait(run, 100);

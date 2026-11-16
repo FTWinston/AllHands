@@ -17,7 +17,7 @@ const rooms = setupGameRoom();
 function createShip() {
     const state = rooms.createState();
     const { appearance: _a, faction: _f, ...setup } = shipSetup(undefined, 0, 0);
-    setup.hull = { ...setup.hull, cards: new Array<'exampleNoTarget'>(10).fill('exampleNoTarget') };
+    setup.hull = { ...setup.hull, cards: new Array<'hullBare'>(10).fill('hullBare') };
     const ship = new PlayerShip(state, setup);
     state.add(ship);
     ship.startEncounter();

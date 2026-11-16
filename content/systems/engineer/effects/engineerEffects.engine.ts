@@ -219,18 +219,6 @@ export const effects = defineEngineEffects(sharedEffects, {
         remove: () => {
         },
     },
-    overcharge: {
-        apply: (system) => {
-            system.adjustSystemPowerLevel(3);
-            return true;
-        },
-        remove: (system) => {
-            system.adjustSystemPowerLevel(-3);
-        },
-        tick: (system) => {
-            system.adjustSystemHealth(-1);
-        },
-    },
     // Distribute Power: target loses power (hub), neighbors gain power (spokes).
     distributePowerLoss: createTransferHubEffect('distributePowerGain', -1),
     distributePowerGain: createTransferSpokeEffect('distributePowerLoss', 1),

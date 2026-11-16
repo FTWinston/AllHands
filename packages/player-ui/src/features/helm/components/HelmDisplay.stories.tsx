@@ -118,7 +118,7 @@ export const UI: Story = {
         cards: [
             {
                 id: 1,
-                type: 'exampleNoTarget',
+                type: 'holdSteady',
             },
             {
                 id: 2,

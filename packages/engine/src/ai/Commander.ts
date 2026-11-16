@@ -4,7 +4,7 @@ import { Position } from 'common-data/features/space/types/Position';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { distance, polarToCartesian } from 'common-data/features/space/utils/vectors';
 import { GameObject } from 'src/state/GameObject';
-import { GameState, type SensorDecoy } from 'src/state/GameState';
+import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';
 import { getDesiredRangeFromSlots } from './evaluators/helpers';
 import { Blackboard, ResolvedAiConfig, SKILL_NOISE_SCALE, SKILL_SKIP_CHANCE } from './types';
@@ -14,8 +14,6 @@ const GUARD_LEASH = 30;
 /** How much more a hunter wants the ship it prefers than any other hostile, in the same terms as distance: this many units closer. */
 export const PREFER_BONUS = 30;
 const FLEE_DISTANCE = 50;
-/** How close a false contact has to be to fool a ship. */
-const DECOY_SENSE_RANGE = 100;
 const EVASIVE_HULL_FRACTION = 0.5;
 const WANDER_DISTANCE = 40;
 const WANDER_ARRIVAL_RADIUS = 5;
@@ -177,41 +175,14 @@ export class Commander {
             return;
         }
 
-        // A ship that has left a false contact (see `GameState.addDecoy`) is taken for it, so isn't a target, and the ship goes to where the contact is instead.
-        const decoy = this.findDecoy(ownPosition, currentTime);
-        const hostiles = this.getHostilesInScope(blackboard, currentTime).filter(hostile => hostile.id !== decoy?.ownerId);
+        const hostiles = this.getHostilesInScope(blackboard, currentTime);
 
         this.updateTarget(blackboard, hostiles, ownPosition, currentTime, skill);
-        if (decoy && blackboard.goal !== 'flee' && blackboard.targetId === null) {
-            blackboard.lastKnownTargetPosition = { x: decoy.position.x, y: decoy.position.y };
-        }
         this.updateStance(blackboard, hullFraction);
 
         blackboard.desiredRange = getDesiredRangeFromSlots(this.ship.tacticalState.slots) ?? { min: 2, max: 8 };
         this.updateDestination(blackboard, hostiles, ownPosition, currentTime);
         this.updateFocusSystem(blackboard);
-    }
-
-    /**
-     * The false contact that this ship is fooled by: the nearest one within range that a hostile ship left, and that is nearer than the ship that left it.
-     * A ship that's closer than the contact is to the real ship isn't fooled.
-     */
-    private findDecoy(ownPosition: Position, currentTime: number): SensorDecoy | null {
-        const registry = this.gameState.factionRegistry;
-        let nearest: SensorDecoy | null = null;
-        let nearestDistance = DECOY_SENSE_RANGE;
-
-        for (const decoy of this.gameState.getDecoys()) {
-            const owner = this.gameState.objects.get(decoy.ownerId);
-            const decoyDistance = distance(ownPosition, decoy.position);
-
-            if (owner && registry.areHostile(this.ship, owner) && decoyDistance <= nearestDistance && decoyDistance < distance(ownPosition, owner.getPosition(currentTime))) {
-                nearest = decoy;
-                nearestDistance = decoyDistance;
-            }
-        }
-
-        return nearest;
     }
 
     /** Nothing to shoot at and nowhere to be, so the officers have nothing to act on but their own systems. */

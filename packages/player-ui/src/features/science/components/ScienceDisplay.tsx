@@ -11,6 +11,7 @@ import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
 import { isScienceCardPlayable } from '../utils/isScienceCardPlayable';
 import { DeflectorDisplay } from './DeflectorDisplay';
+import { GhostNotice } from './GhostNotice';
 import { InsightMeter } from './InsightMeter';
 import { ScienceTargetList } from './ScienceTargetList';
 
@@ -35,6 +36,8 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     viewer: RelationshipViewer;
     /** How much Insight science holds, which some of its cards spend. */
     insight: number;
+    /** The game time at which science last found a sensor ghost where it expected a ship, or 0 if it never has. */
+    ghostExposedTime?: number;
     closeRevealedSystem: () => void;
     unmountDeflectorModifier: () => void;
     unmountDeflectorSubstance: () => void;
@@ -45,7 +48,7 @@ export const ScienceDisplay = (props: Props) => {
     const {
         cards, playCard, targets, scannedShipId, systemOrderByTarget, modifierSlot, substanceSlot, deliverySlot,
         deflectorCard, viewer, scannedHelm, scannedTactical, scannedScience, scannedEngineer, scannedHull, identifiedVulnerability,
-        insight, closeRevealedSystem, ...headerProps
+        insight, ghostExposedTime, closeRevealedSystem, ...headerProps
     } = props;
 
     useRootClassName(crewStyles.science);
@@ -72,6 +75,8 @@ export const ScienceDisplay = (props: Props) => {
                 />
 
                 <InsightMeter insight={insight} />
+
+                <GhostNotice exposedTime={ghostExposedTime ?? 0} />
 
                 <ScienceTargetList
                     targets={targets}

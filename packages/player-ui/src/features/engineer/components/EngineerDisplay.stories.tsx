@@ -258,7 +258,7 @@ export const UI: Story = {
                         progress: { startTime: Date.now(), endTime: Date.now() + 20000 },
                     },
                     {
-                        type: 'overcharge',
+                        type: 'redlining',
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                     {
@@ -300,7 +300,7 @@ export const UI: Story = {
                         progress: { startTime: Date.now(), endTime: Date.now() + 10000 },
                     },
                     {
-                        type: 'overcharge',
+                        type: 'redlining',
                         progress: { startTime: Date.now(), endTime: Date.now() + 20000 },
                     },
                     {
@@ -322,7 +322,7 @@ export const UI: Story = {
                         progress: { startTime: Date.now(), endTime: Date.now() + 30000 },
                     },
                     {
-                        type: 'overcharge',
+                        type: 'redlining',
                         progress: { startTime: Date.now(), endTime: Date.now() + 20000 },
                     },
                     {

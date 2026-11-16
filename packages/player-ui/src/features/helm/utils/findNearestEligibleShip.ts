@@ -21,9 +21,9 @@ export function getShipTargetRelationship(cardType: CardType): ShipTargetRelatio
     return definition.targetType === 'ship' ? (definition as ShipTargetCardDefinition).targetRelationship : null;
 }
 
-/** Whether the given object is a ship: a player's ship (drawn as a chevron), or one with a ship drawing. */
+/** Whether the given object is a ship: a player's ship (drawn as a chevron), or one with a ship drawing. A sensor ghost isn't, to those who know it for one. */
 function isShip(object: GameObjectInfo): boolean {
-    return object.appearance === 'chevron' || isShipAppearance(object.appearance);
+    return !object.isSensorGhost && (object.appearance === 'chevron' || isShipAppearance(object.appearance));
 }
 
 /**

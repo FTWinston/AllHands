@@ -18,20 +18,12 @@ import { ObjectiveState } from './ObjectiveState';
 import { PromptState } from './PromptState';
 import { SectorMapState } from './SectorMapState';
 import { SectorMessageState } from './SectorMessageState';
+import { SensorGhost } from './SensorGhost';
 import type { Campaign } from '../campaign/Campaign';
 import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { EncounterOutcome } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { SceneChange } from 'common-data/features/sectors/types/SceneChange';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
-import type { Vector2D } from 'common-data/features/space/types/Vector2D';
-
-/** A false contact left by a ship (see `GameState.addDecoy`). */
-export interface SensorDecoy {
-    /** The id of the ship that left it. */
-    ownerId: string;
-    position: Vector2D;
-    endTime: number;
-}
 
 export class GameState extends Schema {
     @type('string') gameStatus: GameStatus = 'setup';
@@ -123,22 +115,6 @@ export class GameState extends Schema {
         return id !== undefined ? this.objects.get(id) : undefined;
     }
 
-    /** The false contacts that ships have left. Not synced, and not game objects: only the AI is fooled by them (see `Commander`). */
-    private readonly decoys: SensorDecoy[] = [];
-
-    /** Leave a false contact at a position, for a time in milliseconds. Hostile AI ships that sense it go there rather than for the ship that left it. */
-    public addDecoy(owner: GameObject, position: Vector2D, duration: number) {
-        this.decoys.push({ ownerId: owner.id, position, endTime: this.currentTime + duration });
-    }
-
-    /** The false contacts there are now. */
-    public getDecoys(): readonly SensorDecoy[] {
-        if (this.decoys.some(decoy => decoy.endTime <= this.currentTime)) {
-            this.decoys.splice(0, this.decoys.length, ...this.decoys.filter(decoy => decoy.endTime > this.currentTime));
-        }
-        return this.decoys;
-    }
-
     public addField(field: FieldState) {
         this.fields.set(field.id, field);
     }
@@ -178,7 +154,10 @@ export class GameState extends Schema {
 
         this.idPool.releaseId(object.id);
 
-        this.campaign?.onObjectRemoved(object, reason);
+        // A sensor ghost is a false contact, not an object that left the game, so nothing that watches for objects leaving (objectives, the campaign) is told.
+        if (!(object instanceof SensorGhost)) {
+            this.campaign?.onObjectRemoved(object, reason);
+        }
     }
 
     /**

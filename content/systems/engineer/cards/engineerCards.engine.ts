@@ -86,11 +86,6 @@ function drawCards(system: EngineerSystemTile, count: number) {
 }
 
 export const cards = defineEngineCards(sharedCards, {
-    smokeScreen: {
-        play: (_ship) => {
-            console.log('played smokeScreen'); return true;
-        },
-    },
     auxPower: {
         aiEvaluator: powerBoostEvaluator('auxPower', 30, 'auxPower'),
         play: (_gameState, _ship, system) => {
@@ -354,12 +349,6 @@ export const cards = defineEngineCards(sharedCards, {
             return true;
         },
     },
-    overcharge: {
-        aiEvaluator: powerBoostEvaluator('overcharge', 35, 'overcharge'),
-        play: (_gameState, _ship, system) => {
-            return system.addEffect('overcharge');
-        },
-    },
     shunt: {
         play: (_gameState, ship, system) => {
             const systemIndex = ship.engineerState.systems.indexOf(system);
@@ -385,7 +374,7 @@ export const cards = defineEngineCards(sharedCards, {
             return true;
         },
     },
-    drawPriority: {
+    reactorPriority: {
         play: (_gameState, ship, system) => {
             const cardType = getReactorCardTypeForSystem(system.system);
 

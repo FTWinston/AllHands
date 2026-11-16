@@ -595,9 +595,4 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
-    exampleEnemyTarget: {
-        name: 'Example Enemy Target',
-        description: 'An example card that targets an enemy.',
-        image: <ExampleIcon />,
-    },
 });

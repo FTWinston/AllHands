@@ -4,7 +4,6 @@ import { RelationshipType } from 'common-data/features/space/types/RelationshipT
 import { getCardDefinition } from 'engine/cards/getEngineCardDefinition';
 import { AiShip } from 'engine/state/AiShip';
 import { CardState } from 'engine/state/CardState';
-import { MotionKeyframe } from 'engine/state/MotionKeyframe';
 import { setupGameRoom, shipSetup } from 'engine/testUtils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cards } from './cards/scienceCards.shared';
@@ -912,106 +911,5 @@ describe('Jam', () => {
     it('is an uncommon card', () => {
         expect(cardDefinitions.jam).toMatchObject({ targetType: 'no-target', rarity: 'uncommon' });
         expect(getShopCardTypes('science')).toContain('jam');
-    });
-});
-
-describe('Sensor Ghost', () => {
-    function createDecoyFight() {
-        const state = rooms.createState();
-        state.initFactions([
-            { id: 'player' },
-            { id: 'raiders', relations: { player: RelationshipType.Hostile } },
-        ], 'player');
-        const player = new AiShip(state, { ...shipSetup('player', 0, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
-        state.add(player);
-        const raider = new AiShip(state, { ...shipSetup('raiders', 20, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
-        state.add(raider);
-        player.updateKnownObjects(0);
-        raider.updateKnownObjects(0);
-
-        (player.scienceState as { powerLevel: number }).powerLevel = 5;
-        /** Has a ship's commander reconsider the situation now. */
-        const think = (ship: AiShip) => ship.ai.commander.update(ship.ai.blackboard, state.currentTime);
-        const playGhost = () => {
-            const card = new CardState(player.getCardId(), 'sensorGhost');
-            player.scienceState.addCardToHand(card);
-            return player.scienceState.playCard(card.id, 'sensorGhost', 'no-target', '') !== null;
-        };
-        /** Moves the player's ship, as if it had flown off, and lets the raider's commander reconsider. */
-        const movePlayer = (x: number) => {
-            player.setMotion(new MotionKeyframe(state.currentTime, x, 0, 0));
-            player.updateKnownObjects(state.currentTime);
-            raider.updateKnownObjects(state.currentTime);
-            think(raider);
-        };
-        return { state, player, raider, think, playGhost, movePlayer };
-    }
-
-    it('leaves a false contact where the ship is, for 15 seconds', () => {
-        const { state, player, playGhost } = createDecoyFight();
-        player.setMotion(new MotionKeyframe(state.currentTime, 7, 3, 0));
-        expect(cardDefinitions.sensorGhost.parameters).toMatchObject({ cost: 2, duration: 15 });
-
-        expect(playGhost()).toBe(true);
-
-        expect(state.getDecoys()).toEqual([{ ownerId: player.id, position: { x: 7, y: 3 }, endTime: state.currentTime + 15_000 }]);
-
-        state.currentTime += 14_000;
-        expect(state.getDecoys().length).toBe(1);
-        state.currentTime += 1_500;
-        expect(state.getDecoys().length).toBe(0);
-    });
-
-    it('sends a hostile AI ship to the contact, rather than after the ship, once the ship has flown further from it than the contact is', () => {
-        const { player, raider, think, playGhost, movePlayer } = createDecoyFight();
-        think(raider);
-        expect(raider.ai.blackboard.targetId).toBe(player.id);
-
-        playGhost();
-        movePlayer(-60);
-
-        expect(raider.ai.blackboard.targetId).toBeNull();
-        expect(raider.ai.blackboard.lastKnownTargetPosition).toEqual({ x: 0, y: 0 });
-        expect(raider.ai.blackboard.destination).toEqual({ x: 0, y: 0 });
-    });
-
-    it('isn\'t fooled while the ship is nearer than the contact, or once the contact has run out', () => {
-        const { state, player, raider, playGhost, movePlayer } = createDecoyFight();
-        playGhost();
-
-        // The raider is as near the ship as it is the contact.
-        movePlayer(0);
-        expect(raider.ai.blackboard.targetId).toBe(player.id);
-
-        // Nearer the ship than the contact.
-        raider.setMotion(new MotionKeyframe(state.currentTime, -30, 0, 0));
-        movePlayer(-20);
-        expect(raider.ai.blackboard.targetId).toBe(player.id);
-
-        raider.setMotion(new MotionKeyframe(state.currentTime, 20, 0, 0));
-        movePlayer(-60);
-        expect(raider.ai.blackboard.targetId).toBeNull();
-
-        state.currentTime += 16_000;
-        movePlayer(-60);
-        expect(raider.ai.blackboard.targetId).toBe(player.id);
-    });
-
-    it('doesn\'t fool a ship of the same faction', () => {
-        const { state, think, playGhost, movePlayer } = createDecoyFight();
-        const friend = new AiShip(state, { ...shipSetup('player', 20, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
-        state.add(friend);
-        playGhost();
-        movePlayer(-60);
-
-        friend.updateKnownObjects(state.currentTime);
-        think(friend);
-
-        expect(friend.ai.blackboard.lastKnownTargetPosition).not.toEqual({ x: 0, y: 0 });
-    });
-
-    it('is an uncommon card', () => {
-        expect(cardDefinitions.sensorGhost).toMatchObject({ targetType: 'no-target', rarity: 'uncommon' });
-        expect(getShopCardTypes('science')).toContain('sensorGhost');
     });
 });

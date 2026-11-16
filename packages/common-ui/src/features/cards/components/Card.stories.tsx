@@ -25,7 +25,7 @@ export const Tactical: Story = {
 
 export const Science: Story = {
     args: {
-        type: 'exampleNoTarget',
+        type: 'eureka',
     },
 };
 

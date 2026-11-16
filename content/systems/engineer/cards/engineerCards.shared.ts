@@ -57,11 +57,6 @@ export const emergencyPowerDuration = 12_000;
 export const emergencyPowerFlux = 2;
 
 export const cards = defineCards({
-    smokeScreen: {
-        targetType: 'no-target',
-        system: 'engineer',
-        parameters: { cost: 3 },
-    },
     auxPower: {
         targetType: 'system',
         system: 'engineer',
@@ -174,17 +169,12 @@ export const cards = defineCards({
         system: 'engineer',
         parameters: { cost: 3, maxAmount: 3, duration: 20 },
     },
-    overcharge: {
-        targetType: 'system',
-        system: 'engineer',
-        parameters: { cost: 2, powerGain: 3, duration: 15 },
-    },
     shunt: {
         targetType: 'system',
         system: 'engineer',
         parameters: { cost: 3 },
     },
-    drawPriority: {
+    reactorPriority: {
         targetType: 'system',
         system: 'engineer',
         parameters: { cost: 2 },

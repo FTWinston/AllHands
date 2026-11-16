@@ -43,7 +43,7 @@ const meta: Meta<typeof Component> = {
                     default:
                         return {
                             id,
-                            type: 'exampleEnemyTarget',
+                            type: 'acquireLock',
                         };
                 }
             },

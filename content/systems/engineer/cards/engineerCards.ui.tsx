@@ -5,11 +5,6 @@ import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { cards as sharedCards } from './engineerCards.shared';
 
 export const cards = defineUiCards(sharedCards, {
-    smokeScreen: {
-        name: 'Smoke Screen',
-        description: 'Deploy a smoke screen to obscure vision and provide cover.',
-        image: <ExampleIcon />,
-    },
     auxPower: {
         name: 'Aux Power',
         description: <>
@@ -225,26 +220,13 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
-    overcharge: {
-        name: 'Overcharge',
-        description: <>
-            Target system gains
-            <Parameter name="powerGain" />
-            {' '}
-            power for
-            <Parameter name="duration" />
-            {' '}
-            seconds, but takes damage every second for the duration.
-        </>,
-        image: <ExampleIcon />,
-    },
     shunt: {
         name: 'Shunt',
         description: 'Swap all status effects between a system and its horizontal neighbor, preserving cooldowns.',
         image: <ExampleIcon />,
     },
-    drawPriority: {
-        name: 'Draw Priority',
+    reactorPriority: {
+        name: 'Reactor Priority',
         description: <>
             Adds an
             {' '}

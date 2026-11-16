@@ -5,11 +5,6 @@ import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { cards as sharedCards } from './scienceCards.shared';
 
 export const cards = defineUiCards(sharedCards, {
-    exampleNoTarget: {
-        name: 'Some Card with a title that\'s really quite long',
-        description: 'A card that has a particular effect, for a particular crew role.',
-        image: <ExampleIcon />,
-    },
     passiveScan: {
         name: 'Passive Scan',
         description: <>
@@ -214,11 +209,11 @@ export const cards = defineUiCards(sharedCards, {
     sensorGhost: {
         name: 'Sensor Ghost',
         description: <>
-            Leave a false contact where this ship is, for
+            Leave a ghost where this ship is, flying on as the ship is now, for
             {' '}
             <Parameter name="duration" />
             {' '}
-            seconds. Hostile ships that sense it go to it, and ignore this ship, unless they're closer to this ship.
+            seconds. Hostile ships take it for this ship, and can target, scan and shoot it, but anything that does finds nothing there, and it vanishes.
         </>,
         image: <ExampleIcon />,
     },

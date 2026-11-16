@@ -45,6 +45,11 @@ export interface GameObjectInfo {
     /** Faction id, or null for unaffiliated objects (e.g. asteroids). */
     faction: string | null;
     motion: ReadonlyKeyframes<Position>;
+    /**
+     * True for a sensor ghost: a false contact that looks like a ship, but has nothing behind it.
+     * It's only sent to those who aren't fooled by it (its own side), so it's absent for everyone else, who take it for a real ship.
+     */
+    isSensorGhost?: boolean;
 }
 
 export interface SystemInfo {
@@ -207,6 +212,8 @@ export interface ScienceSystemInfo extends CrewSystemInfo {
     destinations: IArray<SectorDestinationInfo>;
     /** How much Insight science holds, which some of its cards spend. */
     insight: number;
+    /** The game time at which science last found a sensor ghost where it expected a ship, or 0 if it never has. */
+    ghostExposedTime?: number;
 }
 
 export interface EngineerSystemTileInfo {

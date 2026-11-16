@@ -280,9 +280,4 @@ export const cards = defineCards({
         traits: ['penetrating'],
         parameters: { cost: 2, chargeIncrease: 2 },
     },
-    exampleEnemyTarget: {
-        targetType: 'enemy',
-        system: 'tactical',
-        parameters: { cost: 3 },
-    },
 });

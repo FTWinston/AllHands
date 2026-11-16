@@ -67,9 +67,12 @@ export type LocationTargetCardFunctionality = SharedEngineCardDefinition & {
     play: (gameState: GameState, ship: Ship, cardInstance: CardState, cardDefinition: LocationTargetCardDefinition, location: Vector2D, parameters: CardParameters) => boolean;
 };
 
-/** Played on another ship, which has already been checked to be one the card's `targetRelationship` allows (see `SystemState.playShipCard`). */
+/**
+ * Played on another ship, which has already been checked to be one the card's `targetRelationship` allows (see `SystemState.playShipCard`).
+ * That can be a sensor ghost, which looks like a ship to those it fools, so all the card can rely on is where the target is.
+ */
 export type ShipTargetCardFunctionality = SharedEngineCardDefinition & {
-    play: (gameState: GameState, ship: Ship, target: Ship, parameters: CardParameters, card: CardState) => boolean;
+    play: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters, card: CardState) => boolean;
 };
 
 export type EngineCardFunctionality = NoTargetCardFunctionality

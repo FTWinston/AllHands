@@ -23,8 +23,8 @@ function createFight(random?: IRandom) {
     const target = new AiShip(state, {
         ...setup,
         hull: { ...setup.hull, cards: Array(10).fill('hullBare') },
-        helm: { ...setup.helm, cards: Array(10).fill('exampleNoTarget') },
-        tactical: { ...setup.tactical, cards: Array(10).fill('exampleNoTarget') },
+        helm: { ...setup.helm, cards: Array(10).fill('holdSteady') },
+        tactical: { ...setup.tactical, cards: Array(10).fill('holdFire') },
     });
     state.add(ship);
     state.add(target);

@@ -4,7 +4,7 @@ import type { CardType } from './cardDefinitions';
 
 /**
  * The card types that can become "known" once a crew member sees one, for each crew member: the non-expendable cards that can be in their deck.
- * These are the same cards a shop can sell, so campaign cards (e.g. Warp Away), placeholders and choice options are left out.
+ * These are the same cards a shop can sell, so campaign cards (e.g. Warp Away) and choice options are left out.
  */
 export const knowableCardTypesByRole: Readonly<Record<CrewRoleName, readonly CardType[]>> = Object.fromEntries(
     crewRoleNames.map(role => [role, getShopCardTypes(role)])

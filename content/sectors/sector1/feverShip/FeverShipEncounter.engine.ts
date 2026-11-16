@@ -40,7 +40,7 @@ export const warshipDecks: Readonly<Record<CrewRoleName, readonly CardType[]>> =
     helm: ['zigZag', 'sweep', 'zigZag', 'sweep', 'strafe'],
     tactical: ['photonTorpedo', 'phaserCannon', 'photonTorpedo', 'phaserCannon', 'photonTorpedo'],
     science: ['antiprotonScan', 'chronitonScan', 'antiprotonScan', 'chronitonScan', 'antiprotonScan'],
-    engineer: ['overcharge', 'overcharge', 'overcharge', 'distributePower', 'drawPower'],
+    engineer: ['redline', 'redline', 'redline', 'distributePower', 'drawPower'],
 };
 
 const briefing = 'It\'s in one system. One of the four, and it\'s driving that one flat out. Knock that one out and she stops. Knock out the wrong one and it digs in. Go gently. We\'re in here.';

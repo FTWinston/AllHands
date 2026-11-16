@@ -5,7 +5,7 @@ import { interpolatePosition } from 'common-data/features/space/utils/interpolat
 import { scaleToRange } from 'common-data/utils/scaleToRange';
 import { Rectangle } from '../types/Rectangle';
 import { drawHexGrid } from './drawHexGrid';
-import { drawObject } from './drawObject';
+import { drawGhostLabel, drawGhostObject, drawObject } from './drawObject';
 import type { ShipMapStyle } from '../../../objects/mapSvg';
 
 export type drawFunction = (context: CanvasRenderingContext2D, bounds: Rectangle, pixelSize: number) => void;
@@ -89,9 +89,20 @@ export function drawMap(
         ctx.translate(position.x, position.y);
         ctx.rotate(-position.angle);
 
-        drawObject(ctx, obj.appearance, getDisplayRelationship(obj, viewer), shipStyle);
+        const relationship = getDisplayRelationship(obj, viewer);
+
+        if (obj.isSensorGhost) {
+            drawGhostObject(ctx, obj.appearance, relationship, pixelSize, shipStyle);
+        } else {
+            drawObject(ctx, obj.appearance, relationship, shipStyle);
+        }
 
         ctx.rotate(position.angle);
+
+        if (obj.isSensorGhost) {
+            drawGhostLabel(ctx, relationship, pixelSize);
+        }
+
         ctx.translate(-position.x, -position.y);
     }
 

@@ -5,17 +5,13 @@ import { particleEffects } from 'content/systems/science/effects/scienceEffects.
 import { scanEvaluator } from 'engine/ai/evaluators/science';
 import { applyMotionCard } from 'engine/cards/applyMotionCard';
 import { defineEngineCards } from 'engine/content/EngineContent';
+import { SensorGhost } from 'engine/state/SensorGhost';
 import { Ship } from 'engine/state/Ship';
 import { cards as sharedCards } from './scienceCards.shared';
 import type { SystemEffect } from 'engine/state/systems/engineer/SystemEffect';
 import type { SystemState } from 'engine/state/systems/SystemState';
 
 export const cards = defineEngineCards(sharedCards, {
-    exampleNoTarget: {
-        play: (_gameState, _ship) => {
-            return true;
-        },
-    },
     passiveScan: {
         aiEvaluator: scanEvaluator,
         load: () => {
@@ -361,9 +357,8 @@ export const cards = defineEngineCards(sharedCards, {
     },
     sensorGhost: {
         play: (gameState, ship, parameters) => {
-            // Science has no map to place it on, so the contact is left where the ship is now, and the ship flies on.
-            const { x, y } = ship.getPosition(gameState.currentTime);
-            gameState.addDecoy(ship, { x, y }, (parameters.duration ?? sharedCards.sensorGhost.parameters.duration) * 1000);
+            // The ghost is left where the ship is, and flies on the way the ship is going now, which the ship is free to change.
+            gameState.add(new SensorGhost(gameState, ship, (parameters.duration ?? sharedCards.sensorGhost.parameters.duration) * 1000));
             return true;
         },
     },

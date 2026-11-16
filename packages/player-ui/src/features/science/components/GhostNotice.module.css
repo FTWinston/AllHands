@@ -1,0 +1,24 @@
+.ghostNotice {
+    margin: 0 0.75em;
+    padding: 0.25em 0.75em;
+    font-size: 0.75em;
+    font-family: var(--readout-font-family);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--primary-light);
+    border: 0.094em dashed color-mix(in oklch, var(--primary-light) 45%, transparent);
+    background-color: var(--panel);
+    animation: fadeOut 3s ease-in forwards;
+}
+
+@keyframes fadeOut {
+    0%,
+    60% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}

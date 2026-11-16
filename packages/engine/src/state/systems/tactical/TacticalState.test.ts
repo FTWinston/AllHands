@@ -53,10 +53,10 @@ describe('TacticalState weapon slot charging', () => {
     });
 
     it('refuses to spend a card that does not target a weapon or weapon slot', () => {
-        const { tactical } = createTactical(['phaserCannon', 'exampleEnemyTarget']);
+        const { tactical } = createTactical(['phaserCannon', 'acquireLock']);
         const slot = loadWeapon(tactical);
 
-        expect(tactical.chargeWeaponSlot(handCard(tactical, 'exampleEnemyTarget').id, slot.id)).toBe(false);
+        expect(tactical.chargeWeaponSlot(handCard(tactical, 'acquireLock').id, slot.id)).toBe(false);
         expect(slot.charge).toBe(0);
     });
 

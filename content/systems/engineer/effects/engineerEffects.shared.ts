@@ -49,12 +49,6 @@ export const effects = defineEffects({
         category: SystemEffectCategory.Positive,
         usesLevels: false,
     },
-    overcharge: {
-        category: SystemEffectCategory.Positive,
-        usesLevels: false,
-        duration: 15_000,
-        tickInterval: 1_000,
-    },
     distributePowerLoss: {
         category: SystemEffectCategory.Negative,
         usesLevels: true,

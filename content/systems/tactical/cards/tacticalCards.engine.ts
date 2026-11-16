@@ -554,9 +554,4 @@ export const cards = defineEngineCards(sharedCards, {
             return true;
         },
     },
-    exampleEnemyTarget: {
-        play: (_gameState, _ship, _target) => {
-            console.log('played exampleEnemyTarget'); return true;
-        },
-    },
 });

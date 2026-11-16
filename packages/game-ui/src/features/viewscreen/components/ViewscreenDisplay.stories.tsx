@@ -282,3 +282,44 @@ const WarpAwayStory = (args: ComponentProps<typeof Component>) => {
 export const WarpAway: Story = {
     render: args => <WarpAwayStory {...args} />,
 };
+
+const ghostObjects = {
+    player: { id: 'player', name: 'Player', appearance: 'chevron', faction: 'player', motion: [{ time: combatTime, x: 0, y: 0, angle: 0 }] },
+    raider: { id: 'raider', name: 'Raider', appearance: 'trident-raider', faction: 'raiders', motion: [{ time: combatTime, x: 8, y: 0, angle: Math.PI }] },
+    ghost: { id: 'ghost', name: 'Player', appearance: 'chevron', faction: 'player', motion: [{ time: combatTime, x: 2, y: -3, angle: 0 }] },
+} as unknown as Record<string, GameObjectInfo>;
+
+/** A false contact left by the player's ship, as the player's own viewscreen shows it: see-through, with a dashed outline, and labelled. */
+export const SensorGhostSeenByItsOwnSide: Story = {
+    render: (args) => {
+        const weaponEffectsRef = useWeaponEffects(null);
+        const objects = useMemo(() => ({ ...ghostObjects, ghost: { ...ghostObjects.ghost, isSensorGhost: true } }), []);
+
+        return (
+            <Component
+                {...args}
+                center={[{ time: combatTime, x: 3, y: -1 }]}
+                objects={objects}
+                viewer={{ shipId: 'player', faction: 'player', relations: { raiders: RelationshipType.Hostile } }}
+                weaponEffectsRef={weaponEffectsRef}
+            />
+        );
+    },
+};
+
+/** The same ghost, on the raider's viewscreen: just another ship of the player's faction, like the one it copies. */
+export const SensorGhostSeenByAnEnemy: Story = {
+    render: (args) => {
+        const weaponEffectsRef = useWeaponEffects(null);
+
+        return (
+            <Component
+                {...args}
+                center={[{ time: combatTime, x: 3, y: -1 }]}
+                objects={ghostObjects}
+                viewer={{ shipId: 'raider', faction: 'raiders', relations: { player: RelationshipType.Hostile } }}
+                weaponEffectsRef={weaponEffectsRef}
+            />
+        );
+    },
+};

@@ -113,3 +113,42 @@ export const WithFields: Story = {
         },
     },
 };
+
+/** A false contact that the player's ship left, flying on where the ship is going. It's the player's ship to the raider, with nothing to tell them it isn't. */
+const ghost = { id: 'ghost', name: 'Player', appearance: 'chevron', faction: 'player', motion: [{ time: 0, x: -1, y: 3, angle: 0 }] } as const;
+
+/** What the helm map shows of the ghost, which is only the ghost's own side that knows is one: drawn see-through, dashed and labelled. */
+function ghostStory(objectsInView: Record<string, GameObjectInfo>, viewerInView: RelationshipViewer, centreOn: string): Story {
+    return {
+        args: { overTargetId: null },
+        render: () => {
+            const weaponEffectsRef = useWeaponEffects(null);
+
+            return (
+                <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
+                    <Component
+                        center={objectsInView[centreOn].motion}
+                        objects={objectsInView}
+                        viewer={viewerInView}
+                        cancelManeuver={fn()}
+                        weaponEffectsRef={weaponEffectsRef}
+                    />
+                </div>
+            );
+        },
+    };
+}
+
+/** The player's helm: the ghost is drawn as a ghost, see-through, with a dashed outline, and labelled. */
+export const SensorGhostSeenByItsOwnSide: Story = ghostStory(
+    { ...objects, ghost: { ...ghost, isSensorGhost: true } },
+    viewer,
+    'playerShip'
+);
+
+/** The raider's helm: the ghost is a ship like any other hostile one. */
+export const SensorGhostSeenByAnEnemy: Story = ghostStory(
+    { ...objects, ghost },
+    { shipId: 'raider', faction: 'raiders', relations: { player: RelationshipType.Hostile } },
+    'raider'
+);
