@@ -198,4 +198,15 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
+    matchCourse: {
+        name: 'Match Course',
+        description: <>
+            For
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, stay alongside the target ship, moving as it moves and turning to its heading.
+        </>,
+        image: <ExampleIcon />,
+    },
 });

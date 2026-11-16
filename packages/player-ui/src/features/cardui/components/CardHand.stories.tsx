@@ -62,6 +62,12 @@ const meta: Meta<typeof CardHand> = {
                         >
                             Weapon drop
                         </CardDropTarget>
+                        <CardDropTarget
+                            id="ship-drop"
+                            targetType="ship"
+                        >
+                            Ship drop
+                        </CardDropTarget>
                     </div>
 
                     <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', gap: '1em' }}>

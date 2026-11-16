@@ -1,10 +1,11 @@
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { describe, expect, it } from 'vitest';
 import { getLockPips, maxLockLevel } from './lockPips';
-import { canPlayOnWeapon, getChargeValue } from './weaponCards';
+import { canChargeWeapon, canPlayOnWeapon, getChargeValue, hasCardTrait, isWeaponActive } from './weaponCards';
 
 const cannon = { type: 'phaserCannon' as const };
 const torpedo = { type: 'photonTorpedo' as const };
+const tractorBeam = { type: 'tractorBeam' as const };
 
 describe('canPlayOnWeapon', () => {
     it('lets a modifier be played only on a loaded weapon without one', () => {
@@ -29,6 +30,53 @@ describe('canPlayOnWeapon', () => {
         expect(canPlayOnWeapon(cardDefinitions.precisionFocus, { card: cannon, modified: false })).toBe(true);
         expect(canPlayOnWeapon({ targetType: 'weapon', requiredWeaponTrait: 'energyWeapon', instant: true }, { card: torpedo, modified: true })).toBe(false);
         expect(canPlayOnWeapon({ targetType: 'weapon', requiredWeaponTrait: 'energyWeapon', instant: true }, { card: cannon, modified: true })).toBe(true);
+    });
+});
+
+describe('an energised weapon', () => {
+    it('is the Tractor Beam, which is also rechargeable', () => {
+        expect(hasCardTrait(tractorBeam, 'energised')).toBe(true);
+        expect(hasCardTrait(tractorBeam, 'rechargeable')).toBe(true);
+        expect(hasCardTrait(cannon, 'energised')).toBe(false);
+    });
+
+    it('can\'t take a modifier, but can still have an instant card played on it', () => {
+        expect(canPlayOnWeapon(cardDefinitions.extendedUse, { card: tractorBeam, modified: false })).toBe(false);
+        expect(canPlayOnWeapon(cardDefinitions.powerCell, { card: tractorBeam, modified: false })).toBe(true);
+        expect(canPlayOnWeapon(cardDefinitions.hotSwap, { card: tractorBeam, modified: false })).toBe(true);
+    });
+
+    it('counts a gained trait as well as its definition\'s', () => {
+        expect(canPlayOnWeapon(cardDefinitions.extendedUse, { card: { ...cannon, extraTraits: { energised: 0 } }, modified: false })).toBe(false);
+    });
+});
+
+describe('canChargeWeapon', () => {
+    it('lets a weapon be charged until it\'s first full, and not after', () => {
+        expect(canChargeWeapon({ card: cannon, charge: 0, hasBeenFullyCharged: false }, 8)).toBe(true);
+        expect(canChargeWeapon({ card: cannon, charge: 8, hasBeenFullyCharged: true }, 8)).toBe(false);
+        expect(canChargeWeapon({ card: cannon, charge: 6, hasBeenFullyCharged: true }, 8)).toBe(false);
+        expect(canChargeWeapon({ card: null, charge: 0, hasBeenFullyCharged: false }, 8)).toBe(false);
+    });
+
+    it('lets a rechargeable weapon go on being charged after it\'s been full, whenever it has room', () => {
+        const rechargeable = { card: { ...cannon, extraTraits: { rechargeable: 1 } }, hasBeenFullyCharged: true };
+        expect(canChargeWeapon({ ...rechargeable, charge: 2 }, 8)).toBe(true);
+        expect(canChargeWeapon({ ...rechargeable, charge: 7 }, 8)).toBe(true);
+        expect(canChargeWeapon({ ...rechargeable, charge: 8 }, 8)).toBe(false);
+    });
+
+    it('lets a Tractor Beam be charged once it has lost charge, active or not, as it\'s rechargeable', () => {
+        expect(canChargeWeapon({ card: tractorBeam, charge: 8, hasBeenFullyCharged: true }, 8)).toBe(false);
+        expect(canChargeWeapon({ card: tractorBeam, charge: 3, hasBeenFullyCharged: true }, 8)).toBe(true);
+    });
+});
+
+describe('isWeaponActive', () => {
+    it('is whether the slot names a target its weapon is active on', () => {
+        expect(isWeaponActive({ activeTargetId: 'enemy' })).toBe(true);
+        expect(isWeaponActive({ activeTargetId: '' })).toBe(false);
+        expect(isWeaponActive({})).toBe(false);
     });
 });
 

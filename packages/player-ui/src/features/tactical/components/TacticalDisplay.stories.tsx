@@ -74,7 +74,10 @@ const meta: Meta<typeof Component> = {
                     } else if (targetType === 'weapon-slot') {
                         const card = cards.find(c => c.id === cardId) || null;
                         if (card) {
-                            setSlots(prevSlots => prevSlots.map(slot => slot.id === targetId ? { ...slot, card, modified: false, hasBeenFullyCharged: false, charge: 0 } : slot));
+                            // An energised weapon comes in fully charged.
+                            const definition = getCardDefinition(card.type);
+                            const charge = definition.traits?.includes('energised') ? definition.parameters.totalCharge ?? 0 : 0;
+                            setSlots(prevSlots => prevSlots.map(slot => slot.id === targetId ? { ...slot, card, modified: false, hasBeenFullyCharged: charge > 0, charge, activeTargetId: '' } : slot));
                         }
                     } else if (targetType === 'weapon' && !isInstant(cardType)) {
                         // An instant card does what it does without taking the weapon's modifier slot.
@@ -83,7 +86,7 @@ const meta: Meta<typeof Component> = {
                 }}
                 ejectWeapon={(slotId) => {
                     console.log(`ejected weapon from ${slotId}`);
-                    setSlots(prevSlots => prevSlots.map(slot => slot.id === slotId ? { ...slot, card: null, modified: false, hasBeenFullyCharged: false, charge: 0 } : slot));
+                    setSlots(prevSlots => prevSlots.map(slot => slot.id === slotId ? { ...slot, card: null, modified: false, hasBeenFullyCharged: false, charge: 0, activeTargetId: '' } : slot));
                 }}
                 slots={slots}
             />
@@ -245,5 +248,41 @@ export const LockAndInstantCards: Story = {
         ],
         lockTargetId: 'target1',
         lockLevel: 3,
+    },
+};
+
+/** A Tractor Beam active on the first target, draining its charge, with cards in hand to keep it up by dropping them on its meter. */
+export const ActiveTractorBeam: Story = {
+    args: {
+        ...UI.args,
+        cards: [
+            { id: 1, type: 'powerCell' },
+            { id: 2, type: 'phaserStrip' },
+            { id: 3, type: 'precisionFocus' },
+            { id: 4, type: 'photonTorpedo' },
+        ],
+        slots: [
+            {
+                id: 'slot1',
+                modified: false,
+                hasBeenFullyCharged: true,
+                charge: 5,
+                card: { id: 7, type: 'tractorBeam' },
+                activeTargetId: 'target1',
+                decay: {
+                    startTime: Date.now(),
+                    endTime: Date.now() + 1000,
+                },
+            },
+            {
+                id: 'slot2',
+                modified: false,
+                hasBeenFullyCharged: true,
+                charge: 8,
+                card: { id: 8, type: 'phaserCannon' },
+            },
+        ],
+        lockTargetId: 'target1',
+        lockLevel: 1,
     },
 };

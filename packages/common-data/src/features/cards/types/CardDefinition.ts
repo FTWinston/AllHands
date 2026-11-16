@@ -69,6 +69,15 @@ export type SystemTargetCardDefinition = CommonCardDefinition & {
     targetType: 'system';
 };
 
+/** Which other ships a ship-targeted card can be played on, by how the playing ship's faction regards theirs. */
+export type ShipTargetRelationship = 'hostile' | 'friendly' | 'any';
+
+export type ShipTargetCardDefinition = CommonCardDefinition & {
+    targetType: 'ship';
+    /** Which other ships this card can be played on. Any other ship when not given. */
+    targetRelationship?: ShipTargetRelationship;
+};
+
 export enum CardMotionSegmentFacing {
     /** Keep the current angle, don't change facing */
     Current,
@@ -122,4 +131,5 @@ export type CardDefinition<TCardKey extends string = CardType> = NoTargetCardDef
     | EnemyTargetCardDefinition
     | ScanTargetCardDefinition
     | SystemTargetCardDefinition
-    | LocationTargetCardDefinition;
+    | LocationTargetCardDefinition
+    | ShipTargetCardDefinition;

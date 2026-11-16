@@ -1,3 +1,4 @@
+import { dampeningDrainPercent, penetratingAbsorptionPercent } from 'common-data/features/ships/utils/shieldStats';
 import { describe, expect, it } from 'vitest';
 import { resolveShieldHit, ShieldHitModifiers } from './hullShields';
 
@@ -58,5 +59,24 @@ describe('resolveShieldHit', () => {
 
         expect(shield).toBe(0);
         expect(hits).toBe(14);
+    });
+
+    it('absorbs half its usual share of a penetrating hit, letting more through', () => {
+        expect(penetratingAbsorptionPercent).toBe(50);
+
+        // 40% of the hit, rather than 80%: 20 absorbed, for 16 drain.
+        expect(resolveShieldHit(50, 100, 100, 3, { ...noMode, penetrating: true })).toEqual({ drain: 16, passedThrough: 30, collapsed: false });
+    });
+
+    it('is drained half as much again by a dampening hit, for the same damage absorbed', () => {
+        expect(dampeningDrainPercent).toBe(150);
+
+        // 40 absorbed, at 120% drain rather than 80%.
+        expect(resolveShieldHit(50, 100, 100, 3, { ...noMode, dampening: true })).toEqual({ drain: 48, passedThrough: 10, collapsed: false });
+    });
+
+    it('only absorbs what it can pay for of a dampening hit', () => {
+        // 24 shield pays for 20 of the 40 they'd absorb, at 120% drain, so they collapse.
+        expect(resolveShieldHit(50, 24, 100, 3, { ...noMode, dampening: true })).toEqual({ drain: 24, passedThrough: 30, collapsed: true });
     });
 });

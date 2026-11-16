@@ -39,7 +39,9 @@ function getDragDisplayMode(activeCard: ActiveCardInfo | null): DragDisplayMode 
         case 'no-target':
         case 'choice':
             return 'card';
+        // The helm map shows where a location card will go, or which ship a ship card will be played on.
         case 'location':
+        case 'ship':
             return 'none';
         default:
             return 'arrow';

@@ -5,6 +5,7 @@ import type {
     EngineLocationTargetCardDefinition,
     EngineNoTargetCardDefinition,
     EngineScanTargetCardDefinition,
+    EngineShipTargetCardDefinition,
     EngineSystemTargetCardDefinition,
     EngineWeaponSlotCardDefinition,
     EngineWeaponTargetCardDefinition,
@@ -15,6 +16,7 @@ import type {
     EnemyTargetedCardType,
     LocationTargetedCardType,
     ScanTargetedCardType,
+    ShipTargetedCardType,
     SystemSlotTargetedCardType,
     UntargetedCardType,
     WeaponSlotTargetedCardType,
@@ -40,6 +42,7 @@ export function getCardDefinition(type: LocationTargetedCardType): EngineLocatio
 export function getCardDefinition(type: SystemSlotTargetedCardType): EngineSystemTargetCardDefinition;
 export function getCardDefinition(type: EnemyTargetedCardType): EngineEnemyTargetCardDefinition;
 export function getCardDefinition(type: ScanTargetedCardType): EngineScanTargetCardDefinition;
+export function getCardDefinition(type: ShipTargetedCardType): EngineShipTargetCardDefinition;
 export function getCardDefinition(type: UntargetedCardType): EngineNoTargetCardDefinition;
 export function getCardDefinition(type: CardType): EngineCardDefinition;
 export function getCardDefinition(type: CardType): EngineCardDefinition {

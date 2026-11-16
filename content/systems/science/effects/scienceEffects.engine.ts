@@ -136,6 +136,73 @@ export const effects = defineEngineEffects(sharedEffects, {
             system.adjustSystemPowerLevel(MAX_POWER_LEVEL);
         },
     },
+    antiprotonShielding: {
+        apply: (system, level) => {
+            // Reduce damage taken from all sources by level percent.
+            system.systemState.applyDamage.addHandler('antiprotonShielding', false, damage => damage * (1 - level / 100));
+            return true;
+        },
+        remove: (system) => {
+            system.systemState.applyDamage.removeHandler('antiprotonShielding');
+        },
+        onLevelChanged: (system, newLevel) => {
+            // addHandler replaces the old handler, so we can just call it again with the new level.
+            system.systemState.applyDamage.addHandler('antiprotonShielding', false, damage => damage * (1 - newLevel / 100));
+        },
+    },
+    tetryonScattering: {
+        apply: (system, level) => {
+            system.systemState.chanceToHitPercentageModifier -= level;
+            return true;
+        },
+        remove: (system, _removal, level) => {
+            system.systemState.chanceToHitPercentageModifier += level;
+        },
+        onLevelChanged: (system, newLevel, oldLevel) => {
+            system.systemState.chanceToHitPercentageModifier -= newLevel - oldLevel;
+        },
+    },
+    chronitonAcceleration: {
+        apply: (system) => {
+            // Every second scheduled draw that goes ahead while this effect is active also draws an extra card, starting with the first.
+            let drawExtra = true;
+            system.systemState.scheduledDraw.addListener('chronitonAcceleration', () => {
+                if (drawExtra) {
+                    system.systemState.drawFromTop();
+                }
+                drawExtra = !drawExtra;
+            });
+            return true;
+        },
+        remove: (system) => {
+            system.systemState.scheduledDraw.removeListener('chronitonAcceleration');
+        },
+    },
+    polaronCharge: {
+        apply: (system, level) => {
+            system.adjustSystemPowerLevel(level);
+            return true;
+        },
+        remove: (system, _removal, level) => {
+            system.adjustSystemPowerLevel(-level);
+        },
+        onLevelChanged: (system, newLevel, oldLevel) => {
+            system.adjustSystemPowerLevel(newLevel - oldLevel);
+        },
+    },
+    gravitonLift: {
+        // Every maneuver the ship starts is faster by level percent (see `applyMotionCard`).
+        apply: (system, level) => {
+            system.systemState.getShip().helmState.maneuverSpeedModifier += level;
+            return true;
+        },
+        remove: (system, _removal, level) => {
+            system.systemState.getShip().helmState.maneuverSpeedModifier -= level;
+        },
+        onLevelChanged: (system, newLevel, oldLevel) => {
+            system.systemState.getShip().helmState.maneuverSpeedModifier += newLevel - oldLevel;
+        },
+    },
 });
 
 /** When each system under a Half-life last had its particle effects' time put back. */

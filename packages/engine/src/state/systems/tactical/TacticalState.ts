@@ -36,7 +36,9 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         super(setup, 'tactical', gameState, ship, scannedSystemIndex, initialPowerLevel, getCardId);
 
         for (let i = 0; i < setup.numSlots; i++) {
-            this.slots.push(new WeaponSlotState(`slot${i + 1}`));
+            const slot = new WeaponSlotState(`slot${i + 1}`);
+            slot.onDeactivated = (card, targetId) => this.weaponDeactivated(card, targetId);
+            this.slots.push(slot);
         }
     }
 
@@ -57,10 +59,46 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             const slotCard = slot.card;
             if (slot.update(currentTime) && slotCard) {
                 this.discardSlotCard(slotCard);
+            } else if (slotCard && slot.isActive && !this.canStayActive(slot, slotCard)) {
+                slot.clear();
+                this.discardSlotCard(slotCard);
+                this.scienceScanDataChanged.invoke();
             }
         }
 
         this.updateLock(currentTime);
+    }
+
+    /**
+     * Whether an active weapon can stay active: its target must still be known to this ship and within the weapon's range,
+     * and the weapon's card mustn't say its hold is lost (see `holds`). It no longer needs to be in the firing arc.
+     */
+    private canStayActive(slot: WeaponSlotState, card: CardState): boolean {
+        const target = this.resolveTarget(slot.activeTargetId);
+        if (!target) {
+            return false;
+        }
+
+        const { range } = getFiringSolution(this.getShip().motion, target.motion, this.getGameState().currentTime);
+        if (range > slot.getParameter('maxRange')) {
+            return false;
+        }
+
+        return getCardDefinition(card.type as WeaponSlotTargetedCardType).holds?.(this.getGameState(), this.getShip(), target) ?? true;
+    }
+
+    /**
+     * Called as an active weapon stops being active, after its slot has been emptied: the weapon's card undoes what firing it started (see `release`).
+     * Not if the other slot's weapon is the same, and still active on the same target, as that would undo its hold too.
+     */
+    private weaponDeactivated(card: CardState, targetId: string) {
+        if (this.slots.some(slot => slot.isActive && slot.activeTargetId === targetId && slot.card?.type === card.type)) {
+            return;
+        }
+
+        const gameState = this.getGameState();
+        const target = gameState.objects.get(targetId) ?? null;
+        getCardDefinition(card.type as WeaponSlotTargetedCardType).release?.(gameState, this.getShip(), target);
     }
 
     /**
@@ -182,7 +220,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             return false;
         }
 
-        slot.card = card;
+        slot.insertCard(card, this.getGameState().currentTime);
         this.markCardSlotted(card);
         this.scienceScanDataChanged.invoke();
 
@@ -202,8 +240,9 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
 
         const { requiredWeaponTrait, instant } = cardDefinition;
-        if (slot.modified && !instant) {
-            console.log('weapon is already modified');
+        // An instant card can be played on any weapon. Anything else becomes its modifier, which it can only take one of, and an energised weapon none.
+        if (!instant && !slot.canBeModified()) {
+            console.log('weapon is already modified, or is energised');
             return false;
         }
 
@@ -268,6 +307,11 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             return null;
         }
 
+        if (slot.isActive) {
+            console.warn('cannot fire: weapon is already active');
+            return null;
+        }
+
         const splitPos = targetId.indexOf(':');
         let targetObjectId: string;
         let vulnerabilityId: string | null;
@@ -317,6 +361,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     /**
      * Fire every weapon that can fire at the locked ship, at once. Each does extra damage for every level of Lock, and is used up, whatever charge it had left.
      * All Lock is then spent. Returns how many weapons fired: if none could, nothing happens, and Lock is kept.
+     * A weapon that stays active once fired (see `WeaponSlotState.staysActive`) holds its target rather than shooting it, so it isn't part of the volley.
      */
     fireVolley(damagePerLockLevel: number): number {
         const target = this.lockLevel > 0 ? this.resolveTarget(this.lockTargetId) : null;
@@ -328,7 +373,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         let fired = 0;
 
         for (const slot of this.slots) {
-            if (slot.card && this.getSlotFiringState(slot, target, undefined) === FiringState.CanFire) {
+            if (slot.card && !slot.staysActive && this.getSlotFiringState(slot, target, undefined) === FiringState.CanFire) {
                 this.fireSlot(slot, slot.card.type as WeaponSlotTargetedCardType, target, undefined, extraDamage, true);
                 fired++;
             }
@@ -412,7 +457,10 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
             slot.clear();
         }
 
-        if (slotCard && (empties || slot.afterFiring(currentTime))) {
+        // A weapon with a drain doesn't spend a use's charge: it stays active on its target, draining its charge, until it's ended.
+        if (slotCard && !empties && slot.staysActive) {
+            slot.activate(target.id, currentTime);
+        } else if (slotCard && (empties || slot.afterFiring(currentTime))) {
             this.discardSlotCard(slotCard);
         }
 

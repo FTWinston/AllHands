@@ -377,7 +377,7 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Trait trait="rechargeable" external />
             {' '}
-            trait, so it can be topped up with one more card once fully charged.
+            trait, so it can go on being charged after it's fully charged, any number of times.
         </>,
         image: <ExampleIcon />,
     },
@@ -433,14 +433,14 @@ export const cards = defineUiCards(sharedCards, {
     tractorBeam: {
         name: 'Tractor Beam',
         description: <>
-            Hold a ship within
+            An
             {' '}
-            <Parameter name="range" />
+            <Trait trait="energised" />
+            ,
             {' '}
-            in a tractor beam for
+            <Trait trait="rechargeable" />
             {' '}
-            <Parameter name="duration" />
-            s, cancelling its manoeuvre and slowing its manoeuvres by
+            weapon that holds a ship, cancelling its manoeuvre and slowing its manoeuvres by
             {' '}
             <Parameter name="targetSlowdown" />
             %. Your own manoeuvres are slowed by
@@ -450,7 +450,11 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="lockGain" />
             {' '}
-            Lock on the ship. The beam breaks if the ship gets out of range.
+            Lock on the ship. Holds until it runs out of charge, losing
+            {' '}
+            <Parameter name="drainPerSecond" />
+            {' '}
+            a second.
         </>,
         image: <ExampleIcon />,
     },
@@ -462,6 +466,57 @@ export const cards = defineUiCards(sharedCards, {
             <Parameter name="damagePerNegativeEffect" />
             {' '}
             more damage for each negative effect on that system.
+        </>,
+        image: <ExampleIcon />,
+    },
+    plasmaWarhead: {
+        name: 'Plasma Warhead',
+        description: <>
+            A
+            {' '}
+            <Trait trait="torpedoWeapon" external />
+            {' '}
+            gains
+            {' '}
+            <Trait trait="persistent" />
+            , but its damage is reduced by
+            {' '}
+            <Parameter name="damageReduction" />
+            .
+        </>,
+        image: <ExampleIcon />,
+    },
+    proximityFuse: {
+        name: 'Proximity Fuse',
+        description: <>
+            A
+            {' '}
+            <Trait trait="torpedoWeapon" external />
+            {' '}
+            gains
+            {' '}
+            <Trait trait="area" />
+            , and its accuracy is increased by
+            {' '}
+            <Parameter name="accuracyIncrease" />
+            .
+        </>,
+        image: <ExampleIcon />,
+    },
+    phaseShift: {
+        name: 'Phase Shift',
+        description: <>
+            An
+            {' '}
+            <Trait trait="energyWeapon" external />
+            {' '}
+            gains
+            {' '}
+            <Trait trait="penetrating" />
+            , but its charge per use is increased by
+            {' '}
+            <Parameter name="chargeIncrease" />
+            .
         </>,
         image: <ExampleIcon />,
     },

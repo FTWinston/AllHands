@@ -36,8 +36,10 @@ export type WeaponTrait
  *   An encounter can deal one that's also expendable, to keep it in a crew member's hand for as long as the encounter lasts.
  * - expendable: Card is destroyed when played (not added to the deck).
  * - unstable: Card shuffles back into the deck when played, instead of going on the end.
- * - rechargeable: A weapon with this trait can be topped up with one more card after it has been fully charged. Doing so removes the trait.
+ * - rechargeable: A weapon with this trait can go on being charged after it has been fully charged, any number of times, including while it's active on a target.
+ * - energised: A weapon with this trait enters its slot already fully charged, so it can't be given a modifier. (Instant cards can still be played on it.)
+ *   These two are how a weapon behaves in its slot, not on hitting a target, so they aren't @see WeaponTrait values.
  * - priority: Cannot be discarded or used for charging, can only be played.
  * - unplayable: Card cannot be played or discarded.
  */
-export type CardTrait = WeaponTrait | 'damaged' | 'stabilised' | 'critical' | 'primary' | 'expendable' | 'unstable' | 'rechargeable' | 'priority' | 'unplayable';
+export type CardTrait = WeaponTrait | 'damaged' | 'stabilised' | 'critical' | 'primary' | 'expendable' | 'unstable' | 'rechargeable' | 'energised' | 'priority' | 'unplayable';

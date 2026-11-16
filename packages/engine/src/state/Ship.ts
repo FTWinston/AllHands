@@ -239,7 +239,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             .applyDamage.invoke(targetSystemDamage);
 
         for (const trait of damage.traits) {
-            applyWeaponTrait(trait, this, targetSystem);
+            applyWeaponTrait(trait, targetSystem, damage);
         }
 
         return remainingAmount;

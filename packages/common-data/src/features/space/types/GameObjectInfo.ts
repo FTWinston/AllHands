@@ -84,6 +84,11 @@ export interface WeaponSlotInfo {
     modified: boolean;
     /** Whether the weapon has reached full charge since it was slotted. It can't fire before this. */
     hasBeenFullyCharged: boolean;
+    /**
+     * The id of the target a weapon with a `drainPerSecond` parameter is active on, having been fired at it. Empty (or absent) while it isn't active.
+     * While it's active, it loses charge steadily (shown by `decay`) and can't be fired again. It ends when its charge runs out.
+     */
+    activeTargetId?: string;
 }
 
 export interface ScannedWeaponSlotInfo {

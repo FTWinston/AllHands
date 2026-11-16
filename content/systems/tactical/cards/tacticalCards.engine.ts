@@ -5,7 +5,7 @@ import { FiringState } from 'common-data/features/space/types/FiringState';
 import { projectileFlightTime } from 'common-data/features/space/types/WeaponEffect';
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
-import { engageTractorBeam } from 'content/systems/tactical/effects/tacticalEffects.engine';
+import { engageTractorBeam, isHoldingInTractorBeam, releaseTractorBeam } from 'content/systems/tactical/effects/tacticalEffects.engine';
 import { effects as sharedEffects } from 'content/systems/tactical/effects/tacticalEffects.shared';
 import { weaponLoadEvaluator, weaponModifierEvaluator } from 'engine/ai/evaluators/tactical';
 import { defineEngineCards } from 'engine/content/EngineContent';
@@ -418,29 +418,15 @@ export const cards = defineEngineCards(sharedCards, {
             return !!source && ship.tacticalState.moveCharge(source.id, slot.id);
         },
     },
+    // No evaluator: the AI never loads this, though it can still spend it as charge.
     tractorBeam: {
-        synergy: { provides: ['lock'] },
-        aiEvaluator: (card, ctx) => {
-            const targetId = ctx.blackboard.targetId;
-            const target = targetId !== null && ctx.ship.knownObjects.has(targetId) ? ctx.gameState.objects.get(targetId) : undefined;
-            // Only worth playing on a ship in range that isn't already held.
-            if (!targetId || !target || !isShip(target) || target.engineerState.systems.some(tile => tile.system === 'helm' && tile.hasEffect('heldByTractorBeam'))) {
-                return [];
-            }
-
-            const { range } = getFiringSolution(ctx.ship.motion, target.motion, ctx.currentTime);
-            if (range > card.getParameter('range')) {
-                return [];
-            }
-
-            return [{
-                score: 30,
-                cost: card.getParameter('cost'),
-                action: { kind: 'playCard', cardId: card.id, cardType: 'tractorBeam', targetType: 'enemy', targetId },
-            }];
+        synergy: { provides: ['lock'], wants: ['weaponCharge'] },
+        load: (_gameState, _ship, _slot) => {
+            return true;
         },
-        play: (gameState, ship, target, _targetSystem, parameters) => {
-            if (!target || !isShip(target) || !engageTractorBeam(ship, target, parameters.range ?? 8, parameters.targetSlowdown ?? 60, parameters.ownSlowdown ?? 25)) {
+        // Firing takes hold of the target. With its drain, the weapon then stays active, and the hold with it, until it ends (see release).
+        fire: (gameState, ship, target, parameters) => {
+            if (!isShip(target) || !engageTractorBeam(ship, target, parameters.maxRange ?? 8, parameters.targetSlowdown ?? 60, parameters.ownSlowdown ?? 25)) {
                 return false;
             }
 
@@ -458,6 +444,13 @@ export const cards = defineEngineCards(sharedCards, {
             ship.tacticalState.addLock(target, parameters.lockGain ?? 1);
             return true;
         },
+        // The weapon stops being active once the beam has broken, or been moved onto another ship.
+        holds: (_gameState, ship, target) => isShip(target) && isHoldingInTractorBeam(ship, target),
+        release: (_gameState, ship, target) => {
+            if (target && isShip(target)) {
+                releaseTractorBeam(ship, target);
+            }
+        },
     },
     exploit: {
         // The AI doesn't aim at systems for the effects on them, so it rates this below its other modifiers.
@@ -465,6 +458,33 @@ export const cards = defineEngineCards(sharedCards, {
         prime: (_gameState, _ship, slot, parameters) => {
             // The tactical system adds this to an aimed shot's damage as the weapon fires.
             slot.adjustParameter('damagePerNegativeEffect', parameters.damagePerNegativeEffect ?? 6);
+            return true;
+        },
+    },
+    plasmaWarhead: {
+        synergy: { wants: ['torpedoWeapon'] },
+        aiEvaluator: weaponModifierEvaluator('plasmaWarhead'),
+        prime: (_gameState, _ship, slot, parameters) => {
+            slot.adjustParameter('damage', -(parameters.damageReduction ?? 10));
+            slot.card?.addTrait('persistent', ExtraTraitType.RemoveOnPlay);
+            return true;
+        },
+    },
+    proximityFuse: {
+        synergy: { wants: ['torpedoWeapon'] },
+        aiEvaluator: weaponModifierEvaluator('proximityFuse'),
+        prime: (_gameState, _ship, slot, parameters) => {
+            slot.adjustParameter('accuracy', parameters.accuracyIncrease ?? 15);
+            slot.card?.addTrait('area', ExtraTraitType.RemoveOnPlay);
+            return true;
+        },
+    },
+    phaseShift: {
+        synergy: { wants: ['energyWeapon'] },
+        aiEvaluator: weaponModifierEvaluator('phaseShift'),
+        prime: (_gameState, _ship, slot, parameters) => {
+            adjustChargePerUse(slot, parameters.chargeIncrease ?? 2);
+            slot.card?.addTrait('penetrating', ExtraTraitType.RemoveOnPlay);
             return true;
         },
     },

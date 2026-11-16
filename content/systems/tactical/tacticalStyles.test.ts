@@ -378,43 +378,105 @@ describe('Hot Swap', () => {
 });
 
 describe('Tractor Beam', () => {
-    /** A fight in which the enemy has a helm card to fly, and both ships' effects can be run on. */
+    /** A fight in which the enemy has a helm card to fly, both ships' effects can be run on, and the Tractor Beam is loaded into the first slot. */
     function createTow(enemyX = 5) {
-        const fight = createFight([], enemyX, 0);
-        const { state, ship, enemy } = fight;
+        const fight = createFight(['tractorBeam', 'phaserStrip', 'photonTorpedo', 'quantumTorpedo'], enemyX, 0);
+        const { state, ship, enemy, tactical, play } = fight;
         const shipHelm = ship.engineerState.systems.find(candidate => candidate.system === 'helm')!;
         const enemyHelm = enemy.engineerState.systems.find(candidate => candidate.system === 'helm')!;
+        const slot = tactical.slots[0];
+        play('tractorBeam', slot.id);
 
-        /** Moves the game clock on, and lets both ships' effects run out or tick, and the enemy's helm catch up. */
-        const waitEffects = (time: number, step = 250) => {
+        /** Moves the game clock on, and lets tactical's weapons, both ships' effects, and the enemy's helm catch up. */
+        const waitAll = (time: number, step = 250) => {
             for (let elapsed = 0; elapsed < time; elapsed += step) {
-                state.currentTime += step;
+                state.currentTime += Math.min(step, time - elapsed);
+                tactical.update(state.currentTime);
                 ship.engineerState.update(state.currentTime);
                 enemy.engineerState.update(state.currentTime);
                 enemy.helmState.update(state.currentTime);
             }
         };
 
-        return { ...fight, shipHelm, enemyHelm, waitEffects };
+        const fire = (targetId = enemy.id) => tactical.playWeapon(slot, 'tractorBeam', targetId) !== null;
+
+        return { ...fight, slot, shipHelm, enemyHelm, waitAll, fire };
     }
 
-    const { range, targetSlowdown, ownSlowdown, duration } = cardDefinitions.tractorBeam.parameters;
+    const { maxRange, totalCharge, drainPerSecond, targetSlowdown, ownSlowdown } = cardDefinitions.tractorBeam.parameters;
+    const holdSeconds = totalCharge / drainPerSecond;
 
-    it(`costs 3, and holds a ship within ${range} for ${duration}s, slowing its manoeuvres by ${targetSlowdown}% and the ship's own by ${ownSlowdown}%`, () => {
+    it('costs 3, and is an energised, rechargeable weapon that loads fully charged', () => {
         expect(cardDefinitions.tractorBeam.parameters.cost).toBe(3);
-        const { ship, enemy, shipHelm, enemyHelm, play, waitEffects } = createTow();
+        expect(cardDefinitions.tractorBeam.traits).toEqual(['energised', 'rechargeable']);
+        expect(holdSeconds).toBe(8);
 
-        expect(play('tractorBeam', enemy.id)).toBe(true);
+        const { slot } = createTow();
 
+        expect(slot.card?.type).toBe('tractorBeam');
+        expect(slot.charge).toBe(totalCharge);
+        expect(slot.hasBeenFullyCharged).toBe(true);
+        expect(slot.canBeCharged()).toBe(false);
+    });
+
+    it('can\'t be modified', () => {
+        const { slot, play } = createTow();
+
+        expect(play('extendedUse', slot.id)).toBe(false);
+        expect(slot.modified).toBe(false);
+    });
+
+    it(`holds a ship within ${maxRange} once fired, slowing its manoeuvres by ${targetSlowdown}% and the ship's own by ${ownSlowdown}%, for ${holdSeconds}s from full`, () => {
+        const { ship, enemy, slot, shipHelm, enemyHelm, fire, waitAll } = createTow();
+
+        expect(fire()).toBe(true);
+
+        expect(slot.isActive).toBe(true);
+        expect(slot.charge).toBe(totalCharge);
         expect(enemyHelm.getEffectLevel('heldByTractorBeam')).toBe(targetSlowdown);
         expect(shipHelm.getEffectLevel('tractorBeamEngaged')).toBe(ownSlowdown);
         expect(enemy.helmState.maneuverSpeedModifier).toBe(-targetSlowdown);
         expect(ship.helmState.maneuverSpeedModifier).toBe(-ownSlowdown);
 
-        waitEffects(duration * 1000 - 250);
+        waitAll(holdSeconds * 1000 - 250);
+        expect(slot.isActive).toBe(true);
         expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(true);
 
-        waitEffects(250);
+        waitAll(250);
+        expect(slot.card).toBeNull();
+        expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(false);
+        expect(shipHelm.hasEffect('tractorBeamEngaged')).toBe(false);
+        expect(enemy.helmState.maneuverSpeedModifier).toBe(0);
+        expect(ship.helmState.maneuverSpeedModifier).toBe(0);
+    });
+
+    it('is kept up for longer by every card spent on its meter while it holds, any number of times', () => {
+        const { tactical, slot, enemyHelm, fire, waitAll } = createTow();
+        fire();
+
+        // Three cards worth 2 + 3 + 4 charge, each spent once there's room for it, keep it up 9s past the 8s it had.
+        for (const cardType of ['phaserStrip', 'photonTorpedo', 'quantumTorpedo'] as const) {
+            const card = tactical.hand.find(candidate => candidate.type === cardType)!;
+            waitAll(card.getParameter('cost') * 1000);
+            expect(tactical.chargeWeaponSlot(card.id, slot.id)).toBe(true);
+            expect(slot.charge).toBe(totalCharge);
+        }
+
+        waitAll(holdSeconds * 1000 - 250);
+        expect(slot.isActive).toBe(true);
+        expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(true);
+
+        waitAll(250);
+        expect(slot.card).toBeNull();
+        expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(false);
+    });
+
+    it('lets go, for both ships, when ejected', () => {
+        const { ship, enemy, tactical, slot, shipHelm, enemyHelm, fire } = createTow();
+        fire();
+
+        expect(tactical.ejectWeapon(slot.id)).toBe(true);
+
         expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(false);
         expect(shipHelm.hasEffect('tractorBeamEngaged')).toBe(false);
         expect(enemy.helmState.maneuverSpeedModifier).toBe(0);
@@ -422,7 +484,7 @@ describe('Tractor Beam', () => {
     });
 
     it('cancels the manoeuvre the target is flying when it takes hold', () => {
-        const { state, enemy, play, waitEffects } = createTow();
+        const { state, enemy, fire, waitAll } = createTow();
         const helm = enemy.helmState;
         (helm as { powerLevel: number }).powerLevel = 5;
         const card = new CardState(enemy.getCardId(), 'slowAndSteady');
@@ -431,52 +493,56 @@ describe('Tractor Beam', () => {
         helm.update(state.currentTime);
         expect(helm.activeManeuver).not.toBeNull();
 
-        expect(play('tractorBeam', enemy.id)).toBe(true);
-        waitEffects(250);
+        expect(fire()).toBe(true);
+        waitAll(250);
 
         expect(helm.activeManeuver).toBeNull();
     });
 
-    it('breaks early, for both ships, once the target gets out of range', () => {
-        const { state, ship, enemy, shipHelm, enemyHelm, play, waitEffects } = createTow();
-        play('tractorBeam', enemy.id);
-        waitEffects(1000);
+    it('breaks early, for both ships, once the target gets out of range, and the weapon is used up', () => {
+        const { state, ship, enemy, slot, shipHelm, enemyHelm, fire, waitAll } = createTow();
+        fire();
+        waitAll(1000);
 
-        enemy.setMotion(new MotionKeyframe(state.currentTime, range + 1, 0, 0));
-        waitEffects(250);
+        enemy.setMotion(new MotionKeyframe(state.currentTime, maxRange + 1, 0, 0));
+        waitAll(250);
 
+        expect(slot.card).toBeNull();
         expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(false);
         expect(shipHelm.hasEffect('tractorBeamEngaged')).toBe(false);
         expect(enemy.helmState.maneuverSpeedModifier).toBe(0);
         expect(ship.helmState.maneuverSpeedModifier).toBe(0);
     });
 
-    it('can\'t be played on a ship out of range', () => {
-        const { enemy, tactical, enemyHelm, play } = createTow(range + 1);
+    it('can\'t be fired at a ship out of range, staying loaded', () => {
+        const { slot, enemyHelm, fire } = createTow(maxRange + 1);
 
-        expect(play('tractorBeam', enemy.id)).toBe(false);
+        expect(fire()).toBe(false);
+        expect(slot.isActive).toBe(false);
+        expect(slot.charge).toBe(totalCharge);
         expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(false);
-        expect(tactical.hand.some(card => card.type === 'tractorBeam')).toBe(true);
     });
 
     it('stacks with other effects that slow manoeuvres, leaving them in place when it breaks', () => {
-        const { enemy, enemyHelm, play, waitEffects } = createTow();
+        const { enemy, slot, enemyHelm, fire, waitAll } = createTow();
         enemyHelm.adjustEffectLevel('gravitonDrag', 40);
 
-        play('tractorBeam', enemy.id);
+        fire();
         expect(enemy.helmState.maneuverSpeedModifier).toBe(-40 - targetSlowdown);
 
+        // The beam's effect being removed some other way ends the weapon too.
         enemyHelm.removeEffect('heldByTractorBeam', 'early');
         expect(enemy.helmState.maneuverSpeedModifier).toBe(-40);
-        waitEffects(250);
+        waitAll(250);
+        expect(slot.card).toBeNull();
         expect(enemyHelm.getEffectLevel('gravitonDrag')).toBe(40);
     });
 
     it('gains Lock on the target, and broadcasts a beam to it once', () => {
-        const { state, ship, enemy, tactical, play } = createTow();
+        const { state, ship, enemy, tactical, fire } = createTow();
         const broadcast = vi.spyOn(state, 'broadcastWeaponEffect');
 
-        play('tractorBeam', enemy.id);
+        fire();
 
         expect(tactical.lockTargetId).toBe(enemy.id);
         expect(tactical.lockLevel).toBe(1);
@@ -484,16 +550,25 @@ describe('Tractor Beam', () => {
         expect(broadcast).toHaveBeenCalledWith(expect.objectContaining({ type: 'shot', weapon: 'tractorBeam', sourceId: ship.id, targetId: enemy.id }));
     });
 
-    it('is released from one ship when beamed onto another', () => {
-        const { enemy, addEnemy, enemyHelm, play } = createTow();
+    it('is released from one ship when a second Tractor Beam is fired at another, which ends the first', () => {
+        const { enemy, addEnemy, tactical, slot, enemyHelm, fire, waitAll, play } = createTow();
         const other = addEnemy(6, 0);
-        play('tractorBeam', enemy.id);
+        fire();
 
-        expect(play('tractorBeam', other.id)).toBe(true);
+        const second = tactical.slots[1];
+        play('tractorBeam', second.id);
+        expect(tactical.playWeapon(second, 'tractorBeam', other.id)).not.toBeNull();
+        waitAll(250);
 
+        expect(slot.card).toBeNull();
+        expect(second.isActive).toBe(true);
         expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(false);
         expect(enemy.helmState.maneuverSpeedModifier).toBe(0);
         expect(other.helmState.maneuverSpeedModifier).toBe(-targetSlowdown);
+    });
+
+    it('isn\'t loaded by the AI', () => {
+        expect(getCardEvaluator('tractorBeam')).toBeUndefined();
     });
 });
 

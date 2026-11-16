@@ -27,4 +27,6 @@ export type ScanTargetedCardType = KeysWithTargetType<AllCards, 'scan'>;
 
 export type LocationTargetedCardType = KeysWithTargetType<AllCards, 'location'>;
 
+export type ShipTargetedCardType = KeysWithTargetType<AllCards, 'ship'>;
+
 export type ChoiceCardType = KeysWithTargetType<AllCards, 'choice'>;

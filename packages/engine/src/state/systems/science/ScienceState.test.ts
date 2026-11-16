@@ -331,7 +331,7 @@ describe('ScienceState reading a hand', () => {
         scan(scanner, target, target.helmState.scannedSystemIndex);
         readHand(scanner, target, 'helm');
 
-        applyWeaponTrait('destabilizing', scanner, target.helmState);
+        applyWeaponTrait('destabilizing', target.helmState, { amount: 0, traits: ['destabilizing'], targetSystem: 'helm' });
 
         expect([...scanner.scienceState.scannedHelm!.hand!].every(card => card.hasTrait('unstable'))).toBe(true);
     });

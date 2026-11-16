@@ -28,6 +28,30 @@
         0 0 1em color-mix(in oklch, var(--color-light) 22%, transparent);
 }
 
+/* A weapon that's active on its target (one that drains its charge once fired): its glow pulses for as long as it holds. */
+.active {
+    animation: activePulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes activePulse {
+    from {
+        box-shadow: inset 0 0 0.75em color-mix(in oklch, var(--color-light) 12%, transparent);
+    }
+
+    to {
+        box-shadow:
+            inset 0 0 1.75em color-mix(in oklch, var(--color-light) 30%, transparent),
+            0 0 1em color-mix(in oklch, var(--color-light) 30%, transparent);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .active {
+        animation: none;
+        box-shadow: inset 0 0 1.75em color-mix(in oklch, var(--color-light) 22%, transparent);
+    }
+}
+
 .body {
     display: flex;
     gap: 0.375em;
@@ -130,6 +154,8 @@
 }
 
 .status {
+    /* The card and meter decide how wide the slot is; a long hint is cut short rather than widening it, which would push the other slot off a phone screen. */
+    contain: inline-size;
     flex-grow: 1;
     display: flex;
     align-items: center;
@@ -178,6 +204,10 @@ As wide as the charge meter, and lined up beneath it: the body's padding is 0.12
 
 .statusCharging {
     --status-color: var(--energy-light);
+}
+
+.statusActive {
+    --status-color: var(--color-light);
 }
 
 .statusTitle {

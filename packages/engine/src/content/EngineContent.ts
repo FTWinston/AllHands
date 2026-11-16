@@ -10,6 +10,7 @@ import type {
     LocationTargetCardFunctionality,
     NoTargetCardFunctionality,
     ScanTargetCardFunctionality,
+    ShipTargetCardFunctionality,
     SystemTargetCardFunctionality,
     WeaponSlotTargetCardFunctionality,
     WeaponTargetCardFunctionality,
@@ -25,7 +26,8 @@ type FunctionalityFor<TTargetType extends CardTargetType>
                     : TTargetType extends 'enemy' ? EnemyTargetCardFunctionality
                         : TTargetType extends 'scan' ? ScanTargetCardFunctionality
                             : TTargetType extends 'location' ? LocationTargetCardFunctionality
-                                : never;
+                                : TTargetType extends 'ship' ? ShipTargetCardFunctionality
+                                    : never;
 
 type CardsLike = Readonly<Record<string, { targetType: CardTargetType }>>;
 

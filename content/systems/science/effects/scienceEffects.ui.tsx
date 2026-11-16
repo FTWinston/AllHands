@@ -100,4 +100,51 @@ export const effects = defineUiEffects(sharedEffects, {
         </>,
         image: ExampleIcon,
     },
+    antiprotonShielding: {
+        name: 'Antiproton Shielding',
+        description: <>
+            A friendly deflector has screened this system with antiprotons, reducing its damage taken from all sources by
+            {' '}
+            <EffectLevel />
+            %.
+        </>,
+        image: ExampleIcon,
+    },
+    tetryonScattering: {
+        name: 'Tetryon Scattering',
+        description: <>
+            Tetryons from a friendly deflector are scattering sensors around this system: it is
+            {' '}
+            <EffectLevel />
+            % less likely to be hit by attacks.
+        </>,
+        image: ExampleIcon,
+    },
+    chronitonAcceleration: {
+        name: 'Chroniton Acceleration',
+        description: <>
+            Chronitons from a friendly deflector are speeding this system up: every other card it generates brings an extra one.
+        </>,
+        image: ExampleIcon,
+    },
+    polaronCharge: {
+        name: 'Polaron Charge',
+        description: <>
+            A friendly deflector has charged this system with polarons, increasing its available power by
+            {' '}
+            <EffectLevel />
+            .
+        </>,
+        image: ExampleIcon,
+    },
+    gravitonLift: {
+        name: 'Graviton Lift',
+        description: <>
+            Gravitons from a friendly deflector are lifting this ship: manoeuvres it starts are
+            {' '}
+            <EffectLevel />
+            % faster.
+        </>,
+        image: ExampleIcon,
+    },
 });

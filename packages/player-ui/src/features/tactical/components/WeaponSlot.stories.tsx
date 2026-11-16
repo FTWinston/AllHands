@@ -138,3 +138,33 @@ export const CantFire: Story = {
         },
     },
 };
+
+/** An energised weapon, just loaded: already fully charged, and unable to take a modifier. */
+export const Energised: Story = {
+    args: {
+        id: 'slot2',
+        charge: 8,
+        card: {
+            id: 5,
+            type: 'tractorBeam',
+        },
+        decay,
+    },
+};
+
+/** A Tractor Beam that has been fired, active on its target: its charge drains a point a second, and as it's rechargeable, cards can still be dropped on its meter. */
+export const Active: Story = {
+    args: {
+        id: 'slot2',
+        charge: 5,
+        card: {
+            id: 5,
+            type: 'tractorBeam',
+        },
+        activeTargetId: 'target1',
+        decay: {
+            startTime: Date.now(),
+            endTime: Date.now() + 1000,
+        },
+    },
+};

@@ -20,6 +20,8 @@ import { useVisibilityAnimation } from 'src/hooks/useVisibilityAnimation';
 import { useFreezeVector } from '../hooks/useFreezeVector';
 import { calculateMotionPath } from '../utils/calculateMotionPath';
 import { drawMotionPath } from '../utils/drawMotionPath';
+import { drawShipTarget } from '../utils/drawShipTarget';
+import { findNearestEligibleShip, getShipTargetRelationship } from '../utils/findNearestEligibleShip';
 import { DropCells } from './DropCells';
 import styles from './HelmSpaceMap.module.css';
 
@@ -45,6 +47,8 @@ export const HelmSpaceMap = (props: Props) => {
     const maneuverAnimation = useVisibilityAnimation(!!props.activeManeuver);
 
     const draggingLocationCard = activeCard?.targetType === 'location';
+    const draggingShipCard = activeCard?.targetType === 'ship';
+    const draggingMapCard = draggingLocationCard || draggingShipCard;
 
     // Calculate cell radius based on zoom level
     const cellRadius = BASE_CELL_RADIUS * zoomLevel;
@@ -61,7 +65,7 @@ export const HelmSpaceMap = (props: Props) => {
 
     // Freeze the center position while dropping cards, to make that easier.
     // Lerp to catch back up again when that's done.
-    const centerVector = useFreezeVector(!!draggingLocationCard, shipPosition);
+    const centerVector = useFreezeVector(draggingMapCard, shipPosition);
 
     // Calculate the motion path preview when hovering over a valid target
     const motionPath = draggingLocationCard && overTargetId && activeCard
@@ -84,25 +88,39 @@ export const HelmSpaceMap = (props: Props) => {
         })()
         : null;
 
-    // Draw the motion path as extra foreground content on the SpaceMap
+    // A ship card is played on whichever eligible ship is nearest the hexagon it's over. With none anywhere, it can't be dropped.
+    const shipTargetRelationship = draggingShipCard && activeCard ? getShipTargetRelationship(activeCard.cardType) : null;
+    const hasShipTarget = shipTargetRelationship !== null
+        && findNearestEligibleShip(props.objects, props.viewer, shipPosition, shipTargetRelationship, currentTime) !== null;
+    const pointerLocation = draggingShipCard && overTargetId ? parseVector(overTargetId) : null;
+    const shipTarget = shipTargetRelationship !== null && pointerLocation
+        ? findNearestEligibleShip(props.objects, props.viewer, pointerLocation, shipTargetRelationship, currentTime)
+        : null;
+
+    // Draw the motion path or ship target as extra foreground content on the SpaceMap
     const drawExtraForeground = useCallback(
         (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
             if (motionPath) {
                 drawMotionPath(ctx, motionPath, pixelSize);
             }
+            if (shipTarget && pointerLocation) {
+                drawShipTarget(ctx, shipPosition, shipTarget.position, pointerLocation, pixelSize);
+            }
             drawWeaponEffects(ctx, props.weaponEffectsRef.current, props.objects, timeProvider.getServerTime(), pixelSize);
         },
-        [motionPath, props.weaponEffectsRef, props.objects, timeProvider]
+        [motionPath, shipTarget, pointerLocation, shipPosition, props.weaponEffectsRef, props.objects, timeProvider]
     );
 
     return (
         <div className={styles.spaceMapContainer}>
-            {draggingLocationCard && (
+            {draggingMapCard && (
                 <DropCells
                     className={styles.dropCellsOverlay}
+                    targetType={draggingShipCard ? 'ship' : 'location'}
                     center={centerVector}
                     shipPosition={shipPosition}
                     cellRadius={cellRadius}
+                    disabled={draggingShipCard && !hasShipTarget}
                 />
             )}
 
@@ -119,18 +137,18 @@ export const HelmSpaceMap = (props: Props) => {
             />
 
             <Button
-                className={classNames(styles.zoomIn, draggingLocationCard ? styles.zoomDisabled : null)}
+                className={classNames(styles.zoomIn, draggingMapCard ? styles.zoomDisabled : null)}
                 onClick={() => setZoomLevel(level => Math.min(4, level * 1.25))}
-                disabled={draggingLocationCard || zoomLevel >= 4}
+                disabled={draggingMapCard || zoomLevel >= 4}
                 focusableWhenDisabled
             >
                 +
             </Button>
 
             <Button
-                className={classNames(styles.zoomOut, draggingLocationCard ? styles.zoomDisabled : null)}
+                className={classNames(styles.zoomOut, draggingMapCard ? styles.zoomDisabled : null)}
                 onClick={() => setZoomLevel(level => Math.max(0.5, level / 1.25))}
-                disabled={draggingLocationCard || zoomLevel <= 0.5}
+                disabled={draggingMapCard || zoomLevel <= 0.5}
                 focusableWhenDisabled
             >
                 -

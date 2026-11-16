@@ -4,9 +4,6 @@ import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEff
 /** How long a flare burns, once the Flare card is played. */
 export const flareDuration = 8000;
 
-/** How long a tractor beam holds its target, unless it breaks first. */
-export const tractorBeamDuration = 8000;
-
 export const effects = defineEffects({
     /** On a ship's tactical system: a flare it launched is burning. It does nothing itself: an encounter decides what that's worth. */
     flareBurning: {
@@ -20,18 +17,22 @@ export const effects = defineEffects({
         usesLevels: true,
         maxLevel: 5,
     },
-    /** On the helm of a ship held in another's tractor beam. Its level is the percentage of speed that manoeuvres started under it lose. */
+    /**
+     * On the helm of a ship held in another's tractor beam. Its level is the percentage of speed that manoeuvres started under it lose.
+     * It lasts for as long as the Tractor Beam weapon holding the ship stays active, unless the ships get too far apart first.
+     */
     heldByTractorBeam: {
         category: SystemEffectCategory.Negative,
         usesLevels: true,
-        duration: tractorBeamDuration,
         tickInterval: 250,
     },
-    /** On the helm of a ship holding another in its tractor beam. Its level is the percentage of speed that its own manoeuvres lose, as it's towing. */
+    /**
+     * On the helm of a ship holding another in its tractor beam. Its level is the percentage of speed that its own manoeuvres lose, as it's towing.
+     * It lasts for as long as its Tractor Beam weapon stays active, unless the ships get too far apart first.
+     */
     tractorBeamEngaged: {
         category: SystemEffectCategory.Neutral,
         usesLevels: true,
-        duration: tractorBeamDuration,
         tickInterval: 250,
     },
 });

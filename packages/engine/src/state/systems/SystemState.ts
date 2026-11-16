@@ -1,13 +1,16 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
+import { ShipTargetRelationship } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { isEligibleShipTarget } from 'common-data/features/cards/utils/isEligibleShipTarget';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { isCrewSystem, ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { LeveledSystemEffectType, NonLeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { EngineCardDefinition, EngineNoTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineScanTargetCardDefinition, EngineWeaponTargetCardDefinition, EngineEnemyTargetCardDefinition, EngineSystemTargetCardDefinition, EngineLocationTargetCardDefinition } from 'src/cards/EngineCardDefinition';
+import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
+import { EngineCardDefinition, EngineNoTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineScanTargetCardDefinition, EngineWeaponTargetCardDefinition, EngineEnemyTargetCardDefinition, EngineSystemTargetCardDefinition, EngineLocationTargetCardDefinition, EngineShipTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { resolveParameters } from 'src/cards/resolveParameters';
 import { InterceptableAction } from 'src/classes/InterceptableAction';
@@ -748,6 +751,8 @@ export abstract class SystemState extends Schema implements SystemInfo {
             if (played) {
                 slotted = true;
             }
+        } else if (cardDefinition.targetType === 'ship') {
+            played = this.playShipCard(card, cardDefinition, targetId, parameters);
         } else {
             console.error(`unhandled card target type: ${cardDefinition.targetType}`);
             return null;
@@ -825,6 +830,41 @@ export abstract class SystemState extends Schema implements SystemInfo {
     protected playLocationCard(_cardInstance: CardState, _cardDefinition: EngineLocationTargetCardDefinition, _targetId: string, _parameters: CardParameters): boolean {
         console.warn('non-helm system trying to play location card');
         return false;
+    }
+
+    /** Play a card on the ship with the given id, if this ship knows of it and the card's `targetRelationship` allows it. */
+    protected playShipCard(card: CardState, cardDefinition: EngineShipTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+        const target = this.resolveShipTarget(targetId, cardDefinition.targetRelationship);
+
+        if (!target) {
+            console.warn('ineligible ship target: ' + targetId);
+            return false;
+        }
+
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, parameters, card)) {
+            console.log('card refused to play');
+            return false;
+        }
+
+        return true;
+    }
+
+    /** The ship with the given id, if this ship knows of it, and it's one that a card wanting the given relationship can be played on. */
+    resolveShipTarget(targetId: string, relationship?: ShipTargetRelationship): Ship | null {
+        const target = this.resolveTarget(targetId);
+
+        // Ship can't be imported as a value here, as it imports this, so ships are told apart by their helm.
+        if (!target || !('helmState' in target)) {
+            return null;
+        }
+
+        const ship = this.getShip();
+        const targetShip = target as Ship;
+        const targetRelationship = targetShip === ship
+            ? RelationshipType.Self
+            : this.getGameState().factionRegistry.getRelationship(ship, targetShip);
+
+        return isEligibleShipTarget(targetRelationship, relationship) ? targetShip : null;
     }
 
     /**

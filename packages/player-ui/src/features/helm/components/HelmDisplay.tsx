@@ -6,13 +6,16 @@ import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/t
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
+import { parseVector } from 'common-data/features/space/utils/vectors';
 import { CardCooldown } from 'common-data/types/Cooldown';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
-import { ComponentProps, RefObject } from 'react';
+import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
+import { ComponentProps, RefObject, useCallback } from 'react';
 import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
+import { findNearestEligibleShip, getShipTargetRelationship } from '../utils/findNearestEligibleShip';
 import { HelmSpaceMap } from './HelmSpaceMap';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
@@ -32,10 +35,30 @@ export const HelmDisplay = (props: Props) => {
 
     useRootClassName(crewStyles.helm);
 
+    const timeProvider = useTimeProvider();
+
+    // A ship card dropped on the map is played on the eligible ship nearest the hexagon it was dropped on, as the map showed while it was dragged.
+    const playCardOnTarget = useCallback((cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => {
+        if (targetType !== 'ship') {
+            playCard(cardId, cardType, targetType, targetId);
+            return;
+        }
+
+        const relationship = getShipTargetRelationship(cardType);
+        const location = parseVector(targetId);
+        const target = relationship !== null && location
+            ? findNearestEligibleShip(objects, viewer, location, relationship, timeProvider.getServerTime())
+            : null;
+
+        if (target) {
+            playCard(cardId, cardType, targetType, target.ship.id);
+        }
+    }, [playCard, objects, viewer, timeProvider]);
+
     return (
         <Screen>
             <CardUI
-                playCard={playCard}
+                playCard={playCardOnTarget}
                 cardHand={cards}
                 availablePower={headerProps.power}
             >

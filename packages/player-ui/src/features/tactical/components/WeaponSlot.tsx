@@ -21,7 +21,7 @@ import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { ActiveCardInfo, useActiveCard } from 'src/features/cardui/components/DragCardProvider';
 import { DraggableCard } from 'src/features/cardui/components/DraggableCard';
 import { mergeModifiers } from '../utils/mergeModifiers';
-import { canPlayOnWeapon } from '../utils/weaponCards';
+import { canChargeWeapon, canPlayOnWeapon, isWeaponActive } from '../utils/weaponCards';
 import styles from './WeaponSlot.module.css';
 
 type Props = Snapshot<WeaponSlotInfo> & {
@@ -37,7 +37,7 @@ const canSpendOnCharge = (card: ActiveCardInfo) => !card.isDamaged
     && (card.targetType === 'weapon' || card.targetType === 'weapon-slot')
     && !getCardDefinition(card.cardType).traits?.includes('expendable');
 
-function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, fullyCharged: boolean, canModify: boolean) {
+function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, fullyCharged: boolean, canModify: boolean, active: boolean) {
     const { card, modifiers } = props;
 
     if (!card || !cardDefinition) {
@@ -87,6 +87,7 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
                     availablePower={0}
                     targetType="enemy"
                     slotted={true}
+                    playable={!active}
                 />
             </div>
         </CardDropTarget>
@@ -96,6 +97,9 @@ function getCardWrapper(props: Props, cardDefinition: UICardDefinition | null, f
 export const WeaponSlot = (props: Props) => {
     const { id, card, modifiers, charge, decay, firingSolution, modified, hasBeenFullyCharged, onEject } = props;
 
+    // A weapon with a drain that has been fired stays active on its target, draining its charge, and can't be fired again.
+    const isActive = isWeaponActive(props);
+
     const activeCard = useActiveCard();
     const activeCardDefinition = activeCard?.targetType === 'weapon'
         ? cardDefinitions[activeCard.cardType] as WeaponTargetCardDefinition
@@ -103,10 +107,10 @@ export const WeaponSlot = (props: Props) => {
 
     const slotCardDefinition = card ? getCardDefinition(card.type) : null;
 
-    // While a weapon-target card is being dragged, the weapon only takes it if it can be played here. Otherwise, it takes a modifier while it has none.
+    // While a weapon-target card is being dragged, the weapon only takes it if it can be played here. Otherwise, it takes a modifier while it has none, unless it's energised.
     const canModify = activeCardDefinition !== null
         ? canPlayOnWeapon(activeCardDefinition, { card, modified })
-        : !!card && !modified;
+        : canPlayOnWeapon({ targetType: 'weapon' }, { card, modified });
 
     const slotParameters = slotCardDefinition && card ? resolveParameters(slotCardDefinition.parameters, card.modifiers, modifiers) : {} as CardParameters;
 
@@ -119,10 +123,8 @@ export const WeaponSlot = (props: Props) => {
 
     const totalCharge = slotParameters['totalCharge'] ?? 0;
 
-    // Mirrors the server: free charging until first full, then only rechargeable weapons.
-    const canBeCharged = !!card
-        && charge < totalCharge
-        && (!hasBeenFullyCharged || card.extraTraits?.['rechargeable'] !== undefined);
+    // Mirrors the server: free charging until first full, then only rechargeable weapons, as often as there's room.
+    const canBeCharged = canChargeWeapon({ card, charge, hasBeenFullyCharged }, totalCharge);
 
     let statusTitle: string;
     let statusHint: string;
@@ -180,10 +182,22 @@ export const WeaponSlot = (props: Props) => {
             break;
     }
 
+    // An active weapon is busy with its target, whatever it could otherwise do.
+    if (isActive) {
+        statusTitle = 'Active';
+        if (canBeCharged) {
+            statusHint = 'Drop cards to hold';
+        } else {
+            statusHint = charge >= totalCharge ? 'Fully charged' : 'Running down';
+        }
+        mainPallete = 'good';
+        statusClassName = styles.statusActive;
+    }
+
     return (
-        <li className={classNames(styles.slot, colorPalletes[mainPallete], card ? null : styles.empty, mainPallete === 'primary' ? null : styles.alert, firingState === FiringState.CanFire ? styles.ready : null)}>
+        <li className={classNames(styles.slot, colorPalletes[mainPallete], card ? null : styles.empty, mainPallete === 'primary' ? null : styles.alert, firingState === FiringState.CanFire && !isActive ? styles.ready : null, isActive ? styles.active : null)}>
             <div className={styles.body}>
-                {getCardWrapper(props, slotCardDefinition, isFullyCharged, canModify)}
+                {getCardWrapper(props, slotCardDefinition, isFullyCharged, canModify, isActive)}
 
                 <CardDropTarget
                     className={styles.chargeTarget}

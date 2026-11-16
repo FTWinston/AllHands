@@ -107,7 +107,8 @@ export class HullState extends SystemState {
 
     /**
      * Apply incoming damage to the shields first, reducing their levels as necessary, and return the remaining damage to be done to the ship itself.
-     * While they last, the shields absorb a share of each hit, set by the hull's power level, and their tuning can reduce the hit or how much it drains them (see resolveShieldHit).
+     * While they last, the shields absorb a share of each hit, set by the hull's power level, and their tuning can reduce the hit or how much it drains them.
+     * The hit's penetrating and dampening traits make them absorb less of it, or be drained more (see resolveShieldHit).
      * If the hit knocks the shields out, every volatile hull card is damaged.
      */
     damageShields(damage: Damage): number {
@@ -119,6 +120,8 @@ export class HullState extends SystemState {
                 return tuning !== undefined && tile.hasEffect(tuning);
             }),
             reinforced: tile.hasEffect('shieldReinforced'),
+            penetrating: damage.traits.includes('penetrating'),
+            dampening: damage.traits.includes('dampening'),
         });
 
         if (result.drain > 0) {

@@ -112,17 +112,17 @@ Momentum is gained by starting a manoeuvre within 2s of the last one ending. It'
 
 Existing cards that fit: Zig-zag, Sweep.
 
-### Shadow (planned)
+### Shadow
 
 | Card | Effect |
 |---|---|
 | Orbit | Circle the target at the current range, keeping one side to it. |
-| Match Course | Stay alongside the target, moving as it moves. |
+| Match Course | Built. For 8s, hold your position relative to the target, moving as it moves. |
 | Interpose | Move to, and hold, the point between a friendly ship and its attacker. |
 | Shadow | Get into the target's rear arc and stay there. |
 | Break Away | Leave the target at speed, directly away from it. |
 
-These need a new card target type, a ship. On the helm map, dragging one of these cards over a hexagon would pick the nearest eligible ship to it, and show which ship that is while dragging, before it's dropped. Lock On's tracking (re-planning the motion every moment) is the engine half of the same problem.
+These are ship-targeted cards: dragging one over a hexagon on the helm map picks the nearest eligible ship to it (hostile, friendly or any, as the card says) and highlights it before the card is dropped, and the server checks the choice again. Match Course is built; the others are planned. Like Lock On, they re-plan the ship's motion every moment while they last.
 
 ## Tactical
 
@@ -161,14 +161,14 @@ Existing cards that fit: Photonic Cannon, High Yield, tactical's Overcharge, Ful
 
 | Card | Kind | Status | Effect |
 |---|---|---|---|
-| Tractor Beam | Played on a ship | built | For 8s, while within range: the target's manoeuvre is cut short and its manoeuvres are heavily slowed. Your own ship is slowed a little too. |
+| Tractor Beam | Weapon | built | *Energised* and *Rechargeable*: loads fully charged, and once fired holds the target while its charge runs down (about 8s from full). The target's manoeuvre is cut short and its manoeuvres heavily slowed, and yours a little. Tactical can keep it up by dropping cards on its meter. |
 | Exploit | Modifier | built | More damage for each negative effect on the system an aimed shot hits. |
-| Plasma Warhead | Modifier | blocked | A torpedo gains *persistent*, and does less damage on impact. |
-| Proximity Fuse | Modifier | blocked | A torpedo gains *area*, and is more accurate. |
-| Phase Shift | Modifier | blocked | An energy weapon gains *penetrating*, and costs more charge per use. |
+| Plasma Warhead | Modifier | built | A torpedo gains *persistent*, and does less damage on impact. |
+| Proximity Fuse | Modifier | built | A torpedo gains *area*, and is more accurate. |
+| Phase Shift | Modifier | built | An energy weapon gains *penetrating*, and costs more charge per use. |
 | Disabling Shot | Modifier | planned | Damages the target system's cards, but not the hull. |
 
-The blocked cards wait on the weapon traits themselves: `persistent`, `area`, `penetrating`, `draining`, `dampening`, `disabling`, `disrupting` and `cumbersome` are declared but do nothing yet (`applyWeaponTrait.ts`). Existing cards that fit: Ionic Surge, Precision Focus, Flare.
+Every weapon trait now does something except `cumbersome`, which needs a weapon to hold its aim before firing. A weapon that's *Rechargeable* can be charged any number of times; one that's *Energised* loads fully charged and can't take a modifier. Existing cards that fit: Ionic Surge, Precision Focus, Flare.
 
 ## Science
 
@@ -217,13 +217,13 @@ Existing cards that fit: the four substance scans, Inverted Antiproton Scan, Coh
 | Jam | Loud | For 10s, scans of this ship fail. |
 | Sensor Ghost | Quiet | Leave a false contact at a location for 15s. |
 
-### The deflector (planned)
+### The deflector (built)
 
-The deflector is science's finisher in every style, and none of its eighty combinations does anything yet. Rather than eighty effects, give each of its three parts a meaning:
+The deflector is science's finisher in every style. Rather than eighty separate effects, each of its three parts has a meaning, and one resolver puts them together (the numbers are in `deflectorParts.shared.ts`):
 
 - **Substance is what it does.** Antiproton: damage taken. Tetryon: shields and accuracy. Chroniton: card draws and cooldowns. Polaron: power. Graviton: movement.
-- **Delivery is its shape.** Beam: one system, strongly. Pulse: every system of one ship, weakly. Burst: everything near this ship. Field: a zone that lingers.
-- **Modifier is its twist.** Modulated: as it is. Phased: ignores shields. Coherent: lasts longer. Inverted: the opposite effect, on friendly ships.
+- **Delivery is its shape.** Beam: one system, strongly. Pulse: every system of one ship, weakly. Burst: everything near this ship. Field: a zone that lingers (for now, a weak effect on every system of the target that lasts three times as long, as the engine can't yet place a zone in space).
+- **Modifier is its twist.** Modulated: as it is. Phased: ignores shields (the others are weakened by up to half by the target's shields). Coherent: lasts longer. Inverted: the opposite effect, on friendly ships.
 
 ## Across stations
 

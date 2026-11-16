@@ -210,6 +210,13 @@ export const cards = defineCards({
         // duration: how long the ship keeps turning to face the closest hostile ship, in seconds
         parameters: { cost: 2, evasion: 0, duration: 8 },
     },
+    matchCourse: {
+        targetType: 'ship',
+        rarity: 'uncommon',
+        system: 'helm',
+        // duration: how long the ship keeps station alongside the target ship, in seconds
+        parameters: { cost: 2, evasion: 0, duration: 8 },
+    },
     warpAway: {
         targetType: 'no-target',
         system: 'helm',

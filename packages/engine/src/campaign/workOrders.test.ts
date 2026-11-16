@@ -19,7 +19,7 @@ describe('pickDeliveryCardTypes', () => {
     });
 
     it.each([1, 2, 3, 4, 5])('only tops up with owned types when there aren\'t enough new ones (seed %i)', (seed) => {
-        const owned = new Set<CardType>(['lowYield', 'highYield', 'fullSpread']);
+        const owned = new Set<CardType>(['lowYield', 'highYield', 'fullSpread', 'plasmaWarhead', 'proximityFuse']);
 
         const picked = pickDeliveryCardTypes(seededRandom(seed), 'photonTorpedo', owned);
 

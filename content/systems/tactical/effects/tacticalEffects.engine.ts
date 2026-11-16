@@ -32,7 +32,8 @@ function beamHolds(beam: TractorBeam) {
 }
 
 /**
- * Have one ship hold another in its tractor beam: the target's current manoeuvre is cut short, and both ships' manoeuvres are slowed by the given percentages, for as long as the beam holds.
+ * Have one ship hold another in its tractor beam: the target's current manoeuvre is cut short, and both ships' manoeuvres are slowed by the given percentages,
+ * until the beam is released (see `releaseTractorBeam`), or breaks as the ships get too far apart.
  * Any beam the ship was already holding on another ship is released first. Returns false if the target isn't within range, or either ship has no helm.
  */
 export function engageTractorBeam(source: Ship, target: Ship, range: number, targetSlowdown: number, ownSlowdown: number): boolean {
@@ -60,6 +61,20 @@ export function engageTractorBeam(source: Ship, target: Ship, range: number, tar
 
     target.helmState.cancelActiveManeuver();
     return true;
+}
+
+/** Whether a ship is still holding a target in its tractor beam. */
+export function isHoldingInTractorBeam(source: Ship, target: Ship): boolean {
+    const sourceHelm = getHelmTile(source);
+    return !!sourceHelm && beamsBySourceHelm.get(sourceHelm)?.target === target && sourceHelm.hasEffect('tractorBeamEngaged');
+}
+
+/** Have a ship let go of a target held in its tractor beam, removing the effects from both ships. Does nothing if its beam is on another ship, or none. */
+export function releaseTractorBeam(source: Ship, target: Ship) {
+    const sourceHelm = getHelmTile(source);
+    if (sourceHelm && beamsBySourceHelm.get(sourceHelm)?.target === target) {
+        sourceHelm.removeEffect('tractorBeamEngaged', 'early');
+    }
 }
 
 /** Undo what a tractor beam's effect did to its ship's manoeuvres, and break the beam: the effect on the other ship goes too, if it's still from this beam. */

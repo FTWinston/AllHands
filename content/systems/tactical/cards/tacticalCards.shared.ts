@@ -1,5 +1,4 @@
 import { defineCards } from 'common-data/content/SharedContent';
-import { effects } from 'content/systems/tactical/effects/tacticalEffects.shared';
 
 /** How long a flare burns, once the Flare card is played. */
 export const flareDuration = 8000;
@@ -191,13 +190,20 @@ export const cards = defineCards({
         parameters: { cost: 1 },
     },
     tractorBeam: {
-        targetType: 'enemy',
+        targetType: 'weapon-slot',
         rarity: 'uncommon',
         system: 'tactical',
+        traits: ['energised', 'rechargeable'],
         parameters: {
             cost: 3,
-            duration: effects.heldByTractorBeam.duration / 1000,
-            range: 8,
+            // Loaded fully charged, and once fired, held for as long as it has charge, losing a point a second: about 8s from full, longer for every card fed onto its meter.
+            chargePerUse: 1,
+            totalCharge: 8,
+            drainPerSecond: 1,
+            maxRange: 8,
+            firingArc: 1.5,
+            // It holds rather than harms.
+            damage: 0,
             targetSlowdown: 60,
             ownSlowdown: 25,
             lockGain: 1,
@@ -208,6 +214,27 @@ export const cards = defineCards({
         rarity: 'uncommon',
         system: 'tactical',
         parameters: { cost: 2, damagePerNegativeEffect: 6 },
+    },
+    plasmaWarhead: {
+        targetType: 'weapon',
+        system: 'tactical',
+        requiredWeaponTrait: 'torpedoWeapon',
+        traits: ['persistent'],
+        parameters: { cost: 2, damageReduction: 10 },
+    },
+    proximityFuse: {
+        targetType: 'weapon',
+        system: 'tactical',
+        requiredWeaponTrait: 'torpedoWeapon',
+        traits: ['area'],
+        parameters: { cost: 3, accuracyIncrease: 15 },
+    },
+    phaseShift: {
+        targetType: 'weapon',
+        system: 'tactical',
+        requiredWeaponTrait: 'energyWeapon',
+        traits: ['penetrating'],
+        parameters: { cost: 2, chargeIncrease: 2 },
     },
     exampleEnemyTarget: {
         targetType: 'enemy',

@@ -9,18 +9,41 @@ type WeaponTargetRules = {
     instant?: boolean;
 };
 
+/** A weapon card in a slot: its type, and any traits it has gained. */
+type SlotCard = {
+    type: CardType;
+    extraTraits?: Partial<Record<CardTrait, unknown>> | null;
+};
+
 /** The parts of a weapon slot that say whether a card can be played on it. */
 type SlotState = {
-    card: { type: CardType } | null;
+    card: SlotCard | null;
     modified: boolean;
 };
 
+/** The parts of a weapon slot that say whether it can be charged. */
+type ChargeableSlotState = {
+    card: SlotCard | null;
+    charge: number;
+    hasBeenFullyCharged: boolean;
+};
+
+/** Whether a card has a trait, either from its definition or gained since. Mirrors the server's `CardState.hasTrait`. */
+export function hasCardTrait(card: SlotCard, trait: CardTrait): boolean {
+    return (cardDefinitions[card.type] as CardDefinition).traits?.includes(trait)
+        || card.extraTraits?.[trait] !== undefined;
+}
+
 /**
  * Whether a weapon-target card can be played on a weapon slot: it needs a weapon loaded, with the trait the card requires,
- * that doesn't yet have a modifier, unless the card is instant. Mirrors the server's `TacticalState.playWeaponCard`.
+ * that doesn't yet have a modifier and isn't energised, unless the card is instant. Mirrors the server's `TacticalState.playWeaponCard`.
  */
 export function canPlayOnWeapon(rules: WeaponTargetRules, slot: SlotState): boolean {
-    if (!slot.card || (slot.modified && !rules.instant)) {
+    if (!slot.card) {
+        return false;
+    }
+
+    if (!rules.instant && (slot.modified || hasCardTrait(slot.card, 'energised'))) {
         return false;
     }
 
@@ -30,6 +53,23 @@ export function canPlayOnWeapon(rules: WeaponTargetRules, slot: SlotState): bool
     }
 
     return (cardDefinitions[slot.card.type] as CardDefinition).traits?.includes(requiredWeaponTrait) ?? false;
+}
+
+/** Whether a weapon in a slot that stays active once fired (one with a `drainPerSecond` parameter) has been fired, and is still active on its target. */
+export function isWeaponActive(slot: { activeTargetId?: string }): boolean {
+    return !!slot.activeTargetId;
+}
+
+/**
+ * Whether cards can be spent on a weapon slot's charge meter, given its weapon's total charge. It needs a weapon loaded, with room for more charge,
+ * that hasn't been fully charged yet, or is rechargeable (any number of times, even while active). Mirrors the server's `WeaponSlotState.canBeCharged`.
+ */
+export function canChargeWeapon(slot: ChargeableSlotState, totalCharge: number): boolean {
+    if (!slot.card || slot.charge >= totalCharge) {
+        return false;
+    }
+
+    return !slot.hasBeenFullyCharged || hasCardTrait(slot.card, 'rechargeable');
 }
 
 /**

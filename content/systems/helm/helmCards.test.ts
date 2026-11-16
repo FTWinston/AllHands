@@ -2,6 +2,7 @@ import { cardDefinitions, type CardType } from 'common-data/features/cards/utils
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { getCardEvaluator } from 'engine/ai/evaluators';
+import { getCardDefinition } from 'engine/cards/getEngineCardDefinition';
 import { AiShip } from 'engine/state/AiShip';
 import { CardState } from 'engine/state/CardState';
 import { MotionKeyframe } from 'engine/state/MotionKeyframe';
@@ -70,7 +71,7 @@ describe('the new helm cards', () => {
         for (const type of ['burn', 'flyby', 'broadside', 'broadsideLeft', 'broadsideRight', 'slingshot', 'slingshotLeft', 'slingshotRight'] as const) {
             expect(getCardEvaluator(type)).toBeDefined();
         }
-        for (const type of ['hardBrake', 'evasivePattern', 'holdSteady', 'brace', 'lockOn'] as const) {
+        for (const type of ['hardBrake', 'evasivePattern', 'holdSteady', 'brace', 'lockOn', 'matchCourse'] as const) {
             expect(getCardEvaluator(type)).toBeUndefined();
         }
     });
@@ -574,5 +575,144 @@ describe('Lock On', () => {
         runShip(4100);
         expect(helm.activeManeuver).toBeNull();
         expect(ship.getPosition(state.currentTime)).toMatchObject({ x: 0, y: 0, angle: 0 });
+    });
+});
+
+describe('Match Course', () => {
+    /**
+     * A ship as `createShip` makes, which knows of the other ship, with a way to set that ship flying straight at a steady speed.
+     * Only the player's ship is ticked, so the other ship only moves as it's told to.
+     */
+    function createMatchingShip() {
+        const world = createShip();
+        const { state, ship, other, helm } = world;
+        ship.updateKnownObjects(state.currentTime);
+
+        /** Has the other ship fly from where it is in the given direction, at the given speed in units per second, for the next 20 seconds. A keyframe every 100ms keeps its speed steady. */
+        const flyOther = (dx: number, dy: number, speed: number) => {
+            const from = other.getPosition(state.currentTime);
+            const length = Math.hypot(dx, dy);
+            const keyframes = Array.from({ length: 201 }, (_, step) => new MotionKeyframe(
+                state.currentTime + step * 100,
+                from.x + dx / length * speed * step / 10,
+                from.y + dy / length * speed * step / 10,
+                from.angle
+            ));
+            other.setMotion(...keyframes);
+        };
+        const runShip = (duration: number) => {
+            for (let t = 0; t < duration; t += 100) {
+                state.currentTime += 100;
+                ship.tick(100, state.currentTime);
+            }
+        };
+        const playOn = (targetId: string) => {
+            const card = new CardState(ship.getCardId(), 'matchCourse');
+            helm.addCardToHand(card);
+            return { card, played: helm.playCard(card.id, 'matchCourse', 'ship', targetId) !== null };
+        };
+        const position = () => ship.getPosition(state.currentTime);
+        const offset = () => {
+            const own = position();
+            const target = other.getPosition(state.currentTime);
+            return { x: own.x - target.x, y: own.y - target.y };
+        };
+
+        return { ...world, flyOther, runShip, playOn, position, offset };
+    }
+
+    it('keeps the ship at its offset from the target as the target moves, for 8 seconds', () => {
+        const { helm, other, flyOther, runShip, playOn, offset, position } = createMatchingShip();
+        expect(cardDefinitions.matchCourse).toMatchObject({ targetType: 'ship', system: 'helm', rarity: 'uncommon', parameters: { cost: 2, evasion: 0, duration: 8 } });
+        expect(cardDefinitions.matchCourse).not.toHaveProperty('targetRelationship');
+
+        flyOther(0, 1, 1);
+        const { card, played } = playOn(other.id);
+        expect(played).toBe(true);
+        expect(helm.activeManeuver!.card).toBe(card);
+        expect(helm.activeManeuver!.endTime - helm.activeManeuver!.startTime).toBe(8000);
+
+        runShip(4000);
+        expect(offset().x).toBeCloseTo(-10, 1);
+        expect(offset().y).toBeCloseTo(0, 1);
+        expect(position().y).toBeGreaterThan(3.5);
+
+        // The target turns and heads the other way: the ship follows it there.
+        flyOther(1, -1, 1);
+        runShip(3500);
+        expect(offset().x).toBeCloseTo(-10, 1);
+        expect(offset().y).toBeCloseTo(0, 1);
+        expect(helm.activeManeuver).not.toBeNull();
+
+        runShip(600);
+        expect(helm.activeManeuver).toBeNull();
+        expect(helm.deck.filter(candidate => candidate === card)).toHaveLength(1);
+
+        // Once it's over, the ship stops following.
+        const stoppedAt = position();
+        runShip(2000);
+        expect(position().x).toBeCloseTo(stoppedAt.x, 2);
+        expect(position().y).toBeCloseTo(stoppedAt.y, 2);
+    });
+
+    it('falls behind a target that moves faster than it can', () => {
+        const { other, flyOther, runShip, playOn, position } = createMatchingShip();
+
+        flyOther(0, 1, 3);
+        playOn(other.id);
+        runShip(2000);
+
+        // It can manage 1.5 units a second, where the target makes 3.
+        expect(position().y).toBeGreaterThan(2.5);
+        expect(position().y).toBeLessThan(3.1);
+    });
+
+    it('turns to the target\'s heading', () => {
+        const { state, other, runShip, playOn, position } = createMatchingShip();
+        other.setMotion(new MotionKeyframe(state.currentTime, 10, 0, Math.PI / 2));
+
+        playOn(other.id);
+        runShip(1000);
+        expect(position().angle).toBeGreaterThan(Math.PI / 4 - 0.15);
+        expect(position().angle).toBeLessThan(Math.PI / 4 + 0.05);
+
+        runShip(1500);
+        expect(position().angle).toBeCloseTo(Math.PI / 2, 2);
+    });
+
+    it('stops following as soon as it is called off', () => {
+        const { helm, other, flyOther, runShip, playOn, position } = createMatchingShip();
+
+        flyOther(0, 1, 1);
+        playOn(other.id);
+        runShip(1000);
+        helm.cancelActiveManeuver();
+        runShip(100);
+        expect(helm.activeManeuver).toBeNull();
+
+        runShip(1000);
+        const stoppedAt = position();
+        expect(stoppedAt.y).toBeGreaterThan(0.5);
+        expect(stoppedAt.y).toBeLessThan(2);
+
+        runShip(2000);
+        expect(position().y).toBeCloseTo(stoppedAt.y, 5);
+    });
+
+    it('is called off when the target is lost', () => {
+        const { state, helm, other, flyOther, runShip, playOn } = createMatchingShip();
+
+        flyOther(0, 1, 1);
+        playOn(other.id);
+        runShip(1000);
+        state.remove(other);
+        runShip(200);
+        expect(helm.activeManeuver).toBeNull();
+    });
+
+    it('is left alone by the AI, and has no synergy within helm', () => {
+        expect(getCardEvaluator('matchCourse')).toBeUndefined();
+        expect(getCardDefinition('matchCourse').synergy).toBeUndefined();
+        expect(getShopCardTypes('helm')).toContain('matchCourse');
     });
 });

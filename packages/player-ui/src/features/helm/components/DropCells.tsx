@@ -14,6 +14,10 @@ type CellInfo = {
 };
 
 type Props = {
+    /** What kind of card the cells take: a location card is played on the cell it's dropped on, and a ship card on the eligible ship nearest that cell. */
+    targetType: 'location' | 'ship';
+    /** Whether no cell can take the card. */
+    disabled?: boolean;
     center: Vector2D;
     shipPosition: Vector2D;
     cellRadius: number;
@@ -166,7 +170,7 @@ export const DropCells: FC<Props> = (props) => {
         const cellDistance = distance(worldPos, shipPosition);
         const isTooClose = minDistance !== undefined && cellDistance < minDistance;
         const isTooFar = maxDistance !== undefined && cellDistance > maxDistance;
-        const isDisabled = isTooClose || isTooFar;
+        const isDisabled = props.disabled === true || isTooClose || isTooFar;
 
         // Convert to screen position relative to view center
         // The view center (in world coords) is at the screen center
@@ -181,7 +185,7 @@ export const DropCells: FC<Props> = (props) => {
             <CardDropTarget
                 key={cellId}
                 id={cellId}
-                targetType="location"
+                targetType={props.targetType}
                 className={styles.cell}
                 style={{
                     left,

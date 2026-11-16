@@ -4,6 +4,7 @@ import { default as ChoiceIcon } from './choice.svg?react';
 import { default as EnemyIcon } from './enemy.svg?react';
 import { default as LocationIcon } from './location.svg?react';
 import { default as NoTargetIcon } from './no-target.svg?react';
+import { default as ShipIcon } from './ship.svg?react';
 import { default as SystemIcon } from './system.svg?react';
 import { default as WeaponSlotIcon } from './weapon-slot.svg?react';
 import { default as WeaponIcon } from './weapon.svg?react';
@@ -29,6 +30,8 @@ export const CardTargetIcon: FC<IconProps> = ({ className, targetType }) => {
             return <EnemyIcon className={className} />;
         case 'location':
             return <LocationIcon className={className} />;
+        case 'ship':
+            return <ShipIcon className={className} />;
         default:
             return null;
     }

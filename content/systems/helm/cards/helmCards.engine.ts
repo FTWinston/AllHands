@@ -1,5 +1,6 @@
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { Position } from 'common-data/features/space/types/Position';
+import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { clampAngle, distanceSq } from 'common-data/features/space/utils/vectors';
 import { choiceEvaluator } from 'engine/ai/evaluators';
 import { locationCardEvaluator } from 'engine/ai/evaluators/helm';
@@ -23,6 +24,9 @@ const lockOnStepsAhead = 3;
 
 /** How fast a locked-on ship turns, in radians per millisecond: 180 degrees in 4 seconds, as fast as Face Target turns. */
 const lockOnTurnRate = Math.PI / 4000;
+
+/** How fast a ship matching course can move to keep its station, in units per second: as fast as Burn flies. */
+const matchCourseMaxSpeed = 1.5;
 
 /** How many levels of Momentum the ship's helm holds. */
 function getMomentum(ship: Ship): number {
@@ -113,6 +117,44 @@ function steerTowardsClosestHostile(gameState: GameState, ship: Ship, endTime: n
 
         time = stepTime;
         keyframes.push(new MotionKeyframe(time, position.x, position.y, angle));
+    }
+
+    ship.setMotion(...keyframes);
+}
+
+/**
+ * Have the ship head for its station beside the target ship (the given offset from where that ship will be) for the next few steps, no further than the given end time,
+ * moving no faster than Match Course allows, while turning towards the target's heading at the locked-on turn rate.
+ * Planning uses the same short keyframes as Lock On, and each step heads for where the station will be at that step's time.
+ */
+function steerAlongside(gameState: GameState, ship: Ship, target: Ship, offset: Vector2D, endTime: number) {
+    const startTime = gameState.currentTime;
+    const position = ship.getPosition(startTime);
+    const maxSpeed = matchCourseMaxSpeed * ship.helmState.maneuverSpeedMultiplier / 1000;
+
+    // Start from a "now" keyframe, so the move carries on from wherever the ship currently is.
+    const keyframes = [new MotionKeyframe(startTime, position.x, position.y, position.angle)];
+    let { x, y, angle } = position;
+    let time = startTime;
+
+    for (let step = 1; step <= lockOnStepsAhead && time < endTime; step++) {
+        const stepTime = Math.min(startTime + step * lockOnStepDuration, endTime);
+        const stepDuration = stepTime - time;
+        const targetPosition = target.getPosition(stepTime);
+
+        const toStation = { x: targetPosition.x + offset.x - x, y: targetPosition.y + offset.y - y };
+        const stationDistance = Math.hypot(toStation.x, toStation.y);
+        const moveDistance = Math.min(stationDistance, maxSpeed * stepDuration);
+        if (stationDistance > 0) {
+            x += toStation.x / stationDistance * moveDistance;
+            y += toStation.y / stationDistance * moveDistance;
+        }
+
+        const maxTurn = lockOnTurnRate * stepDuration;
+        angle += Math.max(-maxTurn, Math.min(maxTurn, clampAngle(targetPosition.angle - angle)));
+
+        time = stepTime;
+        keyframes.push(new MotionKeyframe(time, x, y, angle));
     }
 
     ship.setMotion(...keyframes);
@@ -273,6 +315,32 @@ export const cards = defineEngineCards(sharedCards, {
                 if (currentTime - lastSteerTime >= lockOnStepDuration) {
                     lastSteerTime = currentTime;
                     steerTowardsClosestHostile(gameState, ship, endTime);
+                }
+            });
+            return true;
+        },
+    },
+    matchCourse: {
+        play: (gameState, ship, target, parameters, card) => {
+            const startTime = gameState.currentTime;
+            const endTime = startTime + (parameters['duration'] ?? 0) * 1000;
+
+            // The station to keep is wherever the ship is now, relative to the target.
+            const position = ship.getPosition(startTime);
+            const targetPosition = target.getPosition(startTime);
+            const offset = { x: position.x - targetPosition.x, y: position.y - targetPosition.y };
+
+            steerAlongside(gameState, ship, target, offset, endTime);
+            ship.helmState.setActiveManeuver(new CardCooldownState(card, startTime, endTime, parameters['cost']));
+
+            // Keep planning the move a short way ahead until the maneuver ends. Losing sight of the target calls the maneuver off.
+            let lastSteerTime = startTime;
+            ship.helmState.whileActiveManeuverFlies((currentTime) => {
+                if (ship.helmState.resolveShipTarget(target.id) !== target) {
+                    ship.helmState.cancelActiveManeuver();
+                } else if (currentTime - lastSteerTime >= lockOnStepDuration) {
+                    lastSteerTime = currentTime;
+                    steerAlongside(gameState, ship, target, offset, endTime);
                 }
             });
             return true;
