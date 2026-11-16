@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@colyseus/core": "^0.18.18",
-    "@colyseus/schema": "^5.0.35",
+    "@colyseus/schema": "github:FTWinston/colyseus-schema#primitive-collection-visibility",
     "@colyseus/ws-transport": "^0.18.4",
     "colyseus": "^0.18.9",
     "express": "^5.1.0"

@@ -460,6 +460,46 @@ describe('GameRoom engineer system cards', () => {
         });
     });
 
+    it('tactical and the engineer both see cards being damaged, stabilised and critically damaged', async () => {
+        const { state, ship, clients } = await startEncounter();
+        const tactical = ship.tacticalState;
+
+        const traitsOf = (cards: IArray<{ id: number; extraTraits?: { keys(): Iterable<string> } }>) =>
+            cards.map(card => [card.id, [...card.extraTraits?.keys() ?? []].sort()]);
+
+        const expectClientsMatch = async () => {
+            ship.tick(0, state.currentTime);
+
+            await vi.waitFor(() => {
+                const tacticalShip = getClientShip(clients.tactical, ship);
+                expect(traitsOf(tacticalShip.tacticalState.hand)).toEqual(traitsOf(tactical.hand));
+                expect(traitsOf(tacticalShip.tacticalState.deck)).toEqual(traitsOf(tactical.deck));
+
+                const engineerTile = getClientShip(clients.engineer, ship).engineerState.systems.find(t => t.system === 'tactical')!;
+                expect(traitsOf(engineerTile.hand)).toEqual(traitsOf(tactical.hand));
+                expect(traitsOf(engineerTile.deck)).toEqual(traitsOf(tactical.deck));
+                expect(engineerTile.health).toBe(tactical.health);
+            });
+        };
+
+        const maxHealth = tactical.maxHealth;
+
+        tactical.adjustHealth(-maxHealth);
+        expect(tactical.health).toBe(0);
+        await expectClientsMatch();
+
+        tactical.adjustHealth(maxHealth);
+        expect(tactical.health).toBe(maxHealth);
+        await expectClientsMatch();
+
+        // One hit at a time, as the system would take them in an encounter.
+        for (let i = 0; i < maxHealth; i++) {
+            tactical.adjustHealth(-1);
+            await expectClientsMatch();
+        }
+        expect(tactical.health).toBe(0);
+    });
+
     it('science and tactical both see the hull of the ship science is scanning, and no one else does', async () => {
         const { state, ship, clients } = await startEncounter();
         const [enemy] = getHostileShips(state);
