@@ -60,7 +60,7 @@ function createShip() {
 describe('the new helm cards', () => {
     it('are sold by shops, apart from the options of the choice cards', () => {
         const shop = getShopCardTypes('helm');
-        expect(shop).toEqual(expect.arrayContaining(['burn', 'flyby', 'hardBrake', 'evasivePattern', 'holdSteady', 'broadside', 'slingshot', 'brace', 'lockOn']));
+        expect(shop).toEqual(expect.arrayContaining(['burn', 'flyby', 'hardBrake', 'evasivePattern', 'holdSteady', 'broadside', 'slingshot', 'brace', 'lockOn', 'orbit', 'interpose', 'shadow', 'breakAway', 'attackRun']));
 
         for (const option of ['broadsideLeft', 'broadsideRight', 'slingshotLeft', 'slingshotRight'] as const) {
             expect(shop).not.toContain(option);
@@ -71,7 +71,7 @@ describe('the new helm cards', () => {
         for (const type of ['burn', 'flyby', 'broadside', 'broadsideLeft', 'broadsideRight', 'slingshot', 'slingshotLeft', 'slingshotRight'] as const) {
             expect(getCardEvaluator(type)).toBeDefined();
         }
-        for (const type of ['hardBrake', 'evasivePattern', 'holdSteady', 'brace', 'lockOn', 'matchCourse'] as const) {
+        for (const type of ['hardBrake', 'evasivePattern', 'holdSteady', 'brace', 'lockOn', 'matchCourse', 'orbit', 'interpose', 'shadow', 'breakAway', 'attackRun'] as const) {
             expect(getCardEvaluator(type)).toBeUndefined();
         }
     });
@@ -714,5 +714,467 @@ describe('Match Course', () => {
         expect(getCardEvaluator('matchCourse')).toBeUndefined();
         expect(getCardDefinition('matchCourse').synergy).toBeUndefined();
         expect(getShopCardTypes('helm')).toContain('matchCourse');
+    });
+});
+
+/**
+ * A ship as `createShip` makes, where the player's ships are hostile to raiders, with ways to add raider ships and to fly ships at a steady speed.
+ * Only the player's ship is ticked, so other ships only move as they're told to.
+ */
+function createRelativeWorld() {
+    rooms.createState().initFactions([
+        { id: 'player' },
+        { id: 'raiders', relations: { player: RelationshipType.Hostile } },
+    ], 'player');
+    const world = createShip();
+    const { state, ship, helm } = world;
+
+    const addRaider = (x: number, y: number, angle = 0) => {
+        const raider = new AiShip(state, { ...shipSetup('raiders', x, y), goal: { type: 'search-and-destroy' }, skill: 1 });
+        raider.setMotion(new MotionKeyframe(state.currentTime, x, y, angle));
+        state.add(raider);
+        return raider;
+    };
+    /** Has a ship fly from where it is in the given direction, at the given speed in units per second, for the next 20 seconds. */
+    const fly = (flown: PlayerShip | AiShip, dx: number, dy: number, speed: number) => {
+        const from = flown.getPosition(state.currentTime);
+        const length = Math.hypot(dx, dy);
+        flown.setMotion(...Array.from({ length: 201 }, (_, step) => new MotionKeyframe(
+            state.currentTime + step * 100,
+            from.x + dx / length * speed * step / 10,
+            from.y + dy / length * speed * step / 10,
+            from.angle
+        )));
+    };
+    const place = (placed: PlayerShip | AiShip, x: number, y: number, angle = 0) => placed.setMotion(new MotionKeyframe(state.currentTime, x, y, angle));
+    const runShip = (duration: number) => {
+        for (let t = 0; t < duration; t += 100) {
+            state.currentTime += 100;
+            ship.tick(100, state.currentTime);
+        }
+    };
+    const playOn = (type: CardType, target: PlayerShip | AiShip) => {
+        ship.updateKnownObjects(state.currentTime);
+        const card = new CardState(ship.getCardId(), type);
+        helm.addCardToHand(card);
+        return { card, played: helm.playCard(card.id, type, 'ship', target.id) !== null };
+    };
+    const position = () => ship.getPosition(state.currentTime);
+    /** Where the ship is, relative to the given ship. */
+    const offsetFrom = (target: PlayerShip | AiShip) => {
+        const own = position();
+        const at = target.getPosition(state.currentTime);
+        return { x: own.x - at.x, y: own.y - at.y };
+    };
+    const rangeTo = (target: PlayerShip | AiShip) => Math.hypot(offsetFrom(target).x, offsetFrom(target).y);
+
+    return { ...world, addRaider, fly, place, runShip, playOn, position, offsetFrom, rangeTo };
+}
+
+describe('Orbit', () => {
+    it('circles the target at the range it started at, side-on to it, for 10 seconds', () => {
+        const { helm, addRaider, runShip, playOn, position, offsetFrom, rangeTo } = createRelativeWorld();
+        expect(cardDefinitions.orbit).toMatchObject({ targetType: 'ship', system: 'helm', parameters: { cost: 2, evasion: 15, duration: 10 } });
+        expect(cardDefinitions.orbit).not.toHaveProperty('rarity');
+        expect(cardDefinitions.orbit).not.toHaveProperty('targetRelationship');
+
+        const raider = addRaider(10, 0);
+        const { card, played } = playOn('orbit', raider);
+        expect(played).toBe(true);
+        expect(helm.activeManeuver!.card).toBe(card);
+        expect(helm.activeManeuver!.endTime - helm.activeManeuver!.startTime).toBe(10000);
+        expect(helm.evasion).toBe(15);
+
+        // It stays 10 units from the raider all the way round, travelling about 1 unit a second.
+        for (let elapsed = 0; elapsed < 9800; elapsed += 100) {
+            runShip(100);
+            expect(rangeTo(raider)).toBeGreaterThan(9.4);
+            expect(rangeTo(raider)).toBeLessThan(10.4);
+        }
+        expect(helm.activeManeuver).not.toBeNull();
+
+        // It started at a bearing of 180 degrees from the raider, and has gone most of a radian round.
+        const bearing = Math.atan2(offsetFrom(raider).y, offsetFrom(raider).x);
+        const gone = Math.PI - Math.abs(bearing);
+        expect(gone).toBeGreaterThan(0.6);
+        expect(gone).toBeLessThan(1.1);
+
+        // Its side is to the raider: its heading is square to the line between them.
+        const toRaider = Math.atan2(-offsetFrom(raider).y, -offsetFrom(raider).x);
+        expect(Math.abs(Math.cos(position().angle - toRaider))).toBeLessThan(0.15);
+
+        runShip(300);
+        expect(helm.activeManeuver).toBeNull();
+        expect(helm.deck.filter(candidate => candidate === card)).toHaveLength(1);
+        const stoppedAt = position();
+        runShip(1000);
+        expect(position().x).toBeCloseTo(stoppedAt.x, 2);
+        expect(position().y).toBeCloseTo(stoppedAt.y, 2);
+    });
+
+    it('can be played on friendly ships too', () => {
+        const { helm, other, place, playOn } = createRelativeWorld();
+        place(other, 0, 10);
+
+        expect(playOn('orbit', other).played).toBe(true);
+        expect(helm.activeManeuver).not.toBeNull();
+    });
+
+    it('goes round whichever way needs the smaller turn from the ship\'s heading', () => {
+        for (const [angle, expected] of [[-Math.PI / 2, -1], [Math.PI / 2, 1]] as const) {
+            const { addRaider, place, ship, runShip, playOn, position } = createRelativeWorld();
+            const raider = addRaider(10, 0);
+            place(ship, 0, 0, angle);
+
+            expect(playOn('orbit', raider).played).toBe(true);
+            runShip(4000);
+            expect(Math.sign(position().y)).toBe(expected);
+        }
+    });
+
+    it('follows the target as it moves', () => {
+        const { addRaider, fly, runShip, playOn, rangeTo } = createRelativeWorld();
+        const raider = addRaider(10, 0);
+        fly(raider, 0, 1, 1);
+
+        playOn('orbit', raider);
+        runShip(6000);
+        expect(rangeTo(raider)).toBeGreaterThan(9.4);
+        expect(rangeTo(raider)).toBeLessThan(10.4);
+    });
+
+    it('cannot be played on a ship it is almost touching, or on itself', () => {
+        const { ship, helm, addRaider, playOn } = createRelativeWorld();
+
+        expect(playOn('orbit', addRaider(1, 0)).played).toBe(false);
+        expect(helm.activeManeuver).toBeNull();
+        expect(playOn('orbit', ship).played).toBe(false);
+    });
+
+    it('stops as soon as it is called off, or the target is lost', () => {
+        const { state, helm, addRaider, runShip, playOn, position } = createRelativeWorld();
+        const raider = addRaider(10, 0);
+
+        playOn('orbit', raider);
+        runShip(1000);
+        helm.cancelActiveManeuver();
+        runShip(100);
+        expect(helm.activeManeuver).toBeNull();
+        runShip(1000);
+        const stoppedAt = position();
+        runShip(2000);
+        expect(position().x).toBeCloseTo(stoppedAt.x, 5);
+        expect(position().y).toBeCloseTo(stoppedAt.y, 5);
+
+        playOn('orbit', raider);
+        runShip(1000);
+        state.remove(raider);
+        runShip(200);
+        expect(helm.activeManeuver).toBeNull();
+    });
+});
+
+describe('Interpose', () => {
+    it('holds the point between a friendly ship and the hostile ship closest to it, for 8 seconds', () => {
+        const { helm, other, addRaider, place, runShip, playOn, position } = createRelativeWorld();
+        expect(cardDefinitions.interpose).toMatchObject({ targetType: 'ship', targetRelationship: 'friendly', system: 'helm', rarity: 'uncommon', parameters: { cost: 2, evasion: 0, duration: 8 } });
+
+        place(other, 4, 0);
+        const raider = addRaider(4, 6);
+        const { card, played } = playOn('interpose', other);
+        expect(played).toBe(true);
+        expect(helm.activeManeuver!.endTime - helm.activeManeuver!.startTime).toBe(8000);
+
+        // It sits 3 units out from the friendly ship, on the line to the raider, facing it.
+        runShip(4000);
+        expect(position().x).toBeCloseTo(4, 1);
+        expect(position().y).toBeCloseTo(3, 1);
+        expect(position().angle).toBeCloseTo(Math.PI / 2, 1);
+
+        // A closer raider takes over, and the ship holds half way between that one and the friendly ship.
+        addRaider(4, -3);
+        runShip(3300);
+        expect(position().x).toBeCloseTo(4, 1);
+        expect(position().y).toBeCloseTo(-1.5, 1);
+
+        // The raider that was first is out of the picture, wherever it goes.
+        place(raider, 100, 100);
+        runShip(900);
+        expect(helm.activeManeuver).toBeNull();
+        expect(helm.deck.filter(candidate => candidate === card)).toHaveLength(1);
+        expect(position().y).toBeCloseTo(-1.5, 1);
+    });
+
+    it('stays put when there is no hostile ship', () => {
+        const { other, place, runShip, playOn, position, helm } = createRelativeWorld();
+        place(other, 4, 0);
+
+        expect(playOn('interpose', other).played).toBe(true);
+        runShip(3000);
+        expect(helm.activeManeuver).not.toBeNull();
+        expect(position()).toMatchObject({ x: 0, y: 0, angle: 0 });
+    });
+
+    it('can only be played on friendly ships', () => {
+        const { helm, addRaider, ship, playOn } = createRelativeWorld();
+
+        expect(playOn('interpose', addRaider(5, 0)).played).toBe(false);
+        expect(playOn('interpose', ship).played).toBe(false);
+        expect(helm.activeManeuver).toBeNull();
+    });
+
+    it('stops as soon as it is called off, or the target is lost', () => {
+        const { state, helm, other, addRaider, place, runShip, playOn, position } = createRelativeWorld();
+        place(other, 4, 0);
+        addRaider(4, 6);
+
+        playOn('interpose', other);
+        runShip(1000);
+        helm.cancelActiveManeuver();
+        runShip(100);
+        expect(helm.activeManeuver).toBeNull();
+        runShip(1000);
+        const stoppedAt = position();
+        runShip(2000);
+        expect(position().y).toBeCloseTo(stoppedAt.y, 5);
+
+        playOn('interpose', other);
+        runShip(1000);
+        state.remove(other);
+        runShip(200);
+        expect(helm.activeManeuver).toBeNull();
+    });
+});
+
+describe('Shadow', () => {
+    it('gets behind the target and stays there, facing it, for 8 seconds', () => {
+        const { state, helm, other, addRaider, fly, place, runShip, playOn, position, offsetFrom } = createRelativeWorld();
+        expect(cardDefinitions.shadow).toMatchObject({ targetType: 'ship', targetRelationship: 'hostile', system: 'helm', rarity: 'uncommon', parameters: { cost: 2, evasion: 10, duration: 8 } });
+        place(other, 0, 40);
+
+        // The raider is heading in the direction of +y.
+        const raider = addRaider(5, 0, Math.PI / 2);
+        const { card, played } = playOn('shadow', raider);
+        expect(played).toBe(true);
+        expect(helm.activeManeuver!.card).toBe(card);
+        expect(helm.activeManeuver!.endTime - helm.activeManeuver!.startTime).toBe(8000);
+        expect(helm.evasion).toBe(10);
+
+        runShip(4000);
+        expect(offsetFrom(raider).x).toBeCloseTo(0, 1);
+        expect(offsetFrom(raider).y).toBeCloseTo(-2.5, 1);
+        expect(position().angle).toBeCloseTo(Math.PI / 2, 1);
+
+        // It keeps up as the raider flies off, and moves round as the raider turns.
+        fly(raider, 0, 1, 1);
+        runShip(800);
+        expect(offsetFrom(raider).x).toBeCloseTo(0, 1);
+        expect(offsetFrom(raider).y).toBeCloseTo(-2.5, 1);
+
+        const at = raider.getPosition(state.currentTime);
+        place(raider, at.x, at.y, 0);
+        runShip(2800);
+        expect(offsetFrom(raider).x).toBeCloseTo(-2.5, 1);
+        expect(offsetFrom(raider).y).toBeCloseTo(0, 1);
+        expect(helm.activeManeuver).not.toBeNull();
+
+        runShip(600);
+        expect(helm.activeManeuver).toBeNull();
+        expect(helm.deck.filter(candidate => candidate === card)).toHaveLength(1);
+    });
+
+    it('can only be played on hostile ships', () => {
+        const { helm, other, ship, playOn } = createRelativeWorld();
+
+        expect(playOn('shadow', other).played).toBe(false);
+        expect(playOn('shadow', ship).played).toBe(false);
+        expect(helm.activeManeuver).toBeNull();
+    });
+
+    it('stops as soon as it is called off, or the target is lost', () => {
+        const { state, helm, addRaider, runShip, playOn, position } = createRelativeWorld();
+        const raider = addRaider(10, 0);
+
+        playOn('shadow', raider);
+        runShip(1000);
+        helm.cancelActiveManeuver();
+        runShip(100);
+        expect(helm.activeManeuver).toBeNull();
+        runShip(1000);
+        const stoppedAt = position();
+        expect(stoppedAt.x).toBeGreaterThan(0.5);
+        runShip(2000);
+        expect(position().x).toBeCloseTo(stoppedAt.x, 5);
+
+        playOn('shadow', raider);
+        runShip(1000);
+        state.remove(raider);
+        runShip(200);
+        expect(helm.activeManeuver).toBeNull();
+    });
+});
+
+describe('Break Away', () => {
+    it('turns away from the target, then burns 6 units directly away from it, gaining 1 Momentum', () => {
+        const { helm, other, place, addRaider, runShip, playOn, position, momentum } = createRelativeWorld();
+        expect(cardDefinitions.breakAway).toMatchObject({ targetType: 'ship', targetRelationship: 'hostile', system: 'helm', parameters: { cost: 2, evasion: 20, distance: 6, momentum: 1 } });
+        expect(cardDefinitions.breakAway).not.toHaveProperty('rarity');
+        expect(getCardDefinition('breakAway').synergy).toEqual({ provides: ['momentum'] });
+        place(other, 0, 40);
+
+        // The raider is ahead and to the side, so away from it is back and to the side.
+        const raider = addRaider(8, 6);
+        const { card, played } = playOn('breakAway', raider);
+        expect(played).toBe(true);
+        expect(helm.activeManeuver!.card).toBe(card);
+        expect(helm.evasion).toBe(20);
+        expect(momentum()).toBe(1);
+
+        // Turning round takes the better part of 3 seconds, then 6 units at 1.5 a second takes 4.
+        const duration = helm.activeManeuver!.endTime - helm.activeManeuver!.startTime;
+        const heading = Math.atan2(-6, -8);
+        const turn = Math.abs(heading) / Math.PI * 4000;
+        expect(duration).toBeCloseTo(turn + 4000, 0);
+
+        runShip(turn - 100);
+        expect(position().x).toBeCloseTo(0, 5);
+        expect(helm.activeManeuver).not.toBeNull();
+
+        runShip(duration - turn + 200);
+        expect(helm.activeManeuver).toBeNull();
+        expect(position().x).toBeCloseTo(-4.8, 1);
+        expect(position().y).toBeCloseTo(-3.6, 1);
+        expect(position().angle).toBeCloseTo(heading, 2);
+        expect(helm.deck.filter(candidate => candidate === card)).toHaveLength(1);
+    });
+
+    it('needs no turn when the target is already behind, and makes the next maneuver faster', () => {
+        const { addRaider, runShip, playOn, helm, momentum } = createRelativeWorld();
+        const raider = addRaider(-10, 0);
+
+        playOn('breakAway', raider);
+        expect(helm.activeManeuver!.endTime - helm.activeManeuver!.startTime).toBeCloseTo(4000);
+        while (helm.activeManeuver) {
+            runShip(100);
+        }
+        expect(momentum()).toBe(1);
+    });
+
+    it('plans once, so keeps going if the target is lost, and can be called off', () => {
+        const { state, ship, helm, addRaider, runShip, playOn, position } = createRelativeWorld();
+        const raider = addRaider(-10, 0);
+
+        playOn('breakAway', raider);
+        runShip(500);
+        state.remove(raider);
+        runShip(1000);
+        expect(helm.activeManeuver).not.toBeNull();
+        expect(position().x).toBeGreaterThan(1);
+
+        helm.cancelActiveManeuver();
+        runShip(100);
+        expect(helm.activeManeuver).toBeNull();
+        runShip(1000);
+        const stoppedAt = position().x;
+        expect(stoppedAt).toBeLessThan(6);
+        runShip(2000);
+        expect(ship.getPosition(state.currentTime).x).toBeCloseTo(stoppedAt, 5);
+    });
+
+    it('can only be played on hostile ships', () => {
+        const { helm, other, ship, playOn, momentum } = createRelativeWorld();
+
+        expect(playOn('breakAway', other).played).toBe(false);
+        expect(playOn('breakAway', ship).played).toBe(false);
+        expect(helm.activeManeuver).toBeNull();
+        expect(momentum()).toBe(0);
+    });
+});
+
+describe('Attack Run', () => {
+    /** A ship as `createShip` makes, with some cards in tactical's hand, deck and weapon slot, to see what they cost. */
+    function createRunningShip() {
+        const world = createShip();
+        const { ship } = world;
+        const tactical = ship.tacticalState;
+
+        const inHand = new CardState(ship.getCardId(), 'flare');
+        const inDeck = new CardState(ship.getCardId(), 'flare');
+        const inSlot = new CardState(ship.getCardId(), 'flare');
+        tactical.addCardToHand(inHand);
+        tactical.deck.push(inDeck);
+        tactical.slots[0].card = inSlot;
+
+        const costs = () => [inHand, inDeck, inSlot].map(card => card.getParameter('cost'));
+        return { ...world, tactical, costs };
+    }
+
+    it('flies a fast straight pass, and makes tactical\'s cards cost 1 less for as long as it lasts', () => {
+        const { state, ship, helm, tactical, play, costs, runUntilManeuverEnds, maneuverDuration } = createRunningShip();
+        expect(cardDefinitions.attackRun).toMatchObject({ targetType: 'location', system: 'helm', rarity: 'uncommon', baseSpeed: 1.5, minDistance: 4, parameters: { cost: 3, evasion: 15, costReduction: 1 } });
+        expect(getCardDefinition('attackRun').synergy).toBeUndefined();
+        expect(costs()).toEqual([2, 2, 2]);
+
+        const { card, played } = play('attackRun', '9,0');
+        expect(played).toBe(true);
+        expect(helm.activeManeuver!.card).toBe(card);
+        expect(maneuverDuration()).toBeCloseTo(6000);
+        expect(helm.evasion).toBe(15);
+        expect(costs()).toEqual([1, 1, 1]);
+        expect(tactical.hasEffect('attackRun')).toBe(true);
+
+        state.tick(5000);
+        expect(costs()).toEqual([1, 1, 1]);
+
+        runUntilManeuverEnds();
+        expect(costs()).toEqual([2, 2, 2]);
+        expect(tactical.hasEffect('attackRun')).toBe(false);
+        expect(ship.getPosition(state.currentTime).x).toBeCloseTo(9);
+        expect(helm.deck.includes(card)).toBe(true);
+    });
+
+    it('stops discounting the moment it is called off', () => {
+        const { state, helm, tactical, play, costs } = createRunningShip();
+
+        play('attackRun', '9,0');
+        state.tick(1000);
+        helm.cancelActiveManeuver();
+        state.tick(100);
+
+        expect(helm.activeManeuver).toBeNull();
+        expect(tactical.hasEffect('attackRun')).toBe(false);
+        expect(costs()).toEqual([2, 2, 2]);
+    });
+
+    it('stops discounting when another maneuver replaces it, without the discounts piling up', () => {
+        const { state, helm, play, costs } = createRunningShip();
+
+        play('attackRun', '9,0');
+        state.tick(1000);
+        expect(play('attackRun', '14,0').played).toBe(true);
+        expect(costs()).toEqual([1, 1, 1]);
+
+        expect(play('burn', '20,0').played).toBe(true);
+        expect(costs()).toEqual([2, 2, 2]);
+        expect(helm.activeManeuver).not.toBeNull();
+    });
+
+    it('does nothing if it cannot be played', () => {
+        const { tactical, play, costs } = createRunningShip();
+
+        // Too close.
+        expect(play('attackRun', '2,0').played).toBe(false);
+        expect(tactical.hasEffect('attackRun')).toBe(false);
+        expect(costs()).toEqual([2, 2, 2]);
+    });
+
+    it('does not discount helm\'s own cards, and is left alone by the AI', () => {
+        const { helm, play } = createRunningShip();
+        const burn = new CardState(1000, 'burn');
+        helm.addCardToHand(burn);
+
+        play('attackRun', '9,0');
+        expect(burn.getParameter('cost')).toBe(2);
+        expect(getCardEvaluator('attackRun')).toBeUndefined();
     });
 });

@@ -44,19 +44,19 @@ Aux Power is not part of this style: it's a free, expendable card that the react
 | Redline | Builder | +2 power on a system until removed, and +1 Flux every 5s. Play again to stop. |
 | Hot Start | Builder | The system draws 2 cards now, and gains 1 Flux. |
 | Vent | Release | Remove all Flux from every system. Shields are down for 3s. |
-| Coolant Flush | Release, planned | Move a system's Flux to the hull. |
-| Burnout | Payoff, planned | Spend all of a system's Flux: +2 power per level for 8s, then the system resets. |
+| Coolant Flush | Release | Move a system's Flux to the hull, where it can still overload a hull card. |
+| Burnout | Payoff | Spend all of a system's Flux: +2 power per level for 8s, then the system resets. |
 
 Flux at 3 damages a random card in that system and drops back to 0. The engineer's Overcharge overlaps Redline, and shares a name with tactical's Overcharge, but it stays for now: the Fever Ship encounter is built around it (three Overcharges in the infected engineer's hand are the tell). Divert All Power, Reset and Purge fit here.
 
-### Rewire
+### Rewire (built)
 
 | Card | Kind | Effect |
 |---|---|---|
 | Rail Feed | Payoff, built | Every system in the target's column gets +1 power for 20s. |
-| Bus Link | Payoff, planned | A system and its horizontal neighbour both run at the higher of their two power levels for 20s. |
-| Daisy Chain | Payoff, planned | Copy a system's positive effects to the system below it. |
-| Ground Out | Release, planned | Move a system's negative effects to the hull. |
+| Bus Link | Payoff | For 20s, the lower of a system and its horizontal neighbour is raised to the other's power level, as it was when played. |
+| Daisy Chain | Payoff | Copy a system's positive effects to the system below it (not Charge, which would make Charge from nothing). |
+| Ground Out | Release | Move a system's negative effects to the hull. Any the hull can't carry are lost. |
 
 Existing cards that fit: Swap Systems, Relocate System, Shunt, Distribute Power, Draw Power, Focus Shields.
 
@@ -75,7 +75,7 @@ A rare, expensive choice card, outside the three styles, for when things have go
 | Card | Status | Effect |
 |---|---|---|
 | Priority Feed | built | The target system draws a card now. |
-| Jury-rig | planned | Stabilise a damaged card in the target system. |
+| Jury-rig | built | Stabilise a damaged card in the target system. |
 
 ## Helm
 
@@ -112,17 +112,17 @@ Momentum is gained by starting a manoeuvre within 2s of the last one ending. It'
 
 Existing cards that fit: Zig-zag, Sweep.
 
-### Shadow
+### Shadow (built)
 
 | Card | Effect |
 |---|---|
-| Orbit | Circle the target at the current range, keeping one side to it. |
-| Match Course | Built. For 8s, hold your position relative to the target, moving as it moves. |
-| Interpose | Move to, and hold, the point between a friendly ship and its attacker. |
-| Shadow | Get into the target's rear arc and stay there. |
-| Break Away | Leave the target at speed, directly away from it. |
+| Orbit | For 10s, circle the target at the current range, keeping one side to it. |
+| Match Course | For 8s, hold your position relative to the target, moving as it moves. |
+| Interpose | For 8s, hold the point between a friendly ship and the hostile ship nearest it. |
+| Shadow | For 8s, stay just behind the target, facing it. |
+| Break Away | Turn directly away from the target and burn away from it. Builds Momentum. |
 
-These are ship-targeted cards: dragging one over a hexagon on the helm map picks the nearest eligible ship to it (hostile, friendly or any, as the card says) and highlights it before the card is dropped, and the server checks the choice again. Match Course is built; the others are planned. Like Lock On, they re-plan the ship's motion every moment while they last.
+These are ship-targeted cards: dragging one over a hexagon on the helm map picks the nearest eligible ship to it (hostile, friendly or any, as the card says) and highlights it before the card is dropped, and the server checks the choice again. All of these are built. Like Lock On, they re-plan the ship's motion every moment while they last.
 
 ## Tactical
 
@@ -140,7 +140,7 @@ Tactical's job is deciding what gets shot, with what, and when. Ships have two w
 |---|---|---|
 | Power Cell | Builder | Does little when played (a weapon gains 1 charge), but is worth 5 when spent as charge. |
 | Hot Swap | Utility | Take all the charge from the other weapon. |
-| Steady Fire | Payoff, planned | A weapon modifier: each shot from this weapon makes its next one slightly more accurate. |
+| Steady Fire | Payoff | A weapon modifier: each shot from this weapon makes its next 5% more accurate, up to 20%. |
 
 Existing cards that fit: Phaser Strip, Efficiency, Extended Use, Sub-Critical, Rechargeable, Rapid Fire. Bleed Off (eject a weapon and pass its charge on) was cut: with two slots, it's Hot Swap the other way round.
 
@@ -152,8 +152,8 @@ Lock is held against one target ship. It's lost when another ship is locked, or 
 |---|---|---|
 | Acquire Lock | Builder | +1 Lock on a ship. Each level makes every shot at it more accurate. |
 | Alpha Strike | Payoff | Fire every weapon that can fire at the locked ship at once. Spend all Lock: each level adds damage. The weapons that fired are emptied. |
-| Hold Fire | Builder, planned | For 6s, weapons can't fire. When it ends, +2 Lock on the locked ship. |
-| Called Shot | Payoff, planned | Spend 3 Lock: the next shot lands on a system of your choice. Needs a way to pick any system on a target. |
+| Hold Fire | Builder | For 6s, weapons can't fire. When it ends, +2 Lock on the locked ship. |
+| Called Shot | Payoff | Spend 3 Lock: for the next shot at the locked ship (within 10s), every one of its systems can be aimed at, whether or not science has found it. |
 
 Existing cards that fit: Photonic Cannon, High Yield, tactical's Overcharge, Full Spread, High Intensity. Helm's Lock On and Hold Steady are what make this style work.
 
@@ -161,14 +161,15 @@ Existing cards that fit: Photonic Cannon, High Yield, tactical's Overcharge, Ful
 
 | Card | Kind | Status | Effect |
 |---|---|---|---|
-| Tractor Beam | Weapon | built | *Energised* and *Rechargeable*: loads fully charged, and once fired holds the target while its charge runs down (about 8s from full). The target's manoeuvre is cut short and its manoeuvres heavily slowed, and yours a little. Tactical can keep it up by dropping cards on its meter. The held ship breaks free if it starts a manoeuvre while its helm has more power than the holder's tactical; its helm can't see whether it would, but science can. |
+| Tractor Beam | Weapon | built | *Energised* and *Rechargeable*: loads fully charged, and once fired holds the target while its charge runs down (about 8s from full). The target's manoeuvre is cut short and its manoeuvres heavily slowed, and yours a little. Tactical can keep it up by dropping cards on its meter. The held ship breaks free if it starts a manoeuvre while its helm has more power than the holder's tactical; every card in its helm's hand is marked *Caught* while it's held. Helm can't see whether it would break free, but science can. |
 | Exploit | Modifier | built | More damage for each negative effect on the system an aimed shot hits. |
 | Plasma Warhead | Modifier | built | A torpedo gains *persistent*, and does less damage on impact. |
 | Proximity Fuse | Modifier | built | A torpedo gains *area*, and is more accurate. |
 | Phase Shift | Modifier | built | An energy weapon gains *penetrating*, and costs more charge per use. |
-| Disabling Shot | Modifier | planned | Damages the target system's cards, but not the hull. |
+| Disabling Shot | Modifier | built | The weapon's hits damage the system they land on, but not the hull. |
+| Siege Lance | Weapon | built | A rare, heavy *cumbersome* energy weapon: it must hold its aim on a target for 2s before it can fire, unless helm is holding steady. |
 
-Every weapon trait now does something except `cumbersome`, which needs a weapon to hold its aim before firing. A weapon that's *Rechargeable* can be charged any number of times; one that's *Energised* loads fully charged and can't take a modifier. Existing cards that fit: Ionic Surge, Precision Focus, Flare.
+Every weapon trait now does something. A *cumbersome* weapon can only fire once the target has been in its arc and range for 2s, unless helm is holding steady. A weapon that's *Rechargeable* can be charged any number of times; one that's *Energised* loads fully charged and can't take a modifier. Existing cards that fit: Ionic Surge, Precision Focus, Flare.
 
 ## Science
 
@@ -189,8 +190,9 @@ Insight is gained whenever science reveals a system (+1), reads a hand (+1) or f
 | Deep Scan | Builder | A scan card: revealing a system also reads its hand. |
 | Eureka | Payoff | Spend 3 Insight: find a vulnerability on the system being scanned. |
 | Predictive Model | Payoff | Spend 2 Insight: the scanned ship's shots are less accurate for 8s. |
-| Cross-reference | Builder, planned | A scan card: +1 extra Insight for revealing a system that has been revealed before. |
-| Firing Solution | Payoff, planned | Spend 2 Insight: tactical gets an expendable card that makes one weapon's next shot much more accurate. |
+| Cross-reference | Builder | A scan card: +1 extra Insight for revealing a system that has been revealed before. |
+| Firing Solution | Payoff | Spend 2 Insight: tactical gets an expendable card that makes one weapon's next shot 40% more accurate. |
+| Plotted Course | Payoff | Spend 2 Insight, with a ship scanned: helm gets an expendable, fast, high-evasion manoeuvre. |
 
 Existing cards that fit: Passive Scan, Coherent Beam Scan, Inverted Pulse Scan, Phased Burst Scan.
 
@@ -208,14 +210,14 @@ The particle effects are the ones scan cards leave on a system: Antiproton Resid
 
 Existing cards that fit: the four substance scans, Inverted Antiproton Scan, Coherent Tetryon Scan.
 
-### Ghost (planned)
+### Ghost (built)
 
 | Card | Kind | Effect |
 |---|---|---|
-| Active Ping | Loud | Reveal every system on the target at once. Every hostile ship in range learns where this ship is. |
-| Passive Listen | Quiet | A scan card that's slow to reveal, but can't be noticed, and works while running quiet. |
-| Jam | Loud | For 10s, scans of this ship fail. |
-| Sensor Ghost | Quiet | Leave a false contact at a location for 15s. |
+| Active Ping | Loud | Reveal every system on the target at once. For 10s, every hostile ship in range knows where this ship is, even beyond its sensors, and the AI chases it. |
+| Passive Listen | Quiet | A scan card that reveals its system after 3s, sends nothing out, and works while running quiet. |
+| Jam | Loud | For 10s, other ships' scans of this ship fail. |
+| Sensor Ghost | Quiet | Leave a decoy where the ship is for 15s: hostile AI ships nearby head for it instead of the ship. It doesn't fool a human crew; a convincing ghost would need a new kind of object that can be targeted, scanned and shot. |
 
 ### The deflector (built)
 
@@ -227,17 +229,17 @@ The deflector is science's finisher in every style. Rather than eighty separate 
 
 ## Across stations
 
-A few, not many: about a third of a deck should be better when someone else acts (see `encounter-design.md`), and most of that should come from styles meeting, not from cards that name another station. None of these are built yet, apart from those that are already part of a style above.
+A few, not many: about a third of a deck should be better when someone else acts (see `encounter-design.md`), and most of that should come from styles meeting, not from cards that name another station. All are built except All Hands.
 
 | Card | Station | Style | Effect |
 |---|---|---|---|
-| Priority Feed | Engineer | any | The target system draws a card now. (built) |
+| Priority Feed | Engineer | any | The target system draws a card now. |
 | Fabricate | Engineer | Reserve | Put an expendable copy of the top card of a system's deck into that station's hand. |
 | Firing Solution | Science | Analyst | Tactical gets an expendable accuracy card (above). |
-| Plotted Course | Science | Analyst | Helm gets an expendable, high-evasion manoeuvre towards the scanned ship's blind side. |
+| Plotted Course | Science | Analyst | Helm gets an expendable, fast, high-evasion manoeuvre (aimed by helm, rather than flying automatically to the scanned ship's blind side). |
 | Attack Run | Helm | Slipstream | While this manoeuvre lasts, tactical's cards cost 1 less. |
 | Tracer Round | Tactical | Saboteur | A weapon modifier: a hit reveals that system to science, with no scan card. |
-| All Hands | everyone | none | An expendable card dealt to each station. If all four are played within 5s, something big happens. |
+| All Hands | everyone | none | Planned. An expendable card dealt to each station. If all four are played within 5s, something big happens. Auto-destruct's Confirm cards show cards can be dealt across stations like this. |
 
 ### Where styles meet
 

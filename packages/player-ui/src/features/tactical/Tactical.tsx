@@ -111,6 +111,8 @@ export const Tactical = (props: Props) => {
                 viewer={viewer}
                 lockTargetId={tacticalState.lockTargetId}
                 lockLevel={tacticalState.lockLevel}
+                holdingFire={tacticalState.holdingFire}
+                aimSteadied={tacticalState.aimSteadied}
             />
         </>
     );

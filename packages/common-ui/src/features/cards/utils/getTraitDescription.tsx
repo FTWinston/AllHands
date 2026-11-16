@@ -24,6 +24,8 @@ export const getTraitDescription = (trait: DisplayableTrait): string => {
             return 'Cannot be discarded otherwise used, except by playing it.';
         case 'unplayable':
             return 'This card cannot be played.';
+        case 'caught':
+            return 'Your ship is in a tractor beam. Manoeuvre with high power to break free.';
 
         // Weapon traits
         case 'energyWeapon':

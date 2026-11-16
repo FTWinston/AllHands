@@ -1,4 +1,4 @@
-import { getCardRarity } from 'src/features/cards/utils/getCardRarity';
+import { getCardRarity } from '../../cards/utils/getCardRarity';
 import type { CardRarity } from 'src/features/cards/types/CardRarity';
 import type { CardType } from 'src/features/cards/utils/cardDefinitions';
 import type { SectorNodeInfo } from 'src/features/sectors/types/SectorNodeInfo';

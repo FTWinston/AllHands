@@ -3,6 +3,7 @@ import { CardParameters } from 'common-data/features/cards/types/CardParameters'
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import { CardType, WeaponSlotTargetedCardType, cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
+import { crewRoleNames } from 'common-data/features/ships/types/CrewRole';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { FiringState } from 'common-data/features/space/types/FiringState';
@@ -54,7 +55,24 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     /** When Lock next fades by a level. Null while there's no Lock. */
     private lockFadeTime: number | null = null;
 
+    /** Whether weapons can't fire just now, as the Hold Fire card says (see `holdFire`). Synced so that tactical's client can say so. */
+    @type('boolean') holdingFire = false;
+
+    /** The ship that was locked when Hold Fire was played, which gets the Lock it gives once it ends. */
+    private holdFireTargetId = '';
+
+    /** Whether the helm is holding the ship steady, so that cumbersome weapons needn't hold their aim. Synced, as tactical's client can't see the helm's effects. */
+    @type('boolean') aimSteadied = false;
+
+    /** The ship that every crew system can be aimed at, as the Called Shot card says (see `callShot`). Empty while there's none. */
+    private calledShotTargetId = '';
+
+    /** The systems that science has identified on each ship, which can be aimed at (see `setSystemSubTargets`). */
+    private readonly identifiedSystems = new Map<string, ShipSystem[]>();
+
     update(currentTime: number) {
+        this.updateAim(currentTime);
+
         for (const slot of this.slots) {
             const slotCard = slot.card;
             if (slot.update(currentTime) && slotCard) {
@@ -67,6 +85,66 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
 
         this.updateLock(currentTime);
+    }
+
+    /**
+     * Keep track of which ships each cumbersome weapon has in its firing arc and range, and since when: a ship that leaves either starts over when it's back.
+     * Every ship known to this one is tracked, as which one is being aimed at is up to tactical's client.
+     */
+    private updateAim(currentTime: number) {
+        const ship = this.getShip();
+        const gameState = this.getGameState();
+        this.aimSteadied = ship.helmState.hasEffect('holdingSteady');
+
+        for (const slot of this.slots) {
+            if (!slot.card?.hasTrait('cumbersome')) {
+                if (slot.aimStartTimes.size > 0) {
+                    slot.aimStartTimes.clear();
+                }
+                continue;
+            }
+
+            const parameters = slot.getParameters();
+            const inPosition = new Set<string>();
+
+            for (const objectId of ship.knownObjects) {
+                const object = gameState.objects.get(objectId);
+                if (!object || object === ship) {
+                    continue;
+                }
+
+                // Charge doesn't matter here, so the weapon is taken to be charged.
+                const solution = getFiringSolution(ship.motion, object.motion, currentTime);
+                if (getFiringState(solution, true, parameters['chargePerUse'] ?? 1, parameters) === FiringState.CanFire) {
+                    inPosition.add(objectId);
+                }
+            }
+
+            for (const objectId of [...slot.aimStartTimes.keys()]) {
+                if (!inPosition.has(objectId)) {
+                    slot.aimStartTimes.delete(objectId);
+                }
+            }
+
+            for (const objectId of inPosition) {
+                if (!slot.aimStartTimes.has(objectId)) {
+                    slot.aimStartTimes.set(objectId, currentTime);
+                }
+            }
+        }
+    }
+
+    /**
+     * How long a weapon's target has been held in its firing arc and range, in ms, if the weapon has to hold its aim before it can fire (a cumbersome one).
+     * Undefined for any other weapon, and for any while the helm is holding the ship steady.
+     */
+    getAimedFor(slot: WeaponSlotState, targetId: string): number | undefined {
+        if (!slot.card?.hasTrait('cumbersome') || this.getShip().helmState.hasEffect('holdingSteady')) {
+            return undefined;
+        }
+
+        const startTime = slot.aimStartTimes.get(targetId);
+        return startTime === undefined ? 0 : this.getGameState().currentTime - startTime;
     }
 
     /**
@@ -301,6 +379,11 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     }
 
     playWeapon(slot: WeaponSlotState, cardType: WeaponSlotTargetedCardType, targetId: string): EngineCardDefinition | null {
+        if (this.holdingFire) {
+            console.warn('cannot fire: holding fire');
+            return null;
+        }
+
         // With every tactical card damaged, the system is out. A damaged weapon has already left its slot, so this is a double check, which also covers one that can't be damaged, such as an expendable copy.
         if (this.health <= 0) {
             console.warn('cannot fire: tactical is out');
@@ -365,7 +448,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
      */
     fireVolley(damagePerLockLevel: number): number {
         const target = this.lockLevel > 0 ? this.resolveTarget(this.lockTargetId) : null;
-        if (!target || this.health <= 0) {
+        if (!target || this.health <= 0 || this.holdingFire) {
             return 0;
         }
 
@@ -419,7 +502,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
     private getSlotFiringState(slot: WeaponSlotState, target: GameObject, subTarget: SubTargetInfo | undefined): FiringState {
         const firingSolution = getFiringSolution(this.getShip().motion, target.motion, this.getGameState().currentTime);
-        return getFiringState(firingSolution, slot.hasBeenFullyCharged, slot.charge, slot.getParameters(), subTarget);
+        return getFiringState(firingSolution, slot.hasBeenFullyCharged, slot.charge, slot.getParameters(), subTarget, this.getAimedFor(slot, target.id));
     }
 
     /**
@@ -444,6 +527,15 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         const gameState = this.getGameState();
         const ship = this.getShip();
         cardDef.fire(gameState, ship, target, slotParameters, accuracy, weaponTraits, targetSystem);
+
+        // Anything that only lasted until this shot has done its work.
+        slot.endNextShot();
+        this.gainSteadyAccuracy(slot);
+
+        // A called shot is used up by the next shot at the ship.
+        if (target.id === this.calledShotTargetId) {
+            this.removeEffect('calledShot', 'early');
+        }
 
         const extraShots = Math.max(0, Math.floor(slotParameters['extraShots'] ?? 0));
 
@@ -470,6 +562,20 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
         }
 
         return cardDef;
+    }
+
+    /** A weapon with an `accuracyPerShot` parameter becomes that much more accurate for each shot it fires, up to `maxStackedAccuracy` in all, for as long as it's in its slot. */
+    private gainSteadyAccuracy(slot: WeaponSlotState) {
+        const perShot = slot.getParameter('accuracyPerShot');
+        if (!perShot) {
+            return;
+        }
+
+        const gain = Math.min(perShot, slot.getParameter('maxStackedAccuracy') - slot.getParameter('steadyAccuracy'));
+        if (gain > 0) {
+            slot.adjustParameter('accuracy', gain);
+            slot.adjustParameter('steadyAccuracy', gain);
+        }
     }
 
     /**
@@ -545,6 +651,70 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
      * Syncs one system sub-target per identified ShipSystem in subTargetsByTarget.
      */
     setSystemSubTargets(targetId: string, systems: ShipSystem[]): void {
+        this.identifiedSystems.set(targetId, [...systems]);
+        this.applySystemSubTargets(targetId);
+    }
+
+    /**
+     * Stop weapons firing until the `holdingFire` effect ends, when Lock is gained on the ship that is locked now.
+     * Returns false if no ship is locked, or weapons are being held already.
+     */
+    holdFire(): boolean {
+        if (this.holdingFire || this.lockLevel <= 0 || !this.lockTargetId) {
+            return false;
+        }
+
+        this.holdFireTargetId = this.lockTargetId;
+        this.addEffect('holdingFire');
+        return true;
+    }
+
+    /** Called by the `holdingFire` effect as it starts and ends. If it ran its course, the ship that was locked when it began gains Lock, as long as it's still in sight. */
+    holdFireChanged(holding: boolean, ranItsCourse = false, lockGain = 0) {
+        this.holdingFire = holding;
+        if (holding) {
+            return;
+        }
+
+        const target = ranItsCourse ? this.resolveTarget(this.holdFireTargetId) : null;
+        this.holdFireTargetId = '';
+        if (target) {
+            this.addLock(target, lockGain);
+        }
+    }
+
+    /**
+     * Spend levels of Lock to let every crew system of the locked ship be aimed at, until the `calledShot` effect ends: it's used up by the next shot at that ship, or runs out.
+     * Returns false if there isn't that much Lock, or a called shot is set up already.
+     */
+    callShot(lockCost: number): boolean {
+        if (this.hasEffect('calledShot') || this.lockLevel < lockCost || !this.resolveTarget(this.lockTargetId)) {
+            return false;
+        }
+
+        const targetId = this.lockTargetId;
+        this.adjustEffectLevel('lock', -lockCost);
+        this.calledShotTargetId = targetId;
+        this.addEffect('calledShot');
+        this.applySystemSubTargets(targetId);
+        return true;
+    }
+
+    /** Called by the `calledShot` effect as it ends: only the systems that science has identified can be aimed at again. */
+    calledShotEnded() {
+        const targetId = this.calledShotTargetId;
+        this.calledShotTargetId = '';
+        if (targetId) {
+            this.applySystemSubTargets(targetId);
+        }
+    }
+
+    /** Sync the sub-targets of a ship with the systems that can be aimed at: those science has identified, or all the crew systems, while a called shot is set up on it. */
+    private applySystemSubTargets(targetId: string): void {
+        const systems: ShipSystem[] = this.calledShotTargetId === targetId
+            ? [...crewRoleNames]
+            : this.identifiedSystems.get(targetId) ?? [];
+
         if (systems.length === 0) {
             const entry = this.subTargetsByTarget.get(targetId);
             if (entry) {
@@ -592,5 +762,8 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
         // Clearing the system's effects has already dropped any Lock: this covers a system with none to clear.
         this.lockLevelChanged(0);
+        this.holdingFire = false;
+        this.holdFireTargetId = '';
+        this.calledShotTargetId = '';
     }
 }

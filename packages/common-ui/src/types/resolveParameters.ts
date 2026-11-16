@@ -28,6 +28,11 @@ export function resolveParameters(
         applyModifiers(parameters, additionalModifiers);
     }
 
+    // However far a card's cost is brought down, it never pays power back, as on the server (see the engine's resolveParameters).
+    if ((parameters.cost ?? 0) < 0) {
+        parameters = { ...parameters, cost: 0 };
+    }
+
     return parameters;
 }
 
@@ -35,6 +40,7 @@ export function resolveParameter(parameter: string, parameters?: CardParametersB
     const parameterValue = parameters?.[parameter] ?? 0;
     const modifierValue = modifiers?.[parameter] ?? 0;
     const additionalModifierValue = additionalModifiers?.[parameter] ?? 0;
+    const value = parameterValue + modifierValue + additionalModifierValue;
 
-    return parameterValue + modifierValue + additionalModifierValue;
+    return parameter === 'cost' ? Math.max(0, value) : value;
 }

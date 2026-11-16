@@ -1,10 +1,12 @@
 import { isCrewSystem } from 'common-data/features/ships/types/ShipSystem';
 import { isLeveledSystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
+import { distance } from 'common-data/features/space/utils/vectors';
 import { particleEffects } from 'content/systems/science/effects/scienceEffects.shared';
 import { scanEvaluator } from 'engine/ai/evaluators/science';
+import { applyMotionCard } from 'engine/cards/applyMotionCard';
 import { defineEngineCards } from 'engine/content/EngineContent';
+import { Ship } from 'engine/state/Ship';
 import { cards as sharedCards } from './scienceCards.shared';
-import type { Ship } from 'engine/state/Ship';
 import type { SystemEffect } from 'engine/state/systems/engineer/SystemEffect';
 import type { SystemState } from 'engine/state/systems/SystemState';
 
@@ -282,6 +284,121 @@ export const cards = defineEngineCards(sharedCards, {
             ship.scienceState.findVulnerability(target, targetSystem);
             return true;
         },
+    },
+    crossReference: {
+        synergy: { provides: ['insight'] },
+        aiEvaluator: scanEvaluator,
+        load: () => {
+            return true;
+        },
+        revealSystem: (_gameState, ship, target, targetSystem, parameters) => {
+            // Checked first, as revealing the system is what makes it one that has been revealed.
+            const revealedBefore = ship.scienceState.hasRevealed(target, targetSystem);
+            ship.scienceState.subscribeToSystem(target, targetSystem);
+
+            if (revealedBefore) {
+                ship.scienceState.gainInsight(parameters.extraInsight ?? sharedCards.crossReference.parameters.extraInsight);
+            }
+            return true;
+        },
+        findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
+            ship.scienceState.findVulnerability(target, targetSystem);
+            return true;
+        },
+    },
+    activePing: {
+        load: () => {
+            return true;
+        },
+        revealSystem: (gameState, ship, target, _targetSystem, parameters) => {
+            ship.scienceState.revealAllSystems(target);
+
+            // Loud: every hostile ship within range, whether or not it could sense this one before, knows where it is for a while.
+            const range = parameters.range ?? sharedCards.activePing.parameters.range;
+            const duration = (parameters.duration ?? sharedCards.activePing.parameters.duration) * 1000;
+            const position = ship.getPosition(gameState.currentTime);
+
+            for (const other of gameState.objects.values()) {
+                if (other instanceof Ship && other !== ship
+                    && gameState.factionRegistry.areHostile(ship, other)
+                    && distance(position, other.getPosition(gameState.currentTime)) <= range) {
+                    other.revealObject(ship.id, duration);
+                }
+            }
+            return true;
+        },
+        findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
+            ship.scienceState.findVulnerability(target, targetSystem);
+            return true;
+        },
+    },
+    passiveListen: {
+        aiEvaluator: scanEvaluator,
+        load: () => {
+            return true;
+        },
+        revealSystem: (gameState, ship, target, targetSystem, parameters) => {
+            // Quiet: nothing is sent out for anyone to notice, but nothing is learned until the listening is done.
+            const delay = (parameters.delay ?? sharedCards.passiveListen.parameters.delay) * 1000;
+            gameState.setTimeout(() => {
+                if (gameState.objects.has(target.id) && ship.knownObjects.has(target.id) && !target.scienceState.isJamming) {
+                    ship.scienceState.subscribeToSystem(target, targetSystem);
+                }
+            }, delay);
+            return true;
+        },
+        findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {
+            ship.scienceState.findVulnerability(target, targetSystem);
+            return true;
+        },
+    },
+    jam: {
+        play: (_gameState, ship) => {
+            // Playing another while one lasts starts its time over, as adding an effect that's already there does.
+            ship.scienceState.addEffect('jammed');
+            return true;
+        },
+    },
+    sensorGhost: {
+        play: (gameState, ship, parameters) => {
+            // Science has no map to place it on, so the contact is left where the ship is now, and the ship flies on.
+            const { x, y } = ship.getPosition(gameState.currentTime);
+            gameState.addDecoy(ship, { x, y }, (parameters.duration ?? sharedCards.sensorGhost.parameters.duration) * 1000);
+            return true;
+        },
+    },
+    firingSolution: {
+        synergy: { wants: ['insight'] },
+        play: (_gameState, ship, parameters) => {
+            if (!ship.scienceState.spendInsight(parameters.insightCost ?? sharedCards.firingSolution.parameters.insightCost)) {
+                return false;
+            }
+
+            // Made room for in a full hand, as the engineer's Confirm Auto-destruct cards are.
+            ship.tacticalState.addCard('firingSolutionShot', true);
+            return true;
+        },
+    },
+    firingSolutionShot: {
+        prime: (_gameState, _ship, slot, parameters) => {
+            // It's an instant card, so doesn't take the weapon's modifier slot, and it's taken back as the weapon fires.
+            slot.adjustParameterForNextShot('accuracy', parameters.accuracyIncrease ?? sharedCards.firingSolutionShot.parameters.accuracyIncrease);
+            return true;
+        },
+    },
+    plottedCourse: {
+        synergy: { wants: ['insight'] },
+        play: (_gameState, ship, parameters) => {
+            if (!ship.scienceState.scannedShip || !ship.scienceState.spendInsight(parameters.insightCost ?? sharedCards.plottedCourse.parameters.insightCost)) {
+                return false;
+            }
+
+            ship.helmState.addCard('plottedCourseManoeuvre', true);
+            return true;
+        },
+    },
+    plottedCourseManoeuvre: {
+        play: applyMotionCard,
     },
     eureka: {
         synergy: { wants: ['insight'] },

@@ -168,3 +168,37 @@ export const Active: Story = {
         },
     },
 };
+
+/** A cumbersome weapon that's in position, but hasn't held its aim for long enough to fire yet. */
+export const Aiming: Story = {
+    args: {
+        id: 'slot2',
+        charge: 10,
+        card: {
+            id: 5,
+            type: 'siegeLance',
+        },
+        decay,
+        targetId: 'target1',
+        aimStartTimes: {},
+        firingSolution: {
+            range: 5,
+            relativeBearing: 0,
+            targetAspect: 0,
+        },
+    },
+};
+
+/** Weapons that can't fire, as the Hold Fire card says. */
+export const HoldingFire: Story = {
+    args: {
+        id: 'slot2',
+        charge: 12,
+        card: {
+            id: 5,
+            type: 'phaserStrip',
+        },
+        decay,
+        holdingFire: true,
+    },
+};

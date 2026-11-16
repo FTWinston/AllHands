@@ -32,10 +32,14 @@ type Props = PropsWithChildren<Omit<ComponentProps<typeof CrewHeader>, 'crew' | 
     lockTargetId: string;
     /** How many levels of Lock are held against that ship. */
     lockLevel: number;
+    /** Whether weapons can't fire just now (see the Hold Fire card). */
+    holdingFire?: boolean;
+    /** Whether the helm is holding the ship steady, so that cumbersome weapons needn't hold their aim. */
+    aimSteadied?: boolean;
 }>;
 
 export const TacticalDisplay = (props: Props) => {
-    const { cards, slots, playCard, ejectWeapon, targets, subTargetsByTarget, scannedHull, viewer, lockTargetId, lockLevel, children, ...headerProps } = props;
+    const { cards, slots, playCard, ejectWeapon, targets, subTargetsByTarget, scannedHull, viewer, lockTargetId, lockLevel, holdingFire, aimSteadied, children, ...headerProps } = props;
 
     useRootClassName(crewStyles.tactical);
 
@@ -83,7 +87,14 @@ export const TacticalDisplay = (props: Props) => {
                     lockLevel={lockLevel}
                 />
 
-                <WeaponSlots slots={slots} firingSolution={firingSolution} onEject={ejectWeapon} />
+                <WeaponSlots
+                    slots={slots}
+                    firingSolution={firingSolution}
+                    targetId={currentTarget?.id ?? null}
+                    holdingFire={holdingFire}
+                    aimSteadied={aimSteadied}
+                    onEject={ejectWeapon}
+                />
             </CardUI>
 
             {children}

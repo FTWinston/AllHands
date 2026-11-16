@@ -31,6 +31,8 @@ export function getTraitDisplayName(trait: DisplayableTrait): string {
             return 'Priority';
         case 'unplayable':
             return 'Unplayable';
+        case 'caught':
+            return 'Caught';
 
         // Weapon traits
         case 'energyWeapon':

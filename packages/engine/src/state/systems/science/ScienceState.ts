@@ -141,10 +141,10 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
      * Subscribe to live updates from a system on a target ship.
      * Automatically unsubscribes from targeting any other ship, optionally also unsubscribes from other systems on the same ship.
      */
-    subscribeToSystem(targetShip: Ship, system: ShipSystem): void {
+    subscribeToSystem(targetShip: Ship, system: ShipSystem, options: { keepOtherSystems?: boolean; gainInsight?: boolean } = {}): void {
         if (this.scannedShip && this.scannedShip.id !== targetShip.id) {
             this.unsubscribeFromShip();
-        } else {
+        } else if (!options.keepOtherSystems) {
             if (system !== 'helm') {
                 this.unsubscribeFromHelm();
             }
@@ -195,7 +195,31 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         this.notifyTacticalSystemKnowledge(targetShip);
 
         // Revealing a system teaches science something, whichever card did it.
-        this.gainInsight(insightForReveal);
+        if (options.gainInsight ?? true) {
+            this.gainInsight(insightForReveal);
+        }
+    }
+
+    /** Whether science has already revealed a system of a ship in this encounter, whether or not it's still scanning it. */
+    hasRevealed(targetShip: Ship, system: ShipSystem): boolean {
+        return this.systemOrderByTarget.get(targetShip.id)?.order.includes(shipSystems.indexOf(system)) ?? false;
+    }
+
+    /** Reveal every crew system of a ship at once, and scan them all. Together they teach science one thing, rather than one for each. */
+    revealAllSystems(targetShip: Ship): void {
+        crewRoleNames.forEach((role, index) => {
+            this.subscribeToSystem(targetShip, role, { keepOtherSystems: true, gainInsight: index === 0 });
+        });
+    }
+
+    /** Whether the ship's science is jamming the scans of other ships. */
+    get isJamming(): boolean {
+        return this.hasEffect('jammed');
+    }
+
+    /** Whether scans of the target ship by this one fail, because the target is jamming them. A ship can always scan itself. */
+    private isJammedBy(target: Ship): boolean {
+        return target !== this.getShip() && target.scienceState.isJamming;
     }
 
     /**
@@ -438,6 +462,11 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             return false;
         }
 
+        if (this.isJammedBy(target)) {
+            console.log('scan is jammed');
+            return false;
+        }
+
         const crewSystems: Array<[ShipSystem, CrewSystemState]> = [
             ['helm', target.helmState],
             ['science', target.scienceState],
@@ -466,6 +495,11 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             return false;
         }
 
+        if (this.isJammedBy(target)) {
+            console.log('scan is jammed');
+            return false;
+        }
+
         if (!cardDefinition.findVulnerability(this.getGameState(), this.getShip(), target, system, parameters)) {
             console.log('card refused to play');
             return false;
@@ -478,6 +512,11 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         const target = this.resolveTarget(targetId);
         if (!target || !(target instanceof Ship)) {
             console.warn('invalid scan hand target: ' + targetId);
+            return false;
+        }
+
+        if (this.isJammedBy(target)) {
+            console.log('scan is jammed');
             return false;
         }
 

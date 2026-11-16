@@ -46,6 +46,15 @@ export const effects = defineEffects({
         maxLevel: 100,
         duration: evasivePatternDuration,
     },
+    /**
+     * On the tactical system: the ship is on an attack run (see the Attack Run card), so every tactical card costs less to play. Its level is how much less.
+     * Helm adds it when the maneuver starts and removes it when that ends, however it ends.
+     */
+    attackRun: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: true,
+        maxLevel: 3,
+    },
     /** On the hull: the ship is braced (see the Brace card), so hits on the hull do less damage. Its level is the percentage of that damage it takes off. */
     braced: {
         category: SystemEffectCategory.Positive,

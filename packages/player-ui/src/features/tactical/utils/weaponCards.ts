@@ -55,6 +55,24 @@ export function canPlayOnWeapon(rules: WeaponTargetRules, slot: SlotState): bool
     return (cardDefinitions[slot.card.type] as CardDefinition).traits?.includes(requiredWeaponTrait) ?? false;
 }
 
+/**
+ * How long a weapon's target has been held in its firing arc and range, in ms, if the weapon has to hold its aim before it can fire (a cumbersome one).
+ * Undefined for any other weapon, and for any while the helm is holding the ship steady. Mirrors the server's `TacticalState.getAimedFor`.
+ */
+export function getAimedFor(
+    slot: { card: SlotCard | null; aimStartTimes?: Partial<Record<string, number>> | null },
+    targetId: string | null,
+    currentTime: number,
+    aimSteadied: boolean
+): number | undefined {
+    if (!slot.card || aimSteadied || !hasCardTrait(slot.card, 'cumbersome')) {
+        return undefined;
+    }
+
+    const startTime = targetId === null ? undefined : slot.aimStartTimes?.[targetId];
+    return startTime === undefined ? 0 : Math.max(0, currentTime - startTime);
+}
+
 /** Whether a weapon in a slot that stays active once fired (one with a `drainPerSecond` parameter) has been fired, and is still active on its target. */
 export function isWeaponActive(slot: { activeTargetId?: string }): boolean {
     return !!slot.activeTargetId;

@@ -209,4 +209,63 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
+    orbit: {
+        name: 'Orbit',
+        description: <>
+            For
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, circle the target ship at the current range, keeping one side to it.
+        </>,
+        image: <ExampleIcon />,
+    },
+    interpose: {
+        name: 'Interpose',
+        description: <>
+            For
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, hold the point between the target ship and the hostile ship closest to it.
+        </>,
+        image: <ExampleIcon />,
+    },
+    shadow: {
+        name: 'Shadow',
+        description: <>
+            For
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, keep close behind the target ship, in its rear arc.
+        </>,
+        image: <ExampleIcon />,
+    },
+    breakAway: {
+        name: 'Break Away',
+        description: <>
+            Turn away from the target ship then burn
+            {' '}
+            <Parameter name="distance" />
+            {' '}
+            units directly away from it. Gain
+            {' '}
+            <Parameter name="momentum" />
+            {' '}
+            Momentum.
+        </>,
+        image: <ExampleIcon />,
+    },
+    attackRun: {
+        name: 'Attack Run',
+        description: <>
+            Turn towards a target then race straight to it. While it lasts, tactical's cards cost
+            {' '}
+            <Parameter name="costReduction" />
+            {' '}
+            less to play.
+        </>,
+        image: <ExampleIcon />,
+    },
 });

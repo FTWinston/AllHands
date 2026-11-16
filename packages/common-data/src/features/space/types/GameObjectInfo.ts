@@ -72,8 +72,6 @@ export interface CrewSystemInfo extends SystemInfo {
 
 export interface HelmSystemInfo extends CrewSystemInfo {
     activeManeuver: CardCooldown | null;
-    /** Whether the ship is held in another's tractor beam. Absent (or false) while it isn't. */
-    isHeld?: boolean;
 }
 
 export interface WeaponSlotInfo {
@@ -91,6 +89,11 @@ export interface WeaponSlotInfo {
      * While it's active, it loses charge steadily (shown by `decay`) and can't be fired again. It ends when its charge runs out.
      */
     activeTargetId?: string;
+    /**
+     * For a cumbersome weapon: when each ship it could fire at was last brought into its firing arc and range, which it has to have stayed in since (see `cumbersomeAimTime`).
+     * Keyed by the ship's id. A ship that isn't there isn't in position.
+     */
+    aimStartTimes?: IMap<string, number>;
 }
 
 export interface ScannedWeaponSlotInfo {
@@ -120,6 +123,10 @@ export interface TacticalSystemInfo extends CrewSystemInfo {
     lockTargetId: string;
     /** How many levels of Lock are held against that ship: the level of the `lock` effect on the tactical system. */
     lockLevel: number;
+    /** Whether weapons can't fire just now, as the Hold Fire card says. */
+    holdingFire?: boolean;
+    /** Whether the helm is holding the ship steady, so that cumbersome weapons don't have to hold their aim. */
+    aimSteadied?: boolean;
 }
 
 export interface ScannedManeuverInfo {

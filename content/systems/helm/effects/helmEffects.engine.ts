@@ -39,6 +39,23 @@ export const effects = defineEngineEffects(sharedEffects, {
     hardBrakeEvasion: createHelmModifierEffect('evasionModifier', 1),
     holdingSteady: createHelmModifierEffect('weaponAccuracyModifier', 1),
     jinking: createHelmModifierEffect('weaponAccuracyModifier', -1),
+    // Each level takes 1 off the cost of every card the tactical system has, until the effect goes.
+    attackRun: {
+        apply: (system, level) => {
+            if (system.system !== 'tactical') {
+                return false;
+            }
+
+            system.systemState.adjustCostOfEveryCard(-level);
+            return true;
+        },
+        remove: (system, _removal, level) => {
+            system.systemState.adjustCostOfEveryCard(level);
+        },
+        onLevelChanged: (system, newLevel, oldLevel) => {
+            system.systemState.adjustCostOfEveryCard(oldLevel - newLevel);
+        },
+    },
     braced: {
         apply: (system, level) => {
             if (system.system !== 'hull') {

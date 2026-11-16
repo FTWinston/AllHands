@@ -6,17 +6,39 @@ import { defineEngineCards } from 'engine/content/EngineContent';
 import { getSystemEffectDefinition } from 'engine/effects/getEngineSystemEffectDefinition';
 import { CardState } from 'engine/state/CardState';
 import { CooldownState } from 'engine/state/CooldownState';
+import { CrewSystemState } from 'engine/state/systems/CrewSystemState';
 import { EngineerSystemTile } from 'engine/state/systems/engineer/EngineerSystemTile';
 import { autoDestructConfirmationsNeeded, chargeMaxLevel, transferPowerRange, cards as sharedCards } from './engineerCards.shared';
+
+type SavedEffect = { type: SystemEffectType; level: number; progress: CooldownState | null };
+
+/**
+ * The effects that no card can move or copy to another system: banking power, emergency power and burning out do something when they're removed,
+ * an auto-destruct request or countdown can only be the engineer system's, vented shields are only ever the hull's,
+ * and a cannibalised system is where its parts came from.
+ */
+const untransferable: ReadonlySet<SystemEffectType> = new Set([
+    'resetting', 'reactorBreach', 'relocating', 'bankingPower', 'burningOut', 'shieldsVented', 'autoDestructRequested', 'autoDestructing', 'cannibalised', 'emergencyPower',
+]);
+
+/** The effects that are one end of a power transfer between systems, which only make sense paired with the other end, so the Daisy Chain and Ground Out cards leave them alone. */
+const powerLinked: ReadonlySet<SystemEffectType> = new Set([
+    'distributePowerLoss', 'distributePowerGain', 'drawPowerGain', 'drawPowerLoss', 'divertAllPowerGain', 'divertAllPowerLoss',
+    'divertHelmGain', 'divertHelmLoss', 'divertScienceGain', 'divertScienceLoss', 'divertTacticalGain', 'divertTacticalLoss',
+]);
+
+/** Note the type, level and cooldown of each of a system's effects that the filter accepts. */
+function saveEffects(system: EngineerSystemTile, filter: (effect: EngineerSystemTile['effects'][number]) => boolean): SavedEffect[] {
+    return system.effects
+        .filter(filter)
+        .map(e => ({ type: e.type, level: e.level, progress: e.progress }));
+}
 
 /**
  * Apply a set of saved effects onto a system, consolidating leveled effects where they already exist.
  * Used by the Shunt card to transfer effects between systems while preserving cooldowns.
  */
-function applySwappedEffects(
-    system: EngineerSystemTile,
-    effects: Array<{ type: SystemEffectType; level: number; progress: CooldownState | null }>
-) {
+function applySwappedEffects(system: EngineerSystemTile, effects: SavedEffect[]) {
     for (const saved of effects) {
         if (system.hasEffect(saved.type)) {
             // Consolidate: increase level of existing effect.
@@ -49,6 +71,13 @@ function spendAllCharge(system: EngineerSystemTile): number {
     return level;
 }
 
+/** Take all the Flux from a system, and return how much there was. */
+function spendAllFlux(system: EngineerSystemTile): number {
+    const level = system.getEffectLevel('flux');
+    system.removeEffect('flux', 'expired');
+    return level;
+}
+
 /** Have a system draw that many cards from its deck, as it does when the reactor powers it. */
 function drawCards(system: EngineerSystemTile, count: number) {
     for (let i = 0; i < count; i++) {
@@ -67,6 +96,9 @@ export const cards = defineEngineCards(sharedCards, {
         play: (_gameState, _ship, system) => {
             return system.addEffect('auxPower');
         },
+    },
+    swapSystems: {
+        synergy: { provides: ['layout'] },
     },
     swapHorizontal: {
         play: (_gameState, ship, system) => {
@@ -178,6 +210,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     relocateSystem: {
+        synergy: { provides: ['layout'] },
         play: (_gameState, ship, system) => {
             const alreadyRelocating = ship.engineerState.systems.some(s => s.effects.some(e => e.type === 'relocating'));
             if (alreadyRelocating) {
@@ -333,27 +366,9 @@ export const cards = defineEngineCards(sharedCards, {
             const neighborIndex = systemIndex ^ 1;
             const neighbor = ship.engineerState.systems[neighborIndex];
 
-            // Banking power, emergency power and an auto-destruct request or countdown do something when they're removed, vented shields are only ever the hull's,
-            // and a cannibalised system is where its parts came from, so none of them can move.
-            const UNTRANSFERABLE: ReadonlySet<SystemEffectType> = new Set([
-                'resetting', 'reactorBreach', 'relocating', 'bankingPower', 'shieldsVented', 'autoDestructRequested', 'autoDestructing', 'cannibalised', 'emergencyPower',
-            ]);
-
             // Save transferable effects from both systems.
-            type SavedEffect = { type: SystemEffectType; level: number; progress: CooldownState | null };
-            const systemEffects: SavedEffect[] = [];
-            const neighborEffects: SavedEffect[] = [];
-
-            for (const e of system.effects) {
-                if (!UNTRANSFERABLE.has(e.type)) {
-                    systemEffects.push({ type: e.type, level: e.level, progress: e.progress });
-                }
-            }
-            for (const e of neighbor.effects) {
-                if (!UNTRANSFERABLE.has(e.type)) {
-                    neighborEffects.push({ type: e.type, level: e.level, progress: e.progress });
-                }
-            }
+            const systemEffects = saveEffects(system, e => !untransferable.has(e.type));
+            const neighborEffects = saveEffects(neighbor, e => !untransferable.has(e.type));
 
             // Remove transferable effects from both systems (properly undoes power adjustments etc.)
             for (const e of systemEffects) {
@@ -468,6 +483,7 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     railFeed: {
+        synergy: { wants: ['layout'] },
         play: (_gameState, ship, system) => {
             // The grid is 2 wide and 3 tall, numbered along each row in turn, so a column is every system whose index has the same parity as this one's.
             const column = ship.engineerState.systems.indexOf(system) % 2;
@@ -475,6 +491,122 @@ export const cards = defineEngineCards(sharedCards, {
             ship.engineerState.systems
                 .filter((_tile, index) => index % 2 === column)
                 .forEach(tile => tile.addEffect('railFeed'));
+            return true;
+        },
+    },
+    coolantFlush: {
+        synergy: { wants: ['flux'] },
+        play: (_gameState, ship, system) => {
+            const hull = ship.engineerState.systems.find(tile => tile.system === 'hull');
+            const level = system.getEffectLevel('flux');
+
+            // The hull is a system like any other, so Flux on it overloads it at the same limit, damaging one of its cards.
+            if (!hull || system === hull || level <= 0) {
+                return false;
+            }
+
+            system.removeEffect('flux', 'expired');
+            hull.adjustEffectLevel('flux', level);
+            return true;
+        },
+    },
+    burnout: {
+        synergy: { wants: ['flux'] },
+        play: (_gameState, _ship, system) => {
+            const level = spendAllFlux(system);
+            if (level <= 0) {
+                return false;
+            }
+
+            // Adds to a burnout that's already running, and starts its time over.
+            system.adjustEffectLevel('burningOut', level);
+            system.addEffect('burningOut');
+            return true;
+        },
+    },
+    busLink: {
+        synergy: { wants: ['layout'] },
+        play: (_gameState, ship, system) => {
+            const neighbor = ship.engineerState.systems[ship.engineerState.systems.indexOf(system) ^ 1];
+            const difference = Math.abs(system.power - neighbor.power);
+            if (difference === 0) {
+                return false;
+            }
+
+            // The power the lower one is given is fixed when this is played, and doesn't follow later changes to either's power.
+            const lower = system.power < neighbor.power ? system : neighbor;
+            lower.adjustEffectLevel('busLinked', difference);
+            lower.addEffect('busLinked');
+            return true;
+        },
+    },
+    daisyChain: {
+        synergy: { wants: ['layout'] },
+        play: (_gameState, ship, system) => {
+            const systemIndex = ship.engineerState.systems.indexOf(system);
+            if (systemIndex >= 4) {
+                return false;
+            }
+
+            // Charge would be made from nothing, and Aux Power moves from system to system rather than adding up.
+            const copied = saveEffects(system, e => getSystemEffectDefinition(e.type).category === SystemEffectCategory.Positive
+                && !untransferable.has(e.type) && !powerLinked.has(e.type) && e.type !== 'charge' && e.type !== 'auxPower');
+            if (copied.length === 0) {
+                return false;
+            }
+
+            // The copies run out when the originals do.
+            applySwappedEffects(
+                ship.engineerState.systems[systemIndex + 2],
+                copied.map(e => ({ ...e, progress: e.progress && new CooldownState(e.progress.startTime, e.progress.endTime) }))
+            );
+            return true;
+        },
+    },
+    groundOut: {
+        play: (_gameState, ship, system) => {
+            const hull = ship.engineerState.systems.find(tile => tile.system === 'hull');
+            if (!hull || system === hull) {
+                return false;
+            }
+
+            const moved = saveEffects(system, e => getSystemEffectDefinition(e.type).category === SystemEffectCategory.Negative
+                && !untransferable.has(e.type) && !powerLinked.has(e.type));
+            if (moved.length === 0) {
+                return false;
+            }
+
+            // Any that the hull can't have are grounded out of existence.
+            for (const e of moved) {
+                system.removeEffect(e.type, 'expired');
+            }
+            applySwappedEffects(hull, moved);
+            return true;
+        },
+    },
+    juryRig: {
+        play: (_gameState, _ship, system, parameters) => {
+            const health = system.systemState.health;
+            system.adjustSystemHealth(parameters['cards'] ?? 1);
+
+            // Stabilises a damaged card, if there is one: critically damaged cards can't be.
+            return system.systemState.health > health;
+        },
+    },
+    fabricate: {
+        play: (_gameState, ship, system) => {
+            const crew = system.systemState;
+            const topCard = crew instanceof CrewSystemState ? crew.deck[0] : undefined;
+            if (!(crew instanceof CrewSystemState) || !topCard || crew.hand.length >= crew.maxHandSize) {
+                return false;
+            }
+
+            // The copy is made new, whatever has happened to the card it's copied from.
+            const copy = topCard.createExpendableCopy(ship.getCardId());
+            for (const trait of ['damaged', 'stabilised', 'critical'] as const) {
+                copy.removeTrait(trait);
+            }
+            crew.addCardToHand(copy);
             return true;
         },
     },

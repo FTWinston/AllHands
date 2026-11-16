@@ -19,6 +19,17 @@ describe('isScienceCardPlayable', () => {
         expect(isScienceCardPlayable({ type: 'predictiveModel' }, scanningNothing)).toBe(false);
     });
 
+    it('allows Firing Solution with 2 Insight, whatever is scanned', () => {
+        expect(isScienceCardPlayable({ type: 'firingSolution' }, { ...scanningNothing, insight: 2 })).toBe(true);
+        expect(isScienceCardPlayable({ type: 'firingSolution' }, { ...scanningNothing, insight: 1 })).toBe(false);
+    });
+
+    it('allows Plotted Course only with 2 Insight and a scanned ship', () => {
+        expect(isScienceCardPlayable({ type: 'plottedCourse' }, { ...scanningShipOnly, insight: 2 })).toBe(true);
+        expect(isScienceCardPlayable({ type: 'plottedCourse' }, { ...scanningShipOnly, insight: 1 })).toBe(false);
+        expect(isScienceCardPlayable({ type: 'plottedCourse' }, { ...scanningNothing, insight: 5 })).toBe(false);
+    });
+
     it('counts modifiers to a card\'s Insight cost', () => {
         expect(isScienceCardPlayable({ type: 'eureka', modifiers: { insightCost: -1 } }, { ...scanningSystem, insight: 2 })).toBe(true);
         expect(isScienceCardPlayable({ type: 'eureka', modifiers: { insightCost: 1 } }, { ...scanningSystem, insight: 3 })).toBe(false);

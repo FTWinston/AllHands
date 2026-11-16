@@ -29,6 +29,12 @@ export const redlinePowerGain = 2;
 export const redlineFluxInterval = 5_000;
 /** How long the shields are down for, after the Vent card is played. */
 export const ventShieldsDownDuration = 3_000;
+/** How much power a system gains from Burnout for each Flux that was spent. */
+export const burnoutPowerPerLevel = 2;
+/** How long a system's Burnout lasts, before the system resets. */
+export const burnoutDuration = 8_000;
+/** How long the lower-powered system of a Bus Link keeps the power it was given. */
+export const busLinkDuration = 20_000;
 /** How much power each system in a column gains from the Rail Feed card. */
 export const railFeedPowerGain = 1;
 /** How long Rail Feed's power lasts. */
@@ -220,6 +226,45 @@ export const cards = defineCards({
         rarity: 'uncommon',
         system: 'engineer',
         parameters: { cost: 3, powerGain: railFeedPowerGain, duration: railFeedDuration / 1000 },
+    },
+    coolantFlush: {
+        targetType: 'system',
+        system: 'engineer',
+        parameters: { cost: 2 },
+    },
+    burnout: {
+        targetType: 'system',
+        rarity: 'uncommon',
+        system: 'engineer',
+        parameters: { cost: 2, powerGain: burnoutPowerPerLevel, duration: burnoutDuration / 1000 },
+    },
+    busLink: {
+        targetType: 'system',
+        rarity: 'uncommon',
+        system: 'engineer',
+        parameters: { cost: 3, duration: busLinkDuration / 1000 },
+    },
+    daisyChain: {
+        targetType: 'system',
+        rarity: 'uncommon',
+        system: 'engineer',
+        parameters: { cost: 3 },
+    },
+    groundOut: {
+        targetType: 'system',
+        system: 'engineer',
+        parameters: { cost: 2 },
+    },
+    juryRig: {
+        targetType: 'system',
+        system: 'engineer',
+        parameters: { cost: 2, cards: 1 },
+    },
+    fabricate: {
+        targetType: 'system',
+        rarity: 'uncommon',
+        system: 'engineer',
+        parameters: { cost: 2 },
     },
     priorityFeed: {
         targetType: 'system',

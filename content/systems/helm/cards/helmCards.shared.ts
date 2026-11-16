@@ -217,6 +217,48 @@ export const cards = defineCards({
         // duration: how long the ship keeps station alongside the target ship, in seconds
         parameters: { cost: 2, evasion: 0, duration: 8 },
     },
+    orbit: {
+        targetType: 'ship',
+        system: 'helm',
+        // duration: how long the ship keeps circling the target ship, in seconds
+        parameters: { cost: 2, evasion: 15, duration: 10 },
+    },
+    interpose: {
+        targetType: 'ship',
+        targetRelationship: 'friendly',
+        rarity: 'uncommon',
+        system: 'helm',
+        // duration: how long the ship holds its place between the target ship and the hostile ship closest to it, in seconds
+        parameters: { cost: 2, evasion: 0, duration: 8 },
+    },
+    shadow: {
+        targetType: 'ship',
+        targetRelationship: 'hostile',
+        rarity: 'uncommon',
+        system: 'helm',
+        // duration: how long the ship keeps to the target ship's rear arc, in seconds
+        parameters: { cost: 2, evasion: 10, duration: 8 },
+    },
+    breakAway: {
+        targetType: 'ship',
+        targetRelationship: 'hostile',
+        system: 'helm',
+        // distance: how far the ship flies directly away from the target ship; momentum: the levels of Momentum gained by playing it
+        parameters: { cost: 2, evasion: 20, distance: 6, momentum: 1 },
+    },
+    attackRun: {
+        targetType: 'location',
+        rarity: 'uncommon',
+        system: 'helm',
+        // Rotate to face target first, then move straight towards it, fast
+        startFacing: CardMotionSegmentFacing.FinalVector,
+        endFacing: CardMotionSegmentFacing.FinalVector,
+        baseRotationSpeed: 1,
+        baseSpeed: 1.5,
+        minDistance: 4,
+        // costReduction: how much less tactical's cards cost to play while the maneuver lasts
+        parameters: { cost: 3, evasion: 15, costReduction: 1 },
+    },
     warpAway: {
         targetType: 'no-target',
         system: 'helm',

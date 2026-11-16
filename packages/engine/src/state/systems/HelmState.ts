@@ -33,9 +33,6 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
 
     @type(CardCooldownState) activeManeuver: CardCooldownState | null = null;
 
-    /** Whether this ship is held in another's tractor beam, for helm's client to show: the held effect sets it, as that's on the engineer's tile, which helm's client can't see. */
-    @type('boolean') isHeld = false;
-
     /** Triggered whenever a card becomes this ship's active maneuver, as it starts. */
     readonly maneuverStarted = new ListenableEvent();
 

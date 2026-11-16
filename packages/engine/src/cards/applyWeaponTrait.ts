@@ -63,9 +63,8 @@ const traitBehaviors: Record<WeaponTrait, (targetSystem: SystemState, damage: Da
             }
         }
     },
-    cumbersome: () => {
-        // TODO: implement this: needs to hold aim for 2 seconds
-    },
+    // This changes when the weapon can fire, not what a hit does: it's checked as the weapon is fired (see `TacticalState.getAimedFor`).
+    cumbersome: () => { },
     draining: (targetSystem) => {
         addOrRenewEffect(targetSystem, 'powerDrain', drainingPowerLoss);
     },

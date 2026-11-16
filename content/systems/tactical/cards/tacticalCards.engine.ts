@@ -1,6 +1,6 @@
 import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
-import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
+import { ShipSystem, isCrewSystem } from 'common-data/features/ships/types/ShipSystem';
 import { FiringState } from 'common-data/features/space/types/FiringState';
 import { projectileFlightTime } from 'common-data/features/space/types/WeaponEffect';
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
@@ -11,6 +11,8 @@ import { weaponLoadEvaluator, weaponModifierEvaluator } from 'engine/ai/evaluato
 import { defineEngineCards } from 'engine/content/EngineContent';
 import { GameObject } from 'engine/state/GameObject';
 import { cards as sharedCards } from './tacticalCards.shared';
+import type { CardParameters } from 'common-data/features/cards/types/CardParameters';
+import type { Damage } from 'common-data/features/space/types/Damage';
 import type { IRandom } from 'common-data/types/IRandom';
 import type { GameState } from 'engine/state/GameState';
 import type { Ship } from 'engine/state/Ship';
@@ -70,6 +72,18 @@ function getTargetPosition(target: GameObject | null, time: number) {
 }
 
 /**
+ * Show a system of a ship to the science of the ship that hit it, as scanning it would. Only systems with a crew can be scanned.
+ * Science is left alone if it's scanning something already, as a hit shouldn't take its scan away from it.
+ */
+function revealToScience(ship: Ship, target: Ship, system: ShipSystem) {
+    if (!isCrewSystem(system) || ship.scienceState.getScannedSystemTarget()) {
+        return;
+    }
+
+    ship.scienceState.subscribeToSystem(target, system);
+}
+
+/**
  * Fire a weapon at a target, telling clients to show that. Whether it will hit is settled now, but any damage lands when the shot arrives.
  * A target that's gone by then takes no damage: the shot just carries on to where it was.
  */
@@ -79,11 +93,12 @@ function fireShot(
     target: GameObject | null,
     weapon: string,
     accuracy: number,
-    damageAmount: number | null | undefined,
+    parameters: CardParameters,
     traits: WeaponTrait[],
     targetSystem: ShipSystem | null,
     flightTime = 0
 ) {
+    const damageAmount = parameters.damage;
     const hits = !!target && !!damageAmount && rollToHit(gameState.random, getTargetEvasion(target), accuracy);
 
     gameState.broadcastWeaponEffect({
@@ -106,12 +121,19 @@ function fireShot(
         }
 
         // An aimed shot lands on the system aimed at. Otherwise the target decides where it lands.
-        const damage = target.damage({
+        const hit: Damage = {
             amount: damageAmount,
             traits,
             targetSystem: targetSystem ?? undefined,
             sourceId: ship.id,
-        });
+            sparesHull: !!parameters['sparesHull'] || undefined,
+        };
+        const damage = target.damage(hit);
+
+        // A tracer shows science the system it hit, as a scan would. It's the system the hit landed on, which a hit that wasn't aimed has picked by now.
+        if (parameters['tracer'] && isShip(target) && hit.targetSystem) {
+            revealToScience(ship, target, hit.targetSystem);
+        }
 
         if (isShip(target)) {
             gameState.broadcastWeaponEffect({
@@ -151,7 +173,7 @@ export const cards = defineEngineCards(sharedCards, {
             return true;
         },
         fire: (gameState, ship, target, parameters, accuracy, weaponTraits, targetSystem) => {
-            fireShot(gameState, ship, target, 'phaserCannon', accuracy, parameters.damage, weaponTraits, targetSystem);
+            fireShot(gameState, ship, target, 'phaserCannon', accuracy, parameters, weaponTraits, targetSystem);
             return true;
         },
     },
@@ -162,7 +184,7 @@ export const cards = defineEngineCards(sharedCards, {
             return true;
         },
         fire: (gameState, ship, target, parameters, accuracy, weaponTraits, targetSystem) => {
-            fireShot(gameState, ship, target, 'phaserStrip', accuracy, parameters.damage, weaponTraits, targetSystem);
+            fireShot(gameState, ship, target, 'phaserStrip', accuracy, parameters, weaponTraits, targetSystem);
             return true;
         },
     },
@@ -173,7 +195,7 @@ export const cards = defineEngineCards(sharedCards, {
             return true;
         },
         fire: (gameState, ship, target, parameters, accuracy, weaponTraits, targetSystem) => {
-            fireShot(gameState, ship, target, 'photonicCannon', accuracy, parameters.damage, weaponTraits, targetSystem);
+            fireShot(gameState, ship, target, 'photonicCannon', accuracy, parameters, weaponTraits, targetSystem);
             return true;
         },
     },
@@ -184,7 +206,7 @@ export const cards = defineEngineCards(sharedCards, {
             return true;
         },
         fire: (gameState, ship, target, parameters, accuracy, weaponTraits, targetSystem) => {
-            fireShot(gameState, ship, target, 'photonTorpedo', accuracy, parameters.damage, weaponTraits, targetSystem, projectileFlightTime);
+            fireShot(gameState, ship, target, 'photonTorpedo', accuracy, parameters, weaponTraits, targetSystem, projectileFlightTime);
             return true;
         },
     },
@@ -195,7 +217,18 @@ export const cards = defineEngineCards(sharedCards, {
             return true;
         },
         fire: (gameState, ship, target, parameters, accuracy, weaponTraits, targetSystem) => {
-            fireShot(gameState, ship, target, 'quantumTorpedo', accuracy, parameters.damage, weaponTraits, targetSystem, projectileFlightTime);
+            fireShot(gameState, ship, target, 'quantumTorpedo', accuracy, parameters, weaponTraits, targetSystem, projectileFlightTime);
+            return true;
+        },
+    },
+    siegeLance: {
+        synergy: { provides: ['energyWeapon'], wants: ['lock'] },
+        aiEvaluator: weaponLoadEvaluator('siegeLance'),
+        load: (_gameState, _ship, _slot) => {
+            return true;
+        },
+        fire: (gameState, ship, target, parameters, accuracy, weaponTraits, targetSystem) => {
+            fireShot(gameState, ship, target, 'siegeLance', accuracy, parameters, weaponTraits, targetSystem);
             return true;
         },
     },
@@ -383,7 +416,7 @@ export const cards = defineEngineCards(sharedCards, {
 
             // Worth it once the volley is more than a single ordinary shot: with two weapons to fire, or one and Lock built up.
             const solution = getFiringSolution(ctx.ship.motion, target.motion, ctx.currentTime);
-            const ready = tactical.slots.filter(slot => getFiringState(solution, slot.hasBeenFullyCharged, slot.charge, slot.getParameters()) === FiringState.CanFire).length;
+            const ready = tactical.slots.filter(slot => getFiringState(solution, slot.hasBeenFullyCharged, slot.charge, slot.getParameters(), undefined, tactical.getAimedFor(slot, target.id)) === FiringState.CanFire).length;
             if (ready === 0 || (ready === 1 && tactical.lockLevel < 2)) {
                 return [];
             }
@@ -397,6 +430,15 @@ export const cards = defineEngineCards(sharedCards, {
         play: (_gameState, ship, parameters) => {
             return ship.tacticalState.fireVolley(parameters.damagePerLock ?? 5) > 0;
         },
+    },
+    // No evaluators for these: the AI has no use for them.
+    holdFire: {
+        synergy: { provides: ['lock'] },
+        play: (_gameState, ship) => ship.tacticalState.holdFire(),
+    },
+    calledShot: {
+        synergy: { wants: ['lock'] },
+        play: (_gameState, ship, parameters) => ship.tacticalState.callShot(parameters.lockCost ?? 3),
     },
     // No evaluators for these two: the AI doesn't play them, but still spends them as charge.
     powerCell: {
@@ -451,6 +493,29 @@ export const cards = defineEngineCards(sharedCards, {
             if (target && isShip(target)) {
                 releaseTractorBeam(ship, target);
             }
+        },
+    },
+    steadyFire: {
+        synergy: { wants: ['weaponCharge'] },
+        aiEvaluator: weaponModifierEvaluator('steadyFire'),
+        prime: (_gameState, _ship, slot, parameters) => {
+            // The tactical system adds the accuracy as the weapon fires, up to the most.
+            slot.adjustParameter('accuracyPerShot', parameters.accuracyPerShot ?? 5);
+            slot.adjustParameter('maxStackedAccuracy', parameters.maxStackedAccuracy ?? 20);
+            return true;
+        },
+    },
+    // The AI doesn't play this or Tracer Round: it has no use for either.
+    disablingShot: {
+        prime: (_gameState, _ship, slot) => {
+            slot.adjustParameter('sparesHull', 1);
+            return true;
+        },
+    },
+    tracerRound: {
+        prime: (_gameState, _ship, slot) => {
+            slot.adjustParameter('tracer', 1);
+            return true;
         },
     },
     exploit: {

@@ -43,6 +43,12 @@ export const effects = defineEffects({
         usesLevels: true,
         duration: 8_000,
     },
+    // Sits on a ship's science system: scans of the ship by other ships fail (see the Jam card).
+    jammed: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: false,
+        duration: 10_000,
+    },
     // Sits on a ship's helm. Its level is the percentage of speed that manoeuvres started under it lose.
     gravitonDrag: {
         category: SystemEffectCategory.Negative,

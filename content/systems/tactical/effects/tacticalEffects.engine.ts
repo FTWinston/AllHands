@@ -1,7 +1,9 @@
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { distance } from 'common-data/features/space/utils/vectors';
 import { defineEngineEffects } from 'engine/content/EngineContent';
-import { effects as sharedEffects } from './tacticalEffects.shared';
+import { effects as sharedEffects, holdFireLockGain } from './tacticalEffects.shared';
 import type { EffectRemoval } from 'engine/effects/EngineSystemEffectDefinition';
+import type { CardState } from 'engine/state/CardState';
 import type { GameState } from 'engine/state/GameState';
 import type { Ship } from 'engine/state/Ship';
 import type { EngineerSystemTile } from 'engine/state/systems/engineer/EngineerSystemTile';
@@ -21,6 +23,42 @@ const breakFreeListenerId = 'tractorBeam';
 /** The tractor beam that each ship's helm is holding, or is held by, keyed by that helm's tile. */
 const beamsBySourceHelm = new WeakMap<EngineerSystemTile, TractorBeam>();
 const beamsByTargetHelm = new WeakMap<EngineerSystemTile, TractorBeam>();
+
+/** The id of the listener on a held ship's helm that marks cards added to its hand as caught (see `markCaught`). */
+const caughtListenerId = 'caught';
+
+/** The cards in each held helm's hand that its tractor beam marked as caught, keyed by that helm's tile. */
+const caughtCards = new WeakMap<EngineerSystemTile, Set<CardState>>();
+
+/** Mark every card in a held helm's hand, and every card added to it while it's held, as caught, so helm can see the ship is in a tractor beam. */
+function markCaught(helm: EngineerSystemTile) {
+    const caught = new Set<CardState>();
+    caughtCards.set(helm, caught);
+
+    const mark = (card: CardState) => {
+        if (!card.hasTrait('caught')) {
+            card.addTrait('caught', ExtraTraitType.Negative);
+            caught.add(card);
+        }
+    };
+
+    for (const card of helm.systemState.hand) {
+        mark(card);
+    }
+
+    helm.systemState.cardAddedToHand.addListener(caughtListenerId, mark);
+}
+
+/** Once a helm is no longer held, the cards its beam marked as caught aren't any more, wherever they've gone. */
+function unmarkCaught(helm: EngineerSystemTile) {
+    helm.systemState.cardAddedToHand.removeListener(caughtListenerId);
+
+    for (const card of caughtCards.get(helm) ?? []) {
+        card.removeTrait('caught');
+    }
+
+    caughtCards.delete(helm);
+}
 
 function getHelmTile(ship: Ship) {
     return ship.engineerState.systems.find(tile => tile.system === 'helm') ?? null;
@@ -96,7 +134,7 @@ function releaseBeam(helm: EngineerSystemTile, level: number, removal: EffectRem
     if (ownBeams === beamsByTargetHelm) {
         const { helmState } = helm.systemState.getShip();
         helmState.maneuverStarted.removeListener(breakFreeListenerId);
-        helmState.isHeld = false;
+        unmarkCaught(helm);
     }
     if (!beam) {
         return;
@@ -118,9 +156,10 @@ function tractorBeamEffect(ownBeams: WeakMap<EngineerSystemTile, TractorBeam>) {
                 return false;
             }
 
-            const { helmState } = system.systemState.getShip();
-            helmState.maneuverSpeedModifier -= level;
-            helmState.isHeld = ownBeams === beamsByTargetHelm;
+            system.systemState.getShip().helmState.maneuverSpeedModifier -= level;
+            if (ownBeams === beamsByTargetHelm) {
+                markCaught(system);
+            }
             return true;
         },
         remove: (system: EngineerSystemTile, removal: EffectRemoval, level: number) => releaseBeam(system, level, removal, ownBeams),
@@ -155,6 +194,22 @@ export const effects = defineEngineEffects(sharedEffects, {
         },
         remove: system => system.systemState.getShip().tacticalState.lockLevelChanged(0),
         onLevelChanged: (system, newLevel) => system.systemState.getShip().tacticalState.lockLevelChanged(newLevel),
+    },
+    holdingFire: {
+        apply: (system) => {
+            if (system.system !== 'tactical') {
+                return false;
+            }
+
+            system.systemState.getShip().tacticalState.holdFireChanged(true);
+            return true;
+        },
+        // Lock is only gained if the effect ran its course.
+        remove: (system, removal) => system.systemState.getShip().tacticalState.holdFireChanged(false, removal === 'expired', holdFireLockGain),
+    },
+    calledShot: {
+        apply: system => system.system === 'tactical',
+        remove: system => system.systemState.getShip().tacticalState.calledShotEnded(),
     },
     heldByTractorBeam: tractorBeamEffect(beamsByTargetHelm),
     tractorBeamEngaged: tractorBeamEffect(beamsBySourceHelm),

@@ -3,7 +3,7 @@ import { EffectLevel } from 'common-ui/components/EffectLevelContext';
 import { defineUiEffects } from 'common-ui/content/UiContent';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import {
-    autoDestructDamage, autoDestructRange, bankPowerCharge, bankPowerLoss, emergencyPowerFlux, emergencyPowerGain, fluxLimit, railFeedPowerGain, redlineFluxInterval,
+    autoDestructDamage, autoDestructRange, burnoutPowerPerLevel, bankPowerCharge, bankPowerLoss, emergencyPowerFlux, emergencyPowerGain, fluxLimit, railFeedPowerGain, redlineFluxInterval,
     redlinePowerGain, runQuietChargeInterval, runQuietPowerLoss,
 } from 'content/systems/engineer/engineer.shared';
 import { effects as sharedEffects } from './engineerEffects.shared';
@@ -210,6 +210,25 @@ export const effects = defineUiEffects(sharedEffects, {
     railFeed: {
         name: 'Rail Feed',
         description: <>{`This system's column is being fed, increasing its power by ${railFeedPowerGain}.`}</>,
+        image: ExampleIcon,
+    },
+    burningOut: {
+        name: 'Burning Out',
+        description: <>
+            {`This system is running ${burnoutPowerPerLevel} power higher for each of the `}
+            <EffectLevel />
+            {' Flux that was spent on it. When this ends, it resets.'}
+        </>,
+        image: ExampleIcon,
+    },
+    busLinked: {
+        name: 'Bus Linked',
+        description: <>
+            This system is linked to its neighbour's power bus, increasing its power by
+            {' '}
+            <EffectLevel />
+            .
+        </>,
         image: ExampleIcon,
     },
     buffered: {

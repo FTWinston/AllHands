@@ -41,5 +41,7 @@ export type WeaponTrait
  *   These two are how a weapon behaves in its slot, not on hitting a target, so they aren't @see WeaponTrait values.
  * - priority: Cannot be discarded or used for charging, can only be played.
  * - unplayable: Card cannot be played or discarded.
+ * - caught: Added to every card in helm's hand while the ship is held in another's tractor beam, to say so.
+ *   A manoeuvre started with more helm power than the holder has tactical power breaks free.
  */
-export type CardTrait = WeaponTrait | 'damaged' | 'stabilised' | 'critical' | 'primary' | 'expendable' | 'unstable' | 'rechargeable' | 'energised' | 'priority' | 'unplayable';
+export type CardTrait = WeaponTrait | 'damaged' | 'stabilised' | 'critical' | 'primary' | 'expendable' | 'unstable' | 'rechargeable' | 'energised' | 'priority' | 'unplayable' | 'caught';

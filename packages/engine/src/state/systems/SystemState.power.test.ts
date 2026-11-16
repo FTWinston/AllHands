@@ -3,6 +3,7 @@ import { shipSystems } from 'common-data/features/ships/types/ShipSystem';
 import { playerShipSetup } from 'src/campaign/playerShipSetup';
 import { setupGameRoom } from 'src/testUtils';
 import { describe, expect, it } from 'vitest';
+import { CardState } from '../CardState';
 import { PlayerShip } from '../PlayerShip';
 
 const rooms = setupGameRoom();
@@ -110,6 +111,44 @@ describe('SystemState power', () => {
         ship.cleanupAfterEncounter();
 
         expect(costs()).toEqual(before);
+    });
+
+    it('brings a card that arrives while its system\'s cards cost less down with them, so it\'s back to its own cost once that ends', () => {
+        const { ship } = createShip();
+        const science = ship.scienceState;
+
+        science.adjustCostOfEveryCard(-1);
+        const arrived = new CardState(ship.getCardId(), 'passiveScan');
+        science.addCardToHand(arrived);
+        expect(arrived.getParameter('cost')).toBe(0);
+
+        science.adjustCostOfEveryCard(1);
+        expect(arrived.getParameter('cost')).toBe(1);
+    });
+
+    it('doesn\'t bring a card that moves within its system down a second time', () => {
+        const { ship } = createShip();
+        const science = ship.scienceState;
+        const card = science.deck[0];
+        const cost = card.getParameter('cost');
+
+        science.adjustCostOfEveryCard(-1);
+        science.drawFromTop(1);
+        expect(card.getParameter('cost')).toBe(cost - 1);
+
+        science.adjustCostOfEveryCard(1);
+        expect(card.getParameter('cost')).toBe(cost);
+    });
+
+    it('never brings a card\'s cost below nothing, however far it\'s reduced', () => {
+        const { ship } = createShip();
+        const card = new CardState(ship.getCardId(), 'passiveScan');
+        ship.scienceState.addCardToHand(card);
+
+        ship.scienceState.adjustCostOfEveryCard(-3);
+
+        expect(card.getParameter('cost')).toBe(0);
+        expect(card.getParameters().cost).toBe(0);
     });
 
     it('gives the power back from a reset that\'s under way', () => {

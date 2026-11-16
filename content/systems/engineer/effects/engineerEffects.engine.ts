@@ -1,6 +1,6 @@
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import {
-    autoDestructDamage, autoDestructRange, bankPowerCharge, bankPowerLoss, dischargePowerPerLevel, emergencyPowerFlux, emergencyPowerGain, fluxLimit, railFeedPowerGain,
+    autoDestructDamage, autoDestructRange, burnoutPowerPerLevel, bankPowerCharge, bankPowerLoss, dischargePowerPerLevel, emergencyPowerFlux, emergencyPowerGain, fluxLimit, railFeedPowerGain,
     redlinePowerGain, runQuietPowerLoss,
 } from 'content/systems/engineer/engineer.shared';
 import { defineEngineEffects } from 'engine/content/EngineContent';
@@ -328,6 +328,35 @@ export const effects = defineEngineEffects(sharedEffects, {
         },
         remove: (system) => {
             system.adjustSystemPowerLevel(-railFeedPowerGain);
+        },
+    },
+    burningOut: {
+        apply: (system, level) => {
+            system.adjustSystemPowerLevel(level * burnoutPowerPerLevel);
+            return true;
+        },
+        remove: (system, removal, level) => {
+            system.adjustSystemPowerLevel(-level * burnoutPowerPerLevel);
+
+            // Only a burnout that runs its full time resets the system.
+            if (removal === 'expired') {
+                system.addEffect('resetting');
+            }
+        },
+        onLevelChanged: (system, newLevel, oldLevel) => {
+            system.adjustSystemPowerLevel((newLevel - oldLevel) * burnoutPowerPerLevel);
+        },
+    },
+    busLinked: {
+        apply: (system, level) => {
+            system.adjustSystemPowerLevel(level);
+            return true;
+        },
+        remove: (system, _removal, level) => {
+            system.adjustSystemPowerLevel(-level);
+        },
+        onLevelChanged: (system, newLevel, oldLevel) => {
+            system.adjustSystemPowerLevel(newLevel - oldLevel);
         },
     },
     buffered: {

@@ -15,6 +15,7 @@ export type ScienceCardPlayContext = {
 const scanRequirements: Partial<Record<CardType, 'ship' | 'system'>> = {
     eureka: 'system',
     predictiveModel: 'ship',
+    plottedCourse: 'ship',
     catalyse: 'system',
     halfLife: 'system',
     crossReaction: 'system',

@@ -8,6 +8,7 @@ export type SynergyTag
     // Engineer
         | 'charge'
         | 'flux'
+        | 'layout'
     // Helm
         | 'momentum'
         | 'steadyPlatform'

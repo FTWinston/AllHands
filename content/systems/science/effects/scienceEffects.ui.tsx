@@ -76,6 +76,13 @@ export const effects = defineUiEffects(sharedEffects, {
         </>,
         image: ExampleIcon,
     },
+    jammed: {
+        name: 'Jammed',
+        description: <>
+            This ship is jamming sensors: scans of it by other ships fail.
+        </>,
+        image: ExampleIcon,
+    },
     gravitonDrag: {
         name: 'Graviton Drag',
         description: <>

@@ -1,7 +1,7 @@
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { describe, expect, it } from 'vitest';
 import { getLockPips, maxLockLevel } from './lockPips';
-import { canChargeWeapon, canPlayOnWeapon, getChargeValue, hasCardTrait, isWeaponActive } from './weaponCards';
+import { canChargeWeapon, canPlayOnWeapon, getAimedFor, getChargeValue, hasCardTrait, isWeaponActive } from './weaponCards';
 
 const cannon = { type: 'phaserCannon' as const };
 const torpedo = { type: 'photonTorpedo' as const };
@@ -97,5 +97,27 @@ describe('getLockPips', () => {
         expect(getLockPips(3)).toBe('●●●○○');
         expect(getLockPips(0)).toBe('○○○○○');
         expect(getLockPips(9)).toBe('●●●●●');
+    });
+});
+
+describe('getAimedFor', () => {
+    const siegeLance = { type: 'siegeLance' as const };
+
+    it('is only for a cumbersome weapon', () => {
+        expect(getAimedFor({ card: cannon }, 'a', 5000, false)).toBeUndefined();
+        expect(getAimedFor({ card: null }, 'a', 5000, false)).toBeUndefined();
+        expect(getAimedFor({ card: siegeLance }, 'a', 5000, false)).toBe(0);
+    });
+
+    it('is how long the target has been in position, and nothing for one that isn\'t', () => {
+        const slot = { card: siegeLance, aimStartTimes: { a: 3500 } };
+
+        expect(getAimedFor(slot, 'a', 5000, false)).toBe(1500);
+        expect(getAimedFor(slot, 'b', 5000, false)).toBe(0);
+        expect(getAimedFor(slot, null, 5000, false)).toBe(0);
+    });
+
+    it('isn\'t needed while the helm is holding the ship steady', () => {
+        expect(getAimedFor({ card: siegeLance, aimStartTimes: {} }, 'a', 5000, true)).toBeUndefined();
     });
 });

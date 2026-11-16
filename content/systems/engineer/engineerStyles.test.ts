@@ -11,7 +11,8 @@ import { PlayerShip } from 'engine/state/PlayerShip';
 import { setupGameRoom } from 'engine/testUtils';
 import { describe, expect, it } from 'vitest';
 import {
-    autoDestructConfirmationsNeeded, autoDestructConfirmWindow, autoDestructDamage, autoDestructDuration, autoDestructRange, bankPowerCharge, bankPowerDuration, bankPowerLoss, chargeMaxLevel, dischargeDuration,
+    autoDestructConfirmationsNeeded, autoDestructConfirmWindow, autoDestructDamage, autoDestructDuration, autoDestructRange, bankPowerCharge, bankPowerDuration, bankPowerLoss,
+    burnoutDuration, burnoutPowerPerLevel, busLinkDuration, chargeMaxLevel, dischargeDuration,
     emergencyPowerDuration, emergencyPowerFlux, emergencyPowerGain, fluxLimit, railFeedDuration, redlineFluxInterval, redlinePowerGain, runQuietChargeInterval,
     ventShieldsDownDuration,
 } from './engineer.shared';
@@ -365,6 +366,408 @@ describe('Rail Feed', () => {
         expect(systems[1].system).toBe(first);
         expect(systems[0].system).toBe(second);
         expect(systems.map(system => system.power)).toEqual([3, 4, 3, 4, 3, 4]);
+    });
+});
+
+describe('Coolant Flush', () => {
+    it('moves all of a system\'s Flux to the hull', () => {
+        const { tile, play } = createShip();
+        expect(cardDefinitions.coolantFlush).toMatchObject({ targetType: 'system', system: 'engineer', parameters: { cost: 2 } });
+        tile('helm').adjustEffectLevel('flux', 1);
+
+        expect(play('coolantFlush', 'helm')).toBe(true);
+
+        expect(tile('helm').hasEffect('flux')).toBe(false);
+        expect(tile('hull').getEffectLevel('flux')).toBe(1);
+    });
+
+    it('overloads the hull as it does any other system, if that takes its Flux to the limit', () => {
+        const { ship, tile, play } = createShip();
+        tile('helm').adjustEffectLevel('flux', 2);
+        tile('hull').adjustEffectLevel('flux', 1);
+        const hullHealth = ship.hullState.health;
+        const helmHealth = ship.helmState.health;
+
+        expect(play('coolantFlush', 'helm')).toBe(true);
+
+        expect(tile('helm').hasEffect('flux')).toBe(false);
+        expect(ship.helmState.health).toBe(helmHealth);
+        expect(tile('hull').hasEffect('flux')).toBe(false);
+        expect(ship.hullState.health).toBe(hullHealth - 1);
+    });
+
+    it('leaves Flux that doesn\'t reach the limit on the hull', () => {
+        const { ship, tile, play } = createShip();
+        tile('science').adjustEffectLevel('flux', 2);
+        const hullHealth = ship.hullState.health;
+
+        expect(play('coolantFlush', 'science')).toBe(true);
+
+        expect(tile('science').hasEffect('flux')).toBe(false);
+        expect(tile('hull').getEffectLevel('flux')).toBe(2);
+        expect(ship.hullState.health).toBe(hullHealth);
+    });
+
+    it('can\'t be played on a system with no Flux, or on the hull', () => {
+        const { tile, play } = createShip();
+        expect(play('coolantFlush', 'helm')).toBe(false);
+
+        tile('hull').adjustEffectLevel('flux', 1);
+        expect(play('coolantFlush', 'hull')).toBe(false);
+        expect(tile('hull').getEffectLevel('flux')).toBe(1);
+    });
+});
+
+describe('Burnout', () => {
+    it('spends all of a system\'s Flux, for 2 power per Flux for 8 seconds, then resets the system', () => {
+        const { ship, tile, play, wait } = createShip();
+        expect(cardDefinitions.burnout).toMatchObject({ rarity: 'uncommon', parameters: { cost: 2, powerGain: 2, duration: 8 } });
+        expect(burnoutPowerPerLevel).toBe(2);
+        expect(burnoutDuration).toBe(8000);
+        tile('tactical').adjustEffectLevel('flux', 1);
+        tile('helm').adjustSystemPowerLevel(-2);
+        tile('helm').adjustEffectLevel('flux', 2);
+
+        expect(play('burnout', 'tactical')).toBe(true);
+        expect(tile('tactical').hasEffect('flux')).toBe(false);
+        expect(ship.tacticalState.powerLevel).toBe(5);
+
+        expect(play('burnout', 'helm')).toBe(true);
+        expect(ship.helmState.powerLevel).toBe(5);
+
+        wait(burnoutDuration - 1);
+        expect(ship.tacticalState.powerLevel).toBe(5);
+
+        // The system loses all its power while it resets, and everything on it.
+        wait(1);
+        expect(tile('tactical').hasEffect('burningOut')).toBe(false);
+        expect(tile('tactical').hasEffect('resetting')).toBe(true);
+        expect(ship.tacticalState.powerLevel).toBe(0);
+
+        wait(3000);
+        expect(tile('tactical').effects.length).toBe(0);
+        expect(ship.tacticalState.powerLevel).toBe(3);
+        expect(ship.helmState.powerLevel).toBe(1);
+    });
+
+    it('doesn\'t reset the system if it is cut short', () => {
+        const { ship, tile, play } = createShip();
+        tile('science').adjustEffectLevel('flux', 1);
+        play('burnout', 'science');
+
+        tile('science').removeEffect('burningOut', 'early');
+
+        expect(ship.scienceState.powerLevel).toBe(3);
+        expect(tile('science').hasEffect('resetting')).toBe(false);
+    });
+
+    it('can\'t be played on a system with no Flux, and isn\'t moved by a Shunt', () => {
+        const { ship, tile, play } = createShip();
+        expect(play('burnout', 'science')).toBe(false);
+        expect(ship.scienceState.powerLevel).toBe(3);
+
+        tile('science').adjustEffectLevel('flux', 1);
+        play('burnout', 'science');
+        const neighbor = ship.engineerState.systems[ship.engineerState.systems.indexOf(tile('science')) ^ 1];
+        expect(play('shunt', 'science')).toBe(true);
+        expect(tile('science').hasEffect('burningOut')).toBe(true);
+        expect(neighbor.hasEffect('burningOut')).toBe(false);
+    });
+});
+
+describe('Bus Link', () => {
+    it('gives the lower-powered of a system and its horizontal neighbour the power to match the higher, for 20 seconds', () => {
+        const { ship, tile, play, wait } = createShip();
+        expect(cardDefinitions.busLink).toMatchObject({ rarity: 'uncommon', parameters: { cost: 3, duration: 20 } });
+        expect(busLinkDuration).toBe(20_000);
+        const systems = ship.engineerState.systems;
+        const neighbor = systems[systems.indexOf(tile('science')) ^ 1];
+        tile('science').adjustSystemPowerLevel(-2);
+        neighbor.adjustSystemPowerLevel(1);
+        expect(tile('science').power).toBe(1);
+        expect(neighbor.power).toBe(4);
+
+        // It can be played on either of the two.
+        expect(play('busLink', neighbor.system)).toBe(true);
+
+        expect(tile('science').power).toBe(4);
+        expect(neighbor.power).toBe(4);
+
+        wait(busLinkDuration);
+        expect(tile('science').hasEffect('busLinked')).toBe(false);
+        expect(tile('science').power).toBe(1);
+        expect(neighbor.power).toBe(4);
+    });
+
+    it('can\'t be played when the two already run at the same power', () => {
+        const { tile, play } = createShip();
+
+        expect(play('busLink', 'science')).toBe(false);
+        expect(tile('science').hasEffect('busLinked')).toBe(false);
+    });
+
+    it('adds to the power it gave, and starts its time over, if played again after the power changes', () => {
+        const { state, ship, tile, play, wait } = createShip();
+        const systems = ship.engineerState.systems;
+        const neighbor = systems[systems.indexOf(tile('helm')) ^ 1];
+        tile('helm').adjustSystemPowerLevel(-1);
+        play('busLink', 'helm');
+        expect(tile('helm').power).toBe(3);
+
+        wait(5000);
+        neighbor.adjustSystemPowerLevel(2);
+        expect(play('busLink', 'helm')).toBe(true);
+
+        expect(tile('helm').power).toBe(5);
+        expect(tile('helm').effects.find(effect => effect.type === 'busLinked')!.progress?.endTime).toBe(state.currentTime + busLinkDuration);
+    });
+});
+
+describe('Daisy Chain', () => {
+    it('copies a system\'s positive effects to the system below it, which end when the originals do', () => {
+        const { ship, play, wait } = createShip();
+        expect(cardDefinitions.daisyChain).toMatchObject({ rarity: 'uncommon', parameters: { cost: 3 } });
+        const [top, , below] = ship.engineerState.systems;
+        top.addEffect('railFeed');
+        top.adjustEffectLevel('discharging', 2);
+        wait(4000);
+        top.adjustEffectLevel('flux', 1);
+
+        expect(play('daisyChain', top.system)).toBe(true);
+
+        expect(below.effects.map(effect => effect.type).sort()).toEqual(['discharging', 'railFeed']);
+        expect(below.getEffectLevel('discharging')).toBe(2);
+        expect(below.power).toBe(5);
+        expect(top.hasEffect('railFeed')).toBe(true);
+        const original = top.effects.find(effect => effect.type === 'railFeed')!;
+        const copy = below.effects.find(effect => effect.type === 'railFeed')!;
+        expect(copy.progress).not.toBe(original.progress);
+        expect(copy.progress?.endTime).toBe(original.progress?.endTime);
+
+        // The negative Flux stays where it was.
+        expect(below.hasEffect('flux')).toBe(false);
+
+        wait(railFeedDuration);
+        expect(top.hasEffect('railFeed')).toBe(false);
+        expect(below.hasEffect('railFeed')).toBe(false);
+    });
+
+    it('adds a copied level to one that the lower system already has', () => {
+        const { ship, play } = createShip();
+        const [top, , below] = ship.engineerState.systems;
+        top.adjustEffectLevel('discharging', 1);
+        below.adjustEffectLevel('discharging', 1);
+
+        expect(play('daisyChain', top.system)).toBe(true);
+
+        expect(below.getEffectLevel('discharging')).toBe(2);
+        expect(top.getEffectLevel('discharging')).toBe(1);
+    });
+
+    it('doesn\'t copy Charge, Aux Power or anything that moves power from another system, or one that does something when it ends', () => {
+        const { ship, play } = createShip();
+        const [top, , below] = ship.engineerState.systems;
+        top.adjustEffectLevel('charge', 2);
+        top.addEffect('auxPower');
+        top.adjustEffectLevel('drawPowerGain', 1);
+        top.addEffect('bankingPower');
+
+        expect(play('daisyChain', top.system)).toBe(false);
+        expect(below.effects.length).toBe(0);
+    });
+
+    it('can\'t be played on a system with no positive effects, or on the bottom row', () => {
+        const { ship, play } = createShip();
+        const systems = ship.engineerState.systems;
+        expect(play('daisyChain', systems[0].system)).toBe(false);
+
+        for (const index of [4, 5]) {
+            systems[index].addEffect('railFeed');
+            expect(play('daisyChain', systems[index].system)).toBe(false);
+        }
+    });
+
+    it('goes one row down from the middle row, and follows the systems as they are laid out', () => {
+        const { ship, play } = createShip();
+        const systems = ship.engineerState.systems;
+        const first = systems[0].system;
+        play('swapDown', first);
+        expect(systems[2].system).toBe(first);
+
+        systems[2].addEffect('railFeed');
+        expect(play('daisyChain', first)).toBe(true);
+
+        expect(systems[4].hasEffect('railFeed')).toBe(true);
+        expect(systems[3].hasEffect('railFeed')).toBe(false);
+    });
+});
+
+describe('Ground Out', () => {
+    it('moves a system\'s negative effects to the hull, leaving the positive ones', () => {
+        const { ship, tile, play } = createShip();
+        expect(cardDefinitions.groundOut).toMatchObject({ targetType: 'system', system: 'engineer', parameters: { cost: 2 } });
+        tile('helm').adjustEffectLevel('flux', 2);
+        tile('helm').addEffect('railFeed');
+        const hullHealth = ship.hullState.health;
+
+        expect(play('groundOut', 'helm')).toBe(true);
+
+        expect(tile('helm').hasEffect('flux')).toBe(false);
+        expect(tile('helm').hasEffect('railFeed')).toBe(true);
+        expect(tile('hull').getEffectLevel('flux')).toBe(2);
+        expect(ship.hullState.health).toBe(hullHealth);
+    });
+
+    it('adds to Flux that the hull already has, which can overload it', () => {
+        const { ship, tile, play } = createShip();
+        tile('helm').adjustEffectLevel('flux', 2);
+        tile('hull').adjustEffectLevel('flux', 1);
+        const hullHealth = ship.hullState.health;
+
+        expect(play('groundOut', 'helm')).toBe(true);
+
+        expect(tile('hull').hasEffect('flux')).toBe(false);
+        expect(ship.hullState.health).toBe(hullHealth - 1);
+    });
+
+    it('does away with effects that the hull can\'t have, and leaves one half of a power transfer in place', () => {
+        const { tile, play } = createShip();
+        tile('helm').addEffect('shieldReduced');
+        tile('helm').adjustEffectLevel('distributePowerLoss', 1);
+        tile('helm').adjustEffectLevel('flux', 1);
+
+        expect(play('groundOut', 'helm')).toBe(true);
+
+        expect(tile('hull').hasEffect('shieldReduced')).toBe(false);
+        expect(tile('helm').hasEffect('shieldReduced')).toBe(false);
+        expect(tile('helm').hasEffect('distributePowerLoss')).toBe(true);
+        expect(tile('hull').hasEffect('flux')).toBe(true);
+    });
+
+    it('keeps the time that a moved effect has left', () => {
+        const { tile, play, wait } = createShip();
+        tile('helm').addEffect('persistentDamage');
+        const endTime = tile('helm').effects.find(effect => effect.type === 'persistentDamage')?.progress?.endTime;
+        wait(1000);
+
+        expect(play('groundOut', 'helm')).toBe(true);
+
+        expect(tile('hull').effects.find(effect => effect.type === 'persistentDamage')?.progress?.endTime).toBe(endTime);
+    });
+
+    it('leaves an auto-destruct where it is', () => {
+        const { tile, play } = createShip();
+        tile('engineer').adjustEffectLevel('autoDestructRequested', 2);
+
+        expect(play('groundOut', 'engineer')).toBe(false);
+        expect(tile('engineer').hasEffect('autoDestructRequested')).toBe(true);
+        expect(tile('hull').hasEffect('autoDestructRequested')).toBe(false);
+    });
+
+    it('can\'t be played on the hull, or on a system with no negative effects', () => {
+        const { tile, play } = createShip();
+        expect(play('groundOut', 'helm')).toBe(false);
+
+        tile('hull').adjustEffectLevel('flux', 1);
+        expect(play('groundOut', 'hull')).toBe(false);
+        expect(tile('hull').getEffectLevel('flux')).toBe(1);
+    });
+});
+
+describe('Jury-rig', () => {
+    it('stabilises a damaged card in a system', () => {
+        const { ship, tile, play } = createShip();
+        expect(cardDefinitions.juryRig).toMatchObject({ targetType: 'system', system: 'engineer', parameters: { cost: 2, cards: 1 } });
+        tile('helm').adjustSystemHealth(-2);
+        const cards = () => [...ship.helmState.hand, ...ship.helmState.deck];
+        expect(cards().filter(card => card.hasTrait('damaged')).length).toBe(2);
+        const health = ship.helmState.health;
+
+        expect(play('juryRig', 'helm')).toBe(true);
+
+        expect(ship.helmState.health).toBe(health + 1);
+        expect(cards().filter(card => card.hasTrait('damaged')).length).toBe(1);
+        expect(cards().filter(card => card.hasTrait('stabilised')).length).toBe(1);
+    });
+
+    it('can\'t be played on a system with nothing damaged', () => {
+        const { ship, play } = createShip();
+
+        expect(play('juryRig', 'helm')).toBe(false);
+        expect(ship.helmState.health).toBe(ship.helmState.maxHealth);
+    });
+
+    it('can\'t stabilise a card that is critically damaged', () => {
+        const { ship, tile, play } = createShip();
+        // A stabilised card that's damaged again is critically damaged.
+        tile('helm').adjustSystemHealth(-1);
+        tile('helm').adjustSystemHealth(1);
+        tile('helm').adjustSystemHealth(-ship.helmState.health);
+        tile('helm').adjustSystemHealth(ship.helmState.maxHealth);
+        expect([...ship.helmState.hand, ...ship.helmState.deck].filter(card => card.hasTrait('critical')).length).toBe(1);
+        const health = ship.helmState.health;
+        expect(health).toBe(ship.helmState.maxHealth - 1);
+
+        expect(play('juryRig', 'helm')).toBe(false);
+        expect(ship.helmState.health).toBe(health);
+    });
+});
+
+describe('Fabricate', () => {
+    it('puts an expendable copy of the top card of a system\'s deck in its hand, and leaves the card in the deck', () => {
+        const { ship, play } = createShip();
+        expect(cardDefinitions.fabricate).toMatchObject({ rarity: 'uncommon', targetType: 'system', system: 'engineer', parameters: { cost: 2 } });
+        const topCard = ship.tacticalState.deck[0];
+        const handSize = ship.tacticalState.hand.length;
+        expect(handSize).toBeLessThan(ship.tacticalState.maxHandSize);
+
+        expect(play('fabricate', 'tactical')).toBe(true);
+
+        expect(ship.tacticalState.hand.length).toBe(handSize + 1);
+        const copy = ship.tacticalState.hand[handSize];
+        expect(copy).not.toBe(topCard);
+        expect(copy.type).toBe(topCard.type);
+        expect(copy.hasTrait('expendable')).toBe(true);
+        expect(copy.id).not.toBe(topCard.id);
+        expect(ship.tacticalState.deck[0]).toBe(topCard);
+        expect(topCard.hasTrait('expendable')).toBe(false);
+    });
+
+    it('can be played on the engineer\'s own system too', () => {
+        const { ship, play } = createShip();
+        const handSize = ship.engineerState.hand.length;
+        const topCard = ship.engineerState.deck[0];
+
+        expect(play('fabricate', 'engineer')).toBe(true);
+
+        expect(ship.engineerState.hand.length).toBe(handSize + 1);
+        expect(ship.engineerState.hand[handSize].type).toBe(topCard.type);
+    });
+
+    it('copies the card as new, not as damaged', () => {
+        const { ship, tile, play } = createShip();
+        tile('science').adjustSystemHealth(-ship.scienceState.health);
+        const topCard = ship.scienceState.deck[0];
+        expect(topCard.isDamaged).toBe(true);
+        const handSize = ship.scienceState.hand.length;
+
+        expect(play('fabricate', 'science')).toBe(true);
+
+        const copy = ship.scienceState.hand[handSize];
+        expect(copy.isDamaged).toBe(false);
+        expect(copy.hasTrait('expendable')).toBe(true);
+    });
+
+    it('can\'t be played on a full hand, or on a system that isn\'t crew', () => {
+        const { ship, play } = createShip();
+        expect(play('fabricate', 'hull')).toBe(false);
+        expect(play('fabricate', 'reactor')).toBe(false);
+
+        while (ship.helmState.hand.length < ship.helmState.maxHandSize) {
+            ship.helmState.addCardToHand(new CardState(ship.getCardId(), 'purge'));
+        }
+        expect(play('fabricate', 'helm')).toBe(false);
+        expect(ship.helmState.hand.length).toBe(ship.helmState.maxHandSize);
     });
 });
 
@@ -951,6 +1354,13 @@ describe('the engineer\'s synergy tags', () => {
         vent: { provides: [], wants: ['flux'] },
         reset: { provides: [], wants: ['flux'] },
         purge: { provides: [], wants: ['flux'] },
+        coolantFlush: { provides: [], wants: ['flux'] },
+        burnout: { provides: [], wants: ['flux'] },
+        swapSystems: { provides: ['layout'], wants: [] },
+        relocateSystem: { provides: ['layout'], wants: [] },
+        railFeed: { provides: [], wants: ['layout'] },
+        busLink: { provides: [], wants: ['layout'] },
+        daisyChain: { provides: [], wants: ['layout'] },
     } as const;
 
     it('tag Charge and Flux builders as providing them, and their payoffs as wanting them', () => {
@@ -962,8 +1372,10 @@ describe('the engineer\'s synergy tags', () => {
     it('give a work order for a builder its payoffs, and for a payoff its builders', () => {
         expect(getSynergyCardTypes('trickleCharge').sort()).toEqual(['buffer', 'discharge', 'surgeDraw']);
         expect(getSynergyCardTypes('discharge').sort()).toEqual(['bankPower', 'runQuiet', 'trickleCharge']);
-        expect(getSynergyCardTypes('redline').sort()).toEqual(['purge', 'reset', 'vent']);
+        expect(getSynergyCardTypes('redline').sort()).toEqual(['burnout', 'coolantFlush', 'purge', 'reset', 'vent']);
         expect(getSynergyCardTypes('vent').sort()).toEqual(['extremeMeasures', 'hotStart', 'redline']);
+        expect(getSynergyCardTypes('swapSystems').sort()).toEqual(['busLink', 'daisyChain', 'railFeed']);
+        expect(getSynergyCardTypes('busLink').sort()).toEqual(['relocateSystem', 'swapSystems']);
     });
 });
 
@@ -971,7 +1383,8 @@ describe('the engineer\'s style cards', () => {
     it('can all be bought from the engineer\'s shop', () => {
         const shop = getShopCardTypes('engineer');
 
-        for (const type of ['trickleCharge', 'bankPower', 'discharge', 'surgeDraw', 'redline', 'vent', 'railFeed', 'priorityFeed', 'buffer', 'hotStart', 'extremeMeasures'] as const) {
+        for (const type of ['trickleCharge', 'bankPower', 'discharge', 'surgeDraw', 'redline', 'vent', 'railFeed', 'priorityFeed', 'buffer', 'hotStart', 'extremeMeasures',
+            'coolantFlush', 'burnout', 'busLink', 'daisyChain', 'groundOut', 'juryRig', 'fabricate'] as const) {
             expect(shop).toContain(type);
         }
     });

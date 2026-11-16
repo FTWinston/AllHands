@@ -8,4 +8,6 @@ export const enum FiringState {
     RangeTooClose,
     RelativeBearingTooWide,
     TargetAspectObscured,
+    /** A cumbersome weapon that's in position, but hasn't held its aim for long enough yet. */
+    Aiming,
 }

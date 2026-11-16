@@ -33,6 +33,8 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     decayDuration = 0;
     /** The id of the target the weapon is active on, if it stays active once fired (see `staysActive`). Empty while it isn't active. */
     @type('string') activeTargetId = '';
+    /** For a cumbersome weapon: when each ship was last brought into its firing arc and range, and has stayed there since. Updated by the tactical system, which has the ships. */
+    @type({ map: 'number' }) readonly aimStartTimes = new MapSchema<number>();
 
     /**
      * Called as an active weapon stops being active, for whatever reason, with its card and the id of the target it was active on.
@@ -83,6 +85,23 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     adjustParameter(parameter: string, adjustment: number) {
         const current = this.modifiers.get(parameter) || 0;
         this.modifiers.set(parameter, current + adjustment);
+    }
+
+    /** What has been added to each parameter for the next shot only (see `adjustParameterForNextShot`). */
+    private readonly nextShotAdjustments = new Map<string, number>();
+
+    /** Adjust a parameter until the weapon's next shot is fired (see `endNextShot`), without it counting as a modifier card. */
+    adjustParameterForNextShot(parameter: string, adjustment: number) {
+        this.adjustParameter(parameter, adjustment);
+        this.nextShotAdjustments.set(parameter, (this.nextShotAdjustments.get(parameter) ?? 0) + adjustment);
+    }
+
+    /** Called as a shot is fired: takes back what was added for the next shot only. */
+    endNextShot() {
+        for (const [parameter, adjustment] of this.nextShotAdjustments) {
+            this.adjustParameter(parameter, -adjustment);
+        }
+        this.nextShotAdjustments.clear();
     }
 
     /** Put a weapon card into this empty slot. An `energised` weapon comes in fully charged, so its charge starts to decay straight away. */
@@ -192,6 +211,8 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         this.decay = null;
         this.activeTargetId = '';
         this.modifiers.clear();
+        this.nextShotAdjustments.clear();
+        this.aimStartTimes.clear();
         this.card = null;
 
         if (card && activeTargetId) {

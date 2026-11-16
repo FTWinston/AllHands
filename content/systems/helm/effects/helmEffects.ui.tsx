@@ -43,6 +43,17 @@ export const effects = defineUiEffects(sharedEffects, {
         </>,
         image: ExampleIcon,
     },
+    attackRun: {
+        name: 'Attack Run',
+        description: <>
+            The ship is on an attack run: every tactical card costs
+            {' '}
+            <EffectLevel />
+            {' '}
+            less to play.
+        </>,
+        image: ExampleIcon,
+    },
     braced: {
         name: 'Braced',
         description: <>

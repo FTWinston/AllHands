@@ -9,3 +9,6 @@ export const persistentDamagePerTick = 1;
 
 /** How much power the effect a draining weapon leaves on the system it hits takes from it. */
 export const drainingPowerLoss = 1;
+
+/** How long a cumbersome weapon's target has to be held in its firing arc and range before it can fire, in ms. */
+export const cumbersomeAimTime = 2000;

@@ -61,6 +61,24 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
+    siegeLance: {
+        name: 'Siege Lance',
+        description: <>
+            A long-range, narrow
+            {' '}
+            <Trait trait="energyWeapon" />
+            {' '}
+            dealing
+            {' '}
+            <Parameter name="damage" />
+            {' '}
+            damage. It's
+            {' '}
+            <Trait trait="cumbersome" />
+            : its target must be held in its arc for 2 seconds before it can fire.
+        </>,
+        image: <ExampleIcon />,
+    },
     photonTorpedo: {
         name: 'Photon Torpedo',
         description: <>
@@ -409,6 +427,36 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
+    holdFire: {
+        name: 'Hold Fire',
+        description: <>
+            For
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, weapons can't fire. When it ends, gain
+            {' '}
+            <Parameter name="lockGain" />
+            {' '}
+            Lock on the locked ship. Needs a ship to be locked.
+        </>,
+        image: <ExampleIcon />,
+    },
+    calledShot: {
+        name: 'Called Shot',
+        description: <>
+            Spend
+            {' '}
+            <Parameter name="lockCost" />
+            {' '}
+            Lock: every crew system of the locked ship can be aimed at, even if science hasn't identified it, until the next shot at that ship, or for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds.
+        </>,
+        image: <ExampleIcon />,
+    },
     powerCell: {
         name: 'Power Cell',
         description: <>
@@ -455,6 +503,33 @@ export const cards = defineUiCards(sharedCards, {
             <Parameter name="drainPerSecond" />
             {' '}
             a second. The ship can break free by starting a manoeuvre with more power at its helm than your tactical has.
+        </>,
+        image: <ExampleIcon />,
+    },
+    steadyFire: {
+        name: 'Steady Fire',
+        description: <>
+            Each shot from a weapon makes its next one
+            {' '}
+            <Parameter name="accuracyPerShot" />
+            % more accurate, up to
+            {' '}
+            <Parameter name="maxStackedAccuracy" />
+            % more, for as long as it's in its slot.
+        </>,
+        image: <ExampleIcon />,
+    },
+    disablingShot: {
+        name: 'Disabling Shot',
+        description: <>
+            A weapon's hits damage the cards of the system they land on, but not the ship's hull.
+        </>,
+        image: <ExampleIcon />,
+    },
+    tracerRound: {
+        name: 'Tracer Round',
+        description: <>
+            When a weapon hits a system, science is shown it, as if scanned, unless science is scanning something already.
         </>,
         image: <ExampleIcon />,
     },

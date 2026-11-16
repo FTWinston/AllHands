@@ -163,6 +163,119 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
+    crossReference: {
+        name: 'Cross-reference',
+        description: <>
+            Revealing a system that has been revealed before gains
+            {' '}
+            <Parameter name="extraInsight" />
+            {' '}
+            extra Insight.
+        </>,
+        image: <ExampleIcon />,
+    },
+    activePing: {
+        name: 'Active Ping',
+        description: <>
+            Reveals every system of the target ship at once. Every hostile ship within
+            {' '}
+            <Parameter name="range" />
+            {' '}
+            learns where this ship is, for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds.
+        </>,
+        image: <ExampleIcon />,
+    },
+    passiveListen: {
+        name: 'Passive Listen',
+        description: <>
+            Reveals a system after
+            {' '}
+            <Parameter name="delay" />
+            {' '}
+            seconds, without being noticed.
+        </>,
+        image: <ExampleIcon />,
+    },
+    jam: {
+        name: 'Jam',
+        description: <>
+            For
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, scans of this ship by other ships fail.
+        </>,
+        image: <ExampleIcon />,
+    },
+    sensorGhost: {
+        name: 'Sensor Ghost',
+        description: <>
+            Leave a false contact where this ship is, for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds. Hostile ships that sense it go to it, and ignore this ship, unless they're closer to this ship.
+        </>,
+        image: <ExampleIcon />,
+    },
+    firingSolution: {
+        name: 'Firing Solution',
+        description: <>
+            Spend
+            {' '}
+            <Parameter name="insightCost" />
+            {' '}
+            Insight: tactical is given an
+            {' '}
+            <Trait trait="expendable" external />
+            {' '}
+            card that makes a weapon's next shot more accurate.
+        </>,
+        image: <ExampleIcon />,
+    },
+    firingSolutionShot: {
+        name: 'Calculated Shot',
+        description: <>
+            <Trait trait="expendable" />
+            {' '}
+            The weapon's next shot is
+            {' '}
+            <Parameter name="accuracyIncrease" />
+            % more accurate. It doesn't count as a modifier.
+        </>,
+        image: <ExampleIcon />,
+    },
+    plottedCourse: {
+        name: 'Plotted Course',
+        description: <>
+            Spend
+            {' '}
+            <Parameter name="insightCost" />
+            {' '}
+            Insight: helm is given an
+            {' '}
+            <Trait trait="expendable" external />
+            {' '}
+            manoeuvre, that flies fast and is hard to hit.
+        </>,
+        image: <ExampleIcon />,
+    },
+    plottedCourseManoeuvre: {
+        name: 'Flank Run',
+        description: <>
+            <Trait trait="expendable" />
+            {' '}
+            A plotted course: fly fast to a location, to come at the scanned ship from its blind side. Evasion
+            {' '}
+            <Parameter name="evasion" />
+            %.
+        </>,
+        image: <ExampleIcon />,
+    },
     eureka: {
         name: 'Eureka',
         description: <>

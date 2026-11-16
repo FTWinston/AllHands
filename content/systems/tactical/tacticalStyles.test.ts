@@ -518,16 +518,35 @@ describe('Tractor Beam', () => {
             return { ...tow, helm, startManeuver };
         }
 
-        it('is shown to the helm of the held ship while it holds, and not after', () => {
+        it('marks every card in the held ship\'s helm hand as caught while it holds, and not after', () => {
             const { enemy, slot, fire, waitAll, tactical } = createTow();
-            expect(enemy.helmState.isHeld).toBe(false);
+            const helm = enemy.helmState;
+            const inHand = new CardState(enemy.getCardId(), 'slowAndSteady');
+            helm.addCardToHand(inHand);
+            expect(inHand.hasTrait('caught')).toBe(false);
 
             fire();
-            expect(enemy.helmState.isHeld).toBe(true);
+            expect(inHand.hasTrait('caught')).toBe(true);
+
+            // A card that arrives in the hand while the ship is held is caught too.
+            const drawnWhileHeld = new CardState(enemy.getCardId(), 'faceTarget');
+            helm.addCardToHand(drawnWhileHeld);
+            expect(drawnWhileHeld.hasTrait('caught')).toBe(true);
 
             tactical.ejectWeapon(slot.id);
             waitAll(250);
-            expect(enemy.helmState.isHeld).toBe(false);
+            expect(inHand.hasTrait('caught')).toBe(false);
+            expect(drawnWhileHeld.hasTrait('caught')).toBe(false);
+        });
+
+        it('marks the holder\'s own helm cards as nothing', () => {
+            const { ship, fire } = createTow();
+            const card = new CardState(ship.getCardId(), 'slowAndSteady');
+            ship.helmState.addCardToHand(card);
+
+            fire();
+
+            expect(card.hasTrait('caught')).toBe(false);
         });
 
         it('lets a held ship that starts a manoeuvre with more helm power than the tactical power of its holder break the beam', () => {
@@ -538,20 +557,19 @@ describe('Tractor Beam', () => {
             expect(slot.card).toBeNull();
             expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(false);
             expect(shipHelm.hasEffect('tractorBeamEngaged')).toBe(false);
-            expect(enemy.helmState.isHeld).toBe(false);
+            expect(enemy.helmState.hand.some(card => card.hasTrait('caught'))).toBe(false);
             expect(enemy.helmState.maneuverSpeedModifier).toBe(0);
             expect(ship.helmState.maneuverSpeedModifier).toBe(0);
         });
 
         it('holds a ship whose helm power is equal to, or lower than, the tactical power of its holder', () => {
             for (const [helmPower, tacticalPower] of [[3, 3], [3, 4]]) {
-                const { slot, enemy, enemyHelm, startManeuver } = holdAndManeuver(helmPower, tacticalPower);
+                const { slot, enemyHelm, startManeuver } = holdAndManeuver(helmPower, tacticalPower);
 
                 startManeuver();
 
                 expect(slot.isActive).toBe(true);
                 expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(true);
-                expect(enemy.helmState.isHeld).toBe(true);
             }
         });
 

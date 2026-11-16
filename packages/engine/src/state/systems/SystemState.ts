@@ -80,6 +80,9 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
     private lastDrawnCard: CardState | null = null;
 
+    /** The total of every adjustment currently made to the cost of this system's cards (see `adjustCostOfEveryCard`), which cards that arrive meanwhile take on too. */
+    private costAdjustment = 0;
+
     /**
      * Put a card into the hand. Assumes that there is space, and that it's already been removed from wherever it was before. Does not check for duplicates.
      */
@@ -96,8 +99,15 @@ export abstract class SystemState extends Schema implements SystemInfo {
         this.handChanged();
     }
 
-    /** Have this system be told when the card's traits or modifiers change, wherever it goes among the system's cards. */
+    /**
+     * Have this system be told when the card's traits or modifiers change, wherever it goes among the system's cards.
+     * A card that's new to this system also takes on any cost adjustment the system's cards have at the moment, so it's put right along with them when that ends.
+     */
     private holdCard(card: CardState) {
+        if (card.onChanged !== this.heldCardChanged && this.costAdjustment !== 0) {
+            card.modifyParameter('cost', this.costAdjustment);
+        }
+
         card.onChanged = this.heldCardChanged;
     }
 
@@ -507,6 +517,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
         for (const card of this.cardPool) {
             card.modifiers.clear();
         }
+        this.costAdjustment = 0;
 
         // And again, for any that stabilising the damaged cards brought back, such as the mark of a damaged card on top of the deck.
         this.clearEffects();
@@ -1006,9 +1017,11 @@ export abstract class SystemState extends Schema implements SystemInfo {
     });
 
     /**
-     * Adjust the cost of every card associated with this system.
+     * Adjust the cost of every card associated with this system. Whatever makes an adjustment undoes it later by adjusting the other way.
      */
     adjustCostOfEveryCard(amount: number) {
+        this.costAdjustment += amount;
+
         for (const card of this.hand) {
             card.modifyParameter('cost', amount);
         }

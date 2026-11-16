@@ -1,4 +1,4 @@
-import { RelationshipType } from 'src/features/space/types/RelationshipType';
+import { RelationshipType } from '../../space/types/RelationshipType';
 import type { ShipTargetRelationship } from '../types/CardDefinition';
 
 /**

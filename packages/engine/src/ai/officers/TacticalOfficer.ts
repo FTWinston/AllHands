@@ -177,7 +177,8 @@ export class TacticalOfficer extends Officer {
 
         const solution = getFiringSolution(this.ship.motion, target.motion, ctx.currentTime);
         for (const subTarget of this.aimPreferences(ctx, targetId)) {
-            if (getFiringState(solution, slot.hasBeenFullyCharged, slot.charge, slot.getParameters(), subTarget ?? undefined) === FiringState.CanFire) {
+            const aimedFor = this.ship.tacticalState.getAimedFor(slot, targetId);
+            if (getFiringState(solution, slot.hasBeenFullyCharged, slot.charge, slot.getParameters(), subTarget ?? undefined, aimedFor) === FiringState.CanFire) {
                 return subTarget; // best available aim for this slot
             }
         }

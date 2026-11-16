@@ -8,6 +8,16 @@ export const effects = defineUiEffects(sharedEffects, {
         description: <>A flare launched from this ship is burning, dazzling sensors nearby.</>,
         image: ExampleIcon,
     },
+    holdingFire: {
+        name: 'Holding Fire',
+        description: <>Weapons can't fire. When this ends, Lock is gained on the ship that was locked.</>,
+        image: ExampleIcon,
+    },
+    calledShot: {
+        name: 'Called Shot',
+        description: <>Every crew system of the locked ship can be aimed at, until the next shot at it.</>,
+        image: ExampleIcon,
+    },
     lock: {
         name: 'Lock',
         description: <>Weapons are locked onto one ship. Each level makes every shot at it more accurate. Lock fades by a level each time a while passes without any being gained.</>,

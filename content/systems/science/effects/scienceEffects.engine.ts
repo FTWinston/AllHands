@@ -102,6 +102,11 @@ export const effects = defineEngineEffects(sharedEffects, {
             system.systemState.getShip().helmState.weaponAccuracyModifier -= newLevel - oldLevel;
         },
     },
+    jammed: {
+        // Nothing to do here: scans of the ship fail while it's there (see `ScienceState.isJamming`).
+        apply: system => system.system === 'science',
+        remove: () => {},
+    },
     gravitonDrag: {
         // Every maneuver the ship starts is slower by level percent (see `applyMotionCard`).
         apply: (system, level) => {

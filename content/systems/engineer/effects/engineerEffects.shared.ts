@@ -3,7 +3,7 @@ import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEff
 import { extendedShieldsDuration } from 'common-data/features/ships/utils/extendedShields';
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/powerLevel';
 import {
-    autoDestructConfirmationsNeeded, autoDestructConfirmWindow, autoDestructDuration, bankPowerDuration, chargeMaxLevel, dischargeDuration, emergencyPowerDuration, fluxLimit, railFeedDuration, redlineFluxInterval, runQuietChargeInterval,
+    autoDestructConfirmationsNeeded, autoDestructConfirmWindow, autoDestructDuration, bankPowerDuration, burnoutDuration, busLinkDuration, chargeMaxLevel, dischargeDuration, emergencyPowerDuration, fluxLimit, railFeedDuration, redlineFluxInterval, runQuietChargeInterval,
     transferPowerDuration, ventShieldsDownDuration,
 } from 'content/systems/engineer/cards/engineerCards.shared';
 
@@ -169,6 +169,20 @@ export const effects = defineEffects({
         category: SystemEffectCategory.Positive,
         usesLevels: false,
         duration: railFeedDuration,
+    },
+    /** This system runs higher for a while, by twice its level, which is the Flux that was spent on it. When that ends, it resets (see the Burnout card). */
+    burningOut: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: true,
+        maxLevel: fluxLimit - 1,
+        duration: burnoutDuration,
+    },
+    /** This system runs higher for a while, by its level, which is how far it was below its neighbour (see the Bus Link card). */
+    busLinked: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: true,
+        maxLevel: MAX_POWER_LEVEL,
+        duration: busLinkDuration,
     },
     /** The next hit that would damage one of this system's cards spends one of its Charge instead, and removes this (see the Buffer card). It has no time limit. */
     buffered: {

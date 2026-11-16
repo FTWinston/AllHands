@@ -1,4 +1,5 @@
 import { defineCards } from 'common-data/content/SharedContent';
+import { calledShotDuration, holdFireDuration, holdFireLockGain } from 'content/systems/tactical/effects/tacticalEffects.shared';
 
 /** How long a flare burns, once the Flare card is played. */
 export const flareDuration = 8000;
@@ -74,6 +75,21 @@ export const cards = defineCards({
             maxRange: 15,
             firingArc: 0.5,
             damage: 60,
+        },
+    },
+    siegeLance: {
+        targetType: 'weapon-slot',
+        rarity: 'rare',
+        system: 'tactical',
+        // Cumbersome: its target has to be held in its arc for 2s before it can fire.
+        traits: ['energyWeapon', 'cumbersome'],
+        parameters: {
+            cost: 5,
+            chargePerUse: 8,
+            totalCharge: 10,
+            maxRange: 18,
+            firingArc: 0.4,
+            damage: 70,
         },
     },
     lowYield: {
@@ -177,6 +193,17 @@ export const cards = defineCards({
         system: 'tactical',
         parameters: { cost: 3, damagePerLock: 5 },
     },
+    holdFire: {
+        targetType: 'no-target',
+        system: 'tactical',
+        parameters: { cost: 1, duration: holdFireDuration / 1000, lockGain: holdFireLockGain },
+    },
+    calledShot: {
+        targetType: 'no-target',
+        rarity: 'uncommon',
+        system: 'tactical',
+        parameters: { cost: 2, lockCost: 3, duration: calledShotDuration / 1000 },
+    },
     powerCell: {
         targetType: 'weapon',
         system: 'tactical',
@@ -208,6 +235,23 @@ export const cards = defineCards({
             ownSlowdown: 25,
             lockGain: 1,
         },
+    },
+    steadyFire: {
+        targetType: 'weapon',
+        rarity: 'uncommon',
+        system: 'tactical',
+        parameters: { cost: 2, accuracyPerShot: 5, maxStackedAccuracy: 20 },
+    },
+    disablingShot: {
+        targetType: 'weapon',
+        rarity: 'uncommon',
+        system: 'tactical',
+        parameters: { cost: 2 },
+    },
+    tracerRound: {
+        targetType: 'weapon',
+        system: 'tactical',
+        parameters: { cost: 1 },
     },
     exploit: {
         targetType: 'weapon',

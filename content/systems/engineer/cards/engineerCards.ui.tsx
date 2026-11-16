@@ -355,6 +355,69 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
+    coolantFlush: {
+        name: 'Coolant Flush',
+        description: 'Move all of a system\'s Flux to the hull.',
+        image: <ExampleIcon />,
+    },
+    burnout: {
+        name: 'Burnout',
+        description: <>
+            Spend all of a system's Flux: it gains
+            {' '}
+            <Parameter name="powerGain" />
+            {' '}
+            power per Flux for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, then resets.
+        </>,
+        image: <ExampleIcon />,
+    },
+    busLink: {
+        name: 'Bus Link',
+        description: <>
+            A system and its horizontal neighbour both run at the higher of their two power levels, for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds.
+        </>,
+        image: <ExampleIcon />,
+    },
+    daisyChain: {
+        name: 'Daisy Chain',
+        description: 'Copy a system\'s positive effects to the system below it. Charge and Aux Power aren\'t copied.',
+        image: <ExampleIcon />,
+    },
+    groundOut: {
+        name: 'Ground Out',
+        description: 'Move a system\'s negative effects to the hull.',
+        image: <ExampleIcon />,
+    },
+    juryRig: {
+        name: 'Jury-rig',
+        description: <>
+            Stabilise
+            {' '}
+            <Parameter name="cards" />
+            {' '}
+            damaged card in a system.
+        </>,
+        image: <ExampleIcon />,
+    },
+    fabricate: {
+        name: 'Fabricate',
+        description: <>
+            Put an
+            {' '}
+            <Trait trait="expendable" external />
+            {' '}
+            copy of the top card of a crew system's deck into its hand.
+        </>,
+        image: <ExampleIcon />,
+    },
     priorityFeed: {
         name: 'Priority Feed',
         description: <>
