@@ -1,6 +1,7 @@
 import { type ConnectionState } from 'common-data/types/ConnectionState';
 import { Screen } from 'common-ui/components/Screen';
 import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
+import { useDevTimeHotkeys } from 'common-ui/hooks/useDevTimeHotkeys';
 import { useWakeLock } from 'common-ui/hooks/useWakeLock';
 import { useState } from 'react';
 import { CrewGameEnded } from '../features/gameEnded/CrewGameEnded';
@@ -12,12 +13,14 @@ export const PlayerUI = () => {
     const [connectionState, setConnectionState]
         = useState<ConnectionState>('connecting');
 
-    const [room, crewId, shipId, role, serverState, timeProvider] = useRoomConnection(setConnectionState);
+    const [room, crewId, shipId, role, serverState, timeProvider, devTools] = useRoomConnection(setConnectionState);
 
     useWakeLock();
+    useDevTimeHotkeys(room, devTools, serverState);
 
     if (connectionState === 'connected') {
-        if (serverState === 'active') {
+        // With dev tools, the crew can still reach their cards while paused.
+        if (serverState === 'active' || (devTools && serverState === 'paused')) {
             if (room && shipId && role && timeProvider) {
                 return (
                     <TimeProviderContext.Provider value={timeProvider}>
@@ -26,6 +29,22 @@ export const PlayerUI = () => {
                             shipId={shipId}
                             role={role}
                         />
+                        {serverState === 'paused' && (
+                            <div
+                                style={{
+                                    position: 'fixed',
+                                    top: 0,
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    zIndex: 10,
+                                    padding: '0.1em 0.6em',
+                                    background: 'rgba(0, 0, 0, 0.7)',
+                                    pointerEvents: 'none',
+                                }}
+                            >
+                                Paused
+                            </div>
+                        )}
                     </TimeProviderContext.Provider>
                 );
             } else {

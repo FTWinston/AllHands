@@ -5,6 +5,8 @@ type PongMessage = {
     clientSendTime: number;
     serverTime: number;
     timeScale: number;
+    /** Set while the server has frozen the game, so its clock isn't advancing whatever the time scale says. */
+    paused?: boolean;
 };
 
 /**
@@ -36,6 +38,11 @@ export class TimeSynchronizer implements ITimeProvider {
         // Listen for pongs, which are the server's response to the pings this class sends.
         this.room.onMessage<PongMessage>('pong', (message) => {
             this.processPong(message);
+        });
+
+        // The server says when the time scale changes or the game is paused or resumed, rather than leaving clients to find out at the next ping.
+        this.room.onMessage('timeScale', () => {
+            this.sendPing();
         });
     }
 
@@ -106,7 +113,7 @@ export class TimeSynchronizer implements ITimeProvider {
         const now = Date.now();
         const sentTime = message.clientSendTime;
         const serverTime = message.serverTime;
-        const timeScale = message.timeScale;
+        const timeScale = message.paused ? 0 : message.timeScale;
 
         // 1. If the time scale changed, re-anchor offsets to maintain time continuity
         //    and clear the ping history (old offsets were calculated with a different scale).

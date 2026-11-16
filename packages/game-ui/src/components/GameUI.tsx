@@ -1,7 +1,8 @@
 import { ServerAddress } from 'common-data/types/ServerAddress';
 import { Screen } from 'common-ui/components/Screen';
 import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
-import { useCallback, useState } from 'react';
+import { useDevTimeHotkeys } from 'common-ui/hooks/useDevTimeHotkeys';
+import { useCallback, useEffect, useState } from 'react';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { useRoomConnection } from 'src/hooks/useRoomConnection';
 import { GameLobby } from '../features/lobby/GameLobby';
@@ -31,21 +32,43 @@ export const GameUI = () => {
         setServerAddress(undefined);
     }, [setServerType, setServerAddress]);
 
+    // Dev tools are only enabled at build time.
+    const devTools = !!import.meta.env.DEV_TOOLS;
+
+    useDevTimeHotkeys(room, devTools, serverState);
+
+    // With dev tools, pausing leaves the game on screen, so orders can be given while paused. The menu is then opened separately.
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    useEffect(() => {
+        if (serverState !== 'paused') {
+            setMenuOpen(false);
+        }
+    }, [serverState]);
+
     const pause = useCallback(() => {
         room?.send('pause');
     }, [room]);
+
+    const openMenu = useCallback(() => {
+        setMenuOpen(true);
+        if (serverState !== 'paused') {
+            room?.send('pause');
+        }
+    }, [room, serverState]);
 
     const resume = useCallback(() => {
         room?.send('resume');
     }, [room]);
 
-    if (connectionState === 'connected' && serverState !== 'paused') {
+    const showPausedGame = devTools && serverState === 'paused' && !menuOpen;
+
+    if (connectionState === 'connected' && (serverState !== 'paused' || showPausedGame)) {
         // The viewscreen also covers 'ended', where it shows the outcome.
-        if (serverState === 'active' || serverState === 'ended') {
+        if (serverState === 'active' || serverState === 'ended' || showPausedGame) {
             if (room && shipId && timeProvider) {
-                // Add dev tools to the viewscreen only if enabled at build time.
-                const children = import.meta.env.DEV_TOOLS && (
-                    <DevTools room={room} encounters={devEncounters} />
+                const children = devTools && (
+                    <DevTools room={room} encounters={devEncounters} paused={serverState === 'paused'} />
                 );
 
                 return (
@@ -54,7 +77,7 @@ export const GameUI = () => {
                             room={room}
                             shipId={shipId}
                             // A game that's over can't be paused or resumed, so the only place left to go is the main menu.
-                            showMenu={serverState === 'ended' ? disconnect : pause}
+                            showMenu={serverState === 'ended' ? disconnect : devTools ? openMenu : pause}
                         >
                             {children}
                         </Viewscreen>
@@ -78,7 +101,7 @@ export const GameUI = () => {
                             allowMultipleCrews={allowMultipleCrews}
                             disconnect={disconnect}
                         />
-                        {import.meta.env.DEV_TOOLS && (
+                        {devTools && (
                             <DevTools room={room} encounters={devEncounters} inLobby />
                         )}
                     </>
