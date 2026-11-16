@@ -217,6 +217,17 @@ export const effects = defineUiEffects(sharedEffects, {
         description: <>The next hit that would damage one of this system's cards spends 1 of its Charge instead.</>,
         image: ExampleIcon,
     },
+    autoDestructRequested: {
+        name: 'Auto-destruct Requested',
+        description: <>
+            An auto-destruct is waiting for
+            {' '}
+            <EffectLevel />
+            {' '}
+            more of the crew to confirm it. If they don't in time, it lapses.
+        </>,
+        image: ExampleIcon,
+    },
     autoDestructing: {
         name: 'Auto-destruct',
         description: <>{`When this runs out, the ship explodes, doing ${autoDestructDamage} damage to every ship within ${autoDestructRange} units. Play Abort Auto-destruct to stop it.`}</>,

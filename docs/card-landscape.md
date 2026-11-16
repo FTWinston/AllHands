@@ -66,7 +66,7 @@ A rare, expensive choice card, outside the three styles, for when things have go
 
 | Option | Effect |
 |---|---|
-| Auto-destruct | A 15s countdown, with an Abort card dealt to the engineer. If it runs out, the ship explodes, badly damaging every ship nearby, and is destroyed. |
+| Auto-destruct | Deals a Confirm Auto-destruct card to each of the other three crew. Once two have confirmed, a 15s countdown starts, with an Abort card dealt to the engineer; if fewer than two confirm within 30s, it lapses. If the countdown runs out, the ship explodes, badly damaging every ship nearby, and is destroyed. |
 | Cannibalise | Damage every card in a system, and get a Graft card that fully repairs as many damaged cards in another system. |
 | Emergency Power | Every system gets +3 power for 12s, then 2 Flux. |
 
@@ -161,7 +161,7 @@ Existing cards that fit: Photonic Cannon, High Yield, tactical's Overcharge, Ful
 
 | Card | Kind | Status | Effect |
 |---|---|---|---|
-| Tractor Beam | Weapon | built | *Energised* and *Rechargeable*: loads fully charged, and once fired holds the target while its charge runs down (about 8s from full). The target's manoeuvre is cut short and its manoeuvres heavily slowed, and yours a little. Tactical can keep it up by dropping cards on its meter. |
+| Tractor Beam | Weapon | built | *Energised* and *Rechargeable*: loads fully charged, and once fired holds the target while its charge runs down (about 8s from full). The target's manoeuvre is cut short and its manoeuvres heavily slowed, and yours a little. Tactical can keep it up by dropping cards on its meter. The held ship breaks free if it starts a manoeuvre while its helm has more power than the holder's tactical; its helm can't see whether it would, but science can. |
 | Exploit | Modifier | built | More damage for each negative effect on the system an aimed shot hits. |
 | Plasma Warhead | Modifier | built | A torpedo gains *persistent*, and does less damage on impact. |
 | Proximity Fuse | Modifier | built | A torpedo gains *area*, and is more accurate. |
@@ -221,8 +221,8 @@ Existing cards that fit: the four substance scans, Inverted Antiproton Scan, Coh
 
 The deflector is science's finisher in every style. Rather than eighty separate effects, each of its three parts has a meaning, and one resolver puts them together (the numbers are in `deflectorParts.shared.ts`):
 
-- **Substance is what it does.** Antiproton: damage taken. Tetryon: shields and accuracy. Chroniton: card draws and cooldowns. Polaron: power. Graviton: movement.
-- **Delivery is its shape.** Beam: one system, strongly. Pulse: every system of one ship, weakly. Burst: everything near this ship. Field: a zone that lingers (for now, a weak effect on every system of the target that lasts three times as long, as the engine can't yet place a zone in space).
+- **Substance is what it does.** Antiproton: damage taken. Tetryon: shields and accuracy. Chroniton: card draws. Polaron: power. Graviton: movement.
+- **Delivery is its shape.** Beam: one system, strongly. Pulse: every system of one ship, weakly. Burst: everything near this ship. Field: an oval zone left around the target, which keeps affecting ships inside it for a while.
 - **Modifier is its twist.** Modulated: as it is. Phased: ignores shields (the others are weakened by up to half by the target's shields). Coherent: lasts longer. Inverted: the opposite effect, on friendly ships.
 
 ## Across stations

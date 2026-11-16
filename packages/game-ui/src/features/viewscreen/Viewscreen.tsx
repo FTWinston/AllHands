@@ -1,5 +1,6 @@
 import { useRoomState } from '@colyseus/react';
 import { isStationKind } from 'common-data/features/sectors/utils/isStationKind';
+import { FieldInfo } from 'common-data/features/space/types/FieldInfo';
 import { FactionRelationshipMap, GameObjectInfo, PlayerShipInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { Screen } from 'common-ui/components/Screen';
 import { ScreenFade } from 'common-ui/components/ScreenFade';
@@ -54,6 +55,7 @@ export const Viewscreen: FC<Props> = (props) => {
 const ViewscreenScene: FC<Props> = (props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, GameObjectInfo>;
     const factions = useRoomState(props.room, state => state.factions) as Record<string, { relations: FactionRelationshipMap }>;
+    const fields = useRoomState(props.room, state => state.fields) as Record<string, FieldInfo> | undefined;
     const localShip = objects[props.shipId];
     const weaponEffectsRef = useWeaponEffects(props.room);
 
@@ -133,6 +135,7 @@ const ViewscreenScene: FC<Props> = (props) => {
         <ViewscreenDisplay
             center={localShip ? localShip.motion : null}
             objects={objects}
+            fields={fields}
             viewer={viewer}
             weaponEffectsRef={weaponEffectsRef}
             showMenu={props.showMenu}

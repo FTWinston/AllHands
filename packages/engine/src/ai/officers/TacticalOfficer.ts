@@ -19,6 +19,8 @@ export const UNLOAD_WAIT_MIN_MS = 8_000;
 export const UNLOAD_WAIT_MAX_MS = 15_000;
 /** Above loading (45) and modifying (40), so that once the wait is over the slot is emptied before anything else is played into it. */
 const UNLOAD_SCORE = 50;
+/** Just above firing a weapon that does damage (100), so that a weapon that holds the target is fired before the shot it sets up. */
+const HOLDING_FIRE_SCORE = 105;
 
 export class TacticalOfficer extends Officer {
     readonly role = 'tactical' as const;
@@ -67,12 +69,13 @@ export class TacticalOfficer extends Officer {
         let furthest: WeaponSlotState | null = null;
         let furthestShortfall = -1;
         for (const slot of slots) {
-            if (!slot.card) {
+            // An active weapon keeps its slot busy until it runs down, so wait for that rather than unloading around it.
+            if (!slot.card || slot.isActive) {
                 return null;
             }
 
             const state = getFiringState(solution, slot.hasBeenFullyCharged, slot.charge, slot.getParameters());
-            if (state === FiringState.NotCharged || state === FiringState.CanFire) {
+            if (state === FiringState.NotCharged || (state === FiringState.CanFire && this.wouldFire(ctx, slot))) {
                 return null;
             }
 
@@ -89,7 +92,7 @@ export class TacticalOfficer extends Officer {
     /** Whether the hand holds a weapon that, loaded and charged, could fire at the target from where things are now. */
     private hasWeaponThatCouldFire(ctx: EvaluationContext, solution: FiringSolution): boolean {
         return ctx.system.hand.some((card: CardState) => {
-            if (card.isDamaged || getCardDefinition(card.type).targetType !== 'weapon-slot') {
+            if (card.isDamaged || getCardDefinition(card.type).targetType !== 'weapon-slot' || card.getParameter('drainPerSecond') > 0) {
                 return false;
             }
 
@@ -116,7 +119,8 @@ export class TacticalOfficer extends Officer {
         }
 
         for (const slot of this.ship.tacticalState.slots) {
-            if (slot.canBeCharged() && !slot.hasBeenFullyCharged) {
+            // A weapon that stays active is fired once and let run down, never kept up with charge.
+            if (slot.canBeCharged() && !slot.hasBeenFullyCharged && !slot.staysActive) {
                 out.push({
                     score: chargeScore(slot, ctx),
                     cost: spendable.getParameter('cost'),
@@ -135,35 +139,67 @@ export class TacticalOfficer extends Officer {
             return out;
         }
         const target = ctx.gameState.objects.get(targetId);
-        if (!target) {
+        if (!target || target === this.ship || !ctx.gameState.factionRegistry.areHostile(this.ship, target)) {
             return out;
         }
 
-        const solution = getFiringSolution(this.ship.motion, target.motion, ctx.currentTime);
-
         for (const slot of this.ship.tacticalState.slots) {
-            if (!slot.card) {
+            if (!slot.card || slot.isActive || !this.wouldFire(ctx, slot)) {
                 continue;
             }
-            for (const subTarget of this.aimPreferences(ctx, targetId)) {
-                const firingState = getFiringState(solution, slot.hasBeenFullyCharged, slot.charge, slot.getParameters(), subTarget ?? undefined);
-                if (firingState === FiringState.CanFire) {
-                    out.push({
-                        score: 100,
-                        cost: 0, // playWeapon does not check power
-                        action: {
-                            kind: 'playCard',
-                            cardId: slot.card.id,
-                            cardType: slot.card.type,
-                            targetType: 'enemy',
-                            targetId: subTarget ? `${targetId}:${subTarget.id}` : targetId,
-                        },
-                    });
-                    break; // best available aim for this slot
-                }
+            const subTarget = this.findAim(ctx, slot, targetId);
+            if (subTarget !== undefined) {
+                out.push({
+                    // A weapon that holds its target goes first, so the one it sets up a hit for fires into the hold.
+                    score: slot.staysActive ? HOLDING_FIRE_SCORE : 100,
+                    cost: 0, // playWeapon does not check power
+                    action: {
+                        kind: 'playCard',
+                        cardId: slot.card.id,
+                        cardType: slot.card.type,
+                        targetType: 'enemy',
+                        targetId: subTarget ? `${targetId}:${subTarget.id}` : targetId,
+                    },
+                });
             }
         }
         return out;
+    }
+
+    /**
+     * The best aim a slot's weapon has at the target right now: a sub-target to aim at, null for a plain hull shot, or undefined if it can't fire at it.
+     */
+    private findAim(ctx: EvaluationContext, slot: WeaponSlotState, targetId: string): SubTargetInfo | null | undefined {
+        const target = ctx.gameState.objects.get(targetId);
+        if (!target) {
+            return undefined;
+        }
+
+        const solution = getFiringSolution(this.ship.motion, target.motion, ctx.currentTime);
+        for (const subTarget of this.aimPreferences(ctx, targetId)) {
+            if (getFiringState(solution, slot.hasBeenFullyCharged, slot.charge, slot.getParameters(), subTarget ?? undefined) === FiringState.CanFire) {
+                return subTarget; // best available aim for this slot
+            }
+        }
+        return undefined;
+    }
+
+    /**
+     * Whether a loaded weapon is worth firing at the target, if it can. A weapon that stays active holds its target rather than hurting it,
+     * so it's only worth it with another weapon, not itself active or held, that can fire at the target too, and with no other of its kind already active.
+     */
+    private wouldFire(ctx: EvaluationContext, slot: WeaponSlotState): boolean {
+        if (!slot.staysActive) {
+            return true;
+        }
+
+        const targetId = ctx.blackboard.targetId;
+        const slots = this.ship.tacticalState.slots;
+        if (targetId === null || slots.some(other => other !== slot && other.isActive && other.card?.type === slot.card?.type)) {
+            return false;
+        }
+
+        return slots.some(other => other !== slot && !!other.card && !other.isActive && !other.staysActive && this.findAim(ctx, other, targetId) !== undefined);
     }
 
     /** Exposed vulnerabilities first, then the commander's focus system, then the bare hull. */

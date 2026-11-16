@@ -499,6 +499,91 @@ describe('Tractor Beam', () => {
         expect(helm.activeManeuver).toBeNull();
     });
 
+    describe('breaking free', () => {
+        /** A held enemy with the given helm power, whose holder has the given tactical power, that then plays a manoeuvre card. */
+        function holdAndManeuver(helmPower: number, tacticalPower: number) {
+            const tow = createTow();
+            const { state, enemy, tactical, fire, waitAll } = tow;
+            fire();
+            const helm = enemy.helmState;
+            const startManeuver = () => {
+                const card = new CardState(enemy.getCardId(), 'slowAndSteady');
+                helm.addCardToHand(card);
+                expect(helm.playCard(card.id, card.type, 'location', '5,20')).not.toBeNull();
+                helm.update(state.currentTime);
+                waitAll(250);
+            };
+            (tactical as { powerLevel: number }).powerLevel = tacticalPower;
+            (helm as { powerLevel: number }).powerLevel = helmPower;
+            return { ...tow, helm, startManeuver };
+        }
+
+        it('is shown to the helm of the held ship while it holds, and not after', () => {
+            const { enemy, slot, fire, waitAll, tactical } = createTow();
+            expect(enemy.helmState.isHeld).toBe(false);
+
+            fire();
+            expect(enemy.helmState.isHeld).toBe(true);
+
+            tactical.ejectWeapon(slot.id);
+            waitAll(250);
+            expect(enemy.helmState.isHeld).toBe(false);
+        });
+
+        it('lets a held ship that starts a manoeuvre with more helm power than the tactical power of its holder break the beam', () => {
+            const { ship, enemy, slot, shipHelm, enemyHelm, startManeuver } = holdAndManeuver(4, 3);
+
+            startManeuver();
+
+            expect(slot.card).toBeNull();
+            expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(false);
+            expect(shipHelm.hasEffect('tractorBeamEngaged')).toBe(false);
+            expect(enemy.helmState.isHeld).toBe(false);
+            expect(enemy.helmState.maneuverSpeedModifier).toBe(0);
+            expect(ship.helmState.maneuverSpeedModifier).toBe(0);
+        });
+
+        it('holds a ship whose helm power is equal to, or lower than, the tactical power of its holder', () => {
+            for (const [helmPower, tacticalPower] of [[3, 3], [3, 4]]) {
+                const { slot, enemy, enemyHelm, startManeuver } = holdAndManeuver(helmPower, tacticalPower);
+
+                startManeuver();
+
+                expect(slot.isActive).toBe(true);
+                expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(true);
+                expect(enemy.helmState.isHeld).toBe(true);
+            }
+        });
+
+        it('compares the powers as the manoeuvre starts, not afterwards', () => {
+            const { tactical, enemy, slot, enemyHelm, startManeuver, waitAll } = holdAndManeuver(3, 4);
+
+            startManeuver();
+            (tactical as { powerLevel: number }).powerLevel = 1;
+            (enemy.helmState as { powerLevel: number }).powerLevel = 5;
+            waitAll(1000);
+
+            expect(slot.isActive).toBe(true);
+            expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(true);
+        });
+
+        it('is not broken by a manoeuvre started before the beam took hold', () => {
+            const { ship, enemy, tactical, fire, state, waitAll, slot } = createTow();
+            (tactical as { powerLevel: number }).powerLevel = 1;
+            (enemy.helmState as { powerLevel: number }).powerLevel = 5;
+            const card = new CardState(enemy.getCardId(), 'slowAndSteady');
+            enemy.helmState.addCardToHand(card);
+            enemy.helmState.playCard(card.id, card.type, 'location', '5,20');
+            enemy.helmState.update(state.currentTime);
+
+            fire();
+            waitAll(250);
+
+            expect(ship.id).not.toBe(enemy.id);
+            expect(slot.isActive).toBe(true);
+        });
+    });
+
     it('breaks early, for both ships, once the target gets out of range, and the weapon is used up', () => {
         const { state, ship, enemy, slot, shipHelm, enemyHelm, fire, waitAll } = createTow();
         fire();
@@ -567,8 +652,12 @@ describe('Tractor Beam', () => {
         expect(other.helmState.maneuverSpeedModifier).toBe(-targetSlowdown);
     });
 
-    it('isn\'t loaded by the AI', () => {
-        expect(getCardEvaluator('tractorBeam')).toBeUndefined();
+    it('is loaded by the AI, rated below a weapon that does damage', () => {
+        const { ship, enemy, tactical, state } = createFight(['tractorBeam', 'phaserCannon']);
+        const ctx = { ship, gameState: state, blackboard: { targetId: enemy.id }, system: tactical, currentTime: state.currentTime } as never;
+        const score = (cardType: CardType) => getCardEvaluator(cardType)!(tactical.hand.find(card => card.type === cardType)!, ctx)[0].score;
+
+        expect(score('tractorBeam')).toBeLessThan(score('phaserCannon'));
     });
 });
 

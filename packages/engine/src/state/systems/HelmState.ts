@@ -4,6 +4,7 @@ import { HelmSystemInfo, SystemSetupInfo } from 'common-data/features/space/type
 import { Position } from 'common-data/features/space/types/Position';
 import { parseVector } from 'common-data/features/space/utils/vectors';
 import { EngineLocationTargetCardDefinition } from 'src/cards/EngineCardDefinition';
+import { ListenableEvent } from 'src/classes/ListenableEvent';
 import { CardCooldownState } from '../CardCooldownState';
 import { CardState } from '../CardState';
 import { GameState } from '../GameState';
@@ -31,6 +32,12 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
     }
 
     @type(CardCooldownState) activeManeuver: CardCooldownState | null = null;
+
+    /** Whether this ship is held in another's tractor beam, for helm's client to show: the held effect sets it, as that's on the engineer's tile, which helm's client can't see. */
+    @type('boolean') isHeld = false;
+
+    /** Triggered whenever a card becomes this ship's active maneuver, as it starts. */
+    readonly maneuverStarted = new ListenableEvent();
 
     private cancellingManeuver = false;
 
@@ -155,6 +162,7 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
             this.adjustEffectLevel('momentum', 1);
         }
 
+        this.maneuverStarted.triggerListeners();
         this.scienceScanDataChanged.invoke();
     }
 

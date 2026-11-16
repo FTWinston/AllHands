@@ -7,7 +7,7 @@ import { getSystemEffectDefinition } from 'engine/effects/getEngineSystemEffectD
 import { CardState } from 'engine/state/CardState';
 import { CooldownState } from 'engine/state/CooldownState';
 import { EngineerSystemTile } from 'engine/state/systems/engineer/EngineerSystemTile';
-import { chargeMaxLevel, transferPowerRange, cards as sharedCards } from './engineerCards.shared';
+import { autoDestructConfirmationsNeeded, chargeMaxLevel, transferPowerRange, cards as sharedCards } from './engineerCards.shared';
 
 /**
  * Apply a set of saved effects onto a system, consolidating leveled effects where they already exist.
@@ -333,10 +333,10 @@ export const cards = defineEngineCards(sharedCards, {
             const neighborIndex = systemIndex ^ 1;
             const neighbor = ship.engineerState.systems[neighborIndex];
 
-            // Banking power, emergency power and an auto-destruct countdown do something when they're removed, vented shields are only ever the hull's,
+            // Banking power, emergency power and an auto-destruct request or countdown do something when they're removed, vented shields are only ever the hull's,
             // and a cannibalised system is where its parts came from, so none of them can move.
             const UNTRANSFERABLE: ReadonlySet<SystemEffectType> = new Set([
-                'resetting', 'reactorBreach', 'relocating', 'bankingPower', 'shieldsVented', 'autoDestructing', 'cannibalised', 'emergencyPower',
+                'resetting', 'reactorBreach', 'relocating', 'bankingPower', 'shieldsVented', 'autoDestructRequested', 'autoDestructing', 'cannibalised', 'emergencyPower',
             ]);
 
             // Save transferable effects from both systems.
@@ -508,10 +508,35 @@ export const cards = defineEngineCards(sharedCards, {
     autoDestruct: {
         play: (_gameState, ship) => {
             const engineer = ship.engineerState.systems.find(tile => tile.system === 'engineer');
-            if (!engineer || engineer.hasEffect('autoDestructing')) {
+            // Only one request or countdown at a time.
+            if (!engineer || engineer.hasEffect('autoDestructRequested') || engineer.hasEffect('autoDestructing')) {
                 return false;
             }
 
+            engineer.addEffect('autoDestructRequested', autoDestructConfirmationsNeeded);
+
+            // Each of the other crew members is given a card to confirm it with, making room for it in a full hand.
+            for (const crewState of [ship.helmState, ship.scienceState, ship.tacticalState]) {
+                crewState.addCard('confirmAutoDestruct', true);
+            }
+            return true;
+        },
+    },
+    confirmAutoDestruct: {
+        play: (_gameState, ship) => {
+            const engineer = ship.engineerState.systems.find(tile => tile.system === 'engineer');
+            const needed = engineer?.getEffectLevel('autoDestructRequested') ?? 0;
+            if (!engineer || needed <= 0) {
+                return false;
+            }
+
+            if (needed > 1) {
+                engineer.adjustEffectLevel('autoDestructRequested', -1);
+                return true;
+            }
+
+            // The last confirmation needed starts the countdown. Ending the request takes the other Confirm cards away.
+            engineer.removeEffect('autoDestructRequested', 'expired');
             engineer.addEffect('autoDestructing');
 
             // Room is made for it, so the countdown can always be stopped.

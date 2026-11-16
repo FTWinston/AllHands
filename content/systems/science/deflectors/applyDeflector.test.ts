@@ -1,12 +1,15 @@
 import { shipSystems, type ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
+import { isInsideField } from 'common-data/features/space/utils/isInsideField';
 import { getCardDefinition } from 'engine/cards/getEngineCardDefinition';
 import { AiShip } from 'engine/state/AiShip';
 import { CardState } from 'engine/state/CardState';
-import { setupGameRoom, shipSetup } from 'engine/testUtils';
+import { MotionKeyframe } from 'engine/state/MotionKeyframe';
+import { setupGameRoom, shipSetup, startCampaign } from 'engine/testUtils';
+import { getHostileShips } from 'engine/utils/shipQueries';
 import { describe, expect, it, vi } from 'vitest';
 import { applyDeflector } from './applyDeflector.engine';
-import { deflectorBurstRadius, mapDeflectorCards, type DeflectorParts } from './deflectorParts.shared';
+import { deflectorBurstRadius, deflectorFieldDuration, deflectorFieldEffectDuration, deflectorFieldRadiusAcross, deflectorFieldRadiusAlong, mapDeflectorCards, type DeflectorParts } from './deflectorParts.shared';
 import { deflectorsShared } from './deflectors.shared';
 import type { CardType, UntargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
@@ -34,7 +37,7 @@ function createWorld() {
         return ship;
     };
 
-    const ship = createShip('player', 0, 0);
+    const ship = createShip('player', 0, 0, ['hullShieldEmitter', 'hullShieldEmitter']);
     const target = createShip('raiders', 5, 0, ['hullShieldEmitter', 'hullShieldEmitter']);
     const nearbyHostile = createShip('raiders', 0, deflectorBurstRadius - 1);
     const farHostile = createShip('raiders', deflectorBurstRadius * 4, 0);
@@ -70,7 +73,7 @@ function createWorld() {
     /** The systems of a ship that have the given effect. */
     const systemsWith = (on: AiShip, type: SystemEffectType) => shipSystems.filter(system => effect(on, system, type));
 
-    return { state, ship, target, nearbyHostile, farHostile, ally, farAlly, science, setShields, fire, reveal, tile, effect, level, timeLeft, systemsWith };
+    return { state, createShip, ship, target, nearbyHostile, farHostile, ally, farAlly, science, setShields, fire, reveal, tile, effect, level, timeLeft, systemsWith };
 }
 
 describe('deflector substances', () => {
@@ -93,6 +96,63 @@ describe('deflector substances', () => {
 
         expect(level(target, 'helm', 'tetryonSaturation')).toBe(30);
         expect(target.helmState.chanceToHitPercentageModifier).toBe(30);
+    });
+
+    it('Tetryon also drains the target\'s shields, and scrambles their tuning', () => {
+        const { target, fire, setShields, level } = createWorld();
+        setShields(target, 1);
+        const full = target.hullState.maxShield;
+        expect(full).toBeGreaterThan(0);
+
+        fire('Phased', 'Tetryon', 'Beam');
+
+        expect(target.hullState.shield).toBe(full - Math.round(full * 0.2));
+        expect(level(target, 'hull', 'shieldScrambled')).toBe(3);
+    });
+
+    it('Tetryon drains and scrambles less as the delivery is weaker', () => {
+        const { target, fire, setShields, level } = createWorld();
+        setShields(target, 1);
+        const full = target.hullState.maxShield;
+
+        fire('Phased', 'Tetryon', 'Pulse');
+
+        expect(target.hullState.shield).toBe(full - Math.round(full * 0.1));
+        expect(level(target, 'hull', 'shieldScrambled')).toBe(2);
+    });
+
+    it('Tetryon drains shields in full, however much they weaken the rest of it', () => {
+        const { target, fire, setShields } = createWorld();
+        setShields(target, 1);
+        const full = target.hullState.maxShield;
+
+        fire('Modulated', 'Tetryon', 'Beam');
+
+        expect(target.hullState.shield).toBe(full - Math.round(full * 0.2));
+    });
+
+    it('Inverted Tetryon restores your own shields, and scrambles nothing', () => {
+        const { ship, fire, setShields, level, systemsWith } = createWorld();
+        setShields(ship, 0.5);
+        const half = ship.hullState.shield;
+        const full = ship.hullState.maxShield;
+
+        fire('Inverted', 'Tetryon', 'Beam');
+
+        expect(ship.hullState.shield).toBe(half + Math.round(full * 0.2));
+        expect(level(ship, 'hull', 'shieldScrambled')).toBe(0);
+        expect(systemsWith(ship, 'tetryonScattering')).toHaveLength(1);
+    });
+
+    it('other substances leave the shields alone', () => {
+        const { target, fire, setShields, level } = createWorld();
+        setShields(target, 1);
+        const full = target.hullState.maxShield;
+
+        fire('Phased', 'Antiproton', 'Pulse');
+
+        expect(target.hullState.shield).toBe(full);
+        expect(level(target, 'hull', 'shieldScrambled')).toBe(0);
     });
 
     it('Chroniton makes a system fail every other card draw, for longer as it has no levels', () => {
@@ -172,13 +232,14 @@ describe('deflector deliveries', () => {
         expect(systemsWith(farHostile, 'antiprotonResidue')).toEqual([]);
     });
 
-    it('Field hits every system of the target weakly, but lingers', () => {
-        const { target, fire, systemsWith, level, timeLeft } = createWorld();
+    it('Field leaves a zone that hits every system of the ships inside it, at once and weakly, for a short while', () => {
+        const { state, target, fire, systemsWith, level, timeLeft } = createWorld();
         fire('Modulated', 'Antiproton', 'Field');
 
+        expect(state.fields.size).toBe(1);
         expect(systemsWith(target, 'antiprotonResidue')).toEqual([...shipSystems]);
-        expect(level(target, 'reactor', 'antiprotonResidue')).toBe(10);
-        expect(timeLeft(target, 'reactor', 'antiprotonResidue')).toBe(45_000);
+        expect(level(target, 'reactor', 'antiprotonResidue')).toBe(20);
+        expect(timeLeft(target, 'reactor', 'antiprotonResidue')).toBe(deflectorFieldEffectDuration);
     });
 
     it('lasts less time where the effect has no levels and the delivery is weaker', () => {
@@ -186,6 +247,165 @@ describe('deflector deliveries', () => {
         fire('Modulated', 'Chroniton', 'Pulse');
 
         expect(timeLeft(target, 'helm', 'chronitonSaturation')).toBe(15_000);
+    });
+});
+
+describe('deflector fields', () => {
+    const only = <T>(items: Iterable<T>) => [...items][0];
+
+    it('are zones centred on the target, with their own numbers, and are not game objects', () => {
+        const { state, ship, target, fire } = createWorld();
+        const objects = state.objects.size;
+        fire('Modulated', 'Antiproton', 'Field');
+
+        const field = only(state.fields.values());
+        expect(field).toMatchObject({ x: 5, y: 0, radiusX: deflectorFieldRadiusAlong, radiusY: deflectorFieldRadiusAcross, substance: 'Antiproton', friendly: false });
+        expect(field.angle).toBeCloseTo(0);
+        expect(field.endTime).toBe(state.currentTime + deflectorFieldDuration);
+        expect(state.objects.size).toBe(objects);
+        expect(state.objects.has(field.id)).toBe(false);
+        expect(target.knownObjects.has(field.id)).toBe(false);
+        expect(ship.shipsWithin(100)).toHaveLength(objects - 1);
+    });
+
+    it('lie along the line from the ship firing them to the target', () => {
+        const { createShip, nearbyHostile, fire, systemsWith } = createWorld();
+        // Straight up from the ship at the origin to the hostile at (0, 5), so the oval is long in that direction.
+        const alongTheLine = createShip('raiders', 0, 8.5);
+        const acrossTheLine = createShip('raiders', 2, 5);
+        const beyondTheSide = createShip('raiders', 3, 5);
+        fire('Modulated', 'Antiproton', 'Field', nearbyHostile);
+
+        expect(systemsWith(alongTheLine, 'antiprotonResidue')).toEqual([...shipSystems]);
+        expect(systemsWith(acrossTheLine, 'antiprotonResidue')).toEqual([...shipSystems]);
+        expect(systemsWith(beyondTheSide, 'antiprotonResidue')).toEqual([]);
+    });
+
+    it('only hit the ships inside the oval', () => {
+        const { createShip, fire, systemsWith } = createWorld();
+        const near = createShip('raiders', 8.5, 0);
+        const far = createShip('raiders', 9.5, 0);
+        const side = createShip('raiders', 5, 2);
+        const beyondSide = createShip('raiders', 5, 3);
+        fire('Modulated', 'Antiproton', 'Field');
+
+        expect(systemsWith(near, 'antiprotonResidue')).toEqual([...shipSystems]);
+        expect(systemsWith(side, 'antiprotonResidue')).toEqual([...shipSystems]);
+        expect(systemsWith(far, 'antiprotonResidue')).toEqual([]);
+        expect(systemsWith(beyondSide, 'antiprotonResidue')).toEqual([]);
+    });
+
+    it('leave friendly ships alone when hostile, and hostile ships alone when Inverted', () => {
+        const { createShip, ship, fire, systemsWith } = createWorld();
+        const friendInside = createShip('player', 5, 1);
+        const friendCentre = createShip('player', -3, 0);
+        const foeInside = createShip('raiders', 2, 0);
+
+        fire('Modulated', 'Antiproton', 'Field');
+        expect(systemsWith(friendInside, 'antiprotonResidue')).toEqual([]);
+
+        fire('Inverted', 'Antiproton', 'Field');
+        // Inverted fields are centred on the ship that fired them, so they help it and its friends nearby.
+        expect(systemsWith(ship, 'antiprotonShielding')).toEqual([...shipSystems]);
+        expect(systemsWith(friendCentre, 'antiprotonShielding')).toEqual([...shipSystems]);
+        expect(systemsWith(friendInside, 'antiprotonShielding')).toEqual([]);
+        expect(systemsWith(foeInside, 'antiprotonShielding')).toEqual([]);
+    });
+
+    it('act on a ship that moves in, and stop soon after it moves out', () => {
+        const { state, createShip, fire, systemsWith, level } = createWorld();
+        const visitor = createShip('raiders', 20, 0);
+        fire('Modulated', 'Antiproton', 'Field');
+        state.tick(1000);
+        expect(systemsWith(visitor, 'antiprotonResidue')).toEqual([]);
+
+        visitor.setMotion(new MotionKeyframe(state.currentTime, 6, 0, 0));
+        state.tick(1000);
+        expect(systemsWith(visitor, 'antiprotonResidue')).toEqual([...shipSystems]);
+        expect(level(visitor, 'helm', 'antiprotonResidue')).toBe(20);
+
+        // Staying in renews its effect, rather than adding to it.
+        state.tick(1000);
+        state.tick(1000);
+        expect(level(visitor, 'helm', 'antiprotonResidue')).toBe(20);
+
+        visitor.setMotion(new MotionKeyframe(state.currentTime, 20, 0, 0));
+        state.tick(1000);
+        state.tick(1000);
+        state.tick(1000);
+        expect(systemsWith(visitor, 'antiprotonResidue')).toEqual([]);
+    });
+
+    it('scramble shields only when a ship first comes in, not every time they act', () => {
+        const { state, target, fire, setShields, level } = createWorld();
+        setShields(target, 1);
+        const full = target.hullState.maxShield;
+        fire('Phased', 'Tetryon', 'Field');
+
+        // Drained by a quarter of a Pulse's 10% each time, but scrambled by 2 cards only once.
+        const drained = Math.round(full * 0.025);
+        expect(target.hullState.shield).toBe(full - drained);
+        expect(level(target, 'hull', 'shieldScrambled')).toBe(2);
+
+        state.tick(1000);
+        expect(target.hullState.shield).toBe(full - 2 * drained);
+        // It wears off over time, rather than being scrambled by 2 more cards.
+        expect(level(target, 'hull', 'shieldScrambled')).toBeLessThanOrEqual(2);
+    });
+
+    it('expire, and are removed from the game, after their duration, which Coherent doubles', () => {
+        const { state, fire } = createWorld();
+        const start = state.currentTime;
+        fire('Modulated', 'Antiproton', 'Field');
+        fire('Coherent', 'Antiproton', 'Field');
+
+        for (let seconds = 1; seconds < 20; seconds++) {
+            state.tick(1000);
+        }
+        expect(state.fields.size).toBe(2);
+
+        state.tick(1000);
+        expect(state.fields.size).toBe(1);
+        expect(only(state.fields.values()).endTime).toBe(start + 2 * deflectorFieldDuration);
+
+        for (let seconds = 0; seconds < 20; seconds++) {
+            state.tick(1000);
+        }
+        expect(state.fields.size).toBe(0);
+    });
+
+    it('are not treated as ships', () => {
+        const { state, ship, fire } = createWorld();
+        const hostiles = getHostileShips(state).length;
+        fire('Modulated', 'Antiproton', 'Field');
+        ship.updateKnownObjects(state.currentTime);
+
+        expect(getHostileShips(state)).toHaveLength(hostiles);
+        expect([...ship.knownObjects].every(id => state.objects.has(id))).toBe(true);
+    });
+
+    it('are removed when the encounter ends', () => {
+        const state = rooms.createState();
+        const { campaign, ships } = startCampaign(state, 1);
+        state.devAutoWin = true;
+        campaign.dismissMessage();
+        campaign.selectRoute(ships[0], state.map!.availableNodeIds[0]);
+
+        applyDeflector(state, ships[0], null, { modifier: 'Inverted', substance: 'Polaron', delivery: 'Field' });
+        expect(state.fields.size).toBe(1);
+
+        expect(campaign.warpAway(ships[0])).toBe(true);
+        expect(state.fields.size).toBe(0);
+    });
+
+    it('have a shape that isInsideField describes', () => {
+        const field = { x: 1, y: 1, angle: Math.PI / 2, radiusX: 4, radiusY: 2 };
+
+        expect(isInsideField(field, { x: 1, y: 1 })).toBe(true);
+        // The long axis points straight up the page, as angles are measured the opposite way round to y.
+        expect(isInsideField(field, { x: 1, y: 4.5 })).toBe(true);
+        expect(isInsideField(field, { x: 1, y: -2.5 })).toBe(true);
+        expect(isInsideField(field, { x: 4, y: 1 })).toBe(false);
     });
 });
 
@@ -276,10 +496,10 @@ describe('deflector effects on a system that already has them', () => {
     it('don\'t cut short an effect that was going to last longer', () => {
         const { target, fire, reveal, timeLeft } = createWorld();
         reveal('helm');
-        fire('Modulated', 'Antiproton', 'Field');
+        fire('Coherent', 'Antiproton', 'Beam');
         fire('Modulated', 'Antiproton', 'Beam');
 
-        expect(timeLeft(target, 'helm', 'antiprotonResidue')).toBe(45_000);
+        expect(timeLeft(target, 'helm', 'antiprotonResidue')).toBe(30_000);
     });
 });
 
@@ -417,11 +637,12 @@ describe('playing the deflector', () => {
 
     it('fires the default combination, a Modulated Graviton Field, with nothing loaded', () => {
         const world = createWorld();
-        const { target, level, timeLeft } = world;
+        const { state, target, level, timeLeft } = world;
 
         expect(playDeflector(world)).not.toBeNull();
 
-        expect(level(target, 'helm', 'gravitonDrag')).toBe(10);
-        expect(timeLeft(target, 'helm', 'gravitonDrag')).toBe(45_000);
+        expect(state.fields.size).toBe(1);
+        expect(level(target, 'helm', 'gravitonDrag')).toBe(20);
+        expect(timeLeft(target, 'helm', 'gravitonDrag')).toBe(deflectorFieldEffectDuration);
     });
 });

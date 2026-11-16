@@ -412,7 +412,26 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="range" />
             {' '}
-            units. Adds an Abort Auto-destruct card to your hand.
+            units, once
+            {' '}
+            <Parameter name="confirmations" />
+            {' '}
+            of the rest of the crew confirm it within
+            {' '}
+            <Parameter name="window" />
+            {' '}
+            seconds. Gives each of them a Confirm Auto-destruct card, and adds an Abort Auto-destruct card to your hand when it starts.
+        </>,
+        image: <ExampleIcon />,
+    },
+    confirmAutoDestruct: {
+        name: 'Confirm Auto-destruct',
+        description: <>
+            <Trait trait="expendable" />
+            {' '}
+            <Trait trait="priority" />
+            {' '}
+            Confirm the engineer's auto-destruct request.
         </>,
         image: <ExampleIcon />,
     },

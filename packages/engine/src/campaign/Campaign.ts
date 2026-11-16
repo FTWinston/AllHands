@@ -489,6 +489,8 @@ export class Campaign {
             this.tearingDown = false;
         }
 
+        this.state.clearFields();
+
         // Nothing relates to anything else from one encounter to the next.
         this.state.factionRegistry.setEncounterFactions([]);
 

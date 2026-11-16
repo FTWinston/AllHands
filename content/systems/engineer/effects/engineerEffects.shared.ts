@@ -3,7 +3,7 @@ import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEff
 import { extendedShieldsDuration } from 'common-data/features/ships/utils/extendedShields';
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/powerLevel';
 import {
-    autoDestructDuration, bankPowerDuration, chargeMaxLevel, dischargeDuration, emergencyPowerDuration, fluxLimit, railFeedDuration, redlineFluxInterval, runQuietChargeInterval,
+    autoDestructConfirmationsNeeded, autoDestructConfirmWindow, autoDestructDuration, bankPowerDuration, chargeMaxLevel, dischargeDuration, emergencyPowerDuration, fluxLimit, railFeedDuration, redlineFluxInterval, runQuietChargeInterval,
     transferPowerDuration, ventShieldsDownDuration,
 } from 'content/systems/engineer/cards/engineerCards.shared';
 
@@ -174,6 +174,13 @@ export const effects = defineEffects({
     buffered: {
         category: SystemEffectCategory.Positive,
         usesLevels: false,
+    },
+    /** On the engineer's system: an Auto-destruct is waiting for the rest of the crew to confirm it. Its level is how many more confirmations it needs, and it lapses if they don't come in time. */
+    autoDestructRequested: {
+        category: SystemEffectCategory.Negative,
+        usesLevels: true,
+        maxLevel: autoDestructConfirmationsNeeded,
+        duration: autoDestructConfirmWindow,
     },
     /** On the engineer's system: the ship explodes when this runs out, unless the Abort Auto-destruct card is played first (see the Auto-destruct card). */
     autoDestructing: {

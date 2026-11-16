@@ -15,6 +15,9 @@ type TractorBeam = {
     range: number;
 };
 
+/** The id of the listener on a held ship's helm that has it break free (see `engageTractorBeam`). */
+const breakFreeListenerId = 'tractorBeam';
+
 /** The tractor beam that each ship's helm is holding, or is held by, keyed by that helm's tile. */
 const beamsBySourceHelm = new WeakMap<EngineerSystemTile, TractorBeam>();
 const beamsByTargetHelm = new WeakMap<EngineerSystemTile, TractorBeam>();
@@ -60,6 +63,13 @@ export function engageTractorBeam(source: Ship, target: Ship, range: number, tar
     sourceHelm.addEffect('tractorBeamEngaged', ownSlowdown);
 
     target.helmState.cancelActiveManeuver();
+
+    // A held ship that starts a manoeuvre with more power at its helm than the holder has at its tactical breaks the beam.
+    target.helmState.maneuverStarted.addListener(breakFreeListenerId, () => {
+        if (target.helmState.powerLevel > source.tacticalState.powerLevel) {
+            releaseTractorBeam(source, target);
+        }
+    });
     return true;
 }
 
@@ -83,6 +93,11 @@ function releaseBeam(helm: EngineerSystemTile, level: number, removal: EffectRem
 
     const beam = ownBeams.get(helm);
     ownBeams.delete(helm);
+    if (ownBeams === beamsByTargetHelm) {
+        const { helmState } = helm.systemState.getShip();
+        helmState.maneuverStarted.removeListener(breakFreeListenerId);
+        helmState.isHeld = false;
+    }
     if (!beam) {
         return;
     }
@@ -103,7 +118,9 @@ function tractorBeamEffect(ownBeams: WeakMap<EngineerSystemTile, TractorBeam>) {
                 return false;
             }
 
-            system.systemState.getShip().helmState.maneuverSpeedModifier -= level;
+            const { helmState } = system.systemState.getShip();
+            helmState.maneuverSpeedModifier -= level;
+            helmState.isHeld = ownBeams === beamsByTargetHelm;
             return true;
         },
         remove: (system: EngineerSystemTile, removal: EffectRemoval, level: number) => releaseBeam(system, level, removal, ownBeams),

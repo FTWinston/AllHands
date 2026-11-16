@@ -111,6 +111,15 @@ function removeAbortCards(ship: Ship) {
     }
 }
 
+/** Take every Confirm Auto-destruct card out of the other crew members' hands, once there's nothing left for them to confirm. */
+function removeConfirmCards(ship: Ship) {
+    for (const crewState of [ship.helmState, ship.scienceState, ship.tacticalState]) {
+        for (const card of crewState.hand.filter(card => card.type === 'confirmAutoDestruct')) {
+            crewState.removeCard(card.id);
+        }
+    }
+}
+
 export const effects = defineEngineEffects(sharedEffects, {
     auxPower: {
         apply: (system, _level) => {
@@ -338,6 +347,11 @@ export const effects = defineEngineEffects(sharedEffects, {
         remove: (system) => {
             system.systemState.applyDamage.removeHandler(bufferHandlerId);
         },
+    },
+    // Whether it ends by lapsing, starting the countdown or the encounter ending, the Confirm cards are no longer wanted.
+    autoDestructRequested: {
+        apply: system => system.system === 'engineer',
+        remove: system => removeConfirmCards(system.systemState.getShip()),
     },
     autoDestructing: {
         apply: system => system.system === 'engineer',

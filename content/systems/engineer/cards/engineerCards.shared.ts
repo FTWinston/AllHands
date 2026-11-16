@@ -33,6 +33,10 @@ export const ventShieldsDownDuration = 3_000;
 export const railFeedPowerGain = 1;
 /** How long Rail Feed's power lasts. */
 export const railFeedDuration = 20_000;
+/** How long the rest of the crew have to confirm an Auto-destruct, before the request lapses. */
+export const autoDestructConfirmWindow = 30_000;
+/** How many of the other crew members have to confirm an Auto-destruct for its countdown to start. */
+export const autoDestructConfirmationsNeeded = 2;
 /** How long the Auto-destruct countdown runs before the ship explodes. */
 export const autoDestructDuration = 15_000;
 /** How close another ship has to be to an auto-destructing ship to be caught in its explosion, in world units. */
@@ -243,7 +247,17 @@ export const cards = defineCards({
     autoDestruct: {
         targetType: 'no-target',
         system: 'engineer',
-        parameters: { cost: 4, duration: autoDestructDuration / 1000, range: autoDestructRange, damage: autoDestructDamage },
+        parameters: {
+            cost: 4, duration: autoDestructDuration / 1000, range: autoDestructRange, damage: autoDestructDamage,
+            window: autoDestructConfirmWindow / 1000, confirmations: autoDestructConfirmationsNeeded,
+        },
+    },
+    // An engineer card that is dealt to the other crew members' hands (see the Auto-destruct card), and played from there.
+    confirmAutoDestruct: {
+        targetType: 'no-target',
+        system: 'engineer',
+        traits: ['expendable', 'priority'],
+        parameters: { cost: 0 },
     },
     abortAutoDestruct: {
         targetType: 'no-target',

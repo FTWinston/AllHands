@@ -418,8 +418,9 @@ export const cards = defineEngineCards(sharedCards, {
             return !!source && ship.tacticalState.moveCharge(source.id, slot.id);
         },
     },
-    // No evaluator: the AI never loads this, though it can still spend it as charge.
     tractorBeam: {
+        // It does no damage, so the AI rates it below its weapons that do. It fires it once, and only to set up another weapon's shot.
+        aiEvaluator: weaponLoadEvaluator('tractorBeam', -10),
         synergy: { provides: ['lock'], wants: ['weaponCharge'] },
         load: (_gameState, _ship, _slot) => {
             return true;

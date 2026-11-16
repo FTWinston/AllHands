@@ -11,7 +11,7 @@ import { PlayerShip } from 'engine/state/PlayerShip';
 import { setupGameRoom } from 'engine/testUtils';
 import { describe, expect, it } from 'vitest';
 import {
-    autoDestructDamage, autoDestructDuration, autoDestructRange, bankPowerCharge, bankPowerDuration, bankPowerLoss, chargeMaxLevel, dischargeDuration,
+    autoDestructConfirmationsNeeded, autoDestructConfirmWindow, autoDestructDamage, autoDestructDuration, autoDestructRange, bankPowerCharge, bankPowerDuration, bankPowerLoss, chargeMaxLevel, dischargeDuration,
     emergencyPowerDuration, emergencyPowerFlux, emergencyPowerGain, fluxLimit, railFeedDuration, redlineFluxInterval, redlinePowerGain, runQuietChargeInterval,
     ventShieldsDownDuration,
 } from './engineer.shared';
@@ -529,7 +529,7 @@ describe('Extreme Measures', () => {
 
         const shop = getShopCardTypes('engineer');
         expect(shop).toContain('extremeMeasures');
-        for (const type of ['autoDestruct', 'abortAutoDestruct', 'cannibalise', 'graft', 'emergencyPower'] as const) {
+        for (const type of ['autoDestruct', 'confirmAutoDestruct', 'abortAutoDestruct', 'cannibalise', 'graft', 'emergencyPower'] as const) {
             expect(shop).not.toContain(type);
         }
     });
@@ -546,7 +546,7 @@ describe('Extreme Measures', () => {
 describe('Auto-destruct', () => {
     function createShips() {
         const created = createExtremeShip();
-        const { state } = created;
+        const { state, ship } = created;
         state.initFactions([{ id: 'player' }], 'player');
         state.factionRegistry.setEncounterFactions([{ id: 'raiders', relations: { player: RelationshipType.Hostile } }]);
 
@@ -556,38 +556,184 @@ describe('Auto-destruct', () => {
             return other;
         };
 
-        return { ...created, addShip };
+        const confirmers = [ship.helmState, ship.scienceState, ship.tacticalState];
+        const confirmCards = (crew: { hand: readonly CardState[] }) => crew.hand.filter(card => card.type === 'confirmAutoDestruct');
+
+        /** Plays the Confirm card that the given crew member was dealt, and says whether it was played. */
+        const confirm = (crew: (typeof confirmers)[number]) => {
+            const [card] = confirmCards(crew);
+            return crew.playCard(card.id, 'confirmAutoDestruct', 'no-target', '') !== null;
+        };
+
+        return { ...created, addShip, confirmers, confirmCards, confirm };
     }
 
     const abortCards = (ship: PlayerShip) => ship.engineerState.hand.filter(card => card.type === 'abortAutoDestruct');
 
-    it('starts a 15 second countdown on the engineer\'s system, and puts a priority Abort Auto-destruct card in the engineer\'s hand', () => {
-        const { state, ship, tile, playChoice } = createShips();
-        expect(autoDestructDuration).toBe(15_000);
-        expect(cardDefinitions.abortAutoDestruct).toMatchObject({ targetType: 'no-target', traits: ['expendable', 'priority'] });
+    it('is a card that needs 2 of the other 3 crew to confirm it within 30 seconds', () => {
+        expect(autoDestructConfirmationsNeeded).toBe(2);
+        expect(autoDestructConfirmWindow).toBe(30_000);
+        expect(cardDefinitions.autoDestruct).toMatchObject({ parameters: { cost: 4, window: 30, confirmations: 2 } });
+        expect(systemEffectDefinitions.autoDestructRequested).toMatchObject({ usesLevels: true, maxLevel: 2, duration: 30_000 });
+    });
+
+    it('deals each of the other crew members a Confirm card, and starts no countdown', () => {
+        const { state, ship, tile, playChoice, confirmers, confirmCards } = createShips();
+        // It's an engineer card, but it's played from the other crew members' hands, and can only be played.
+        expect(cardDefinitions.confirmAutoDestruct).toMatchObject({ targetType: 'no-target', system: 'engineer', traits: ['expendable', 'priority'], parameters: { cost: 0 } });
 
         expect(playChoice('extremeMeasures', 'autoDestruct')).toBe(true);
 
-        expect(tile('engineer').effects.find(effect => effect.type === 'autoDestructing')!.progress?.endTime).toBe(state.currentTime + autoDestructDuration);
-        expect(abortCards(ship).length).toBe(1);
+        for (const crew of confirmers) {
+            expect(confirmCards(crew).length).toBe(1);
+        }
+        expect(confirmCards(ship.engineerState).length).toBe(0);
+        expect(tile('engineer').hasEffect('autoDestructing')).toBe(false);
+        expect(abortCards(ship).length).toBe(0);
 
-        // There's only ever one countdown.
-        expect(playChoice('extremeMeasures', 'autoDestruct')).toBe(false);
-        expect(abortCards(ship).length).toBe(1);
+        // The request shows on the engineer's system, with how many more confirmations it needs, until the time's up.
+        const request = tile('engineer').effects.find(effect => effect.type === 'autoDestructRequested')!;
+        expect(request.level).toBe(2);
+        expect(request.progress?.endTime).toBe(state.currentTime + autoDestructConfirmWindow);
     });
 
-    it('makes room in a full hand for the abort card', () => {
-        const { ship, playChoice } = createShips();
-        while (ship.engineerState.hand.length < ship.engineerState.maxHandSize) {
-            ship.engineerState.addCardToHand(new CardState(ship.getCardId(), 'purge'));
+    it('is not started by one confirmation, but by two, which hand the engineer an Abort card and take away the other Confirm card', () => {
+        const { state, ship, tile, playChoice, confirmers, confirmCards, confirm } = createShips();
+        const [helm, science, tactical] = confirmers;
+        expect(cardDefinitions.abortAutoDestruct).toMatchObject({ targetType: 'no-target', traits: ['expendable', 'priority'] });
+        playChoice('extremeMeasures', 'autoDestruct');
+
+        expect(confirm(helm)).toBe(true);
+        expect(confirmCards(helm).length).toBe(0);
+        expect(tile('engineer').getEffectLevel('autoDestructRequested')).toBe(1);
+        expect(tile('engineer').hasEffect('autoDestructing')).toBe(false);
+        expect(abortCards(ship).length).toBe(0);
+        expect(confirmCards(science).length).toBe(1);
+
+        expect(confirm(science)).toBe(true);
+        expect(tile('engineer').hasEffect('autoDestructRequested')).toBe(false);
+        expect(tile('engineer').effects.find(effect => effect.type === 'autoDestructing')!.progress?.endTime).toBe(state.currentTime + autoDestructDuration);
+        expect(abortCards(ship).length).toBe(1);
+        for (const crew of [helm, science, tactical]) {
+            expect(confirmCards(crew).length).toBe(0);
+        }
+    });
+
+    it('lapses if fewer than 2 confirm in 30 seconds, taking the Confirm cards away and starting nothing', () => {
+        const { state, ship, tile, playChoice, confirmers, confirmCards, confirm, wait } = createShips();
+        playChoice('extremeMeasures', 'autoDestruct');
+        confirm(confirmers[0]);
+
+        wait(autoDestructConfirmWindow - 1);
+        expect(tile('engineer').hasEffect('autoDestructRequested')).toBe(true);
+        expect(confirmCards(confirmers[1]).length).toBe(1);
+
+        wait(1);
+        expect(tile('engineer').hasEffect('autoDestructRequested')).toBe(false);
+        expect(tile('engineer').hasEffect('autoDestructing')).toBe(false);
+        for (const crew of confirmers) {
+            expect(confirmCards(crew).length).toBe(0);
+        }
+        expect(abortCards(ship).length).toBe(0);
+
+        wait(autoDestructDuration);
+        expect(state.objects.has(ship.id)).toBe(true);
+
+        // Once it's lapsed, it can be requested again.
+        expect(playChoice('extremeMeasures', 'autoDestruct')).toBe(true);
+    });
+
+    it('can\'t be requested again while one is pending or counting down', () => {
+        const { ship, tile, playChoice, confirmers, confirmCards, confirm } = createShips();
+
+        expect(playChoice('extremeMeasures', 'autoDestruct')).toBe(true);
+        expect(playChoice('extremeMeasures', 'autoDestruct')).toBe(false);
+        for (const crew of confirmers) {
+            expect(confirmCards(crew).length).toBe(1);
+        }
+
+        confirm(confirmers[0]);
+        confirm(confirmers[1]);
+        expect(playChoice('extremeMeasures', 'autoDestruct')).toBe(false);
+        expect(abortCards(ship).length).toBe(1);
+        expect(tile('engineer').hasEffect('autoDestructRequested')).toBe(false);
+    });
+
+    it('makes room in a full hand for each Confirm card, and for the abort card', () => {
+        const { ship, playChoice, confirmers, confirmCards, confirm } = createShips();
+        for (const crew of [ship.engineerState, ...confirmers]) {
+            while (crew.hand.length < crew.maxHandSize) {
+                crew.addCardToHand(new CardState(ship.getCardId(), 'purge'));
+            }
         }
 
         expect(playChoice('extremeMeasures', 'autoDestruct')).toBe(true);
+        for (const crew of confirmers) {
+            expect(confirmCards(crew).length).toBe(1);
+            expect(crew.hand.length).toBe(crew.maxHandSize);
+        }
+
+        confirm(confirmers[0]);
+        confirm(confirmers[1]);
         expect(abortCards(ship).length).toBe(1);
     });
 
+    it('can\'t have its Confirm card discarded, or spent as charge', () => {
+        const { ship, playChoice, confirmers, confirmCards } = createShips();
+        playChoice('extremeMeasures', 'autoDestruct');
+        const [card] = confirmCards(confirmers[0]);
+
+        expect(confirmers[0].discardCard(card.id)).toBe(false);
+        expect(confirmCards(confirmers[0]).length).toBe(1);
+        expect(ship.engineerState.hand).not.toContain(card);
+    });
+
+    it('does nothing if a Confirm card is played when there\'s nothing to confirm', () => {
+        const { ship, confirmers } = createShips();
+        const card = new CardState(ship.getCardId(), 'confirmAutoDestruct');
+        confirmers[0].addCardToHand(card);
+
+        expect(confirmers[0].playCard(card.id, 'confirmAutoDestruct', 'no-target', '')).toBeNull();
+    });
+
+    it('never has a Confirm card sold, or kept in a deck', () => {
+        const { ship, confirmers, playChoice, confirm } = createShips();
+        for (const role of ['helm', 'science', 'tactical', 'engineer'] as const) {
+            expect(getShopCardTypes(role)).not.toContain('confirmAutoDestruct');
+        }
+
+        playChoice('extremeMeasures', 'autoDestruct');
+        confirm(confirmers[0]);
+        ship.cleanupAfterEncounter();
+
+        for (const system of [ship.helmState, ship.scienceState, ship.tacticalState, ship.engineerState]) {
+            expect(system.deck.some(card => card.type === 'confirmAutoDestruct')).toBe(false);
+            expect(system.hand.some(card => card.type === 'confirmAutoDestruct')).toBe(false);
+        }
+    });
+
+    it('takes the Confirm cards away when the encounter ends', () => {
+        const { ship, tile, playChoice, confirmers, confirmCards } = createShips();
+        playChoice('extremeMeasures', 'autoDestruct');
+
+        ship.cleanupAfterEncounter();
+
+        expect(tile('engineer').hasEffect('autoDestructRequested')).toBe(false);
+        for (const crew of confirmers) {
+            expect(confirmCards(crew).length).toBe(0);
+        }
+    });
+
+    /** Requests an auto-destruct and has two of the crew confirm it, to start the countdown. */
+    function startCountdown(created: ReturnType<typeof createShips>) {
+        created.playChoice('extremeMeasures', 'autoDestruct');
+        created.confirm(created.confirmers[0]);
+        created.confirm(created.confirmers[1]);
+    }
+
     it('when the countdown runs out, heavily damages every ship nearby, and destroys the ship', () => {
-        const { state, ship, playChoice, wait, addShip } = createShips();
+        const created = createShips();
+        const { state, ship, wait, addShip } = created;
         expect(autoDestructRange).toBe(6);
         expect(autoDestructDamage).toBe(60);
         const near = addShip(autoDestructRange - 1);
@@ -595,7 +741,7 @@ describe('Auto-destruct', () => {
         const nearHealth = near.hullState.health;
         const farHealth = far.hullState.health;
 
-        playChoice('extremeMeasures', 'autoDestruct');
+        startCountdown(created);
 
         wait(autoDestructDuration - 1);
         expect(state.objects.has(ship.id)).toBe(true);
@@ -608,10 +754,11 @@ describe('Auto-destruct', () => {
     });
 
     it('is stopped by the abort card, which is used up', () => {
-        const { state, ship, tile, playChoice, wait, addShip } = createShips();
+        const created = createShips();
+        const { state, ship, tile, wait, addShip } = created;
         const near = addShip(1);
         const nearHealth = near.hullState.health;
-        playChoice('extremeMeasures', 'autoDestruct');
+        startCountdown(created);
         wait(autoDestructDuration - 1);
 
         const [abort] = abortCards(ship);
@@ -627,22 +774,29 @@ describe('Auto-destruct', () => {
     });
 
     it('takes the abort card away if the countdown is stopped some other way, or the encounter ends', () => {
-        const { ship, tile, playChoice } = createShips();
+        const created = createShips();
+        const { ship, tile } = created;
 
-        playChoice('extremeMeasures', 'autoDestruct');
+        startCountdown(created);
         tile('engineer').removeEffect('autoDestructing', 'early');
         expect(abortCards(ship).length).toBe(0);
 
-        playChoice('extremeMeasures', 'autoDestruct');
+        startCountdown(created);
         ship.cleanupAfterEncounter();
         expect(tile('engineer').hasEffect('autoDestructing')).toBe(false);
         expect(abortCards(ship).length).toBe(0);
     });
 
-    it('isn\'t moved by a Shunt', () => {
-        const { ship, tile, play, playChoice } = createShips();
+    it('isn\'t moved by a Shunt, whether it is waiting for confirmation or counting down', () => {
+        const created = createShips();
+        const { ship, tile, play, playChoice } = created;
         playChoice('extremeMeasures', 'autoDestruct');
 
+        expect(play('shunt', 'engineer')).toBe(true);
+        expect(tile('engineer').hasEffect('autoDestructRequested')).toBe(true);
+
+        created.confirm(created.confirmers[0]);
+        created.confirm(created.confirmers[1]);
         expect(play('shunt', 'engineer')).toBe(true);
 
         expect(tile('engineer').hasEffect('autoDestructing')).toBe(true);

@@ -1,5 +1,6 @@
 import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
+import { FieldInfo } from 'common-data/features/space/types/FieldInfo';
 import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
@@ -10,6 +11,7 @@ import { CardCooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
+import { drawFields } from 'common-ui/features/spacemap/utils/drawFields';
 import { drawWeaponEffects } from 'common-ui/features/spacemap/utils/drawWeaponEffects';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
@@ -28,6 +30,8 @@ import styles from './HelmSpaceMap.module.css';
 type Props = {
     center: ReadonlyKeyframes<Position>;
     objects: Record<string, GameObjectInfo>;
+    /** The lingering zones in space, drawn under the ships. */
+    fields?: Record<string, FieldInfo>;
     viewer: RelationshipViewer;
     activeManeuver?: CardCooldown | null;
     cancelManeuver: () => void;
@@ -97,6 +101,17 @@ export const HelmSpaceMap = (props: Props) => {
         ? findNearestEligibleShip(props.objects, props.viewer, pointerLocation, shipTargetRelationship, currentTime)
         : null;
 
+    // Draw the fields under everything else on the map.
+    const { fields } = props;
+    const drawExtraBackground = useCallback(
+        (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
+            if (fields) {
+                drawFields(ctx, Object.values(fields), timeProvider.getServerTime(), pixelSize);
+            }
+        },
+        [fields, timeProvider]
+    );
+
     // Draw the motion path or ship target as extra foreground content on the SpaceMap
     const drawExtraForeground = useCallback(
         (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
@@ -132,6 +147,7 @@ export const HelmSpaceMap = (props: Props) => {
                 cellRadius={cellRadius}
                 gridColor="green"
                 ref={canvas}
+                drawExtraBackground={drawExtraBackground}
                 drawExtraForeground={drawExtraForeground}
                 shipStyle="silhouette"
             />

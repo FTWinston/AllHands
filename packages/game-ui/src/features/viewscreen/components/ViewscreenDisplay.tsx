@@ -1,3 +1,4 @@
+import { FieldInfo } from 'common-data/features/space/types/FieldInfo';
 import { GameObjectInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
@@ -5,6 +6,7 @@ import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { interpolatePosition, interpolateVector } from 'common-data/features/space/utils/interpolate';
 import { Screen } from 'common-ui/components/Screen';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
+import { drawFields } from 'common-ui/features/spacemap/utils/drawFields';
 import { drawWeaponArcs, ENEMY_WEAPON_ARC_COLORS, OWN_WEAPON_ARC_COLORS } from 'common-ui/features/spacemap/utils/drawWeaponArcs';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
@@ -23,6 +25,8 @@ type Props = PropsWithChildren<{
     /** What to keep centered on. If null (e.g. the ship was destroyed), the view stays where it last was. */
     center: ReadonlyKeyframes<Vector2D> | null;
     objects: Record<string, GameObjectInfo>;
+    /** The lingering zones in space, drawn under the ships. */
+    fields?: Record<string, FieldInfo>;
     viewer: RelationshipViewer;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
     showMenu: () => void;
@@ -46,7 +50,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
 
     const cellRadius = 32; // TODO: make this controllable? automatic?
 
-    const { weaponEffectsRef, viewer } = props;
+    const { weaponEffectsRef, viewer, fields } = props;
 
     // A ship that has jumped to warp is drawn by that effect from then on, even if it's still there, as our own ship is until the scene changes.
     const warpedAwayIds = getWarpedAwayIds(weaponEffectsRef.current, currentTime);
@@ -78,6 +82,10 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
 
             drawSpaceBackground(ctx, centerVector, cellRadius, drawTime);
 
+            if (fields) {
+                drawFields(ctx, Object.values(fields), drawTime, pixelSize);
+            }
+
             if (localShip && ownWeaponSlots) {
                 drawWeaponArcs(ctx, interpolatePosition(localShip.motion, drawTime), ownWeaponSlots, OWN_WEAPON_ARC_COLORS, pixelSize);
             }
@@ -86,7 +94,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
                 drawWeaponArcs(ctx, interpolatePosition(scannedTarget.motion, drawTime), scannedWeaponSlots, ENEMY_WEAPON_ARC_COLORS, pixelSize);
             }
         },
-        [timeProvider, centerVector, localShip, ownWeaponSlots, scannedTarget, scannedWeaponSlots]
+        [timeProvider, centerVector, fields, localShip, ownWeaponSlots, scannedTarget, scannedWeaponSlots]
     );
 
     const drawExtraForeground = useCallback(

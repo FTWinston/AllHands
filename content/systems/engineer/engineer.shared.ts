@@ -6,7 +6,7 @@ export {
     transferPowerDuration, transferPowerRange, runQuietPowerLoss, runQuietChargeInterval,
     chargeMaxLevel, fluxLimit, bankPowerLoss, bankPowerDuration, bankPowerCharge, dischargePowerPerLevel, dischargeDuration,
     redlinePowerGain, redlineFluxInterval, ventShieldsDownDuration, railFeedPowerGain, railFeedDuration,
-    autoDestructDuration, autoDestructRange, autoDestructDamage, emergencyPowerGain, emergencyPowerDuration, emergencyPowerFlux
+    autoDestructConfirmWindow, autoDestructConfirmationsNeeded, autoDestructDuration, autoDestructRange, autoDestructDamage, emergencyPowerGain, emergencyPowerDuration, emergencyPowerFlux
 } from './cards/engineerCards.shared';
 
 export const engineerShared = defineSharedContent({ cards, effects });

@@ -89,6 +89,15 @@ export class HullState extends SystemState {
         }
     }
 
+    /** Raise (or, if negative, lower) the shields' level by an amount, within their capacity. Draining them to nothing damages the volatile hull cards, as a hit that does so would. */
+    adjustShield(amount: number) {
+        this.hullTile.setShield(this.shield + amount);
+
+        if (amount < 0 && this.shield <= 0) {
+            this.damageVolatileCards();
+        }
+    }
+
     /** Cancel the shields' tuning, and stop hull cards setting another until that many more have tried, e.g. when enemy sensors disrupt the shields. */
     scrambleShields(cards: number | undefined) {
         this.clearShieldTuning();

@@ -31,6 +31,10 @@ const substancePhrases: Record<DeflectorEffectSubstance, { hostile: (where: stri
 
 /** Which ships a deflector hits. */
 function describeShips(outcome: DeflectorOutcome) {
+    if (outcome.ships === 'zone') {
+        return `each ${outcome.friendly ? 'friendly' : 'hostile'} ship inside it`;
+    }
+
     if (outcome.ships === 'target') {
         return outcome.friendly ? 'your ship' : 'the target';
     }
@@ -56,7 +60,31 @@ function describeWhere(outcome: DeflectorOutcome) {
     }
 }
 
-/** Describe what a deflector loaded with the given parts does, with its numbers, e.g. "Raises damage taken by every system of the target by 20% for 15s." */
+/** What a deflector does to the shields of the ships it hits, if anything, as a sentence. */
+function describeShields(outcome: DeflectorOutcome) {
+    const { shields } = outcome;
+    if (!shields) {
+        return '';
+    }
+
+    const ships = describeShips(outcome);
+    const percent = Math.round(shields.percent * 10) / 10;
+    const each = outcome.ships === 'zone' ? ' each second' : '';
+
+    return shields.restores
+        ? ` Restores ${percent}% of the shields of ${ships}${each}.`
+        : ` Drains ${percent}% of the shields of ${ships}${each}, and scrambles their tuning.`;
+}
+
+/** Make the first letter of a phrase lower case, so that it can carry on a sentence. */
+function lowerFirst(text: string) {
+    return text.charAt(0).toLowerCase() + text.slice(1);
+}
+
+/**
+ * Describe what a deflector loaded with the given parts does, with its numbers, e.g. "Raises damage taken by every system of the target by 20% for 15s."
+ * A field's is described by what it does to every ship inside it, e.g. "Leaves a field around the target for 20s that raises damage taken by ... of each hostile ship inside it by 20%."
+ */
 export function describeDeflector(parts: DeflectorParts) {
     const outcome = getDeflectorOutcome(parts);
     const phrases = substancePhrases[parts.substance];
@@ -67,7 +95,12 @@ export function describeDeflector(parts: DeflectorParts) {
             ? ` Weakened by up to ${Math.round(deflectorShieldDampening * 100)}% by shields.`
             : ' Ignores shields.';
 
-    return `${effect} for ${outcome.duration / 1000}s.${shields}`;
+    if (outcome.fieldDuration !== null) {
+        const around = outcome.friendly ? 'your ship' : 'the target';
+        return `Leaves a field around ${around} for ${outcome.fieldDuration / 1000}s that ${lowerFirst(effect)}.${describeShields(outcome)}${shields}`;
+    }
+
+    return `${effect} for ${outcome.duration / 1000}s.${describeShields(outcome)}${shields}`;
 }
 
 export const deflectorsUi = defineUiContent({

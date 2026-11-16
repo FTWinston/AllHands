@@ -72,6 +72,8 @@ export interface CrewSystemInfo extends SystemInfo {
 
 export interface HelmSystemInfo extends CrewSystemInfo {
     activeManeuver: CardCooldown | null;
+    /** Whether the ship is held in another's tractor beam. Absent (or false) while it isn't. */
+    isHeld?: boolean;
 }
 
 export interface WeaponSlotInfo {

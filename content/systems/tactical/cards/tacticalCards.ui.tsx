@@ -454,7 +454,7 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="drainPerSecond" />
             {' '}
-            a second.
+            a second. The ship can break free by starting a manoeuvre with more power at its helm than your tactical has.
         </>,
         image: <ExampleIcon />,
     },

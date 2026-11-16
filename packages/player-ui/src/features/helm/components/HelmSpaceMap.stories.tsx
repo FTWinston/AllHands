@@ -1,4 +1,5 @@
 import { DndContext } from '@dnd-kit/core';
+import { FieldInfo } from 'common-data/features/space/types/FieldInfo';
 import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
@@ -36,6 +37,8 @@ const viewer: RelationshipViewer = { shipId: 'playerShip', faction: 'player', re
 type StoryArgs = {
     /** The hexagon that the dragged Match Course card is over, as its "x,y" world position. */
     overTargetId: string | null;
+    /** The lingering zones that deflectors have left. */
+    fields?: Record<string, FieldInfo>;
 };
 
 /**
@@ -47,7 +50,7 @@ const meta: Meta<StoryArgs> = {
     parameters: {
         layout: 'fullscreen',
     },
-    render: ({ overTargetId }) => {
+    render: ({ overTargetId, fields }) => {
         const weaponEffectsRef = useWeaponEffects(null);
 
         return (
@@ -64,6 +67,7 @@ const meta: Meta<StoryArgs> = {
                         <Component
                             center={objects.playerShip.motion}
                             objects={objects}
+                            fields={fields}
                             viewer={viewer}
                             cancelManeuver={fn()}
                             weaponEffectsRef={weaponEffectsRef}
@@ -93,5 +97,19 @@ export const NearFriendlyShip: Story = {
 export const NotOverAHexagon: Story = {
     args: {
         overTargetId: null,
+    },
+};
+
+/** Never expires, as far as a story is concerned. */
+const endTime = Number.MAX_SAFE_INTEGER;
+
+/** Two zones of different substances, one hostile with the raider in it, and one friendly (dashed) with the ally in it, both with their long axis along the line between the ships. */
+export const WithFields: Story = {
+    args: {
+        overTargetId: null,
+        fields: {
+            hostile: { id: 'hostile', x: 4, y: -3, angle: -Math.atan2(-3, 4), radiusX: 4, radiusY: 2.5, endTime, substance: 'Antiproton', friendly: false },
+            friendly: { id: 'friendly', x: -3, y: 4, angle: Math.PI / 2, radiusX: 4, radiusY: 2.5, endTime, substance: 'Chroniton', friendly: true },
+        },
     },
 };
