@@ -158,7 +158,7 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
 
 function getWaitingText(numCrewed: number, numUnassigned: number) {
     if (numUnassigned > 0) {
-        return `${numUnassigned} crew member${numUnassigned === 1 ? '' : 's'} still choosing a station`;
+        return `${numUnassigned} crew member${numUnassigned === 1 ? '' : 's'} choosing a station`;
     }
 
     return numCrewed === 0
