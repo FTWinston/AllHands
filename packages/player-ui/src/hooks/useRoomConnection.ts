@@ -17,13 +17,16 @@ export function useRoomConnection(
     const timeSynchronizer = useRef<TimeSynchronizer | null>(null);
     const [crewId] = useState<string>(() => new URLSearchParams(window.location.search).get('crew') ?? soloCrewIdentifier);
     const [role, setRole] = useState<CrewRole | null>(null);
+    // Whether the server has dev tools on, which it says when we join. There's no build-time flag for this, as the server decides.
+    const [devTools, setDevTools] = useState(false);
 
     const gameStatus = useRoomState(connectedRoom ?? emptyRoom, state => state.gameStatus) ?? 'setup';
 
     // Derive shipId from schema state so it's always in sync with gameStatus (same state patch).
     // crew.shipId is set permanently when the scenario starts; we return null when not active.
+    // A paused game keeps its ship in view, which dev tools rely on to show the game while paused.
     const shipId = useRoomState(connectedRoom ?? emptyRoom, (state) => {
-        if (state?.gameStatus !== 'active') return null;
+        if (state?.gameStatus !== 'active' && state?.gameStatus !== 'paused') return null;
         return state.crews?.get(crewId)?.shipId ?? null;
     }) ?? null;
 
@@ -48,8 +51,9 @@ export function useRoomConnection(
 
                 timeSynchronizer.current.start();
 
-                joinedRoom.onMessage<{ crewId: string }>('joined', (message) => {
+                joinedRoom.onMessage<{ crewId: string; devTools?: boolean }>('joined', (message) => {
                     console.log(`joined crew ${message.crewId}`);
+                    setDevTools(message.devTools === true);
 
                     if (!joinedRoom) {
                         console.error('joinedRoom is undefined in joined message handler');
@@ -112,5 +116,5 @@ export function useRoomConnection(
         };
     }, [setConnectionState, crewId]);
 
-    return [connectedRoom, crewId, shipId, role, gameStatus, timeSynchronizer.current] as const;
+    return [connectedRoom, crewId, shipId, role, gameStatus, timeSynchronizer.current, devTools] as const;
 }

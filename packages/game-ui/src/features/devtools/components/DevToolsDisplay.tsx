@@ -10,7 +10,7 @@ import { Tabs } from 'common-ui/components/Tabs';
 import { ToggleButton } from 'common-ui/components/ToggleButton';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { getSystemEffectDefinition } from 'common-ui/utils/getUiSystemEffectDefinition';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import styles from './DevToolsDisplay.module.css';
 import { EncounterSelector } from './EncounterSelector';
 import type { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
@@ -36,6 +36,11 @@ type Props = {
 export const DevToolsDisplay: FC<Props> = (props) => {
     const [system, setSystem] = useState<ShipSystem>('hull');
     const [timeScale, setTimeScale] = useState(props.serverTimeScale);
+
+    // Something else (the time scale hotkeys) can change it while this is open.
+    useEffect(() => {
+        setTimeScale(props.serverTimeScale);
+    }, [props.serverTimeScale]);
 
     const encounterSelector = (
         <EncounterSelector

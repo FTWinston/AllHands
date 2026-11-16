@@ -84,6 +84,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 clientSendTime: message.clientSendTime,
                 serverTime: this.state.currentTime,
                 timeScale: this.state.timeScale,
+                paused: this.isPaused,
                 devAutoWin: this.state.devAutoWin,
             });
         });
@@ -137,7 +138,8 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         });
 
         this.onMessage('playCard', (client, message: { cardId: number; cardType: CardType; targetType: CardTargetType | 'any'; targetId: string }) => {
-            if (this.state.gameStatus !== 'active') {
+            // With dev tools, orders can be lined up while paused. They take effect straight away; only time is frozen.
+            if (this.state.gameStatus !== 'active' && !(DEV_TOOLS_ENABLED && this.state.gameStatus === 'paused')) {
                 return;
             }
 
@@ -523,8 +525,14 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         });
 
         this.onMessage('adjustTimeScale', (client, message: { timeScale: number }) => {
+            if (typeof message?.timeScale !== 'number' || !Number.isFinite(message.timeScale)) {
+                console.warn(`[dev] Rejected time scale ${String(message?.timeScale)} from ${client.sessionId}`);
+                return;
+            }
+
             const timeScale = Math.max(minTimeScale, Math.min(maxTimeScale, message.timeScale));
             this.state.timeScale = timeScale;
+            this.broadcastTimeScale();
             console.log(`[dev] ${client.sessionId} adjustTimeScale to ${timeScale}`);
         });
 
@@ -754,7 +762,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         this.addFactionToViews([client]);
 
         // Send the crew ID back to the crew client, for reference.
-        client.send('joined', { crewId });
+        client.send('joined', { crewId, devTools: DEV_TOOLS_ENABLED });
     }
 
     /**
@@ -911,19 +919,37 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         }
 
         this.state.gameStatus = 'active';
+        this.broadcastTimeScale();
     }
 
     pause() {
         console.log('Game paused');
         this.state.gameStatus = 'paused';
 
-        for (const crew of this.state.crews.values()) {
-            crew.unassignFromShip();
+        // Clients keep showing the game while paused with dev tools, so they must keep hold of their ship.
+        if (!DEV_TOOLS_ENABLED) {
+            for (const crew of this.state.crews.values()) {
+                crew.unassignFromShip();
+            }
         }
+
+        this.broadcastTimeScale();
+    }
+
+    private get isPaused() {
+        return this.state.gameStatus === 'paused';
+    }
+
+    /** Tells clients to re-sync their clocks at once, rather than at their next ping, after a pause, resume or change of time scale. */
+    private broadcastTimeScale() {
+        this.broadcast('timeScale', { timeScale: this.state.timeScale });
     }
 
     update(deltaTime: number) {
         this.tickStartCountdown(deltaTime);
-        this.state.tick(deltaTime);
+
+        if (!this.isPaused) {
+            this.state.tick(deltaTime);
+        }
     }
 }
