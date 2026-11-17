@@ -6,9 +6,10 @@ import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { interpolatePosition, interpolateVector } from 'common-data/features/space/utils/interpolate';
 import { Screen } from 'common-ui/components/Screen';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
+import { Rectangle } from 'common-ui/features/spacemap/types/Rectangle';
 import { ContactLabels, drawContactLabels } from 'common-ui/features/spacemap/utils/drawContactLabels';
 import { drawFields } from 'common-ui/features/spacemap/utils/drawFields';
-import { drawTargetReticles } from 'common-ui/features/spacemap/utils/drawTargetReticles';
+import { drawOffscreenTargetArrows, drawTargetReticles } from 'common-ui/features/spacemap/utils/drawTargetReticles';
 import { drawWeaponArcs, ENEMY_WEAPON_ARC_COLORS, OWN_WEAPON_ARC_COLORS } from 'common-ui/features/spacemap/utils/drawWeaponArcs';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
 import { FC, RefObject, PropsWithChildren, useCallback, useRef } from 'react';
@@ -123,7 +124,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
     );
 
     const drawExtraForeground = useCallback(
-        (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
+        (ctx: CanvasRenderingContext2D, bounds: Rectangle, pixelSize: number) => {
             const drawTime = timeProvider.getServerTime();
             const { objects } = frame.current;
 
@@ -131,6 +132,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
                 drawContactLabels(ctx, Object.values(objects), contactLabels, viewer, drawTime, pixelSize);
             }
             drawTargetReticles(ctx, objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize);
+            drawOffscreenTargetArrows(ctx, bounds, objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize, contactLabels);
 
             drawCombatEffects(ctx, weaponEffectsRef.current, tracker, drawTime, {
                 showLabels,

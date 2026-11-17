@@ -11,9 +11,10 @@ import { CardCooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
+import { Rectangle } from 'common-ui/features/spacemap/types/Rectangle';
 import { ContactLabels, drawContactLabels } from 'common-ui/features/spacemap/utils/drawContactLabels';
 import { drawFields } from 'common-ui/features/spacemap/utils/drawFields';
-import { drawTargetReticles } from 'common-ui/features/spacemap/utils/drawTargetReticles';
+import { drawOffscreenTargetArrows, drawTargetReticles } from 'common-ui/features/spacemap/utils/drawTargetReticles';
 import { drawWeaponEffects } from 'common-ui/features/spacemap/utils/drawWeaponEffects';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
@@ -48,6 +49,9 @@ type Props = {
 
 // Base cell radius in pixels for both SpaceMap and SpaceCells
 const BASE_CELL_RADIUS = 32;
+
+/** Room the off-screen target arrows leave along the right of the map, so they don't go under the zoom buttons there (see HelmSpaceMap.module.css), in pixels. */
+const zoomButtonClearance = { right: 80 };
 
 export const HelmSpaceMap = (props: Props) => {
     const activeCard = useActiveCard();
@@ -122,7 +126,7 @@ export const HelmSpaceMap = (props: Props) => {
 
     // Draw the motion path or ship target as extra foreground content on the SpaceMap
     const drawExtraForeground = useCallback(
-        (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
+        (ctx: CanvasRenderingContext2D, bounds: Rectangle, pixelSize: number) => {
             if (motionPath) {
                 drawMotionPath(ctx, motionPath, pixelSize);
             }
@@ -134,6 +138,7 @@ export const HelmSpaceMap = (props: Props) => {
                 drawContactLabels(ctx, Object.values(props.objects), contactLabels, props.viewer, drawTime, pixelSize);
             }
             drawTargetReticles(ctx, props.objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize);
+            drawOffscreenTargetArrows(ctx, bounds, props.objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize, contactLabels, zoomButtonClearance);
             drawWeaponEffects(ctx, props.weaponEffectsRef.current, props.objects, drawTime, pixelSize);
         },
         [motionPath, shipTarget, pointerLocation, shipPosition, props.weaponEffectsRef, props.objects, props.viewer, timeProvider, contactLabels, tacticalTargetId, scienceTargetId]

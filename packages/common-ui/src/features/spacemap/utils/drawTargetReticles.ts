@@ -1,5 +1,6 @@
 import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
+import { Rectangle } from '../types/Rectangle';
 
 /** The colours of the crews' reticles, matching the crew colours (see `CrewColors.module.css`), but brighter, to stand out against a map. */
 export const tacticalReticleColor = 'oklch(0.86 0.17 90)';
@@ -105,4 +106,142 @@ export function drawTargetReticles(
 
     draw(targets.scienceTargetId, drawScienceReticle);
     draw(targets.tacticalTargetId, drawTacticalReticle);
+}
+
+/** How far past the edge of the view an object's centre must be before it counts as off screen, in world units: a ship's drawing reaches 1, so it's wholly out of view. */
+const offscreenMargin = 1;
+
+/** How far in from the edge of the view each arrow's tip sits, in pixels. Science's sits further in than tactical's, so both show when they're after the same contact. */
+const tacticalArrowInset = 16;
+const scienceArrowInset = 42;
+
+/** How long and how wide each arrow is, in pixels. */
+const arrowLength = 18;
+const arrowWidth = 16;
+
+/** The size of the contact label written beside an arrow, in pixels. */
+const arrowLabelSize = 12;
+
+/** Whether an object at the given position is wholly out of view, so that none of its drawing shows. */
+export function isWhollyOffscreen(bounds: Rectangle, position: { x: number; y: number }) {
+    return position.x <= bounds.x - offscreenMargin
+        || position.x >= bounds.x + bounds.width + offscreenMargin
+        || position.y <= bounds.y - offscreenMargin
+        || position.y >= bounds.y + bounds.height + offscreenMargin;
+}
+
+/** Extra room to leave along each side of the view, e.g. for buttons drawn over the map there, in pixels. */
+export type EdgeInsets = Partial<Record<'top' | 'right' | 'bottom' | 'left', number>>;
+
+/**
+ * Where the line from the middle of the view towards a point leaves the view, brought in from each side by the given distances (in world units).
+ * Returns that position in world units, and the angle the point is in from the middle.
+ */
+export function getEdgePoint(bounds: Rectangle, target: { x: number; y: number }, insets: Required<EdgeInsets>) {
+    const centerX = bounds.x + bounds.width / 2;
+    const centerY = bounds.y + bounds.height / 2;
+    const dx = target.x - centerX;
+    const dy = target.y - centerY;
+
+    // The area the point has to stay in, which never shrinks past the middle of the view.
+    const left = Math.min(bounds.x + insets.left, centerX);
+    const right = Math.max(bounds.x + bounds.width - insets.right, centerX);
+    const top = Math.min(bounds.y + insets.top, centerY);
+    const bottom = Math.max(bounds.y + bounds.height - insets.bottom, centerY);
+
+    // Scale the direction down until it reaches whichever edge of that area it meets first.
+    const scale = Math.min(
+        dx > 0 ? (right - centerX) / dx : dx < 0 ? (left - centerX) / dx : Infinity,
+        dy > 0 ? (bottom - centerY) / dy : dy < 0 ? (top - centerY) / dy : Infinity
+    );
+
+    return { x: centerX + dx * scale, y: centerY + dy * scale, angle: Math.atan2(dy, dx) };
+}
+
+/**
+ * Draw an arrow with its tip at the context's origin, pointing along +x: solid for tactical, an outline for science, so they tell apart by shape as well as colour.
+ * The context should be in world units, turned to point the arrow.
+ */
+function drawArrow(ctx: CanvasRenderingContext2D, color: string, filled: boolean, pixelSize: number) {
+    const length = arrowLength * pixelSize;
+    const halfWidth = arrowWidth / 2 * pixelSize;
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(-length, -halfWidth);
+    ctx.lineTo(-length * 0.7, 0);
+    ctx.lineTo(-length, halfWidth);
+    ctx.closePath();
+
+    ctx.lineJoin = 'miter';
+    ctx.setLineDash([]);
+    if (filled) {
+        ctx.fillStyle = color;
+        ctx.strokeStyle = edgeColor;
+        ctx.lineWidth = edgeWidth * 2 * pixelSize;
+        ctx.stroke();
+        ctx.fill();
+    } else {
+        strokeWithEdge(ctx, color, pixelSize);
+    }
+}
+
+/**
+ * For each object tactical and science are targeting that's wholly out of view, draw an arrow just inside the edge of the view, pointing towards it,
+ * in that crew's colour, with the contact's label beside it if one is given. Anything not among the objects (e.g. out of sensor range) is skipped.
+ * The context should be in world units, and not turned.
+ */
+export function drawOffscreenTargetArrows(
+    ctx: CanvasRenderingContext2D,
+    bounds: Rectangle,
+    objects: Readonly<Record<string, Pick<GameObjectInfo, 'motion'>>>,
+    targets: ReticleTargets,
+    time: number,
+    pixelSize: number,
+    labels?: Readonly<Partial<Record<string, string>>>,
+    edgeInsets: EdgeInsets = {}
+) {
+    const draw = (id: string | null | undefined, color: string, filled: boolean, insetPixels: number, withLabel: boolean) => {
+        const object = id ? objects[id] : undefined;
+        if (!id || !object) {
+            return;
+        }
+
+        const position = interpolatePosition(object.motion, time);
+        if (!isWhollyOffscreen(bounds, position)) {
+            return;
+        }
+
+        const inset = (side: keyof EdgeInsets) => (insetPixels + (edgeInsets[side] ?? 0)) * pixelSize;
+        const tip = getEdgePoint(bounds, position, { top: inset('top'), right: inset('right'), bottom: inset('bottom'), left: inset('left') });
+
+        ctx.save();
+        ctx.translate(tip.x, tip.y);
+        ctx.rotate(tip.angle);
+        drawArrow(ctx, color, filled, pixelSize);
+        ctx.restore();
+
+        const label = withLabel ? labels?.[id] : undefined;
+        if (label) {
+            // Written just behind the arrow, back towards the middle of the view, so it never runs off the edge.
+            const back = (arrowLength + 6) * pixelSize;
+            ctx.save();
+            ctx.translate(tip.x - Math.cos(tip.angle) * back, tip.y - Math.sin(tip.angle) * back);
+            ctx.font = `bold ${arrowLabelSize * pixelSize}px "Share Tech Mono", monospace`;
+            ctx.textAlign = Math.cos(tip.angle) > 0.3 ? 'right' : Math.cos(tip.angle) < -0.3 ? 'left' : 'center';
+            ctx.textBaseline = Math.sin(tip.angle) > 0.3 ? 'bottom' : Math.sin(tip.angle) < -0.3 ? 'top' : 'middle';
+            ctx.lineWidth = edgeWidth * 2 * pixelSize;
+            ctx.strokeStyle = edgeColor;
+            ctx.strokeText(label.toUpperCase(), 0, 0);
+            ctx.fillStyle = color;
+            ctx.fillText(label.toUpperCase(), 0, 0);
+            ctx.restore();
+        }
+    };
+
+    // When both crews are after the same contact, science's arrow sits further in than tactical's, so both show, and the label is written once, behind it.
+    const sameTarget = !!targets.scienceTargetId && targets.scienceTargetId === targets.tacticalTargetId;
+
+    draw(targets.tacticalTargetId, tacticalReticleColor, true, tacticalArrowInset, !sameTarget);
+    draw(targets.scienceTargetId, scienceReticleColor, false, sameTarget ? scienceArrowInset : tacticalArrowInset, true);
 }

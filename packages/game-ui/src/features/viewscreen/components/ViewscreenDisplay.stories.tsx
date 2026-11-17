@@ -330,9 +330,12 @@ const contactObjects = {
     raider: { id: 'raider', name: 'Raider', appearance: 'kite-scout', faction: 'raiders', motion: [{ time: 0, x: 6, y: -3, angle: Math.PI }] },
     twin: { id: 'twin', name: 'Raider', appearance: 'kite-scout', faction: 'raiders', motion: [{ time: 0, x: 5, y: 4, angle: Math.PI }] },
     ally: { id: 'ally', name: 'Ally', appearance: 'chevron', faction: 'player', motion: [{ time: 0, x: -6, y: 3, angle: 0 }] },
+    // Well off the viewscreen, so a crew targeting them gets an arrow at its edge rather than a reticle.
+    farRaider: { id: 'farRaider', name: 'Raider', appearance: 'kite-scout', faction: 'raiders', motion: [{ time: 0, x: 60, y: -20, angle: Math.PI }] },
+    farTwin: { id: 'farTwin', name: 'Raider', appearance: 'kite-scout', faction: 'raiders', motion: [{ time: 0, x: -40, y: 45, angle: 0 }] },
 } as unknown as Record<string, GameObjectInfo>;
 
-const contactLabels = { raider: 'Alpha', twin: 'Bravo', ally: 'Charlie' };
+const contactLabels = { raider: 'Alpha', twin: 'Bravo', ally: 'Charlie', farRaider: 'Delta', farTwin: 'Echo' };
 
 function contactStory(tacticalTargetId: string | undefined, scienceTargetId: string | undefined): Story {
     return {
@@ -363,3 +366,9 @@ export const TargetedByTacticalAndScience: Story = contactStory('raider', 'twin'
 
 /** Both crews are on the same contact, so it has both reticles, one inside the other. */
 export const SameContactTargeted: Story = contactStory('twin', 'twin');
+
+/** Tactical and science are each after a contact that's off the viewscreen, so each gets an arrow at the edge pointing towards it, with its label. */
+export const OffscreenTargets: Story = contactStory('farRaider', 'farTwin');
+
+/** Both crews are after the same contact off the viewscreen, so their arrows sit one inside the other. */
+export const SameOffscreenTarget: Story = contactStory('farRaider', 'farRaider');
