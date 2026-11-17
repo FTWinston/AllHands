@@ -111,13 +111,14 @@ export function drawTargetReticles(
 /** How far past the edge of the view an object's centre must be before it counts as off screen, in world units: a ship's drawing reaches 1, so it's wholly out of view. */
 const offscreenMargin = 1;
 
-/** How far in from the edge of the view each arrow's tip sits, in pixels. Science's sits further in than tactical's, so both show when they're after the same contact. */
+/** How far in from the edge of the view each arrow's tip sits, in pixels. When both crews are after the same contact, science's sits just behind tactical's, so both show. */
 const tacticalArrowInset = 16;
-const scienceArrowInset = 42;
+const scienceArrowInset = 50;
 
-/** How long and how wide each arrow is, in pixels. */
-const arrowLength = 18;
-const arrowWidth = 16;
+/** The size of each arrow, in pixels: its whole length, tail included, and its head's length and width. */
+const arrowLength = 28;
+const arrowHeadLength = 10;
+const arrowHeadWidth = 14;
 
 /** The size of the contact label written beside an arrow, in pixels. */
 const arrowLabelSize = 12;
@@ -130,14 +131,14 @@ export function isWhollyOffscreen(bounds: Rectangle, position: { x: number; y: n
         || position.y >= bounds.y + bounds.height + offscreenMargin;
 }
 
-/** Extra room to leave along each side of the view, e.g. for buttons drawn over the map there, in pixels. */
-export type EdgeInsets = Partial<Record<'top' | 'right' | 'bottom' | 'left', number>>;
+/** How far in from each side of the view to keep a point, in world units. */
+export type EdgeInsets = Record<'top' | 'right' | 'bottom' | 'left', number>;
 
 /**
  * Where the line from the middle of the view towards a point leaves the view, brought in from each side by the given distances (in world units).
  * Returns that position in world units, and the angle the point is in from the middle.
  */
-export function getEdgePoint(bounds: Rectangle, target: { x: number; y: number }, insets: Required<EdgeInsets>) {
+export function getEdgePoint(bounds: Rectangle, target: { x: number; y: number }, insets: EdgeInsets) {
     const centerX = bounds.x + bounds.width / 2;
     const centerY = bounds.y + bounds.height / 2;
     const dx = target.x - centerX;
@@ -159,36 +160,51 @@ export function getEdgePoint(bounds: Rectangle, target: { x: number; y: number }
 }
 
 /**
- * Draw an arrow with its tip at the context's origin, pointing along +x: solid for tactical, an outline for science, so they tell apart by shape as well as colour.
+ * Draw an arrow with its tip at the context's origin, pointing along +x, with a straight tail behind its head:
+ * tactical's has a solid head, and science's just the head's two lines, so they tell apart by shape as well as colour.
  * The context should be in world units, turned to point the arrow.
  */
-function drawArrow(ctx: CanvasRenderingContext2D, color: string, filled: boolean, pixelSize: number) {
+function drawArrow(ctx: CanvasRenderingContext2D, color: string, solidHead: boolean, pixelSize: number) {
     const length = arrowLength * pixelSize;
-    const halfWidth = arrowWidth / 2 * pixelSize;
+    const headLength = arrowHeadLength * pixelSize;
+    const headHalfWidth = arrowHeadWidth / 2 * pixelSize;
+
+    ctx.setLineDash([]);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
     ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-length, -halfWidth);
-    ctx.lineTo(-length * 0.7, 0);
-    ctx.lineTo(-length, halfWidth);
-    ctx.closePath();
+    if (solidHead) {
+        // The tail runs to the base of the head, which is filled in below.
+        ctx.moveTo(-length, 0);
+        ctx.lineTo(-headLength, 0);
+    } else {
+        ctx.moveTo(-length, 0);
+        ctx.lineTo(0, 0);
+        ctx.moveTo(-headLength, -headHalfWidth);
+        ctx.lineTo(0, 0);
+        ctx.lineTo(-headLength, headHalfWidth);
+    }
+    strokeWithEdge(ctx, color, pixelSize);
 
-    ctx.lineJoin = 'miter';
-    ctx.setLineDash([]);
-    if (filled) {
-        ctx.fillStyle = color;
+    if (solidHead) {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-headLength, -headHalfWidth);
+        ctx.lineTo(-headLength, headHalfWidth);
+        ctx.closePath();
+        ctx.lineJoin = 'miter';
         ctx.strokeStyle = edgeColor;
         ctx.lineWidth = edgeWidth * 2 * pixelSize;
         ctx.stroke();
+        ctx.fillStyle = color;
         ctx.fill();
-    } else {
-        strokeWithEdge(ctx, color, pixelSize);
     }
 }
 
 /**
  * For each object tactical and science are targeting that's wholly out of view, draw an arrow just inside the edge of the view, pointing towards it,
- * in that crew's colour, with the contact's label beside it if one is given. Anything not among the objects (e.g. out of sensor range) is skipped.
+ * in that crew's colour (with a solid head for tactical, and an open one for science), with the contact's label beside it if one is given. Anything not among the objects (e.g. out of sensor range) is skipped.
  * The context should be in world units, and not turned.
  */
 export function drawOffscreenTargetArrows(
@@ -198,10 +214,9 @@ export function drawOffscreenTargetArrows(
     targets: ReticleTargets,
     time: number,
     pixelSize: number,
-    labels?: Readonly<Partial<Record<string, string>>>,
-    edgeInsets: EdgeInsets = {}
+    labels?: Readonly<Partial<Record<string, string>>>
 ) {
-    const draw = (id: string | null | undefined, color: string, filled: boolean, insetPixels: number, withLabel: boolean) => {
+    const draw = (id: string | null | undefined, color: string, solidHead: boolean, insetPixels: number, withLabel: boolean) => {
         const object = id ? objects[id] : undefined;
         if (!id || !object) {
             return;
@@ -212,13 +227,13 @@ export function drawOffscreenTargetArrows(
             return;
         }
 
-        const inset = (side: keyof EdgeInsets) => (insetPixels + (edgeInsets[side] ?? 0)) * pixelSize;
-        const tip = getEdgePoint(bounds, position, { top: inset('top'), right: inset('right'), bottom: inset('bottom'), left: inset('left') });
+        const inset = insetPixels * pixelSize;
+        const tip = getEdgePoint(bounds, position, { top: inset, right: inset, bottom: inset, left: inset });
 
         ctx.save();
         ctx.translate(tip.x, tip.y);
         ctx.rotate(tip.angle);
-        drawArrow(ctx, color, filled, pixelSize);
+        drawArrow(ctx, color, solidHead, pixelSize);
         ctx.restore();
 
         const label = withLabel ? labels?.[id] : undefined;

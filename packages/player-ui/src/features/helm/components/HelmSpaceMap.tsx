@@ -50,9 +50,6 @@ type Props = {
 // Base cell radius in pixels for both SpaceMap and SpaceCells
 const BASE_CELL_RADIUS = 32;
 
-/** Room the off-screen target arrows leave along the right of the map, so they don't go under the zoom buttons there (see HelmSpaceMap.module.css), in pixels. */
-const zoomButtonClearance = { right: 80 };
-
 export const HelmSpaceMap = (props: Props) => {
     const activeCard = useActiveCard();
     const overTargetId = useOverTargetId();
@@ -138,7 +135,7 @@ export const HelmSpaceMap = (props: Props) => {
                 drawContactLabels(ctx, Object.values(props.objects), contactLabels, props.viewer, drawTime, pixelSize);
             }
             drawTargetReticles(ctx, props.objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize);
-            drawOffscreenTargetArrows(ctx, bounds, props.objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize, contactLabels, zoomButtonClearance);
+            drawOffscreenTargetArrows(ctx, bounds, props.objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize, contactLabels);
             drawWeaponEffects(ctx, props.weaponEffectsRef.current, props.objects, drawTime, pixelSize);
         },
         [motionPath, shipTarget, pointerLocation, shipPosition, props.weaponEffectsRef, props.objects, props.viewer, timeProvider, contactLabels, tacticalTargetId, scienceTargetId]
