@@ -72,6 +72,14 @@ const SelectableSystem = (props: SystemSelectorProps) => {
     );
 };
 
+const systemSlots = [0, 1, 2, 3];
+
+/** The system identified in a slot of a target's scan order, if any. A slot that hasn't been identified holds 0, which would otherwise read as the hull. */
+const identifiedSystem = (systemOrder: IArray<number> | null, systemIndex: number): ShipSystem | undefined => {
+    const systemId = systemOrder?.[systemIndex];
+    return systemId ? shipSystems[systemId] : undefined;
+};
+
 type NonRevealedProps = Pick<Props, 'id' | 'name' | 'contactLabel' | 'appearance' | 'targetNumber' | 'totalTargets' | 'systemOrder' | 'scannedHull'>;
 
 const NonRevealedContent = (props: NonRevealedProps) => (
@@ -112,10 +120,14 @@ const NonRevealedContent = (props: NonRevealedProps) => (
         <p className={styles.prompt}>Drag a scan card onto this ship</p>
 
         <ul className={styles.systemSelector}>
-            <SelectableSystem systemIndex={0} targetId={props.id} system={props.systemOrder?.[0] === undefined ? undefined : shipSystems[props.systemOrder[0]]} />
-            <SelectableSystem systemIndex={1} targetId={props.id} system={props.systemOrder?.[1] === undefined ? undefined : shipSystems[props.systemOrder[1]]} />
-            <SelectableSystem systemIndex={2} targetId={props.id} system={props.systemOrder?.[2] === undefined ? undefined : shipSystems[props.systemOrder[2]]} />
-            <SelectableSystem systemIndex={3} targetId={props.id} system={props.systemOrder?.[3] === undefined ? undefined : shipSystems[props.systemOrder[3]]} />
+            {systemSlots.map(systemIndex => (
+                <SelectableSystem
+                    key={systemIndex}
+                    systemIndex={systemIndex}
+                    targetId={props.id}
+                    system={identifiedSystem(props.systemOrder, systemIndex)}
+                />
+            ))}
         </ul>
     </div>
 );

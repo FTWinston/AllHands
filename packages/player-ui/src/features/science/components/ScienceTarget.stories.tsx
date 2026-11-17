@@ -34,6 +34,14 @@ export const NoRevealedSystem: Story = {
     },
 };
 
+/** Only one system has been identified so far: the others are still unknown, held as 0 in the scan order. */
+export const PartlyIdentified: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        systemOrder: [0, 3, 0, 0],
+    },
+};
+
 /** The label the crew calls this contact by, beside its name, which another contact may share. */
 export const WithContactLabel: Story = {
     args: {

@@ -150,6 +150,7 @@ export interface ScannedEngineerTileInfo {
 }
 
 export interface ScannedSystemOrderInfo {
+    /** The index in `shipSystems` of the system in each of a target's four scan slots, or 0 for a slot not yet identified (the hull is never scanned). */
     order: IArray<number>;
 }
 
