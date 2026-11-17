@@ -9,10 +9,14 @@ import type { ShipMapStyle } from '../../../objects/mapSvg';
 type Props = {
     className?: string;
     style?: CSSProperties;
-    objects: Record<string, GameObjectInfo>;
+    /** What to draw. A function is called with the server time as each frame is drawn, which suits things that change every frame. */
+    objects: Record<string, GameObjectInfo> | ((time: number) => Record<string, GameObjectInfo>);
     gridColor: string;
     cellRadius: number;
-    center: Vector2D;
+    /** What to keep centered on. A function is called with the server time as each frame is drawn, which suits things that change every frame. */
+    center: Vector2D | ((time: number) => Vector2D);
+    /** Redraw every animation frame, rather than only when this re-renders. Combine with function values for `center` and `objects`, to animate without re-rendering. */
+    animate?: boolean;
     viewer: RelationshipViewer;
     drawExtraForeground?: drawFunction;
     drawExtraBackground?: drawFunction;
@@ -32,13 +36,16 @@ export const SpaceMap = forwardRef<HTMLCanvasElement, Props>((props, ref) => {
         drawExtraForeground,
         drawExtraBackground,
         shipStyle,
+        animate,
     } = props;
 
     const timeProvider = useTimeProvider();
 
     const draw = (ctx: CanvasRenderingContext2D, bounds: DOMRect) => {
         const currentTime = timeProvider.getServerTime();
-        drawMap(ctx, bounds, gridColor, cellRadius, center, currentTime, Object.values(objects), viewer, drawExtraBackground, drawExtraForeground, shipStyle);
+        const frameObjects = typeof objects === 'function' ? objects(currentTime) : objects;
+        const frameCenter = typeof center === 'function' ? center(currentTime) : center;
+        drawMap(ctx, bounds, gridColor, cellRadius, frameCenter, currentTime, Object.values(frameObjects), viewer, drawExtraBackground, drawExtraForeground, shipStyle);
     };
 
     return (
@@ -47,6 +54,7 @@ export const SpaceMap = forwardRef<HTMLCanvasElement, Props>((props, ref) => {
             className={className}
             style={style}
             draw={draw}
+            animate={animate}
         />
     );
 });

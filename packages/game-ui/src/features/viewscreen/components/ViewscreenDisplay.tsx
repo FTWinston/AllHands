@@ -10,7 +10,6 @@ import { ContactLabels, drawContactLabels } from 'common-ui/features/spacemap/ut
 import { drawFields } from 'common-ui/features/spacemap/utils/drawFields';
 import { drawTargetReticles } from 'common-ui/features/spacemap/utils/drawTargetReticles';
 import { drawWeaponArcs, ENEMY_WEAPON_ARC_COLORS, OWN_WEAPON_ARC_COLORS } from 'common-ui/features/spacemap/utils/drawWeaponArcs';
-import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
 import { FC, RefObject, PropsWithChildren, useCallback, useRef } from 'react';
 import { getCombatShake } from '../effects/combatShake';
@@ -44,49 +43,60 @@ type Props = PropsWithChildren<{
 const gridColor = 'rgba(127, 176, 200, 0.25)';
 
 export const ViewscreenDisplay: FC<Props> = (props) => {
-    useAnimationFrame();
-
     const timeProvider = useTimeProvider();
-
-    const currentTime = timeProvider.getServerTime();
-
-    const lastCenter = useRef<Vector2D>({ x: 0, y: 0 });
-    if (props.center) {
-        lastCenter.current = interpolateVector(props.center, currentTime);
-    }
-    const centerVector = lastCenter.current;
 
     const cellRadius = 32; // TODO: make this controllable? automatic?
 
-    const { weaponEffectsRef, viewer, fields, contactLabels, tacticalTargetId, scienceTargetId } = props;
-
-    // A ship that has jumped to warp is drawn by that effect from then on, even if it's still there, as our own ship is until the scene changes.
-    const warpedAwayIds = getWarpedAwayIds(weaponEffectsRef.current, currentTime);
-    const objects = warpedAwayIds.size === 0
-        ? props.objects
-        : Object.fromEntries(Object.entries(props.objects).filter(([id]) => !warpedAwayIds.has(id)));
+    const { center, objects: allObjects, weaponEffectsRef, viewer, fields, contactLabels, tacticalTargetId, scienceTargetId } = props;
 
     const showLabels = useCombatLabels();
     const shakeAndFlashes = useShakeAndFlashes();
 
+    const lastCenter = useRef<Vector2D>({ x: 0, y: 0 });
     const tracker = useRef<ObjectTracker>(new Map()).current;
-    trackObjects(tracker, objects, viewer, currentTime);
 
-    // Shake what's drawn, rather than the canvas itself, so that its edges never show.
-    const shake = shakeAndFlashes
-        ? getCombatShake(weaponEffectsRef.current, viewer.shipId, centerVector, currentTime)
-        : { x: 0, y: 0 };
+    /** What the frame being drawn is showing. This is worked out as each frame is drawn, so that frames don't need to re-render this component. */
+    const frame = useRef<{ centerVector: Vector2D; objects: Record<string, GameObjectInfo> }>({ centerVector: lastCenter.current, objects: allObjects });
 
-    const localShip = viewer.shipId ? (objects[viewer.shipId] as unknown as Snapshot<ShipInfo> | undefined) : undefined;
-    const ownWeaponSlots = localShip?.tacticalState?.slots;
+    const getObjects = useCallback(
+        (time: number) => {
+            // A ship that has jumped to warp is drawn by that effect from then on, even if it's still there, as our own ship is until the scene changes.
+            const warpedAwayIds = getWarpedAwayIds(weaponEffectsRef.current, time);
+            const objects = warpedAwayIds.size === 0
+                ? allObjects
+                : Object.fromEntries(Object.entries(allObjects).filter(([id]) => !warpedAwayIds.has(id)));
 
-    const scannedTactical = localShip?.scienceState?.scannedTactical;
-    const scannedTarget = scannedTactical ? objects[scannedTactical.targetId] : undefined;
-    const scannedWeaponSlots = scannedTactical?.weaponSlots;
+            trackObjects(tracker, objects, viewer, time);
+            frame.current.objects = objects;
+
+            return objects;
+        },
+        [allObjects, weaponEffectsRef, tracker, viewer]
+    );
+
+    const getCenter = useCallback(
+        (time: number) => {
+            if (center) {
+                lastCenter.current = interpolateVector(center, time);
+            }
+
+            const centerVector = lastCenter.current;
+            frame.current.centerVector = centerVector;
+
+            // Shake what's drawn, rather than the canvas itself, so that its edges never show.
+            const shake = shakeAndFlashes
+                ? getCombatShake(weaponEffectsRef.current, viewer.shipId, centerVector, time)
+                : { x: 0, y: 0 };
+
+            return { x: centerVector.x + shake.x / cellRadius, y: centerVector.y + shake.y / cellRadius };
+        },
+        [center, shakeAndFlashes, weaponEffectsRef, viewer.shipId]
+    );
 
     const drawExtraBackground = useCallback(
         (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
             const drawTime = timeProvider.getServerTime();
+            const { centerVector, objects } = frame.current;
 
             drawSpaceBackground(ctx, centerVector, cellRadius, drawTime);
 
@@ -94,20 +104,28 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
                 drawFields(ctx, Object.values(fields), drawTime, pixelSize);
             }
 
+            const localShip = viewer.shipId ? (objects[viewer.shipId] as unknown as Snapshot<ShipInfo> | undefined) : undefined;
+            const ownWeaponSlots = localShip?.tacticalState?.slots;
+
             if (localShip && ownWeaponSlots) {
                 drawWeaponArcs(ctx, interpolatePosition(localShip.motion, drawTime), ownWeaponSlots, OWN_WEAPON_ARC_COLORS, pixelSize);
             }
+
+            const scannedTactical = localShip?.scienceState?.scannedTactical;
+            const scannedTarget = scannedTactical ? objects[scannedTactical.targetId] : undefined;
+            const scannedWeaponSlots = scannedTactical?.weaponSlots;
 
             if (scannedTarget && scannedWeaponSlots) {
                 drawWeaponArcs(ctx, interpolatePosition(scannedTarget.motion, drawTime), scannedWeaponSlots, ENEMY_WEAPON_ARC_COLORS, pixelSize);
             }
         },
-        [timeProvider, centerVector, fields, localShip, ownWeaponSlots, scannedTarget, scannedWeaponSlots]
+        [timeProvider, viewer.shipId, fields]
     );
 
     const drawExtraForeground = useCallback(
         (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
             const drawTime = timeProvider.getServerTime();
+            const { objects } = frame.current;
 
             if (contactLabels) {
                 drawContactLabels(ctx, Object.values(objects), contactLabels, viewer, drawTime, pixelSize);
@@ -119,7 +137,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
                 allowFlashes: shakeAndFlashes,
             });
         },
-        [weaponEffectsRef, tracker, timeProvider, showLabels, shakeAndFlashes, objects, contactLabels, viewer, tacticalTargetId, scienceTargetId]
+        [weaponEffectsRef, tracker, timeProvider, showLabels, shakeAndFlashes, contactLabels, viewer, tacticalTargetId, scienceTargetId]
     );
 
     return (
@@ -128,8 +146,9 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
 
             <SpaceMap
                 className={styles.spaceMap}
-                center={{ x: centerVector.x + shake.x / cellRadius, y: centerVector.y + shake.y / cellRadius }}
-                objects={objects}
+                center={getCenter}
+                objects={getObjects}
+                animate
                 viewer={props.viewer}
                 cellRadius={cellRadius}
                 gridColor={gridColor}

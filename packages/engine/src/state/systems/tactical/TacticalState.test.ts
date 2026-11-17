@@ -268,6 +268,39 @@ describe('TacticalState weapon slot charging', () => {
     });
 });
 
+describe('TacticalState sending weapon slots to clients', () => {
+    /** Load a weapon into the first slot, eject it, and draw it back into the hand. */
+    async function weaponBackInHandAfterSlot1() {
+        const { tactical } = createTactical(['phaserCannon', 'photonTorpedo']);
+        const room = await rooms.connectClient();
+        const weapon = loadWeapon(tactical).card!;
+        room.broadcastPatch();
+        tactical.ejectWeapon('slot1');
+        room.broadcastPatch();
+        tactical.drawFromBottom();
+        expect(tactical.hand).toContain(weapon);
+        room.broadcastPatch();
+        return { tactical, room };
+    }
+
+    it('can send state after a weapon that was in one slot is loaded into another', async () => {
+        const { tactical, room } = await weaponBackInHandAfterSlot1();
+
+        loadWeapon(tactical, 'phaserCannon', 1);
+
+        expect(tactical.slots[1].card?.type).toBe('phaserCannon');
+        expect(() => room.broadcastPatch()).not.toThrow();
+    });
+
+    it('can send state when an encounter ends with a once-slotted weapon back in the hand', async () => {
+        const { tactical, room } = await weaponBackInHandAfterSlot1();
+
+        tactical.cleanupAfterEncounter();
+
+        expect(() => room.broadcastPatch()).not.toThrow();
+    });
+});
+
 describe('TacticalState firing', () => {
     it.each([
         ['at a system', 'tactical'],

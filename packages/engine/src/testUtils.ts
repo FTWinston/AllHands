@@ -72,6 +72,15 @@ export function setupGameRoom() {
         getServer() {
             return colyseus;
         },
+        /**
+         * Connect a ship client, so the room encodes its state on each patch, as a real game does.
+         * Without a client, `broadcastPatch()` discards the changes without encoding them.
+         */
+        async connectClient() {
+            // The test server's typings only accept a plain Room, not a Room with a typed state.
+            await colyseus.connectTo(room as unknown as Parameters<ColyseusTestServer['connectTo']>[0], { type: 'ship' });
+            return room;
+        },
     };
 }
 
