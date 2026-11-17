@@ -21,7 +21,7 @@ const palettes = {
 };
 
 /**
- * Brief notices of whether each shot hit or missed, stacked with the newest at the bottom. Meant to sit just above the bottom edge of the target display.
+ * Brief notices of whether each shot hit or missed, stacked with the newest at the bottom. Meant to sit just below the target list, and shown over the middle of its card.
  * The container is always present, so that screen readers announce each toast as it's added.
  */
 export const ShotToasts = (props: Props) => (
