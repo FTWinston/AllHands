@@ -102,7 +102,7 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                         Each crew member joins on their own phone, and assigns themselves a station.
                     </p>
                     <p className={styles.hint}>
-                        If you have a captain, they don't connect to anything. They play by talking to the rest of the crew.
+                        If you have a captain, they don't use a phone. They play by talking to the rest of the crew.
                     </p>
                 </section>
 
