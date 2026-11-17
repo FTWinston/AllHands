@@ -9,7 +9,6 @@ import { CardState } from 'src/state/CardState';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
 import type { HullSystemTile } from '../engineer/HullSystemTile';
-import type { ColyseusTestServer } from '@colyseus/testing';
 
 const rooms = setupGameRoom();
 
@@ -495,14 +494,6 @@ describe('ScienceState reading a hand', () => {
 });
 
 describe('ScienceState deflector slots', () => {
-    /** Connect a client, so the room encodes its state on each patch, as a real game does. */
-    async function connectClient() {
-        const room = rooms.getRoom();
-        // The test server's typings only accept a plain Room, not a Room with a typed state.
-        await rooms.getServer().connectTo(room as unknown as Parameters<ColyseusTestServer['connectTo']>[0], { type: 'ship' });
-        return room;
-    }
-
     function loadSubstance(scanner: AiShip, id: number, type: 'tetryonScan' | 'polaronScan') {
         const card = new CardState(id, type);
         scanner.scienceState.hand.push(card);
@@ -512,7 +503,7 @@ describe('ScienceState deflector slots', () => {
 
     it('can still send state to clients after a card is unmounted from a slot into the deck', async () => {
         const { scanner } = createWorld();
-        const room = await connectClient();
+        const room = await rooms.connectClient();
         Object.assign(scanner.scienceState, { powerLevel: 5 });
         const card = loadSubstance(scanner, 9001, 'tetryonScan');
         room.broadcastPatch();
@@ -526,7 +517,7 @@ describe('ScienceState deflector slots', () => {
 
     it('can still send state to clients after a slotted card is displaced back into the hand', async () => {
         const { scanner } = createWorld();
-        const room = await connectClient();
+        const room = await rooms.connectClient();
         Object.assign(scanner.scienceState, { powerLevel: 5 });
         const first = loadSubstance(scanner, 9001, 'tetryonScan');
         room.broadcastPatch();
@@ -535,6 +526,30 @@ describe('ScienceState deflector slots', () => {
 
         expect(scanner.scienceState.substanceSlotCard).toBe(second);
         expect(scanner.scienceState.hand).toContain(first);
+        expect(() => room.broadcastPatch()).not.toThrow();
+    });
+
+    it('can still send state to clients when an encounter ends with a once-slotted card back in the hand', async () => {
+        const state = rooms.createState();
+        state.initFactions([{ id: 'raiders' }], 'raiders');
+        const setup = { ...shipSetup('raiders'), goal: { type: 'search-and-destroy' as const }, skill: 1 };
+        setup.science = { ...setup.science, cards: ['tetryonScan', 'passiveScan'] as never, initialHandSize: 2 };
+        const ship = new AiShip(state, setup);
+        state.add(ship);
+        const science = ship.scienceState;
+        Object.assign(science, { powerLevel: 5 });
+        const room = await rooms.connectClient();
+        const card = science.hand.find(candidate => candidate.type === 'tetryonScan')!;
+        expect(science.playCard(card.id, 'tetryonScan', 'scan', 'deflector/substance')).not.toBeNull();
+        room.broadcastPatch();
+        science.unmountSubstanceCard();
+        room.broadcastPatch();
+        science.drawFromBottom();
+        expect(science.hand).toContain(card);
+        room.broadcastPatch();
+
+        science.cleanupAfterEncounter();
+
         expect(() => room.broadcastPatch()).not.toThrow();
     });
 });

@@ -378,8 +378,8 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             return;
         }
 
-        // Empty the slot before the card goes anywhere else. If it were briefly in both the slot and the deck,
-        // nulling the slot afterwards leaves Colyseus a stale parent link, and its next patch encode throws.
+        // Empty the slot before the card goes anywhere else, so it's never synced as being in two places at once.
+        // (That used to crash Colyseus's encoder: https://github.com/colyseus/schema/pull/259)
         this[slot] = null;
         this.markCardUnslotted(card);
         this.handlePlayedCard(card, -1, false);
