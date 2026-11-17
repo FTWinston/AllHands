@@ -361,30 +361,28 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     }
 
     unmountModifierCard() {
-        if (this.modifierSlotCard === null) {
-            return;
-        }
-        this.markCardUnslotted(this.modifierSlotCard);
-        this.handlePlayedCard(this.modifierSlotCard, -1, false);
-        this.modifierSlotCard = null;
+        this.unmountSlotCard('modifierSlotCard');
     }
 
     unmountSubstanceCard() {
-        if (this.substanceSlotCard === null) {
-            return;
-        }
-        this.markCardUnslotted(this.substanceSlotCard);
-        this.handlePlayedCard(this.substanceSlotCard, -1, false);
-        this.substanceSlotCard = null;
+        this.unmountSlotCard('substanceSlotCard');
     }
 
     unmountDeliveryCard() {
-        if (this.deliverySlotCard === null) {
+        this.unmountSlotCard('deliverySlotCard');
+    }
+
+    private unmountSlotCard(slot: 'modifierSlotCard' | 'substanceSlotCard' | 'deliverySlotCard') {
+        const card = this[slot];
+        if (card === null) {
             return;
         }
-        this.markCardUnslotted(this.deliverySlotCard);
-        this.handlePlayedCard(this.deliverySlotCard, -1, false);
-        this.deliverySlotCard = null;
+
+        // Empty the slot before the card goes anywhere else. If it were briefly in both the slot and the deck,
+        // nulling the slot afterwards leaves Colyseus a stale parent link, and its next patch encode throws.
+        this[slot] = null;
+        this.markCardUnslotted(card);
+        this.handlePlayedCard(card, -1, false);
     }
 
     override playScanCardReveal(cardDefinition: EngineScanTargetCardDefinition, targetId: string, systemIndex: number, parameters: CardParameters): boolean {
@@ -506,16 +504,16 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             return false;
         }
 
+        // Fill the slot before returning a displaced card to the hand, so the card is never in both at once.
         const previousCard = this[slot];
+        this[slot] = card;
+        this.markCardSlotted(card);
+
         if (previousCard) {
-            // Return the displaced card to the hand.
             this.markCardUnslotted(previousCard);
             this.hand.push(previousCard);
             this.handChanged();
         }
-
-        this[slot] = card;
-        this.markCardSlotted(card);
         this.updateDeflectorCard();
         return true;
     }

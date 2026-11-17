@@ -9,6 +9,7 @@ import { CardState } from 'src/state/CardState';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect } from 'vitest';
 import type { HullSystemTile } from '../engineer/HullSystemTile';
+import type { ColyseusTestServer } from '@colyseus/testing';
 
 const rooms = setupGameRoom();
 
@@ -490,5 +491,50 @@ describe('ScienceState reading a hand', () => {
         expect(scanner.scienceState.scannedHelm!.hand).not.toBeNull();
         expect(scanner.scienceState.hand).toHaveLength(handBefore - 1);
         expect(scanner.scienceState.identifiedVulnerability).toBeNull();
+    });
+});
+
+describe('ScienceState deflector slots', () => {
+    /** Connect a client, so the room encodes its state on each patch, as a real game does. */
+    async function connectClient() {
+        const room = rooms.getRoom();
+        // The test server's typings only accept a plain Room, not a Room with a typed state.
+        await rooms.getServer().connectTo(room as unknown as Parameters<ColyseusTestServer['connectTo']>[0], { type: 'ship' });
+        return room;
+    }
+
+    function loadSubstance(scanner: AiShip, id: number, type: 'tetryonScan' | 'polaronScan') {
+        const card = new CardState(id, type);
+        scanner.scienceState.hand.push(card);
+        expect(scanner.scienceState.playCard(card.id, type, 'scan', 'deflector/substance')).not.toBeNull();
+        return card;
+    }
+
+    it('can still send state to clients after a card is unmounted from a slot into the deck', async () => {
+        const { scanner } = createWorld();
+        const room = await connectClient();
+        Object.assign(scanner.scienceState, { powerLevel: 5 });
+        const card = loadSubstance(scanner, 9001, 'tetryonScan');
+        room.broadcastPatch();
+
+        scanner.scienceState.unmountSubstanceCard();
+
+        expect(scanner.scienceState.substanceSlotCard).toBeNull();
+        expect(scanner.scienceState.deck).toContain(card);
+        expect(() => room.broadcastPatch()).not.toThrow();
+    });
+
+    it('can still send state to clients after a slotted card is displaced back into the hand', async () => {
+        const { scanner } = createWorld();
+        const room = await connectClient();
+        Object.assign(scanner.scienceState, { powerLevel: 5 });
+        const first = loadSubstance(scanner, 9001, 'tetryonScan');
+        room.broadcastPatch();
+
+        const second = loadSubstance(scanner, 9002, 'polaronScan');
+
+        expect(scanner.scienceState.substanceSlotCard).toBe(second);
+        expect(scanner.scienceState.hand).toContain(first);
+        expect(() => room.broadcastPatch()).not.toThrow();
     });
 });
