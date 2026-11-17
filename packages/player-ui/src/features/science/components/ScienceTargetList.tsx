@@ -18,6 +18,8 @@ type Props = {
     /** The hull of the ship being scanned, if any. */
     scannedHull: ScannedHullInfo | null;
     viewer: RelationshipViewer;
+    /** What the crew calls each contact, by object id. */
+    contactLabels?: Partial<Record<string, string>>;
     closeRevealedSystem: () => void;
 };
 
@@ -36,6 +38,7 @@ export const ScienceTargetList = (props: Props) => {
                     <ScienceTarget
                         id={target.id}
                         name={target.name}
+                        contactLabel={props.contactLabels?.[target.id]}
                         appearance={target.appearance}
                         faction={target.faction}
                         relationship={getDisplayRelationship(target, props.viewer)}

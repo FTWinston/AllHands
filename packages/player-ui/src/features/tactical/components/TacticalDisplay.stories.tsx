@@ -286,3 +286,16 @@ export const ActiveTractorBeam: Story = {
         lockLevel: 1,
     },
 };
+
+/** Shot results over the target display: a quick volley of hits on a system, one that the shields absorbed, and a miss at another target, which is named. */
+export const ShotResults: Story = {
+    args: {
+        ...UI.args,
+        persistentShotResults: true,
+        shotResults: [
+            { id: 1, outcome: 'hit', targetId: 'target1', system: 'helm', count: 3, expiresAt: Infinity },
+            { id: 2, outcome: 'absorbed', targetId: 'target1', count: 1, expiresAt: Infinity },
+            { id: 3, outcome: 'miss', targetId: 'target2', count: 1, expiresAt: Infinity },
+        ],
+    },
+};

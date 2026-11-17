@@ -141,6 +141,7 @@ function fireShot(
                 sourceId: ship.id,
                 targetId: target.id,
                 damage,
+                system: hit.targetSystem,
                 startTime: gameState.currentTime,
             });
         }

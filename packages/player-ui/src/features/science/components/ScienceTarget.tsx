@@ -7,6 +7,7 @@ import colorPalettes from 'common-ui/ColorPalette.module.css';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { SystemIcon } from 'common-ui/icons/systems';
 import { classNames } from 'common-ui/utils/classNames';
+import { ContactLabel } from 'src/components/ContactLabel';
 import { TargetReadout } from 'src/components/TargetReadout';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { ScannedShieldReadout } from 'src/features/shields/components/ScannedShieldReadout';
@@ -20,6 +21,8 @@ import styles from './ScienceTarget.module.css';
 
 type Props = GameObjectInfo & {
     relationship: RelationshipType;
+    /** What the crew calls this contact, such as "Alpha": shown beside the name, which other contacts may share. */
+    contactLabel?: string;
     targetNumber: number;
     totalTargets: number;
     systemOrder: IArray<number> | null;
@@ -69,13 +72,16 @@ const SelectableSystem = (props: SystemSelectorProps) => {
     );
 };
 
-type NonRevealedProps = Pick<Props, 'id' | 'name' | 'appearance' | 'targetNumber' | 'totalTargets' | 'systemOrder' | 'scannedHull'>;
+type NonRevealedProps = Pick<Props, 'id' | 'name' | 'contactLabel' | 'appearance' | 'targetNumber' | 'totalTargets' | 'systemOrder' | 'scannedHull'>;
 
 const NonRevealedContent = (props: NonRevealedProps) => (
     <div className={styles.notRevealedContent}>
         <div className={styles.name}>
             <span className={styles.label}>Target</span>
-            <h2 className={styles.nameText}>{props.name}</h2>
+            <h2 className={styles.nameText}>
+                <ContactLabel label={props.contactLabel} />
+                {props.name}
+            </h2>
         </div>
 
         <div className={styles.count}>
@@ -119,17 +125,18 @@ export const ScienceTarget = (props: Props) => {
     // If all are null, we show the non-revealed content: the name and appearance of the target,
     // plus the system selector drop targets that only show when dragging a scan card.
     const content = props.scannedHelm
-        ? <ScanHelmSystem {...props.scannedHelm} name={props.name} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
+        ? <ScanHelmSystem {...props.scannedHelm} name={props.name} contactLabel={props.contactLabel} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
         : props.scannedTactical
-            ? <ScanTacticalSystem {...props.scannedTactical} name={props.name} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
+            ? <ScanTacticalSystem {...props.scannedTactical} name={props.name} contactLabel={props.contactLabel} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
             : props.scannedScience
-                ? <ScanScienceSystem {...props.scannedScience} name={props.name} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
+                ? <ScanScienceSystem {...props.scannedScience} name={props.name} contactLabel={props.contactLabel} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
                 : props.scannedEngineer
-                    ? <ScanEngineerSystem {...props.scannedEngineer} name={props.name} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
+                    ? <ScanEngineerSystem {...props.scannedEngineer} name={props.name} contactLabel={props.contactLabel} onClose={props.closeRevealedSystem} vulnerability={props.identifiedVulnerability} />
                     : (
                         <NonRevealedContent
                             id={props.id}
                             name={props.name}
+                            contactLabel={props.contactLabel}
                             appearance={props.appearance}
                             targetNumber={props.targetNumber}
                             totalTargets={props.totalTargets}

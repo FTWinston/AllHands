@@ -80,6 +80,20 @@ describe('firing weapons', () => {
         expect(effects.map(effect => effect.type)).toContain('impact');
     });
 
+    it('tells clients which system an aimed or unaimed hit landed on', () => {
+        const { state, effects, fire } = createFight();
+
+        fire('phaserCannon', 100, 'tactical');
+        vi.spyOn(state.random, 'pick').mockReturnValueOnce('helm');
+        fire('phaserCannon', 100);
+
+        const impacts = effects.filter(effect => effect.type === 'impact');
+        expect(impacts).toEqual([
+            expect.objectContaining({ system: 'tactical' }),
+            expect.objectContaining({ system: 'helm' }),
+        ]);
+    });
+
     it('does no damage when a projectile arrives at a target that has gone', () => {
         const { target, effects, damage, fire, landProjectile } = createFight();
 

@@ -1,5 +1,6 @@
 import { IRandom } from 'common-data/types/IRandom';
 import { AiShip } from 'src/state/AiShip';
+import { EngineerState } from 'src/state/systems/engineer/EngineerState';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect, vi } from 'vitest';
 import { createBlackboard, resolveAiConfig } from '../types';
@@ -119,10 +120,10 @@ describe('EngineerOfficer', () => {
         // and is not expendable, so it is the cyclable "worst" card. auxPower is expendable —
         // both the evaluator-side filter and the engine (EngineerState repair-target play) exclude it.
         const { ship, officer, bb } = createWorld(['sustain', 'sustain', 'sustain', 'sustain', 'auxPower']);
-        ship.engineerState.repairCapacity = 20; // drained: cycling has somewhere to put value
+        ship.engineerState.repairCapacity = 4; // drained: cycling has somewhere to put value
         const before = ship.engineerState.repairCapacity;
         officer.think(bb, 0);
-        expect(ship.engineerState.repairCapacity).toBe(before + 10);
+        expect(ship.engineerState.repairCapacity).toBe(before + EngineerState.repairCapacityPerCard);
         expect(ship.engineerState.hand.length).toBe(4);
     });
 });

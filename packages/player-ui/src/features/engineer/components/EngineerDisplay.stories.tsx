@@ -4,7 +4,7 @@ import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType'
 import { Cooldown } from 'common-data/types/Cooldown';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { fn } from 'storybook/test';
+import { expect, fn } from 'storybook/test';
 import { EngineerDisplay as Component } from './EngineerDisplay';
 import type { SystemCards } from './SystemCardsDialog';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -340,7 +340,49 @@ export const UI: Story = {
                 ],
             },
         ],
-        repairCapacity: 50,
+        repairCapacity: 12,
+        maxRepairCapacity: 12,
         power: 5,
     },
+};
+
+/**
+ * Resize the browser to the given size, as the test runner can. Storybook itself can't (vitest/browser only loads under the test runner),
+ * so there the story is checked at whatever size the window is, rather than failing to render.
+ */
+async function setViewport(width: number, height: number): Promise<boolean> {
+    try {
+        const { page } = await import('vitest/browser');
+        await page.viewport(width, height);
+        return true;
+    } catch {
+        // Not under the test runner.
+        return false;
+    }
+}
+
+const expectHullButtonMatchesOthers = async (canvasElement: HTMLElement, width: number, height: number) => {
+    if (await setViewport(width, height)) {
+        await expect(canvasElement.ownerDocument.defaultView!.innerWidth).toBe(width);
+    }
+
+    const buttonHeight = (system: string) => canvasElement.querySelector(`button[aria-label="View ${system} cards"]`)!.getBoundingClientRect().height;
+
+    const hullHeight = buttonHeight('hull');
+    await expect(hullHeight).toBeGreaterThan(0);
+    for (const system of ['reactor', 'helm', 'science', 'tactical', 'engineer']) {
+        await expect(hullHeight).toBeCloseTo(buttonHeight(system), 0);
+    }
+};
+
+/** The hull's tile has shields too, which make its content taller, but its cards button is the same size as the others'. */
+export const PhoneWidth: Story = {
+    ...UI,
+    play: ({ canvasElement }) => expectHullButtonMatchesOthers(canvasElement, 390, 844),
+};
+
+/** Wide tiles lay the hull's shields out differently, but its cards button is still the same size as the others'. */
+export const WideWidth: Story = {
+    ...UI,
+    play: ({ canvasElement }) => expectHullButtonMatchesOthers(canvasElement, 1200, 900),
 };

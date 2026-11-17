@@ -34,6 +34,8 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     deliverySlot: CardType | null;
     deflectorCard: Snapshot<CardInstance>;
     viewer: RelationshipViewer;
+    /** What the crew calls each contact, by object id. */
+    contactLabels?: Partial<Record<string, string>>;
     /** How much Insight science holds, which some of its cards spend. */
     insight: number;
     /** The game time at which science last found a sensor ghost where it expected a ship, or 0 if it never has. */
@@ -47,7 +49,7 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
 export const ScienceDisplay = (props: Props) => {
     const {
         cards, playCard, targets, scannedShipId, systemOrderByTarget, modifierSlot, substanceSlot, deliverySlot,
-        deflectorCard, viewer, scannedHelm, scannedTactical, scannedScience, scannedEngineer, scannedHull, identifiedVulnerability,
+        deflectorCard, viewer, contactLabels, scannedHelm, scannedTactical, scannedScience, scannedEngineer, scannedHull, identifiedVulnerability,
         insight, ghostExposedTime, closeRevealedSystem, ...headerProps
     } = props;
 
@@ -89,6 +91,7 @@ export const ScienceDisplay = (props: Props) => {
                     scannedEngineer={scannedEngineer}
                     scannedHull={scannedHull}
                     viewer={viewer}
+                    contactLabels={contactLabels}
                     closeRevealedSystem={closeRevealedSystem}
                 />
 

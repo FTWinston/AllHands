@@ -152,3 +152,44 @@ export const SensorGhostSeenByAnEnemy: Story = ghostStory(
     { shipId: 'raider', faction: 'raiders', relations: { player: RelationshipType.Hostile } },
     'raider'
 );
+
+/** Two raiders that share a name, which the crew tells apart by label. */
+const twinObjects: Record<string, GameObjectInfo> = {
+    ...objects,
+    raider: { ...objects.raider, name: 'Raider' },
+    twin: { id: 'twin', name: 'Raider', appearance: 'kite-scout', faction: 'raiders', motion: [{ time: 0, x: 3, y: 3, angle: Math.PI }] },
+};
+const contactLabels = { raider: 'Alpha', twin: 'Bravo', ally: 'Charlie' };
+
+function reticleStory(tacticalTargetId: string | undefined, scienceTargetId: string | undefined): Story {
+    return {
+        args: { overTargetId: null },
+        render: () => {
+            const weaponEffectsRef = useWeaponEffects(null);
+
+            return (
+                <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
+                    <Component
+                        center={twinObjects.playerShip.motion}
+                        objects={twinObjects}
+                        viewer={viewer}
+                        contactLabels={contactLabels}
+                        tacticalTargetId={tacticalTargetId}
+                        scienceTargetId={scienceTargetId}
+                        cancelManeuver={fn()}
+                        weaponEffectsRef={weaponEffectsRef}
+                    />
+                </div>
+            );
+        },
+    };
+}
+
+/** Every contact is labelled, though two of them share a name. Nothing is targeted. */
+export const ContactLabels: Story = reticleStory(undefined, undefined);
+
+/** Tactical (yellow brackets) is aiming at one raider, and science (blue ring) is scanning the other. */
+export const TargetedByTacticalAndScience: Story = reticleStory('raider', 'twin');
+
+/** Both crews are on the same contact, so it has both reticles, one inside the other. */
+export const SameContactTargeted: Story = reticleStory('twin', 'twin');

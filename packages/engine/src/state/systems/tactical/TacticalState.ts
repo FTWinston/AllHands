@@ -50,6 +50,12 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     /** The id of the ship that Lock is held against. Empty while there's no Lock. */
     @type('string') lockTargetId = '';
 
+    /**
+     * The id of the object that tactical's client is showing as its current target, which the crew's other screens mark with a reticle. Empty if none.
+     * Chosen by the client (see `selectTarget`), so it's kept to what this ship can see: it's cleared if that object goes.
+     */
+    @type('string') selectedTargetId = '';
+
     /** The level of the `lock` effect on this system, which sets it (see `lockLevelChanged`). Held here too as tactical's own client can't see the system's effects. */
     @type('uint8') lockLevel = 0;
 
@@ -71,7 +77,29 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     /** The systems that science has identified on each ship, which can be aimed at (see `setSystemSubTargets`). */
     private readonly identifiedSystems = new Map<string, ShipSystem[]>();
 
+    /**
+     * Record which object tactical's client is showing as its target. An empty id clears it.
+     * Returns false, leaving it as it was, for anything that isn't an object this ship knows of, or is the ship itself.
+     */
+    selectTarget(targetId: string): boolean {
+        if (targetId === '') {
+            this.selectedTargetId = '';
+            return true;
+        }
+
+        if (typeof targetId !== 'string' || targetId === this.getShip().id || !this.resolveTarget(targetId)) {
+            return false;
+        }
+
+        this.selectedTargetId = targetId;
+        return true;
+    }
+
     update(currentTime: number) {
+        if (this.selectedTargetId !== '' && !this.resolveTarget(this.selectedTargetId)) {
+            this.selectedTargetId = '';
+        }
+
         this.updateAim(currentTime);
 
         for (const slot of this.slots) {
@@ -779,6 +807,7 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
         // Clearing the system's effects has already dropped any Lock: this covers a system with none to clear.
         this.lockLevelChanged(0);
+        this.selectedTargetId = '';
         this.holdingFire = false;
         this.holdFireTargetId = '';
         this.calledShotTargetId = '';

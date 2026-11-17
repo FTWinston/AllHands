@@ -241,7 +241,10 @@ button.viewCards.generating {
         height: 1.6em;
     }
 
+    /* A fixed height, the same for every tile, so the hull's extra shield row can't stretch its button (this is two rows of power and health, their gap and margins). */
     button.viewCards {
+        align-self: center;
+        height: 5.1em;
         gap: 0.3em;
 
         & > span:first-child {
@@ -327,6 +330,8 @@ button.viewCards.generating {
 
     button.viewCards {
         justify-self: start;
+        /* Not stretched to the tall hull's three rows of attributes. */
+        align-self: start;
         width: 7.5em;
         flex-direction: row;
         gap: 0.25em;

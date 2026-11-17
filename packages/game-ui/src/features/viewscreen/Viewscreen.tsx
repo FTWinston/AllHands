@@ -137,6 +137,9 @@ const ViewscreenScene: FC<Props> = (props) => {
             objects={objects}
             fields={fields}
             viewer={viewer}
+            contactLabels={(localShip as PlayerShipInfo | undefined)?.contactLabels as Partial<Record<string, string>> | undefined}
+            tacticalTargetId={(localShip as PlayerShipInfo | undefined)?.tacticalTargetId}
+            scienceTargetId={(localShip as PlayerShipInfo | undefined)?.scienceTargetId}
             weaponEffectsRef={weaponEffectsRef}
             showMenu={props.showMenu}
         >

@@ -1,0 +1,61 @@
+/* Takes no room itself: the toasts stack up from its top edge, over the bottom of whatever is above it. */
+.anchor {
+    position: relative;
+    height: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.toasts {
+    position: absolute;
+    bottom: 0.5em;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3em;
+    max-width: 90vw;
+}
+
+.toast {
+    padding: 0.25em 0.9em;
+    font-family: var(--readout-font-family);
+    font-size: 1em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-lightest);
+    background-color: color-mix(in oklch, var(--color-darkest) 85%, var(--panel));
+    border: solid var(--color-mid) 0.15em;
+    border-radius: 0 0.8em 0 0.8em;
+    corner-shape: bevel;
+    box-shadow: 0 0 1em 0.1em color-mix(in srgb, var(--color-light) 35%, transparent);
+    animation: toast var(--lifetime) ease-out forwards;
+}
+
+/* Doesn't fade. */
+.persistent {
+    animation: none;
+}
+
+@keyframes toast {
+    0% { opacity: 0; transform: translateY(0.5em) scale(0.9); }
+    8% { opacity: 1; transform: none; }
+    65% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* The fade stays, as it's what says the notice is over, but nothing moves. */
+@media (prefers-reduced-motion: reduce) {
+    .toast:not(.persistent) {
+        animation-name: toastFade;
+    }
+
+    @keyframes toastFade {
+        0% { opacity: 0; }
+        8% { opacity: 1; }
+        65% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+}

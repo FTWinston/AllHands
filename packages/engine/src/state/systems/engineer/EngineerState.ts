@@ -30,7 +30,11 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
 
     @type([EngineerSystemTile]) systems = new ArraySchema<EngineerSystemTile>();
 
-    @type('uint8') maxRepairCapacity = 50;
+    /** Sized against systems' max health (8 for a crew station, 12 for the hull, 18 for the reactor), so a full meter is a lot of repair, but not all of it. */
+    @type('uint8') maxRepairCapacity = 12;
+
+    /** How much capacity a card played onto the "repair" target adds: a third of a full meter, or half a crew station's health. */
+    static readonly repairCapacityPerCard = 4;
 
     /**
      * How much to repair when repairing a system. Consumed when repairing, and recharged by playing cards onto the "repair" (fake) system target.
@@ -129,7 +133,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
                 return null;
             }
 
-            this.repairCapacity = Math.min(this.repairCapacity + 10, this.maxRepairCapacity);
+            this.repairCapacity = Math.min(this.repairCapacity + EngineerState.repairCapacityPerCard, this.maxRepairCapacity);
 
             this.handlePlayedCard(found.card, found.cardIndex, false);
 

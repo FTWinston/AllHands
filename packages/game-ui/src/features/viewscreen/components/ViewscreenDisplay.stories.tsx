@@ -323,3 +323,43 @@ export const SensorGhostSeenByAnEnemy: Story = {
         );
     },
 };
+
+/** Two raiders that share a name, and an ally, as the crew labels them. */
+const contactObjects = {
+    player: { id: 'player', name: 'Player', appearance: 'chevron', faction: 'player', motion: [{ time: 0, x: 0, y: 0, angle: 0 }] },
+    raider: { id: 'raider', name: 'Raider', appearance: 'kite-scout', faction: 'raiders', motion: [{ time: 0, x: 6, y: -3, angle: Math.PI }] },
+    twin: { id: 'twin', name: 'Raider', appearance: 'kite-scout', faction: 'raiders', motion: [{ time: 0, x: 5, y: 4, angle: Math.PI }] },
+    ally: { id: 'ally', name: 'Ally', appearance: 'chevron', faction: 'player', motion: [{ time: 0, x: -6, y: 3, angle: 0 }] },
+} as unknown as Record<string, GameObjectInfo>;
+
+const contactLabels = { raider: 'Alpha', twin: 'Bravo', ally: 'Charlie' };
+
+function contactStory(tacticalTargetId: string | undefined, scienceTargetId: string | undefined): Story {
+    return {
+        render: (args) => {
+            const weaponEffectsRef = useWeaponEffects(null);
+
+            return (
+                <Component
+                    {...args}
+                    center={[{ time: 0, x: 0, y: 0 }]}
+                    objects={contactObjects}
+                    viewer={{ shipId: 'player', faction: 'player', relations: { raiders: RelationshipType.Hostile } }}
+                    contactLabels={contactLabels}
+                    tacticalTargetId={tacticalTargetId}
+                    scienceTargetId={scienceTargetId}
+                    weaponEffectsRef={weaponEffectsRef}
+                />
+            );
+        },
+    };
+}
+
+/** Every contact has its label, whether or not combat labels are on, though two of them share a name. */
+export const ContactLabels: Story = contactStory(undefined, undefined);
+
+/** Tactical (yellow brackets) is aiming at one raider, and science (blue ring) is scanning the other. */
+export const TargetedByTacticalAndScience: Story = contactStory('raider', 'twin');
+
+/** Both crews are on the same contact, so it has both reticles, one inside the other. */
+export const SameContactTargeted: Story = contactStory('twin', 'twin');

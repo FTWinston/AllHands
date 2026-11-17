@@ -321,6 +321,28 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             }
         });
 
+        // Tactical's client says which target it's showing, so that the rest of the crew's screens can mark it. An empty id says there's none.
+        this.onMessage('selectTarget', (client, message: { targetId: string }) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (clientRole !== ownTacticalClientRole) {
+                console.error('Only tactical can select targets');
+                return;
+            }
+
+            if (typeof message?.targetId !== 'string' || !this.getSystemState(ship, clientRole).selectTarget(message.targetId)) {
+                console.warn(`Rejected selecting target ${message?.targetId} from ${client.sessionId}`);
+            }
+        });
+
         this.onMessage('dismissMessage', (client) => {
             if (this.state.gameStatus !== 'active') {
                 return;

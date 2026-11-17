@@ -11,6 +11,7 @@ import { parseVector } from 'common-data/features/space/utils/vectors';
 import { CardCooldown } from 'common-data/types/Cooldown';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
+import { ContactLabels } from 'common-ui/features/spacemap/utils/drawContactLabels';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
 import { ComponentProps, RefObject, useCallback } from 'react';
 import { CardUI } from 'src/features/cardui/components/CardUI';
@@ -28,13 +29,19 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     /** The lingering zones in space, drawn on the map so they can be steered round, or into. */
     fields?: Record<string, FieldInfo>;
     viewer: RelationshipViewer;
+    /** What this ship's crew calls each contact, by object id. */
+    contactLabels?: ContactLabels;
+    /** The id of the object tactical is aiming at. */
+    tacticalTargetId?: string;
+    /** The id of the ship science is scanning. */
+    scienceTargetId?: string;
     activeManeuver?: CardCooldown | null;
     cancelManeuver: () => void;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
 };
 
 export const HelmDisplay = (props: Props) => {
-    const { cards, playCard, center, objects, fields, viewer, activeManeuver, cancelManeuver, weaponEffectsRef, ...headerProps } = props;
+    const { cards, playCard, center, objects, fields, viewer, contactLabels, tacticalTargetId, scienceTargetId, activeManeuver, cancelManeuver, weaponEffectsRef, ...headerProps } = props;
 
     useRootClassName(crewStyles.helm);
 
@@ -75,6 +82,9 @@ export const HelmDisplay = (props: Props) => {
                     objects={objects}
                     fields={fields}
                     viewer={viewer}
+                    contactLabels={contactLabels}
+                    tacticalTargetId={tacticalTargetId}
+                    scienceTargetId={scienceTargetId}
                     activeManeuver={activeManeuver}
                     cancelManeuver={cancelManeuver}
                     weaponEffectsRef={weaponEffectsRef}

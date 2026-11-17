@@ -128,6 +128,8 @@ export interface TacticalSystemInfo extends CrewSystemInfo {
     lockTargetId: string;
     /** How many levels of Lock are held against that ship: the level of the `lock` effect on the tactical system. */
     lockLevel: number;
+    /** The id of the object that tactical's client is showing as its target, which the rest of the crew's screens mark. Empty if none. */
+    selectedTargetId?: string;
     /** Whether weapons can't fire just now, as the Hold Fire card says. */
     holdingFire?: boolean;
     /** Whether the helm is holding the ship steady, so that cumbersome weapons don't have to hold their aim. */
@@ -273,6 +275,18 @@ export interface PlayerShipInfo extends ShipInfo {
 
     /** What's coming in over comms that the crew has to deal with. Only synced to the ship's game client and tactical. */
     comms: CommsInfo;
+
+    /**
+     * A short, distinct label for each other object this ship's crew has known of, by object id, such as "Alpha": what the crew calls it, as names can be shared.
+     * Synced to the ship's game client, helm, science and tactical, so every screen labels a contact the same.
+     */
+    contactLabels?: IMap<string, string>;
+
+    /** The id of the object that tactical is aiming at, or empty. Synced to the ship's game client and helm, which can't see tactical's own state. */
+    tacticalTargetId?: string;
+
+    /** The id of the ship that science is scanning, or empty. Synced to the ship's game client and helm, which can't see science's own state. */
+    scienceTargetId?: string;
 }
 
 export interface SystemSetupInfo {

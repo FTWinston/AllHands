@@ -11,6 +11,7 @@ import { default as CloseIcon } from 'common-ui/icons/close.svg?react';
 import { SystemIcon } from 'common-ui/icons/systems';
 import { classNames } from 'common-ui/utils/classNames';
 import { PropsWithChildren, ReactNode } from 'react';
+import { ContactLabel } from 'src/components/ContactLabel';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { default as PowerIcon } from 'src/features/header/assets/power.svg?react';
 import styles from './ScanBase.module.css';
@@ -19,6 +20,8 @@ import { ScanHand } from './ScanHand';
 type Props = PropsWithChildren<{
     contentClassName?: string;
     targetName?: string;
+    /** What the crew calls the scanned ship, such as "Alpha". */
+    targetLabel?: string;
     targetId: ObjectId;
     system: CrewRoleName;
     /** The scanned system's current power level. */
@@ -74,6 +77,7 @@ export const ScanBase = (props: Props) => {
                     <span className={styles.targetName}>
                         Scan ·
                         {' '}
+                        <ContactLabel label={props.targetLabel} className={styles.targetLabel} />
                         {props.targetName}
                     </span>
                     <h2 className={styles.systemName}>{props.system}</h2>

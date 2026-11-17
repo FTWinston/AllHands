@@ -11,7 +11,9 @@ import { CardCooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
+import { ContactLabels, drawContactLabels } from 'common-ui/features/spacemap/utils/drawContactLabels';
 import { drawFields } from 'common-ui/features/spacemap/utils/drawFields';
+import { drawTargetReticles } from 'common-ui/features/spacemap/utils/drawTargetReticles';
 import { drawWeaponEffects } from 'common-ui/features/spacemap/utils/drawWeaponEffects';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
@@ -33,6 +35,12 @@ type Props = {
     /** The lingering zones in space, drawn under the ships. */
     fields?: Record<string, FieldInfo>;
     viewer: RelationshipViewer;
+    /** What this ship's crew calls each contact, by object id. Written beside each contact. */
+    contactLabels?: ContactLabels;
+    /** The id of the object tactical is aiming at, marked with tactical's reticle. */
+    tacticalTargetId?: string;
+    /** The id of the ship science is scanning, marked with science's reticle. */
+    scienceTargetId?: string;
     activeManeuver?: CardCooldown | null;
     cancelManeuver: () => void;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
@@ -102,7 +110,7 @@ export const HelmSpaceMap = (props: Props) => {
         : null;
 
     // Draw the fields under everything else on the map.
-    const { fields } = props;
+    const { fields, contactLabels, tacticalTargetId, scienceTargetId } = props;
     const drawExtraBackground = useCallback(
         (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
             if (fields) {
@@ -121,9 +129,14 @@ export const HelmSpaceMap = (props: Props) => {
             if (shipTarget && pointerLocation) {
                 drawShipTarget(ctx, shipPosition, shipTarget.position, pointerLocation, pixelSize);
             }
-            drawWeaponEffects(ctx, props.weaponEffectsRef.current, props.objects, timeProvider.getServerTime(), pixelSize);
+            const drawTime = timeProvider.getServerTime();
+            if (contactLabels) {
+                drawContactLabels(ctx, Object.values(props.objects), contactLabels, props.viewer, drawTime, pixelSize);
+            }
+            drawTargetReticles(ctx, props.objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize);
+            drawWeaponEffects(ctx, props.weaponEffectsRef.current, props.objects, drawTime, pixelSize);
         },
-        [motionPath, shipTarget, pointerLocation, shipPosition, props.weaponEffectsRef, props.objects, timeProvider]
+        [motionPath, shipTarget, pointerLocation, shipPosition, props.weaponEffectsRef, props.objects, props.viewer, timeProvider, contactLabels, tacticalTargetId, scienceTargetId]
     );
 
     return (

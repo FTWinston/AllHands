@@ -115,6 +115,7 @@ export const Science = (props: Props) => {
             playCard={playCard}
             cardGeneration={scienceState.cardGeneration}
             viewer={viewer}
+            contactLabels={localShip.contactLabels as Partial<Record<string, string>> | undefined}
             insight={scienceState.insight}
             ghostExposedTime={scienceState.ghostExposedTime}
             closeRevealedSystem={closeRevealedSystem}

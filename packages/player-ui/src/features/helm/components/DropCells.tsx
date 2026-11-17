@@ -3,7 +3,7 @@ import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinition
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { distance, serializeVector } from 'common-data/features/space/utils/vectors';
 import { classNames } from 'common-ui/utils/classNames';
-import { FC, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { FC, memo, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
 import styles from './DropCells.module.css';
@@ -71,7 +71,7 @@ function worldToHex(worldX: number, worldY: number): { col: number; row: number 
     return { col: iCol, row: iRow };
 }
 
-export const DropCells: FC<Props> = (props) => {
+const DropCellsInner: FC<Props> = (props) => {
     const ref = useRef<HTMLDivElement>(null);
 
     const { center, shipPosition, cellRadius } = props;
@@ -212,3 +212,19 @@ export const DropCells: FC<Props> = (props) => {
         </div>
     );
 };
+
+/** Whether two positions are the same, though they're different objects. */
+function samePosition(a: Vector2D, b: Vector2D) {
+    return a.x === b.x && a.y === b.y;
+}
+
+/**
+ * The helm map re-renders on every animation frame, and hands these cells new position objects each time even when the ship hasn't moved.
+ * Hundreds of drop targets re-rendering every frame is slow, so they only do so when something they show has actually changed.
+ */
+export const DropCells = memo(DropCellsInner, (previous, next) => previous.targetType === next.targetType
+    && previous.disabled === next.disabled
+    && previous.cellRadius === next.cellRadius
+    && previous.className === next.className
+    && samePosition(previous.center, next.center)
+    && samePosition(previous.shipPosition, next.shipPosition));

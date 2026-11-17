@@ -214,6 +214,12 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this._knownObjects.delete(objectId);
         this.tacticalState.subTargetsByTarget.delete(objectId);
         this.scienceState.forgetShip(objectId);
+        this.contactForgotten(objectId);
+    }
+
+    /** Called as an object that this ship knew of has left the game, once everything else about it has been forgotten. */
+    protected contactForgotten(_objectId: string) {
+        // Only player ships label the contacts they know of.
     }
 
     override damage(damage: Damage): number {

@@ -30,6 +30,15 @@ export const TacticalTarget: Story = {
     },
 };
 
+/** The label the crew calls this contact by, beside its name, which another contact may share. */
+export const WithContactLabel: Story = {
+    args: {
+        ...TacticalTarget.args,
+        name: 'Enemy Ship',
+        contactLabel: 'Alpha',
+    },
+};
+
 export const ScannedHull: Story = {
     args: {
         ...TacticalTarget.args,

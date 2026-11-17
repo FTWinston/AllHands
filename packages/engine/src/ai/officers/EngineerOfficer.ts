@@ -3,7 +3,7 @@ import { priorityFor } from '../evaluators/helpers';
 import { CandidatePlay, EvaluationContext } from '../types';
 import { Officer } from './Officer';
 
-const REPAIR_TRIGGER_CAPACITY = 10;
+const REPAIR_TRIGGER_CAPACITY = 4; // One card's worth of capacity (EngineerState.repairCapacityPerCard), half a crew station's health.
 const CYCLE_SCORE = 25;
 
 export class EngineerOfficer extends Officer {

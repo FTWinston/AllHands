@@ -95,6 +95,9 @@ export const Helm = (props: Props) => {
             objects={objects}
             fields={fields}
             viewer={viewer}
+            contactLabels={localShip.contactLabels as Partial<Record<string, string>> | undefined}
+            tacticalTargetId={localShip.tacticalTargetId}
+            scienceTargetId={localShip.scienceTargetId}
             power={helmState.powerLevel}
             deckSize={helmState.deck.length}
             deckView={deckView}

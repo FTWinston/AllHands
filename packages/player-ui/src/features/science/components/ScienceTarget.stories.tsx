@@ -34,6 +34,30 @@ export const NoRevealedSystem: Story = {
     },
 };
 
+/** The label the crew calls this contact by, beside its name, which another contact may share. */
+export const WithContactLabel: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        contactLabel: 'Alpha',
+    },
+};
+
+/** The label is on the scan readout too, once a system is revealed. */
+export const Helm_WithContactLabel: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        contactLabel: 'Bravo',
+        scannedHelm: {
+            targetId: 'Enemy-01',
+            power: 3,
+            hand: null,
+            activeManeuver: null,
+            maneuverProgress: null,
+            evasionChance: 25,
+        },
+    },
+};
+
 export const ScannedHull: Story = {
     args: {
         ...NoRevealedSystem.args,

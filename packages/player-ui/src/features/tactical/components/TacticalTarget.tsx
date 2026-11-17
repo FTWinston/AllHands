@@ -3,6 +3,7 @@ import { GameObjectInfo, ScannedHullInfo, SubTargetInfo } from 'common-data/feat
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { classNames } from 'common-ui/utils/classNames';
+import { ContactLabel } from 'src/components/ContactLabel';
 import { TargetReadout } from 'src/components/TargetReadout';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { ScannedShieldReadout } from 'src/features/shields/components/ScannedShieldReadout';
@@ -14,6 +15,8 @@ import styles from './TacticalTarget.module.css';
 
 type Props = GameObjectInfo & {
     relationship: RelationshipType;
+    /** What the crew calls this contact, such as "Alpha": shown beside the name, which other contacts may share. */
+    contactLabel?: string;
     targetNumber: number;
     totalTargets: number;
     subTargets?: IArray<SubTargetInfo> | null;
@@ -43,7 +46,10 @@ export const TacticalTarget = (props: Props) => {
 
             <div className={styles.name}>
                 <span className={styles.label}>Target</span>
-                <h2 className={styles.nameText}>{props.name}</h2>
+                <h2 className={styles.nameText}>
+                    <ContactLabel label={props.contactLabel} />
+                    {props.name}
+                </h2>
             </div>
 
             <div className={styles.count}>

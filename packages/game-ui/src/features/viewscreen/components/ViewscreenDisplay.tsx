@@ -6,7 +6,9 @@ import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { interpolatePosition, interpolateVector } from 'common-data/features/space/utils/interpolate';
 import { Screen } from 'common-ui/components/Screen';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
+import { ContactLabels, drawContactLabels } from 'common-ui/features/spacemap/utils/drawContactLabels';
 import { drawFields } from 'common-ui/features/spacemap/utils/drawFields';
+import { drawTargetReticles } from 'common-ui/features/spacemap/utils/drawTargetReticles';
 import { drawWeaponArcs, ENEMY_WEAPON_ARC_COLORS, OWN_WEAPON_ARC_COLORS } from 'common-ui/features/spacemap/utils/drawWeaponArcs';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
@@ -28,6 +30,12 @@ type Props = PropsWithChildren<{
     /** The lingering zones in space, drawn under the ships. */
     fields?: Record<string, FieldInfo>;
     viewer: RelationshipViewer;
+    /** What this ship's crew calls each contact, by object id. Written beside each contact, whether or not combat labels are on. */
+    contactLabels?: ContactLabels;
+    /** The id of the object tactical is aiming at, marked with tactical's reticle. */
+    tacticalTargetId?: string;
+    /** The id of the ship science is scanning, marked with science's reticle. */
+    scienceTargetId?: string;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
     showMenu: () => void;
 }>;
@@ -50,7 +58,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
 
     const cellRadius = 32; // TODO: make this controllable? automatic?
 
-    const { weaponEffectsRef, viewer, fields } = props;
+    const { weaponEffectsRef, viewer, fields, contactLabels, tacticalTargetId, scienceTargetId } = props;
 
     // A ship that has jumped to warp is drawn by that effect from then on, even if it's still there, as our own ship is until the scene changes.
     const warpedAwayIds = getWarpedAwayIds(weaponEffectsRef.current, currentTime);
@@ -98,13 +106,20 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
     );
 
     const drawExtraForeground = useCallback(
-        (ctx: CanvasRenderingContext2D) => {
-            drawCombatEffects(ctx, weaponEffectsRef.current, tracker, timeProvider.getServerTime(), {
+        (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
+            const drawTime = timeProvider.getServerTime();
+
+            if (contactLabels) {
+                drawContactLabels(ctx, Object.values(objects), contactLabels, viewer, drawTime, pixelSize);
+            }
+            drawTargetReticles(ctx, objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize);
+
+            drawCombatEffects(ctx, weaponEffectsRef.current, tracker, drawTime, {
                 showLabels,
                 allowFlashes: shakeAndFlashes,
             });
         },
-        [weaponEffectsRef, tracker, timeProvider, showLabels, shakeAndFlashes]
+        [weaponEffectsRef, tracker, timeProvider, showLabels, shakeAndFlashes, objects, contactLabels, viewer, tacticalTargetId, scienceTargetId]
     );
 
     return (
