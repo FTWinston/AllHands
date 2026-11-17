@@ -1,6 +1,7 @@
+import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { Button } from 'common-ui/components/Button';
 import { useState } from 'react';
-import { fn } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { CardDropTarget } from './CardDropTarget';
 import { CardHand } from './CardHand';
 import { DragCardProvider } from './DragCardProvider';
@@ -87,6 +88,18 @@ const meta: Meta<typeof CardHand> = {
                         >
                             Remove card
                         </Button>
+
+                        <Button
+                            onClick={() => setCards((cards) => {
+                                // Each change comes as a new card object, as it does from the game's state.
+                                const index = cards.findIndex(card => !card.extraTraits?.['damaged']);
+                                return index === -1
+                                    ? cards
+                                    : cards.map((card, i) => i === index ? { ...card, extraTraits: { ...card.extraTraits, damaged: ExtraTraitType.Normal } } : card);
+                            })}
+                        >
+                            Damage card
+                        </Button>
                     </div>
                 </div>
             </DragCardProvider>
@@ -119,6 +132,29 @@ export const Three: Story = {
                 type: 'exampleEnemyTarget',
             },
         ],
+    },
+};
+
+/** A card that's damaged while in the hand shows as damaged. */
+export const CardDamagedInHand: Story = {
+    args: {
+        cards: [
+            {
+                id: 1,
+                type: 'slowAndSteady',
+            },
+            {
+                id: 2,
+                type: 'phaserStrip',
+            },
+        ],
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await expect(canvas.queryByText('Damaged')).not.toBeInTheDocument();
+
+        await userEvent.click(canvas.getByRole('button', { name: 'Damage card' }));
+        await expect(await canvas.findByText('Damaged')).toBeInTheDocument();
     },
 };
 

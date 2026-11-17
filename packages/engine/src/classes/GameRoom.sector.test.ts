@@ -500,6 +500,35 @@ describe('GameRoom engineer system cards', () => {
         expect(tactical.health).toBe(0);
     });
 
+    it.each(['helm', 'tactical', 'science'] as const)('%s sees its own cards being damaged as they move between hand and deck', async (role) => {
+        const { state, ship, clients } = await startEncounter();
+        const system = ship[`${role}State`];
+
+        const traitsOf = (cards: IArray<{ id: number; extraTraits?: { keys(): Iterable<string> } }>) =>
+            cards.map(card => [card.id, [...card.extraTraits?.keys() ?? []].sort()]);
+
+        const expectClientMatches = async () => {
+            ship.tick(0, state.currentTime);
+
+            await vi.waitFor(() => {
+                const clientSystem = getClientShip(clients[role], ship)[`${role}State`];
+                expect(traitsOf(clientSystem.hand)).toEqual(traitsOf(system.hand));
+                expect(traitsOf(clientSystem.deck)).toEqual(traitsOf(system.deck));
+            });
+        };
+
+        await expectClientMatches();
+
+        for (let i = 0; i < system.maxHealth; i++) {
+            // Cards leave the hand and others are drawn, as they would be in play.
+            system.discard();
+            await expectClientMatches();
+
+            system.adjustHealth(-1);
+            await expectClientMatches();
+        }
+    });
+
     it('science and tactical both see the hull of the ship science is scanning, and no one else does', async () => {
         const { state, ship, clients } = await startEncounter();
         const [enemy] = getHostileShips(state);

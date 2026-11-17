@@ -1,6 +1,20 @@
 import { IArray } from '@colyseus/react';
 import { useEffect, useRef, useState } from 'react';
 
+/**
+ * The items to show: every item in `items`, plus any known item that has since left it, so that it can animate out where it was.
+ * A known item that's still present is replaced by its current version, as state snapshots are immutable: a change to an item, such as a card being damaged, comes as a new object.
+ */
+export function mergeKnownItems<TItem, TItemId>(knownItems: IArray<TItem>, items: IArray<TItem>, getId: (item: TItem) => TItemId): TItem[] {
+    const currentItems = new Map(items.map(item => [getId(item), item]));
+    const knownIds = new Set(knownItems.map(getId));
+
+    return [
+        ...knownItems.map(knownItem => currentItems.get(getId(knownItem)) ?? knownItem),
+        ...items.filter(item => !knownIds.has(getId(item))),
+    ];
+}
+
 export function useArrayChanges<TItem, TItemId>(items: IArray<TItem>, getId: (item: TItem) => TItemId) {
     const knownItems = useRef<IArray<TItem>>(items);
     const [currentItemIds, setCurrentItemIds] = useState<Set<TItemId>>(() => new Set(items.map(getId)));
@@ -25,11 +39,7 @@ export function useArrayChanges<TItem, TItemId>(items: IArray<TItem>, getId: (it
         }
     }, [items, getId, currentItemIds]);
 
-    // Add any items from items into knownItems, if not already in there.
-    knownItems.current = [...knownItems.current, ...items.filter((item) => {
-        const itemId = getId(item);
-        return !knownItems.current.some(knownItem => getId(knownItem) === itemId);
-    })];
+    knownItems.current = mergeKnownItems(knownItems.current, items, getId);
 
     useEffect(() => {
         const newlyRemovingItems = knownItems.current.filter((knownItem) => {
