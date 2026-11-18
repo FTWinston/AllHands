@@ -369,6 +369,17 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }
 
     /**
+     * How many working pool cards are stabilised (critically damaged if they're damaged again),
+     * how many are damaged (so can be repaired), and how many are critically damaged (so can't).
+     */
+    getDamageBreakdown() {
+        const stabilised = this.damageQueue.filter(card => card.hasTrait('stabilised')).length;
+        const damaged = this.repairQueue.length;
+        const critical = this.cardPool.size - this.damageQueue.length - damaged;
+        return { stabilised, damaged, critical };
+    }
+
+    /**
      * Adjust health by randomly damaging (negative) or repairing (positive) that many cards.
      * Slotted cards are only damaged once every other pool card is already damaged.
      */

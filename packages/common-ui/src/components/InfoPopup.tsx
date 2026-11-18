@@ -11,12 +11,15 @@ type Props = PropsWithChildren<{
     name?: string;
     description: JSX.Element;
     palette?: ColorPalette;
+    /** Names the button, for content that doesn't say what it is, such as a bar. */
+    ariaLabel?: string;
 }>;
 
 export const InfoPopup: FC<Props> = props => (
     <Popover.Root>
         <Popover.Trigger
             className={classNames(styles.item, colorPalletes[props.palette ?? 'primary'], props.className)}
+            aria-label={props.ariaLabel}
         >
             {props.children}
         </Popover.Trigger>

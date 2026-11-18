@@ -188,6 +188,9 @@ export const UI: Story = {
                 ...(hullCards),
                 health: 10,
                 maxHealth: 12,
+                stabilised: 0,
+                damaged: 2,
+                critical: 0,
                 shield: 62,
                 maxShield: 75,
                 power: 3,
@@ -216,6 +219,9 @@ export const UI: Story = {
                 ...(noCards),
                 health: 18,
                 maxHealth: 18,
+                stabilised: 4,
+                damaged: 0,
+                critical: 0,
                 power: 5,
                 generating: false,
                 effects: [
@@ -228,16 +234,22 @@ export const UI: Story = {
             {
                 system: 'helm',
                 ...(helmCards),
-                health: 18,
-                maxHealth: 18,
+                health: 3,
+                maxHealth: 4,
+                stabilised: 0,
+                damaged: 1,
+                critical: 0,
                 power: 5,
                 generating: false,
             },
             {
                 system: 'science',
                 ...(noCards),
-                health: 18,
-                maxHealth: 18,
+                health: 4,
+                maxHealth: 8,
+                stabilised: 3,
+                damaged: 0,
+                critical: 4,
                 power: 5,
                 generating: false,
                 effects: [
@@ -278,8 +290,11 @@ export const UI: Story = {
             {
                 system: 'tactical',
                 ...(noCards),
-                health: 18,
-                maxHealth: 18,
+                health: 8,
+                maxHealth: 8,
+                stabilised: 0,
+                damaged: 0,
+                critical: 0,
                 power: 5,
                 generating: false,
                 effects: [
@@ -312,8 +327,11 @@ export const UI: Story = {
             {
                 system: 'engineer',
                 ...(noCards),
-                health: 18,
-                maxHealth: 18,
+                health: 0,
+                maxHealth: 8,
+                stabilised: 0,
+                damaged: 3,
+                critical: 5,
                 power: 5,
                 generating: false,
                 effects: [
@@ -361,28 +379,56 @@ async function setViewport(width: number, height: number): Promise<boolean> {
     }
 }
 
-const expectHullButtonMatchesOthers = async (canvasElement: HTMLElement, width: number, height: number) => {
+/** What's at the middle of the element, as a tap there would find it. */
+function elementAtMiddleOf(element: Element) {
+    const rect = element.getBoundingClientRect();
+    return element.ownerDocument.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+}
+
+/**
+ * Every tile's contents fit it, and tapping its power or health opens its cards, as the cards button covers the tile.
+ * Its effects and shields, which are buttons too, open their own descriptions instead.
+ */
+const expectTilesFitAndOpenCards = async (canvasElement: HTMLElement, width: number, height: number) => {
     if (await setViewport(width, height)) {
         await expect(canvasElement.ownerDocument.defaultView!.innerWidth).toBe(width);
     }
 
-    const buttonHeight = (system: string) => canvasElement.querySelector(`button[aria-label="View ${system} cards"]`)!.getBoundingClientRect().height;
+    // Effects slide into place as they're added.
+    const { CSSTransition } = canvasElement.ownerDocument.defaultView as unknown as { CSSTransition: typeof Animation };
+    await Promise.all(canvasElement.ownerDocument.getAnimations().filter(animation => animation instanceof CSSTransition).map(animation => animation.finished));
 
-    const hullHeight = buttonHeight('hull');
-    await expect(hullHeight).toBeGreaterThan(0);
-    for (const system of ['reactor', 'helm', 'science', 'tactical', 'engineer']) {
-        await expect(hullHeight).toBeCloseTo(buttonHeight(system), 0);
+    for (const system of ['hull', 'reactor', 'helm', 'science', 'tactical', 'engineer']) {
+        const cardsButton = canvasElement.querySelector(`button[aria-label="View ${system} cards"]`)!;
+        const tile = cardsButton.closest('h2')!.parentElement!;
+
+        await expect(tile.scrollHeight, `${system} tile's content height`).toBeLessThanOrEqual(tile.clientHeight + 1);
+        const tileRight = tile.getBoundingClientRect().right;
+        const overhanging = [...tile.querySelectorAll('*')].filter(element => element.getBoundingClientRect().right > tileRight + 1).map(element => `${element.tagName}.${element.getAttribute('class')} ${element.getBoundingClientRect().right - tileRight}`);
+        await expect(tile.scrollWidth, `${system} tile's content width: ${overhanging.join(', ')}`).toBeLessThanOrEqual(tile.clientWidth + 1);
+
+        for (const row of tile.querySelectorAll('[role="img"]')) {
+            await expect(elementAtMiddleOf(row), `${row.getAttribute('aria-label')} on the ${system} tile`).toBe(cardsButton);
+        }
+
+        // Lots of effects overlap one another, so another effect might be on top, but not the cards button.
+        for (const other of tile.querySelectorAll('button')) {
+            if (other !== cardsButton) {
+                const tapped = elementAtMiddleOf(other)?.closest('button');
+                await expect(tapped && tile.contains(tapped) && tapped !== cardsButton, `${other.textContent} on the ${system} tile`).toBe(true);
+            }
+        }
     }
 };
 
-/** The hull's tile has shields too, which make its content taller, but its cards button is the same size as the others'. */
+/** The hull's tile has shields too, which take another row. */
 export const PhoneWidth: Story = {
     ...UI,
-    play: ({ canvasElement }) => expectHullButtonMatchesOthers(canvasElement, 390, 844),
+    play: ({ canvasElement }) => expectTilesFitAndOpenCards(canvasElement, 390, 844),
 };
 
-/** Wide tiles lay the hull's shields out differently, but its cards button is still the same size as the others'. */
+/** Wide tiles put the effects beside power, health and shields, rather than below them. */
 export const WideWidth: Story = {
     ...UI,
-    play: ({ canvasElement }) => expectHullButtonMatchesOthers(canvasElement, 1200, 900),
+    play: ({ canvasElement }) => expectTilesFitAndOpenCards(canvasElement, 1200, 900),
 };

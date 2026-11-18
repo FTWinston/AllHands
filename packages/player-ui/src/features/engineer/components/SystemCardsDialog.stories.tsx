@@ -23,11 +23,15 @@ const meta: Meta<typeof Component> = {
         setOpen: fn(),
         hand: createCards(['phaserStrip', 'lowYield'], 1),
         deck: [
-            ...createCards(['photonTorpedo', 'phaserCannon'], 3),
+            { id: 3, type: 'photonTorpedo', extraTraits: { stabilised: ExtraTraitType.Normal } },
+            ...createCards(['phaserCannon'], 4),
             { id: 5, type: 'highYield', extraTraits: { damaged: ExtraTraitType.Normal } },
-            ...createCards(['fullSpread', 'weaponOvercharge', 'subCritical'], 6),
+            ...createCards(['fullSpread', 'weaponOvercharge'], 6),
+            { id: 8, type: 'subCritical', extraTraits: { critical: ExtraTraitType.Normal } },
             { id: 9, type: 'rapidFire', extraTraits: { expendable: ExtraTraitType.Normal } },
         ],
+        // The expendable card doesn't count.
+        health: { health: 6, maxHealth: 8, stabilised: 1, damaged: 1, critical: 1 },
     },
     render: (args) => {
         const [isOpen, setOpen] = useState(args.isOpen);
@@ -63,6 +67,13 @@ export const CrewSystem: Story = {
 
         // Only the deck is numbered.
         await expect(page.getAllByText(/^#\d+$/)).toHaveLength(7);
+
+        // The health bar is explained, as the tile has no room to.
+        const health = page.getByRole('region', { name: 'Health' });
+        await expect(health).toHaveTextContent('5 working');
+        await expect(health).toHaveTextContent('1 stabilised: critically damaged if damaged again');
+        await expect(health).toHaveTextContent('1 damaged: can be repaired');
+        await expect(health).toHaveTextContent('1 critically damaged: can\'t be repaired');
     },
 };
 
@@ -72,6 +83,7 @@ export const Reactor: Story = {
         system: 'reactor',
         hand: [],
         deck: createCards(['reactorPowerHull', 'reactorPowerHelm', 'reactorPowerTactical', 'reactorPowerEngineer', 'reactorPowerScience', 'reactorPowerReactor'], 1),
+        health: { health: 6, maxHealth: 6, stabilised: 0, damaged: 0, critical: 0 },
     },
     play: async ({ canvasElement }) => {
         const page = within(canvasElement.ownerDocument.body);
@@ -91,6 +103,7 @@ export const Hull: Story = {
             { id: 3, type: 'hullShieldEmitter', extraTraits: { damaged: ExtraTraitType.Normal } },
             ...createCards(['hullVolatileEmitter', 'hullBare', 'hullShieldTuningTorpedo'], 4),
         ],
+        health: { health: 5, maxHealth: 6, stabilised: 0, damaged: 1, critical: 0 },
     },
     play: async ({ canvasElement }) => {
         const page = within(canvasElement.ownerDocument.body);
@@ -160,6 +173,7 @@ export const EmptyDeck: Story = {
         system: 'helm',
         hand: createCards(['zigZag'], 1),
         deck: [],
+        health: { health: 1, maxHealth: 1, stabilised: 0, damaged: 0, critical: 0 },
     },
     play: async ({ canvasElement }) => {
         const page = within(canvasElement.ownerDocument.body);

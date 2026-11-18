@@ -72,6 +72,7 @@ export const SystemList = (props: Props) => {
             {viewedSystem && (
                 <SystemCardsDialog
                     system={viewedSystem.system}
+                    health={viewedSystem}
                     hand={viewedSystem.hand}
                     deck={viewedSystem.deck}
                     isOpen={isViewingCards}

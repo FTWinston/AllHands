@@ -3,23 +3,20 @@ import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'common-data/features/ships/types/SystemEffectDefinition';
 import { getShieldAbsorption, getShieldDrainPercent, shieldCollapsePercent } from 'common-data/features/ships/utils/shieldStats';
 import { HullSystemTileInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { Button } from 'common-ui/components/Button';
 import { InfoPopup } from 'common-ui/components/InfoPopup';
 import { default as HealthIcon } from 'common-ui/icons/health.svg?react';
 import { ShieldsIcon, SystemIcon } from 'common-ui/icons/systems';
 import { classNames } from 'common-ui/utils/classNames';
-import { PropsWithChildren } from 'react';
+import { useId } from 'react';
 import { default as PowerIcon } from '../../header/assets/power.svg?react';
 import { default as CardDrawIcon } from '../assets/card-draw.svg?react';
 import { EffectList } from './EffectList';
+import { describeHealth, HealthBreakdown, HealthSegments } from './HealthSegments';
 import styles from './System.module.css';
-import { TileShieldOutline } from './TileShieldOutline';
 
-export type SystemInfo = {
+export type SystemInfo = HealthBreakdown & {
     system: ShipSystem;
     power: number;
-    health: number;
-    maxHealth: number;
     generating: boolean;
     effects?: IArray<SystemEffectInstance>;
 };
@@ -33,24 +30,27 @@ export type TileShieldInfo = {
 };
 
 type Props = SystemInfo & {
-    /** The hull's shields, shown along the tile's border, and with its name or stats. */
+    /** The hull's shields, shown with power and health. */
     shield?: TileShieldInfo;
     /** Opens a view of all of this system's cards. */
     onViewCards: () => void;
 };
 
-type ShieldReadoutProps = PropsWithChildren<TileShieldInfo & {
-    className: string;
+/** Power is shown out of this, though effects can take it higher. */
+const basePowerMax = 5;
+
+type ShieldRowProps = TileShieldInfo & {
     /** The hull's power level, which sets how much the shields absorb, and how much that drains them. */
     power: number;
     reinforced: boolean;
-}>;
+};
 
-/** One of the tile's shield readouts, which opens a description of the shields, and what they'd do to a hit right now. */
-const ShieldReadout = (props: ShieldReadoutProps) => (
+/** The hull's shields, as a bar, which opens a description of the shields, and what they'd do to a hit right now. */
+const ShieldRow = (props: ShieldRowProps) => (
     <InfoPopup
-        className={classNames(styles.shieldReadout, props.className)}
+        className={classNames(styles.row, styles.shieldRow)}
         name={`Shields (${props.level}/${props.max})`}
+        ariaLabel={`Shields ${props.level} of ${props.max}`}
         description={(
             <>
                 {`Protects the ship from damage. The shields absorb a share of each hit, which drains them. More hull power means they absorb more, for less drain. They collapse if a hit leaves them below ${shieldCollapsePercent}%, and recharge between encounters.`}
@@ -60,82 +60,73 @@ const ShieldReadout = (props: ShieldReadoutProps) => (
             </>
         )}
     >
-        {props.children}
+        <ShieldsIcon className={styles.icon} />
+        <span className={styles.shieldBar}>
+            <span className={styles.shieldFill} style={{ width: `${props.max > 0 ? props.level / props.max * 100 : 0}%` }} />
+        </span>
+        <span className={styles.value}>{props.level}</span>
     </InfoPopup>
 );
 
+/**
+ * A system's tile on the engineer's screen, with its power, health (one segment per card) and effects.
+ * The whole tile is a button that opens the system's cards, apart from the effects and shields, which open their own descriptions.
+ */
 export const System = (props: Props) => {
     const { shield, effects } = props;
+    const healthId = useId();
 
     const hasShield = !!shield && shield.max > 0;
-    const shieldReadout = hasShield
-        ? { ...shield, power: props.power, reinforced: effects?.some(effect => effect.type === 'shieldReinforced') === true }
-        : undefined;
+    const powerPips = Math.max(basePowerMax, props.power);
 
     return (
-        <div className={classNames(styles.system, hasShield ? styles.shielded : undefined)}>
-            {hasShield && <TileShieldOutline level={shield.level / shield.max * 100} />}
-
-            <div className={styles.header}>
-                <h2 className={styles.name}>
+        <div className={classNames(styles.system, props.generating ? styles.generating : undefined)}>
+            <h2 className={styles.name}>
+                {/* Stretched over the whole tile (see the CSS), so tapping anywhere that isn't otherwise a button opens the cards. */}
+                <button
+                    type="button"
+                    className={styles.viewCards}
+                    onClick={props.onViewCards}
+                    aria-label={`View ${props.system} cards`}
+                    aria-describedby={healthId}
+                >
                     <SystemIcon className={styles.nameIcon} system={props.system} />
                     {props.system}
-                </h2>
+                </button>
+            </h2>
 
-                {/* Narrower tiles show the shields beside the name, and wide ones show them with power and health. */}
-                {shieldReadout && (
-                    <ShieldReadout {...shieldReadout} className={styles.headerShield}>
-                        <span className={styles.headerShieldValue}>{shieldReadout.level}</span>
-                        <span>
-                            /
-                            {shieldReadout.max}
-                        </span>
-                    </ShieldReadout>
-                )}
-            </div>
+            <div className={styles.rows}>
+                <div className={styles.row} role="img" aria-label={`Power ${props.power} of ${basePowerMax}`}>
+                    <PowerIcon className={styles.icon} />
+                    <span className={styles.powerPips}>
+                        {Array.from({ length: powerPips }, (_, index) => (
+                            <span key={index} className={classNames(styles.pip, index < props.power ? styles.powered : undefined)} />
+                        ))}
+                    </span>
+                    <span className={styles.value}>{props.power}</span>
+                </div>
 
-            {/* One grid, so the icons and values line up between them. */}
-            <div className={styles.attributes}>
-                <div className={classNames(styles.attribute, styles.power)}>
-                    <PowerIcon className={styles.attributeIcon} />
-                    <div className={styles.attributeValue}>{props.power}</div>
-                    <div className={classNames(styles.attributeMax, styles.powerMax)}>/ 5</div>
+                <div id={healthId} className={styles.row} role="img" aria-label={describeHealth(props)}>
+                    <HealthIcon className={styles.icon} />
+                    <HealthSegments health={props} />
+                    <span className={classNames(styles.value, props.health < props.maxHealth ? styles.lowHealth : undefined, props.health <= 0 ? styles.noHealth : undefined)}>
+                        {props.health}
+                    </span>
                 </div>
-                <div className={classNames(styles.attribute, styles.health)}>
-                    <HealthIcon className={styles.attributeIcon} />
-                    <div className={classNames(styles.attributeValue, props.health < props.maxHealth ? styles.lowHealth : undefined, props.health <= 0 ? styles.noHealth : undefined)}>{props.health}</div>
-                    <div className={styles.attributeMax}>
-                        /
-                        {' '}
-                        {props.maxHealth}
-                    </div>
-                </div>
-                {shieldReadout && (
-                    <ShieldReadout {...shieldReadout} className={styles.shieldAttribute}>
-                        <ShieldsIcon className={classNames(styles.attributeIcon, styles.shieldIcon)} />
-                        <div className={classNames(styles.attributeValue, styles.shieldValue)}>{shieldReadout.level}</div>
-                        <div className={styles.attributeMax}>
-                            /
-                            {' '}
-                            {shieldReadout.max}
-                        </div>
-                    </ShieldReadout>
+
+                {hasShield && (
+                    <ShieldRow
+                        {...shield}
+                        power={props.power}
+                        reinforced={effects?.some(effect => effect.type === 'shieldReinforced') === true}
+                    />
                 )}
             </div>
 
             <EffectList className={styles.effects} effects={effects} />
 
-            {/* Lights up while this system's next card is being generated. */}
-            <Button
-                outlined
-                className={classNames(styles.viewCards, props.generating ? styles.generating : undefined)}
-                startIcon={<CardDrawIcon />}
-                onClick={props.onViewCards}
-                aria-label={`View ${props.system} cards`}
-                title={`View ${props.system} cards`}
-            >
-                <span className={styles.viewCardsLabel}>Cards</span>
-            </Button>
+            {/* Says that the tile opens its cards, and glows while the system's next card is being generated. */}
+            <CardDrawIcon className={styles.cardsIcon} aria-hidden="true" />
         </div>
     );
 };

@@ -222,8 +222,16 @@ export interface ScienceSystemInfo extends CrewSystemInfo {
 export interface EngineerSystemTileInfo {
     system: ShipSystem;
     power: number;
+    /** How many of the system's cards work, including stabilised ones. */
     health: number;
+    /** How many cards the system has, other than expendable ones: health, plus damaged and critically damaged cards. */
     maxHealth: number;
+    /** How much of the system's health is from stabilised cards, which are critically damaged if they're damaged again. */
+    stabilised: number;
+    /** How many of the system's cards are damaged, and so can be repaired. */
+    damaged: number;
+    /** How many of the system's cards are critically damaged, and so can't be repaired. */
+    critical: number;
     effects: IArray<SystemEffectInstance>;
     generating: boolean;
     /** The system's own hand, so the engineer can see it. Hull and reactor cards only pass through their hand as they're played. */
