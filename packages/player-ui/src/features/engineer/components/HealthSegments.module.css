@@ -24,9 +24,13 @@
     box-shadow: inset 0 0 0 0.1em var(--danger-light);
 }
 
-/* Burnt out: dark red, with a slash. */
+/* Gone for good: a strong red X, corner to corner, in a darker box. */
 .critical {
+    --x-half-width: 0.09em;
+    --x-line: transparent calc(50% - var(--x-half-width)), var(--danger-light) calc(50% - var(--x-half-width)) calc(50% + var(--x-half-width)), transparent calc(50% + var(--x-half-width));
     background:
-        linear-gradient(to top right, transparent calc(50% - 0.06em), var(--danger-mid) calc(50% - 0.06em) calc(50% + 0.06em), transparent calc(50% + 0.06em)),
-        var(--danger-darkest);
+        linear-gradient(to top right, var(--x-line)),
+        linear-gradient(to bottom right, var(--x-line)),
+        var(--grey-darkest);
+    box-shadow: inset 0 0 0 0.06em var(--danger-dark);
 }

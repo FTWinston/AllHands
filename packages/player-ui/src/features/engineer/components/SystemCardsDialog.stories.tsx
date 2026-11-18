@@ -32,6 +32,8 @@ const meta: Meta<typeof Component> = {
         ],
         // The expendable card doesn't count.
         health: { health: 6, maxHealth: 8, stabilised: 1, damaged: 1, critical: 1 },
+        power: 3,
+        shieldReinforced: false,
     },
     render: (args) => {
         const [isOpen, setOpen] = useState(args.isOpen);
@@ -68,9 +70,13 @@ export const CrewSystem: Story = {
         // Only the deck is numbered.
         await expect(page.getAllByText(/^#\d+$/)).toHaveLength(7);
 
-        // The health bar is explained, as the tile has no room to.
-        const health = page.getByRole('region', { name: 'Health' });
-        await expect(health).toHaveTextContent('5 working');
+        // Only the hull has shields.
+        await expect(page.queryByRole('button', { name: /^Shields/ })).not.toBeInTheDocument();
+
+        // The health bar opens an explanation of its segments, as the tile has no room for one.
+        await userEvent.click(page.getByRole('button', { name: 'Health 6 of 8' }));
+        const health = await page.findByRole('dialog', { name: 'Health (6/8)' });
+        await expect(health).toHaveTextContent('5 nominal');
         await expect(health).toHaveTextContent('1 stabilised: critically damaged if damaged again');
         await expect(health).toHaveTextContent('1 damaged: can be repaired');
         await expect(health).toHaveTextContent('1 critically damaged: can\'t be repaired');
@@ -93,7 +99,7 @@ export const Reactor: Story = {
     },
 };
 
-/** Hull cards are played as they're drawn, so the hull has no hand either. Its shields are shown on its tile, not here. */
+/** Hull cards are played as they're drawn, so the hull has no hand either. It has shields, though, which open a description of what they'd do to a hit. */
 export const Hull: Story = {
     args: {
         system: 'hull',
@@ -104,12 +110,17 @@ export const Hull: Story = {
             ...createCards(['hullVolatileEmitter', 'hullBare', 'hullShieldTuningTorpedo'], 4),
         ],
         health: { health: 5, maxHealth: 6, stabilised: 0, damaged: 1, critical: 0 },
+        shield: { level: 45, max: 60 },
     },
     play: async ({ canvasElement }) => {
         const page = within(canvasElement.ownerDocument.body);
         await expect(await page.findByText('Hull cards')).toBeInTheDocument();
         await expect(page.queryByText('Hand')).not.toBeInTheDocument();
         await expect(page.getByRole('list', { name: 'Deck' }).children).toHaveLength(6);
+
+        await userEvent.click(page.getByRole('button', { name: 'Shields 75%' }));
+        const shields = await page.findByRole('dialog', { name: 'Shields (45/60)' });
+        await expect(shields).toHaveTextContent('At 3 hull power');
     },
 };
 
