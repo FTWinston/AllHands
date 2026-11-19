@@ -8,7 +8,7 @@ import { classNames } from 'common-ui/utils/classNames';
 import { FC } from 'react';
 import { FullScreenDialog } from 'src/components/FullScreenDialog';
 import { DeckCardList } from 'src/features/deck/components/DeckCardList';
-import { HealthBreakdown, HealthSegment, HealthSegments, SegmentState } from './HealthSegments';
+import { HealthBar, HealthBreakdown, HealthSwatch, SegmentState } from './HealthBar';
 import { getShieldPercent, ShieldBar, ShieldInfo, ShieldPercent } from './ShieldBar';
 import styles from './SystemCardsDialog.module.css';
 import type { Snapshot } from '@colyseus/react';
@@ -49,7 +49,7 @@ const HealthStat: FC<{ health: HealthBreakdown }> = ({ health }) => {
                 <>
                     {lines.filter(line => line.count > 0).map(line => (
                         <span key={line.state} className={styles.breakdownLine}>
-                            <HealthSegment state={line.state} className={styles.swatch} />
+                            <HealthSwatch state={line.state} className={styles.swatch} />
                             {`${line.count} ${line.text}`}
                         </span>
                     ))}
@@ -57,7 +57,7 @@ const HealthStat: FC<{ health: HealthBreakdown }> = ({ health }) => {
             )}
         >
             <HealthIcon className={styles.statIcon} />
-            <HealthSegments health={health} className={styles.statBar} />
+            <HealthBar health={health} className={styles.statBar} />
             <span className={classNames(styles.statValue, health.damaged > 0 ? styles.repairable : undefined)}>{health.health}</span>
         </InfoPopup>
     );

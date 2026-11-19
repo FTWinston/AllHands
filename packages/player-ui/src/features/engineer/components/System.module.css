@@ -140,18 +140,40 @@
     box-shadow: none;
 }
 
-/* The hull's shields, in their own colour. Their icon is filled in, like power's and health's. (Its outline is also the hull's own icon.) */
-.shieldRow {
-    & .icon {
-        color: var(--energy-light);
-    }
+/* The hull's tile has its shields as dots along its border, which is darker, so they stand out on it. */
+.system.shielded {
+    border-color: var(--primary-dark);
+}
 
-    & .icon path {
+/* Its name is centred in the space left of its shield indicator. */
+.shielded .name {
+    padding-right: 1.9em;
+}
+
+/* The shields' percentage, in the top right, in their own colour. */
+.shieldIndicator {
+    grid-area: name;
+    justify-self: end;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    gap: 0.15em;
+    /* Clear of the tile's cut-off corner. */
+    margin-right: 0.3em;
+    font-weight: bold;
+    font-size: 1.3em;
+    line-height: 1;
+    color: var(--energy-lightest);
+}
+
+/* Filled in, like power's and health's icons. (Its outline is also the hull's own icon.) */
+.shieldIcon {
+    width: 1em;
+    height: 1em;
+    color: var(--energy-light);
+
+    & path {
         fill: currentColor;
-    }
-
-    & .value {
-        color: var(--energy-lightest);
     }
 }
 

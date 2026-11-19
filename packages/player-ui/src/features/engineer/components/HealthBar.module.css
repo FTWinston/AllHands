@@ -1,0 +1,40 @@
+/*
+    The bar, and a swatch of one of its sections: an outlined black track, which its sections fill.
+    Taps go through it, to the button it's on (or beneath, as on a system's tile).
+*/
+.bar,
+.swatch {
+    display: flex;
+    height: 0.9em;
+    box-sizing: border-box;
+    border: 0.08em solid var(--primary-mid);
+    border-radius: 0.1em;
+    overflow: hidden;
+    background-color: black;
+    pointer-events: none;
+}
+
+/* Sized by its number of cards (its --count). */
+.section {
+    flex: var(--count, 1) 1 0;
+    min-width: 0;
+}
+
+.healthy {
+    background-color: var(--primary-light);
+}
+
+/* Health, but with a problem: only 2/3 filled, with the empty track above, as damage would leave it critically damaged. */
+.stabilised {
+    background: linear-gradient(to bottom, transparent 0 34%, var(--primary-light) 34%);
+}
+
+/* Missing, but it can be put back: the empty track. */
+.damaged {
+    background: none;
+}
+
+/* Gone for good: filled in red. */
+.critical {
+    background-color: var(--danger-mid);
+}

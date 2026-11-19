@@ -9,9 +9,10 @@ import { useId } from 'react';
 import { default as PowerIcon } from '../../header/assets/power.svg?react';
 import { default as CardDrawIcon } from '../assets/card-draw.svg?react';
 import { EffectList } from './EffectList';
-import { describeHealth, HealthBreakdown, HealthSegments } from './HealthSegments';
-import { getShieldPercent, ShieldBar, ShieldInfo } from './ShieldBar';
+import { describeHealth, HealthBar, HealthBreakdown } from './HealthBar';
+import { getShieldPercent, ShieldInfo } from './ShieldBar';
 import styles from './System.module.css';
+import { TileShieldOutline } from './TileShieldOutline';
 
 export type SystemInfo = HealthBreakdown & {
     system: ShipSystem;
@@ -24,7 +25,7 @@ export type SystemInfo = HealthBreakdown & {
 export type HullSystemInfo = SystemInfo & Pick<HullSystemTileInfo, 'system' | 'shield' | 'maxShield'>;
 
 type Props = SystemInfo & {
-    /** The hull's shields, shown with power and health. */
+    /** The hull's shields, shown as a dotted outline around the tile, and beside its name. */
     shield?: ShieldInfo;
     /** Opens a view of all of this system's cards. */
     onViewCards: () => void;
@@ -45,7 +46,9 @@ export const System = (props: Props) => {
     const powerPips = Math.max(basePowerMax, props.power);
 
     return (
-        <div className={classNames(styles.system, props.generating ? styles.generating : undefined)}>
+        <div className={classNames(styles.system, hasShield ? styles.shielded : undefined, props.generating ? styles.generating : undefined)}>
+            {hasShield && <TileShieldOutline level={getShieldPercent(shield)} />}
+
             <h2 className={styles.name}>
                 {/* Stretched over the whole tile (see the CSS), so tapping anywhere that isn't otherwise a button opens the cards. */}
                 <button
@@ -60,6 +63,15 @@ export const System = (props: Props) => {
                 </button>
             </h2>
 
+            {/* In the top right, beside the name, as there's no room for a row of its own. Its outline is the tile's own, dotted. */}
+            {hasShield && (
+                <span className={styles.shieldIndicator} role="img" aria-label={`Shields ${getShieldPercent(shield)}%`}>
+                    <ShieldsIcon className={styles.shieldIcon} />
+                    {/* A percentage, but there's no room for the sign. */}
+                    {getShieldPercent(shield)}
+                </span>
+            )}
+
             <div className={styles.rows}>
                 <div className={styles.row} role="img" aria-label={`Power ${props.power} of ${basePowerMax}`}>
                     <PowerIcon className={styles.icon} />
@@ -73,21 +85,12 @@ export const System = (props: Props) => {
 
                 <div id={healthId} className={styles.row} role="img" aria-label={describeHealth(props)}>
                     <HealthIcon className={styles.icon} />
-                    <HealthSegments health={props} />
+                    <HealthBar health={props} />
                     {/* Red when there's damage to repair. */}
                     <span className={classNames(styles.value, props.damaged > 0 ? styles.repairable : undefined)}>
                         {props.health}
                     </span>
                 </div>
-
-                {hasShield && (
-                    <div className={classNames(styles.row, styles.shieldRow)} role="img" aria-label={`Shields ${getShieldPercent(shield)}%`}>
-                        <ShieldsIcon className={styles.icon} />
-                        <ShieldBar shield={shield} />
-                        {/* A percentage, but there's no room for the sign. */}
-                        <span className={styles.value}>{getShieldPercent(shield)}</span>
-                    </div>
-                )}
             </div>
 
             <EffectList className={styles.effects} effects={effects} />

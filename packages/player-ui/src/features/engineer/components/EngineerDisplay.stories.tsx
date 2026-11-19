@@ -402,10 +402,13 @@ const expectTilesFitAndOpenCards = async (canvasElement: HTMLElement, width: num
         const cardsButton = canvasElement.querySelector(`button[aria-label="View ${system} cards"]`)!;
         const tile = cardsButton.closest('h2')!.parentElement!;
 
-        await expect(tile.scrollHeight, `${system} tile's content height`).toBeLessThanOrEqual(tile.clientHeight + 1);
-        const tileRight = tile.getBoundingClientRect().right;
-        const overhanging = [...tile.querySelectorAll('*')].filter(element => element.getBoundingClientRect().right > tileRight + 1).map(element => `${element.tagName}.${element.getAttribute('class')} ${element.getBoundingClientRect().right - tileRight}`);
-        await expect(tile.scrollWidth, `${system} tile's content width: ${overhanging.join(', ')}`).toBeLessThanOrEqual(tile.clientWidth + 1);
+        // Within its outer edge, as the hull's shield dots sit along its border.
+        const edge = tile.getBoundingClientRect();
+        const overhanging = [...tile.querySelectorAll('*')]
+            .map(element => ({ element, rect: element.getBoundingClientRect() }))
+            .filter(({ rect }) => rect.left < edge.left - 1 || rect.top < edge.top - 1 || rect.right > edge.right + 1 || rect.bottom > edge.bottom + 1)
+            .map(({ element }) => `${element.tagName}.${element.getAttribute('class')}`);
+        await expect(overhanging, `${system} tile's contents overhanging it`).toEqual([]);
 
         for (const row of tile.querySelectorAll('[role="img"]')) {
             await expect(elementAtMiddleOf(row), `${row.getAttribute('aria-label')} on the ${system} tile`).toBe(cardsButton);
