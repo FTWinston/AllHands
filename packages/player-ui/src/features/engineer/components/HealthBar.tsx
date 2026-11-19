@@ -71,25 +71,32 @@ export const HealthBar = (props: Props) => {
         return bar;
     }
 
-    // Each count is centred beneath its section, so moves with it.
+    // Just the numbers the engineer acts on: health, beneath the working sections, and damage that can be repaired, beneath its own.
+    // Each is centred beneath its sections, so moves with them, with a gap beneath the critically damaged section, to keep them in place.
+    const working = counts.healthy + counts.stabilised;
+
     return (
         <span className={classNames(styles.withCounts, props.className)} aria-hidden="true">
             {bar}
             <span className={styles.counts}>
-                {states.map(state => (
-                    <span
-                        key={state}
-                        className={classNames(styles.count, styles[`${state}Count`])}
-                        // @ts-expect-error CSS custom property
-                        style={{ '--count': counts[state] }}
-                    >
-                        {counts[state]}
-                    </span>
-                ))}
+                {working > 0 && <Count count={working} className={styles.healthCount} />}
+                {counts.damaged > 0 && <Count count={counts.damaged} className={styles.repairableCount} />}
+                {counts.critical > 0 && <Count count={counts.critical} className={styles.gap} hidden />}
             </span>
         </span>
     );
 };
+
+/** A number beneath the bar, as wide as the sections it's for. Hidden, it just takes up their space. */
+const Count = (props: { count: number; className: string; hidden?: boolean }) => (
+    <span
+        className={classNames(styles.count, props.className)}
+        // @ts-expect-error CSS custom property
+        style={{ '--count': props.count }}
+    >
+        {props.hidden ? null : props.count}
+    </span>
+);
 
 /** A single section's look, as a swatch beside a description of what it means. */
 export const HealthSwatch = (props: { state: SegmentState; className?: string }) => (
