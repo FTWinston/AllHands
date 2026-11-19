@@ -12,7 +12,6 @@ import { EffectList } from './EffectList';
 import { describeHealth, HealthBar, HealthBreakdown } from './HealthBar';
 import { getShieldPercent, ShieldInfo } from './ShieldBar';
 import styles from './System.module.css';
-import { TileShieldOutline } from './TileShieldOutline';
 
 export type SystemInfo = HealthBreakdown & {
     system: ShipSystem;
@@ -43,8 +42,6 @@ export const System = (props: Props) => {
 
     return (
         <div className={classNames(styles.system, hasShield ? styles.shielded : undefined, props.generating ? styles.generating : undefined)}>
-            {hasShield && <TileShieldOutline level={getShieldPercent(shield)} />}
-
             <h2 className={styles.name}>
                 {/* Stretched over the whole tile (see the CSS), so tapping anywhere that isn't otherwise a button opens the cards. */}
                 <button

@@ -136,9 +136,8 @@
     padding: 0.25em 0.25em 0.25em 0;
 }
 
-/* The hull's tile has its shields as dots along its border, which is darker, so they stand out on it. */
+/* The hull's tile has a shielded badge in the top left, so that corner needs beveled so it doesn't stick out behind it. */
 .system.shielded {
-    border-color: var(--primary-dark);
     border-top-left-radius: 1.5em;
 }
 

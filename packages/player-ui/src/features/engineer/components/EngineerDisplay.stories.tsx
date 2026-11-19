@@ -8,7 +8,6 @@ import { expect, fn } from 'storybook/test';
 import { EngineerDisplay as Component } from './EngineerDisplay';
 import healthBarStyles from './HealthBar.module.css';
 import systemStyles from './System.module.css';
-import outlineStyles from './TileShieldOutline.module.css';
 import type { SystemCards } from './SystemCardsDialog';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -389,8 +388,8 @@ function elementAtMiddleOf(element: Element) {
     return element.ownerDocument.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
 }
 
-/** Badges, which stick out of the tile's corners, and the hull's shield dots, which sit on its border. */
-const isOnEdge = (element: Element) => !!element.closest(`.${systemStyles.badge}, .${outlineStyles.outline}`);
+/** Badges, which stick out of the tile's corners. */
+const isOnEdge = (element: Element) => !!element.closest(`.${systemStyles.badge}`);
 
 /**
  * Every tile's contents fit it, and tapping its health opens its cards, as the cards button covers the tile.
