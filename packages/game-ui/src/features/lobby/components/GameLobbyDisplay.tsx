@@ -99,16 +99,16 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                     <p className={styles.label}>Or browse on your phone</p>
                     <p className={styles.url}>{serverUrl}</p>
                     <p className={styles.hint}>
-                        Each crew member joins on their own phone, and assigns themselves a station.
+                        Each crew member joins on their own phone, and assigns themselves a role.
                     </p>
                     <p className={styles.hint}>
                         If you have a captain, they don't use a phone. They play by talking to the rest of the crew.
                     </p>
                 </section>
 
-                <section className={styles.stations} aria-label="Stations">
+                <section className={styles.stations} aria-label="Crew Roles">
                     <div className={styles.stationsHeader}>
-                        <h2 className={styles.label}>Stations</h2>
+                        <h2 className={styles.label}>Crew Roles</h2>
                         <p className={styles.crewedCount}>
                             {numCrewed}
                             {' '}
@@ -145,7 +145,7 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
                                 <span className={styles.statusDot} aria-hidden="true" />
                                 <div className={styles.statusText}>
                                     <p className={styles.statusTitle}>{getWaitingText(numCrewed, numUnassigned)}</p>
-                                    <p className={styles.statusDetail}>The game will start when every crew station is occupied.</p>
+                                    <p className={styles.statusDetail}>The game will start when every crew role is occupied.</p>
                                 </div>
                             </div>
                         )}
@@ -158,7 +158,7 @@ export const GameLobbyDisplay: FC<Props> = (props) => {
 
 function getWaitingText(numCrewed: number, numUnassigned: number) {
     if (numUnassigned > 0) {
-        return `${numUnassigned} crew member${numUnassigned === 1 ? '' : 's'} choosing a station`;
+        return `${numUnassigned} crew member${numUnassigned === 1 ? '' : 's'} choosing a role`;
     }
 
     return numCrewed === 0
