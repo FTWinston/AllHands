@@ -66,12 +66,8 @@
     "vitest": "^5.0.5",
     "wait-on": "^9.0.3"
   },
-  "overrides": {
-    "@colyseus/schema": "github:FTWinston/colyseus-schema#null-field-edge"
-  },
   "allowScripts": {
     "electron@38.0.0": true,
-    "@colyseus/schema": true,
     "esbuild": false,
     "@swc/core": false,
     "unrs-resolver": false,
