@@ -124,20 +124,22 @@
 
 .badgeIcon {
     flex-shrink: 0;
-    width: 1em;
-    height: 1em;
+    width: 0.85em;
+    height: 0.85em;
     color: var(--primary-lightest);
 }
 
-/* Power sticks out of the top right corner. */
+/* Power sticks out of the top right corner by half the border width. */
 .powerBadge {
-    top: -0.55em;
-    right: -0.55em;
+    top: -0.05em;
+    right: -0.05em;
+    padding: 0.25em 0.25em 0.25em 0;
 }
 
 /* The hull's tile has its shields as dots along its border, which is darker, so they stand out on it. */
 .system.shielded {
     border-color: var(--primary-dark);
+    border-top-left-radius: 1.5em;
 }
 
 /* Its name is centred between its shield and power badges. */
@@ -150,12 +152,13 @@
     In their own colour, with their icon filled in, like power's and health's. (Its outline is also the hull's own icon.)
 */
 .shieldBadge {
-    top: -0.55em;
-    left: -0.55em;
+    top: -0.05em;
+    left: -0.05em;
     border-radius: 0.5em 0 0.5em 0;
     color: var(--energy-lightest);
     background-color: var(--energy-darkest);
     border-color: var(--energy-light);
+    padding: 0.25em 0.25em 0.25em 0.125em;
 
     & .badgeIcon {
         color: var(--energy-light);
