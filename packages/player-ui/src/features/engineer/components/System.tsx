@@ -25,17 +25,14 @@ export type SystemInfo = HealthBreakdown & {
 export type HullSystemInfo = SystemInfo & Pick<HullSystemTileInfo, 'system' | 'shield' | 'maxShield'>;
 
 type Props = SystemInfo & {
-    /** The hull's shields, shown as a dotted outline around the tile, and beside its name. */
+    /** The hull's shields, shown as a dotted outline around the tile, and as a number. */
     shield?: ShieldInfo;
     /** Opens a view of all of this system's cards. */
     onViewCards: () => void;
 };
 
-/** Power is shown out of this, though effects can take it higher. */
-const basePowerMax = 5;
-
 /**
- * A system's tile on the engineer's screen, with its power, health (one segment per card) and effects.
+ * A system's tile on the engineer's screen, with its power (as a badge on its corner), health and effects, and for the hull, its shields.
  * The whole tile is a button that opens the system's cards (where the health and shields are explained), apart from the effects, which open their own descriptions.
  */
 export const System = (props: Props) => {
@@ -43,7 +40,6 @@ export const System = (props: Props) => {
     const healthId = useId();
 
     const hasShield = !!shield && shield.max > 0;
-    const powerPips = Math.max(basePowerMax, props.power);
 
     return (
         <div className={classNames(styles.system, hasShield ? styles.shielded : undefined, props.generating ? styles.generating : undefined)}>
@@ -63,34 +59,24 @@ export const System = (props: Props) => {
                 </button>
             </h2>
 
-            {/* In the top right, beside the name, as there's no room for a row of its own. Its outline is the tile's own, dotted. */}
+            {/* Sticks out of the tile's top right corner. */}
+            <span className={classNames(styles.badge, styles.powerBadge)} role="img" aria-label={`Power ${props.power}`}>
+                <PowerIcon className={styles.badgeIcon} />
+                {props.power}
+            </span>
+
+            {/* Sticks out of the opposite corner, the top left. */}
             {hasShield && (
-                <span className={styles.shieldIndicator} role="img" aria-label={`Shields ${getShieldPercent(shield)}%`}>
-                    <ShieldsIcon className={styles.shieldIcon} />
+                <span className={classNames(styles.badge, styles.shieldBadge)} role="img" aria-label={`Shields ${getShieldPercent(shield)}%`}>
+                    <ShieldsIcon className={styles.badgeIcon} />
                     {/* A percentage, but there's no room for the sign. */}
                     {getShieldPercent(shield)}
                 </span>
             )}
 
-            <div className={styles.rows}>
-                <div className={styles.row} role="img" aria-label={`Power ${props.power} of ${basePowerMax}`}>
-                    <PowerIcon className={styles.icon} />
-                    <span className={styles.powerPips}>
-                        {Array.from({ length: powerPips }, (_, index) => (
-                            <span key={index} className={classNames(styles.pip, index < props.power ? styles.powered : undefined)} />
-                        ))}
-                    </span>
-                    <span className={styles.value}>{props.power}</span>
-                </div>
-
-                <div id={healthId} className={styles.row} role="img" aria-label={describeHealth(props)}>
-                    <HealthIcon className={styles.icon} />
-                    <HealthBar health={props} />
-                    {/* Red when there's damage to repair. */}
-                    <span className={classNames(styles.value, props.damaged > 0 ? styles.repairable : undefined)}>
-                        {props.health}
-                    </span>
-                </div>
+            <div id={healthId} className={styles.health} role="img" aria-label={describeHealth(props)}>
+                <HealthIcon className={styles.icon} />
+                <HealthBar health={props} showCounts />
             </div>
 
             <EffectList className={styles.effects} effects={effects} />

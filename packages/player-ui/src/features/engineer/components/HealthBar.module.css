@@ -14,6 +14,11 @@
     pointer-events: none;
 }
 
+/* A little apart, with the track between, so it's clear which count goes with which. */
+.bar {
+    gap: 0.15em;
+}
+
 /* Sized by its number of cards (its --count). */
 .section {
     flex: var(--count, 1) 1 0;
@@ -37,4 +42,52 @@
 /* Gone for good: filled in red. */
 .critical {
     background-color: var(--danger-mid);
+}
+
+/* The bar, with each section's number of cards beneath it. */
+.withCounts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15em;
+    pointer-events: none;
+}
+
+/* The same widths and gaps as the sections, so each count is centred beneath its own. */
+.counts {
+    display: flex;
+    gap: 0.15em;
+    /* Matches the bar's border, so the counts line up with the sections inside it. */
+    padding-inline: 0.08em;
+}
+
+/*
+    Never narrower than its number, though: a very narrow section's count (one card of 18, say) takes the room it needs,
+    and the others make way for it, so they never overlap, and stay roughly beneath their own sections.
+*/
+.count {
+    flex: var(--count, 1) 1 0;
+    min-width: max-content;
+    /* So neighbouring numbers never run together, e.g. two 1s reading as 11. */
+    padding-inline: 0.2em;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.15em;
+    line-height: 1;
+}
+
+.healthyCount {
+    color: var(--grey-lightest);
+}
+
+.stabilisedCount {
+    color: var(--primary-light);
+}
+
+/* Bright, as there's damage to repair. */
+.damagedCount {
+    color: var(--danger-light);
+}
+
+.criticalCount {
+    color: var(--danger-mid);
 }

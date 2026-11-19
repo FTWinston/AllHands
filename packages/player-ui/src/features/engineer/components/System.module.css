@@ -1,7 +1,7 @@
 /*
     Each tile is laid out to suit its own shape, as tiles are size containers (see SystemList.module.css).
     The font scales with the tile, so its shape decides what fits, more than its size does.
-    By default, the name is above rows of power, health and shields, with effects below.
+    By default, the name is above health, with effects below. Power (and the hull's shields) are badges sticking out of its top corners.
 */
 .system {
     position: relative;
@@ -47,8 +47,8 @@
     margin: 0;
     display: flex;
     justify-content: center;
-    /* Centred in the width left of the tile's cut-off corner. */
-    padding-right: 0.5em;
+    /* Centred in the width left of its power badge, on the tile's cut-off corner. */
+    padding-right: 1.4em;
     font-size: 1.75em;
     font-weight: bold;
     line-height: 1.25;
@@ -86,58 +86,53 @@
     color: var(--primary-light);
 }
 
-/* Power, health and shields: an icon, a bar and a number each, sharing columns so they line up. */
-.rows {
+/* Health: an icon, and the bar, with each section's number of cards beneath it. */
+.health {
     grid-area: rows;
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
     column-gap: 0.35em;
-    row-gap: 0.45em;
-}
-
-.row {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: subgrid;
-    align-items: center;
 }
 
 .icon {
     width: 1.3em;
     height: 1.3em;
+    /* Centred on the bar, rather than on the bar and its counts. */
+    margin-top: -0.2em;
     color: var(--primary-light);
 }
 
-.value {
-    min-width: 1.1em;
-    font-weight: bold;
-    font-size: 1.3em;
-    line-height: 1;
-    text-align: right;
-    color: var(--grey-lightest);
-}
-
-/* There's damage that can be repaired. */
-.value.repairable {
-    color: var(--danger-light);
-}
-
-.powerPips {
+/* Badges stick out of the tile, so taps go through them, and they sit above its shield dots. */
+.badge {
+    position: absolute;
+    z-index: 2;
     display: flex;
-    height: 0.9em;
-    gap: 0.15em;
+    align-items: center;
+    gap: 0.1em;
+    padding: 0.1em 0.35em 0.1em 0.25em;
+    font-size: 1.15em;
+    font-weight: bold;
+    line-height: 1.1;
+    color: var(--grey-lightest);
+    background-color: var(--primary-dark);
+    border: 0.1em solid var(--primary-light);
+    border-radius: 0 0.5em 0 0.5em;
+    corner-shape: bevel;
+    pointer-events: none;
 }
 
-.pip {
-    flex: 1 1 0;
-    border-radius: 0.1em;
-    box-shadow: inset 0 0 0 0.08em var(--grey-dark);
+.badgeIcon {
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+    color: var(--primary-lightest);
 }
 
-.powered {
-    background-color: var(--primary-light);
-    box-shadow: none;
+/* Power sticks out of the top right corner. */
+.powerBadge {
+    top: -0.55em;
+    right: -0.55em;
 }
 
 /* The hull's tile has its shields as dots along its border, which is darker, so they stand out on it. */
@@ -145,34 +140,28 @@
     border-color: var(--primary-dark);
 }
 
-/* Its name is centred in the space left of its shield indicator. */
+/* Its name is centred between its shield and power badges. */
 .shielded .name {
-    padding-right: 1.9em;
+    padding-left: 1.6em;
 }
 
-/* The shields' percentage, in the top right, in their own colour. */
-.shieldIndicator {
-    grid-area: name;
-    justify-self: end;
-    align-self: center;
-    display: flex;
-    align-items: center;
-    gap: 0.15em;
-    /* Clear of the tile's cut-off corner. */
-    margin-right: 0.3em;
-    font-weight: bold;
-    font-size: 1.3em;
-    line-height: 1;
+/*
+    The shields stick out of the opposite corner, the top left, which isn't cut off.
+    In their own colour, with their icon filled in, like power's and health's. (Its outline is also the hull's own icon.)
+*/
+.shieldBadge {
+    top: -0.55em;
+    left: -0.55em;
+    border-radius: 0.5em 0 0.5em 0;
     color: var(--energy-lightest);
-}
+    background-color: var(--energy-darkest);
+    border-color: var(--energy-light);
 
-/* Filled in, like power's and health's icons. (Its outline is also the hull's own icon.) */
-.shieldIcon {
-    width: 1em;
-    height: 1em;
-    color: var(--energy-light);
+    & .badgeIcon {
+        color: var(--energy-light);
+    }
 
-    & path {
+    & .badgeIcon path {
         fill: currentColor;
     }
 }
@@ -214,18 +203,14 @@
     filter: drop-shadow(0 0 0.15em var(--energy-light)) drop-shadow(0 0 0.3em var(--energy-mid));
 }
 
-/* Tall tiles have height to spare, so space power, health and shields out more. */
+/* Tall tiles have height to spare, so space things out more. */
 @container (aspect-ratio < 1/1) {
     .system {
         row-gap: 0.6em;
     }
-
-    .rows {
-        row-gap: 0.6em;
-    }
 }
 
-/* Wide tiles have the name, power, health and shields on the left, leaving the right for effects. */
+/* Wide tiles have the name and health on the left, leaving the right for effects. */
 @container (aspect-ratio > 8/5) and (min-width: 400px) {
     .system {
         font-size: min(4cqw, 12cqh, 1.75rem);

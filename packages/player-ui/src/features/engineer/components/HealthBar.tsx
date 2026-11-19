@@ -29,6 +29,8 @@ export function describeHealth(health: HealthBreakdown) {
 type Props = {
     health: HealthBreakdown;
     className?: string;
+    /** Show each section's number of cards beneath it. */
+    showCounts?: boolean;
 };
 
 /** The bar's sections, in the order they're shown. */
@@ -50,10 +52,11 @@ function getSectionCounts(health: HealthBreakdown): Record<SegmentState, number>
  */
 export const HealthBar = (props: Props) => {
     const counts = getSectionCounts(props.health);
+    const states = sectionStates.filter(state => counts[state] > 0);
 
-    return (
-        <span className={classNames(styles.bar, props.className)} aria-hidden="true">
-            {sectionStates.filter(state => counts[state] > 0).map(state => (
+    const bar = (
+        <span className={classNames(styles.bar, props.showCounts ? undefined : props.className)} aria-hidden="true">
+            {states.map(state => (
                 <span
                     key={state}
                     className={classNames(styles.section, styles[state])}
@@ -61,6 +64,29 @@ export const HealthBar = (props: Props) => {
                     style={{ '--count': counts[state] }}
                 />
             ))}
+        </span>
+    );
+
+    if (!props.showCounts) {
+        return bar;
+    }
+
+    // Each count is centred beneath its section, so moves with it.
+    return (
+        <span className={classNames(styles.withCounts, props.className)} aria-hidden="true">
+            {bar}
+            <span className={styles.counts}>
+                {states.map(state => (
+                    <span
+                        key={state}
+                        className={classNames(styles.count, styles[`${state}Count`])}
+                        // @ts-expect-error CSS custom property
+                        style={{ '--count': counts[state] }}
+                    >
+                        {counts[state]}
+                    </span>
+                ))}
+            </span>
         </span>
     );
 };

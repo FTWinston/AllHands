@@ -6,6 +6,9 @@ import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefin
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { expect, fn } from 'storybook/test';
 import { EngineerDisplay as Component } from './EngineerDisplay';
+import healthBarStyles from './HealthBar.module.css';
+import systemStyles from './System.module.css';
+import outlineStyles from './TileShieldOutline.module.css';
 import type { SystemCards } from './SystemCardsDialog';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -217,11 +220,12 @@ export const UI: Story = {
             {
                 system: 'reactor',
                 ...(noCards),
-                health: 18,
+                // Lots of cards, with a single damaged and a single critically damaged one, so their counts are wider than their sections.
+                health: 16,
                 maxHealth: 18,
                 stabilised: 4,
-                damaged: 0,
-                critical: 0,
+                damaged: 1,
+                critical: 1,
                 power: 5,
                 generating: false,
                 effects: [
@@ -385,9 +389,12 @@ function elementAtMiddleOf(element: Element) {
     return element.ownerDocument.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
 }
 
+/** Badges, which stick out of the tile's corners, and the hull's shield dots, which sit on its border. */
+const isOnEdge = (element: Element) => !!element.closest(`.${systemStyles.badge}, .${outlineStyles.outline}`);
+
 /**
- * Every tile's contents fit it, and tapping its power or health opens its cards, as the cards button covers the tile.
- * Its effects and shields, which are buttons too, open their own descriptions instead.
+ * Every tile's contents fit it, and tapping its health opens its cards, as the cards button covers the tile.
+ * Its effects, which are buttons too, open their own descriptions instead. Its badges let taps through, to the cards button where they're on the tile.
  */
 const expectTilesFitAndOpenCards = async (canvasElement: HTMLElement, width: number, height: number) => {
     if (await setViewport(width, height)) {
@@ -402,16 +409,26 @@ const expectTilesFitAndOpenCards = async (canvasElement: HTMLElement, width: num
         const cardsButton = canvasElement.querySelector(`button[aria-label="View ${system} cards"]`)!;
         const tile = cardsButton.closest('h2')!.parentElement!;
 
-        // Within its outer edge, as the hull's shield dots sit along its border.
         const edge = tile.getBoundingClientRect();
         const overhanging = [...tile.querySelectorAll('*')]
+            .filter(element => !isOnEdge(element))
             .map(element => ({ element, rect: element.getBoundingClientRect() }))
             .filter(({ rect }) => rect.left < edge.left - 1 || rect.top < edge.top - 1 || rect.right > edge.right + 1 || rect.bottom > edge.bottom + 1)
             .map(({ element }) => `${element.tagName}.${element.getAttribute('class')}`);
         await expect(overhanging, `${system} tile's contents overhanging it`).toEqual([]);
 
-        for (const row of tile.querySelectorAll('[role="img"]')) {
-            await expect(elementAtMiddleOf(row), `${row.getAttribute('aria-label')} on the ${system} tile`).toBe(cardsButton);
+        for (const image of [...tile.querySelectorAll('[role="img"]')].filter(element => !isOnEdge(element))) {
+            await expect(elementAtMiddleOf(image), `${image.getAttribute('aria-label')} on the ${system} tile`).toBe(cardsButton);
+        }
+
+        // Counts beneath very narrow sections take the room they need, so never overlap.
+        const counts = [...tile.querySelectorAll(`.${healthBarStyles.count}`)].map(count => count.getBoundingClientRect());
+        for (let index = 1; index < counts.length; index++) {
+            await expect(counts[index].left, `${system} tile's count ${index + 1} overlapping the one before`).toBeGreaterThanOrEqual(counts[index - 1].right);
+        }
+
+        for (const badge of tile.querySelectorAll(`.${systemStyles.badge}`)) {
+            await expect(getComputedStyle(badge).pointerEvents, `${badge.getAttribute('aria-label')} on the ${system} tile`).toBe('none');
         }
 
         // Lots of effects overlap one another, so another effect might be on top, but not the cards button.
@@ -424,13 +441,13 @@ const expectTilesFitAndOpenCards = async (canvasElement: HTMLElement, width: num
     }
 };
 
-/** The hull's tile has shields too, which take another row. */
+/** The hull's tile has shields too, as dots along its border and a number. */
 export const PhoneWidth: Story = {
     ...UI,
     play: ({ canvasElement }) => expectTilesFitAndOpenCards(canvasElement, 390, 844),
 };
 
-/** Wide tiles put the effects beside power, health and shields, rather than below them. */
+/** Wide tiles put the effects beside the name and health, rather than below them. */
 export const WideWidth: Story = {
     ...UI,
     play: ({ canvasElement }) => expectTilesFitAndOpenCards(canvasElement, 1200, 900),
