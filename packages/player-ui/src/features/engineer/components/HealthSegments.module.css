@@ -1,7 +1,9 @@
+/* The bar: a segment per card. Taps go through it, to the button it's on (or beneath, as on a system's tile). */
 .segments {
     display: flex;
     gap: 0.12em;
     height: 0.9em;
+    pointer-events: none;
 }
 
 .segment {
@@ -14,9 +16,13 @@
     background-color: var(--primary-light);
 }
 
-/* Patched up: still working, but striped. */
+/*
+    Health, but with a problem: outlined, and only filled to half, with black above, as damage would leave it critically damaged.
+    Told apart from healthy by shape, not colour.
+*/
 .stabilised {
-    background: repeating-linear-gradient(135deg, var(--primary-light) 0 0.18em, var(--primary-darkest) 0.18em 0.32em);
+    background: linear-gradient(to bottom, black 0 50%, var(--primary-light) 50%);
+    box-shadow: inset 0 0 0 0.1em var(--primary-light);
 }
 
 /* An empty slot, outlined in red: missing, but it can be put back. */
@@ -24,13 +30,12 @@
     box-shadow: inset 0 0 0 0.1em var(--danger-light);
 }
 
-/* Gone for good: a strong red X, corner to corner, in a darker box. */
+/* Like damaged, but crossed out with a red X, corner to corner: it can't be put back. */
 .critical {
-    --x-half-width: 0.09em;
+    --x-half-width: 0.08em;
     --x-line: transparent calc(50% - var(--x-half-width)), var(--danger-light) calc(50% - var(--x-half-width)) calc(50% + var(--x-half-width)), transparent calc(50% + var(--x-half-width));
     background:
         linear-gradient(to top right, var(--x-line)),
-        linear-gradient(to bottom right, var(--x-line)),
-        var(--grey-darkest);
-    box-shadow: inset 0 0 0 0.06em var(--danger-dark);
+        linear-gradient(to bottom right, var(--x-line));
+    box-shadow: inset 0 0 0 0.1em var(--danger-light);
 }

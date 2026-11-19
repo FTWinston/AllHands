@@ -16,16 +16,6 @@ export type HealthBreakdown = {
 
 export type SegmentState = 'healthy' | 'stabilised' | 'damaged' | 'critical';
 
-/** One per card, in the order they're shown: working, stabilised, damaged, critically damaged. */
-function getSegmentStates(health: HealthBreakdown): SegmentState[] {
-    return [
-        ...Array<SegmentState>(Math.max(0, health.health - health.stabilised)).fill('healthy'),
-        ...Array<SegmentState>(health.stabilised).fill('stabilised'),
-        ...Array<SegmentState>(health.damaged).fill('damaged'),
-        ...Array<SegmentState>(health.critical).fill('critical'),
-    ];
-}
-
 export function describeHealth(health: HealthBreakdown) {
     const parts = [
         health.stabilised > 0 ? `${health.stabilised} stabilised, so critically damaged if damaged again` : null,
@@ -41,14 +31,27 @@ type Props = {
     className?: string;
 };
 
-/** A system's health as a bar of segments, one per card, showing which can be repaired and which can't. Decorative: describe it with `describeHealth`. */
+/** One per card, in the order they're shown: working, stabilised, damaged, critically damaged. */
+function getSegmentStates(health: HealthBreakdown): SegmentState[] {
+    return [
+        ...Array<SegmentState>(Math.max(0, health.health - health.stabilised)).fill('healthy'),
+        ...Array<SegmentState>(health.stabilised).fill('stabilised'),
+        ...Array<SegmentState>(health.damaged).fill('damaged'),
+        ...Array<SegmentState>(health.critical).fill('critical'),
+    ];
+}
+
+/**
+ * A system's health as a bar of segments, one per card, showing which can be repaired and which can't. Decorative: describe it with `describeHealth`.
+ * Working cards are filled (healthy, then stabilised) and broken ones are empty (damaged, then critically damaged).
+ */
 export const HealthSegments = (props: Props) => (
     <span className={classNames(styles.segments, props.className)} aria-hidden="true">
         {getSegmentStates(props.health).map((state, index) => <HealthSegment key={index} state={state} />)}
     </span>
 );
 
-/** A single segment, also used as a swatch beside a description of what it means. */
+/** A single card's segment, also used as a swatch beside a description of what it means. */
 export const HealthSegment = (props: { state: SegmentState; className?: string }) => (
     <span className={classNames(styles.segment, styles[props.state], props.className)} aria-hidden="true" />
 );
