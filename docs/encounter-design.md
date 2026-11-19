@@ -206,7 +206,7 @@ Objective-first encounters need objects to be objectives: platforms, gates, rela
 2. **About a third of each deck should be better when someone else acts.** Setups and payoffs that cross stations are the card-level version of a handoff. A card that's strongest alone teaches silence.
 3. **Cards should create information for another station**, not just effects. "Reveals the target's next hull card to tactical" starts a conversation. "+10% damage" doesn't.
 4. **Objectives need verbs that aren't damage.** If the only things the crew can do are move, shoot, scan and reroute power, every objective collapses back into a fight. Each station needs two or three objective verbs.
-5. **Names you can shout.** "Zig-zag!" works. Card names are the crew's shared vocabulary, so keep them short and distinct across stations. Two cards called Overcharge (tactical's and engineer's, today) will cause a wrong call at the worst moment.
+5. **Names you can shout.** "Zig-zag!" works. Card names are the crew's shared vocabulary, so keep them short and distinct across stations. Two cards with the same name will cause a wrong call at the worst moment.
 6. **Costs are a conversation.** A card costing more power than its station normally has is a request to the engineer. Make the best cards slightly unaffordable.
 
 ### Cross-station pairs

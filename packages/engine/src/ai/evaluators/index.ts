@@ -6,7 +6,7 @@ import { CardEvaluator } from '../types';
  * TEST-ONLY override hook. Production evaluators live on the card definition's `aiEvaluator`
  * member (co-located with the card's play functions in getEngineCardDefinition.ts, so the two
  * can't drift apart). Tests use this to stub an evaluator for a card type that has no production
- * evaluator (e.g. Officer.test.ts stubs `exampleNoTarget`), or to override one for isolation.
+ * evaluator (e.g. Officer.test.ts stubs `jam`), or to override one for isolation.
  */
 const overrides = new Map<CardType, CardEvaluator>();
 const warned = new Set<CardType>();

@@ -52,6 +52,12 @@ const meta: Meta<typeof CardChoiceToPlay> = {
                         >
                             Weapon drop
                         </CardDropTarget>
+                        <CardDropTarget
+                            id="ship-drop"
+                            targetType="ship"
+                        >
+                            Ship drop
+                        </CardDropTarget>
                     </div>
                 </div>
             </DragCardProvider>

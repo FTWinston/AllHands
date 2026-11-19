@@ -25,6 +25,12 @@ export const otherScienceClientRole = 128;
 /** Indicate that a schema field should be sent to other ships' tactical clients. */
 export const otherTacticalClientRole = 256;
 
+/**
+ * Indicate that a schema field should be sent only to clients whose ship isn't fooled by the object it's on.
+ * It's what tells a sensor ghost's own side that it's a ghost, while to its enemies it's indistinguishable from a ship.
+ */
+export const knowsGhostClientRole = 512;
+
 export type CrewRole
     = | typeof ownHelmClientRole
         | typeof ownScienceClientRole

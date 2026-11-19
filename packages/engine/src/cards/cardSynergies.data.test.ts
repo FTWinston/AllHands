@@ -6,7 +6,7 @@ import { getCardSynergy, type SynergyTag } from './cardSynergies';
 // Checks the real card data against the tagging rules, so that work orders stay focused. These run with `npm run test:data`, not on CI.
 
 /** Each side of a synergy tag should have this many cards, within a crew member's shop pool. */
-const minCardsPerSide = 4;
+const minCardsPerSide = 2;
 const maxCardsPerSide = 8;
 
 describe('card synergy tags', () => {

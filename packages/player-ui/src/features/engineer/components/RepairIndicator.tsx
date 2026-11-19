@@ -32,6 +32,8 @@ export const RepairIndicator = (props: Props) => {
                 Repair capacity:
                 {' '}
                 {props.value}
+                {' / '}
+                {props.max}
             </span>
         </div>
     );

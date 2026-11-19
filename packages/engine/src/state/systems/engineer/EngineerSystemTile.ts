@@ -16,16 +16,19 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
         super();
         this.system = system;
         this.power = systemState.powerLevel;
-        this.health = systemState.health;
-        this.maxHealth = systemState.maxHealth;
+        this.setHealthFromSystem(systemState);
         systemState.linkEngineerSystem(this);
         this.mirrorSystemCards();
     }
 
     @type('string') system: ShipSystem;
     @type('number') readonly power: number;
-    @type('number') readonly health: number;
-    @type('number') readonly maxHealth: number;
+    // All set from the system by setHealthFromSystem.
+    @type('number') readonly health: number = 0;
+    @type('number') readonly maxHealth: number = 0;
+    @type('number') readonly stabilised: number = 0;
+    @type('number') readonly damaged: number = 0;
+    @type('number') readonly critical: number = 0;
     @type([SystemEffect]) effects = new ArraySchema<SystemEffect>();
 
     // Copies of the system's own cards, so the engineer can see every system's cards. Kept up to date by mirrorSystemCards.
@@ -48,8 +51,13 @@ export class EngineerSystemTile extends Schema implements EngineerSystemTileInfo
     shieldPassThroughModifier: number = 100;
 
     setHealthFromSystem(systemState: SystemState) {
-        (this as { health: number }).health = systemState.health;
-        (this as { maxHealth: number }).maxHealth = systemState.maxHealth;
+        const breakdown = systemState.getDamageBreakdown();
+        const self = this as { health: number; maxHealth: number; stabilised: number; damaged: number; critical: number };
+        self.health = systemState.health;
+        self.maxHealth = systemState.maxHealth;
+        self.stabilised = breakdown.stabilised;
+        self.damaged = breakdown.damaged;
+        self.critical = breakdown.critical;
         this.scienceScanDataChanged.invoke();
     }
 

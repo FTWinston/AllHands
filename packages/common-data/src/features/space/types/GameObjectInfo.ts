@@ -45,6 +45,11 @@ export interface GameObjectInfo {
     /** Faction id, or null for unaffiliated objects (e.g. asteroids). */
     faction: string | null;
     motion: ReadonlyKeyframes<Position>;
+    /**
+     * True for a sensor ghost: a false contact that looks like a ship, but has nothing behind it.
+     * It's only sent to those who aren't fooled by it (its own side), so it's absent for everyone else, who take it for a real ship.
+     */
+    isSensorGhost?: boolean;
 }
 
 export interface SystemInfo {
@@ -60,7 +65,7 @@ export interface CrewSystemInfo extends SystemInfo {
     cardGeneration: Cooldown | null;
     /** Shown instead of the system's display while outside an encounter; empty during one (see `NonEncounterCardInfo`). */
     nonEncounterCards: IArray<NonEncounterCardInfo>;
-    /** Cards on sale to this crew member at a shop station for their role (see `getShopRole`), each for `shopCardPrice`. Empty elsewhere. */
+    /** Cards on sale to this crew member at a shop station for their role (see `getShopRole`), each for its price (see `getShopCardPrice`). Empty elsewhere. */
     shopCards: IArray<CardInstance>;
     /** The type of the deck card this crew member placed a work order for, which is delivered at the next station. Null when there's none. */
     pendingOrder: CardType | null;
@@ -84,6 +89,16 @@ export interface WeaponSlotInfo {
     modified: boolean;
     /** Whether the weapon has reached full charge since it was slotted. It can't fire before this. */
     hasBeenFullyCharged: boolean;
+    /**
+     * The id of the target a weapon with a `drainPerSecond` parameter is active on, having been fired at it. Empty (or absent) while it isn't active.
+     * While it's active, it loses charge steadily (shown by `decay`) and can't be fired again. It ends when its charge runs out.
+     */
+    activeTargetId?: string;
+    /**
+     * For a cumbersome weapon: when each ship it could fire at was last brought into its firing arc and range, which it has to have stayed in since (see `cumbersomeAimTime`).
+     * Keyed by the ship's id. A ship that isn't there isn't in position.
+     */
+    aimStartTimes?: IMap<string, number>;
 }
 
 export interface ScannedWeaponSlotInfo {
@@ -109,6 +124,16 @@ export interface TargetSubTargets {
 export interface TacticalSystemInfo extends CrewSystemInfo {
     subTargetsByTarget: IMap<string, TargetSubTargets>;
     slots: IArray<WeaponSlotInfo>;
+    /** The id of the ship that Lock is held against. Empty while there's no Lock. */
+    lockTargetId: string;
+    /** How many levels of Lock are held against that ship: the level of the `lock` effect on the tactical system. */
+    lockLevel: number;
+    /** The id of the object that tactical's client is showing as its target, which the rest of the crew's screens mark. Empty if none. */
+    selectedTargetId?: string;
+    /** Whether weapons can't fire just now, as the Hold Fire card says. */
+    holdingFire?: boolean;
+    /** Whether the helm is holding the ship steady, so that cumbersome weapons don't have to hold their aim. */
+    aimSteadied?: boolean;
 }
 
 export interface ScannedManeuverInfo {
@@ -125,6 +150,7 @@ export interface ScannedEngineerTileInfo {
 }
 
 export interface ScannedSystemOrderInfo {
+    /** The index in `shipSystems` of the system in each of a target's four scan slots, or 0 for a slot not yet identified (the hull is never scanned). */
     order: IArray<number>;
 }
 
@@ -187,13 +213,25 @@ export interface ScienceSystemInfo extends CrewSystemInfo {
     scannedEngineer: ScannedEngineerInfo | null;
     /** Long range sensor readings of the nodes the ship can travel to next; empty except on the sector map. */
     destinations: IArray<SectorDestinationInfo>;
+    /** How much Insight science holds, which some of its cards spend. */
+    insight: number;
+    /** The game time at which science last found a sensor ghost where it expected a ship, or 0 if it never has. */
+    ghostExposedTime?: number;
 }
 
 export interface EngineerSystemTileInfo {
     system: ShipSystem;
     power: number;
+    /** How many of the system's cards work, including stabilised ones. */
     health: number;
+    /** How many cards the system has, other than expendable ones: health, plus damaged and critically damaged cards. */
     maxHealth: number;
+    /** How much of the system's health is from stabilised cards, which are critically damaged if they're damaged again. */
+    stabilised: number;
+    /** How many of the system's cards are damaged, and so can be repaired. */
+    damaged: number;
+    /** How many of the system's cards are critically damaged, and so can't be repaired. */
+    critical: number;
     effects: IArray<SystemEffectInstance>;
     generating: boolean;
     /** The system's own hand, so the engineer can see it. Hull and reactor cards only pass through their hand as they're played. */
@@ -246,6 +284,18 @@ export interface PlayerShipInfo extends ShipInfo {
 
     /** What's coming in over comms that the crew has to deal with. Only synced to the ship's game client and tactical. */
     comms: CommsInfo;
+
+    /**
+     * A short, distinct label for each other object this ship's crew has known of, by object id, such as "Alpha": what the crew calls it, as names can be shared.
+     * Synced to the ship's game client, helm, science and tactical, so every screen labels a contact the same.
+     */
+    contactLabels?: IMap<string, string>;
+
+    /** The id of the object that tactical is aiming at, or empty. Synced to the ship's game client and helm, which can't see tactical's own state. */
+    tacticalTargetId?: string;
+
+    /** The id of the ship that science is scanning, or empty. Synced to the ship's game client and helm, which can't see science's own state. */
+    scienceTargetId?: string;
 }
 
 export interface SystemSetupInfo {

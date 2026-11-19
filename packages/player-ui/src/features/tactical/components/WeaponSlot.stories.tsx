@@ -138,3 +138,67 @@ export const CantFire: Story = {
         },
     },
 };
+
+/** An energised weapon, just loaded: already fully charged, and unable to take a modifier. */
+export const Energised: Story = {
+    args: {
+        id: 'slot2',
+        charge: 8,
+        card: {
+            id: 5,
+            type: 'tractorBeam',
+        },
+        decay,
+    },
+};
+
+/** A Tractor Beam that has been fired, active on its target: its charge drains a point a second, and as it's rechargeable, cards can still be dropped on its meter. */
+export const Active: Story = {
+    args: {
+        id: 'slot2',
+        charge: 5,
+        card: {
+            id: 5,
+            type: 'tractorBeam',
+        },
+        activeTargetId: 'target1',
+        decay: {
+            startTime: Date.now(),
+            endTime: Date.now() + 1000,
+        },
+    },
+};
+
+/** A cumbersome weapon that's in position, but hasn't held its aim for long enough to fire yet. */
+export const Aiming: Story = {
+    args: {
+        id: 'slot2',
+        charge: 10,
+        card: {
+            id: 5,
+            type: 'siegeLance',
+        },
+        decay,
+        targetId: 'target1',
+        aimStartTimes: {},
+        firingSolution: {
+            range: 5,
+            relativeBearing: 0,
+            targetAspect: 0,
+        },
+    },
+};
+
+/** Weapons that can't fire, as the Hold Fire card says. */
+export const HoldingFire: Story = {
+    args: {
+        id: 'slot2',
+        charge: 12,
+        card: {
+            id: 5,
+            type: 'phaserStrip',
+        },
+        decay,
+        holdingFire: true,
+    },
+};

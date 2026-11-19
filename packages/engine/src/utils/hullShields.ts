@@ -1,4 +1,4 @@
-import { getShieldAbsorption, getShieldDrainPercent, shieldCollapsePercent, tunedReductionPercent } from 'common-data/features/ships/utils/shieldStats';
+import { dampeningDrainPercent, getShieldAbsorption, getShieldDrainPercent, penetratingAbsorptionPercent, shieldCollapsePercent, tunedReductionPercent } from 'common-data/features/ships/utils/shieldStats';
 
 /** What's needed of a hull card, to work out what it contributes to the shields. */
 export interface ShieldStatCard {
@@ -24,6 +24,10 @@ export interface ShieldHitModifiers {
     /** Whether the shields are tuned against one of the hit's weapon traits. */
     tuned: boolean;
     reinforced: boolean;
+    /** Whether the hit is from a weapon with the penetrating trait, so the shields absorb less of it. */
+    penetrating?: boolean;
+    /** Whether the hit is from a weapon with the dampening trait, so absorbing it drains the shields more. */
+    dampening?: boolean;
 }
 
 export interface ShieldHitResult {
@@ -38,8 +42,8 @@ export interface ShieldHitResult {
 /**
  * Work out how a hit is split between the shields and what gets past them.
  * - Shields tuned against one of the hit's weapon traits reduce the hit itself.
- * - The shields then absorb a share of what's left, set by the hull's power level. The rest gets past them.
- * - Absorbing drains the shields: by less at higher hull power, and by less again while they're reinforced.
+ * - The shields then absorb a share of what's left, set by the hull's power level. The rest gets past them. A penetrating hit is absorbed less.
+ * - Absorbing drains the shields: by less at higher hull power, and by less again while they're reinforced. A dampening hit drains them more.
  * - If that leaves the shields below `shieldCollapsePercent` of their capacity, they collapse, losing the rest.
  */
 export function resolveShieldHit(amount: number, shield: number, maxShield: number, powerLevel: number, modifiers: ShieldHitModifiers): ShieldHitResult {
@@ -47,15 +51,21 @@ export function resolveShieldHit(amount: number, shield: number, maxShield: numb
         ? amount - Math.round(amount * tunedReductionPercent / 100)
         : amount;
 
+    const absorptionPercent = modifiers.penetrating
+        ? getShieldAbsorption(powerLevel) * penetratingAbsorptionPercent / 100
+        : getShieldAbsorption(powerLevel);
+
     let absorbed = shield > 0
-        ? Math.round(reduced * getShieldAbsorption(powerLevel) / 100)
+        ? Math.round(reduced * absorptionPercent / 100)
         : 0;
 
     if (absorbed <= 0) {
         return { drain: 0, passedThrough: reduced, collapsed: false };
     }
 
-    const drainPercent = getShieldDrainPercent(powerLevel, modifiers.reinforced);
+    const drainPercent = modifiers.dampening
+        ? getShieldDrainPercent(powerLevel, modifiers.reinforced) * dampeningDrainPercent / 100
+        : getShieldDrainPercent(powerLevel, modifiers.reinforced);
     let drain = Math.round(absorbed * drainPercent / 100);
 
     if (drain > shield) {

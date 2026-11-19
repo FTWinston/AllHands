@@ -1,0 +1,16 @@
+.bar {
+    display: flex;
+    height: 0.9em;
+    border-radius: 0.1em;
+    overflow: hidden;
+    background-color: var(--energy-darkest);
+    box-shadow: inset 0 0 0 0.08em var(--energy-dark);
+}
+
+.fill {
+    background-color: var(--energy-light);
+}
+
+.percentSign {
+    font-size: 0.65em;
+}

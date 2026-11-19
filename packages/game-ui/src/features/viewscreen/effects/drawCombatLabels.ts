@@ -48,7 +48,8 @@ export function drawCombatLabels(ctx: CanvasRenderingContext2D, effects: readonl
 
     for (const tracked of tracker.values()) {
         if (tracked.isPresent && tracked.isShip) {
-            draw(tracked.x + nameOffset.x, tracked.y + nameOffset.y, tracked.name.toUpperCase(), getColors(tracked.relationship)[1], 0.75, 13);
+            // Below the contact's label (see `drawContactLabels`), which sits just above this.
+            draw(tracked.x + nameOffset.x, tracked.y + nameOffset.y, tracked.name.toUpperCase(), getColors(tracked.relationship)[1], 0.75, 13, -0.8);
         }
     }
 

@@ -1,4 +1,4 @@
-import { ChoiceCardDefinition, ScanTargetCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { ChoiceCardDefinition, ScanTargetCardDefinition, EnemyTargetCardDefinition, LocationTargetCardDefinition, NoTargetCardDefinition, ShipTargetCardDefinition, SystemTargetCardDefinition, WeaponSlotTargetCardDefinition, WeaponTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { WeaponTrait } from 'common-data/features/cards/types/CardTrait';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
@@ -9,6 +9,7 @@ import { GameState } from 'src/state/GameState';
 import { Ship } from 'src/state/Ship';
 import { EngineerSystemTile } from 'src/state/systems/engineer/EngineerSystemTile';
 import { WeaponSlotState } from 'src/state/systems/tactical/WeaponSlotState';
+import type { CardSynergy } from './CardSynergy';
 import type { CardEvaluator } from 'src/ai/types';
 
 /**
@@ -19,6 +20,8 @@ import type { CardEvaluator } from 'src/ai/types';
  */
 export type SharedEngineCardDefinition = {
     aiEvaluator?: CardEvaluator;
+    /** What this card provides for, and wants from, other cards of its station, to match it with them for work orders (see cardSynergies.ts). */
+    synergy?: CardSynergy;
     draw?: (gameState: GameState, ship: Ship, card: CardState) => void;
     damaged?: (gameState: GameState, ship: Ship, card: CardState) => void;
     repaired?: (gameState: GameState, ship: Ship, card: CardState) => void;
@@ -33,6 +36,13 @@ export type ChoiceTargetCardFunctionality = SharedEngineCardDefinition;
 export type WeaponSlotTargetCardFunctionality = SharedEngineCardDefinition & {
     load: (gameState: GameState, ship: Ship, slot: WeaponSlotState, parameters: CardParameters) => boolean;
     fire: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters, accuracy: number, weaponTraits: WeaponTrait[], targetSystem: ShipSystem | null) => boolean;
+    /**
+     * For a weapon that stays active once fired (one with a `drainPerSecond` parameter): checked on each tactical update while it's active on a target.
+     * Returning false ends it, as if it had run out of charge.
+     */
+    holds?: (gameState: GameState, ship: Ship, target: GameObject) => boolean;
+    /** For a weapon that stays active once fired: called once it stops being active, for whatever reason, to undo what firing it started. The target is null if it's gone. */
+    release?: (gameState: GameState, ship: Ship, target: GameObject | null) => void;
 };
 
 export type WeaponTargetCardFunctionality = SharedEngineCardDefinition & {
@@ -57,6 +67,14 @@ export type LocationTargetCardFunctionality = SharedEngineCardDefinition & {
     play: (gameState: GameState, ship: Ship, cardInstance: CardState, cardDefinition: LocationTargetCardDefinition, location: Vector2D, parameters: CardParameters) => boolean;
 };
 
+/**
+ * Played on another ship, which has already been checked to be one the card's `targetRelationship` allows (see `SystemState.playShipCard`).
+ * That can be a sensor ghost, which looks like a ship to those it fools, so all the card can rely on is where the target is.
+ */
+export type ShipTargetCardFunctionality = SharedEngineCardDefinition & {
+    play: (gameState: GameState, ship: Ship, target: GameObject, parameters: CardParameters, card: CardState) => boolean;
+};
+
 export type EngineCardFunctionality = NoTargetCardFunctionality
     | ChoiceTargetCardFunctionality
     | WeaponSlotTargetCardFunctionality
@@ -64,7 +82,8 @@ export type EngineCardFunctionality = NoTargetCardFunctionality
     | SystemTargetCardFunctionality
     | EnemyTargetCardFunctionality
     | ScanTargetCardFunctionality
-    | LocationTargetCardFunctionality;
+    | LocationTargetCardFunctionality
+    | ShipTargetCardFunctionality;
 
 export type EngineNoTargetCardDefinition = NoTargetCardFunctionality & NoTargetCardDefinition;
 
@@ -82,6 +101,8 @@ export type EngineSystemTargetCardDefinition = SystemTargetCardFunctionality & S
 
 export type EngineLocationTargetCardDefinition = LocationTargetCardFunctionality & LocationTargetCardDefinition;
 
+export type EngineShipTargetCardDefinition = ShipTargetCardFunctionality & ShipTargetCardDefinition;
+
 export type EngineCardDefinition = EngineNoTargetCardDefinition
     | EngineChoiceTargetCardDefinition
     | EngineWeaponSlotCardDefinition
@@ -89,7 +110,8 @@ export type EngineCardDefinition = EngineNoTargetCardDefinition
     | EngineEnemyTargetCardDefinition
     | EngineScanTargetCardDefinition
     | EngineSystemTargetCardDefinition
-    | EngineLocationTargetCardDefinition;
+    | EngineLocationTargetCardDefinition
+    | EngineShipTargetCardDefinition;
 
 export type EngineCardInstance = EngineCardDefinition & {
     id: number;

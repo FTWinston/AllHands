@@ -1,5 +1,6 @@
 import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
+import { FieldInfo } from 'common-data/features/space/types/FieldInfo';
 import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
@@ -10,6 +11,10 @@ import { CardCooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
+import { Rectangle } from 'common-ui/features/spacemap/types/Rectangle';
+import { ContactLabels, drawContactLabels } from 'common-ui/features/spacemap/utils/drawContactLabels';
+import { drawFields } from 'common-ui/features/spacemap/utils/drawFields';
+import { drawOffscreenTargetArrows, drawTargetReticles } from 'common-ui/features/spacemap/utils/drawTargetReticles';
 import { drawWeaponEffects } from 'common-ui/features/spacemap/utils/drawWeaponEffects';
 import { useAnimationFrame } from 'common-ui/hooks/useAnimationFrame';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
@@ -20,13 +25,23 @@ import { useVisibilityAnimation } from 'src/hooks/useVisibilityAnimation';
 import { useFreezeVector } from '../hooks/useFreezeVector';
 import { calculateMotionPath } from '../utils/calculateMotionPath';
 import { drawMotionPath } from '../utils/drawMotionPath';
+import { drawShipTarget } from '../utils/drawShipTarget';
+import { findNearestEligibleShip, getShipTargetRelationship } from '../utils/findNearestEligibleShip';
 import { DropCells } from './DropCells';
 import styles from './HelmSpaceMap.module.css';
 
 type Props = {
     center: ReadonlyKeyframes<Position>;
     objects: Record<string, GameObjectInfo>;
+    /** The lingering zones in space, drawn under the ships. */
+    fields?: Record<string, FieldInfo>;
     viewer: RelationshipViewer;
+    /** What this ship's crew calls each contact, by object id. Written beside each contact. */
+    contactLabels?: ContactLabels;
+    /** The id of the object tactical is aiming at, marked with tactical's reticle. */
+    tacticalTargetId?: string;
+    /** The id of the ship science is scanning, marked with science's reticle. */
+    scienceTargetId?: string;
     activeManeuver?: CardCooldown | null;
     cancelManeuver: () => void;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
@@ -45,6 +60,8 @@ export const HelmSpaceMap = (props: Props) => {
     const maneuverAnimation = useVisibilityAnimation(!!props.activeManeuver);
 
     const draggingLocationCard = activeCard?.targetType === 'location';
+    const draggingShipCard = activeCard?.targetType === 'ship';
+    const draggingMapCard = draggingLocationCard || draggingShipCard;
 
     // Calculate cell radius based on zoom level
     const cellRadius = BASE_CELL_RADIUS * zoomLevel;
@@ -61,7 +78,7 @@ export const HelmSpaceMap = (props: Props) => {
 
     // Freeze the center position while dropping cards, to make that easier.
     // Lerp to catch back up again when that's done.
-    const centerVector = useFreezeVector(!!draggingLocationCard, shipPosition);
+    const centerVector = useFreezeVector(draggingMapCard, shipPosition);
 
     // Calculate the motion path preview when hovering over a valid target
     const motionPath = draggingLocationCard && overTargetId && activeCard
@@ -84,25 +101,56 @@ export const HelmSpaceMap = (props: Props) => {
         })()
         : null;
 
-    // Draw the motion path as extra foreground content on the SpaceMap
-    const drawExtraForeground = useCallback(
+    // A ship card is played on whichever eligible ship is nearest the hexagon it's over. With none anywhere, it can't be dropped.
+    const shipTargetRelationship = draggingShipCard && activeCard ? getShipTargetRelationship(activeCard.cardType) : null;
+    const hasShipTarget = shipTargetRelationship !== null
+        && findNearestEligibleShip(props.objects, props.viewer, shipPosition, shipTargetRelationship, currentTime) !== null;
+    const pointerLocation = draggingShipCard && overTargetId ? parseVector(overTargetId) : null;
+    const shipTarget = shipTargetRelationship !== null && pointerLocation
+        ? findNearestEligibleShip(props.objects, props.viewer, pointerLocation, shipTargetRelationship, currentTime)
+        : null;
+
+    // Draw the fields under everything else on the map.
+    const { fields, contactLabels, tacticalTargetId, scienceTargetId } = props;
+    const drawExtraBackground = useCallback(
         (ctx: CanvasRenderingContext2D, _bounds: unknown, pixelSize: number) => {
+            if (fields) {
+                drawFields(ctx, Object.values(fields), timeProvider.getServerTime(), pixelSize);
+            }
+        },
+        [fields, timeProvider]
+    );
+
+    // Draw the motion path or ship target as extra foreground content on the SpaceMap
+    const drawExtraForeground = useCallback(
+        (ctx: CanvasRenderingContext2D, bounds: Rectangle, pixelSize: number) => {
             if (motionPath) {
                 drawMotionPath(ctx, motionPath, pixelSize);
             }
-            drawWeaponEffects(ctx, props.weaponEffectsRef.current, props.objects, timeProvider.getServerTime(), pixelSize);
+            if (shipTarget && pointerLocation) {
+                drawShipTarget(ctx, shipPosition, shipTarget.position, pointerLocation, pixelSize);
+            }
+            const drawTime = timeProvider.getServerTime();
+            if (contactLabels) {
+                drawContactLabels(ctx, Object.values(props.objects), contactLabels, props.viewer, drawTime, pixelSize);
+            }
+            drawTargetReticles(ctx, props.objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize);
+            drawOffscreenTargetArrows(ctx, bounds, props.objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize, contactLabels);
+            drawWeaponEffects(ctx, props.weaponEffectsRef.current, props.objects, drawTime, pixelSize);
         },
-        [motionPath, props.weaponEffectsRef, props.objects, timeProvider]
+        [motionPath, shipTarget, pointerLocation, shipPosition, props.weaponEffectsRef, props.objects, props.viewer, timeProvider, contactLabels, tacticalTargetId, scienceTargetId]
     );
 
     return (
         <div className={styles.spaceMapContainer}>
-            {draggingLocationCard && (
+            {draggingMapCard && (
                 <DropCells
                     className={styles.dropCellsOverlay}
+                    targetType={draggingShipCard ? 'ship' : 'location'}
                     center={centerVector}
                     shipPosition={shipPosition}
                     cellRadius={cellRadius}
+                    disabled={draggingShipCard && !hasShipTarget}
                 />
             )}
 
@@ -114,23 +162,24 @@ export const HelmSpaceMap = (props: Props) => {
                 cellRadius={cellRadius}
                 gridColor="green"
                 ref={canvas}
+                drawExtraBackground={drawExtraBackground}
                 drawExtraForeground={drawExtraForeground}
                 shipStyle="silhouette"
             />
 
             <Button
-                className={classNames(styles.zoomIn, draggingLocationCard ? styles.zoomDisabled : null)}
+                className={classNames(styles.zoomIn, draggingMapCard ? styles.zoomDisabled : null)}
                 onClick={() => setZoomLevel(level => Math.min(4, level * 1.25))}
-                disabled={draggingLocationCard || zoomLevel >= 4}
+                disabled={draggingMapCard || zoomLevel >= 4}
                 focusableWhenDisabled
             >
                 +
             </Button>
 
             <Button
-                className={classNames(styles.zoomOut, draggingLocationCard ? styles.zoomDisabled : null)}
+                className={classNames(styles.zoomOut, draggingMapCard ? styles.zoomDisabled : null)}
                 onClick={() => setZoomLevel(level => Math.max(0.5, level / 1.25))}
-                disabled={draggingLocationCard || zoomLevel <= 0.5}
+                disabled={draggingMapCard || zoomLevel <= 0.5}
                 focusableWhenDisabled
             >
                 -

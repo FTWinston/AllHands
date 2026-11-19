@@ -11,12 +11,14 @@ import { GameStatus } from '../types/GameStatus';
 import { CrewState } from './CrewState';
 import { EncounterSummaryState } from './EncounterSummaryState';
 import { FactionState } from './FactionState';
+import { FieldState } from './FieldState';
 import { GameObject } from './GameObject';
 import { HailState } from './HailState';
 import { ObjectiveState } from './ObjectiveState';
 import { PromptState } from './PromptState';
 import { SectorMapState } from './SectorMapState';
 import { SectorMessageState } from './SectorMessageState';
+import { SensorGhost } from './SensorGhost';
 import type { Campaign } from '../campaign/Campaign';
 import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { EncounterOutcome } from 'common-data/features/sectors/types/ObjectiveInfo';
@@ -51,6 +53,8 @@ export class GameState extends Schema {
     /** Server-only. Summary of the running encounter; null outside the encounter phase. */
     encounter: EncounterSummaryState | null = null;
     @view() @type({ map: GameObject }) objects = new MapSchema<GameObject>();
+    /** The lingering zones that deflectors have left, which aren't game objects (see `FieldState`). */
+    @type({ map: FieldState }) fields = new MapSchema<FieldState>();
     @view() @type({ map: CrewState }) crews = new MapSchema<CrewState>();
     @view() @type({ map: FactionState }) factions = new MapSchema<FactionState>();
     public readonly random: IRandom;
@@ -111,6 +115,23 @@ export class GameState extends Schema {
         return id !== undefined ? this.objects.get(id) : undefined;
     }
 
+    public addField(field: FieldState) {
+        this.fields.set(field.id, field);
+    }
+
+    public removeField(field: FieldState) {
+        if (this.fields.delete(field.id)) {
+            this.idPool.releaseId(field.id);
+        }
+    }
+
+    /** Remove every field, e.g. at the end of an encounter. */
+    public clearFields() {
+        for (const field of [...this.fields.values()]) {
+            this.removeField(field);
+        }
+    }
+
     public initFactions(configs: readonly FactionConfig[], playerFaction: string) {
         this.factionRegistry.init(configs);
         this.playerFaction = playerFaction;
@@ -133,7 +154,10 @@ export class GameState extends Schema {
 
         this.idPool.releaseId(object.id);
 
-        this.campaign?.onObjectRemoved(object, reason);
+        // A sensor ghost is a false contact, not an object that left the game, so nothing that watches for objects leaving (objectives, the campaign) is told.
+        if (!(object instanceof SensorGhost)) {
+            this.campaign?.onObjectRemoved(object, reason);
+        }
     }
 
     /**
@@ -177,6 +201,12 @@ export class GameState extends Schema {
 
         for (const object of this.objects.values()) {
             object.tick(scaledDelta, this.currentTime);
+        }
+
+        if (this.isSimulatingSystems) {
+            for (const field of [...this.fields.values()]) {
+                field.update(this.currentTime);
+            }
         }
 
         this.campaign?.tick(scaledDelta);

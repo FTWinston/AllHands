@@ -30,8 +30,8 @@ function createWorld() {
     // Shield capacity comes only from hull cards: 5 emitters give 75.
     targetSetup.hull = { ...targetSetup.hull, cards: Array(5).fill('hullShieldEmitter') };
     // The target's helm holds its first two cards, with two more to draw. Its engineer holds one.
-    targetSetup.helm = { ...targetSetup.helm, cards: ['exampleNoTarget', 'slowAndSteady', 'zigZag', 'strafe'], initialHandSize: 2 };
-    targetSetup.engineer = { ...targetSetup.engineer, cards: ['exampleNoTarget', 'exampleNoTarget'], initialHandSize: 1 };
+    targetSetup.helm = { ...targetSetup.helm, cards: ['holdSteady', 'slowAndSteady', 'zigZag', 'strafe'], initialHandSize: 2 };
+    targetSetup.engineer = { ...targetSetup.engineer, cards: ['juryRig', 'juryRig'], initialHandSize: 1 };
     const target = new AiShip(state, { ...targetSetup, goal: { type: 'search-and-destroy' }, skill: 1 });
     state.add(target);
     // AI ships start with full shields: empty them, so tests can set them.
@@ -244,7 +244,7 @@ describe('ScienceState reading a hand', () => {
         const played = readHand(scanner, target, 'helm');
 
         expect(played).not.toBeNull();
-        expect(cardTypes(scanner.scienceState.scannedHelm!.hand)).toEqual(['exampleNoTarget', 'slowAndSteady']);
+        expect(cardTypes(scanner.scienceState.scannedHelm!.hand)).toEqual(['holdSteady', 'slowAndSteady']);
         expect(scanner.scienceState.hand).not.toContain(card);
         expect(scanner.scienceState.deck).toContain(card);
     });
@@ -280,10 +280,10 @@ describe('ScienceState reading a hand', () => {
         const shown = scanner.scienceState.scannedHelm!;
 
         target.helmState.drawFromTop();
-        expect(cardTypes(shown.hand)).toEqual(['exampleNoTarget', 'slowAndSteady', 'zigZag']);
+        expect(cardTypes(shown.hand)).toEqual(['holdSteady', 'slowAndSteady', 'zigZag']);
 
         target.helmState.adjustPowerLevel(5);
-        const played = target.helmState.playCard(target.helmState.hand[0].id, 'exampleNoTarget', 'no-target', '');
+        const played = target.helmState.playCard(target.helmState.hand[0].id, 'holdSteady', 'no-target', '');
         expect(played).not.toBeNull();
         expect(cardTypes(shown.hand)).toEqual(['slowAndSteady', 'zigZag']);
 
@@ -331,14 +331,14 @@ describe('ScienceState reading a hand', () => {
         scan(scanner, target, target.helmState.scannedSystemIndex);
         readHand(scanner, target, 'helm');
 
-        applyWeaponTrait('destabilizing', scanner, target.helmState);
+        applyWeaponTrait('destabilizing', target.helmState, { amount: 0, traits: ['destabilizing'], targetSystem: 'helm' });
 
         expect([...scanner.scienceState.scannedHelm!.hand!].every(card => card.hasTrait('unstable'))).toBe(true);
     });
 
     it('shows a card that stays in the hand when played losing the traits that go when it\'s played', () => {
         const { scanner, target } = createWorld();
-        const card = new CardState(995, 'exampleNoTarget');
+        const card = new CardState(995, 'jam');
         card.addTrait('primary', ExtraTraitType.Normal);
         card.addTrait('unstable', ExtraTraitType.RemoveOnPlay);
         target.helmState.addCardToHand(card);
@@ -441,7 +441,7 @@ describe('ScienceState reading a hand', () => {
         const shown = { helm: scanner.scienceState.scannedHelm, tactical: scanner.scienceState.scannedTactical, science: scanner.scienceState.scannedScience, engineer: scanner.scienceState.scannedEngineer }[system]!;
 
         source.adjustPowerLevel(1);
-        source.addCardToHand(new CardState(996, 'exampleNoTarget'));
+        source.addCardToHand(new CardState(996, 'holdSteady'));
 
         expect(shown.targetId).toBe(target.id);
         expect(shown.power).toBe(source.powerLevel);

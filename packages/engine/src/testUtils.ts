@@ -115,7 +115,7 @@ export function startCampaign(state: GameState, shipCount = 1, themes: readonly 
 }
 
 const minimalSystemSetup: NonCrewSystemSetupInfo = {
-    cards: ['exampleNoTarget'],
+    cards: ['jam'],
     maxPowerLevel: 5,
     initialHandSize: 0,
 };

@@ -3,8 +3,16 @@ import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefin
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
+import { getChargeValue } from '../utils/weaponCards';
 import { TacticalDisplay as Component } from './TacticalDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+
+/** Whether a card acts on a weapon once, without taking its modifier slot. */
+const isInstant = (cardType: CardType) => {
+    const definition = getCardDefinition(cardType);
+    return definition.targetType === 'weapon' && !!definition.instant;
+};
 
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Tactical/UI',
@@ -35,7 +43,7 @@ const meta: Meta<typeof Component> = {
                     default:
                         return {
                             id,
-                            type: 'exampleEnemyTarget',
+                            type: 'acquireLock',
                         };
                 }
             },
@@ -48,33 +56,37 @@ const meta: Meta<typeof Component> = {
                 {...args}
                 cardGeneration={cardGeneration}
                 cards={cards}
-                playCard={(cardId, _cardType, targetType, targetId) => {
+                playCard={(cardId, cardType, targetType, targetId) => {
                     console.log(`dropped card ${cardId} on ${targetType} ${targetId}`);
                     expendCard(cardId);
 
                     if (targetType === 'any' as string && targetId.startsWith('charge:')) {
                         const card = cards.find(c => c.id === cardId);
-                        const cardCost = card ? getCardDefinition(card.type).parameters.cost ?? 0 : 0;
+                        const chargeValue = card ? getChargeValue(card) : 0;
                         setSlots(prevSlots => prevSlots.map((slot) => {
                             if (slot.id !== targetId.substring('charge:'.length) || !slot.card) {
                                 return slot;
                             }
                             const totalCharge = getCardDefinition(slot.card.type).parameters.totalCharge ?? 0;
-                            const charge = Math.min(totalCharge, slot.charge + cardCost);
+                            const charge = Math.min(totalCharge, slot.charge + chargeValue);
                             return { ...slot, charge, hasBeenFullyCharged: slot.hasBeenFullyCharged || charge >= totalCharge };
                         }));
                     } else if (targetType === 'weapon-slot') {
                         const card = cards.find(c => c.id === cardId) || null;
                         if (card) {
-                            setSlots(prevSlots => prevSlots.map(slot => slot.id === targetId ? { ...slot, card, modified: false, hasBeenFullyCharged: false, charge: 0 } : slot));
+                            // An energised weapon comes in fully charged.
+                            const definition = getCardDefinition(card.type);
+                            const charge = definition.traits?.includes('energised') ? definition.parameters.totalCharge ?? 0 : 0;
+                            setSlots(prevSlots => prevSlots.map(slot => slot.id === targetId ? { ...slot, card, modified: false, hasBeenFullyCharged: charge > 0, charge, activeTargetId: '' } : slot));
                         }
-                    } else if (targetType === 'weapon') {
+                    } else if (targetType === 'weapon' && !isInstant(cardType)) {
+                        // An instant card does what it does without taking the weapon's modifier slot.
                         setSlots(prevSlots => prevSlots.map(slot => slot.id === targetId ? { ...slot, modified: true } : slot));
                     }
                 }}
                 ejectWeapon={(slotId) => {
                     console.log(`ejected weapon from ${slotId}`);
-                    setSlots(prevSlots => prevSlots.map(slot => slot.id === slotId ? { ...slot, card: null, modified: false, hasBeenFullyCharged: false, charge: 0 } : slot));
+                    setSlots(prevSlots => prevSlots.map(slot => slot.id === slotId ? { ...slot, card: null, modified: false, hasBeenFullyCharged: false, charge: 0, activeTargetId: '' } : slot));
                 }}
                 slots={slots}
             />
@@ -200,6 +212,90 @@ export const UI: Story = {
         shipMotion: [
             { time: 0, x: 0, y: 0, angle: 0 },
             { time: 1000, x: 0, y: 0, angle: 0 },
+        ],
+        lockTargetId: '',
+        lockLevel: 0,
+    },
+};
+
+/** Lock held on the first target, and instant cards in hand, which can still be played on the modified weapon. Power Cell adds 5 charge when dropped on a meter. */
+export const LockAndInstantCards: Story = {
+    args: {
+        ...UI.args,
+        cards: [
+            { id: 1, type: 'powerCell' },
+            { id: 2, type: 'hotSwap' },
+            { id: 3, type: 'precisionFocus' },
+            { id: 4, type: 'acquireLock' },
+            { id: 5, type: 'alphaStrike' },
+            { id: 6, type: 'tractorBeam' },
+        ],
+        slots: [
+            {
+                id: 'slot1',
+                modified: true,
+                hasBeenFullyCharged: false,
+                charge: 2,
+                card: { id: 7, type: 'phaserCannon' },
+            },
+            {
+                id: 'slot2',
+                modified: false,
+                hasBeenFullyCharged: false,
+                charge: 0,
+                card: { id: 8, type: 'photonicCannon' },
+            },
+        ],
+        lockTargetId: 'target1',
+        lockLevel: 3,
+    },
+};
+
+/** A Tractor Beam active on the first target, draining its charge, with cards in hand to keep it up by dropping them on its meter. */
+export const ActiveTractorBeam: Story = {
+    args: {
+        ...UI.args,
+        cards: [
+            { id: 1, type: 'powerCell' },
+            { id: 2, type: 'phaserStrip' },
+            { id: 3, type: 'precisionFocus' },
+            { id: 4, type: 'photonTorpedo' },
+        ],
+        slots: [
+            {
+                id: 'slot1',
+                modified: false,
+                hasBeenFullyCharged: true,
+                charge: 5,
+                card: { id: 7, type: 'tractorBeam' },
+                activeTargetId: 'target1',
+                decay: {
+                    startTime: Date.now(),
+                    endTime: Date.now() + 1000,
+                },
+            },
+            {
+                id: 'slot2',
+                modified: false,
+                hasBeenFullyCharged: true,
+                charge: 8,
+                card: { id: 8, type: 'phaserCannon' },
+            },
+        ],
+        lockTargetId: 'target1',
+        lockLevel: 1,
+    },
+};
+
+/** Shot results over the target display: a quick volley of hits on a system, one that the shields absorbed, and a miss at another target, which is named. */
+export const ShotResults: Story = {
+    args: {
+        ...UI.args,
+        persistentShotResults: true,
+        shotResults: [
+            { id: 1, outcome: 'hit', targetId: 'target1', system: 'helm', count: 3, expiresAt: Infinity },
+            { id: 2, outcome: 'absorbed', targetId: 'target1', count: 1, expiresAt: Infinity },
+            { id: 3, outcome: 'miss', targetId: 'target2', count: 1, expiresAt: Infinity },
         ],
     },
 };

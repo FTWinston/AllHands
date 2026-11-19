@@ -15,6 +15,6 @@ export class ScannedHelmState extends ScannedSystemState<HelmState> implements S
         this.maneuverProgress = source.activeManeuver
             ? new CooldownState(source.activeManeuver.startTime, source.activeManeuver.endTime)
             : null;
-        this.evasionChance = source.activeManeuver?.card?.getParameter('evasion') ?? 0;
+        this.evasionChance = source.evasion;
     }
 }

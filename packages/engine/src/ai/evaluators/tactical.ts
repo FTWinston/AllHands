@@ -34,7 +34,8 @@ export function chargeScore(slot: WeaponSlotState, ctx: EvaluationContext): numb
 /** How much more a weapon that would reach the target is worth loading than one that wouldn't. */
 const REACHES_TARGET_BONUS = 5;
 
-export function weaponLoadEvaluator(cardType: WeaponSlotTargetedCardType): CardEvaluator {
+/** `scoreOffset` rates a weapon above or below the usual, e.g. one that does no damage. */
+export function weaponLoadEvaluator(cardType: WeaponSlotTargetedCardType, scoreOffset = 0): CardEvaluator {
     return (card, ctx) => {
         const cost = card.getParameter('cost');
         const range = targetRange(ctx);
@@ -45,7 +46,7 @@ export function weaponLoadEvaluator(cardType: WeaponSlotTargetedCardType): CardE
                 continue;
             }
             out.push({
-                score: (ctx.blackboard.targetId !== null ? 45 : 30) + (reaches ? REACHES_TARGET_BONUS : 0),
+                score: (ctx.blackboard.targetId !== null ? 45 : 30) + scoreOffset + (reaches ? REACHES_TARGET_BONUS : 0),
                 cost,
                 action: { kind: 'playCard', cardId: card.id, cardType, targetType: 'weapon-slot', targetId: slot.id },
             });

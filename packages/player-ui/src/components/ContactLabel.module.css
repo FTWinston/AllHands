@@ -1,0 +1,14 @@
+.root {
+    display: inline-block;
+    padding: 0.05em 0.4em;
+    margin-inline-end: 0.4em;
+    border: 0.094em solid var(--primary-light);
+    background-color: color-mix(in oklch, var(--primary-light) 22%, transparent);
+    color: var(--primary-lightest);
+    font-family: var(--readout-font-family);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    vertical-align: baseline;
+}

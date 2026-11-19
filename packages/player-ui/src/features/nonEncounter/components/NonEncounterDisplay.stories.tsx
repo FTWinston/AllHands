@@ -1,4 +1,3 @@
-import { shopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { NonEncounterDisplay as Component } from './NonEncounterDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -58,7 +57,6 @@ export const AtShopStation: Story = {
         shop: {
             stationKind: 'navigationBeacon',
             cards: [{ id: 101, type: 'fullReverse' }, { id: 102, type: 'strafe' }, { id: 103, type: 'sweep' }],
-            price: shopCardPrice,
             antimatter: 40,
             buyCard: fn(),
         },

@@ -11,12 +11,18 @@ type Props = {
     /** The hull of the ship science is scanning, if any. */
     scannedHull: ScannedHullInfo | null;
     onVisibleTargetChange: (index: number) => void;
+    /** What the crew calls each contact, by object id. */
+    contactLabels?: Partial<Record<string, string>>;
     targetAspect?: number;
     viewer: RelationshipViewer;
+    /** The id of the ship that Lock is held against. Empty while there's no Lock. */
+    lockTargetId: string;
+    /** How many levels of Lock are held against that ship. */
+    lockLevel: number;
 };
 
 export const TacticalTargetList = (props: Props) => {
-    const { targets, targetAspect, subTargetsByTarget, scannedHull, onVisibleTargetChange, viewer } = props;
+    const { targets, targetAspect, subTargetsByTarget, scannedHull, onVisibleTargetChange, contactLabels, viewer, lockTargetId, lockLevel } = props;
 
     // Handler for HorizontalScroll's onScrollFractionChange
     const handleScrollFractionChange = (fraction: number) => {
@@ -44,6 +50,7 @@ export const TacticalTargetList = (props: Props) => {
                     <TacticalTarget
                         id={target.id}
                         name={target.name}
+                        contactLabel={contactLabels?.[target.id]}
                         appearance={target.appearance}
                         faction={target.faction}
                         relationship={getDisplayRelationship(target, viewer)}
@@ -53,6 +60,7 @@ export const TacticalTargetList = (props: Props) => {
                         targetNumber={index + 1}
                         targetAspect={targetAspect}
                         totalTargets={targets.length}
+                        lockLevel={lockTargetId === target.id ? lockLevel : 0}
                     />
                 </li>
             ))}

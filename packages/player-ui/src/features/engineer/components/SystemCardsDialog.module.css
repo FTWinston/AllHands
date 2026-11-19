@@ -31,3 +31,76 @@
     text-align: center;
     color: var(--grey-light);
 }
+
+/* Health and, for the hull, shields: bars that open descriptions of what's behind them. */
+.stats {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    row-gap: 0.6em;
+}
+
+.stats .stat {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-items: center;
+    column-gap: 0.6em;
+    padding: 0.5em 0.75em;
+    font: inherit;
+    cursor: pointer;
+}
+
+.statIcon {
+    width: 1.6em;
+    height: 1.6em;
+    color: var(--primary-light);
+}
+
+.stats .statBar {
+    height: 1.25em;
+}
+
+.statValue {
+    min-width: 1.5em;
+    font-weight: bold;
+    font-size: 1.5em;
+    line-height: 1;
+    text-align: right;
+    color: var(--grey-lightest);
+}
+
+/* There's damage that can be repaired. */
+.statValue.repairable {
+    color: var(--danger-light);
+}
+
+/* The shields' icon is filled in, like health's. (Its outline is also the hull's own icon.) */
+.shieldStat {
+    & .statIcon {
+        color: var(--energy-light);
+    }
+
+    & .statIcon path {
+        fill: currentColor;
+    }
+
+    & .statValue {
+        color: var(--energy-lightest);
+    }
+}
+
+/* In the health popup: what each kind of segment means, and how many there are. */
+.breakdownLine {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+
+    & + & {
+        margin-top: 0.4em;
+    }
+}
+
+.breakdownLine .swatch {
+    flex: 0 0 0.9em;
+    height: 1.2em;
+}

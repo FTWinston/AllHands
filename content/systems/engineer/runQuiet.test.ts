@@ -98,11 +98,11 @@ describe('Run Quiet', () => {
         tile('helm').addEffect('reducedPower', 2);
         runQuiet('helm');
         expect(ship.helmState.powerLevel).toBe(0);
-        tile('helm').addEffect('overcharge');
+        tile('helm').addEffect('divertAllPowerGain', 3);
         expect(ship.helmState.powerLevel).toBe(2);
         runQuiet('helm');
         expect(ship.helmState.powerLevel).toBe(4);
-        tile('helm').removeEffect('overcharge', 'expired');
+        tile('helm').removeEffect('divertAllPowerGain', 'expired');
         tile('helm').removeEffect('reducedPower', 'expired');
         expect(ship.helmState.powerLevel).toBe(3);
     });

@@ -1,7 +1,7 @@
 /*
     Each tile is laid out to suit its own shape, as tiles are size containers (see SystemList.module.css).
     The font scales with the tile, so its shape decides what fits, more than its size does.
-    By default, power and health are stacked beside the cards button, with effects below.
+    By default, the name is above health, with effects below. Power (and the hull's shields) are badges sticking out of its top corners.
 */
 .system {
     position: relative;
@@ -13,48 +13,69 @@
     font-size: min(8cqw, 10cqh, 1.25rem);
 
     display: grid;
-    align-items: center;
-    column-gap: 0.75em;
-    row-gap: 0.15em;
-    /* The button is always narrower than power and health. */
-    grid-template-columns: minmax(max-content, 3fr) minmax(0, 2fr);
-    grid-template-rows: auto auto auto minmax(0, 1fr);
+    align-content: start;
+    row-gap: 0.35em;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
     grid-template-areas:
-        "name name"
-        "attributes cards"
-        "attributes cards"
-        "effects effects";
-}
+        "name"
+        "rows"
+        "effects";
 
-/* The name, and the shields if it has them. */
-.header {
-    grid-area: name;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.6em;
-    white-space: nowrap;
-    /* It spans the columns below, so mustn't widen them. */
-    contain: inline-size;
+    /*
+        The whole tile shows the cards button's states, as the button covers it.
+        Focus is a ring inside the border, as outlines aren't drawn around the bevelled corners.
+    */
+    &:has(.viewCards:focus-visible) {
+        border-color: var(--primary-lightest);
+        box-shadow: inset 0 0 0 0.2em var(--primary-light);
+    }
 
-    /* Centred in the width left of the tile's cut-off corner, where there's room. */
-    &::after {
-        content: '';
-        flex: 0 1 1.5em;
-        min-width: 0;
-        margin-left: -0.6em;
+    @media (hover: hover) {
+        &:has(.viewCards:hover) {
+            border-color: var(--primary-light);
+        }
+    }
+
+    &:has(.viewCards:active) {
+        background-color: var(--primary-darkest);
     }
 }
 
 .name {
+    grid-area: name;
+    margin: 0;
     display: flex;
-    align-items: center;
-    flex-shrink: 0;
-
+    justify-content: center;
+    /* Centred in the width left of its power badge, on the tile's cut-off corner. */
+    padding-right: 1.4em;
     font-size: 1.75em;
     font-weight: bold;
     line-height: 1.25;
+    white-space: nowrap;
+    /* It mustn't widen the tile. */
+    contain: inline-size;
+}
+
+/* The system's name is the button that opens its cards, stretched over the whole tile, beneath the shields and effects, which are buttons too. */
+.viewCards {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    color: inherit;
     text-transform: capitalize;
+    cursor: pointer;
+    outline: none;
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+    }
 }
 
 .nameIcon {
@@ -65,67 +86,102 @@
     color: var(--primary-light);
 }
 
-/*
-    Power and health share columns for icon, value and maximum, with the values right-aligned.
-    Its rows are the tile's own, so in wide tiles they line up with the name and button.
-*/
-.attributes {
-    grid-area: attributes;
-    justify-self: center;
+/* Health: an icon, and the bar, with each section's number of cards beneath it. */
+.health {
+    grid-area: rows;
     display: grid;
-    grid-template-columns: auto auto auto;
-    grid-template-rows: subgrid;
-    align-items: baseline;
-    column-gap: 0.2em;
-    color: var(--grey-light);
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    column-gap: 0.35em;
 }
 
-.attribute {
-    display: contents;
-}
-
-.power > * {
-    grid-row: 1;
-}
-
-.health > * {
-    grid-row: 2;
-}
-
-/* Power's maximum never changes, so this is only shown if there's lots of room. */
-.powerMax {
-    display: none;
-}
-
-.attributeValue {
-    grid-column: 2;
-    justify-self: end;
-    font-weight: bold;
-    font-size: 1.5em;
-    line-height: 1.15;
-    color: var(--grey-lightest);
-}
-
-.attributeMax {
-    grid-column: 3;
-}
-
-.attributeIcon {
-    grid-column: 1;
-    margin-right: 0.1em;
-    width: 1.35em;
-    height: 1.35em;
-    flex-shrink: 0;
+.icon {
+    width: 1.3em;
+    height: 1.3em;
+    /* Centred on the bar, rather than on the bar and its counts. */
+    margin-top: -0.2em;
     color: var(--primary-light);
-    align-self: center;
 }
 
+/* Badges stick out of the tile, so taps go through them, and they sit above its shield dots. */
+.badge {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.1em;
+    padding: 0.1em 0.35em 0.1em 0.25em;
+    font-size: 1.15em;
+    font-weight: bold;
+    line-height: 1.1;
+    color: var(--grey-lightest);
+    background-color: var(--primary-dark);
+    border: 0.1em solid var(--primary-light);
+    border-radius: 0 0.5em 0 0.5em;
+    corner-shape: bevel;
+    pointer-events: none;
+}
+
+.badgeIcon {
+    flex-shrink: 0;
+    width: 0.85em;
+    height: 0.85em;
+    color: var(--primary-lightest);
+}
+
+/* Power sticks out of the top right corner by half the border width. */
+.powerBadge {
+    top: -0.05em;
+    right: -0.05em;
+    padding: 0.25em 0.25em 0.25em 0;
+}
+
+/* The hull's tile has a shielded badge in the top left, so that corner needs beveled so it doesn't stick out behind it. */
+.system.shielded {
+    border-top-left-radius: 1.5em;
+}
+
+/* Its name is centred between its shield and power badges. */
+.shielded .name {
+    padding-left: 1.6em;
+}
+
+/*
+    The shields stick out of the opposite corner, the top left, which isn't cut off.
+    In their own colour, with their icon filled in, like power's and health's. (Its outline is also the hull's own icon.)
+*/
+.shieldBadge {
+    top: -0.05em;
+    left: -0.05em;
+    border-radius: 0.5em 0 0.5em 0;
+    color: var(--energy-lightest);
+    background-color: var(--energy-darkest);
+    border-color: var(--energy-light);
+    padding: 0.25em 0.25em 0.25em 0.125em;
+
+    & .badgeIcon {
+        color: var(--energy-light);
+    }
+
+    & .badgeIcon path {
+        fill: currentColor;
+    }
+}
+
+/* The effects are buttons too, so sit above the cards button (and its icon), though the space between them doesn't. */
 .effects {
     grid-area: effects;
     align-self: stretch;
     min-height: 2.5em;
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
     /* So the effects can spread across exactly the space they have. */
     container-type: inline-size;
+
+    & button {
+        pointer-events: auto;
+    }
 }
 
 /* Lots of effects can overlap each other, but they stay within their space. */
@@ -133,227 +189,46 @@
     --available-for-items: calc(100cqw - 2.5em);
 }
 
-button.viewCards {
-    grid-area: cards;
-    align-self: stretch;
-    justify-self: center;
-    /* Narrower than power and health, which take at least 5em. */
-    width: 4.5em;
-    max-width: 100%;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.15em;
-    padding: 0.3em;
-    font-size: 1em;
-
-    & > span {
-        flex-grow: 0;
-        padding: 0;
-    }
-
-    & > span:first-child {
-        font-size: 1.6em;
-    }
+.cardsIcon {
+    position: absolute;
+    right: 0.45em;
+    bottom: 0.45em;
+    width: 1.4em;
+    height: 1.4em;
+    color: var(--primary-light);
+    pointer-events: none;
 }
 
-button.viewCards.generating {
+/* Glows while this system's next card is being generated. */
+.generating .cardsIcon {
     color: var(--energy-lightest);
-    box-shadow: var(--energy-light) 0 0 0 0.125em inset;
+    filter: drop-shadow(0 0 0.15em var(--energy-light)) drop-shadow(0 0 0.3em var(--energy-mid));
 }
 
-/*
-    The hull's shields, beside its name in small tiles. There's little room, and the hull's own icon is a shield, so this has none.
-    Taller and wider tiles show them with power and health instead.
-*/
-/* A shield readout is a button that opens a description of the shields, so it keeps the popup trigger's outline, in the shields' colour. */
-.system .shieldReadout {
-    padding: 0.05em 0.35em;
-    border-color: var(--energy-dark);
-    border-radius: 0 0.5em 0 0.5em;
-    font: inherit;
-    color: inherit;
-    cursor: pointer;
-}
-
-.system .headerShield {
-    flex-shrink: 0;
-    color: var(--energy-light);
-}
-
-.headerShieldValue {
-    font-weight: bold;
-    font-size: 1.35em;
-    color: var(--energy-lightest);
-}
-
-/* Its shield border is darker, so the shield's dots stand out on it. */
-.system.shielded {
-    border-color: var(--primary-dark);
-}
-
-/* Takes the attributes' third row, sharing their columns. */
-.shieldAttribute {
-    display: none;
-    grid-row: 3;
-    grid-column: 1 / -1;
-    grid-template-columns: subgrid;
-    align-items: baseline;
-
-    /* Lets its outline overhang, so its icon and values stay in line with those above. */
-    margin: 0 -0.45em;
-}
-
-.attributeIcon.shieldIcon {
-    color: var(--energy-light);
-}
-
-.attributeValue.shieldValue {
-    color: var(--energy-lightest);
-}
-
-.lowHealth {
-    color: var(--danger-light);
-}
-
-.noHealth {
-    color: var(--danger-mid);
-}
-
-@container (min-width: 260px) {
-    .powerMax {
-        display: block;
-    }
-}
-
-/* Tall tiles have height to spare, so give power, health and the button more of it, leaving less for effects. */
+/* Tall tiles have height to spare, so space things out more. */
 @container (aspect-ratio < 1/1) {
-    .attributes {
-        row-gap: 0.5em;
-        margin-block: 0.25em;
-    }
-
-    .attributeValue {
-        font-size: 1.75em;
-    }
-
-    .attributeIcon {
-        width: 1.6em;
-        height: 1.6em;
-    }
-
-    button.viewCards {
-        gap: 0.3em;
-
-        & > span:first-child {
-            font-size: 2em;
-        }
-    }
-
-    /* The hull's shields go with power and health, taking room from the effects. */
-    .system .headerShield {
-        display: none;
-    }
-
-    .shielded .attributes {
-        grid-template-rows: auto auto auto;
-        align-self: center;
-        row-gap: 0.25em;
-    }
-
-    .shieldAttribute {
-        display: grid;
+    .system {
+        row-gap: 0.6em;
     }
 }
 
-/* Wide tiles have the name and button, then power and health, in columns on the left, leaving the rest for effects. */
+/* Wide tiles have the name and health on the left, leaving the right for effects. */
 @container (aspect-ratio > 8/5) and (min-width: 400px) {
     .system {
-        font-size: min(4cqw, 13cqh, 1.75rem);
+        font-size: min(4cqw, 12cqh, 1.75rem);
         padding: 0.5em 1em 0.5em 0.75em;
         column-gap: 1.25em;
-        row-gap: 0.4em;
         align-content: center;
         /* Wide enough for every system's name, so the columns line up from tile to tile. */
-        grid-template-columns: minmax(max-content, 10.5em) max-content minmax(0, 1fr);
+        grid-template-columns: minmax(0, 11em) minmax(0, 1fr);
         grid-template-rows: auto auto;
         grid-template-areas:
-            "name attributes effects"
-            "cards attributes effects";
+            "name effects"
+            "rows effects";
     }
 
-    .attributes {
-        justify-self: start;
-        column-gap: 0.35em;
-    }
-
-    /* Larger, both to fill some space and to stay wider than the button beside them. */
-    .attributeValue {
-        font-size: 1.9em;
-    }
-
-    .attributeIcon {
-        width: 1.5em;
-        height: 1.5em;
-    }
-
-    .header {
+    .name {
         justify-content: start;
-
-        &::after {
-            content: none;
-        }
-    }
-
-    .system .headerShield {
-        display: none;
-    }
-
-    /* Three rows can't line up with the name and button, so they're spaced on their own. */
-    .shielded .attributes {
-        grid-template-rows: auto auto auto;
-        align-self: center;
-        row-gap: 0.1em;
-    }
-
-    /* The tile is at least 7.7em tall, so this is as large as three rows can be, just short of other tiles' values. */
-    .shielded .attributeValue {
-        font-size: 1.75em;
-        line-height: 1.1;
-    }
-
-    .shieldAttribute {
-        display: grid;
-    }
-
-    button.viewCards {
-        justify-self: start;
-        width: 7.5em;
-        flex-direction: row;
-        gap: 0.25em;
-        padding: 0.55em 0.6em 0.55em 0.5em;
-
-        & > span:first-child {
-            font-size: 1.25em;
-        }
-    }
-}
-
-/*
-    Tiles that are wide, but not very wide, would leave the effects only a narrow column, while having height to spare.
-    So the effects go in a row along the bottom instead.
-*/
-@container (aspect-ratio > 8/5) and (aspect-ratio <= 4/1) and (min-width: 400px) {
-    .system {
-        /* Tall enough for three rows of attributes and the effects. */
-        font-size: min(4cqw, 10cqh, 1.75rem);
-        align-content: stretch;
-        /* Spread out across the tile's width, with spacer columns. */
-        column-gap: 0;
-        grid-template-columns: minmax(0, 1fr) minmax(max-content, 10.5em) minmax(1.25em, 1fr) max-content minmax(0, 1fr);
-        grid-template-rows: auto auto minmax(2.5em, 1fr);
-        grid-template-areas:
-            ". name . attributes ."
-            ". cards . attributes ."
-            "effects effects effects effects effects";
+        padding-right: 0;
     }
 }

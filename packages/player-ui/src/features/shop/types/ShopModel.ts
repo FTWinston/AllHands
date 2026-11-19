@@ -7,8 +7,6 @@ export type ShopModel = {
     /** The kind of station, which determines whose cards it sells. */
     stationKind: SectorNodeKind;
     cards: Snapshot<CardInstance[]>;
-    /** Antimatter spent to buy each card. */
-    price: number;
     /** The ship's antimatter. */
     antimatter: number;
     buyCard: (cardId: number) => void;

@@ -27,12 +27,18 @@ export function resolveParameters(
         applyModifiers(parameters, additionalModifiers);
     }
 
+    // However far a card's cost is brought down, it never pays power back. The client does the same (see common-ui's resolveParameters).
+    if (parameters.cost < 0) {
+        parameters = { ...parameters, cost: 0 };
+    }
+
     return parameters;
 }
 
 export function resolveParameter(parameter: string, parameters?: CardParameters, modifiers?: IMap<string, number>): number {
     const parameterValue = parameters?.[parameter] ?? 0;
     const modifierValue = modifiers?.get(parameter) ?? 0;
+    const value = parameterValue + modifierValue;
 
-    return parameterValue + modifierValue;
+    return parameter === 'cost' ? Math.max(0, value) : value;
 }

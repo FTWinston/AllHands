@@ -11,6 +11,9 @@ const parameterMinimumValues: Readonly<Record<string, number>> = {
     accuracy: -100,
 };
 
+/** How long a weapon that has been fully charged takes to lose each point of charge, in ms. */
+export const chargeDecayInterval = 30000;
+
 export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     constructor(id: string) {
         super();
@@ -28,6 +31,29 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
     @type('boolean') hasBeenFullyCharged = false;
     @type(CooldownState) decay: CooldownState | null = null;
     decayDuration = 0;
+    /** The id of the target the weapon is active on, if it stays active once fired (see `staysActive`). Empty while it isn't active. */
+    @type('string') activeTargetId = '';
+    /** For a cumbersome weapon: when each ship was last brought into its firing arc and range, and has stayed there since. Updated by the tactical system, which has the ships. */
+    @type({ map: 'number' }) readonly aimStartTimes = new MapSchema<number>();
+
+    /**
+     * Called as an active weapon stops being active, for whatever reason, with its card and the id of the target it was active on.
+     * The slot has already been emptied by then. Not synced: the tactical system that holds the slot sets it.
+     */
+    onDeactivated: ((card: CardState, targetId: string) => void) | null = null;
+
+    /** Whether the weapon in this slot has been fired, and is still active on its target. */
+    get isActive(): boolean {
+        return this.activeTargetId !== '';
+    }
+
+    /**
+     * Whether the weapon stays active on its target once fired, rather than spending a use's charge: one with a `drainPerSecond` parameter,
+     * which it then loses that much charge each second, until it runs out.
+     */
+    get staysActive(): boolean {
+        return this.getParameter('drainPerSecond') > 0;
+    }
 
     getParameters(): CardParameters {
         if (!this.card) {
@@ -61,7 +87,38 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         this.modifiers.set(parameter, current + adjustment);
     }
 
-    /** Until first full charge a weapon takes charge freely; afterwards only a rechargeable weapon can be topped up. */
+    /** What has been added to each parameter for the next shot only (see `adjustParameterForNextShot`). */
+    private readonly nextShotAdjustments = new Map<string, number>();
+
+    /** Adjust a parameter until the weapon's next shot is fired (see `endNextShot`), without it counting as a modifier card. */
+    adjustParameterForNextShot(parameter: string, adjustment: number) {
+        this.adjustParameter(parameter, adjustment);
+        this.nextShotAdjustments.set(parameter, (this.nextShotAdjustments.get(parameter) ?? 0) + adjustment);
+    }
+
+    /** Called as a shot is fired: takes back what was added for the next shot only. */
+    endNextShot() {
+        for (const [parameter, adjustment] of this.nextShotAdjustments) {
+            this.adjustParameter(parameter, -adjustment);
+        }
+        this.nextShotAdjustments.clear();
+    }
+
+    /** Put a weapon card into this empty slot. An `energised` weapon comes in fully charged, so its charge starts to decay straight away. */
+    insertCard(card: CardState, currentTime: number) {
+        this.card = card;
+
+        if (card.hasTrait('energised')) {
+            this.receiveCharge(this.getParameter('totalCharge'), currentTime);
+        }
+    }
+
+    /** Whether a modifier card can be played on this weapon: it needs one loaded, without a modifier yet, that isn't `energised`. */
+    canBeModified(): boolean {
+        return !!this.card && !this.modified && !this.card.hasTrait('energised');
+    }
+
+    /** Until first full charge a weapon takes charge freely. After that, only a rechargeable weapon can be charged, as many times as there's room, even while active. */
     canBeCharged(): boolean {
         if (!this.card || this.charge >= this.getParameter('totalCharge')) {
             return false;
@@ -76,19 +133,35 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
             return;
         }
 
-        // Any top-up uses up the trait, so a recharge is a single card.
-        if (this.hasBeenFullyCharged) {
-            this.card.removeTrait('rechargeable');
+        this.receiveCharge(amount, currentTime);
+    }
+
+    /**
+     * Take in charge moved from another weapon (up to the weapon's total charge), and return how much of it fitted.
+     * Unlike charging with a card, this works on a weapon that has been fully charged, whether it's rechargeable or not.
+     */
+    receiveCharge(amount: number, currentTime: number): number {
+        if (!this.card) {
+            return 0;
         }
 
         const totalCharge = this.getParameter('totalCharge');
-        this.charge = Math.min(this.charge + amount, totalCharge);
+        const received = Math.max(0, Math.min(amount, totalCharge - this.charge));
+        this.charge += received;
 
         if (!this.hasBeenFullyCharged && this.charge >= totalCharge) {
             this.hasBeenFullyCharged = true;
-            this.decayDuration = 30000;
+            this.decayDuration = chargeDecayInterval;
             this.decay = new CooldownState(currentTime, currentTime + this.decayDuration);
         }
+
+        return received;
+    }
+
+    /** Take charge out of the weapon. Return true if the weapon was discarded: one that has been fully charged is used up when it runs out. */
+    removeCharge(amount: number): boolean {
+        this.charge = Math.max(0, this.charge - amount);
+        return this.hasBeenFullyCharged && this.discardIfEmpty();
     }
 
     /** Consume one use's charge & reset charge decay. Return true if the weapon was discarded for running out of charge. */
@@ -103,27 +176,49 @@ export class WeaponSlotState extends Schema implements WeaponSlotInfo {
         return false;
     }
 
-    /** Decay charge when due. Return true if the weapon was discarded for running out of charge. */
-    update(currentTime: number): boolean {
-        if (!this.card || !this.decay || this.decay.endTime > currentTime) {
-            return false;
-        }
-
-        this.decay = new CooldownState(this.decay.endTime, this.decay.endTime + this.decayDuration);
-        this.charge -= 1;
-        return this.discardIfEmpty();
+    /**
+     * Make a weapon that stays active once fired (see `staysActive`) active on the target it has just been fired at.
+     * Rather than spending a use's charge, it then loses its `drainPerSecond` in charge each second, a point at a time, until it runs out or is otherwise ended.
+     */
+    activate(targetId: string, currentTime: number) {
+        this.activeTargetId = targetId;
+        this.decayDuration = 1000 / this.getParameter('drainPerSecond');
+        this.decay = new CooldownState(currentTime, currentTime + this.decayDuration);
     }
 
-    /** Empty the slot, losing its charge and any modifier. Return the card that was in it. */
+    /** Decay charge when due, a point for each interval that has passed. Return true if the weapon was discarded for running out of charge. */
+    update(currentTime: number): boolean {
+        while (this.card && this.decay && this.decayDuration > 0 && this.decay.endTime <= currentTime) {
+            this.decay = new CooldownState(this.decay.endTime, this.decay.endTime + this.decayDuration);
+            this.charge -= 1;
+
+            if (this.discardIfEmpty()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** Empty the slot, losing its charge and any modifier, and ending an active weapon. Return the card that was in it. */
     clear(): CardState | null {
         const card = this.card;
+        const activeTargetId = this.activeTargetId;
         this.charge = 0;
         this.modified = false;
         this.modifierCard = null;
         this.hasBeenFullyCharged = false;
         this.decay = null;
+        this.activeTargetId = '';
         this.modifiers.clear();
+        this.nextShotAdjustments.clear();
+        this.aimStartTimes.clear();
         this.card = null;
+
+        if (card && activeTargetId) {
+            this.onDeactivated?.(card, activeTargetId);
+        }
+
         return card;
     }
 

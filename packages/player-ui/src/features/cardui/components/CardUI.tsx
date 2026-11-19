@@ -20,6 +20,11 @@ type Props = PropsWithChildren<{
      * playing it would have some notable effect. Different consumers of CardUI can supply their own logic here.
      */
     isCardHighlighted?: (card: Snapshot<CardInstance>) => boolean;
+    /**
+     * Determines whether a given card in the hand can be played now, for reasons other than its cost, e.g. needing something to target.
+     * A card that can't be is shown greyed out, and is refused straight away if played (though it can still be discarded). Omitted, every card can be.
+     */
+    isCardPlayable?: (card: Snapshot<CardInstance>) => boolean;
 }>;
 
 type ChoiceInfo = {
@@ -31,7 +36,7 @@ type ChoiceInfo = {
  * The full UI for displaying and interacting with a hand of cards.
  * Any CardDropTarget components these cards should interact with should be nested within this component.
  */
-export const CardUI: FC<Props> = ({ playCard, cardHand, availablePower, children, onAlternateDrop, isCardHighlighted }) => {
+export const CardUI: FC<Props> = ({ playCard, cardHand, availablePower, children, onAlternateDrop, isCardHighlighted, isCardPlayable }) => {
     const [playChoice, setPlayChoice] = useState<ChoiceInfo | null>(null);
 
     const dropCard = useCallback((cardId: number, cardType: CardType, targetType: CardTargetType, targetId: string) => {
@@ -79,6 +84,7 @@ export const CardUI: FC<Props> = ({ playCard, cardHand, availablePower, children
                 availablePower={availablePower}
                 shiftDown={!!playChoice}
                 isCardHighlighted={isCardHighlighted}
+                isCardPlayable={isCardPlayable}
             />
         </DragCardProvider>
     );

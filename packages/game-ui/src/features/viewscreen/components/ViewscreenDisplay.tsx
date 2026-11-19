@@ -1,3 +1,4 @@
+import { FieldInfo } from 'common-data/features/space/types/FieldInfo';
 import { GameObjectInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
@@ -5,6 +6,10 @@ import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { interpolatePosition, interpolateVector } from 'common-data/features/space/utils/interpolate';
 import { Screen } from 'common-ui/components/Screen';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
+import { Rectangle } from 'common-ui/features/spacemap/types/Rectangle';
+import { ContactLabels, drawContactLabels } from 'common-ui/features/spacemap/utils/drawContactLabels';
+import { drawFields } from 'common-ui/features/spacemap/utils/drawFields';
+import { drawOffscreenTargetArrows, drawTargetReticles } from 'common-ui/features/spacemap/utils/drawTargetReticles';
 import { drawWeaponArcs, ENEMY_WEAPON_ARC_COLORS, OWN_WEAPON_ARC_COLORS } from 'common-ui/features/spacemap/utils/drawWeaponArcs';
 import { useTimeProvider } from 'common-ui/hooks/useTimeProvider';
 import { FC, RefObject, PropsWithChildren, useCallback, useRef } from 'react';
@@ -22,7 +27,15 @@ type Props = PropsWithChildren<{
     /** What to keep centered on. If null (e.g. the ship was destroyed), the view stays where it last was. */
     center: ReadonlyKeyframes<Vector2D> | null;
     objects: Record<string, GameObjectInfo>;
+    /** The lingering zones in space, drawn under the ships. */
+    fields?: Record<string, FieldInfo>;
     viewer: RelationshipViewer;
+    /** What this ship's crew calls each contact, by object id. Written beside each contact, whether or not combat labels are on. */
+    contactLabels?: ContactLabels;
+    /** The id of the object tactical is aiming at, marked with tactical's reticle. */
+    tacticalTargetId?: string;
+    /** The id of the ship science is scanning, marked with science's reticle. */
+    scienceTargetId?: string;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
     showMenu: () => void;
 }>;
@@ -35,7 +48,7 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
 
     const cellRadius = 32; // TODO: make this controllable? automatic?
 
-    const { center, objects: allObjects, weaponEffectsRef, viewer } = props;
+    const { center, objects: allObjects, weaponEffectsRef, viewer, fields, contactLabels, tacticalTargetId, scienceTargetId } = props;
 
     const showLabels = useCombatLabels();
     const shakeAndFlashes = useShakeAndFlashes();
@@ -88,6 +101,10 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
 
             drawSpaceBackground(ctx, centerVector, cellRadius, drawTime);
 
+            if (fields) {
+                drawFields(ctx, Object.values(fields), drawTime, pixelSize);
+            }
+
             const localShip = viewer.shipId ? (objects[viewer.shipId] as unknown as Snapshot<ShipInfo> | undefined) : undefined;
             const ownWeaponSlots = localShip?.tacticalState?.slots;
 
@@ -103,17 +120,26 @@ export const ViewscreenDisplay: FC<Props> = (props) => {
                 drawWeaponArcs(ctx, interpolatePosition(scannedTarget.motion, drawTime), scannedWeaponSlots, ENEMY_WEAPON_ARC_COLORS, pixelSize);
             }
         },
-        [timeProvider, viewer.shipId]
+        [timeProvider, viewer.shipId, fields]
     );
 
     const drawExtraForeground = useCallback(
-        (ctx: CanvasRenderingContext2D) => {
-            drawCombatEffects(ctx, weaponEffectsRef.current, tracker, timeProvider.getServerTime(), {
+        (ctx: CanvasRenderingContext2D, bounds: Rectangle, pixelSize: number) => {
+            const drawTime = timeProvider.getServerTime();
+            const { objects } = frame.current;
+
+            if (contactLabels) {
+                drawContactLabels(ctx, Object.values(objects), contactLabels, viewer, drawTime, pixelSize);
+            }
+            drawTargetReticles(ctx, objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize);
+            drawOffscreenTargetArrows(ctx, bounds, objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize, contactLabels);
+
+            drawCombatEffects(ctx, weaponEffectsRef.current, tracker, drawTime, {
                 showLabels,
                 allowFlashes: shakeAndFlashes,
             });
         },
-        [weaponEffectsRef, tracker, timeProvider, showLabels, shakeAndFlashes]
+        [weaponEffectsRef, tracker, timeProvider, showLabels, shakeAndFlashes, contactLabels, viewer, tacticalTargetId, scienceTargetId]
     );
 
     return (

@@ -1,0 +1,89 @@
+/*
+    The bar, and a swatch of one of its sections: an outlined black track, which its sections fill.
+    Taps go through it, to the button it's on (or beneath, as on a system's tile).
+*/
+.bar,
+.swatch {
+    display: flex;
+    height: 0.9em;
+    box-sizing: border-box;
+    border: 0.08em solid var(--primary-mid);
+    border-radius: 0.1em;
+    overflow: hidden;
+    background-color: black;
+    pointer-events: none;
+}
+
+/* Sized by its number of cards (its --count). */
+.section {
+    flex: var(--count, 1) 1 0;
+    min-width: 0;
+}
+
+.healthy {
+    background-color: var(--primary-light);
+}
+
+/* Health, but with a problem: only 2/3 filled, with the empty track above, as damage would leave it critically damaged. */
+.stabilised {
+    background: linear-gradient(to bottom, transparent 0 34%, var(--primary-light) 34%);
+}
+
+/* Missing, but it can be put back: the empty track, outlined in bright red, like the count of it beneath. */
+.damaged {
+    background: none;
+    box-shadow: inset 0 0 0 0.1em var(--danger-light);
+}
+
+/*
+    Gone for good: scorched, with dull red stripes on black.
+    Dark, so the bright red of damage that can be repaired stands out beside it, and textured, so it differs from that by more than colour.
+*/
+.critical {
+    background: repeating-linear-gradient(-45deg, var(--danger-dark) 0 0.12em, black 0.12em 0.3em);
+}
+
+/* The bar, with each section's number of cards beneath it. */
+.withCounts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15em;
+    pointer-events: none;
+}
+
+/* The same widths as the sections, so each count is centred beneath its own. */
+.counts {
+    display: flex;
+    /* Matches the bar's border, so the counts line up with the sections inside it. */
+    padding-inline: 0.08em;
+}
+
+/*
+    Never narrower than its number, though: a count beneath very narrow sections (one card of 18, say) takes the room it needs,
+    and the other makes way for it, so they never overlap, and stay roughly beneath their own sections.
+*/
+.count {
+    flex: var(--count, 1) 1 0;
+    min-width: max-content;
+    /* So neighbouring numbers never run together, e.g. two 1s reading as 11. */
+    padding-inline: 0.2em;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.15em;
+    line-height: 1;
+}
+
+.healthCount {
+    color: var(--grey-lightest);
+}
+
+/* Bright red, as there's damage that can be repaired. */
+.repairableCount {
+    color: var(--danger-light);
+}
+
+/* Beneath the critically damaged section: no number, just its space. */
+.count.gap {
+    min-width: 0;
+    padding: 0;
+}

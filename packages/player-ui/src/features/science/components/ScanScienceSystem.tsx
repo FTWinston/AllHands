@@ -11,6 +11,8 @@ import { ScanSection } from './ScanSection';
 
 type Props = Snapshot<ScannedScienceInfo> & {
     name: string;
+    /** What the crew calls the scanned ship, such as "Alpha". */
+    contactLabel?: string;
     vulnerability: EnemyTargetedCardType | null;
     onClose: () => void;
 };
@@ -29,6 +31,7 @@ export const ScanScienceSystem = (props: Props) => {
             hand={props.hand}
             vulnerability={props.vulnerability}
             targetName={props.name}
+            targetLabel={props.contactLabel}
             targetId={props.targetId}
             onClose={props.onClose}
         >

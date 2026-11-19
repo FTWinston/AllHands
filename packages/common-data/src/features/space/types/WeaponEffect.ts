@@ -1,3 +1,4 @@
+import { ShipSystem } from '../../ships/types/ShipSystem';
 import { ObjectId } from './GameObjectInfo';
 import { ObjectAppearance } from './ObjectAppearance';
 import { Position } from './Position';
@@ -32,6 +33,8 @@ export interface ImpactEffect {
     targetId: ObjectId;
     /** How much damage got through the shields. Zero if they absorbed it all. */
     damage: number;
+    /** The system the hit landed on, whether aimed or picked at random. Not given for a hit that spread from another (area damage). */
+    system?: ShipSystem;
     /** The server game time at which the effect starts. */
     startTime: number;
 }

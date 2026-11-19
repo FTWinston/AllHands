@@ -4,7 +4,7 @@ import { CardParameters } from 'common-data/features/cards/types/CardParameters'
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType, EnemyTargetedCardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { SectorDestinationInfo } from 'common-data/features/sectors/types/SectorDestinationInfo';
-import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
+import { CrewRoleName, crewRoleNames } from 'common-data/features/ships/types/CrewRole';
 import { engineerSystem, helmSystem, scienceSystem, shipSystems, ShipSystem, tacticalSystem } from 'common-data/features/ships/types/ShipSystem';
 import { shieldTuningEffects } from 'common-data/features/ships/utils/shieldStats';
 import { SystemSetupInfo, ScienceSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
@@ -14,6 +14,7 @@ import { resolveParameters } from 'src/cards/resolveParameters';
 import { CardState } from 'src/state/CardState';
 import { GameState } from 'src/state/GameState';
 import { SectorDestinationState } from 'src/state/SectorDestinationState';
+import { SensorGhost } from 'src/state/SensorGhost';
 import { Ship } from 'src/state/Ship';
 import { CrewSystemState } from '../CrewSystemState';
 import { HullSystemTile } from '../engineer/HullSystemTile';
@@ -24,6 +25,11 @@ import { ScannedScienceState } from './ScannedScienceState';
 import { ScannedSystemOrderState } from './ScannedSystemOrderState';
 import { ScannedSystemState } from './ScannedSystemState';
 import { ScannedTacticalState } from './ScannedTacticalState';
+
+/** How much Insight science gains for each thing it learns about a ship it's scanning. */
+const insightForReveal = 1;
+const insightForReadingHand = 1;
+const insightForVulnerability = 2;
 
 export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     constructor(setup: SystemSetupInfo, gameState: GameState, ship: Ship, scannedSystemIndex: number, initialPowerLevel: number, getCardId: () => number) {
@@ -65,6 +71,54 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
     /** Long range sensor readings of the nodes the ship can travel to next; empty except on the sector map. */
     @type([SectorDestinationState]) destinations = new ArraySchema<SectorDestinationState>();
 
+    /**
+     * How much Insight science holds: the level of the `insight` effect on this system, gained by scanning and spent by some cards.
+     * The effect sets this (see `insightLevelChanged`). It's held here too as science's own client can't see the system's effects.
+     */
+    @type('uint8') insight = 0;
+
+    /**
+     * The game time at which science last found a sensor ghost where it expected a ship, by playing a scan or its deflector on it. Zero until it does.
+     * Its client shows a message for a short while after (see `exposeGhost`).
+     */
+    @type('number') ghostExposedTime = 0;
+
+    /** Whatever science played on a sensor ghost found nothing there, which its client is told, as well as the ghost vanishing. */
+    protected override exposeGhost(ghost: SensorGhost) {
+        super.exposeGhost(ghost);
+        this.ghostExposedTime = this.getGameState().currentTime;
+    }
+
+    /** Called by the `insight` effect whenever its level changes, to keep this system's Insight in step with it. */
+    insightLevelChanged(level: number) {
+        this.insight = level;
+    }
+
+    /** Gain Insight, up to the effect's maximum level. */
+    gainInsight(amount: number) {
+        this.adjustEffectLevel('insight', amount);
+    }
+
+    /** Spend Insight. Returns false, spending nothing, if science holds less than the amount. */
+    spendInsight(amount: number): boolean {
+        if (this.insight < amount) {
+            return false;
+        }
+
+        this.adjustEffectLevel('insight', -amount);
+        return true;
+    }
+
+    /** The system that science is scanning now, and the ship it's on, or null if it isn't scanning a system. */
+    getScannedSystemTarget(): { ship: Ship; system: CrewRoleName } | null {
+        if (!this.scannedShip) {
+            return null;
+        }
+
+        const system = crewRoleNames.find(role => this.getScannedSystem(role) !== null);
+        return system ? { ship: this.scannedShip, system } : null;
+    }
+
     setDestinations(destinations: readonly SectorDestinationInfo[]) {
         this.destinations.clear();
         this.destinations.push(...destinations.map(destination => new SectorDestinationState(destination)));
@@ -100,10 +154,10 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
      * Subscribe to live updates from a system on a target ship.
      * Automatically unsubscribes from targeting any other ship, optionally also unsubscribes from other systems on the same ship.
      */
-    subscribeToSystem(targetShip: Ship, system: ShipSystem): void {
+    subscribeToSystem(targetShip: Ship, system: ShipSystem, options: { keepOtherSystems?: boolean; gainInsight?: boolean } = {}): void {
         if (this.scannedShip && this.scannedShip.id !== targetShip.id) {
             this.unsubscribeFromShip();
-        } else {
+        } else if (!options.keepOtherSystems) {
             if (system !== 'helm') {
                 this.unsubscribeFromHelm();
             }
@@ -152,6 +206,33 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         }
 
         this.notifyTacticalSystemKnowledge(targetShip);
+
+        // Revealing a system teaches science something, whichever card did it.
+        if (options.gainInsight ?? true) {
+            this.gainInsight(insightForReveal);
+        }
+    }
+
+    /** Whether science has already revealed a system of a ship in this encounter, whether or not it's still scanning it. */
+    hasRevealed(targetShip: Ship, system: ShipSystem): boolean {
+        return this.systemOrderByTarget.get(targetShip.id)?.order.includes(shipSystems.indexOf(system)) ?? false;
+    }
+
+    /** Reveal every crew system of a ship at once, and scan them all. Together they teach science one thing, rather than one for each. */
+    revealAllSystems(targetShip: Ship): void {
+        crewRoleNames.forEach((role, index) => {
+            this.subscribeToSystem(targetShip, role, { keepOtherSystems: true, gainInsight: index === 0 });
+        });
+    }
+
+    /** Whether the ship's science is jamming the scans of other ships. */
+    get isJamming(): boolean {
+        return this.hasEffect('jammed');
+    }
+
+    /** Whether scans of the target ship by this one fail, because the target is jamming them. A ship can always scan itself. */
+    private isJammedBy(target: Ship): boolean {
+        return target !== this.getShip() && target.scienceState.isJamming;
     }
 
     /**
@@ -314,7 +395,10 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             return null;
         }
 
-        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, null, parameters)) {
+        // The deflector finds nothing at a sensor ghost, which vanishes, but is used as it is on anything else.
+        if (target instanceof SensorGhost) {
+            this.exposeGhost(target);
+        } else if (!cardDefinition.play(this.getGameState(), this.getShip(), target, null, parameters)) {
             console.log('deflector card refused to play');
             return null;
         }
@@ -392,6 +476,11 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             return false;
         }
 
+        if (this.isJammedBy(target)) {
+            console.log('scan is jammed');
+            return false;
+        }
+
         const crewSystems: Array<[ShipSystem, CrewSystemState]> = [
             ['helm', target.helmState],
             ['science', target.scienceState],
@@ -420,6 +509,11 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             return false;
         }
 
+        if (this.isJammedBy(target)) {
+            console.log('scan is jammed');
+            return false;
+        }
+
         if (!cardDefinition.findVulnerability(this.getGameState(), this.getShip(), target, system, parameters)) {
             console.log('card refused to play');
             return false;
@@ -432,6 +526,11 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         const target = this.resolveTarget(targetId);
         if (!target || !(target instanceof Ship)) {
             console.warn('invalid scan hand target: ' + targetId);
+            return false;
+        }
+
+        if (this.isJammedBy(target)) {
+            console.log('scan is jammed');
             return false;
         }
 
@@ -453,7 +552,12 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
             return false;
         }
 
-        return scanned.readHand();
+        if (!scanned.readHand()) {
+            return false;
+        }
+
+        this.gainInsight(insightForReadingHand);
+        return true;
     }
 
     /** The scan of one of the scanned ship's systems, or null if science isn't scanning that system. */
@@ -470,9 +574,14 @@ export class ScienceState extends CrewSystemState implements ScienceSystemInfo {
         }
     }
 
-    findVulnerability(_target: Ship, _targetSystem: ShipSystem) {
+    /** Find a vulnerability on a system of the target ship. This gains Insight, unless it was Insight that paid for it. */
+    findVulnerability(_target: Ship, _targetSystem: ShipSystem, gainInsight = true) {
         // TODO: actually identify a vulnerability on the target system, indicate what exposing it will do
         this.identifiedVulnerability = 'deflectorPhasedGravitonBurst';
+
+        if (gainInsight) {
+            this.gainInsight(insightForVulnerability);
+        }
     }
 
     override playCardIntoDeflectorSlot(card: CardState, cardDefinition: EngineScanTargetCardDefinition, slotId: string, parameters: CardParameters): boolean {

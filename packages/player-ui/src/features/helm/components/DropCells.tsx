@@ -3,7 +3,7 @@ import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinition
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { distance, serializeVector } from 'common-data/features/space/utils/vectors';
 import { classNames } from 'common-ui/utils/classNames';
-import { FC, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { FC, memo, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
 import styles from './DropCells.module.css';
@@ -14,6 +14,10 @@ type CellInfo = {
 };
 
 type Props = {
+    /** What kind of card the cells take: a location card is played on the cell it's dropped on, and a ship card on the eligible ship nearest that cell. */
+    targetType: 'location' | 'ship';
+    /** Whether no cell can take the card. */
+    disabled?: boolean;
     center: Vector2D;
     shipPosition: Vector2D;
     cellRadius: number;
@@ -67,7 +71,7 @@ function worldToHex(worldX: number, worldY: number): { col: number; row: number 
     return { col: iCol, row: iRow };
 }
 
-export const DropCells: FC<Props> = (props) => {
+const DropCellsInner: FC<Props> = (props) => {
     const ref = useRef<HTMLDivElement>(null);
 
     const { center, shipPosition, cellRadius } = props;
@@ -166,7 +170,7 @@ export const DropCells: FC<Props> = (props) => {
         const cellDistance = distance(worldPos, shipPosition);
         const isTooClose = minDistance !== undefined && cellDistance < minDistance;
         const isTooFar = maxDistance !== undefined && cellDistance > maxDistance;
-        const isDisabled = isTooClose || isTooFar;
+        const isDisabled = props.disabled === true || isTooClose || isTooFar;
 
         // Convert to screen position relative to view center
         // The view center (in world coords) is at the screen center
@@ -181,7 +185,7 @@ export const DropCells: FC<Props> = (props) => {
             <CardDropTarget
                 key={cellId}
                 id={cellId}
-                targetType="location"
+                targetType={props.targetType}
                 className={styles.cell}
                 style={{
                     left,
@@ -208,3 +212,19 @@ export const DropCells: FC<Props> = (props) => {
         </div>
     );
 };
+
+/** Whether two positions are the same, though they're different objects. */
+function samePosition(a: Vector2D, b: Vector2D) {
+    return a.x === b.x && a.y === b.y;
+}
+
+/**
+ * The helm map re-renders on every animation frame, and hands these cells new position objects each time even when the ship hasn't moved.
+ * Hundreds of drop targets re-rendering every frame is slow, so they only do so when something they show has actually changed.
+ */
+export const DropCells = memo(DropCellsInner, (previous, next) => previous.targetType === next.targetType
+    && previous.disabled === next.disabled
+    && previous.cellRadius === next.cellRadius
+    && previous.className === next.className
+    && samePosition(previous.center, next.center)
+    && samePosition(previous.shipPosition, next.shipPosition));

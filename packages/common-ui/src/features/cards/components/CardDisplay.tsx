@@ -1,7 +1,8 @@
 import { CardParametersBase } from 'common-data/features/cards/types/CardParameters';
+import { CardRarity } from 'common-data/features/cards/types/CardRarity';
 import { CardTrait } from 'common-data/features/cards/types/CardTrait';
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
-import { FC, Fragment, useCallback, useMemo, useState } from 'react';
+import { FC, Fragment, useCallback, useContext, useMemo, useState } from 'react';
 import { RestrictedHeightText } from '../../../components/RestrictedHeightText';
 import crewStyles from '../../../CrewColors.module.css';
 import { classNames } from '../../../utils/classNames';
@@ -51,7 +52,11 @@ export const CardDisplay: FC<Props> = (props) => {
 
                 {props.slotted ? null : <div className={styles.cost}><Parameter name="cost" /></div>}
 
+                {props.slotted || props.parameters['insightCost'] === undefined ? null : <InsightCost />}
+
                 {props.slotted ? null : <CardTargetIcon targetType={props.targetType} className={styles.targetType} />}
+
+                {props.slotted || !props.rarity || props.rarity === 'common' ? null : <RarityMarker rarity={props.rarity} />}
 
                 <RestrictedHeightText className={styles.description}>
                     {descriptionContent}
@@ -62,6 +67,34 @@ export const CardDisplay: FC<Props> = (props) => {
         </CardParametersContext.Provider>
     );
 };
+
+/**
+ * The Insight a card spends when played, as well as its power cost, shown on the top border beside that cost.
+ * It's a lit pip like those of science's Insight meter, so the two read as the same thing.
+ */
+const InsightCost: FC = () => {
+    const { parameters, modifiers } = useContext(CardParametersContext);
+    const base = parameters?.['insightCost'];
+    const insightCost = (typeof base === 'number' ? base : 0) + (modifiers?.['insightCost'] ?? 0);
+
+    return (
+        <div className={styles.insightCost} role="img" aria-label={`Costs ${insightCost} Insight`} title={`Costs ${insightCost} Insight`}>
+            <Parameter name="insightCost" />
+        </div>
+    );
+};
+
+const rarityLabels: Record<Exclude<CardRarity, 'common'>, string> = {
+    uncommon: 'Uncommon',
+    rare: 'Rare',
+};
+
+/** Marks an uncommon card with one diamond, and a rare one with two, at the foot of its picture. Common cards have no marker. */
+const RarityMarker: FC<{ rarity: Exclude<CardRarity, 'common'> }> = ({ rarity }) => (
+    <div className={classNames(styles.rarity, styles[rarity])} role="img" aria-label={rarityLabels[rarity]} title={rarityLabels[rarity]}>
+        {rarity === 'rare' ? '◆◆' : '◆'}
+    </div>
+);
 
 function useCardDescription(props: Props, extraTraits: Props['extraTraits']) {
     // Memoized so that re-renders which don't change the description or extraTraits

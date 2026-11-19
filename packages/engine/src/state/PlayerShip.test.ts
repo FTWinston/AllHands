@@ -8,12 +8,15 @@ import { PlayerShip } from './PlayerShip';
 
 const rooms = setupGameRoom();
 
-const cards: UntargetedCardType[] = ['exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget', 'exampleNoTarget'];
+const cards: UntargetedCardType[] = ['holdFire', 'holdFire', 'holdFire', 'holdFire'];
 const baseSetup = shipSetup(undefined);
 const setup: PlayerShipSetupInfo = {
     ...baseSetup,
     hull: { ...baseSetup.hull, cards: [...cards, ...cards] },
     tactical: { ...baseSetup.tactical, cards },
+    // Science and engineer hold cards that helm and tactical already do, so they add no seen card types of their own.
+    science: { ...baseSetup.science, cards: ['slowAndSteady'] },
+    engineer: { ...baseSetup.engineer, cards: ['phaserCannon'] },
 };
 
 function createShipWithCrew() {
@@ -80,14 +83,14 @@ describe('PlayerShip seen card types', () => {
         const gameState = rooms.createState();
         const ship = new PlayerShip(gameState, {
             ...setup,
-            helm: { ...setup.helm, cards: ['slowAndSteady', 'exampleNoTarget', 'slowAndSteady'] },
+            helm: { ...setup.helm, cards: ['slowAndSteady', 'slowAndSteady', 'slowAndSteady'] },
             tactical: { ...setup.tactical, cards: ['phaserCannon'] },
         });
         gameState.add(ship);
         return ship;
     }
 
-    it('counts every starting deck card as seen, once each, other than placeholders', () => {
+    it('counts every starting deck card as seen, once each', () => {
         const ship = createShipWithDecks();
 
         expect([...ship.seenCardTypes]).toEqual(['slowAndSteady', 'phaserCannon']);

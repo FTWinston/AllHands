@@ -1,5 +1,67 @@
+import { EffectLevel } from 'common-ui/components/EffectLevelContext';
 import { defineUiEffects } from 'common-ui/content/UiContent';
-import { effects as sharedEffects } from './helmEffects.shared';
+import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
+import { effects as sharedEffects, momentumSpeedPerLevel } from './helmEffects.shared';
 
 export const effects = defineUiEffects(sharedEffects, {
+    momentum: {
+        name: 'Momentum',
+        description: <>
+            {`Each level makes every maneuver ${momentumSpeedPerLevel}% faster. Starting a maneuver just after finishing one adds a level. A hit on the ship takes one away, and sitting still loses them all. Currently at level `}
+            <EffectLevel />
+            .
+        </>,
+        image: ExampleIcon,
+    },
+    hardBrakeEvasion: {
+        name: 'Hard Brake',
+        description: <>
+            The ship braked hard, and is
+            {' '}
+            <EffectLevel />
+            % harder to hit.
+        </>,
+        image: ExampleIcon,
+    },
+    holdingSteady: {
+        name: 'Holding Steady',
+        description: <>
+            The ship is holding still, making its weapons
+            {' '}
+            <EffectLevel />
+            % more accurate.
+        </>,
+        image: ExampleIcon,
+    },
+    jinking: {
+        name: 'Jinking',
+        description: <>
+            The ship is jinking from side to side, making its weapons
+            {' '}
+            <EffectLevel />
+            % less accurate.
+        </>,
+        image: ExampleIcon,
+    },
+    attackRun: {
+        name: 'Attack Run',
+        description: <>
+            The ship is on an attack run: every tactical card costs
+            {' '}
+            <EffectLevel />
+            {' '}
+            less to play.
+        </>,
+        image: ExampleIcon,
+    },
+    braced: {
+        name: 'Braced',
+        description: <>
+            The ship is braced for impact: hits on the hull do
+            {' '}
+            <EffectLevel />
+            % less damage.
+        </>,
+        image: ExampleIcon,
+    },
 });

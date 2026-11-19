@@ -1,13 +1,16 @@
 import { ArraySchema, Schema, type } from '@colyseus/schema';
+import { ShipTargetRelationship } from 'common-data/features/cards/types/CardDefinition';
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { isEligibleShipTarget } from 'common-data/features/cards/utils/isEligibleShipTarget';
 import { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { isCrewSystem, ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { LeveledSystemEffectType, NonLeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { SystemInfo, SystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
-import { EngineCardDefinition, EngineNoTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineScanTargetCardDefinition, EngineWeaponTargetCardDefinition, EngineEnemyTargetCardDefinition, EngineSystemTargetCardDefinition, EngineLocationTargetCardDefinition } from 'src/cards/EngineCardDefinition';
+import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
+import { EngineCardDefinition, EngineNoTargetCardDefinition, EngineWeaponSlotCardDefinition, EngineScanTargetCardDefinition, EngineWeaponTargetCardDefinition, EngineEnemyTargetCardDefinition, EngineSystemTargetCardDefinition, EngineLocationTargetCardDefinition, EngineShipTargetCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { resolveParameters } from 'src/cards/resolveParameters';
 import { InterceptableAction } from 'src/classes/InterceptableAction';
@@ -16,6 +19,7 @@ import { ListenableEvent } from 'src/classes/ListenableEvent';
 import { CardState } from '../CardState';
 import { GameObject } from '../GameObject';
 import { GameState } from '../GameState';
+import { SensorGhost } from '../SensorGhost';
 import { SystemEffect } from './engineer/SystemEffect';
 import type { Ship } from '../Ship';
 import type { EngineerSystemTile } from './engineer/EngineerSystemTile';
@@ -77,6 +81,9 @@ export abstract class SystemState extends Schema implements SystemInfo {
 
     private lastDrawnCard: CardState | null = null;
 
+    /** The total of every adjustment currently made to the cost of this system's cards (see `adjustCostOfEveryCard`), which cards that arrive meanwhile take on too. */
+    private costAdjustment = 0;
+
     /**
      * Put a card into the hand. Assumes that there is space, and that it's already been removed from wherever it was before. Does not check for duplicates.
      */
@@ -93,8 +100,15 @@ export abstract class SystemState extends Schema implements SystemInfo {
         this.handChanged();
     }
 
-    /** Have this system be told when the card's traits or modifiers change, wherever it goes among the system's cards. */
+    /**
+     * Have this system be told when the card's traits or modifiers change, wherever it goes among the system's cards.
+     * A card that's new to this system also takes on any cost adjustment the system's cards have at the moment, so it's put right along with them when that ends.
+     */
     private holdCard(card: CardState) {
+        if (card.onChanged !== this.heldCardChanged && this.costAdjustment !== 0) {
+            card.modifyParameter('cost', this.costAdjustment);
+        }
+
         card.onChanged = this.heldCardChanged;
     }
 
@@ -355,6 +369,17 @@ export abstract class SystemState extends Schema implements SystemInfo {
     }
 
     /**
+     * How many working pool cards are stabilised (critically damaged if they're damaged again),
+     * how many are damaged (so can be repaired), and how many are critically damaged (so can't).
+     */
+    getDamageBreakdown() {
+        const stabilised = this.damageQueue.filter(card => card.hasTrait('stabilised')).length;
+        const damaged = this.repairQueue.length;
+        const critical = this.cardPool.size - this.damageQueue.length - damaged;
+        return { stabilised, damaged, critical };
+    }
+
+    /**
      * Adjust health by randomly damaging (negative) or repairing (positive) that many cards.
      * Slotted cards are only damaged once every other pool card is already damaged.
      */
@@ -447,6 +472,41 @@ export abstract class SystemState extends Schema implements SystemInfo {
         this.syncHealth();
     }
 
+    /**
+     * Fully repair up to that many damaged cards, picked as `adjustHealth` would pick them, then critically damaged ones: unlike that, they aren't left stabilised.
+     * Returns how many were repaired.
+     */
+    fullyRepairCards(count: number): number {
+        const cards = [
+            ...this.repairQueue,
+            ...[...this.cardPool].filter(card => card.hasTrait('critical')),
+        ].slice(0, Math.max(0, count));
+
+        for (const card of cards) {
+            const repairIndex = this.repairQueue.indexOf(card);
+            if (repairIndex !== -1) {
+                this.repairQueue.splice(repairIndex, 1);
+            }
+
+            card.removeTrait('damaged');
+            card.removeTrait('critical');
+
+            if (this.slottedCards.has(card)) {
+                this.damageQueue.push(card);
+            } else {
+                this.insertUnslotted(card);
+            }
+
+            getCardDefinition(card.type)?.repaired?.(this._gameState, this._ship, card);
+        }
+
+        if (cards.length > 0) {
+            this.syncHealth();
+        }
+
+        return cards.length;
+    }
+
     cleanupAfterEncounter() {
         // First, so that whatever an effect did to this system's cards, such as their cost, is undone before they're put back.
         this.clearEffects();
@@ -469,6 +529,7 @@ export abstract class SystemState extends Schema implements SystemInfo {
         for (const card of this.cardPool) {
             card.modifiers.clear();
         }
+        this.costAdjustment = 0;
 
         // And again, for any that stabilising the damaged cards brought back, such as the mark of a damaged card on top of the deck.
         this.clearEffects();
@@ -662,7 +723,13 @@ export abstract class SystemState extends Schema implements SystemInfo {
         let played: boolean;
         let slotted: boolean = false;
 
-        if (cardDefinition.targetType === 'no-target') {
+        // A card played on a sensor ghost is spent, finding nothing there, and the ghost vanishes. A ship card is the exception: to those it fools, the ghost is a ship to fly relative to.
+        const ghost = this.findGhostTarget(cardDefinition.targetType, targetId);
+
+        if (ghost) {
+            this.exposeGhost(ghost);
+            played = true;
+        } else if (cardDefinition.targetType === 'no-target') {
             played = this.playNoTargetCard(cardDefinition, card, parameters);
         } else if (cardDefinition.targetType === 'weapon-slot') {
             played = this.playWeaponSlotCard(cardDefinition, card, targetId, parameters);
@@ -713,6 +780,8 @@ export abstract class SystemState extends Schema implements SystemInfo {
             if (played) {
                 slotted = true;
             }
+        } else if (cardDefinition.targetType === 'ship') {
+            played = this.playShipCard(card, cardDefinition, targetId, parameters);
         } else {
             console.error(`unhandled card target type: ${cardDefinition.targetType}`);
             return null;
@@ -734,6 +803,35 @@ export abstract class SystemState extends Schema implements SystemInfo {
             return false;
         }
         return true;
+    }
+
+    /**
+     * The sensor ghost that a card of the given target type is being played on, if it is: one that a scan, or a card played on an enemy, was aimed at.
+     * Cards that aren't played on an object (including those played on a weapon, system or place) never are.
+     */
+    private findGhostTarget(cardTargetType: CardTargetType, targetId: string): SensorGhost | null {
+        let objectId: string;
+
+        if (cardTargetType === 'enemy') {
+            // An enemy can be aimed at a sub-target, which is taken as the ship itself.
+            objectId = targetId.split(':')[0];
+        } else if (cardTargetType === 'scan') {
+            const [kind, id] = targetId.split('/');
+            if (kind !== 'target' && kind !== 'vuln' && kind !== 'hand') {
+                return null;
+            }
+            objectId = id;
+        } else {
+            return null;
+        }
+
+        const target = this.resolveTarget(objectId);
+        return target instanceof SensorGhost ? target : null;
+    }
+
+    /** Called when a card is played on a sensor ghost, in place of what it would do. The ghost vanishes. */
+    protected exposeGhost(ghost: SensorGhost) {
+        ghost.expose();
     }
 
     protected playWeaponSlotCard(_cardDefinition: EngineWeaponSlotCardDefinition, _card: CardState, _targetId: string, _parameters: CardParameters): boolean {
@@ -790,6 +888,43 @@ export abstract class SystemState extends Schema implements SystemInfo {
     protected playLocationCard(_cardInstance: CardState, _cardDefinition: EngineLocationTargetCardDefinition, _targetId: string, _parameters: CardParameters): boolean {
         console.warn('non-helm system trying to play location card');
         return false;
+    }
+
+    /** Play a card on the ship with the given id, if this ship knows of it and the card's `targetRelationship` allows it. */
+    protected playShipCard(card: CardState, cardDefinition: EngineShipTargetCardDefinition, targetId: string, parameters: CardParameters): boolean {
+        const target = this.resolveShipTarget(targetId, cardDefinition.targetRelationship);
+
+        if (!target) {
+            console.warn('ineligible ship target: ' + targetId);
+            return false;
+        }
+
+        if (!cardDefinition.play(this.getGameState(), this.getShip(), target, parameters, card)) {
+            console.log('card refused to play');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * The ship with the given id, if this ship knows of it, and it's one that a card wanting the given relationship can be played on.
+     * A sensor ghost counts as a ship to a ship it fools, which is hostile to it, but to nobody else.
+     */
+    resolveShipTarget(targetId: string, relationship?: ShipTargetRelationship): GameObject | null {
+        const target = this.resolveTarget(targetId);
+        const ship = this.getShip();
+
+        // Ship can't be imported as a value here, as it imports this, so ships are told apart by their helm.
+        if (!target || (!('helmState' in target) && !(target instanceof SensorGhost && target.isTakenForShipBy(ship)))) {
+            return null;
+        }
+
+        const targetRelationship = target === ship
+            ? RelationshipType.Self
+            : this.getGameState().factionRegistry.getRelationship(ship, target);
+
+        return isEligibleShipTarget(targetRelationship, relationship) ? target : null;
     }
 
     /**
@@ -931,9 +1066,11 @@ export abstract class SystemState extends Schema implements SystemInfo {
     });
 
     /**
-     * Adjust the cost of every card associated with this system.
+     * Adjust the cost of every card associated with this system. Whatever makes an adjustment undoes it later by adjusting the other way.
      */
     adjustCostOfEveryCard(amount: number) {
+        this.costAdjustment += amount;
+
         for (const card of this.hand) {
             card.modifyParameter('cost', amount);
         }

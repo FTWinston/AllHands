@@ -1,7 +1,9 @@
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
 import { isCrewRoleName } from 'common-data/features/ships/types/CrewRole';
-import { antimatterRewards, baseOrderPrice, cardSellPrice, getAntimatterReward, getOrderPrice, minDeckSize, shopCardPrice } from 'common-data/features/ships/utils/antimatter';
+import { antimatterRewards, baseOrderPrice, cardSellPrice, getAntimatterReward, getOrderPrice, getShopCardPrice, minDeckSize, shopCardPrices } from 'common-data/features/ships/utils/antimatter';
 import { boardingMs, QuarantineGateEncounter } from 'content/sectors/sector1/quarantineGate/quarantineGate.engine';
+import { relayScenarioId } from 'content/sectors/sector1/quietRunning/QuietRunningEncounter.engine';
+import { CardState } from 'src/state/CardState';
 import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
@@ -60,6 +62,14 @@ function completeEncounter(state: GameState) {
             state.currentTime += encounter.objectiveEndTime;
             state.campaign!.tick(0);
             break;
+        case 'reach': {
+            const at = state.getObjectByScenarioId(relayScenarioId)!.getPosition(state.currentTime);
+            for (const ship of [...state.objects.values()].filter((object): object is PlayerShip => object instanceof PlayerShip)) {
+                ship.setMotion(new MotionKeyframe(state.currentTime, at.x, at.y, 0));
+            }
+            state.campaign!.tick(0);
+            break;
+        }
         default:
             if (encounter instanceof QuarantineGateEncounter) {
                 openQuarantineGate(state, encounter);
@@ -637,7 +647,7 @@ describe('Campaign shop stations', () => {
 
         expect(campaign.buyShopCard(ship, helm, card.id)).toBe(true);
 
-        expect(ship.antimatter).toBe(50 - shopCardPrice);
+        expect(ship.antimatter).toBe(50 - getShopCardPrice(card.type));
         expect(helm.deck.length).toBe(deckSize + 1);
         expect(helm.deck[helm.deck.length - 1]).toBe(card);
         expect(helm.maxHealth).toBe(maxHealth + 1);
@@ -650,13 +660,14 @@ describe('Campaign shop stations', () => {
     });
 
     it('rejects buying without enough antimatter', () => {
-        const { campaign, ships: [ship] } = createAtShop('navigationBeacon', shopCardPrice - 1);
+        // Even the cheapest card costs more than this.
+        const { campaign, ships: [ship] } = createAtShop('navigationBeacon', shopCardPrices.common - 1);
         const helm = ship.helmState;
         const deckSize = helm.deck.length;
 
         expect(campaign.buyShopCard(ship, helm, helm.shopCards[0].id)).toBe(false);
 
-        expect(ship.antimatter).toBe(shopCardPrice - 1);
+        expect(ship.antimatter).toBe(shopCardPrices.common - 1);
         expect(helm.deck.length).toBe(deckSize);
         expect(helm.shopCards.length).toBe(shopCardCount);
     });
@@ -769,11 +780,18 @@ describe('Campaign work orders', () => {
         return [...system.deck].find(card => card.type === type)!;
     }
 
+    /** Adds Rechargeable, which has no synergies so no matches, to the deck, and lets the deck's cards be ordered for again. */
+    function addUnmatchedCard(ship: PlayerShip, tactical: PlayerShip['tacticalState']) {
+        tactical.deck.push(new CardState(ship.getCardId(), 'rechargeable'));
+        tactical.openOrders();
+    }
+
     it('lets crew members order for deck cards with matches, at another crew member\'s shop', () => {
         const { ship, tactical } = createAtShop();
+        addUnmatchedCard(ship, tactical);
 
         expect([...tactical.orderableCardIds]).toContain(deckCard(tactical, 'photonTorpedo').id);
-        expect([...tactical.orderableCardIds]).not.toContain(deckCard(tactical, 'exampleEnemyTarget').id);
+        expect([...tactical.orderableCardIds]).not.toContain(deckCard(tactical, 'rechargeable').id);
 
         // There's no ordering at your own shop.
         expect(ship.helmState.orderableCardIds.length).toBe(0);
@@ -813,8 +831,9 @@ describe('Campaign work orders', () => {
 
     it('refuses an order for a card with no matches, or one that isn\'t in the deck', () => {
         const { campaign, ship, tactical } = createAtShop();
+        addUnmatchedCard(ship, tactical);
 
-        expect(campaign.placeOrder(ship, tactical, deckCard(tactical, 'exampleEnemyTarget').id)).toBe(false);
+        expect(campaign.placeOrder(ship, tactical, deckCard(tactical, 'rechargeable').id)).toBe(false);
         expect(campaign.placeOrder(ship, tactical, 9999)).toBe(false);
         expect(campaign.placeOrder(ship, tactical, ship.helmState.deck[0].id)).toBe(false);
         expect(ship.antimatter).toBe(500);
@@ -910,7 +929,7 @@ describe('Campaign work orders', () => {
 
         expect(preview?.specCardId).toBe(spec.id);
         expect(preview?.cards).toHaveLength(getSynergyCardTypes('photonTorpedo').length);
-        expect(preview?.cards).toContainEqual({ type: 'lowYield', owned: true });
+        expect(preview?.cards).toContainEqual({ type: 'highYield', owned: true });
         expect(preview?.cards).toContainEqual({ type: 'extendedRange', owned: false });
         expect(preview?.cards).toContainEqual({ type: null, owned: false });
     });

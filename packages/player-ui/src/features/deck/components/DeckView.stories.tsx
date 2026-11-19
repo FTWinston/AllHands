@@ -6,7 +6,7 @@ import { DeckView as Component } from './DeckView';
 import type { Snapshot } from '@colyseus/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-const tacticalCards: CardType[] = ['phaserStrip', 'exampleEnemyTarget', 'exampleNoTarget', 'phaserCannon', 'phaserStrip', 'photonTorpedo', 'lowYield', 'highYield', 'fullSpread', 'weaponOvercharge', 'subCritical', 'rapidFire'];
+const tacticalCards: CardType[] = ['phaserStrip', 'phaserStrip', 'phaserCannon', 'photonTorpedo', 'efficiency', 'highYield', 'powerCell', 'acquireLock'];
 
 function createDeck(types: CardType[]): Snapshot<CardInstance>[] {
     return types.map((type, index) => ({ id: index + 1, type }));
@@ -70,7 +70,7 @@ export const Browsing: Story = {
         // The view is portalled out of the story's canvas.
         const page = within(canvasElement.ownerDocument.body);
         await expect(await page.findByText('My deck')).toBeInTheDocument();
-        await expect(page.getByText('#12')).toBeInTheDocument();
+        await expect(page.getByText('#8')).toBeInTheDocument();
         await expect(page.queryAllByRole('button', { name: 'Sell for 10 antimatter' })).toHaveLength(0);
     },
 };
@@ -91,21 +91,21 @@ export const AtStation: Story = {
         await userEvent.click(page.getByRole('button', { name: 'Cancel' }));
         await expect(args.sellCard).not.toHaveBeenCalled();
 
-        await userEvent.click(page.getByText('Example Enemy Target'));
+        await userEvent.click(page.getByText('Acquire Lock'));
         await userEvent.click(page.getByRole('button', { name: 'Sell for 10 antimatter' }));
         await userEvent.click(await page.findByRole('button', { name: 'OK' }));
-        await expect(args.sellCard).toHaveBeenCalledWith(2);
+        await expect(args.sellCard).toHaveBeenCalledWith(8);
     },
 };
 
 export const AtStationMinimumDeck: Story = {
     args: {
         atStation: true,
-        cards: createDeck(tacticalCards.slice(0, 10)),
+        cards: createDeck(tacticalCards.slice(0, 6)),
     },
     play: async ({ canvasElement }) => {
         const page = within(canvasElement.ownerDocument.body);
-        await expect(await page.findByText(/your deck can't have fewer than 10 cards/)).toBeInTheDocument();
+        await expect(await page.findByText(/your deck can't have fewer than 6 cards/)).toBeInTheDocument();
 
         await userEvent.click(page.getByText('Phaser Cannon'));
         await expect(page.getByRole('button', { name: 'Sell for 10 antimatter' })).toBeDisabled();

@@ -5,7 +5,8 @@ import { useState } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { useActiveCard } from 'src/features/cardui/components/DragCardProvider';
 import { RepairIndicator } from './RepairIndicator';
-import { HullSystemInfo, System, SystemInfo, TileShieldInfo } from './System';
+import { ShieldInfo } from './ShieldBar';
+import { HullSystemInfo, System, SystemInfo } from './System';
 import { SystemCards, SystemCardsDialog } from './SystemCardsDialog';
 import styles from './SystemList.module.css';
 
@@ -16,7 +17,7 @@ type Props = {
 };
 
 /** The hull's shields. Undefined for other systems. */
-function getShieldInfo(system: SystemInfo & SystemCards): TileShieldInfo | undefined {
+function getShieldInfo(system: SystemInfo & SystemCards): ShieldInfo | undefined {
     if (!isHullSystemTile(system)) {
         return undefined;
     }
@@ -72,6 +73,10 @@ export const SystemList = (props: Props) => {
             {viewedSystem && (
                 <SystemCardsDialog
                     system={viewedSystem.system}
+                    health={viewedSystem}
+                    shield={getShieldInfo(viewedSystem)}
+                    power={viewedSystem.power}
+                    shieldReinforced={viewedSystem.effects?.some(effect => effect.type === 'shieldReinforced') === true}
                     hand={viewedSystem.hand}
                     deck={viewedSystem.deck}
                     isOpen={isViewingCards}

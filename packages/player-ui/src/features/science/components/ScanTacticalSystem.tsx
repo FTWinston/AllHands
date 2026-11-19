@@ -12,6 +12,8 @@ import type { EnemyTargetedCardType } from 'common-data/features/cards/utils/car
 
 type Props = Snapshot<ScannedTacticalInfo> & {
     name: string;
+    /** What the crew calls the scanned ship, such as "Alpha". */
+    contactLabel?: string;
     vulnerability: EnemyTargetedCardType | null;
     onClose: () => void;
 };
@@ -62,6 +64,7 @@ export const ScanTacticalSystem = (props: Props) => {
             hand={props.hand}
             vulnerability={props.vulnerability}
             targetName={props.name}
+            targetLabel={props.contactLabel}
             targetId={props.targetId}
             onClose={props.onClose}
         >

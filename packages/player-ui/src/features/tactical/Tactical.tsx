@@ -12,6 +12,7 @@ import { useShop } from '../shop/hooks/useShop';
 import { CommsPrompt } from './components/CommsPrompt';
 import { SectorMessagePrompt } from './components/SectorMessagePrompt';
 import { TacticalDisplay } from './components/TacticalDisplay';
+import { useShotResults } from './hooks/useShotResults';
 import type { Room } from '@colyseus/sdk';
 import type { GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { PromptInfo } from 'common-data/features/sectors/types/PromptInfo';
@@ -35,6 +36,7 @@ export const Tactical = (props: Props) => {
     const shop = useShop(props.room, 'tactical', localShip?.tacticalState, localShip?.antimatter ?? 0);
     const orders = useOrders(props.room, 'tactical', localShip?.tacticalState, localShip);
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
+    const shotResults = useShotResults(props.room, props.shipId);
     const prompt = (localShip?.comms?.prompt ?? null) as unknown as PromptInfo | null;
 
     const answerPrompt = useCallback((optionId: string) => {
@@ -54,6 +56,10 @@ export const Tactical = (props: Props) => {
             targetType,
             targetId,
         });
+    }, [props.room]);
+
+    const selectTarget = useCallback((targetId: string) => {
+        props.room.send('selectTarget', { targetId });
     }, [props.room]);
 
     const ejectWeapon = useCallback((slotId: string) => {
@@ -109,6 +115,13 @@ export const Tactical = (props: Props) => {
                 ejectWeapon={ejectWeapon}
                 cardGeneration={tacticalState.cardGeneration}
                 viewer={viewer}
+                contactLabels={localShip.contactLabels as Partial<Record<string, string>> | undefined}
+                onTargetSelected={selectTarget}
+                lockTargetId={tacticalState.lockTargetId}
+                lockLevel={tacticalState.lockLevel}
+                holdingFire={tacticalState.holdingFire}
+                aimSteadied={tacticalState.aimSteadied}
+                shotResults={shotResults}
             />
         </>
     );

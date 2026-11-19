@@ -1,6 +1,7 @@
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { CardType } from '../utils/cardDefinitions';
 import { CardParameters } from './CardParameters';
+import { CardRarity } from './CardRarity';
 import { CardTargetType } from './CardTargetType';
 import { CardTrait } from './CardTrait';
 
@@ -9,6 +10,8 @@ interface CommonCardDefinition {
     system: ShipSystem;
     parameters: CardParameters;
     traits?: CardTrait[];
+    /** How seldom shops offer this card, and how much it costs there. Common when not given. */
+    rarity?: CardRarity;
 }
 
 export type NoTargetCardDefinition = CommonCardDefinition & {
@@ -34,6 +37,8 @@ export type WeaponSlotTargetCardDefinition = CommonCardDefinition & {
 export type WeaponTargetCardDefinition = CommonCardDefinition & {
     targetType: 'weapon';
     requiredWeaponTrait?: CardTrait;
+    /** Whether the card acts on a weapon once, rather than staying on it as its modifier. Such a card can be played on a weapon that already has a modifier, and doesn't stop it taking one. */
+    instant?: boolean;
 };
 
 export type EnemyTargetCardDefinition = CommonCardDefinition & {
@@ -55,12 +60,22 @@ export type AssignableDeflectorEffectDelivery = Exclude<DeflectorEffectDelivery,
 export type ScanTargetCardDefinition = CommonCardDefinition & {
     targetType: 'scan';
     deflectorModifier?: AssignableDeflectorEffectModifier;
-    deflectorSubstance?: AssignableDeflectorEffectSubstance;
+    // Graviton is what an empty substance slot gives, but a card can carry it too.
+    deflectorSubstance?: DeflectorEffectSubstance;
     deflectorDelivery?: AssignableDeflectorEffectDelivery;
 };
 
 export type SystemTargetCardDefinition = CommonCardDefinition & {
     targetType: 'system';
+};
+
+/** Which other ships a ship-targeted card can be played on, by how the playing ship's faction regards theirs. */
+export type ShipTargetRelationship = 'hostile' | 'friendly' | 'any';
+
+export type ShipTargetCardDefinition = CommonCardDefinition & {
+    targetType: 'ship';
+    /** Which other ships this card can be played on. Any other ship when not given. */
+    targetRelationship?: ShipTargetRelationship;
 };
 
 export enum CardMotionSegmentFacing {
@@ -116,4 +131,5 @@ export type CardDefinition<TCardKey extends string = CardType> = NoTargetCardDef
     | EnemyTargetCardDefinition
     | ScanTargetCardDefinition
     | SystemTargetCardDefinition
-    | LocationTargetCardDefinition;
+    | LocationTargetCardDefinition
+    | ShipTargetCardDefinition;

@@ -1,0 +1,81 @@
+/* Takes no room itself: it sits just below the target list, and the toasts are placed over the list from there. */
+.anchor {
+    position: relative;
+    height: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/*
+ * Centred on the target list, which is 40dvh tall with its card centred in it (see TacticalTargetList.module.css),
+ * so the toasts sit over the ship drawing in the middle of the card, clear of its name, count, shield and hull readouts in the corners.
+ * They're nudged up a little, as the shield and hull readouts at the bottom take more room than the name and count at the top.
+ */
+.toasts {
+    position: absolute;
+    bottom: calc(20dvh + 0.75em);
+    left: 50%;
+    transform: translate(-50%, 50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2em;
+    max-width: 90vw;
+}
+
+.toast {
+    padding: 0.05em 0.8em;
+    font-family: var(--readout-font-family);
+    font-size: 0.875em;
+    line-height: 1.3;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-lightest);
+    background-color: color-mix(in oklch, var(--color-darkest) 85%, var(--panel));
+    border: solid var(--color-mid) 0.15em;
+    border-radius: 0 0.8em 0 0.8em;
+    corner-shape: bevel;
+    box-shadow: 0 0 1em 0.1em color-mix(in srgb, var(--color-light) 35%, transparent);
+    animation: toast var(--lifetime) ease-out forwards;
+}
+
+/* On short screens the target card is too short for three toasts between its name and its shield readout, so only the newest two show. */
+@media (max-height: 720px) {
+    .toast:nth-last-child(n + 3) {
+        display: none;
+    }
+}
+
+/* And on the shortest, only the newest. */
+@media (max-height: 650px) {
+    .toast:nth-last-child(n + 2) {
+        display: none;
+    }
+}
+
+/* Doesn't fade. */
+.persistent {
+    animation: none;
+}
+
+@keyframes toast {
+    0% { opacity: 0; transform: translateY(0.5em) scale(0.9); }
+    8% { opacity: 1; transform: none; }
+    65% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* The fade stays, as it's what says the notice is over, but nothing moves. */
+@media (prefers-reduced-motion: reduce) {
+    .toast:not(.persistent) {
+        animation-name: toastFade;
+    }
+
+    @keyframes toastFade {
+        0% { opacity: 0; }
+        8% { opacity: 1; }
+        65% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+}

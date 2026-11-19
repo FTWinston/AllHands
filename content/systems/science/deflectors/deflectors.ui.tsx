@@ -1,729 +1,118 @@
 import { defineUiContent } from 'common-ui/content/UiContent';
 import { Trait } from 'common-ui/features/cards/components/Trait';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
+import { deflectorBurstRadius, deflectorShieldDampening, getDeflectorOutcome, mapDeflectorCards, type DeflectorOutcome, type DeflectorParts } from './deflectorParts.shared';
 import { deflectorsShared } from './deflectors.shared';
+import type { DeflectorEffectSubstance } from 'common-data/features/cards/types/CardDefinition';
+
+/** What a deflector's effect does to the systems (or ships) described by `where`, for each substance: to hostile ships, and inverted, to friendly ones. */
+const substancePhrases: Record<DeflectorEffectSubstance, { hostile: (where: string, level: number | null) => string; friendly: (where: string, level: number | null) => string }> = {
+    Antiproton: {
+        hostile: (where, level) => `Raises damage taken by ${where} by ${level}%`,
+        friendly: (where, level) => `Cuts damage taken by ${where} by ${level}%`,
+    },
+    Tetryon: {
+        hostile: (where, level) => `Makes ${where} ${level}% easier to hit`,
+        friendly: (where, level) => `Makes ${where} ${level}% harder to hit`,
+    },
+    Chroniton: {
+        hostile: where => `Makes ${where} fail every other card draw`,
+        friendly: where => `Makes every other card draw of ${where} bring an extra card`,
+    },
+    Polaron: {
+        hostile: (where, level) => `Takes ${level} power from ${where}`,
+        friendly: (where, level) => `Gives ${where} ${level} extra power`,
+    },
+    Graviton: {
+        hostile: (where, level) => `Slows manoeuvres of ${where} by ${level}%`,
+        friendly: (where, level) => `Speeds up manoeuvres of ${where} by ${level}%`,
+    },
+};
+
+/** Which ships a deflector hits. */
+function describeShips(outcome: DeflectorOutcome) {
+    if (outcome.ships === 'zone') {
+        return `each ${outcome.friendly ? 'friendly' : 'hostile'} ship inside it`;
+    }
+
+    if (outcome.ships === 'target') {
+        return outcome.friendly ? 'your ship' : 'the target';
+    }
+
+    return outcome.friendly
+        ? `your ship and each friendly ship within ${deflectorBurstRadius} of it`
+        : `each hostile ship within ${deflectorBurstRadius} of your ship`;
+}
+
+/** Which systems of which ships a deflector hits. */
+function describeWhere(outcome: DeflectorOutcome) {
+    const ships = describeShips(outcome);
+
+    switch (outcome.systems) {
+        case 'helm':
+            return ships;
+        case 'all':
+            return `every system of ${ships}`;
+        case 'one':
+            return outcome.friendly
+                ? `one system of ${ships} (the kind being scanned, if any)`
+                : `one system of ${ships} (the one being scanned, if any)`;
+    }
+}
+
+/** What a deflector does to the shields of the ships it hits, if anything, as a sentence. */
+function describeShields(outcome: DeflectorOutcome) {
+    const { shields } = outcome;
+    if (!shields) {
+        return '';
+    }
+
+    const ships = describeShips(outcome);
+    const percent = Math.round(shields.percent * 10) / 10;
+    const each = outcome.ships === 'zone' ? ' each second' : '';
+
+    return shields.restores
+        ? ` Restores ${percent}% of the shields of ${ships}${each}.`
+        : ` Drains ${percent}% of the shields of ${ships}${each}, and scrambles their tuning.`;
+}
+
+/** Make the first letter of a phrase lower case, so that it can carry on a sentence. */
+function lowerFirst(text: string) {
+    return text.charAt(0).toLowerCase() + text.slice(1);
+}
+
+/**
+ * Describe what a deflector loaded with the given parts does, with its numbers, e.g. "Raises damage taken by every system of the target by 20% for 15s."
+ * A field's is described by what it does to every ship inside it, e.g. "Leaves a field around the target for 20s that raises damage taken by ... of each hostile ship inside it by 20%."
+ */
+export function describeDeflector(parts: DeflectorParts) {
+    const outcome = getDeflectorOutcome(parts);
+    const phrases = substancePhrases[parts.substance];
+    const effect = (outcome.friendly ? phrases.friendly : phrases.hostile)(describeWhere(outcome), outcome.level);
+    const shields = outcome.friendly
+        ? ''
+        : outcome.weakenedByShields
+            ? ` Weakened by up to ${Math.round(deflectorShieldDampening * 100)}% by shields.`
+            : ' Ignores shields.';
+
+    if (outcome.fieldDuration !== null) {
+        const around = outcome.friendly ? 'your ship' : 'the target';
+        return `Leaves a field around ${around} for ${outcome.fieldDuration / 1000}s that ${lowerFirst(effect)}.${describeShields(outcome)}${shields}`;
+    }
+
+    return `${effect} for ${outcome.duration / 1000}s.${describeShields(outcome)}${shields}`;
+}
 
 export const deflectorsUi = defineUiContent({
     shared: deflectorsShared,
-    cards: {
-        deflectorPhasedAntiprotonBeam: {
-            name: 'Phased Antiproton Beam',
-            description: <>
-                <Trait trait="expendable" />
-                Emits a long range beam of phased antiprotons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedAntiprotonPulse: {
-            name: 'Phased Antiproton Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of phased antiprotons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedAntiprotonBurst: {
-            name: 'Phased Antiproton Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of phased antiprotons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedAntiprotonField: {
-            name: 'Phased Antiproton Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of phased antiprotons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedTetryonBeam: {
-            name: 'Phased Tetryon Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of phased tetryons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedTetryonPulse: {
-            name: 'Phased Tetryon Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of phased tetryons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedTetryonBurst: {
-            name: 'Phased Tetryon Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of phased tetryons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedTetryonField: {
-            name: 'Phased Tetryon Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of phased tetryons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedChronitonBeam: {
-            name: 'Phased Chroniton Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of phased chronitons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedChronitonPulse: {
-            name: 'Phased Chroniton Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of phased chronitons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedChronitonBurst: {
-            name: 'Phased Chroniton Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of phased chronitons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedChronitonField: {
-            name: 'Phased Chroniton Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of phased chronitons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedGravitonBeam: {
-            name: 'Phased Graviton Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of phased gravitons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedGravitonPulse: {
-            name: 'Phased Graviton Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of phased gravitons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedGravitonBurst: {
-            name: 'Phased Graviton Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of phased gravitons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedGravitonField: {
-            name: 'Phased Graviton Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of phased gravitons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedPolaronBeam: {
-            name: 'Phased Polaron Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of phased polarons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedPolaronPulse: {
-            name: 'Phased Polaron Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of phased polarons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedPolaronBurst: {
-            name: 'Phased Polaron Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of phased polarons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorPhasedPolaronField: {
-            name: 'Phased Polaron Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of phased polarons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentAntiprotonBeam: {
-            name: 'Coherent Antiproton Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of coherent antiprotons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentAntiprotonPulse: {
-            name: 'Coherent Antiproton Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of coherent antiprotons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentAntiprotonBurst: {
-            name: 'Coherent Antiproton Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of coherent antiprotons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentAntiprotonField: {
-            name: 'Coherent Antiproton Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of coherent antiprotons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentTetryonBeam: {
-            name: 'Coherent Tetryon Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of coherent tetryons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentTetryonPulse: {
-            name: 'Coherent Tetryon Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of coherent tetryons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentTetryonBurst: {
-            name: 'Coherent Tetryon Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of coherent tetryons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentTetryonField: {
-            name: 'Coherent Tetryon Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of coherent tetryons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentChronitonBeam: {
-            name: 'Coherent Chroniton Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of coherent chronitons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentChronitonPulse: {
-            name: 'Coherent Chroniton Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of coherent chronitons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentChronitonBurst: {
-            name: 'Coherent Chroniton Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of coherent chronitons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentChronitonField: {
-            name: 'Coherent Chroniton Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of coherent chronitons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentGravitonBeam: {
-            name: 'Coherent Graviton Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of coherent gravitons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentGravitonPulse: {
-            name: 'Coherent Graviton Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of coherent gravitons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentGravitonBurst: {
-            name: 'Coherent Graviton Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of coherent gravitons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentGravitonField: {
-            name: 'Coherent Graviton Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of coherent gravitons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentPolaronBeam: {
-            name: 'Coherent Polaron Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of coherent polarons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentPolaronPulse: {
-            name: 'Coherent Polaron Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of coherent polarons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentPolaronBurst: {
-            name: 'Coherent Polaron Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of coherent polarons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorCoherentPolaronField: {
-            name: 'Coherent Polaron Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of coherent polarons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedAntiprotonBeam: {
-            name: 'Inverted Antiproton Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of inverted antiprotons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedAntiprotonPulse: {
-            name: 'Inverted Antiproton Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of inverted antiprotons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedAntiprotonBurst: {
-            name: 'Inverted Antiproton Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of inverted antiprotons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedAntiprotonField: {
-            name: 'Inverted Antiproton Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of inverted antiprotons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedTetryonBeam: {
-            name: 'Inverted Tetryon Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of inverted tetryons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedTetryonPulse: {
-            name: 'Inverted Tetryon Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of inverted tetryons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedTetryonBurst: {
-            name: 'Inverted Tetryon Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of inverted tetryons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedTetryonField: {
-            name: 'Inverted Tetryon Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of inverted tetryons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedChronitonBeam: {
-            name: 'Inverted Chroniton Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of inverted chronitons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedChronitonPulse: {
-            name: 'Inverted Chroniton Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of inverted chronitons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedChronitonBurst: {
-            name: 'Inverted Chroniton Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of inverted chronitons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedChronitonField: {
-            name: 'Inverted Chroniton Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of inverted chronitons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedGravitonBeam: {
-            name: 'Inverted Graviton Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of inverted gravitons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedGravitonPulse: {
-            name: 'Inverted Graviton Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of inverted gravitons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedGravitonBurst: {
-            name: 'Inverted Graviton Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of inverted gravitons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedGravitonField: {
-            name: 'Inverted Graviton Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of inverted gravitons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedPolaronBeam: {
-            name: 'Inverted Polaron Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of inverted polarons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedPolaronPulse: {
-            name: 'Inverted Polaron Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of inverted polarons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedPolaronBurst: {
-            name: 'Inverted Polaron Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of inverted polarons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorInvertedPolaronField: {
-            name: 'Inverted Polaron Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of inverted polarons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedAntiprotonBeam: {
-            name: 'Modulated Antiproton Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of modulated antiprotons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedAntiprotonPulse: {
-            name: 'Modulated Antiproton Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of modulated antiprotons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedAntiprotonBurst: {
-            name: 'Modulated Antiproton Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of modulated antiprotons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedAntiprotonField: {
-            name: 'Modulated Antiproton Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of modulated antiprotons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedTetryonBeam: {
-            name: 'Modulated Tetryon Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of modulated tetryons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedTetryonPulse: {
-            name: 'Modulated Tetryon Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of modulated tetryons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedTetryonBurst: {
-            name: 'Modulated Tetryon Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of modulated tetryons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedTetryonField: {
-            name: 'Modulated Tetryon Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of modulated tetryons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedChronitonBeam: {
-            name: 'Modulated Chroniton Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of modulated chronitons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedChronitonPulse: {
-            name: 'Modulated Chroniton Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of modulated chronitons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedChronitonBurst: {
-            name: 'Modulated Chroniton Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of modulated chronitons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedChronitonField: {
-            name: 'Modulated Chroniton Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of modulated chronitons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedGravitonBeam: {
-            name: 'Modulated Graviton Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of modulated gravitons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedGravitonPulse: {
-            name: 'Modulated Graviton Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of modulated gravitons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedGravitonBurst: {
-            name: 'Modulated Graviton Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of modulated gravitons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedGravitonField: {
-            name: 'Modulated Graviton Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of modulated gravitons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedPolaronBeam: {
-            name: 'Modulated Polaron Beam',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a long range beam of modulated polarons in a straight line.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedPolaronPulse: {
-            name: 'Modulated Polaron Pulse',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a pulse of modulated polarons in a wide spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedPolaronBurst: {
-            name: 'Modulated Polaron Burst',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a burst of modulated polarons in all directions that also affects your ship.
-            </>,
-            image: <ExampleIcon />,
-        },
-        deflectorModulatedPolaronField: {
-            name: 'Modulated Polaron Field',
-            description: <>
-                <Trait trait="expendable" />
-                {' '}
-                Emits a wave of modulated polarons in a narrow spread.
-            </>,
-            image: <ExampleIcon />,
-        },
-    },
+    // Each combination of parts' deflector card is named after its parts, and described by what they do.
+    cards: mapDeflectorCards(parts => ({
+        name: `${parts.modifier} ${parts.substance} ${parts.delivery}`,
+        description: <>
+            <Trait trait="expendable" />
+            {' '}
+            {describeDeflector(parts)}
+        </>,
+        image: <ExampleIcon />,
+    })),
 });

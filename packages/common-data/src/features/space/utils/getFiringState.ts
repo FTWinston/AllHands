@@ -1,4 +1,5 @@
 import { CardParametersBase } from '../../../features/cards/types/CardParameters';
+import { cumbersomeAimTime } from '../../cards/utils/weaponTraitStats';
 import { FiringSolution } from '../types/FiringSolution';
 import { FiringState } from '../types/FiringState';
 import { SubTargetInfo } from '../types/GameObjectInfo';
@@ -9,7 +10,9 @@ export function getFiringState(
     hasBeenFullyCharged: boolean,
     charge: number,
     parameters: CardParametersBase,
-    subTarget?: SubTargetInfo
+    subTarget?: SubTargetInfo,
+    /** For a weapon that has to hold its aim (a cumbersome one): how long its target has been within its arc and range, in ms. Leave out for any other weapon. */
+    aimedFor?: number
 ): FiringState {
     const chargePerUse = parameters['chargePerUse'] ?? 0;
     if (!hasBeenFullyCharged || charge <= 0 || charge < chargePerUse) {
@@ -37,6 +40,10 @@ export function getFiringState(
 
     if (subTarget && !isFacingSubTarget(firingSolution.targetAspect, subTarget)) {
         return FiringState.TargetAspectObscured;
+    }
+
+    if (aimedFor !== undefined && aimedFor < cumbersomeAimTime) {
+        return FiringState.Aiming;
     }
 
     return FiringState.CanFire;

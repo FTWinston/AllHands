@@ -17,7 +17,7 @@ export const Popup: FC<Props> = (props) => {
     return (
         <Popover.Portal>
             <Popover.Backdrop className={styles.backdrop} />
-            <Popover.Positioner sideOffset={8} anchor={props.anchor}>
+            <Popover.Positioner className={styles.positioner} sideOffset={8} anchor={props.anchor}>
                 <Popover.Popup className={classNames(styles.popup)}>
                     <Popover.Arrow className={styles.arrow} />
                     {props.name && <Popover.Title className={styles.name}>{props.name}</Popover.Title>}
