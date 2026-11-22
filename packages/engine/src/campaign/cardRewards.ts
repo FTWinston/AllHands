@@ -1,3 +1,4 @@
+import { outfitBundleCount, outfitPickCount } from 'common-data/features/cards/utils/cardRewardCounts';
 import { eliteSalvageRarityWeights, shopRarityWeights, standoutRarityWeights } from 'common-data/features/cards/utils/getCardRarity';
 import { crewRoleNames, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { OutfitBundleState, RoleCardState, SalvageCardState } from '../state/CardRewardState';
@@ -6,15 +7,6 @@ import { pickShopCardTypes } from './stationShop';
 import type { PlayerShip } from '../state/PlayerShip';
 import type { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import type { IRandom } from 'common-data/types/IRandom';
-
-/** How many cards each crew member chooses between at the first sector's outfitting station. */
-export const outfitPickCount = 3;
-
-/** How many bundles an outfitting station offers after the first sector. Each one's standout is for a different crew member. */
-export const outfitBundleCount = 3;
-
-/** How many crew members have to vote for the same bundle for the ship to take it. */
-export const bundleVotesNeeded = 3;
 
 /**
  * Salvage after a fight: a card for each crew member but the chooser, who can't benefit from it. An elite fight's salvage is more likely to be uncommon or rare.

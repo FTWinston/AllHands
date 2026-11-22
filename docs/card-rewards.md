@@ -25,7 +25,7 @@ After each regular or elite fight whose objective is met, the ship salvages one 
 - **The offer shows on the main viewscreen,** where every crew member, and a phoneless captain if there is one, can see it and argue for a card. Each offered card shows its station's deck size against its cap (for example "Tactical 12/12"), so the chooser can see when a card would force a swap. Only the chooser's phone has controls.
 - **The chooser role carries across sectors.** The very first salvage of a run has a random chooser. Outfitting doesn't count as salvage.
 - **The card goes to the bottom of the recipient's deck,** like a shop card. If that deck is at its cap, the recipient replaces a card (see below).
-- **It happens during the map phase,** alongside helm choosing a route. Helm doesn't get the warp card until the salvage is settled. Helm already holds up the ship while choosing a route, so the chooser holding it up is nothing new.
+- **It happens as soon as the objective is met,** before leaving: the offer covers the chooser's console, and helm doesn't get the warp card until the salvage is settled. Helm already holds up the ship while choosing a route, so the chooser holding it up is nothing new.
 - **Elites** offer better odds of uncommon and rare cards, rather than more cards. **Failed fights** give no salvage, in line with "fail forward pays nothing".
 - **Later, salvage is drawn from the encounter that was beaten,** where its cards allow: its faction's or theme's cards, and the "cards it wishes existed" from its spec, mixed with the general pool. That makes fights distinct rewards, gives routes a reason to pass particular encounters, and lets sector themes pull decks in different directions from run to run. Until there are enough themed cards, salvage uses the shop pool and rarity weights.
 
@@ -33,7 +33,7 @@ After each regular or elite fight whose objective is met, the ship salvages one 
 
 ## Outfitting
 
-Outfitting replaces the repair station at the start of every sector. It always repairs the ship too, which does nothing in sector 1 but matters after each boss. Helm doesn't get the warp card until outfitting is settled.
+Outfitting replaces the repair station at the start of every sector, and the ship docks there as soon as the sector intro is dismissed, before the map. It always repairs the ship too, which does nothing in sector 1 but matters after each boss. Helm doesn't get the warp card until outfitting is settled.
 
 ### Sector 1: a pick each
 
@@ -79,7 +79,9 @@ Each step builds on the one before.
 
 1. **Deck cap.** `maxDeckSize` on each crew system's setup, and the replace-and-refund flow, applied to shop purchases and work-order deliveries.
 2. **Salvage.** The engine offer and chooser after successful fights, scrapping, the viewscreen display, the chooser's controls, and holding back helm's warp card until it's settled. Uses the shop pool at first.
-3. **Outfitting.** A new station kind for the start layer, replacing `'repair'` for the `'start'` role in `SectorGenerator`. It repairs, gives each crew member a 1-of-3 pick in sector 1, and offers bundles with voting in later sectors.
+3. **Outfitting.** A new station kind for the start layer, replacing `'repair'` for the `'start'` role in `SectorGenerator`, which the ship docks at after each sector intro. It repairs, gives each crew member a 1-of-3 pick in sector 1, and offers bundles with voting in later sectors.
+
+Steps 1–3 are built. Themed salvage and retuning are still to do.
 4. **Themed salvage.** Salvage pools drawn from the beaten encounter, its faction and its theme.
 5. **Retune.** Fight rewards, the sell price, shop prices and work-order prices, using balance tests and playtests.
 

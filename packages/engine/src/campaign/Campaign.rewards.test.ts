@@ -1,3 +1,4 @@
+import { bundleVotesNeeded, outfitBundleCount, outfitPickCount } from 'common-data/features/cards/utils/cardRewardCounts';
 import { getCardRarity } from 'common-data/features/cards/utils/getCardRarity';
 import { crewRoleNames } from 'common-data/features/ships/types/CrewRole';
 import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
@@ -5,10 +6,9 @@ import { CardState } from 'src/state/CardState';
 import { leaveSectorStart, seededRandom, settleRewards, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
-import { bundleVotesNeeded, outfitBundleCount, outfitPickCount } from './cardRewards';
 import { playerShipSetup } from './playerShipSetup';
-import type { PlayerShip } from 'src/state/PlayerShip';
 import type { GameState } from 'src/state/GameState';
+import type { PlayerShip } from 'src/state/PlayerShip';
 
 const rooms = setupGameRoom();
 

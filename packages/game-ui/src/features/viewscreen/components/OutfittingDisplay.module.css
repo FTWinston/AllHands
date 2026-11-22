@@ -1,0 +1,117 @@
+.picking {
+    margin: auto;
+    padding: 2em;
+    font-size: 2em;
+    text-align: center;
+    color: var(--text);
+}
+
+.root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    padding: 1em 2em;
+}
+
+.instructions {
+    margin: 0;
+    font-size: 1.4em;
+    text-align: center;
+    color: var(--text);
+}
+
+.bundles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 3em;
+}
+
+.bundle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.75em 1em 1em;
+    border: 0.094em solid color-mix(in oklch, var(--good-light) 45%, transparent);
+    border-radius: 0 1.5em 0 1.5em;
+    corner-shape: bevel;
+    background-color: color-mix(in oklch, var(--space) 80%, transparent);
+}
+
+.bundleName {
+    margin: 0;
+    font-family: var(--readout-font-family);
+    font-size: 1.5em;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--good-light);
+}
+
+.grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 0.5em 0.75em;
+}
+
+.item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25em;
+    padding: 0.25em;
+    border-radius: 0.75em;
+}
+
+/* The bundle's better card, lit in its crew member's colour. */
+.standout {
+    background-color: color-mix(in oklch, var(--primary-mid) 25%, transparent);
+    box-shadow: 0 0 0.75em color-mix(in oklch, var(--primary-light) 50%, transparent);
+}
+
+.role {
+    display: flex;
+    gap: 0.5em;
+    align-items: baseline;
+    font-family: var(--readout-font-family);
+    font-size: 1em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary-light);
+}
+
+.standoutLabel {
+    font-size: 0.8em;
+    color: var(--energy-light);
+}
+
+/* Cards take their name and art colour from here, at full brightness. Small enough for three bundles of four across the screen. */
+.card {
+    font-size: 0.8em;
+    color: var(--grey-lightest);
+}
+
+.voters {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 0.5em;
+    min-height: 1.75em;
+    font-size: 1.2em;
+}
+
+.voter {
+    padding: 0 0.5em;
+    border-radius: 0.4em;
+    color: var(--primary-lightest);
+    background-color: var(--primary-dark);
+}

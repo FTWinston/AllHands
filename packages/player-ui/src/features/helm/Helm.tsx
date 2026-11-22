@@ -9,6 +9,9 @@ import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { useOrders } from '../orders/hooks/useOrders';
+import { SalvagePrompt } from '../rewards/components/SalvagePrompt';
+import { useRewards } from '../rewards/hooks/useRewards';
+import { useSalvage } from '../rewards/hooks/useSalvage';
 import { useShop } from '../shop/hooks/useShop';
 import { HelmDisplay } from './components/HelmDisplay';
 import type { Room } from '@colyseus/sdk';
@@ -33,6 +36,8 @@ export const Helm = (props: Props) => {
     const deckView = useDeckView(props.room, localShip?.helmState);
     const shop = useShop(props.room, 'helm', localShip?.helmState, localShip?.antimatter ?? 0);
     const orders = useOrders(props.room, 'helm', localShip?.helmState, localShip);
+    const rewards = useRewards(props.room, 'helm', localShip?.helmState, localShip);
+    const salvage = useSalvage(props.room, 'helm', localShip);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -72,6 +77,7 @@ export const Helm = (props: Props) => {
                 playHandCard={playCard}
                 shop={shop}
                 orders={orders}
+                rewards={rewards}
                 onPause={pause}
                 deckSize={helmState.deck.length}
                 deckView={deckView}
@@ -88,26 +94,29 @@ export const Helm = (props: Props) => {
     };
 
     return (
-        <HelmDisplay
-            cards={helmState.hand}
-            onPause={pause}
-            center={localShip.motion}
-            objects={objects}
-            fields={fields}
-            viewer={viewer}
-            contactLabels={localShip.contactLabels as Partial<Record<string, string>> | undefined}
-            tacticalTargetId={localShip.tacticalTargetId}
-            scienceTargetId={localShip.scienceTargetId}
-            power={helmState.powerLevel}
-            deckSize={helmState.deck.length}
-            deckView={deckView}
-            playCard={playCard}
-            cardGeneration={helmState.cardGeneration}
-            cancelManeuver={cancelManeuver}
-            activeManeuver={helmState.activeManeuver}
-            momentumLevel={helmState.momentumLevel}
-            momentumFade={helmState.momentumFade}
-            weaponEffectsRef={weaponEffectsRef}
-        />
+        <>
+            {salvage && <SalvagePrompt {...salvage} />}
+            <HelmDisplay
+                cards={helmState.hand}
+                onPause={pause}
+                center={localShip.motion}
+                objects={objects}
+                fields={fields}
+                viewer={viewer}
+                contactLabels={localShip.contactLabels as Partial<Record<string, string>> | undefined}
+                tacticalTargetId={localShip.tacticalTargetId}
+                scienceTargetId={localShip.scienceTargetId}
+                power={helmState.powerLevel}
+                deckSize={helmState.deck.length}
+                deckView={deckView}
+                playCard={playCard}
+                cardGeneration={helmState.cardGeneration}
+                cancelManeuver={cancelManeuver}
+                activeManeuver={helmState.activeManeuver}
+                momentumLevel={helmState.momentumLevel}
+                momentumFade={helmState.momentumFade}
+                weaponEffectsRef={weaponEffectsRef}
+            />
+        </>
     );
 };

@@ -1,3 +1,4 @@
+import { bundleVotesNeeded } from 'common-data/features/cards/utils/cardRewardCounts';
 import { getShopRole, isStationKind } from 'common-data/features/sectors/utils/isStationKind';
 import { crewRoleNames, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { canSellFromDeck, cardSellPrice, getAntimatterReward, getOrderPrice, getShopCardPrice } from 'common-data/features/ships/utils/antimatter';
@@ -13,7 +14,7 @@ import { SectorMapState } from '../state/SectorMapState';
 import { SectorMessageState } from '../state/SectorMessageState';
 import { Ship } from '../state/Ship';
 import { createRouteCards } from './campaignCards';
-import { bundleVotesNeeded, createOutfitBundles, createOutfitPicks, createSalvage } from './cardRewards';
+import { createOutfitBundles, createOutfitPicks, createSalvage } from './cardRewards';
 import { playerShipSetup } from './playerShipSetup';
 import { generateSector } from './SectorGenerator';
 import { sectorThemes, type SectorTheme } from './sectorThemes';

@@ -1,0 +1,79 @@
+/* Free cards stand out from a shop, like a work order delivery. */
+.outfitting {
+    border-color: color-mix(in oklch, var(--good-light) 55%, transparent);
+}
+
+.outfitting h2 {
+    color: var(--good-light);
+}
+
+/* A decision that's waiting on this crew member. */
+.incoming {
+    border-color: color-mix(in oklch, var(--danger-light) 55%, transparent);
+}
+
+.incoming h2 {
+    color: var(--danger-light);
+}
+
+.more {
+    display: block;
+    margin-top: 0.25em;
+    color: var(--text);
+}
+
+.newCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.single {
+    grid-template-columns: auto;
+}
+
+.bundles {
+    grid-template-columns: repeat(3, auto);
+}
+
+.bundleName {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: var(--readout-font-family);
+    font-size: calc(1.1em / var(--card-scale));
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+.standout {
+    font-size: 0.8em;
+    color: var(--energy-light);
+}
+
+/* The bundle this crew member voted for. */
+.voted {
+    border-radius: 1em;
+    background-color: color-mix(in oklch, var(--good-mid) 20%, transparent);
+}
+
+.voters {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25em;
+    min-height: 1.5em;
+    font-size: calc(0.9em / var(--card-scale));
+}
+
+.voter {
+    padding: 0 0.4em;
+    border-radius: 0.4em;
+    color: var(--primary-lightest);
+    background-color: var(--primary-dark);
+}
