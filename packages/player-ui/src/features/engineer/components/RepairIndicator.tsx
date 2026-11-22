@@ -1,5 +1,6 @@
 import { useDraggable } from '@dnd-kit/core';
 import { classNames } from 'common-ui/utils/classNames';
+import { default as RepairIcon } from '../assets/repair.svg?react';
 import styles from './RepairIndicator.module.css';
 
 type Props = {
@@ -28,6 +29,8 @@ export const RepairIndicator = (props: Props) => {
             {...attributes}
         >
             <div className={styles.fill} style={{ height: `${fillPercent}%` }} />
+            {/* The same icon as beside each system's damage that can be repaired, so it's clear they go together. */}
+            <RepairIcon className={styles.icon} aria-hidden="true" />
             <span className={styles.label}>
                 Repair capacity:
                 {' '}

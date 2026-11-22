@@ -42,3 +42,15 @@
     font-weight: bold;
     font-size: 1.2em;
 }
+
+/* At the top of the meter. */
+.icon {
+    position: absolute;
+    z-index: 1;
+    top: 0.5em;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1.6em;
+    height: 1.6em;
+    color: var(--good-lightest);
+}

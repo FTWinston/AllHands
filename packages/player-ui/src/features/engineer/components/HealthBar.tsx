@@ -1,4 +1,6 @@
 import { classNames } from 'common-ui/utils/classNames';
+import { PropsWithChildren } from 'react';
+import { default as RepairIcon } from '../assets/repair.svg?react';
 import styles from './HealthBar.module.css';
 
 /** A system's health, broken down by what's happened to its cards. */
@@ -29,8 +31,8 @@ export function describeHealth(health: HealthBreakdown) {
 type Props = {
     health: HealthBreakdown;
     className?: string;
-    /** Show each section's number of cards beneath it. */
-    showCounts?: boolean;
+    /** Show the number of damaged cards (which can be repaired), when there are any, beneath their section. */
+    showRepairable?: boolean;
 };
 
 /** The bar's sections, in the order they're shown. */
@@ -55,7 +57,7 @@ export const HealthBar = (props: Props) => {
     const states = sectionStates.filter(state => counts[state] > 0);
 
     const bar = (
-        <span className={classNames(styles.bar, props.showCounts ? undefined : props.className)} aria-hidden="true">
+        <span className={classNames(styles.bar, props.showRepairable ? undefined : props.className)} aria-hidden="true">
             {states.map(state => (
                 <span
                     key={state}
@@ -67,34 +69,39 @@ export const HealthBar = (props: Props) => {
         </span>
     );
 
-    if (!props.showCounts) {
+    if (!props.showRepairable) {
         return bar;
     }
 
-    // Just the numbers the engineer acts on: health, beneath the working sections, and damage that can be repaired, beneath its own.
-    // Each is centred beneath its sections, so moves with them, with a gap beneath the critically damaged section, to keep them in place.
+    // The damage that can be repaired, with the repair icon, as on the repair meter, centred beneath its section, so it moves with it.
+    // The other sections have gaps beneath them, to keep it in place.
     const working = counts.healthy + counts.stabilised;
 
     return (
-        <span className={classNames(styles.withCounts, props.className)} aria-hidden="true">
+        <span className={classNames(styles.withRepairable, props.className)} aria-hidden="true">
             {bar}
-            <span className={styles.counts}>
-                {working > 0 && <Count count={working} className={styles.healthCount} />}
-                {counts.damaged > 0 && <Count count={counts.damaged} className={styles.repairableCount} />}
-                {counts.critical > 0 && <Count count={counts.critical} className={styles.gap} hidden />}
-            </span>
+            {counts.damaged > 0 && (
+                <span className={styles.beneath}>
+                    {working > 0 && <Beneath count={working} />}
+                    <Beneath count={counts.damaged} className={styles.repairable}>
+                        <RepairIcon className={styles.repairIcon} />
+                        {counts.damaged}
+                    </Beneath>
+                    {counts.critical > 0 && <Beneath count={counts.critical} />}
+                </span>
+            )}
         </span>
     );
 };
 
-/** A number beneath the bar, as wide as the sections it's for. Hidden, it just takes up their space. */
-const Count = (props: { count: number; className: string; hidden?: boolean }) => (
+/** Beneath the bar, as wide as the sections it's for, or just taking up their space if it's empty. */
+const Beneath = (props: PropsWithChildren<{ count: number; className?: string }>) => (
     <span
-        className={classNames(styles.count, props.className)}
+        className={classNames(styles.beneathSection, props.className)}
         // @ts-expect-error CSS custom property
         style={{ '--count': props.count }}
     >
-        {props.hidden ? null : props.count}
+        {props.children}
     </span>
 );
 

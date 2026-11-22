@@ -43,47 +43,46 @@
     background: repeating-linear-gradient(-45deg, var(--danger-dark) 0 0.12em, black 0.12em 0.3em);
 }
 
-/* The bar, with each section's number of cards beneath it. */
-.withCounts {
+/* The bar, with the number of cards that can be repaired beneath it. */
+.withRepairable {
     display: flex;
     flex-direction: column;
     gap: 0.15em;
     pointer-events: none;
 }
 
-/* The same widths as the sections, so each count is centred beneath its own. */
-.counts {
+/* The same widths as the sections, so the number is centred beneath its own. */
+.beneath {
     display: flex;
-    /* Matches the bar's border, so the counts line up with the sections inside it. */
+    /* Matches the bar's border, so it lines up with the sections inside it. */
     padding-inline: 0.08em;
 }
 
-/*
-    Never narrower than its number, though: a count beneath very narrow sections (one card of 18, say) takes the room it needs,
-    and the other makes way for it, so they never overlap, and stay roughly beneath their own sections.
-*/
-.count {
+.beneathSection {
     flex: var(--count, 1) 1 0;
+    min-width: 0;
+}
+
+/*
+    Never narrower than its icon and number, though: beneath a very narrow section (one card of 18, say), it takes the room it needs,
+    and the gaps either side make way for it, so it stays roughly beneath its section.
+*/
+.repairable {
     min-width: max-content;
-    /* So neighbouring numbers never run together, e.g. two 1s reading as 11. */
-    padding-inline: 0.2em;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1em;
     font-weight: bold;
     font-size: 1.15em;
     line-height: 1;
-}
-
-.healthCount {
-    color: var(--grey-lightest);
-}
-
-/* Bright red, as there's damage that can be repaired. */
-.repairableCount {
+    /* Bright red, like its section's border. */
     color: var(--danger-light);
 }
 
-/* Beneath the critically damaged section: no number, just its space. */
-.count.gap {
-    min-width: 0;
-    padding: 0;
+/* As on the repair meter, so it's clear that's what repairs these. */
+.repairIcon {
+    flex-shrink: 0;
+    width: 0.9em;
+    height: 0.9em;
 }

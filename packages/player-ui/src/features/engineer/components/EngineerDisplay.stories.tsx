@@ -420,10 +420,14 @@ const expectTilesFitAndOpenCards = async (canvasElement: HTMLElement, width: num
             await expect(elementAtMiddleOf(image), `${image.getAttribute('aria-label')} on the ${system} tile`).toBe(cardsButton);
         }
 
-        // Counts beneath very narrow sections take the room they need, so never overlap.
-        const counts = [...tile.querySelectorAll(`.${healthBarStyles.count}`)].map(count => count.getBoundingClientRect());
-        for (let index = 1; index < counts.length; index++) {
-            await expect(counts[index].left, `${system} tile's count ${index + 1} overlapping the one before`).toBeGreaterThanOrEqual(counts[index - 1].right);
+        // The damage that can be repaired is beneath its section, even when it's very narrow (one card of 18), and wider than it.
+        const repairable = tile.querySelector(`.${healthBarStyles.repairable}`);
+        const damagedSection = tile.querySelector(`.${healthBarStyles.damaged}`);
+        await expect(!!repairable, `${system} tile showing damage that can be repaired`).toBe(!!damagedSection);
+        if (repairable && damagedSection) {
+            const number = repairable.getBoundingClientRect();
+            const section = damagedSection.getBoundingClientRect();
+            await expect(number.left <= section.right && number.right >= section.left, `${system} tile's damage that can be repaired beneath its section`).toBe(true);
         }
 
         for (const badge of tile.querySelectorAll(`.${systemStyles.badge}`)) {

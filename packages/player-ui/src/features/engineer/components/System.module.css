@@ -1,7 +1,7 @@
 /*
     Each tile is laid out to suit its own shape, as tiles are size containers (see SystemList.module.css).
     The font scales with the tile, so its shape decides what fits, more than its size does.
-    By default, the name is above health, with effects below. Power (and the hull's shields) are badges sticking out of its top corners.
+    By default, the name is above health (and for the hull, shields above that), with effects below. Power is a badge sticking out of its top right corner.
 */
 .system {
     position: relative;
@@ -86,24 +86,66 @@
     color: var(--primary-light);
 }
 
-/* Health: an icon, and the bar, with each section's number of cards beneath it. */
-.health {
+/* Shields (for the hull) and health: an icon, a bar and a number each, sharing columns so they line up. */
+.stats {
     grid-area: rows;
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: start;
     column-gap: 0.35em;
+    row-gap: 0.45em;
 }
 
+/* Aligned to their tops, as health has the damage that can be repaired beneath its bar. */
+.stat {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-items: start;
+}
+
+/* Centred on the bar, as is the number. */
 .icon {
     width: 1.3em;
     height: 1.3em;
-    /* Centred on the bar, rather than on the bar and its counts. */
     margin-top: -0.2em;
     color: var(--primary-light);
 }
 
-/* Badges stick out of the tile, so taps go through them, and they sit above its shield dots. */
+.value {
+    margin-top: -0.2em;
+    font-weight: bold;
+    font-size: 1.3em;
+    line-height: 1;
+    text-align: right;
+    white-space: nowrap;
+    color: var(--grey-lightest);
+}
+
+.max {
+    width: 1em;
+    display: inline-block;
+    font-size: 0.7em;
+    font-weight: normal;
+    color: var(--grey-light);
+}
+
+/* In their own colour, with their icon filled in, like power's and health's. (Its outline is also the hull's own icon.) */
+.shields {
+    & .icon {
+        color: var(--energy-light);
+    }
+
+    & .icon path {
+        fill: currentColor;
+    }
+
+    & .value {
+        color: var(--energy-lightest);
+    }
+}
+
+/* Badges stick out of the tile, so taps go through them. */
 .badge {
     position: absolute;
     z-index: 2;
@@ -131,41 +173,9 @@
 
 /* Power sticks out of the top right corner by half the border width. */
 .powerBadge {
-    top: -0.05em;
-    right: -0.05em;
+    top: -0.1em;
+    right: -0.1em;
     padding: 0.25em 0.25em 0.25em 0;
-}
-
-/* The hull's tile has a shielded badge in the top left, so that corner needs beveled so it doesn't stick out behind it. */
-.system.shielded {
-    border-top-left-radius: 1.5em;
-}
-
-/* Its name is centred between its shield and power badges. */
-.shielded .name {
-    padding-left: 1.6em;
-}
-
-/*
-    The shields stick out of the opposite corner, the top left, which isn't cut off.
-    In their own colour, with their icon filled in, like power's and health's. (Its outline is also the hull's own icon.)
-*/
-.shieldBadge {
-    top: -0.05em;
-    left: -0.05em;
-    border-radius: 0.5em 0 0.5em 0;
-    color: var(--energy-lightest);
-    background-color: var(--energy-darkest);
-    border-color: var(--energy-light);
-    padding: 0.25em 0.25em 0.25em 0.125em;
-
-    & .badgeIcon {
-        color: var(--energy-light);
-    }
-
-    & .badgeIcon path {
-        fill: currentColor;
-    }
 }
 
 /* The effects are buttons too, so sit above the cards button (and its icon), though the space between them doesn't. */
