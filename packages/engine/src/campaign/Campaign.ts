@@ -1,6 +1,6 @@
 import { bundleVotesNeeded } from 'common-data/features/cards/utils/cardRewardCounts';
 import { getShopRole, isStationKind } from 'common-data/features/sectors/utils/isStationKind';
-import { crewRoleNames, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
+import { crewRoleNames, isCrewRoleName, type CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { canSellFromDeck, cardSellPrice, getAntimatterReward, getOrderPrice, getShopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { getPlayerShips } from 'src/utils/shipQueries';
 import { getSynergyCardTypes } from '../cards/cardSynergies';
@@ -345,11 +345,11 @@ export class Campaign {
 
     /** A crew member takes one of the cards offered to them at the first sector's outfitting station. The rest are discarded. */
     takeOutfitCard(ship: PlayerShip, system: CrewSystemState, cardId: number): boolean {
-        if (!this.isAtStation) {
+        if (!this.isAtStation || !isCrewRoleName(system.system)) {
             return false;
         }
 
-        const card = system.takeOutfitCard(cardId);
+        const card = ship.takeOutfitPick(system.system, cardId);
         if (!card) {
             return false;
         }
@@ -465,11 +465,10 @@ export class Campaign {
         for (const ship of getPlayerShips(this.state)) {
             ship.clearSalvage();
             ship.clearOutfitBundles();
+            ship.clearOutfitPicks();
 
             for (const role of crewRoleNames) {
-                const system = ship.getCrewSystem(role);
-                system.pendingOrder = null;
-                system.outfitCards.clear();
+                ship.getCrewSystem(role).pendingOrder = null;
             }
         }
     }
@@ -549,7 +548,7 @@ export class Campaign {
     private offerOutfitting(ship: PlayerShip): void {
         if (this.sectorIndex <= 0) {
             for (const role of crewRoleNames) {
-                ship.getCrewSystem(role).offerOutfitCards(createOutfitPicks(this.state.random, ship, role));
+                ship.offerOutfitPicks(role, createOutfitPicks(this.state.random, ship, role));
             }
         } else {
             ship.offerOutfitBundles(createOutfitBundles(this.state.random, ship));

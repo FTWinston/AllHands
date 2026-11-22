@@ -6,6 +6,7 @@ import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { PlayerShipInfo, PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getContactLabel } from 'src/utils/contactLabels';
 import { OutfitBundleState, SalvageCardState } from './CardRewardState';
+import { CardState } from './CardState';
 import { CommsState } from './CommsState';
 import { CrewState } from './CrewState';
 import { GameObject } from './GameObject';
@@ -78,11 +79,58 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
     @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
     @type({ map: 'number' }) readonly bundleVotes = new MapSchema<number>();
 
+    /**
+     * The crew members still choosing their card at the first sector's outfitting station, in role order.
+     * Their cards are only synced to their own consoles, so this lets every screen show who the crew is waiting on.
+     */
+    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
+    @type(['string']) readonly outfitPickers = new ArraySchema<CrewRoleName>();
+
     /** Whether the crew still has a salvage or outfitting choice to make. The ship can't leave until they've made it. */
     get hasUnsettledRewards(): boolean {
         return this.salvage.length > 0
             || this.outfitBundles.length > 0
-            || crewRoleNames.some(role => this.getCrewSystem(role).outfitCards.length > 0);
+            || this.outfitPickers.length > 0;
+    }
+
+    /** Offers the given crew member a choice of cards, at the first sector's outfitting station. */
+    offerOutfitPicks(role: CrewRoleName, cards: readonly CardState[]) {
+        this.getCrewSystem(role).offerOutfitCards(cards);
+        this.removeOutfitPicker(role);
+
+        if (cards.length > 0) {
+            this.outfitPickers.push(role);
+            this.outfitPickers.sort((a, b) => crewRoleNames.indexOf(a) - crewRoleNames.indexOf(b));
+        }
+    }
+
+    /**
+     * Removes one of the cards offered to the given crew member at the first sector's outfitting station, returning it, and discards the rest.
+     * Returns null if it isn't offered. Doesn't give it to the crew member.
+     */
+    takeOutfitPick(role: CrewRoleName, cardId: number): CardState | null {
+        const card = this.getCrewSystem(role).takeOutfitCard(cardId);
+
+        if (card) {
+            this.removeOutfitPicker(role);
+        }
+
+        return card;
+    }
+
+    /** Withdraws every crew member's outfitting cards. */
+    clearOutfitPicks() {
+        for (const role of crewRoleNames) {
+            this.getCrewSystem(role).outfitCards.clear();
+        }
+        this.outfitPickers.clear();
+    }
+
+    private removeOutfitPicker(role: CrewRoleName) {
+        const index = this.outfitPickers.indexOf(role);
+        if (index !== -1) {
+            this.outfitPickers.splice(index, 1);
+        }
     }
 
     /** Offers the given salvage, for the given crew member to choose from. */
@@ -115,6 +163,7 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
     override cleanupAfterEncounter() {
         this.clearSalvage();
         this.clearOutfitBundles();
+        this.outfitPickers.clear();
         super.cleanupAfterEncounter();
     }
 

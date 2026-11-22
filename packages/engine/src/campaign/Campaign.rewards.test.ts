@@ -244,6 +244,7 @@ describe('Outfitting', () => {
 
         expect(state.encounterKind).toBe('outfitting');
         expect(ship.outfitBundles.length).toBe(0);
+        expect([...ship.outfitPickers]).toEqual([...crewRoleNames]);
 
         for (const role of crewRoleNames) {
             const system = ship.getCrewSystem(role);
@@ -261,10 +262,12 @@ describe('Outfitting', () => {
             expect(campaign.takeOutfitCard(ship, system, 9999)).toBe(false);
             expect(campaign.takeOutfitCard(ship, system, picked.id)).toBe(true);
             expect(system.outfitCards.length).toBe(0);
+            expect(ship.outfitPickers.includes(role)).toBe(false);
             expect(system.deck.length).toBe(deckSize + 1);
             expect(system.deck.at(-1)).toBe(picked);
         }
 
+        expect(ship.outfitPickers.length).toBe(0);
         expect(hasWarpCard(ship)).toBe(true);
         expect(campaign.warpAway(ship)).toBe(true);
         expect(state.phase).toBe('map');

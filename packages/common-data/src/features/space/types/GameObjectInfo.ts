@@ -323,6 +323,9 @@ export interface PlayerShipInfo extends ShipInfo {
 
     /** The index into `outfitBundles` that each crew member has voted for, keyed by their role. Synced like `salvage`. */
     bundleVotes: IMap<string, number>;
+
+    /** The crew members still choosing their card at the first sector's outfitting station, in role order. Synced like `salvage`, as their cards aren't. */
+    outfitPickers: IArray<CrewRoleName>;
 }
 
 export interface SystemSetupInfo {

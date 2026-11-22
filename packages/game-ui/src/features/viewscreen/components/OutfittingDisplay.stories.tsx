@@ -50,6 +50,7 @@ const meta: Meta<typeof Component> = {
     args: {
         bundles,
         votes: { helm: 1, tactical: 0, engineer: 1 },
+        pickers: [],
     },
 };
 
@@ -62,5 +63,14 @@ export const PickingCards: Story = {
     args: {
         bundles: [],
         votes: {},
+        pickers: ['helm', 'engineer'],
+    },
+};
+
+export const AllPicked: Story = {
+    args: {
+        bundles: [],
+        votes: {},
+        pickers: [],
     },
 };

@@ -757,7 +757,7 @@ describe('GameRoom card rewards', () => {
     const systemFor = (client: TestClient, ship: PlayerShip, role: RoleName) => shipFor(client, ship)?.[`${role}State`];
 
     it('lets each crew member take one of their own outfitting cards, then gives helm Warp Away', async () => {
-        const { room, state, ship, clients } = await startGame();
+        const { room, state, ship, shipClient, clients } = await startGame();
         await send(room, clients.tactical, 'dismissMessage');
         expect(state.encounterKind).toBe('outfitting');
 
@@ -766,6 +766,12 @@ describe('GameRoom card rewards', () => {
                 expect(systemFor(clients[role], ship, role)?.outfitCards.length).toBe(3);
             });
         }
+
+        // The viewscreen can't see anyone's cards, but can see who is still choosing.
+        await vi.waitFor(() => {
+            expect([...shipFor(shipClient, ship)?.outfitPickers ?? []].sort()).toEqual([...roles].sort());
+        });
+        expect(shipFor(shipClient, ship)?.helmState).toBeUndefined();
 
         // Nobody can take another crew member's card.
         await send(room, clients.science, 'takeOutfitCard', { cardId: ship.helmState.outfitCards[0].id });
@@ -776,6 +782,9 @@ describe('GameRoom card rewards', () => {
             const [card] = system.outfitCards;
             await send(room, clients[role], 'takeOutfitCard', { cardId: card.id });
             expect(system.deck.at(-1)).toBe(card);
+            await vi.waitFor(() => {
+                expect(shipFor(shipClient, ship)?.outfitPickers.includes(role)).toBe(false);
+            });
         }
 
         expect(ship.helmState.hand.some(card => card.type === 'warpAway')).toBe(true);

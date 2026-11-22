@@ -96,6 +96,7 @@ const ViewscreenScene: FC<Props> = (props) => {
     const outfitBundles = ((localShip as PlayerShipInfo | undefined)?.outfitBundles ?? []) as Snapshot<OutfitBundleInfo[]>;
     // Snapshots of map schemas are plain objects.
     const bundleVotes = ((localShip as PlayerShipInfo | undefined)?.bundleVotes ?? {}) as Readonly<Partial<Record<CrewRoleName, number>>>;
+    const outfitPickers = ((localShip as PlayerShipInfo | undefined)?.outfitPickers ?? []) as readonly CrewRoleName[];
     useEffect(() => {
         if (seenCardTypes) {
             addKnownCardTypes(seenCardTypes);
@@ -126,7 +127,7 @@ const ViewscreenScene: FC<Props> = (props) => {
                     name={encounterName ?? ''}
                     antimatter={antimatter}
                     showMenu={props.showMenu}
-                    body={encounterKind === 'outfitting' ? <OutfittingDisplay bundles={outfitBundles} votes={bundleVotes} /> : undefined}
+                    body={encounterKind === 'outfitting' ? <OutfittingDisplay bundles={outfitBundles} votes={bundleVotes} pickers={outfitPickers} /> : undefined}
                 >
                     {props.children}
                 </StationDisplay>

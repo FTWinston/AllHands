@@ -14,17 +14,41 @@ type Props = {
     bundles: Snapshot<OutfitBundleInfo[]>;
     /** The index of the bundle each crew member has voted for, by role. */
     votes: Readonly<Partial<Record<CrewRoleName, number>>>;
+    /** In the first sector, the crew members still choosing a card of their own. */
+    pickers: readonly CrewRoleName[];
 };
 
+/** In the first sector, each crew member picks a card for their own station on their console. This shows who the crew is still waiting on. */
+const PickProgress: FC<{ pickers: readonly CrewRoleName[] }> = ({ pickers }) => (
+    <section className={styles.root} aria-label="Outfitting picks">
+        <p className={styles.instructions}>
+            {pickers.length > 0
+                ? 'Each crew member picks a new card for their station, on their console.'
+                : 'Every crew member has picked a new card.'}
+        </p>
+
+        <ul className={styles.pickers}>
+            {crewRoleNames.map((role) => {
+                const picking = pickers.includes(role);
+
+                return (
+                    <li key={role} className={classNames(styles.picker, crewStyles[role], picking ? styles.stillPicking : styles.picked)}>
+                        <span className={styles.pickerName}>{crewRoleLabels[role].name}</span>
+                        <span className={styles.pickerStatus}>{picking ? 'Choosing' : 'Picked'}</span>
+                    </li>
+                );
+            })}
+        </ul>
+    </section>
+);
+
 /**
- * What an outfitting station offers the crew. After the first sector, that's a few bundles, each a two-by-two grid of a card for every crew member,
+ * What an outfitting station offers the crew. In the first sector, that's a card each, which every crew member picks on their own console. After the first sector, that's a few bundles, each a two-by-two grid of a card for every crew member,
  * with one standout card, for the crew to weigh up and vote on. Each crew member reads their own card in full on their console.
  */
-export const OutfittingDisplay: FC<Props> = ({ bundles, votes }) => {
+export const OutfittingDisplay: FC<Props> = ({ bundles, votes, pickers }) => {
     if (bundles.length === 0) {
-        return (
-            <p className={styles.picking}>Each crew member is choosing a new card for their station.</p>
-        );
+        return <PickProgress pickers={pickers} />;
     }
 
     return (

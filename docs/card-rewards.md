@@ -37,7 +37,7 @@ Outfitting replaces the repair station at the start of every sector, and the shi
 
 ### Sector 1: a pick each
 
-**Every crew member picks 1 of 3 cards for their own station,** on their own phone, all four at the same time. The cards use the shop's rarity weights.
+**Every crew member picks 1 of 3 cards for their own station,** on their own phone, all four at the same time. The cards use the shop's rarity weights. The viewscreen shows a tile for each crew member, lit once they've picked, so everyone can see who the ship is waiting on.
 
 This is the first thing the crew does in a run. It teaches the card-pick screen and each player's own station before any fight, and the starter decks immediately split apart from run to run. A choice between crew members would be shallow here: every run starts from the same decks, so it would mean judging cards in a vacuum, and experienced crews would learn the "right" answers.
 
