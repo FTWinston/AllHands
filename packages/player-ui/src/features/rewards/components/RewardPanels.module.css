@@ -42,8 +42,8 @@
     flex-direction: column;
     align-items: center;
     font-family: var(--readout-font-family);
-    font-size: calc(1.1em / var(--card-scale));
-    letter-spacing: 0.08em;
+    font-size: 1.5em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--text);
 }
@@ -51,6 +51,11 @@
 .standout {
     font-size: 0.8em;
     color: var(--energy-light);
+}
+
+/* Every bundle has room for the label, so their cards line up. */
+.notStandout {
+    visibility: hidden;
 }
 
 /* The bundle this crew member voted for. */
@@ -68,7 +73,7 @@
     justify-content: center;
     gap: 0.25em;
     min-height: 1.5em;
-    font-size: calc(0.9em / var(--card-scale));
+    font-size: 1.3em;
 }
 
 .voter {

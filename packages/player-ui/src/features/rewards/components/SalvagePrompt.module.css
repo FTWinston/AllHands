@@ -48,14 +48,14 @@
     color: var(--text);
 }
 
-/* Above each card, in its crew member's colour. */
+/* Above each card, in its crew member's colour, no wider than it. */
 .recipient {
     display: flex;
-    gap: 0.5em;
-    align-items: baseline;
+    flex-direction: column;
+    align-items: center;
     font-family: var(--readout-font-family);
-    font-size: calc(1.25em / var(--card-scale));
-    letter-spacing: 0.08em;
+    font-size: 1.5em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--primary-light);
 }

@@ -37,7 +37,7 @@ export const BundleVotePanel: FC<Props> = ({ bundles, vote, votesNeeded, voteBun
                     <li key={card.id} className={classNames(cardGridStyles.item, voted ? styles.voted : null)}>
                         <span className={styles.bundleName}>
                             {`Bundle ${index + 1}`}
-                            {standout && <span className={styles.standout}>Standout</span>}
+                            <span className={classNames(styles.standout, standout ? null : styles.notStandout)} aria-hidden={!standout}>Standout</span>
                         </span>
 
                         <GridCard
