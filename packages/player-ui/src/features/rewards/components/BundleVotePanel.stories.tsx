@@ -47,7 +47,8 @@ type Story = StoryObj<typeof meta>;
 export const Vote: Story = {
     play: async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
-        await expect(canvas.getByText('Standout')).toBeInTheDocument();
+        // Only one bundle has a standout card for this crew member. The others keep a hidden label, so their cards line up.
+        await expect(canvas.getAllByText('Standout').filter(label => label.getAttribute('aria-hidden') !== 'true')).toHaveLength(1);
         await expect(within(canvas.getByRole('list', { name: 'Votes for bundle 3' })).getAllByRole('listitem')).toHaveLength(2);
 
         await userEvent.click(canvas.getByText('Photonic Cannon'));

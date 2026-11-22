@@ -197,9 +197,6 @@ describe('GameRoom campaign messages', () => {
             state.campaign!.tick(0);
         }
 
-        // The salvage has to be dealt with first.
-        expect(ship.helmState.hand.some(card => card.type === 'warpAway')).toBe(false);
-        settleRewards(state);
         const warpCard = ship.helmState.hand.find(card => card.type === 'warpAway')!;
         expect(warpCard).toBeDefined();
 
@@ -801,6 +798,12 @@ describe('GameRoom card rewards', () => {
             hostile.destroy();
         }
 
+        // Salvage comes once the ship has warped away, to the map.
+        expect(ship.salvage.length).toBe(0);
+        const warpCard = ship.helmState.hand.find(hand => hand.type === 'warpAway')!;
+        await send(room, clients.helm, 'playCard', { cardId: warpCard.id, cardType: 'warpAway', targetType: 'no-target', targetId: '' });
+        expect(state.phase).toBe('map');
+
         const chooser = ship.salvageChooser as RoleName;
         expect(chooser).not.toBe('');
         for (const client of [shipClient, ...roles.map(role => clients[role])]) {
@@ -817,13 +820,26 @@ describe('GameRoom card rewards', () => {
 
         await send(room, clients[other], 'scrapSalvage');
         await send(room, clients[other], 'takeSalvage', { cardId: card.id });
+        await send(room, clients[other], 'hideSalvage', { hidden: true });
         expect(ship.salvage.length).toBe(3);
         expect(ship.antimatter).toBe(antimatter);
+        expect(ship.salvageHidden).toBe(false);
+
+        // Only the viewscreen needs to know the chooser is holding the salvage out of the way.
+        await send(room, clients[chooser], 'hideSalvage', { hidden: true });
+        expect(ship.salvageHidden).toBe(true);
+        await vi.waitFor(() => {
+            expect(shipFor(shipClient, ship)?.salvageHidden).toBe(true);
+        });
+        for (const role of roles) {
+            expect(shipFor(clients[role], ship)?.salvageHidden ?? false).toBe(false);
+        }
 
         await send(room, clients[chooser], 'takeSalvage', { cardId: card.id });
         expect(ship.salvage.length).toBe(0);
+        expect(ship.salvageHidden).toBe(false);
         expect(ship.getCrewSystem(recipient).deck.length).toBe(deckSize + 1);
-        expect(ship.helmState.hand.some(hand => hand.type === 'warpAway')).toBe(true);
+        expect(ship.helmState.nonEncounterCards.length).toBe(state.map!.availableNodeIds.length);
     });
 
     it('lets a crew member with a full deck replace a card with the one waiting, outside an encounter', async () => {

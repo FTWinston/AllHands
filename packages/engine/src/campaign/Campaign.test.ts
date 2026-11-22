@@ -95,6 +95,7 @@ function playSector(state: GameState, ship: PlayerShip) {
         expect(state.phase).toBe('encounter');
         completeEncounter(state);
         expect(campaign.warpAway(ship)).toBe(true);
+        settleRewards(state);
     }
 
     expect(state.phase).toBe('sectorOutro');
@@ -272,6 +273,11 @@ describe('Campaign phase flow', () => {
         expect(campaign.isInEncounter).toBe(false);
         expect([...state.objects.values()].every(object => object instanceof PlayerShip)).toBe(true);
         expect([...state.map!.availableNodeIds]).toEqual(next);
+
+        // Helm gets the route cards once the salvage is settled.
+        expect(ship.salvage).toHaveLength(3);
+        expect(handIds(ship.helmState.nonEncounterCards)).toHaveLength(0);
+        settleRewards(state);
         expect(handIds(ship.helmState.nonEncounterCards)).toHaveLength(next.length);
         expect(campaign.warpAway(ship)).toBe(false);
     });
@@ -344,9 +350,9 @@ describe('Campaign phase flow', () => {
             expect(state.encounter!.outcome).toBe('success');
             expect(state.encounter!.objectiveEndTime).toBe(0);
             expect([...state.objects.values()].every(object => object instanceof PlayerShip)).toBe(true);
-            settleRewards(state);
             expect(ship.helmState.hand.some(card => card.type === 'warpAway')).toBe(true);
             expect(campaign.warpAway(ship)).toBe(true);
+            settleRewards(state);
         }
 
         expect(state.phase).toBe('sectorOutro');
@@ -472,6 +478,7 @@ describe('Campaign antimatter rewards', () => {
             expect(ship.antimatter).toBe(expected);
 
             campaign.warpAway(ship);
+            settleRewards(state);
             expect(state.encounterKind).toBeNull();
         }
 

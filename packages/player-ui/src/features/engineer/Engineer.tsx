@@ -7,7 +7,6 @@ import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { useOrders } from '../orders/hooks/useOrders';
-import { SalvagePrompt } from '../rewards/components/SalvagePrompt';
 import { useRewards } from '../rewards/hooks/useRewards';
 import { useSalvage } from '../rewards/hooks/useSalvage';
 import { useShop } from '../shop/hooks/useShop';
@@ -64,6 +63,7 @@ export const Engineer = (props: Props) => {
                 shop={shop}
                 orders={orders}
                 rewards={rewards}
+                salvage={salvage}
                 onPause={pause}
                 deckSize={engineerState.deck.length}
                 deckView={deckView}
@@ -74,21 +74,18 @@ export const Engineer = (props: Props) => {
     const systems = engineerState.systems;
 
     return (
-        <>
-            {salvage && <SalvagePrompt {...salvage} />}
-            <EngineerDisplay
-                cards={engineerState.hand}
-                systems={systems}
-                repairCapacity={engineerState.repairCapacity}
-                maxRepairCapacity={engineerState.maxRepairCapacity}
-                repair={repair}
-                onPause={pause}
-                power={engineerState.powerLevel}
-                deckSize={engineerState.deck.length}
-                deckView={deckView}
-                playCard={playCard}
-                cardGeneration={engineerState.cardGeneration}
-            />
-        </>
+        <EngineerDisplay
+            cards={engineerState.hand}
+            systems={systems}
+            repairCapacity={engineerState.repairCapacity}
+            maxRepairCapacity={engineerState.maxRepairCapacity}
+            repair={repair}
+            onPause={pause}
+            power={engineerState.powerLevel}
+            deckSize={engineerState.deck.length}
+            deckView={deckView}
+            playCard={playCard}
+            cardGeneration={engineerState.cardGeneration}
+        />
     );
 };

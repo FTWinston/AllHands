@@ -15,30 +15,39 @@ type Props = {
 };
 
 /**
- * The cards salvaged after a fight, for everyone on the bridge to see and argue over, while the crew member who can't benefit from them chooses.
- * Each shows who it's for, and how full their deck is.
+ * The cards that can be made from what the ship tractored in at the end of a fight, shown over the sector map once it has warped away,
+ * for everyone on the bridge to see and argue over, while the crew member who can't benefit from them chooses.
+ * Each shows who it's for, and how full their deck is. The chooser can hold a button to hide this, so the crew can see the map behind it.
  */
 export const SalvageDisplay: FC<Props> = ({ cards, chooser }) => (
-    <section className={styles.root} aria-label="Salvage">
-        <h2 className={styles.heading}>
-            Salvage
-            <span className={classNames(styles.chooser, crewStyles[chooser])}>{`${crewRoleLabels[chooser].name} chooses`}</span>
-        </h2>
+    <div className={styles.backdrop}>
+        <section className={styles.root} aria-label="Salvage">
+            <h2 className={styles.heading}>
+                Salvage
+                <span className={classNames(styles.chooser, crewStyles[chooser])}>{`${crewRoleLabels[chooser].name} chooses`}</span>
+            </h2>
 
-        <ul className={styles.cards}>
-            {cards.map(({ role, card, deckSize, maxDeckSize }) => (
-                <li key={card.id} className={classNames(styles.item, crewStyles[role])}>
-                    <span className={styles.recipient}>
-                        {crewRoleLabels[role].name}
-                        <span className={classNames(styles.deckSize, deckSize >= maxDeckSize ? styles.full : null)}>
-                            {deckSize >= maxDeckSize ? `Deck full ${deckSize}/${maxDeckSize}` : `Deck ${deckSize}/${maxDeckSize}`}
+            <p className={styles.text}>
+                What the ship tractored in at the end of the fight can make one of these. Helm can&apos;t plot a course until it&apos;s chosen.
+            </p>
+
+            <ul className={styles.cards}>
+                {cards.map(({ role, card, deckSize, maxDeckSize }) => (
+                    <li key={card.id} className={classNames(styles.item, crewStyles[role])}>
+                        <span className={styles.recipient}>
+                            {crewRoleLabels[role].name}
+                            <span className={classNames(styles.deckSize, deckSize >= maxDeckSize ? styles.full : null)}>
+                                {deckSize >= maxDeckSize ? `Deck full ${deckSize}/${maxDeckSize}` : `Deck ${deckSize}/${maxDeckSize}`}
+                            </span>
                         </span>
-                    </span>
-                    <div className={styles.card}>
-                        <Card type={card.type} showTraitDescriptions />
-                    </div>
-                </li>
-            ))}
-        </ul>
-    </section>
+                        <div className={styles.card}>
+                            <Card type={card.type} />
+                        </div>
+                    </li>
+                ))}
+            </ul>
+
+            <p className={styles.hint}>{`${crewRoleLabels[chooser].name} can hold a button on their console to see the map.`}</p>
+        </section>
+    </div>
 );

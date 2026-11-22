@@ -68,6 +68,10 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
     @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
     @type('string') salvageChooser: CrewRoleName | '' = '';
 
+    /** Whether the chooser is holding the salvage out of the way, so the viewscreen can show the sector map behind it. */
+    @view(ownShipClientRole)
+    @type('boolean') salvageHidden = false;
+
     /** The crew member who received the last salvaged card, who chooses the next salvage. Null until the first salvage is taken. */
     lastSalvageRecipient: CrewRoleName | null = null;
 
@@ -145,6 +149,17 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
     clearSalvage() {
         this.salvage.clear();
         this.salvageChooser = '';
+        this.salvageHidden = false;
+    }
+
+    /** The salvage chooser hides the salvage from the viewscreen, or shows it again. Does nothing for anyone else, or when there's no salvage. */
+    hideSalvage(role: CrewRoleName, hidden: boolean): boolean {
+        if (this.salvage.length === 0 || this.salvageChooser !== role) {
+            return false;
+        }
+
+        this.salvageHidden = hidden;
+        return true;
     }
 
     /** Offers the given outfitting bundles, with no votes yet. */

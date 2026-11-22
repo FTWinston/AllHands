@@ -318,6 +318,9 @@ export interface PlayerShipInfo extends ShipInfo {
     /** The crew member who chooses which salvaged card the ship takes, while there's salvage, otherwise empty. Synced like `salvage`. */
     salvageChooser: CrewRoleName | '';
 
+    /** Whether the chooser is holding the salvage out of the way, so the viewscreen can show the sector map behind it. Synced to the ship's game client. */
+    salvageHidden: boolean;
+
     /** Bundles offered at an outfitting station after the first sector, until the crew agree on one. Synced like `salvage`. */
     outfitBundles: IArray<OutfitBundleInfo>;
 

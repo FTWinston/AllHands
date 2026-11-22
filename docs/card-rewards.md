@@ -12,20 +12,20 @@ How crew members gain cards over a run: when, how many, and who decides. A compa
 | | Source | Job |
 |---|---|---|
 | In | **Outfitting**, at each sector's start | A guaranteed card for every station |
-| In | **Salvage**, after each successful fight | The crew deciding together who gets the next card |
+| In | **Salvage**, on the map after each successful fight | The crew deciding together who gets the next card |
 | In | **Shops** (with work orders) | Planned, heavier investment in one station, chosen with the route |
 | Out | **Selling**, **scrapping** or **replacing** | Every card that leaves a deck is worth 10 antimatter |
 
 ## Salvage
 
-After each regular or elite fight whose objective is met, the ship salvages one card.
+After each regular or elite fight whose objective is met, the ship salvages one card. It's what the ship tractored in at the end of the fight, made into a card once it has warped away, so it's chosen on the sector map rather than in the fight.
 
 - **Three cards are offered, one for each of three stations.** The fourth station, the one that received the previous salvage, can't benefit, so it **chooses** which of the three the ship takes. It can't grab one for itself, and it doesn't know the other decks well, so it has to ask: "Science, would this help you?"
 - **The chooser can instead scrap all three for 10 antimatter.** Nobody gained a card, so the same station chooses next time. Scrapping isn't new income: any salvaged card could be taken and then sold for 10 at the next station anyway. It just skips that pointless step. A free decline would be a fake option, since taking and selling would always beat it.
-- **The offer shows on the main viewscreen,** where every crew member, and a phoneless captain if there is one, can see it and argue for a card. Each offered card shows its station's deck size against its cap (for example "Tactical 12/12"), so the chooser can see when a card would force a swap. Only the chooser's phone has controls.
+- **The offer shows on the main viewscreen,** in a big panel over the sector map, where every crew member, and a phoneless captain if there is one, can see it and argue for a card. Each offered card shows its station's deck size against its cap (for example "Tactical 12/12"), so the chooser can see when a card would force a swap. Only the chooser's phone has controls. The chooser can hold a button to hide the panel, on their phone and the viewscreen, so the crew can look at the map behind it while deciding.
 - **The chooser role carries across sectors.** The very first salvage of a run has a random chooser. Outfitting doesn't count as salvage.
 - **The card goes to the bottom of the recipient's deck,** like a shop card. If that deck is at its cap, the recipient replaces a card (see below).
-- **It happens as soon as the objective is met,** before leaving: the offer covers the chooser's console, and helm doesn't get the warp card until the salvage is settled. Helm already holds up the ship while choosing a route, so the chooser holding it up is nothing new.
+- **It happens on the map, once the ship has warped away.** Helm gets the warp card as soon as the objective is met, as for any encounter, and nobody has to choose under fire from enemies that haven't left yet. On the map the offer covers the chooser's console, and helm doesn't get the route cards until the salvage is settled. That's no hurry, as the ship's systems don't run on the map, and the choice fits the route discussion: "if science gets this, we can skip the science shop." A recipient with a full deck can make room straight away, as replacing a card is allowed on the map.
 - **Elites** offer better odds of uncommon and rare cards, rather than more cards. **Failed fights** give no salvage, in line with "fail forward pays nothing".
 - **Later, salvage is drawn from the encounter that was beaten,** where its cards allow: its faction's or theme's cards, and the "cards it wishes existed" from its spec, mixed with the general pool. That makes fights distinct rewards, gives routes a reason to pass particular encounters, and lets sector themes pull decks in different directions from run to run. Until there are enough themed cards, salvage uses the shop pool and rarity weights.
 
@@ -78,7 +78,7 @@ Salvage adds about 10 antimatter of value per fight, taken either as a card or a
 Each step builds on the one before.
 
 1. **Deck cap.** `maxDeckSize` on each crew system's setup, and the replace-and-refund flow, applied to shop purchases and work-order deliveries.
-2. **Salvage.** The engine offer and chooser after successful fights, scrapping, the viewscreen display, the chooser's controls, and holding back helm's warp card until it's settled. Uses the shop pool at first.
+2. **Salvage.** The engine offer and chooser on the map after successful fights, scrapping, the viewscreen display, the chooser's controls, and holding back helm's route cards until it's settled. Uses the shop pool at first.
 3. **Outfitting.** A new station kind for the start layer, replacing `'repair'` for the `'start'` role in `SectorGenerator`, which the ship docks at after each sector intro. It repairs, gives each crew member a 1-of-3 pick in sector 1, and offers bundles with voting in later sectors.
 
 Steps 1–3 are built. Themed salvage and retuning are still to do.
@@ -99,5 +99,6 @@ Steps 1–3 are built. Themed salvage and retuning are still to do.
 - **A big starting budget with all four shops at the start station:** a good conversation once, but front-loaded, prone to four phones racing to spend one pot, and it undercuts routing towards shops.
 - **Two salvages for an elite:** needs a sequencing rule for little gain; better rarity odds do the same job.
 - **Packs to pick between at outfitting (crew, specialist, synergy, refit), agreed by two stations:** a negotiation on phones with no clear default. The synergy pack duplicated work orders and the refit pack duplicated selling.
-- **Giving unclaimed salvage away automatically when the ship warps:** holding back the warp card is simpler.
+- **Giving unclaimed salvage away automatically when the ship warps:** holding back the route cards is simpler.
+- **Choosing salvage before warping away:** enemies that are still withdrawing, or that a survive or protect objective leaves behind, would harry the crew while they choose. Making every hostile break off once the objective is met would fix that, but would take away encounters' own exits, such as running out of range.
 - **A viewscreen count of salvages since each station's last card:** players will say when they're missing out, faster than a counter would.

@@ -1,9 +1,17 @@
-/* Along the bottom of the viewscreen, sized with it, leaving the top corners for the objective and the menu. */
-.root {
+/* Over the whole sector map, dimming it, sized with the viewscreen. */
+.backdrop {
     position: fixed;
-    bottom: 1.5em;
-    left: 50%;
-    translate: -50%;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: color-mix(in srgb, var(--space) 70%, transparent);
+    pointer-events: none;
+    font-size: min(1.35vw, 2.4vh);
+}
+
+.root {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -12,9 +20,8 @@
     border: 0.094em solid color-mix(in oklch, var(--good-light) 55%, transparent);
     border-radius: 0 1.5em 0 1.5em;
     corner-shape: bevel;
-    background-color: color-mix(in oklch, var(--space) 88%, transparent);
-    pointer-events: none;
-    font-size: min(1vw, 1.78vh);
+    background-color: color-mix(in oklch, var(--good-darkest) 60%, var(--panel));
+    box-shadow: 0 0 2em 0.5em color-mix(in srgb, var(--good-light) 25%, transparent);
 }
 
 .heading {
@@ -28,6 +35,18 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--good-light);
+}
+
+.text,
+.hint {
+    margin: 0;
+    text-align: center;
+    color: var(--text);
+}
+
+.hint {
+    font-size: 0.85em;
+    color: var(--text-muted);
 }
 
 .chooser {

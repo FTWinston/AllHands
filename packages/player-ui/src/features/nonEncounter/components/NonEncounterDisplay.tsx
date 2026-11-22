@@ -15,11 +15,12 @@ import { OrderPanel } from '../../orders/components/OrderPanel';
 import { BundleVotePanel } from '../../rewards/components/BundleVotePanel';
 import { IncomingCardPanel } from '../../rewards/components/IncomingCardPanel';
 import { OutfitPicksPanel } from '../../rewards/components/OutfitPicksPanel';
+import { SalvagePrompt } from '../../rewards/components/SalvagePrompt';
 import { ShopPanel } from '../../shop/components/ShopPanel';
 import styles from './NonEncounterDisplay.module.css';
 import { NonEncounterHand } from './NonEncounterHand';
 import type { OrdersModel } from '../../orders/types/OrdersModel';
-import type { RewardsModel } from '../../rewards/types/RewardsModel';
+import type { RewardsModel, SalvageModel } from '../../rewards/types/RewardsModel';
 import type { ShopModel } from '../../shop/types/ShopModel';
 import type { Snapshot } from '@colyseus/react';
 
@@ -37,6 +38,8 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'power'> & {
     orders?: OrdersModel | null;
     /** Cards the crew member is gaining: one waiting for room in their full deck, and their outfitting card or bundle to choose. */
     rewards?: RewardsModel | null;
+    /** The salvage from the fight the ship just left, for the crew member choosing who gets it, on the map. It covers everything else. */
+    salvage?: SalvageModel | null;
     /** Rendered within the display, e.g. science's long range sensors or tactical's sector message prompt. */
     children?: ReactNode;
 };
@@ -46,7 +49,7 @@ const noHand: Snapshot<CardInstance[]> = [];
 
 /** Replaces a crew's display outside of an encounter, and at a station: a plain background with the usual header, any cards on offer, and any shop. */
 export const NonEncounterDisplay = (props: Props) => {
-    const { cards = noCards, playCard, hand = noHand, playHandCard, shop, orders, rewards, children, ...headerProps } = props;
+    const { cards = noCards, playCard, hand = noHand, playHandCard, shop, orders, rewards, salvage, children, ...headerProps } = props;
     const hasDelivery = !!orders && orders.deliveryCards.length > 0;
     const showOrderPanel = !!orders && (orders.pendingOrder !== null || orders.canOrder);
     const incomingCard = rewards?.incomingCard ?? null;
@@ -99,6 +102,8 @@ export const NonEncounterDisplay = (props: Props) => {
                 <CardHand cards={hand} availablePower={0} />
 
                 {children}
+
+                {salvage && <SalvagePrompt {...salvage} />}
             </DragCardProvider>
         </Screen>
     );

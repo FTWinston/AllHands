@@ -93,6 +93,7 @@ const ViewscreenScene: FC<Props> = (props) => {
     const prompt = (localShip as PlayerShipInfo | undefined)?.comms?.prompt ?? null;
     const salvage = ((localShip as PlayerShipInfo | undefined)?.salvage ?? []) as Snapshot<SalvageCardInfo[]>;
     const salvageChooser = ((localShip as PlayerShipInfo | undefined)?.salvageChooser ?? '') as CrewRoleName | '';
+    const salvageHidden = (localShip as PlayerShipInfo | undefined)?.salvageHidden ?? false;
     const outfitBundles = ((localShip as PlayerShipInfo | undefined)?.outfitBundles ?? []) as Snapshot<OutfitBundleInfo[]>;
     // Snapshots of map schemas are plain objects.
     const bundleVotes = ((localShip as PlayerShipInfo | undefined)?.bundleVotes ?? {}) as Readonly<Partial<Record<CrewRoleName, number>>>;
@@ -115,6 +116,10 @@ const ViewscreenScene: FC<Props> = (props) => {
                 showMenu={props.showMenu}
             >
                 {props.children}
+                {/* Over the sector map, unless the chooser is holding it out of the way. */}
+                {phase === 'map' && !isEnded && !showOutcome && salvageChooser && salvage.length > 0 && !salvageHidden && (
+                    <SalvageDisplay cards={salvage} chooser={salvageChooser} />
+                )}
             </ViewscreenPhaseDisplay>
         );
     }
@@ -157,7 +162,6 @@ const ViewscreenScene: FC<Props> = (props) => {
             {props.children}
             {objective && <ObjectiveDisplay objective={objective} outcome={encounterOutcome} />}
             <CommsDisplay hail={hail} prompt={prompt} />
-            {salvageChooser && salvage.length > 0 && <SalvageDisplay cards={salvage} chooser={salvageChooser} />}
             {hull && <LowHullWarning health={hull.health} maxHealth={hull.maxHealth} />}
         </ViewscreenDisplay>
     );

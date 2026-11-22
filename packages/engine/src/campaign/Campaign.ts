@@ -39,6 +39,8 @@ export class Campaign {
     private sector: SectorInfo | null = null;
     private encounter: Encounter | null = null;
     private playerShipsInEncounter = new Set<PlayerShip>();
+    /** The player ships that met a fight's objective, and so get salvage once they reach the map, with whether that fight was elite. */
+    private salvageDue = new Map<PlayerShip, boolean>();
     private tearingDown = false;
 
     constructor(
@@ -146,10 +148,13 @@ export class Campaign {
         return true;
     }
 
-    /** Helm picks the next node (by playing a route card); the first valid selection is final for every crew. */
+    /**
+     * Helm picks the next node (by playing a route card); the first valid selection is final for every crew.
+     * Not while any crew still has salvage to settle, though.
+     */
     selectRoute(_ship: PlayerShip, nodeId: string): boolean {
         const map = this.state.map;
-        if (this.state.phase !== 'map' || this.isEnded || !map || !this.sector) {
+        if (this.state.phase !== 'map' || this.isEnded || !map || !this.sector || getPlayerShips(this.state).some(ship => ship.hasUnsettledRewards)) {
             return false;
         }
 
@@ -313,11 +318,11 @@ export class Campaign {
 
     /**
      * The crew member choosing salvage takes one of the salvaged cards for the crew member it's for, who then chooses the next salvage.
-     * Once the salvage is settled, helm gets the Warp Away card.
+     * Once the salvage is settled, helm gets the route cards.
      */
     takeSalvage(ship: PlayerShip, chooser: CrewRoleName, cardId: number): boolean {
         const offer = ship.salvage.find(candidate => candidate.card.id === cardId);
-        if (!this.isInEncounter || !offer || ship.salvageChooser !== chooser) {
+        if (this.state.phase !== 'map' || !offer || ship.salvageChooser !== chooser) {
             return false;
         }
 
@@ -326,20 +331,20 @@ export class Campaign {
         ship.lastSalvageRecipient = role;
         // A fresh card, rather than one that was part of the salvage, which is no longer synced.
         ship.getCrewSystem(role).gainCard(new CardState(card.id, card.type));
-        this.offerWarpAway(ship);
+        this.offerRoutes(ship);
         return true;
     }
 
     /** The crew member choosing salvage scraps all of it, for the antimatter one card would sell for. Nobody gained a card, so they choose the next salvage too. */
     scrapSalvage(ship: PlayerShip, chooser: CrewRoleName): boolean {
-        if (!this.isInEncounter || ship.salvage.length === 0 || ship.salvageChooser !== chooser) {
+        if (this.state.phase !== 'map' || ship.salvage.length === 0 || ship.salvageChooser !== chooser) {
             return false;
         }
 
         ship.clearSalvage();
         ship.lastSalvageRecipient = chooser;
         ship.addAntimatter(cardSellPrice);
-        this.offerWarpAway(ship);
+        this.offerRoutes(ship);
         return true;
     }
 
@@ -462,6 +467,8 @@ export class Campaign {
         this.state.outcome = outcome;
         this.state.gameStatus = 'ended';
 
+        this.salvageDue.clear();
+
         for (const ship of getPlayerShips(this.state)) {
             ship.clearSalvage();
             ship.clearOutfitBundles();
@@ -474,19 +481,37 @@ export class Campaign {
     }
 
     /**
-     * The map gives each helm a route card per available node, and shows what those nodes hold on science's long range sensors.
+     * The map shows what the available nodes hold on science's long range sensors, and gives each helm a route card per node,
+     * once any salvage from the fight they've just left is settled.
      * Hands are already empty here (see `teardownEncounter`), and no cards are drawn until the next encounter because game time stops.
      */
     private showMap(): void {
-        const map = this.state.map!;
-        const nodes = this.sector!.nodes.filter(node => map.availableNodeIds.includes(node.id));
+        this.state.phase = 'map';
+        const nodes = this.getAvailableNodes();
 
         for (const ship of getPlayerShips(this.state)) {
-            ship.helmState.setNonEncounterCards(createRouteCards(ship, nodes));
             ship.scienceState.setDestinations(nodes);
+            this.offerSalvage(ship);
+            this.offerRoutes(ship);
         }
 
-        this.state.phase = 'map';
+        this.salvageDue.clear();
+    }
+
+    private getAvailableNodes(): SectorNodeInfo[] {
+        const map = this.state.map;
+        return map && this.sector
+            ? this.sector.nodes.filter(node => map.availableNodeIds.includes(node.id))
+            : [];
+    }
+
+    /** Gives the ship's helm a route card per available node, on the map, once the crew has settled any salvage. Until then, helm has none. */
+    private offerRoutes(ship: PlayerShip): void {
+        if (this.state.phase !== 'map') {
+            return;
+        }
+
+        ship.helmState.setNonEncounterCards(ship.hasUnsettledRewards ? [] : createRouteCards(ship, this.getAvailableNodes()));
     }
 
     private startEncounter(node: SectorNodeInfo): void {
@@ -512,6 +537,12 @@ export class Campaign {
 
         this.encounter = createEncounter(this.state, node);
         this.state.phase = 'encounter';
+
+        // Only dev tools can start an encounter with salvage unsettled, and then it's lost.
+        this.salvageDue.clear();
+        for (const ship of getPlayerShips(this.state)) {
+            ship.clearSalvage();
+        }
 
         // Before starting, as a station completes immediately, and the ship can't leave until the crew has chosen their cards.
         if (node.kind === 'outfitting') {
@@ -555,20 +586,30 @@ export class Campaign {
         }
     }
 
-    /**
-     * Each player ship still in a fight whose objective was met salvages a card for each crew member but the one who received the last salvage,
-     * who chooses which one the ship takes. The first salvage of the game is chosen by a random crew member.
-     */
-    private offerSalvage(): void {
+    /** Each player ship still in a fight when its objective is met gets salvage once it reaches the map (see `offerSalvage`). */
+    private noteSalvage(): void {
         const node = this.encounter?.node;
         if (this.encounter?.outcome !== 'success' || node?.kind !== 'combat') {
             return;
         }
 
         for (const ship of this.playerShipsInEncounter) {
-            const chooser = ship.lastSalvageRecipient ?? this.state.random.pick(crewRoleNames);
-            ship.offerSalvage(chooser, createSalvage(this.state.random, ship, chooser, node.elite === true));
+            this.salvageDue.set(ship, node.elite === true);
         }
+    }
+
+    /**
+     * A player ship that met a fight's objective reaches the map with what it tractored in at the end: a card for each crew member
+     * but the one who received the last salvage, who chooses which one the ship takes. The first salvage of the game is chosen by a random crew member.
+     */
+    private offerSalvage(ship: PlayerShip): void {
+        const elite = this.salvageDue.get(ship);
+        if (elite === undefined) {
+            return;
+        }
+
+        const chooser = ship.lastSalvageRecipient ?? this.state.random.pick(crewRoleNames);
+        ship.offerSalvage(chooser, createSalvage(this.state.random, ship, chooser, elite));
     }
 
     /**
@@ -589,7 +630,7 @@ export class Campaign {
 
     /**
      * Once the objective is met or failed, every helm gets an expendable Warp Away card in its hand: leaving is how either one ends.
-     * A fight whose objective was met offers salvage first, and helm only gets the card once that's settled. Stations are complete on arrival.
+     * A fight whose objective was met offers salvage once the ship reaches the map. Stations are complete on arrival.
      */
     private concludeEncounter(): void {
         if (!this.state.encounter || !this.encounter || this.isEncounterOver) {
@@ -598,7 +639,7 @@ export class Campaign {
 
         this.state.encounter.outcome = this.encounter.outcome;
         this.state.encounterOutcome = this.encounter.outcome;
-        this.offerSalvage();
+        this.noteSalvage();
 
         for (const ship of this.playerShipsInEncounter) {
             this.offerWarpAway(ship);
@@ -607,7 +648,7 @@ export class Campaign {
 
     /**
      * Gives the ship's helm an expendable Warp Away card, if the encounter is over and they don't already have one.
-     * Not until the crew has settled any salvage or outfitting choice, though.
+     * Not until the crew has settled any outfitting choice, though.
      */
     private offerWarpAway(ship: PlayerShip): void {
         if (!this.isEncounterOver || !this.playerShipsInEncounter.has(ship) || ship.hasUnsettledRewards || ship.helmState.hand.some(card => card.type === 'warpAway')) {

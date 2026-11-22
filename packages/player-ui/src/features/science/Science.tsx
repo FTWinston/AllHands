@@ -8,7 +8,6 @@ import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { useOrders } from '../orders/hooks/useOrders';
-import { SalvagePrompt } from '../rewards/components/SalvagePrompt';
 import { useRewards } from '../rewards/hooks/useRewards';
 import { useSalvage } from '../rewards/hooks/useSalvage';
 import { useShop } from '../shop/hooks/useShop';
@@ -81,6 +80,7 @@ export const Science = (props: Props) => {
                 shop={shop}
                 orders={orders}
                 rewards={rewards}
+                salvage={salvage}
                 onPause={pause}
                 deckSize={scienceState.deck.length}
                 deckView={deckView}
@@ -99,38 +99,35 @@ export const Science = (props: Props) => {
     };
 
     return (
-        <>
-            {salvage && <SalvagePrompt {...salvage} />}
-            <ScienceDisplay
-                cards={scienceState.hand}
-                targets={targets}
-                scannedShipId={scienceState.scannedShipId}
-                systemOrderByTarget={scienceState.systemOrderByTarget}
-                identifiedVulnerability={scienceState.identifiedVulnerability}
-                scannedHelm={scienceState.scannedHelm}
-                scannedTactical={scienceState.scannedTactical}
-                scannedScience={scienceState.scannedScience}
-                scannedEngineer={scienceState.scannedEngineer}
-                scannedHull={localShip.scannedHull ?? null}
-                modifierSlot={scienceState.modifierSlotCard?.type ?? null}
-                substanceSlot={scienceState.substanceSlotCard?.type ?? null}
-                deliverySlot={scienceState.deliverySlotCard?.type ?? null}
-                deflectorCard={scienceState.deflectorCard}
-                onPause={pause}
-                power={scienceState.powerLevel}
-                deckSize={scienceState.deck.length}
-                deckView={deckView}
-                playCard={playCard}
-                cardGeneration={scienceState.cardGeneration}
-                viewer={viewer}
-                contactLabels={localShip.contactLabels as Partial<Record<string, string>> | undefined}
-                insight={scienceState.insight}
-                ghostExposedTime={scienceState.ghostExposedTime}
-                closeRevealedSystem={closeRevealedSystem}
-                unmountDeflectorDelivery={unmountDeflectorDelivery}
-                unmountDeflectorModifier={unmountDeflectorModifier}
-                unmountDeflectorSubstance={unmountDeflectorSubstance}
-            />
-        </>
+        <ScienceDisplay
+            cards={scienceState.hand}
+            targets={targets}
+            scannedShipId={scienceState.scannedShipId}
+            systemOrderByTarget={scienceState.systemOrderByTarget}
+            identifiedVulnerability={scienceState.identifiedVulnerability}
+            scannedHelm={scienceState.scannedHelm}
+            scannedTactical={scienceState.scannedTactical}
+            scannedScience={scienceState.scannedScience}
+            scannedEngineer={scienceState.scannedEngineer}
+            scannedHull={localShip.scannedHull ?? null}
+            modifierSlot={scienceState.modifierSlotCard?.type ?? null}
+            substanceSlot={scienceState.substanceSlotCard?.type ?? null}
+            deliverySlot={scienceState.deliverySlotCard?.type ?? null}
+            deflectorCard={scienceState.deflectorCard}
+            onPause={pause}
+            power={scienceState.powerLevel}
+            deckSize={scienceState.deck.length}
+            deckView={deckView}
+            playCard={playCard}
+            cardGeneration={scienceState.cardGeneration}
+            viewer={viewer}
+            contactLabels={localShip.contactLabels as Partial<Record<string, string>> | undefined}
+            insight={scienceState.insight}
+            ghostExposedTime={scienceState.ghostExposedTime}
+            closeRevealedSystem={closeRevealedSystem}
+            unmountDeflectorDelivery={unmountDeflectorDelivery}
+            unmountDeflectorModifier={unmountDeflectorModifier}
+            unmountDeflectorSubstance={unmountDeflectorSubstance}
+        />
     );
 };

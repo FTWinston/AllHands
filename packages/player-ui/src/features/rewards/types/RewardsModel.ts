@@ -43,4 +43,6 @@ export type SalvageModel = {
     cards: Snapshot<SalvageCardInfo[]>;
     takeSalvage: (cardId: number) => void;
     scrapSalvage: () => void;
+    /** Hides the salvage from the viewscreen while held, so the crew can see the sector map behind it. */
+    hideSalvage: (hidden: boolean) => void;
 };

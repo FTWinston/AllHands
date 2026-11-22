@@ -528,6 +528,20 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
             }
         });
 
+        this.onMessage('hideSalvage', (client, message: { hidden: boolean }) => {
+            if (this.state.gameStatus !== 'active' || typeof message?.hidden !== 'boolean') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            ship.hideSalvage(this.getCrewRoleName(ship, clientRole), message.hidden);
+        });
+
         this.onMessage('takeOutfitCard', (client, message: { cardId: number }) => {
             if (this.state.gameStatus !== 'active' || !Number.isInteger(message?.cardId)) {
                 return;

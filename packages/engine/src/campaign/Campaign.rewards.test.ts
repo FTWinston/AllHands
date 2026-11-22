@@ -30,6 +30,13 @@ function winSkirmish(state: GameState) {
     expect(state.encounter!.outcome).toBe('success');
 }
 
+/** Wins a skirmish, then warps away to the map, where the salvage is offered. */
+function winSkirmishAndLeave(state: GameState, ship: PlayerShip) {
+    winSkirmish(state);
+    expect(state.campaign!.warpAway(ship)).toBe(true);
+    expect(state.phase).toBe('map');
+}
+
 /** Fills a crew member's deck up to its cap with copies of its first card. */
 function fillDeck(ship: PlayerShip, role: 'helm' | 'tactical' = 'tactical') {
     const system = ship.getCrewSystem(role);
@@ -140,10 +147,20 @@ describe('Deck cap', () => {
 });
 
 describe('Salvage', () => {
-    it('offers a card for each crew member but the chooser after a successful fight, holding back Warp Away until it\'s settled', () => {
+    it('offers nothing during the fight: Warp Away comes as soon as the objective is met', () => {
         const { state, campaign, ships: [ship] } = createCampaign();
         campaign.dismissMessage();
         winSkirmish(state);
+
+        expect(ship.salvage.length).toBe(0);
+        expect(ship.salvageChooser).toBe('');
+        expect(hasWarpCard(ship)).toBe(true);
+    });
+
+    it('offers a card for each crew member but the chooser on reaching the map, holding back the route cards until it\'s settled', () => {
+        const { state, campaign, ships: [ship] } = createCampaign();
+        campaign.dismissMessage();
+        winSkirmishAndLeave(state, ship);
 
         const chooser = ship.salvageChooser;
         expect(chooser).not.toBe('');
@@ -156,14 +173,17 @@ describe('Salvage', () => {
             expect(ship.seenCardTypes).toContain(offer.card.type);
         }
 
-        expect(hasWarpCard(ship)).toBe(false);
-        expect(campaign.warpAway(ship)).toBe(false);
+        // Science can still see where the ship could go next, to talk it over.
+        expect(ship.scienceState.destinations.length).toBeGreaterThan(0);
+        expect(ship.helmState.nonEncounterCards.length).toBe(0);
+        expect(campaign.selectRoute(ship, state.map!.availableNodeIds[0])).toBe(false);
+        expect(state.phase).toBe('map');
     });
 
     it('lets only the chooser take a card, which goes to its crew member, who chooses the next salvage', () => {
         const { state, campaign, ships: [ship] } = createCampaign();
         campaign.dismissMessage();
-        winSkirmish(state);
+        winSkirmishAndLeave(state, ship);
 
         const chooser = ship.salvageChooser;
         const offer = ship.salvage[0];
@@ -180,11 +200,10 @@ describe('Salvage', () => {
         const system = ship.getCrewSystem(role);
         expect(system.deck.length).toBe(deckSize + 1);
         expect(system.deck.at(-1)!.type).toBe(card.type);
-        expect(hasWarpCard(ship)).toBe(true);
+        expect(ship.helmState.nonEncounterCards.length).toBe(state.map!.availableNodeIds.length);
 
         // The recipient chooses the next salvage, and so can't benefit from it.
-        expect(campaign.warpAway(ship)).toBe(true);
-        winSkirmish(state);
+        winSkirmishAndLeave(state, ship);
         expect(ship.salvageChooser).toBe(role);
         expect(ship.salvage.some(next => next.role === role)).toBe(false);
     });
@@ -192,7 +211,7 @@ describe('Salvage', () => {
     it('scraps all of it for the price of one card, and the same crew member chooses next time', () => {
         const { state, campaign, ships: [ship] } = createCampaign();
         campaign.dismissMessage();
-        winSkirmish(state);
+        winSkirmishAndLeave(state, ship);
 
         const chooser = ship.salvageChooser as typeof crewRoleNames[number];
         const antimatter = ship.antimatter;
@@ -202,33 +221,54 @@ describe('Salvage', () => {
         expect(campaign.scrapSalvage(ship, chooser)).toBe(true);
         expect(ship.salvage.length).toBe(0);
         expect(ship.antimatter).toBe(antimatter + cardSellPrice);
-        expect(hasWarpCard(ship)).toBe(true);
+        expect(ship.helmState.nonEncounterCards.length).toBe(state.map!.availableNodeIds.length);
         expect(campaign.scrapSalvage(ship, chooser)).toBe(false);
 
-        campaign.warpAway(ship);
-        winSkirmish(state);
+        winSkirmishAndLeave(state, ship);
         expect(ship.salvageChooser).toBe(chooser);
     });
 
-    it('offers nothing for stations and bosses', () => {
+    it('lets only the chooser hide the salvage from the viewscreen, until it\'s settled', () => {
+        const { state, campaign, ships: [ship] } = createCampaign();
+        campaign.dismissMessage();
+        winSkirmishAndLeave(state, ship);
+
+        const chooser = ship.salvageChooser as typeof crewRoleNames[number];
+        const other = crewRoleNames.find(candidate => candidate !== chooser)!;
+
+        expect(ship.hideSalvage(other, true)).toBe(false);
+        expect(ship.salvageHidden).toBe(false);
+        expect(ship.hideSalvage(chooser, true)).toBe(true);
+        expect(ship.salvageHidden).toBe(true);
+        expect(ship.hideSalvage(chooser, false)).toBe(true);
+        expect(ship.salvageHidden).toBe(false);
+
+        ship.hideSalvage(chooser, true);
+        expect(campaign.scrapSalvage(ship, chooser)).toBe(true);
+        expect(ship.salvageHidden).toBe(false);
+        expect(ship.hideSalvage(chooser, true)).toBe(false);
+    });
+
+    it('offers nothing after failed fights, stations and bosses', () => {
         const { state, campaign, ships: [ship] } = createCampaign();
         campaign.dismissMessage();
 
         expect(campaign.devLoadEncounter('repairStation')).toBe(true);
-        expect(ship.salvage.length).toBe(0);
         expect(hasWarpCard(ship)).toBe(true);
+        expect(campaign.warpAway(ship)).toBe(true);
+        expect(ship.salvage.length).toBe(0);
 
         expect(campaign.devLoadEncounter('bossA')).toBe(true);
         state.getObjectByScenarioId('boss')!.destroy();
         expect(state.encounter!.outcome).toBe('success');
+        expect(campaign.warpAway(ship)).toBe(true);
         expect(ship.salvage.length).toBe(0);
-        expect(hasWarpCard(ship)).toBe(true);
     });
 
-    it('withdraws salvage that wasn\'t settled when the encounter is abandoned', () => {
+    it('withdraws salvage that wasn\'t settled when dev tools load another encounter', () => {
         const { state, campaign, ships: [ship] } = createCampaign();
         campaign.dismissMessage();
-        winSkirmish(state);
+        winSkirmishAndLeave(state, ship);
         expect(ship.salvage.length).toBeGreaterThan(0);
 
         expect(campaign.devLoadEncounter('repairStation')).toBe(true);

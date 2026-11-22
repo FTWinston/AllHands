@@ -20,6 +20,7 @@ const meta: Meta<typeof Component> = {
         cards: salvage,
         takeSalvage: fn(),
         scrapSalvage: fn(),
+        hideSalvage: fn(),
     },
 };
 
@@ -45,5 +46,24 @@ export const ScrapAll: Story = {
         const canvas = within(canvasElement);
         await userEvent.click(canvas.getByRole('button', { name: /Scrap all for 10/ }));
         await expect(args.scrapSalvage).toHaveBeenCalled();
+    },
+};
+
+export const HoldToSeeMap: Story = {
+    play: async ({ canvasElement, args }) => {
+        const canvas = within(canvasElement);
+        const button = canvas.getByRole('button', { name: 'Hold to see the map' });
+        // One pointer, held between calls.
+        const user = userEvent.setup();
+
+        await user.pointer({ keys: '[MouseLeft>]', target: button });
+        await expect(args.hideSalvage).toHaveBeenLastCalledWith(true);
+        await expect(button).toHaveAttribute('aria-pressed', 'true');
+        await expect(canvas.getByText('Trickle Charge')).not.toBeVisible();
+
+        await user.pointer({ keys: '[/MouseLeft]', target: button });
+        await expect(args.hideSalvage).toHaveBeenLastCalledWith(false);
+        await expect(args.hideSalvage).toHaveBeenCalledTimes(2);
+        await expect(canvas.getByText('Trickle Charge')).toBeVisible();
     },
 };

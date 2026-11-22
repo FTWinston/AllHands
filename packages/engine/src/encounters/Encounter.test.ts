@@ -156,10 +156,6 @@ describe('objectives', () => {
         }
 
         expect(state.encounter!.outcome).toBe('success');
-        // Helm only gets the Warp Away card once the salvage is dealt with.
-        expect(ships[0].salvage).toHaveLength(3);
-        expect(hasWarpCard(ships[0])).toBe(false);
-        settleRewards(state);
         expect(hasWarpCard(ships[0])).toBe(true);
     });
 
