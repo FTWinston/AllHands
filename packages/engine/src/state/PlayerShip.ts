@@ -81,9 +81,9 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
 
     /**
      * The crew members still choosing their card at the first sector's outfitting station, in role order.
-     * Their cards are only synced to their own consoles, so this lets every screen show who the crew is waiting on.
+     * Their cards are only synced to their own consoles, so this lets the viewscreen show who the crew is waiting on. No phone needs it.
      */
-    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
+    @view(ownShipClientRole)
     @type(['string']) readonly outfitPickers = new ArraySchema<CrewRoleName>();
 
     /** Whether the crew still has a salvage or outfitting choice to make. The ship can't leave until they've made it. */

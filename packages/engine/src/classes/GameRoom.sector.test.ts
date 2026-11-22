@@ -772,6 +772,9 @@ describe('GameRoom card rewards', () => {
             expect([...shipFor(shipClient, ship)?.outfitPickers ?? []].sort()).toEqual([...roles].sort());
         });
         expect(shipFor(shipClient, ship)?.helmState).toBeUndefined();
+        for (const role of roles) {
+            expect(shipFor(clients[role], ship)?.outfitPickers?.length ?? 0).toBe(0);
+        }
 
         // Nobody can take another crew member's card.
         await send(room, clients.science, 'takeOutfitCard', { cardId: ship.helmState.outfitCards[0].id });
