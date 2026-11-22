@@ -1,9 +1,11 @@
 import { IArray, IMap } from '@colyseus/react';
 import { CardInstance } from 'src/features/cards/types/CardInstance';
+import { OutfitBundleInfo, SalvageCardInfo } from 'src/features/cards/types/CardRewardInfo';
 import { NonEncounterCardInfo } from 'src/features/cards/types/NonEncounterCardInfo';
 import { CardType, EnemyTargetedCardType, UntargetedCardType } from 'src/features/cards/utils/cardDefinitions';
 import { CommsInfo } from 'src/features/sectors/types/CommsInfo';
 import { SectorDestinationInfo } from 'src/features/sectors/types/SectorDestinationInfo';
+import { CrewRoleName } from 'src/features/ships/types/CrewRole';
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { SystemEffectInstance } from 'src/features/ships/types/SystemEffectDefinition';
 import { CardCooldown, Cooldown } from 'src/types/Cooldown';
@@ -73,6 +75,15 @@ export interface CrewSystemInfo extends SystemInfo {
     orderableCardIds: IArray<number>;
     /** Cards delivered by this crew member's work order, to choose one of for free. Lost on leaving the station. Empty when there's no delivery. */
     deliveryCards: IArray<CardInstance>;
+    /** The most cards this system's deck can hold, which also caps its health (see `SystemSetupInfo.maxDeckSize`). */
+    maxDeckSize: number;
+    /**
+     * Cards this crew member gained while their deck was full, waiting for them to replace a deck card with the first one, or discard it.
+     * Either way, the card that goes is sold (see `cardSellPrice`). Only resolved outside an encounter.
+     */
+    incomingCards: IArray<CardInstance>;
+    /** Cards offered at the first sector's outfitting station, to choose one of for free. Empty elsewhere, and once one is taken. */
+    outfitCards: IArray<CardInstance>;
 }
 
 export interface HelmSystemInfo extends CrewSystemInfo {
@@ -300,12 +311,26 @@ export interface PlayerShipInfo extends ShipInfo {
 
     /** The id of the ship that science is scanning, or empty. Synced to the ship's game client and helm, which can't see science's own state. */
     scienceTargetId?: string;
+
+    /** Cards salvaged after a successful fight, one for each of three crew members, until one is taken or they're scrapped. Synced to the ship's game client and crew. */
+    salvage: IArray<SalvageCardInfo>;
+
+    /** The crew member who chooses which salvaged card the ship takes, while there's salvage, otherwise empty. Synced like `salvage`. */
+    salvageChooser: CrewRoleName | '';
+
+    /** Bundles offered at an outfitting station after the first sector, until the crew agree on one. Synced like `salvage`. */
+    outfitBundles: IArray<OutfitBundleInfo>;
+
+    /** The index into `outfitBundles` that each crew member has voted for, keyed by their role. Synced like `salvage`. */
+    bundleVotes: IMap<string, number>;
 }
 
 export interface SystemSetupInfo {
     cards: CardType[];
     initialHandSize: number;
     maxPowerLevel: number;
+    /** The most cards a crew system's deck can hold, which also caps its health. Defaults to `defaultMaxDeckSize`. */
+    maxDeckSize?: number;
 }
 
 export interface NonCrewSystemSetupInfo extends SystemSetupInfo {

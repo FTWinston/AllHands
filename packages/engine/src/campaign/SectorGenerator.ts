@@ -30,7 +30,7 @@ function isShopRole(role: NodeRole | undefined): role is ShopStationKind {
     return shopRoles.has(role);
 }
 
-/** Layers 0..9; every path visits one node per layer, from the start repair station in layer 0 to the boss in layer 9. */
+/** Layers 0..9; every path visits one node per layer, from the start outfitting station in layer 0 to the boss in layer 9. */
 export const sectorLayerCount = 10;
 const startLayer = 0;
 const preBossRepairLayer = sectorLayerCount - 2;
@@ -42,7 +42,7 @@ interface Range {
 }
 
 /**
- * Mid-sector stations are all shops (every station repairs), in these layers, so none is next to the start or pre-boss repair stations.
+ * Mid-sector stations are all shops (every station repairs), in these layers, so none is next to the start outfitting station or the pre-boss repair station.
  * No two stations are ever back to back, so no route can visit more than three. They're placed on parallel branches until, where possible,
  * every route visits `minShopStationsPerRoute`, so there are many more on the map than on any one route: the choice is which to visit.
  * More may be added to make choices meaningful.
@@ -113,7 +113,7 @@ const fewShopsPenalty = 10;
 const arrangementJitter = 0.5;
 
 /**
- * Builds a layered, branching DAG with no crossing links: every node leads onward, every node can be reached from the start repair station,
+ * Builds a layered, branching DAG with no crossing links: every node leads onward, every node can be reached from the start outfitting station,
  * and every path ends with a repair station then the single boss node. Shop stations sit on parallel branches in between, so most routes visit two or three
  * but the map offers more to choose from, with elite encounters scattered among them. Every choice of route offers something the others don't.
  */
@@ -357,8 +357,9 @@ function canTakeRole(layers: NodeSlot[][], roles: Map<string, NodeRole>, slot: N
  * and it shows which kind each station is, so passing a different kind of shop is a different route.
  */
 const roleSymbols: Record<NodeRole, string> = {
-    start: 'r',
+    start: 'o',
     repair: 'r',
+    outfitting: 'o',
     navigationBeacon: 'n',
     armsDealer: 'w',
     salvageYard: 'g',
@@ -492,7 +493,7 @@ function createNode(random: IRandom, theme: SectorTheme, slot: NodeSlot, role: N
     }
 
     if (role === 'start' || isStationRole(role)) {
-        const kind: StationKind = role === 'start' ? 'repair' : role;
+        const kind: StationKind = role === 'start' ? 'outfitting' : role;
         const definition = getEncounterDefinition(stationEncounterIds[kind]);
         return {
             ...base,

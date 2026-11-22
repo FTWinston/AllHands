@@ -98,9 +98,9 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
             expect(hasInbound.has(node.id)).toBe(node.id !== sector.startNodeId);
         }
 
-        // The start is a repair station, alone in the first column, as the boss is in the last.
+        // The start is an outfitting station, alone in the first column, as the boss is in the last.
         const start = nodes.get(sector.startNodeId)!;
-        expect(start.kind).toBe('repair');
+        expect(start.kind).toBe('outfitting');
         expect(start.x).toBe(0);
         expect(sector.nodes.filter(node => node.x === 0)).toEqual([start]);
     });
@@ -148,7 +148,7 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
         }
     });
 
-    it.each(seeds)('seed %i starts every path at a repair station, and ends it with another then the boss', (seed) => {
+    it.each(seeds)('seed %i starts every path at an outfitting station, and ends it with a repair station then the boss', (seed) => {
         const sector = getSector(seed, sectorIndex);
         const nodes = new Map(sector.nodes.map(node => [node.id, node]));
         const paths = enumeratePaths(sector);
@@ -160,7 +160,7 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
             expect(path.at(-1)).toBe(sector.bossNodeId);
 
             const kinds = path.map(id => nodes.get(id)!.kind);
-            expect(kinds[0]).toBe('repair');
+            expect(kinds[0]).toBe('outfitting');
             expect(kinds.at(-2)).toBe('repair');
         }
 
@@ -326,13 +326,15 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
             expect(differsOnlyByShopKind).toBe(true);
         });
 
-        it('keeps the start and pre-boss stations as repair stations, while mid-sector stations are shops of every kind', () => {
+        it('makes the start an outfitting station and the pre-boss station a repair station, while mid-sector stations are shops of every kind', () => {
             const midKinds = new Set<string>();
 
             for (const sector of getSectors()) {
                 for (const node of sector.nodes.filter(node => isStationKind(node.kind))) {
                     const layer = Math.round(node.x * (sectorLayerCount - 1));
-                    if (layer === 0 || layer === sectorLayerCount - 2) {
+                    if (layer === 0) {
+                        expect(node.kind).toBe('outfitting');
+                    } else if (layer === sectorLayerCount - 2) {
                         expect(node.kind).toBe('repair');
                     } else {
                         midKinds.add(node.kind);

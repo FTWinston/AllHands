@@ -6,7 +6,7 @@ import { relayScenarioId } from 'content/sectors/sector1/quietRunning/QuietRunni
 import { CardState } from 'src/state/CardState';
 import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { PlayerShip } from 'src/state/PlayerShip';
-import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
+import { leaveSectorStart, seededRandom, settleRewards, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
 import { getSynergyCardTypes } from '../cards/cardSynergies';
@@ -78,13 +78,17 @@ function completeEncounter(state: GameState) {
     }
 
     expect(state.encounter!.outcome).toBe('success');
+    settleRewards(state);
 }
 
-/** Dismisses the intro, then flies the first available route to the boss. Leaves the game at the sector outro. */
+/** Dismisses the intro, leaves the outfitting station, then flies the first available route to the boss. Leaves the game at the sector outro. */
 function playSector(state: GameState, ship: PlayerShip) {
     const campaign = state.campaign!;
     expect(state.phase).toBe('sectorIntro');
     expect(campaign.dismissMessage()).toBe(true);
+    expect(state.encounterKind).toBe('outfitting');
+    settleRewards(state);
+    expect(campaign.warpAway(ship)).toBe(true);
 
     while (state.phase === 'map') {
         expect(campaign.selectRoute(ship, state.map!.availableNodeIds[0])).toBe(true);
@@ -125,14 +129,16 @@ describe('Campaign phase flow', () => {
         expect(state.phase).toBe('sectorIntro');
 
         expect(campaign.dismissMessage()).toBe(true);
-        expect(state.phase).toBe('map');
+        expect(state.phase).toBe('encounter');
+        expect(state.encounterKind).toBe('outfitting');
+        expect(state.map!.currentNodeId).toBe(state.map!.startNodeId);
         expect(state.message).toBeNull();
         expect(campaign.dismissMessage()).toBe(false);
     });
 
     it('offers each of the next nodes as a helm route card and a science long range sensor reading', () => {
-        const { state, campaign, ships } = createCampaign();
-        campaign.dismissMessage();
+        const { state, ships } = createCampaign();
+        leaveSectorStart(state);
 
         const available = [...state.map!.availableNodeIds];
         const [ship] = ships;
@@ -161,7 +167,7 @@ describe('Campaign phase flow', () => {
 
     it('rejects route selections that are not currently available', () => {
         const { state, campaign, ships } = createCampaign();
-        campaign.dismissMessage();
+        leaveSectorStart(state);
 
         const available = new Set(state.map!.availableNodeIds);
         const unavailable = state.map!.nodes.find(node => !available.has(node.id))!;
@@ -175,7 +181,7 @@ describe('Campaign phase flow', () => {
     it('stops ship systems on the map, and starts them again in the encounter', () => {
         const { state, campaign, ships } = createCampaign();
         const [ship] = ships;
-        campaign.dismissMessage();
+        leaveSectorStart(state);
 
         const startTime = state.currentTime;
         const hand = handIds(ship.helmState.hand);
@@ -205,7 +211,7 @@ describe('Campaign phase flow', () => {
         const timers = () => crewSystems.map(system => system.cardGeneration);
 
         expect(timers()).toEqual([null, null, null, null]);
-        campaign.dismissMessage();
+        leaveSectorStart(state);
         state.tick(5000);
         expect(timers()).toEqual([null, null, null, null]);
 
@@ -221,7 +227,7 @@ describe('Campaign phase flow', () => {
 
     it('selecting a route starts the encounter and narrows the next choices', () => {
         const { state, campaign, ships } = createCampaign();
-        campaign.dismissMessage();
+        leaveSectorStart(state);
 
         const nodeId = state.map!.availableNodeIds[0];
         const node = state.map!.getNode(nodeId)!;
@@ -241,7 +247,7 @@ describe('Campaign phase flow', () => {
     it('offers Warp Away only once the objective is met, and it returns to the map', () => {
         const { state, campaign, ships } = createCampaign();
         const [ship] = ships;
-        campaign.dismissMessage();
+        leaveSectorStart(state);
         campaign.selectRoute(ship, state.map!.availableNodeIds[0]);
 
         const objectiveKind = state.campaign!.activeEncounter!.node.objective?.type;
@@ -272,7 +278,7 @@ describe('Campaign phase flow', () => {
 
     it('ignores warp attempts from a ship that was not given the card', () => {
         const { state, campaign, ships } = createCampaign(2);
-        campaign.dismissMessage();
+        leaveSectorStart(state);
         campaign.selectRoute(ships[0], state.map!.availableNodeIds[0]);
         completeEncounter(state);
 
@@ -284,7 +290,7 @@ describe('Campaign phase flow', () => {
     it('playing a helm route card starts that encounter', () => {
         const { state, campaign, ships } = createCampaign();
         const [ship] = ships;
-        campaign.dismissMessage();
+        leaveSectorStart(state);
 
         const routeCard = ship.helmState.nonEncounterCards[0];
         const { nodeId } = routeCard.route!;
@@ -331,13 +337,14 @@ describe('Campaign phase flow', () => {
         const { state, campaign, ships } = createCampaign();
         const [ship] = ships;
         state.devAutoWin = true;
-        campaign.dismissMessage();
+        leaveSectorStart(state);
 
         while (state.phase === 'map') {
             expect(campaign.selectRoute(ship, state.map!.availableNodeIds[0])).toBe(true);
             expect(state.encounter!.outcome).toBe('success');
             expect(state.encounter!.objectiveEndTime).toBe(0);
             expect([...state.objects.values()].every(object => object instanceof PlayerShip)).toBe(true);
+            settleRewards(state);
             expect(ship.helmState.hand.some(card => card.type === 'warpAway')).toBe(true);
             expect(campaign.warpAway(ship)).toBe(true);
         }
@@ -347,7 +354,7 @@ describe('Campaign phase flow', () => {
 
     it('is defeated when the last player ship is destroyed', () => {
         const { state, campaign, ships } = createCampaign();
-        campaign.dismissMessage();
+        leaveSectorStart(state);
         campaign.selectRoute(ships[0], state.map!.availableNodeIds[0]);
 
         ships[0].destroy();
@@ -361,7 +368,7 @@ describe('Campaign phase flow', () => {
 
     it('keeps playing while at least one player ship survives', () => {
         const { state, campaign, ships } = createCampaign(2);
-        campaign.dismissMessage();
+        leaveSectorStart(state);
         campaign.selectRoute(ships[0], state.map!.availableNodeIds[0]);
 
         ships[1].destroy();
@@ -383,7 +390,7 @@ describe('Campaign scene changes', () => {
 
     it('fades out before travelling from the map to an encounter, ignoring further routes meanwhile', async () => {
         const { state, campaign, ships: [ship] } = createCampaign();
-        campaign.dismissMessage();
+        leaveSectorStart(state);
         state.sceneChangeDelay = 20;
 
         const [first, second] = state.map!.availableNodeIds;
@@ -401,7 +408,7 @@ describe('Campaign scene changes', () => {
 
     it('fades out before warping away from a completed encounter', async () => {
         const { state, campaign, ships: [ship] } = createCampaign();
-        campaign.dismissMessage();
+        leaveSectorStart(state);
         campaign.selectRoute(ship, state.map!.availableNodeIds[0]);
         completeEncounter(state);
         state.sceneChangeDelay = 20;
@@ -448,7 +455,7 @@ describe('Campaign antimatter rewards', () => {
 
     it('awards more for elite encounters, accumulating across a sector', () => {
         const { state, campaign, ships: [ship] } = createCampaign();
-        campaign.dismissMessage();
+        leaveSectorStart(state);
         let expected = 0;
         let elitesVisited = 0;
 
@@ -619,7 +626,7 @@ describe('Campaign shop stations', () => {
     it('still stocks the shop and repairs the ship when dev auto win is on', () => {
         const { state, campaign, ships: [ship] } = createCampaign();
         state.devAutoWin = true;
-        campaign.dismissMessage();
+        leaveSectorStart(state);
         ship.hullState.adjustHealth(-2);
 
         expect(campaign.devLoadEncounter('armsDealer')).toBe(true);

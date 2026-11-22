@@ -1,10 +1,11 @@
 import { ArraySchema, MapSchema, entity, type, view } from '@colyseus/schema';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { isKnowableCardType } from 'common-data/features/cards/utils/getKnowableCardTypes';
-import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownShipClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { crewRoleNames, type CrewRoleName, ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownShipClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { PlayerShipInfo, PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getContactLabel } from 'src/utils/contactLabels';
+import { OutfitBundleState, SalvageCardState } from './CardRewardState';
 import { CommsState } from './CommsState';
 import { CrewState } from './CrewState';
 import { GameObject } from './GameObject';
@@ -57,6 +58,65 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
     /** How many work orders this ship's crew has placed this game. Each one raises the price of the next (see `getOrderPrice`). */
     @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
     @type('number') ordersPlaced = 0;
+
+    /** Cards salvaged after a successful fight, one for each crew member but `salvageChooser`, until one is taken or they're scrapped. */
+    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
+    @type([SalvageCardState]) readonly salvage = new ArraySchema<SalvageCardState>();
+
+    /** The crew member who chooses which salvaged card the ship takes, while there's salvage: whoever received the previous salvage. Otherwise empty. */
+    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
+    @type('string') salvageChooser: CrewRoleName | '' = '';
+
+    /** The crew member who received the last salvaged card, who chooses the next salvage. Null until the first salvage is taken. */
+    lastSalvageRecipient: CrewRoleName | null = null;
+
+    /** Bundles offered at an outfitting station after the first sector, until the crew agree on one. */
+    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
+    @type([OutfitBundleState]) readonly outfitBundles = new ArraySchema<OutfitBundleState>();
+
+    /** The index into `outfitBundles` that each crew member has voted for, keyed by role. */
+    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
+    @type({ map: 'number' }) readonly bundleVotes = new MapSchema<number>();
+
+    /** Whether the crew still has a salvage or outfitting choice to make. The ship can't leave until they've made it. */
+    get hasUnsettledRewards(): boolean {
+        return this.salvage.length > 0
+            || this.outfitBundles.length > 0
+            || crewRoleNames.some(role => this.getCrewSystem(role).outfitCards.length > 0);
+    }
+
+    /** Offers the given salvage, for the given crew member to choose from. */
+    offerSalvage(chooser: CrewRoleName, cards: readonly SalvageCardState[]) {
+        this.salvage.clear();
+        this.salvage.push(...cards);
+        this.salvageChooser = cards.length > 0 ? chooser : '';
+        this.markCardTypesSeen(cards.map(offer => offer.card.type));
+    }
+
+    /** Withdraws any salvage on offer. */
+    clearSalvage() {
+        this.salvage.clear();
+        this.salvageChooser = '';
+    }
+
+    /** Offers the given outfitting bundles, with no votes yet. */
+    offerOutfitBundles(bundles: readonly OutfitBundleState[]) {
+        this.clearOutfitBundles();
+        this.outfitBundles.push(...bundles);
+        this.markCardTypesSeen(bundles.flatMap(bundle => bundle.cards.map(offer => offer.card.type)));
+    }
+
+    /** Withdraws any outfitting bundles on offer, and their votes. */
+    clearOutfitBundles() {
+        this.outfitBundles.clear();
+        this.bundleVotes.clear();
+    }
+
+    override cleanupAfterEncounter() {
+        this.clearSalvage();
+        this.clearOutfitBundles();
+        super.cleanupAfterEncounter();
+    }
 
     /**
      * The non-expendable card types this ship's crew has seen, in the order they were first seen.

@@ -1,5 +1,5 @@
 import { cardDefinitions, type CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { getCardRarity } from 'common-data/features/cards/utils/getCardRarity';
+import { eliteSalvageRarityWeights, getCardRarity, shopRarityWeights } from 'common-data/features/cards/utils/getCardRarity';
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
 import { getShopCardPrice, shopCardPrices } from 'common-data/features/ships/utils/antimatter';
 import { seededRandom } from 'src/testUtils';
@@ -73,6 +73,27 @@ describe('pickShopCardTypes', () => {
         expect(perCard('common')).toBeGreaterThan(perCard('uncommon'));
         expect(perCard('uncommon')).toBeGreaterThan(perCard('rare'));
         expect(perCard('rare')).toBeGreaterThan(0);
+    });
+
+    it('never offers a rarity weighted 0, or an excluded type', () => {
+        const pool = getShopCardTypes('tactical');
+        const exclude = new Set(pool.filter(type => getCardRarity(type) === 'uncommon').slice(0, 1));
+
+        for (let seed = 1; seed <= 50; seed++) {
+            const picked = pickShopCardTypes(seededRandom(seed), 'tactical', 3, { common: 0, uncommon: 1, rare: 1 }, exclude);
+            expect(picked.length).toBeGreaterThan(0);
+            for (const type of picked) {
+                expect(getCardRarity(type)).not.toBe('common');
+                expect(exclude.has(type)).toBe(false);
+            }
+        }
+    });
+
+    it('offers more uncommon and rare cards as elite salvage than a shop does', () => {
+        const nonCommon = (weights: Parameters<typeof pickShopCardTypes>[3]) => Array.from({ length: 1000 }, (_, seed) => pickShopCardTypes(seededRandom(seed + 1), 'engineer', 1, weights)[0])
+            .filter(type => getCardRarity(type) !== 'common').length;
+
+        expect(nonCommon(eliteSalvageRarityWeights)).toBeGreaterThan(nonCommon(shopRarityWeights));
     });
 });
 

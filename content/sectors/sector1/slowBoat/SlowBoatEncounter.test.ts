@@ -2,7 +2,7 @@ import { getHailDuration, minHailDuration } from 'common-data/features/sectors/t
 import { antimatterRewards } from 'common-data/features/ships/utils/antimatter';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { MotionKeyframe } from 'engine/state/MotionKeyframe';
-import { listenToHails, seededRandom, setupGameRoom, startCampaign } from 'engine/testUtils';
+import { listenToHails, seededRandom, settleRewards, setupGameRoom, startCampaign } from 'engine/testUtils';
 import { getHostileShips } from 'engine/utils/shipQueries';
 import { describe, expect, it } from 'vitest';
 import { boughtCrossingScore, harrierIntervalMs, marrowScenarioId, maxHarriers, offerAnswers, offerAtMs, offerTimeoutMs } from './SlowBoatEncounter.engine';
@@ -126,6 +126,7 @@ describe('SlowBoatEncounter', () => {
             moveMarrow(state, marrow, waypoint);
         }
         campaign.tick(0);
+        settleRewards(state);
         expect(campaign.warpAway(ship)).toBe(true);
 
         expect(hasExtendShields(ship)).toBe(false);

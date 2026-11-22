@@ -1,6 +1,7 @@
 import { ArraySchema, type } from '@colyseus/schema';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
+import { defaultMaxDeckSize } from 'common-data/features/ships/utils/antimatter';
 import { SystemSetupInfo, CrewSystemInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { EngineCardDefinition } from 'src/cards/EngineCardDefinition';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
@@ -18,6 +19,7 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         super(setup, system, gameState, ship, initialPowerLevel, getCardId);
 
         this.scannedSystemIndex = scannedSystemIndex;
+        this.maxDeckSize = setup.maxDeckSize ?? defaultMaxDeckSize;
     }
 
     /** Emitted whenever state that is relevant to a science scan changes. */
@@ -49,7 +51,57 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
     /** Cards delivered by this crew member's work order, to choose one of. Cleared once one is taken, or on leaving the station. */
     @type([CardState]) deliveryCards = new ArraySchema<CardState>();
 
+    /** The most cards this system's deck can hold, which also caps its health. Gaining a card beyond this means replacing one (see `gainCard`). */
+    @type('uint8') readonly maxDeckSize: number;
+
+    /** Cards gained while the deck was full, waiting for this crew member to replace a deck card with the first one, or discard it. */
+    @type([CardState]) incomingCards = new ArraySchema<CardState>();
+
+    /** Cards offered at the first sector's outfitting station, to choose one of for free. Cleared once one is taken. */
+    @type([CardState]) outfitCards = new ArraySchema<CardState>();
+
     override readonly maxHandSize = 5;
+
+    /** Whether the deck (including any cards in the hand) is full, so a card gained now has to replace one. */
+    get isDeckFull(): boolean {
+        return this.maxHealth >= this.maxDeckSize;
+    }
+
+    /**
+     * Permanently gives this crew member a card: added to the bottom of their deck, or if it's full, held in `incomingCards`
+     * until they replace a deck card with it or discard it. Every way of gaining a card goes through here.
+     */
+    gainCard(card: CardState) {
+        if (this.isDeckFull || this.incomingCards.length > 0) {
+            this.incomingCards.push(card);
+            this.getShip().markCardTypesSeen([card.type]);
+        } else {
+            this.addDeckCard(card);
+        }
+    }
+
+    /** Discards the first card waiting for room in the deck, returning whether there was one. */
+    discardIncomingCard(): boolean {
+        return this.incomingCards.shift() !== undefined;
+    }
+
+    /** Offers this crew member a choice of cards, at the first sector's outfitting station. */
+    offerOutfitCards(cards: readonly CardState[]) {
+        this.outfitCards.clear();
+        this.outfitCards.push(...cards);
+        this.getShip().markCardTypesSeen(cards.map(card => card.type));
+    }
+
+    /** Removes an outfitting card, returning it, and discards the rest. Returns null if it isn't offered. Doesn't give it to the crew member. */
+    takeOutfitCard(cardId: number): CardState | null {
+        const card = this.outfitCards.find(card => card.id === cardId) ?? null;
+
+        if (card) {
+            this.outfitCards.clear();
+        }
+
+        return card;
+    }
 
     /** Stocks this crew member's shop with the given cards, replacing any already on offer. */
     stockShop(cards: readonly CardState[]) {
@@ -112,8 +164,14 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         this.updateOrderableCards();
     }
 
+    /** Also makes room for the first card waiting for room in the deck, if there is one, which replaces the removed card. */
     override removeDeckCard(cardId: number): CardState | null {
         const card = super.removeDeckCard(cardId);
+
+        if (card && !this.isDeckFull && this.incomingCards.length > 0) {
+            this.addDeckCard(this.incomingCards.shift()!);
+        }
+
         this.updateOrderableCards();
         return card;
     }
@@ -224,6 +282,10 @@ export class CrewSystemState extends SystemState implements CrewSystemInfo {
         this.canPlaceOrders = false;
         this.orderableCardIds.clear();
         this.deliveryCards.clear();
+
+        // The ship can't leave an outfitting station until these are chosen from, so this only tidies up after dev tools abandon an encounter.
+        // Cards waiting for room in the deck stay until they're dealt with.
+        this.outfitCards.clear();
 
         super.cleanupAfterEncounter();
     }

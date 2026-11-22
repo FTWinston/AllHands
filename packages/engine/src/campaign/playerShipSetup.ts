@@ -1,5 +1,8 @@
 import type { PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 
+/** How many cards each crew station's deck can hold on the starter ship. */
+const maxCrewDeckSize = 12;
+
 export const playerShipSetup: PlayerShipSetupInfo = {
     name: 'Ship',
     position: { x: 0, y: 0, angle: 0 },
@@ -18,21 +21,25 @@ export const playerShipSetup: PlayerShipSetupInfo = {
         cards: ['slowAndSteady', 'pivot', 'strafe', 'zigZag', 'zigZag', 'sweep', 'burn', 'lockOn'],
         maxPowerLevel: 5,
         initialHandSize: 1,
+        maxDeckSize: maxCrewDeckSize,
     },
     science: {
         cards: ['passiveScan', 'antiprotonScan', 'polaronScan', 'tetryonScan', 'coherentBeamScan', 'phasedBurstScan', 'crossReference', 'phasedChronitonScan'],
         maxPowerLevel: 5,
         initialHandSize: 1,
+        maxDeckSize: maxCrewDeckSize,
     },
     tactical: {
         numSlots: 2,
         cards: ['phaserStrip', 'phaserStrip', 'phaserCannon', 'photonTorpedo', 'efficiency', 'highYield', 'powerCell', 'acquireLock'],
         maxPowerLevel: 5,
         initialHandSize: 1,
+        maxDeckSize: maxCrewDeckSize,
     },
     engineer: {
         cards: ['juryRig', 'purge', 'focusShields', 'swapSystems', 'priorityFeed', 'trickleCharge', 'redline', 'runQuiet'],
         maxPowerLevel: 5,
         initialHandSize: 1,
+        maxDeckSize: maxCrewDeckSize,
     },
 };

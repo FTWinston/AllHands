@@ -2,6 +2,7 @@ import { getCardRarity, shopRarityWeights } from 'common-data/features/cards/uti
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
 import { CardState } from '../state/CardState';
 import type { Ship } from '../state/Ship';
+import type { CardRarity } from 'common-data/features/cards/types/CardRarity';
 import type { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import type { IRandom } from 'common-data/types/IRandom';
@@ -11,10 +12,20 @@ export const shopCardCount = 5;
 
 /**
  * Picks the different types of card a shop offers the given crew member, at random from those it can sell (see `getShopCardTypes`).
- * Rarer cards are less likely to be picked (see `shopRarityWeights`).
+ * Rarer cards are less likely to be picked (see `shopRarityWeights`), unless other weights are given. A rarity weighted 0 is never picked.
+ * Types in `exclude` aren't picked, e.g. those already offered elsewhere.
  */
-export function pickShopCardTypes(random: IRandom, role: CrewRoleName, count = shopCardCount): CardType[] {
-    const pool = getShopCardTypes(role).map(type => ({ type, weight: shopRarityWeights[getCardRarity(type)] }));
+export function pickShopCardTypes(
+    random: IRandom,
+    role: CrewRoleName,
+    count = shopCardCount,
+    weights: Readonly<Record<CardRarity, number>> = shopRarityWeights,
+    exclude: ReadonlySet<CardType> = new Set()
+): CardType[] {
+    const pool = getShopCardTypes(role)
+        .filter(type => !exclude.has(type))
+        .map(type => ({ type, weight: weights[getCardRarity(type)] }))
+        .filter(entry => entry.weight > 0);
     const picked: CardType[] = [];
 
     while (picked.length < count && pool.length > 0) {

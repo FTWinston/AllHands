@@ -9,8 +9,8 @@ import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { DEV_TOOLS_ENABLED } from 'src/devTools';
 import { CrewState } from 'src/state/CrewState';
 import { SensorGhost } from 'src/state/SensorGhost';
-import { setupGameRoom, startCampaign } from 'src/testUtils';
-import { getHostileShips } from 'src/utils/shipQueries';
+import { settleRewards, setupGameRoom, startCampaign } from 'src/testUtils';
+import { getHostileShips, getPlayerShips } from 'src/utils/shipQueries';
 import { describe, expect, it, vi } from 'vitest';
 import { startCountdownDuration, type GameRoom } from './GameRoom';
 import type { IArray } from '@colyseus/react';
@@ -63,6 +63,17 @@ async function claimAllRoles(shipOptions: object = {}) {
 }
 
 /** A ship client plus one crew client per role, so the campaign has started. */
+/** Tactical dismisses the sector intro, then the crew settles their outfitting choices and the ship warps away from the start station, onto the map. */
+async function leaveStart(room: GameRoom, state: GameRoom['state'], clients: Record<RoleName, TestClient>) {
+    await send(room, clients.tactical, 'dismissMessage');
+    expect(state.encounterKind).toBe('outfitting');
+    settleRewards(state);
+
+    // Directly, rather than by playing the card: with no scene change delay, the played card would land in the deck after it's been reset for the map.
+    expect(state.campaign!.warpAway(getPlayerShips(state)[0])).toBe(true);
+    expect(state.phase).toBe('map');
+}
+
 async function startGame(shipOptions: object = {}) {
     const { room, crewId, shipClient, clients } = await claimAllRoles(shipOptions);
 
@@ -134,19 +145,21 @@ describe('GameRoom campaign messages', () => {
             expect(state.phase).toBe('sectorIntro');
         }
 
+        // The ship docks at the sector's outfitting station.
         await send(room, clients.tactical, 'dismissMessage');
-        expect(state.phase).toBe('map');
+        expect(state.phase).toBe('encounter');
+        expect(state.encounterKind).toBe('outfitting');
 
         // Outside an intro or outro, even tactical is ignored.
         await send(room, clients.tactical, 'dismissMessage');
-        expect(state.phase).toBe('map');
+        expect(state.phase).toBe('encounter');
     });
 
     it('only helm can play a route card, and only on the map', async () => {
         const { room, state, ship, clients } = await startGame();
         const playRoute = (role: RoleName, cardId: number) => send(room, clients[role], 'playNonEncounterCard', { cardId });
 
-        await send(room, clients.tactical, 'dismissMessage');
+        await leaveStart(room, state, clients);
         const target = ship.helmState.nonEncounterCards[0];
         const targetNodeId = target.route!.nodeId;
 
@@ -166,7 +179,7 @@ describe('GameRoom campaign messages', () => {
 
     it('helm can play Warp Away only once the card exists', async () => {
         const { room, state, ship, clients } = await startGame();
-        await send(room, clients.tactical, 'dismissMessage');
+        await leaveStart(room, state, clients);
         await send(room, clients.helm, 'playNonEncounterCard', { cardId: ship.helmState.nonEncounterCards[0].id });
         expect(state.phase).toBe('encounter');
 
@@ -183,6 +196,9 @@ describe('GameRoom campaign messages', () => {
             state.campaign!.tick(0);
         }
 
+        // The salvage has to be dealt with first.
+        expect(ship.helmState.hand.some(card => card.type === 'warpAway')).toBe(false);
+        settleRewards(state);
         const warpCard = ship.helmState.hand.find(card => card.type === 'warpAway')!;
         expect(warpCard).toBeDefined();
 
@@ -193,7 +209,7 @@ describe('GameRoom campaign messages', () => {
 
     it('each crew member can re-order and sell from only their own deck at a station', async () => {
         const { room, state, ship, clients } = await startGame();
-        await send(room, clients.tactical, 'dismissMessage');
+        await leaveStart(room, state, clients);
 
         // Not at a station yet, so ignored.
         const helmOrder = ship.helmState.deck.map(card => card.id);
@@ -308,6 +324,7 @@ describe('GameRoom encounter factions', () => {
         for (const hostile of getHostileShips(state)) {
             hostile.destroy();
         }
+        settleRewards(state);
         expect(state.campaign!.warpAway(ship)).toBe(true);
 
         await vi.waitFor(() => {
@@ -347,6 +364,7 @@ describe('GameRoom viewscreen readouts', () => {
             expect(getState().hail).toMatchObject({ speaker: 'Hauler Local 12' });
         });
 
+        settleRewards(state);
         expect(state.campaign!.warpAway(ship)).toBe(true);
 
         await vi.waitFor(() => {
@@ -410,7 +428,7 @@ describe('GameRoom engineer system cards', () => {
     /** Start the game and enter the first encounter, where hands are dealt. */
     async function startEncounter() {
         const game = await startGame();
-        await send(game.room, game.clients.tactical, 'dismissMessage');
+        await leaveStart(game.room, game.state, game.clients);
         await send(game.room, game.clients.helm, 'playNonEncounterCard', { cardId: game.ship.helmState.nonEncounterCards[0].id });
         expect(game.state.phase).toBe('encounter');
         // Tile copies of each system's cards are updated as the ship ticks.
@@ -678,7 +696,7 @@ describe('GameRoom player ship destruction', () => {
 describe('GameRoom sensor ghosts', () => {
     async function startEncounter() {
         const game = await startGame();
-        await send(game.room, game.clients.tactical, 'dismissMessage');
+        await leaveStart(game.room, game.state, game.clients);
         await send(game.room, game.clients.helm, 'playNonEncounterCard', { cardId: game.ship.helmState.nonEncounterCards[0].id });
         expect(game.state.phase).toBe('encounter');
         game.ship.tick(0, game.state.currentTime);

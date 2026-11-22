@@ -13,6 +13,7 @@ import { SectorMapState } from '../state/SectorMapState';
 import { SectorMessageState } from '../state/SectorMessageState';
 import { Ship } from '../state/Ship';
 import { createRouteCards } from './campaignCards';
+import { bundleVotesNeeded, createOutfitBundles, createOutfitPicks, createSalvage } from './cardRewards';
 import { playerShipSetup } from './playerShipSetup';
 import { generateSector } from './SectorGenerator';
 import { sectorThemes, type SectorTheme } from './sectorThemes';
@@ -124,7 +125,7 @@ export class Campaign {
         }
     }
 
-    /** Tactical acknowledges the sector intro or outro message. */
+    /** Tactical acknowledges the sector intro or outro message. After the intro, the ship docks at the sector's start station, then goes on to the map. */
     dismissMessage(): boolean {
         const { phase } = this.state;
         if (this.isEnded || (phase !== 'sectorIntro' && phase !== 'sectorOutro')) {
@@ -134,7 +135,7 @@ export class Campaign {
         this.state.message = null;
 
         if (phase === 'sectorIntro') {
-            this.showMap();
+            this.dockAtStart();
         } else if (this.sectorIndex + 1 < this.themes.length) {
             this.enterSector(this.sectorIndex + 1);
         } else {
@@ -173,9 +174,12 @@ export class Campaign {
         return this.state.encounter?.outcome != null;
     }
 
-    /** Helm plays the Warp Away card, leaving the completed encounter. It ends once every player ship has warped away or been destroyed. */
+    /**
+     * Helm plays the Warp Away card, leaving the completed encounter. It ends once every player ship has warped away or been destroyed.
+     * A ship can't leave while its crew still has salvage or outfitting to settle.
+     */
     warpAway(ship: Ship): boolean {
-        if (!this.isInEncounter || !this.isEncounterOver || !(ship instanceof PlayerShip) || !this.playerShipsInEncounter.has(ship)) {
+        if (!this.isInEncounter || !this.isEncounterOver || !(ship instanceof PlayerShip) || !this.playerShipsInEncounter.has(ship) || ship.hasUnsettledRewards) {
             return false;
         }
 
@@ -243,7 +247,7 @@ export class Campaign {
             return false;
         }
 
-        system.addDeckCard(system.takeShopCard(cardId)!);
+        system.gainCard(system.takeShopCard(cardId)!);
         return true;
     }
 
@@ -302,7 +306,105 @@ export class Campaign {
             return false;
         }
 
-        system.addDeckCard(card);
+        system.gainCard(card);
+        return true;
+    }
+
+    /**
+     * The crew member choosing salvage takes one of the salvaged cards for the crew member it's for, who then chooses the next salvage.
+     * Once the salvage is settled, helm gets the Warp Away card.
+     */
+    takeSalvage(ship: PlayerShip, chooser: CrewRoleName, cardId: number): boolean {
+        const offer = ship.salvage.find(candidate => candidate.card.id === cardId);
+        if (!this.isInEncounter || !offer || ship.salvageChooser !== chooser) {
+            return false;
+        }
+
+        const { role, card } = offer;
+        ship.clearSalvage();
+        ship.lastSalvageRecipient = role;
+        // A fresh card, rather than one that was part of the salvage, which is no longer synced.
+        ship.getCrewSystem(role).gainCard(new CardState(card.id, card.type));
+        this.offerWarpAway(ship);
+        return true;
+    }
+
+    /** The crew member choosing salvage scraps all of it, for the antimatter one card would sell for. Nobody gained a card, so they choose the next salvage too. */
+    scrapSalvage(ship: PlayerShip, chooser: CrewRoleName): boolean {
+        if (!this.isInEncounter || ship.salvage.length === 0 || ship.salvageChooser !== chooser) {
+            return false;
+        }
+
+        ship.clearSalvage();
+        ship.lastSalvageRecipient = chooser;
+        ship.addAntimatter(cardSellPrice);
+        this.offerWarpAway(ship);
+        return true;
+    }
+
+    /** A crew member takes one of the cards offered to them at the first sector's outfitting station. The rest are discarded. */
+    takeOutfitCard(ship: PlayerShip, system: CrewSystemState, cardId: number): boolean {
+        if (!this.isAtStation) {
+            return false;
+        }
+
+        const card = system.takeOutfitCard(cardId);
+        if (!card) {
+            return false;
+        }
+
+        system.gainCard(card);
+        this.offerWarpAway(ship);
+        return true;
+    }
+
+    /**
+     * A crew member votes for one of the bundles offered at an outfitting station, replacing any earlier vote.
+     * Once enough crew vote for the same bundle (see `bundleVotesNeeded`), each crew member gains its card for them.
+     */
+    voteBundle(ship: PlayerShip, role: CrewRoleName, bundleIndex: number): boolean {
+        if (!this.isAtStation || !Number.isInteger(bundleIndex) || bundleIndex < 0 || bundleIndex >= ship.outfitBundles.length) {
+            return false;
+        }
+
+        ship.bundleVotes.set(role, bundleIndex);
+
+        const votes = [...ship.bundleVotes.values()].filter(vote => vote === bundleIndex).length;
+        if (votes >= bundleVotesNeeded) {
+            // Fresh cards, rather than ones that were part of the bundle, which is no longer synced.
+            const cards = ship.outfitBundles[bundleIndex].cards.map(offer => ({ role: offer.role, card: new CardState(offer.card.id, offer.card.type) }));
+            ship.clearOutfitBundles();
+
+            for (const { role: recipient, card } of cards) {
+                ship.getCrewSystem(recipient).gainCard(card);
+            }
+
+            this.offerWarpAway(ship);
+        }
+
+        return true;
+    }
+
+    /**
+     * A crew member whose deck is full replaces one of its cards with the first card waiting for room, outside an encounter.
+     * The replaced card is sold, for the usual price.
+     */
+    replaceDeckCard(ship: PlayerShip, system: CrewSystemState, cardId: number): boolean {
+        if (this.isSimulatingSystems || system.incomingCards.length === 0 || !system.removeDeckCard(cardId)) {
+            return false;
+        }
+
+        ship.addAntimatter(cardSellPrice);
+        return true;
+    }
+
+    /** A crew member whose deck is full discards the first card waiting for room instead, outside an encounter. It's sold, for the usual price. */
+    discardIncomingCard(ship: PlayerShip, system: CrewSystemState): boolean {
+        if (this.isSimulatingSystems || !system.discardIncomingCard()) {
+            return false;
+        }
+
+        ship.addAntimatter(cardSellPrice);
         return true;
     }
 
@@ -334,6 +436,17 @@ export class Campaign {
         this.state.phase = 'sectorIntro';
     }
 
+    /** Every sector starts at an outfitting station, where the crew gains new cards before setting off (see `offerOutfitting`). */
+    private dockAtStart(): void {
+        const start = this.sector!.nodes.find(node => node.id === this.state.map!.startNodeId)!;
+
+        this.state.changeScene('travel', () => {
+            if (!this.isEnded) {
+                this.startEncounter(start);
+            }
+        });
+    }
+
     private enterOutro(): void {
         const sector = this.sector!;
         this.state.message = new SectorMessageState({ kind: 'outro', title: sector.name, text: sector.outroMessage });
@@ -349,8 +462,13 @@ export class Campaign {
         this.state.gameStatus = 'ended';
 
         for (const ship of getPlayerShips(this.state)) {
+            ship.clearSalvage();
+            ship.clearOutfitBundles();
+
             for (const role of crewRoleNames) {
-                ship.getCrewSystem(role).pendingOrder = null;
+                const system = ship.getCrewSystem(role);
+                system.pendingOrder = null;
+                system.outfitCards.clear();
             }
         }
     }
@@ -395,6 +513,13 @@ export class Campaign {
         this.encounter = createEncounter(this.state, node);
         this.state.phase = 'encounter';
 
+        // Before starting, as a station completes immediately, and the ship can't leave until the crew has chosen their cards.
+        if (node.kind === 'outfitting') {
+            for (const ship of this.playerShipsInEncounter) {
+                this.offerOutfitting(ship);
+            }
+        }
+
         const { node: encounterNode } = this.encounter;
         const summary = new EncounterSummaryState(encounterNode.encounterId, encounterNode.name);
         summary.environment = encounterNode.environment;
@@ -417,6 +542,36 @@ export class Campaign {
     }
 
     /**
+     * At the first sector's outfitting station, each crew member chooses one of a few cards for themselves.
+     * After that, the crew chooses one of a few bundles together, each holding a card for every crew member.
+     */
+    private offerOutfitting(ship: PlayerShip): void {
+        if (this.sectorIndex <= 0) {
+            for (const role of crewRoleNames) {
+                ship.getCrewSystem(role).offerOutfitCards(createOutfitPicks(this.state.random, ship, role));
+            }
+        } else {
+            ship.offerOutfitBundles(createOutfitBundles(this.state.random, ship));
+        }
+    }
+
+    /**
+     * Each player ship still in a fight whose objective was met salvages a card for each crew member but the one who received the last salvage,
+     * who chooses which one the ship takes. The first salvage of the game is chosen by a random crew member.
+     */
+    private offerSalvage(): void {
+        const node = this.encounter?.node;
+        if (this.encounter?.outcome !== 'success' || node?.kind !== 'combat') {
+            return;
+        }
+
+        for (const ship of this.playerShipsInEncounter) {
+            const chooser = ship.lastSalvageRecipient ?? this.state.random.pick(crewRoleNames);
+            ship.offerSalvage(chooser, createSalvage(this.state.random, ship, chooser, node.elite === true));
+        }
+    }
+
+    /**
      * Each player ship still in an encounter whose objective was met earns antimatter, according to the kind of node it was (see `antimatterRewards`),
      * scaled by its score if it grades its outcome. A failed objective earns nothing.
      */
@@ -434,7 +589,7 @@ export class Campaign {
 
     /**
      * Once the objective is met or failed, every helm gets an expendable Warp Away card in its hand: leaving is how either one ends.
-     * Stations are complete on arrival.
+     * A fight whose objective was met offers salvage first, and helm only gets the card once that's settled. Stations are complete on arrival.
      */
     private concludeEncounter(): void {
         if (!this.state.encounter || !this.encounter || this.isEncounterOver) {
@@ -443,15 +598,19 @@ export class Campaign {
 
         this.state.encounter.outcome = this.encounter.outcome;
         this.state.encounterOutcome = this.encounter.outcome;
+        this.offerSalvage();
 
         for (const ship of this.playerShipsInEncounter) {
             this.offerWarpAway(ship);
         }
     }
 
-    /** Gives the ship's helm an expendable Warp Away card, if the encounter is over and they don't already have one. */
+    /**
+     * Gives the ship's helm an expendable Warp Away card, if the encounter is over and they don't already have one.
+     * Not until the crew has settled any salvage or outfitting choice, though.
+     */
     private offerWarpAway(ship: PlayerShip): void {
-        if (!this.isEncounterOver || !this.playerShipsInEncounter.has(ship) || ship.helmState.hand.some(card => card.type === 'warpAway')) {
+        if (!this.isEncounterOver || !this.playerShipsInEncounter.has(ship) || ship.hasUnsettledRewards || ship.helmState.hand.some(card => card.type === 'warpAway')) {
             return;
         }
 
