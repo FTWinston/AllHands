@@ -22,7 +22,7 @@ Each station starts with 8 cards, and a system's maximum health is its card coun
 |---|---|---|
 | Helm | Slow & Steady, Face Target, Strafe, Zig-zag × 2, Sweep, Burn, Hold Steady | Gun Platform (Hold Steady) and Slipstream (Burn) |
 | Tactical | Phaser Strip × 2, Phaser Cannon, Photon Torpedo, Efficiency, High Yield, Power Cell, Acquire Lock | Gun Line (Power Cell) and Alpha Strike (Acquire Lock) |
-| Science | Passive Scan, Antiproton Scan, Polaron Scan, Tetryon Scan, Coherent Beam Scan, Phased Burst Scan, Cross-reference, Graviton Scan | Analyst (Cross-reference) and Catalyst (Graviton Scan) |
+| Science | Passive Scan, Antiproton Scan, Polaron Scan, Tetryon Scan, Coherent Beam Scan, Phased Burst Scan, Cross-reference, Phased Chroniton Scan | Analyst (Cross-reference) and Catalyst (Phased Chroniton Scan) |
 | Engineer | Jury-rig, Purge, Focus Shields, Swap Systems, Priority Feed, Trickle Charge, Redline, Run Quiet | Reserve (Trickle Charge, Run Quiet) and Redline (Redline) |
 
 ## Engineer
@@ -209,11 +209,11 @@ Existing cards that fit: Passive Scan, Coherent Beam Scan, Inverted Pulse Scan, 
 
 ### Catalyst (built)
 
-The particle effects are the ones scan cards leave on a system: Antiproton Residue, Tetryon Saturation, Chroniton Saturation, Polaron Bombardment and Graviton Drag.
+The particle effects are the ones that scan cards and the deflector leave on a system: Antiproton Residue, Tetryon Saturation, Chroniton Saturation, Polaron Bombardment, Graviton Drag and Chroniton Echo.
 
 | Card | Kind | Effect |
 |---|---|---|
-| Graviton Scan | Builder | A scan card: revealing a system slows the target ship's manoeuvres for 10s. |
+| Phased Chroniton Scan | Builder | A scan card: revealing a system leaves a Chroniton Echo on it, a particle effect that starts the time over on every particle effect on the system after 5s, unless it's cut short first. |
 | Half-life | Builder | For 15s, particle effects on the system being scanned don't run down. |
 | Saturate | Builder | Double the level of the strongest particle effect on the system being scanned. |
 | Catalyse | Payoff | Remove every particle effect from the system being scanned. It takes damage for each one removed. |
@@ -260,6 +260,6 @@ A few, not many: about a third of a deck should be better when someone else acts
 | Helm: Slipstream | Tactical: Gun Line | Wide arcs and cheap shots suit a ship that never stops. |
 | Engineer: Reserve | Tactical: Alpha Strike | Discharge on tactical pays for the cards the volley needs. |
 | Engineer: Redline | Helm: Slipstream | Both are living on borrowed time, and Hot Start keeps manoeuvres coming. |
-| Science: Catalyst | Tactical: Saboteur | Exploit counts the particles science has left behind, and Graviton Scan and Tractor Beam both slow the same ship. |
+| Science: Catalyst | Tactical: Saboteur | Exploit counts the particles science has left behind, and Phased Chroniton Scan keeps them there for longer. |
 | Science: Analyst | Helm: Gun Platform | Predictive Model covers the evasion that Hold Steady gives up. |
 | Science: Ghost | Engineer: Reserve | Passive Listen and Run Quiet are the same plan. |

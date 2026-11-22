@@ -64,8 +64,6 @@ export const getTraitDescription = (trait: DisplayableTrait): string => {
             return 'When slotted into the deflector, its effect drains shields from affected ships.';
         case 'Chroniton':
             return 'When slotted into the deflector, its effect slows actions of affected ships.';
-        case 'Graviton':
-            return 'When slotted into the deflector, its effect pushes or pulls affected objects.';
         case 'Polaron':
             return 'When slotted into the deflector, its effect drains power from the systems of affected ships.';
         case 'Beam':

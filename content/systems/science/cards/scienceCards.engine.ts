@@ -261,19 +261,17 @@ export const cards = defineEngineCards(sharedCards, {
             return true;
         },
     },
-    gravitonScan: {
-        synergy: { provides: ['particles'] },
+    phasedChronitonScan: {
+        synergy: { provides: ['particles'], wants: ['particles'] },
         aiEvaluator: scanEvaluator,
         load: () => {
             return true;
         },
-        revealSystem: (_gameState, ship, target, targetSystem, parameters) => {
+        revealSystem: (_gameState, ship, target, targetSystem, _parameters) => {
             ship.scienceState.subscribeToSystem(target, targetSystem);
 
-            // Whichever system is revealed, it's the target's helm that is slowed. Scanning again starts the time over.
-            const helm = target.helmState;
-            helm.removeEffect('gravitonDrag', 'early');
-            helm.adjustEffectLevel('gravitonDrag', parameters.effectLevel);
+            // Revealing the system again before it echoes starts its time over, as adding an effect that's already there does.
+            target.getSystem(targetSystem).addEffect('chronitonEcho');
             return true;
         },
         findVulnerability: (_gameState, ship, target, targetSystem, _parameters) => {

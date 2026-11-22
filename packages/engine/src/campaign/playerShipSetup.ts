@@ -20,7 +20,7 @@ export const playerShipSetup: PlayerShipSetupInfo = {
         initialHandSize: 1,
     },
     science: {
-        cards: ['passiveScan', 'antiprotonScan', 'polaronScan', 'tetryonScan', 'coherentBeamScan', 'phasedBurstScan', 'crossReference', 'gravitonScan'],
+        cards: ['passiveScan', 'antiprotonScan', 'polaronScan', 'tetryonScan', 'coherentBeamScan', 'phasedBurstScan', 'crossReference', 'phasedChronitonScan'],
         maxPowerLevel: 5,
         initialHandSize: 1,
     },

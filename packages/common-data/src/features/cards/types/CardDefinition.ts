@@ -60,8 +60,7 @@ export type AssignableDeflectorEffectDelivery = Exclude<DeflectorEffectDelivery,
 export type ScanTargetCardDefinition = CommonCardDefinition & {
     targetType: 'scan';
     deflectorModifier?: AssignableDeflectorEffectModifier;
-    // Graviton is what an empty substance slot gives, but a card can carry it too.
-    deflectorSubstance?: DeflectorEffectSubstance;
+    deflectorSubstance?: AssignableDeflectorEffectSubstance;
     deflectorDelivery?: AssignableDeflectorEffectDelivery;
 };
 

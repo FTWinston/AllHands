@@ -144,17 +144,14 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
-    gravitonScan: {
-        name: 'Graviton Scan',
+    phasedChronitonScan: {
+        name: 'Phased Chroniton Scan',
         description: <>
-            Scanning a system makes manoeuvres the target ship starts
+            Scanning a system leaves a particle effect that, after
             {' '}
-            <Parameter name="effectLevel" />
-            % slower, for
+            <Parameter name="delay" />
             {' '}
-            <Parameter name="duration" />
-            {' '}
-            seconds.
+            seconds, starts the time over on every particle effect on the system.
         </>,
         image: <ExampleIcon />,
     },

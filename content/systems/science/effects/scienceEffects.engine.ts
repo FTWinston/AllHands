@@ -1,6 +1,7 @@
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/powerLevel';
 import { defineEngineEffects } from 'engine/content/EngineContent';
 import { effects as sharedEffects, particleEffects, type ParticleEffect } from './scienceEffects.shared';
+import type { SystemEffectFunctionality } from 'engine/effects/EngineSystemEffectDefinition';
 import type { EngineerSystemTile } from 'engine/state/systems/engineer/EngineerSystemTile';
 
 export const effects = defineEngineEffects(sharedEffects, {
@@ -107,17 +108,14 @@ export const effects = defineEngineEffects(sharedEffects, {
         apply: system => system.system === 'science',
         remove: () => {},
     },
-    gravitonDrag: {
-        // Every maneuver the ship starts is slower by level percent (see `applyMotionCard`).
-        apply: (system, level) => {
-            system.systemState.getShip().helmState.maneuverSpeedModifier -= level;
-            return true;
-        },
-        remove: (system, _removal, level) => {
-            system.systemState.getShip().helmState.maneuverSpeedModifier += level;
-        },
-        onLevelChanged: (system, newLevel, oldLevel) => {
-            system.systemState.getShip().helmState.maneuverSpeedModifier -= newLevel - oldLevel;
+    gravitonDrag: createManeuverSpeedEffect(-1),
+    chronitonEcho: {
+        // Nothing happens until it runs its time. Cut short, such as by Catalyse, it does nothing at all.
+        apply: () => true,
+        remove: (system, removal) => {
+            if (removal === 'expired') {
+                restartParticleEffects(system);
+            }
         },
     },
     halfLife: {
@@ -195,20 +193,24 @@ export const effects = defineEngineEffects(sharedEffects, {
             system.adjustSystemPowerLevel(newLevel - oldLevel);
         },
     },
-    gravitonLift: {
-        // Every maneuver the ship starts is faster by level percent (see `applyMotionCard`).
+    gravitonLift: createManeuverSpeedEffect(1),
+});
+
+/** An effect that makes every maneuver the ship starts faster (direction 1) or slower (direction -1) by level percent (see `applyMotionCard`). */
+function createManeuverSpeedEffect(direction: 1 | -1): SystemEffectFunctionality {
+    return {
         apply: (system, level) => {
-            system.systemState.getShip().helmState.maneuverSpeedModifier += level;
+            system.systemState.getShip().helmState.maneuverSpeedModifier += level * direction;
             return true;
         },
         remove: (system, _removal, level) => {
-            system.systemState.getShip().helmState.maneuverSpeedModifier -= level;
+            system.systemState.getShip().helmState.maneuverSpeedModifier -= level * direction;
         },
         onLevelChanged: (system, newLevel, oldLevel) => {
-            system.systemState.getShip().helmState.maneuverSpeedModifier += newLevel - oldLevel;
+            system.systemState.getShip().helmState.maneuverSpeedModifier += (newLevel - oldLevel) * direction;
         },
-    },
-});
+    };
+}
 
 /** When each system under a Half-life last had its particle effects' time put back. */
 const particlesHeldSince = new WeakMap<EngineerSystemTile, number>();
@@ -225,6 +227,21 @@ function holdParticleEffects(system: EngineerSystemTile) {
             effect.progress.endTime += elapsed;
         }
     }
+}
+
+/** Start the time over on every particle effect on a system, so each has as long left as it had when it began. */
+function restartParticleEffects(system: EngineerSystemTile) {
+    const currentTime = system.systemState.getGameState().currentTime;
+
+    for (const effect of system.effects) {
+        if (effect.progress && isParticleEffect(effect.type)) {
+            const duration = effect.progress.endTime - effect.progress.startTime;
+            effect.progress.startTime = currentTime;
+            effect.progress.endTime = currentTime + duration;
+        }
+    }
+
+    system.scienceScanDataChanged.invoke();
 }
 
 function isParticleEffect(effectType: string): effectType is ParticleEffect {

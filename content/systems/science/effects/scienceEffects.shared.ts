@@ -56,6 +56,12 @@ export const effects = defineEffects({
         maxLevel: 75,
         duration: 10_000,
     },
+    // Left by Phased Chroniton Scan. When it runs its time, every particle effect on the same system starts its time over. Cut short, it does nothing.
+    chronitonEcho: {
+        category: SystemEffectCategory.Negative,
+        usesLevels: false,
+        duration: 5_000,
+    },
     // Stops the time running down on the particle effects that are on the same system.
     halfLife: {
         category: SystemEffectCategory.Negative,
@@ -103,13 +109,14 @@ export const effects = defineEffects({
     },
 });
 
-/** The effects that scan cards leave on the systems of the ships they scan, which the Catalyst cards work with. */
+/** The effects that scan cards and the deflector leave on the systems of the ships they hit, which the Catalyst cards work with. */
 export const particleEffects = [
     'antiprotonResidue',
     'tetryonSaturation',
     'chronitonSaturation',
     'polaronBombardment',
     'gravitonDrag',
+    'chronitonEcho',
 ] as const satisfies readonly (keyof typeof effects)[];
 
 export type ParticleEffect = typeof particleEffects[number];

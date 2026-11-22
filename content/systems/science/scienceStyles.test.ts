@@ -270,45 +270,83 @@ describe('Predictive Model', () => {
     });
 });
 
-describe('Graviton Scan', () => {
-    it('carries the graviton substance for the deflector', () => {
-        expect(getCardDefinition('gravitonScan')).toMatchObject({ targetType: 'scan', deflectorSubstance: 'Graviton' });
+describe('Phased Chroniton Scan', () => {
+    it('carries the phased modifier and chroniton substance for the deflector', () => {
+        expect(getCardDefinition('phasedChronitonScan')).toMatchObject({ targetType: 'scan', deflectorModifier: 'Phased', deflectorSubstance: 'Chroniton' });
     });
 
-    it('slows the manoeuvres of the ship whose system it reveals, whichever system that is, for 10 seconds', () => {
-        const { target, reveal, tile, wait } = createWorld();
+    it('starts the time over on the particle effects of the system it reveals, 5 seconds later', () => {
+        const { target, reveal, timeLeft, wait } = createWorld();
+        target.tacticalState.adjustEffectLevel('tetryonSaturation', 30);
+        target.helmState.adjustEffectLevel('tetryonSaturation', 30);
+        wait(2_000);
 
-        expect(reveal('tactical', 'gravitonScan')).toBe(true);
+        expect(reveal('tactical', 'phasedChronitonScan')).toBe(true);
+        expect(timeLeft('tactical', 'chronitonEcho')).toBe(5_000);
 
-        expect(tile(target, 'helm').getEffectLevel('gravitonDrag')).toBe(40);
-        expect(target.helmState.maneuverSpeedModifier).toBe(-40);
-        expect(target.helmState.maneuverSpeedMultiplier).toBeCloseTo(0.6);
-
-        wait(9_750);
-        expect(target.helmState.maneuverSpeedModifier).toBe(-40);
+        wait(4_750);
+        expect(timeLeft('tactical', 'tetryonSaturation')).toBe(1_250);
 
         wait(250);
-        expect(target.helmState.maneuverSpeedModifier).toBe(0);
+        expect(target.tacticalState.hasEffect('chronitonEcho')).toBe(false);
+        expect(timeLeft('tactical', 'tetryonSaturation')).toBe(effects.tetryonSaturation.duration);
+
+        // Other systems' particle effects are left to run down.
+        wait(1_000);
+        expect(target.helmState.hasEffect('tetryonSaturation')).toBe(false);
+        expect(timeLeft('tactical', 'tetryonSaturation')).toBe(effects.tetryonSaturation.duration - 1_000);
     });
 
-    it('starts its time over when another reveals a system, without adding up', () => {
+    it('gives each particle effect as long as it had to begin with, and leaves effects that aren\'t particle effects alone', () => {
         const { target, reveal, timeLeft, wait } = createWorld();
-        reveal('tactical', 'gravitonScan');
-        wait(6_000);
+        const tactical = target.tacticalState;
+        tactical.adjustEffectLevel('antiprotonResidue', 25);
+        tactical.addEffect('polaronAccumulation');
+        reveal('tactical', 'phasedChronitonScan');
 
-        reveal('helm', 'gravitonScan');
+        wait(5_000);
 
-        expect(target.helmState.maneuverSpeedModifier).toBe(-40);
-        expect(timeLeft('helm', 'gravitonDrag')).toBe(10_000);
+        expect(timeLeft('tactical', 'antiprotonResidue')).toBe(effects.antiprotonResidue.duration);
+        expect(timeLeft('tactical', 'polaronAccumulation')).toBe(effects.polaronAccumulation.duration - 5_000);
     });
 
-    it('doesn\'t slow the ship when it finds a vulnerability', () => {
+    it('does nothing when cut short', () => {
+        const { target, reveal, timeLeft, wait } = createWorld();
+        target.tacticalState.adjustEffectLevel('antiprotonResidue', 25);
+        reveal('tactical', 'phasedChronitonScan');
+        wait(2_000);
+
+        target.tacticalState.removeEffect('chronitonEcho', 'early');
+        wait(3_000);
+
+        expect(timeLeft('tactical', 'antiprotonResidue')).toBe(effects.antiprotonResidue.duration - 5_000);
+    });
+
+    it('is a particle effect itself, so counts towards Cross-reaction', () => {
+        const { target, reveal, play } = createWorld();
+        target.tacticalState.adjustEffectLevel('antiprotonResidue', 25);
+        reveal('tactical', 'phasedChronitonScan');
+
+        expect(play('crossReaction')).toBe(true);
+    });
+
+    it('starts its own time over when it reveals the system again', () => {
+        const { reveal, timeLeft, wait } = createWorld();
+        reveal('tactical', 'phasedChronitonScan');
+        wait(3_000);
+
+        reveal('tactical', 'phasedChronitonScan');
+
+        expect(timeLeft('tactical', 'chronitonEcho')).toBe(5_000);
+    });
+
+    it('doesn\'t leave an echo when it finds a vulnerability', () => {
         const { target, play, reveal } = createWorld();
         reveal('helm');
 
-        play('gravitonScan', 'scan', `vuln/${target.id}/helm`);
+        play('phasedChronitonScan', 'scan', `vuln/${target.id}/helm`);
 
-        expect(target.helmState.maneuverSpeedModifier).toBe(0);
+        expect(target.helmState.hasEffect('chronitonEcho')).toBe(false);
     });
 });
 
@@ -495,7 +533,7 @@ describe('Saturate', () => {
 });
 
 describe('the new science cards', () => {
-    it.each(['deepScan', 'gravitonScan', 'eureka', 'predictiveModel', 'catalyse', 'halfLife', 'crossReaction', 'saturate'] as const)('can be bought as %s at a shop', (type) => {
+    it.each(['deepScan', 'phasedChronitonScan', 'eureka', 'predictiveModel', 'catalyse', 'halfLife', 'crossReaction', 'saturate'] as const)('can be bought as %s at a shop', (type) => {
         expect(getShopCardTypes('science')).toContain(type);
     });
 });

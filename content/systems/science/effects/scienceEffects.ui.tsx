@@ -93,6 +93,13 @@ export const effects = defineUiEffects(sharedEffects, {
         </>,
         image: ExampleIcon,
     },
+    chronitonEcho: {
+        name: 'Chroniton Echo',
+        description: <>
+            Phased chronitons from enemy sensors are echoing through this system. When this runs out, every particle effect on the system starts its time over.
+        </>,
+        image: ExampleIcon,
+    },
     halfLife: {
         name: 'Half-life',
         description: <>

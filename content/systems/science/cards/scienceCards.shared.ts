@@ -140,15 +140,15 @@ export const cards = defineCards({
             cost: 3,
         },
     },
-    gravitonScan: {
+    phasedChronitonScan: {
         targetType: 'scan',
         system: 'science',
         parameters: {
-            cost: 2,
-            effectLevel: 40,
-            duration: effects.gravitonDrag.duration / 1000,
+            cost: 3,
+            delay: effects.chronitonEcho.duration / 1000,
         },
-        deflectorSubstance: 'Graviton',
+        deflectorModifier: 'Phased',
+        deflectorSubstance: 'Chroniton',
     },
     crossReference: {
         targetType: 'scan',
