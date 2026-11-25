@@ -11,8 +11,10 @@ import { ToggleButton } from 'common-ui/components/ToggleButton';
 import { getCardDefinition } from 'common-ui/features/cards/utils/getUiCardDefinition';
 import { getSystemEffectDefinition } from 'common-ui/utils/getUiSystemEffectDefinition';
 import { FC, useEffect, useState } from 'react';
+import { CardRangeList } from './CardRangeList';
 import styles from './DevToolsDisplay.module.css';
 import { EncounterSelector } from './EncounterSelector';
+import type { CardRangeInfo } from 'common-data/features/cards/types/CardRangeInfo';
 import type { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
 
 type Props = {
@@ -29,6 +31,10 @@ type Props = {
     encounters: readonly DevEncounterInfo[];
     /** Starts the encounter standalone, in its elite form if asked for. */
     loadEncounter: (encounterId: string, elite: boolean) => void;
+    /** What the server says of the card range, for trying out every card in turn. */
+    cardRange: CardRangeInfo | null;
+    /** Loads the card range, to try out this card. */
+    goToCard: (cardType: CardType) => void;
     /** In the lobby there are no ships yet, so only the encounter selector is offered. */
     inLobby?: boolean;
 };
@@ -147,6 +153,15 @@ export const DevToolsDisplay: FC<Props> = (props) => {
                     tabs={[
                         { id: 'ship', label: 'Ship', content: shipTools },
                         { id: 'encounters', label: 'Encounters', content: encounterSelector },
+                        { id: 'cardRange', label: 'Card Range', content: (
+                            <CardRangeList
+                                info={props.cardRange}
+                                go={(cardType) => {
+                                    props.goToCard(cardType);
+                                    props.setOpen(false);
+                                }}
+                            />
+                        ) },
                     ]}
                 />
             )}

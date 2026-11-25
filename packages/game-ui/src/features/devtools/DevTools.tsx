@@ -6,7 +6,10 @@ import { SystemEffectType } from 'common-data/features/ships/utils/systemEffectD
 import { Button } from 'common-ui/components/Button';
 import { GameState } from 'engine/state/GameState';
 import { FC, useCallback, useEffect, useState } from 'react';
+import { CardRangeBar } from './components/CardRangeBar';
 import { DevToolsDisplay } from './components/DevToolsDisplay';
+import { useCardRange } from './hooks/useCardRange';
+import type { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import type { DevEncounterInfo } from 'common-data/features/sectors/types/DevEncounterInfo';
 
 type Props = {
@@ -44,6 +47,12 @@ export const DevTools: FC<Props> = ({ room, encounters, inLobby, paused }) => {
     const loadEncounter = useCallback((encounterId: EncounterId, elite: boolean) => {
         room?.send('devLoadEncounter', { encounterId, elite });
     }, [room]);
+
+    const [cardRange, sendCardRange] = useCardRange(room);
+
+    const goToCard = useCallback((cardType: CardType) => {
+        sendCardRange({ action: 'go', cardType });
+    }, [sendCardRange]);
 
     const [showTools, setShowTools] = useState(false);
     const [serverTimeScale, setServerTimeScale] = useState(1);
@@ -94,6 +103,10 @@ export const DevTools: FC<Props> = ({ room, encounters, inLobby, paused }) => {
                 </div>
             )}
 
+            {cardRange?.active && !inLobby && (
+                <CardRangeBar info={cardRange} send={sendCardRange} />
+            )}
+
             {showTools && (
                 <DevToolsDisplay
                     isOpen={showTools}
@@ -107,6 +120,8 @@ export const DevTools: FC<Props> = ({ room, encounters, inLobby, paused }) => {
                     setAutoWin={setAutoWin}
                     encounters={encounters}
                     loadEncounter={loadEncounter}
+                    cardRange={cardRange}
+                    goToCard={goToCard}
                     inLobby={inLobby}
                 />
             )}

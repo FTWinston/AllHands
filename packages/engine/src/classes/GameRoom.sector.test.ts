@@ -1,3 +1,6 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { getHailDuration } from 'common-data/features/sectors/types/HailInfo';
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
@@ -19,6 +22,9 @@ import type { ColyseusTestServer } from '@colyseus/testing';
 import type { EngineWeaponSlotCardDefinition } from 'src/cards/EngineCardDefinition';
 import type { PlayerShip } from 'src/state/PlayerShip';
 import type { HullSystemTile } from 'src/state/systems/engineer/HullSystemTile';
+
+// With dev tools, each room keeps the card range's progress in a file, which mustn't be the repository's own.
+process.env.CARD_RANGE_FILE = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'card-range-')), 'card-range.json');
 
 const rooms = setupGameRoom();
 
@@ -280,6 +286,41 @@ describe('GameRoom campaign messages', () => {
 
             await send(room, shipClient, 'devLoadEncounter', { encounterId: 'bogus' });
             expect(room.state.encounter?.encounterId).toBe('assault');
+        });
+
+        it('starts straight away, in the encounter that DEV_START names, once every role is claimed', async () => {
+            Object.assign(rooms.getRoom(), { devStart: 'skirmish:elite' });
+            const { room } = await claimAllRoles();
+
+            expect(room.state.gameStatus).toBe('active');
+            expect(room.state.encounter?.encounterId).toBe('skirmish');
+            expect(room.state.campaign?.activeEncounter?.node.elite).toBe(true);
+        });
+
+        it('starts on the card range at the card that DEV_START names, which the dev client can then step through', async () => {
+            Object.assign(rooms.getRoom(), { devStart: 'cardRange:phaserCannon' });
+            const { room, crewId, shipClient } = await claimAllRoles();
+            const ship = room.state.crews.get(crewId)!.ship!;
+
+            expect(room.state.encounter?.encounterId).toBe('cardRange');
+            expect(ship.tacticalState.hand.some(card => card.type === 'phaserCannon')).toBe(true);
+
+            const infos: { active: boolean; currentIndex: number; cards: { type: string }[] }[] = [];
+            shipClient.onMessage('cardRange', info => infos.push(info));
+
+            // The info sent on starting may arrive after this is listening, so go by the latest.
+            const currentCard = () => {
+                const info = infos.at(-1);
+                return info?.cards[info.currentIndex].type;
+            };
+
+            await send(room, shipClient, 'devCardRange', { action: 'step', delta: 1 });
+            await vi.waitFor(() => expect(currentCard()).toBeDefined());
+            await vi.waitFor(() => expect(currentCard()).not.toBe('phaserCannon'));
+            expect(infos.at(-1)!.active).toBe(true);
+
+            await send(room, shipClient, 'devLoadEncounter', { encounterId: 'skirmish' });
+            await vi.waitFor(() => expect(infos.at(-1)?.active).toBe(false));
         });
     } else {
         it('dev client cannot start encounters from the lobby', async () => {

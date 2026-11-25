@@ -1,0 +1,36 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+.summary code {
+    font-size: 0.85em;
+    word-break: break-all;
+}
+
+.groupHeader {
+    margin-bottom: 0.5em;
+    text-transform: capitalize;
+}
+
+.list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+}
+
+.card {
+    font-size: 0.85em;
+}
+
+.current {
+    outline: 2px solid white;
+}
+
+.status {
+    margin-left: 0.4em;
+    opacity: 0.85;
+}

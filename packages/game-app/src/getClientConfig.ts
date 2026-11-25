@@ -20,6 +20,8 @@ export function getClientConfig(): ClientConfig {
     const clientConfig: ClientConfig = {
         ...clientDefaults,
         ...clientConfigFromFile,
+        // Only acted on by a game-ui built with dev tools.
+        ...(process.env.DEV_START && { autoHost: true }),
     };
     return clientConfig;
 }

@@ -42,9 +42,13 @@ export function getServerConfig() {
         timeScale: 1,
     };
 
+    // Only acted on by an engine built with dev tools.
+    const devStart = process.env.DEV_START;
+
     const serverConfig: ServerConfig = {
         ...serverDefaults,
         ...serverConfigFromFile,
+        ...(devStart && { devStart }),
     };
 
     return serverConfig;

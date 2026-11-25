@@ -671,6 +671,7 @@ export class Campaign {
 
     /** Ends the running encounter: removes the warp cards and every non-player object, and resets the player ships' card state. */
     private teardownEncounter(): void {
+        this.encounter?.end();
         this.playerShipsInEncounter.clear();
         this.clearEncounterState();
 

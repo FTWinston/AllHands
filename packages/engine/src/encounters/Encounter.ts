@@ -106,6 +106,12 @@ export abstract class Encounter {
         this.populate();
     }
 
+    /**
+     * Called by the campaign as the encounter is torn down, before its objects are removed and the player ships' cards are put back.
+     * An encounter that changed the player ships in a way that would outlast it, beyond what's cleaned up after every encounter, puts that right here.
+     */
+    end(): void {}
+
     /** Dev tools: starts the encounter as though its objective had already been met, without spawning anything. */
     startComplete(): void {
         this.complete();
