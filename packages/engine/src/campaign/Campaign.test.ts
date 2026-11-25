@@ -3,6 +3,7 @@ import { isCrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import { antimatterRewards, baseOrderPrice, cardSellPrice, getAntimatterReward, getOrderPrice, getShopCardPrice, minDeckSize, shopCardPrices } from 'common-data/features/ships/utils/antimatter';
 import { boardingMs, QuarantineGateEncounter } from 'content/sectors/sector1/quarantineGate/quarantineGate.engine';
 import { relayScenarioId } from 'content/sectors/sector1/quietRunning/QuietRunningEncounter.engine';
+import { marrowScenarioId, SlowBoatEncounter } from 'content/sectors/sector1/slowBoat/SlowBoatEncounter.engine';
 import { CardState } from 'src/state/CardState';
 import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { PlayerShip } from 'src/state/PlayerShip';
@@ -14,6 +15,8 @@ import { playerShipSetup } from './playerShipSetup';
 import { sectorThemes } from './sectorThemes';
 import { shopCardCount } from './stationShop';
 import { deliveryCardCount } from './workOrders';
+import type { Vector2D } from 'common-data/features/space/types/Vector2D';
+import type { AiShip } from 'src/state/AiShip';
 import type { GameState } from 'src/state/GameState';
 import type { HullSystemTile } from 'src/state/systems/engineer/HullSystemTile';
 
@@ -38,6 +41,18 @@ function openQuarantineGate(state: GameState, encounter: QuarantineGateEncounter
     state.campaign!.tick(0);
     state.currentTime += boardingMs;
     state.campaign!.tick(0);
+}
+
+/** Flies Slow Boat's clinic ship along its route to its jump point, as if the crew had kept it safe all the way. */
+function escortMarrow(state: GameState, encounter: SlowBoatEncounter) {
+    const marrow = state.getObjectByScenarioId(marrowScenarioId) as AiShip;
+
+    for (const point of (encounter as unknown as { waypoints: Vector2D[] }).waypoints) {
+        marrow.motion.clear();
+        marrow.motion.push(new MotionKeyframe(state.currentTime, point.x, point.y, 0));
+        marrow.ai.commander.update(marrow.ai.blackboard, state.currentTime);
+        state.campaign!.tick(0);
+    }
 }
 
 function createCampaign(shipCount = 1, seed = 11) {
@@ -70,6 +85,11 @@ function completeEncounter(state: GameState) {
             state.campaign!.tick(0);
             break;
         }
+        case 'protect':
+            if (encounter instanceof SlowBoatEncounter) {
+                escortMarrow(state, encounter);
+            }
+            break;
         default:
             if (encounter instanceof QuarantineGateEncounter) {
                 openQuarantineGate(state, encounter);

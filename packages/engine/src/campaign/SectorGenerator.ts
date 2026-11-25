@@ -3,7 +3,7 @@ import { getEncounterDefinition, getNodeName, stationEncounterIds } from '../enc
 import type { SectorTheme } from './sectorThemes';
 import type { ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { SectorInfo } from 'common-data/features/sectors/types/SectorInfo';
-import type { SectorNodeInfo, ShopStationKind, StationKind } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { EncounterId, SectorNodeInfo, ShopStationKind, StationKind } from 'common-data/features/sectors/types/SectorNodeInfo';
 import type { IRandom } from 'common-data/types/IRandom';
 
 /** A node's place in the graph, before what it holds is decided. */
@@ -128,10 +128,11 @@ export function generateSector(random: IRandom, theme: SectorTheme, sectorIndex:
     }
 
     const { layers, roles } = best!;
+    const encounterIds = assignEncounters(random, theme, layers, roles);
     const rows = arrangeRows(random, layers);
 
     const nodes = layers.flatMap((slots, layer) =>
-        slots.map((slot, index) => createNode(random, theme, slot, roles.get(slot.id)!, rows[layer][index], index))
+        slots.map((slot, index) => createNode(random, theme, slot, roles.get(slot.id)!, encounterIds.get(slot.id), rows[layer][index], index))
     );
 
     return {
@@ -286,13 +287,20 @@ function getFewestShopStations(layers: NodeSlot[][], roles: Map<string, NodeRole
     return new Map(layers.flat().map(slot => [slot.id, before.get(slot.id)! + after.get(slot.id)! - shopCount(slot)]));
 }
 
+/** The kinds of shop a node could be: any but those offered alongside it, so a fork never offers the same kind of shop twice. */
+function getAllowedShopStationKinds(layers: NodeSlot[][], roles: Map<string, NodeRole>, slot: NodeSlot): ShopStationKind[] {
+    const offeredAlongside = new Set(getSiblings(layers, slot).map(sibling => roles.get(sibling.id)));
+    return shopStationKinds.filter(kind => !offeredAlongside.has(kind));
+}
+
 /**
- * Picks which kind of shop a node should be, preferring one that no station on the same route already is,
- * then one that no other station in its layer that shares a link with it is, so the choice between them is between different shops,
+ * Picks which kind of shop a node should be, from those not offered alongside it, preferring one that no station on the same route already is,
+ * then one that no other station in its layer that shares a link with it is, so routes that meet again passed different shops,
  * then whichever the sector has fewest of.
  */
 function pickShopStationKind(random: IRandom, layers: NodeSlot[][], roles: Map<string, NodeRole>, slot: NodeSlot): ShopStationKind {
     const slots = layers.flat();
+    const allowed = getAllowedShopStationKinds(layers, roles, slot);
 
     // Every node a route through this one also passes: those it leads to, and those that lead to it.
     const onSameRoute = new Set(getReachable(new Map(slots.map(other => [other.id, other])), slot.id));
@@ -315,14 +323,15 @@ function pickShopStationKind(random: IRandom, layers: NodeSlot[][], roles: Map<s
         return 100 * count(sameRoute) + 10 * count(alongside) + count(slots);
     };
 
-    const costs = shopStationKinds.map(getCost);
+    const costs = allowed.map(getCost);
     const cheapest = Math.min(...costs);
-    return random.pick(shopStationKinds.filter((_, index) => costs[index] === cheapest));
+    return random.pick(allowed.filter((_, index) => costs[index] === cheapest));
 }
 
 /**
  * Whether a regular encounter could become a mid-sector station or an elite. Each must be in the layers allowed for it, within its limit,
  * and not linked to another of its kind, so no two stations (of any kind) or elites can be visited back to back.
+ * A station also needs a kind of shop that isn't already offered alongside it.
  */
 function canTakeRole(layers: NodeSlot[][], roles: Map<string, NodeRole>, slot: NodeSlot, role: 'station' | 'elite', maxElites: number): boolean {
     if (roles.get(slot.id) !== 'combat') {
@@ -332,6 +341,10 @@ function canTakeRole(layers: NodeSlot[][], roles: Map<string, NodeRole>, slot: N
     const isStation = role === 'station';
     const [firstLayer, lastLayer] = isStation ? [midStationLayers.first, midStationLayers.last] : [startLayer + 2, preBossRepairLayer - 1];
     if (slot.layer < firstLayer || slot.layer > lastLayer) {
+        return false;
+    }
+
+    if (isStation && getAllowedShopStationKinds(layers, roles, slot).length === 0) {
         return false;
     }
 
@@ -467,8 +480,57 @@ function resolveMeaninglessChoices(random: IRandom, layers: NodeSlot[][], roles:
     return layers;
 }
 
+/** The other nodes in a node's layer that share a link from the same node, so are offered alongside it as a choice of route. */
+function getSiblings(layers: NodeSlot[][], slot: NodeSlot): NodeSlot[] {
+    if (slot.layer === startLayer) {
+        return [];
+    }
+
+    const parents = layers[slot.layer - 1].filter(parent => parent.next.includes(slot.id));
+    return layers[slot.layer].filter(other => other !== slot && parents.some(parent => parent.next.includes(other.id)));
+}
+
+/**
+ * Picks the encounter for each regular and elite node, from its theme's early or late list, weighted by how often each is listed.
+ * A fork never offers the same encounter twice, as the map would show the same request down both links; an elite counts as the same as its regular form.
+ * Where the list allows, a node also avoids any encounter already on a route leading to it, so a route rarely meets the same one twice.
+ */
+function assignEncounters(random: IRandom, theme: SectorTheme, layers: NodeSlot[][], roles: Map<string, NodeRole>): Map<string, EncounterId> {
+    const encounterIds = new Map<string, EncounterId>();
+
+    // The encounters on routes leading to each node, not including its own.
+    const before = new Map<string, Set<EncounterId>>(layers[startLayer].map(slot => [slot.id, new Set()]));
+
+    for (const slot of layers.flat()) {
+        const role = roles.get(slot.id);
+        const earlier = before.get(slot.id)!;
+
+        if (role === 'combat' || role === 'elite') {
+            const list = slot.layer <= earlyLayerCount ? theme.encounters.early : theme.encounters.late;
+            const offeredAlongside = new Set(getSiblings(layers, slot).map(sibling => encounterIds.get(sibling.id)));
+            const allowed = list.filter(id => !offeredAlongside.has(id));
+            const preferred = allowed.filter(id => !earlier.has(id));
+
+            const encounterId = random.pick(preferred.length > 0 ? preferred : allowed.length > 0 ? allowed : list);
+            encounterIds.set(slot.id, encounterId);
+        }
+
+        const onward = new Set(earlier);
+        const encounterId = encounterIds.get(slot.id);
+        if (encounterId) {
+            onward.add(encounterId);
+        }
+
+        for (const id of slot.next) {
+            before.set(id, before.has(id) ? new Set([...before.get(id)!, ...onward]) : onward);
+        }
+    }
+
+    return encounterIds;
+}
+
 /** `indexInLayer` counts from the top of the layer, as its slots are in row order. */
-function createNode(random: IRandom, theme: SectorTheme, slot: NodeSlot, role: NodeRole, row: number, indexInLayer: number): SectorNodeInfo {
+function createNode(random: IRandom, theme: SectorTheme, slot: NodeSlot, role: NodeRole, assignedEncounterId: EncounterId | undefined, row: number, indexInLayer: number): SectorNodeInfo {
     const gridReference = getGridReference(slot.layer, indexInLayer);
     const base = {
         id: slot.id,
@@ -503,7 +565,7 @@ function createNode(random: IRandom, theme: SectorTheme, slot: NodeSlot, role: N
         };
     }
 
-    const encounterId = random.pick(slot.layer <= earlyLayerCount ? theme.encounters.early : theme.encounters.late);
+    const encounterId = assignedEncounterId!;
     const definition = getEncounterDefinition(encounterId);
 
     return {

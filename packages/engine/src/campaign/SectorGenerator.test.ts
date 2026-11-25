@@ -285,6 +285,17 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
         }
     });
 
+    it.each(seeds)('seed %i never offers the same encounter, or the same kind of shop, twice at one fork', (seed) => {
+        const sector = getSector(seed, sectorIndex);
+        const nodes = new Map(sector.nodes.map(node => [node.id, node]));
+
+        for (const node of sector.nodes) {
+            // An elite form of an encounter reads as the same request on the map, so counts as the same option.
+            const options = node.next.map(id => nodes.get(id)!).map(next => (next.kind === 'combat' ? next.encounterId : next.kind));
+            expect(new Set(options).size).toBe(options.length);
+        }
+    });
+
     describe('across seeds', () => {
         const getSectors = () => seeds.map(seed => getSector(seed, sectorIndex));
 
@@ -352,6 +363,27 @@ describe.each(sectorThemes.map((theme, sectorIndex) => [theme.id, theme, sectorI
 
         const layouts = new Set(seeds.map(seed => JSON.stringify(getSector(seed, sectorIndex).nodes)));
         expect(layouts.size).toBeGreaterThan(1);
+    });
+});
+
+describe('generateSector with plenty of encounters', () => {
+    // Every regular encounter any sector lists, split between early and late with none in both, gives enough that a route needn't meet any twice.
+    const allEncounters = [...new Set(sectorThemes.flatMap(theme => [...theme.encounters.early, ...theme.encounters.late]))];
+    const early = allEncounters.slice(0, 5);
+    const theme = { ...sectorThemes[0], encounters: { early, late: allEncounters.slice(early.length) } };
+
+    it('has enough encounters to test with', () => {
+        expect(theme.encounters.late.length).toBeGreaterThanOrEqual(6);
+    });
+
+    it.each(seeds)('seed %i never meets the same encounter twice on a route', (seed) => {
+        const sector = generateSector(seededRandom(seed), theme, 0);
+        const nodes = new Map(sector.nodes.map(node => [node.id, node]));
+
+        for (const path of enumeratePaths(sector)) {
+            const encounterIds = path.map(id => nodes.get(id)!).filter(node => node.kind === 'combat').map(node => node.encounterId);
+            expect(new Set(encounterIds).size).toBe(encounterIds.length);
+        }
     });
 });
 
