@@ -33,6 +33,11 @@ export const effects = defineUiEffects(sharedEffects, {
         </>,
         image: ExampleIcon,
     },
+    shadowing: {
+        name: 'Shadowing',
+        description: <>The ship is shadowing another. While it stays behind that ship, in its rear arc, the ship&apos;s weapons ignore that ship&apos;s evasion.</>,
+        image: ExampleIcon,
+    },
     attackRun: {
         name: 'Attack Run',
         description: <>

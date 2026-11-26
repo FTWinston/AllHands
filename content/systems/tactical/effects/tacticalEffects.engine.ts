@@ -111,6 +111,11 @@ export function engageTractorBeam(source: Ship, target: Ship, range: number, tar
     return true;
 }
 
+/** Have a ship break free of any tractor beam that holds it, whatever the power levels at its helm and the holder's tactical. Does nothing if it isn't held. */
+export function breakFreeOfTractorBeam(ship: Ship) {
+    getHelmTile(ship)?.removeEffect('heldByTractorBeam', 'early');
+}
+
 /** Whether a ship is still holding a target in its tractor beam. */
 export function isHoldingInTractorBeam(source: Ship, target: Ship): boolean {
     const sourceHelm = getHelmTile(source);

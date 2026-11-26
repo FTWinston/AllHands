@@ -38,6 +38,15 @@ export const effects = defineEngineEffects(sharedEffects, {
     momentum: createHelmModifierEffect('maneuverSpeedModifier', momentumSpeedPerLevel),
     holdingSteady: createHelmModifierEffect('weaponAccuracyModifier', 1),
     jinking: createHelmModifierEffect('weaponAccuracyModifier', -1),
+    // Shadow sets which ship, and how wide an arc, as it adds this (see `HelmState.isShadowingFromBehind`). Whenever the effect goes, so does the bonus.
+    shadowing: {
+        apply: system => system.system === 'helm',
+        remove: (system) => {
+            const helm = system.systemState.getShip().helmState;
+            helm.shadowTargetId = '';
+            helm.shadowRearArc = 0;
+        },
+    },
     // Each level takes 1 off the cost of every card the tactical system has, until the effect goes.
     attackRun: {
         apply: (system, level) => {

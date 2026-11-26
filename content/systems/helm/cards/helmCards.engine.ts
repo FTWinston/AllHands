@@ -1,6 +1,7 @@
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { clampAngle, determineAngle, distanceSq } from 'common-data/features/space/utils/vectors';
+import { breakFreeOfTractorBeam } from 'content/systems/tactical/effects/tacticalEffects.engine';
 import { choiceEvaluator } from 'engine/ai/evaluators';
 import { locationCardEvaluator } from 'engine/ai/evaluators/helm';
 import { applyMotionCard } from 'engine/cards/applyMotionCard';
@@ -35,6 +36,68 @@ const orbitMinRadius = 1.5;
 
 /** How far from the ship it's protecting an interposing ship sits, at most, in units. */
 const interposeDistance = 3;
+
+/** How close a slingshotting ship swings round its target, how far along its way back out it ends, and how fast it flies, all in units (and units per second). */
+const slingshotRadius = 2;
+const slingshotExitDistance = 4;
+const slingshotSpeed = 1.25;
+
+/** A path flown at a steady speed, worked out as a distance along it: how long it is in all, and where it is, and which way it faces, at each distance. */
+type FlightPath = { length: number; at: (distance: number) => { position: Vector2D; facing: number } };
+
+/**
+ * The path of a slingshot, relative to its target, for a ship that starts at the given offset from it (the given range away, facing the given way):
+ * straight in to the near side of a circle round the target, a half circle round that, then out again along the line the ship came in on, back where it started from.
+ * The circle is gone round whichever way needs the smaller turn from the ship's heading to start with, and when that's the same either way (dead ahead), to the left.
+ */
+function planSlingshot(offset: Vector2D, range: number, heading: number): FlightPath {
+    const origin = { x: 0, y: 0 };
+    // Unit vectors towards the target, and sideways to that: the two ways round the target are the two directions along the second.
+    const toward = { x: -offset.x / range, y: -offset.y / range };
+    const side = { x: -toward.y, y: toward.x };
+    const entryPoint = (direction: number) => ({ x: side.x * direction * slingshotRadius, y: side.y * direction * slingshotRadius });
+    const turnTo = (direction: number) => Math.abs(clampAngle(determineAngle(offset, entryPoint(direction)) - heading));
+
+    const direction = turnTo(1) <= turnTo(-1) + 1e-6 ? 1 : -1;
+    const entry = entryPoint(direction);
+    const approach = Math.hypot(entry.x - offset.x, entry.y - offset.y);
+    const approachFacing = determineAngle(offset, entry);
+    const swing = Math.PI * slingshotRadius;
+    const exitFacing = determineAngle(origin, { x: -toward.x, y: -toward.y });
+
+    return {
+        length: approach + swing + slingshotExitDistance,
+        at: (distance) => {
+            if (distance <= approach) {
+                const along = distance / approach;
+                return { position: { x: offset.x + (entry.x - offset.x) * along, y: offset.y + (entry.y - offset.y) * along }, facing: approachFacing };
+            }
+
+            if (distance <= approach + swing) {
+                // Round the far side of the target, so from beside it on one side, past ahead of it, to beside it on the other.
+                const turned = (distance - approach) / slingshotRadius;
+                const sin = Math.sin(turned);
+                const cos = Math.cos(turned);
+                return {
+                    position: {
+                        x: slingshotRadius * (sin * toward.x + direction * cos * side.x),
+                        y: slingshotRadius * (sin * toward.y + direction * cos * side.y),
+                    },
+                    facing: determineAngle(origin, { x: cos * toward.x - direction * sin * side.x, y: cos * toward.y - direction * sin * side.y }),
+                };
+            }
+
+            const out = Math.min(distance - approach - swing, slingshotExitDistance);
+            return {
+                position: {
+                    x: -entry.x - toward.x * out,
+                    y: -entry.y - toward.y * out,
+                },
+                facing: exitFacing,
+            };
+        },
+    };
+}
 
 /** How far behind its target a shadowing ship stays, in units. */
 const shadowDistance = 2.5;
@@ -329,17 +392,37 @@ export const cards = defineEngineCards(sharedCards, {
     broadside: {
         aiEvaluator: choiceEvaluator(['broadsideLeft', 'broadsideRight']),
     },
-    slingshotLeft: {
-        aiEvaluator: locationCardEvaluator('slingshotLeft'),
-        play: playMomentumBuilder,
-    },
-    slingshotRight: {
-        aiEvaluator: locationCardEvaluator('slingshotRight'),
-        play: playMomentumBuilder,
-    },
+    // The AI never plays this, as it has no evaluator.
     slingshot: {
         synergy: { provides: ['momentum'] },
-        aiEvaluator: choiceEvaluator(['slingshotLeft', 'slingshotRight']),
+        play: (gameState, ship, target, parameters, card) => {
+            const startTime = gameState.currentTime;
+            const position = ship.getPosition(startTime);
+            const targetPosition = target.getPosition(startTime);
+            const offset = { x: position.x - targetPosition.x, y: position.y - targetPosition.y };
+
+            // Too close to get a run up and swing round it.
+            const range = Math.hypot(offset.x, offset.y);
+            if (range <= slingshotRadius) {
+                return false;
+            }
+
+            // The path is worked out relative to the target, as a distance along it that's covered at a steady speed, so that it carries on round the target as it moves.
+            // The target's own motion is added in at each time it's asked for (see `startRelativeManeuver`, which plans again every step).
+            const speed = slingshotSpeed * ship.helmState.maneuverSpeedMultiplier / 1000;
+            const path = planSlingshot(offset, range, position.angle);
+            const duration = path.length / speed;
+            if (!startRelativeManeuver(gameState, ship, target, { ...parameters, duration: duration / 1000 }, card, () => (time) => {
+                const along = path.at(Math.max(0, (time - startTime) * speed));
+                const targetAt = target.getPosition(time);
+                return { position: { x: targetAt.x + along.position.x, y: targetAt.y + along.position.y }, facing: along.facing };
+            })) {
+                return false;
+            }
+
+            ship.helmState.adjustEffectLevel('momentum', parameters['momentum']);
+            return true;
+        },
     },
     lockOn: {
         synergy: { provides: ['steadyPlatform'] },
@@ -429,20 +512,37 @@ export const cards = defineEngineCards(sharedCards, {
         }),
     },
     shadow: {
-        play: (gameState, ship, target, parameters, card) => startRelativeManeuver(gameState, ship, target, parameters, card, () => (time, from) => {
-            // The station is directly behind the target, whichever way it's heading, and the ship faces the target from there.
-            // A ship's angle goes the opposite way round to Math.atan2's, so it points along (cos, -sin).
-            const targetAt = target.getPosition(time);
-            return {
-                position: { x: targetAt.x - Math.cos(targetAt.angle) * shadowDistance, y: targetAt.y + Math.sin(targetAt.angle) * shadowDistance },
-                facing: determineAngle(from, targetAt),
-            };
-        }),
+        play: (gameState, ship, target, parameters, card) => {
+            if (!startRelativeManeuver(gameState, ship, target, parameters, card, () => (time, from) => {
+                // The station is directly behind the target, whichever way it's heading, and the ship faces the target from there.
+                // A ship's angle goes the opposite way round to Math.atan2's, so it points along (cos, -sin).
+                const targetAt = target.getPosition(time);
+                return {
+                    position: { x: targetAt.x - Math.cos(targetAt.angle) * shadowDistance, y: targetAt.y + Math.sin(targetAt.angle) * shadowDistance },
+                    facing: determineAngle(from, targetAt),
+                };
+            })) {
+                return false;
+            }
+
+            // The ship's weapons ignore the target's evasion for as long as it's within the rear arc, until the maneuver ends however it ends (see `TacticalState.determineAccuracy`).
+            // Starting this maneuver has already ended any earlier shadow, and the effect with it.
+            const helm = ship.helmState;
+            helm.shadowTargetId = target.id;
+            helm.shadowRearArc = (parameters['rearArc'] ?? 0) * Math.PI / 180;
+            helm.addEffect('shadowing');
+            helm.whenActiveManeuverEnds(() => helm.removeEffect('shadowing', 'expired'));
+            return true;
+        },
     },
     breakAway: {
         synergy: { provides: ['momentum'] },
         play: (gameState, ship, target, parameters, card) => {
             const startTime = gameState.currentTime;
+
+            // The ship gets free of any tractor beam holding it, however much power the holder has, before its speed is worked out as the beam slows it.
+            breakFreeOfTractorBeam(ship);
+
             const position = ship.getPosition(startTime);
             const targetPosition = target.getPosition(startTime);
 
@@ -467,6 +567,11 @@ export const cards = defineEngineCards(sharedCards, {
             ship.setMotion(...keyframes);
             ship.helmState.setActiveManeuver(new CardCooldownState(card, startTime, time, parameters['cost']));
             ship.helmState.adjustEffectLevel('momentum', parameters['momentum']);
+
+            // The target's weapons lose their aim on this ship, and have to get it back. (A sensor ghost has no weapons.)
+            if (target instanceof Ship) {
+                target.tacticalState.loseAimOn(ship.id);
+            }
             return true;
         },
     },

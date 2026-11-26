@@ -1,6 +1,8 @@
 import { cardDefinitions, type CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
+import { clampAngle } from 'common-data/features/space/utils/vectors';
+import { engageTractorBeam } from 'content/systems/tactical/effects/tacticalEffects.engine';
 import { getCardEvaluator } from 'engine/ai/evaluators';
 import { getCardDefinition } from 'engine/cards/getEngineCardDefinition';
 import { AiShip } from 'engine/state/AiShip';
@@ -300,43 +302,132 @@ describe('Broadside', () => {
 });
 
 describe('Slingshot', () => {
-    it('curves to the target, turning through 180 degrees, and adds 1 Momentum', () => {
-        const { state, ship, helm, play, momentum, runUntilManeuverEnds } = createShip();
-        expect(cardDefinitions.slingshot).toMatchObject({ targetType: 'choice', system: 'helm', cards: ['slingshotLeft', 'slingshotRight'], parameters: { cost: 3, evasion: 30, momentum: 1 } });
-        expect(cardDefinitions.slingshotLeft).toMatchObject({ targetType: 'location', baseSpeed: 1.25, minDistance: 6, parameters: { cost: 3, evasion: 30, momentum: 1 } });
+    /** Flies a slingshot round a raider 10 units ahead, from a ship that starts at the given heading, noting how far it has turned in all, and how close it gets. */
+    function flySlingshot(heading: number, target: 'raider' | 'friend' = 'raider') {
+        const world = createRelativeWorld();
+        const { state, ship, helm, other, addRaider, place, runShip, playOn, position, rangeTo } = world;
+        place(ship, 0, 0, heading);
+        place(other, 10, 0);
+        const aimedAt = target === 'raider' ? addRaider(10, 0) : other;
 
-        expect(play('slingshot', '6,0', 'slingshotLeft').played).toBe(true);
-        expect(momentum()).toBe(1);
-        expect(helm.evasion).toBe(30);
+        const { played } = playOn('slingshot', aimedAt);
+        expect(played).toBe(true);
 
-        // It swings out to one side by half the distance, and comes back to the line at the target.
-        let furthest = 0;
+        let unwrapped = position().angle;
+        let previous = unwrapped;
+        let turnedAtEntry: number | null = null;
+        let closest = Infinity;
         while (helm.activeManeuver) {
-            state.tick(100);
-            furthest = Math.max(furthest, ship.getPosition(state.currentTime).y);
+            runShip(100);
+            const angle = position().angle;
+            unwrapped += clampAngle(angle - previous);
+            previous = angle;
+            closest = Math.min(closest, rangeTo(aimedAt));
+            if (turnedAtEntry === null && rangeTo(aimedAt) < 2.3) {
+                turnedAtEntry = unwrapped;
+            }
         }
-        expect(furthest).toBeGreaterThan(2.5);
-        expect(furthest).toBeLessThan(3.5);
 
-        const end = ship.getPosition(state.currentTime);
-        expect(end.x).toBeCloseTo(6);
-        expect(end.y).toBeCloseTo(0);
-        expect(Math.abs(end.angle)).toBeCloseTo(Math.PI / 2);
+        return { ...world, state, aimedAt, closest, arcTurn: unwrapped - (turnedAtEntry ?? unwrapped) };
+    }
 
-        runUntilManeuverEnds();
+    it('is a single ship-targeted card for any ship, with no choice and no AI', () => {
+        expect(cardDefinitions.slingshot).toMatchObject({ targetType: 'ship', system: 'helm', rarity: 'uncommon', parameters: { cost: 3, evasion: 30, momentum: 2 } });
+        expect(cardDefinitions.slingshot).not.toHaveProperty('targetRelationship');
+        expect(cardDefinitions.slingshot).not.toHaveProperty('cards');
+        expect(cardDefinitions).not.toHaveProperty('slingshotLeft');
+        expect(cardDefinitions).not.toHaveProperty('slingshotRight');
+        expect(getCardDefinition('slingshot').synergy).toEqual({ provides: ['momentum'] });
+        expect(getCardEvaluator('slingshot')).toBeUndefined();
     });
 
-    it('swings out to the other side when flown to the right', () => {
-        const { state, ship, helm, play } = createShip();
+    it('flies at the target, swings round it at close range, and heads back out clear of it, facing the way it is going', () => {
+        // Heading a little to the +y side, so the swing goes round that side first.
+        const { ship, state, aimedAt, closest, arcTurn, rangeTo, offsetFrom, helm, momentum } = flySlingshot(-0.4);
 
-        expect(play('slingshot', '6,0', 'slingshotRight').played).toBe(true);
+        expect(closest).toBeGreaterThan(1.6);
+        expect(closest).toBeLessThan(2.4);
+        // Round it through 180 degrees, as the angle grows, which is to the right of where it points.
+        expect(arcTurn).toBeGreaterThan(Math.PI - 0.4);
+        expect(arcTurn).toBeLessThan(Math.PI + 0.4);
 
-        let furthest = 0;
+        // It ends 4 units back along the line it came in on, on the far side from where it went in, facing back out.
+        expect(offsetFrom(aimedAt).x).toBeCloseTo(-4, 0);
+        expect(offsetFrom(aimedAt).y).toBeCloseTo(-2, 0);
+        expect(rangeTo(aimedAt)).toBeGreaterThan(3.5);
+        expect(Math.abs(clampAngle(ship.getPosition(state.currentTime).angle - Math.PI))).toBeLessThan(0.3);
+        expect(helm.activeManeuver).toBeNull();
+        expect(momentum()).toBeGreaterThanOrEqual(2);
+    });
+
+    it('swings round the other side when that needs less turning', () => {
+        const { arcTurn, offsetFrom, aimedAt, closest } = flySlingshot(0.4);
+
+        expect(closest).toBeLessThan(2.4);
+        expect(arcTurn).toBeLessThan(-Math.PI + 0.4);
+        expect(arcTurn).toBeGreaterThan(-Math.PI - 0.4);
+        expect(offsetFrom(aimedAt).x).toBeCloseTo(-4, 0);
+        expect(offsetFrom(aimedAt).y).toBeCloseTo(2, 0);
+    });
+
+    it('always goes the same way round when the target is dead ahead, and can be played on a friendly ship', () => {
+        const first = flySlingshot(0);
+        const second = flySlingshot(0, 'friend');
+
+        expect(Math.sign(first.arcTurn)).toBe(Math.sign(second.arcTurn));
+        expect(Math.abs(first.arcTurn)).toBeGreaterThan(Math.PI - 0.4);
+        expect(Math.abs(second.arcTurn)).toBeGreaterThan(Math.PI - 0.4);
+    });
+
+    it('gains 2 Momentum and is hard to hit while flown', () => {
+        const { helm, addRaider, playOn, momentum, runShip } = createRelativeWorld();
+
+        const { card, played } = playOn('slingshot', addRaider(10, 0));
+        expect(played).toBe(true);
+        expect(helm.activeManeuver!.card).toBe(card);
+        expect(helm.evasion).toBe(30);
+        expect(momentum()).toBe(2);
+
+        // Getting there at 1.25 units a second, swinging round and heading out again takes well over 8 seconds.
+        expect(helm.activeManeuver!.endTime - helm.activeManeuver!.startTime).toBeGreaterThan(8000);
+        runShip(1000);
+        expect(helm.activeManeuver).not.toBeNull();
+    });
+
+    it('is refused if the ship is already within 2 units of the target', () => {
+        const { helm, addRaider, playOn, momentum } = createRelativeWorld();
+
+        expect(playOn('slingshot', addRaider(1.5, 0)).played).toBe(false);
+        expect(helm.activeManeuver).toBeNull();
+        expect(momentum()).toBe(0);
+    });
+
+    it('keeps its circle round a target that moves', () => {
+        const { helm, addRaider, fly, playOn, runShip, rangeTo } = createRelativeWorld();
+        const raider = addRaider(10, 0);
+        fly(raider, 0, 1, 0.2);
+
+        playOn('slingshot', raider);
+        let closest = Infinity;
         while (helm.activeManeuver) {
-            state.tick(100);
-            furthest = Math.min(furthest, ship.getPosition(state.currentTime).y);
+            runShip(100);
+            closest = Math.min(closest, rangeTo(raider));
         }
-        expect(furthest).toBeLessThan(-2.5);
+
+        expect(closest).toBeLessThan(2.6);
+        expect(rangeTo(raider)).toBeGreaterThan(3.5);
+        expect(rangeTo(raider)).toBeLessThan(5.5);
+    });
+
+    it('stops if the target is lost', () => {
+        const { state, helm, addRaider, runShip, playOn } = createRelativeWorld();
+        const raider = addRaider(10, 0);
+
+        playOn('slingshot', raider);
+        runShip(1000);
+        state.remove(raider);
+        runShip(200);
+        expect(helm.activeManeuver).toBeNull();
     });
 });
 
@@ -880,6 +971,81 @@ describe('Shadow', () => {
         expect(helm.deck.filter(candidate => candidate === card)).toHaveLength(1);
     });
 
+    describe('rear arc bonus', () => {
+        /** A raider with evasion of its own, which the ship is shadowing, and the chance of the ship's weapon hitting it. */
+        function shadowRaider() {
+            const world = createRelativeWorld();
+            const raider = world.addRaider(5, 0, -Math.PI / 2);
+            raider.helmState.evasionModifier = 30;
+            const hitChance = () => (world.ship.tacticalState as unknown as { determineAccuracy: (target: GameObject, subTarget: undefined, weaponAccuracy: number) => number })
+                .determineAccuracy(raider, undefined, 0);
+            return { ...world, raider, hitChance };
+        }
+
+        it('ignores the evasion of the target only while within 60 degrees of straight behind it', () => {
+            const { helm, ship, raider, place, playOn, runShip, hitChance } = shadowRaider();
+            expect(cardDefinitions.shadow).toMatchObject({ parameters: { rearArc: 60 } });
+
+            // Not behind it yet, so its evasion counts.
+            expect(hitChance()).toBe(70);
+            playOn('shadow', raider);
+            expect(helm.hasEffect('shadowing')).toBe(true);
+            expect(hitChance()).toBe(70);
+
+            // Once it's behind, the evasion doesn't count.
+            runShip(4000);
+            expect(hitChance()).toBe(100);
+
+            // Whichever way it turns, the ship doesn't count as behind it until it is, with the edges of the arc at 60 degrees.
+            const at = raider.getPosition(ship.helmState.getGameState().currentTime);
+            const hitAtBearing = (degrees: number) => {
+                const radians = degrees * Math.PI / 180;
+                // The ship sits 2.5 units from the raider at the bearing from straight behind it (the raider points along +y, so behind is -y).
+                place(ship, at.x + Math.sin(radians) * 2.5, at.y - Math.cos(radians) * 2.5, 0);
+                return hitChance();
+            };
+            expect(hitAtBearing(0)).toBe(100);
+            expect(hitAtBearing(55)).toBe(100);
+            expect(hitAtBearing(-55)).toBe(100);
+            expect(hitAtBearing(65)).toBe(70);
+            expect(hitAtBearing(-65)).toBe(70);
+            expect(hitAtBearing(90)).toBe(70);
+            expect(hitAtBearing(180)).toBe(70);
+        });
+
+        it('only counts for the ship being shadowed, and ends with the maneuver', () => {
+            const { helm, other, raider, addRaider, playOn, runShip, hitChance } = shadowRaider();
+            const second = addRaider(5, 0, -Math.PI / 2);
+            second.helmState.evasionModifier = 30;
+            const hitSecond = () => (helm.getShip().tacticalState as unknown as { determineAccuracy: (target: GameObject, subTarget: undefined, weaponAccuracy: number) => number })
+                .determineAccuracy(second, undefined, 0);
+
+            playOn('shadow', raider);
+            runShip(4000);
+            expect(hitChance()).toBe(100);
+            // The same spot is behind the other raider too, but that isn't the one being shadowed.
+            expect(hitSecond()).toBe(70);
+            expect(other.helmState.hasEffect('shadowing')).toBe(false);
+
+            helm.cancelActiveManeuver();
+            runShip(100);
+            expect(helm.hasEffect('shadowing')).toBe(false);
+            expect(hitChance()).toBe(70);
+        });
+
+        it('lasts only as long as the maneuver, when it runs its course', () => {
+            const { helm, raider, playOn, runShip, hitChance } = shadowRaider();
+
+            playOn('shadow', raider);
+            runShip(7000);
+            expect(helm.hasEffect('shadowing')).toBe(true);
+            runShip(1500);
+            expect(helm.activeManeuver).toBeNull();
+            expect(helm.hasEffect('shadowing')).toBe(false);
+            expect(hitChance()).toBe(70);
+        });
+    });
+
     it('can only be played on hostile ships', () => {
         const { helm, other, ship, playOn } = createRelativeWorld();
 
@@ -977,6 +1143,81 @@ describe('Break Away', () => {
         expect(stoppedAt).toBeLessThan(6);
         runShip(2000);
         expect(ship.getPosition(state.currentTime).x).toBeCloseTo(stoppedAt, 5);
+    });
+
+    describe('against a tractor beam and aiming weapons', () => {
+        it('breaks free of a tractor beam it could not escape on power alone', () => {
+            const { helm, ship, addRaider, play, playOn, runShip } = createRelativeWorld();
+            const raider = addRaider(-6, 0);
+            raider.tacticalState.adjustPowerLevel(5);
+            expect(helm.powerLevel).toBeLessThanOrEqual(raider.tacticalState.powerLevel);
+
+            expect(engageTractorBeam(raider, ship, 8, 60, 25)).toBe(true);
+            expect(helm.hasEffect('heldByTractorBeam')).toBe(true);
+
+            // An ordinary maneuver doesn't get it out: the holder has as much power at its tactical as the helm has.
+            expect(play('slowAndSteady', '3,0').played).toBe(true);
+            expect(helm.hasEffect('heldByTractorBeam')).toBe(true);
+            const { played } = playOn('breakAway', raider);
+            expect(played).toBe(true);
+            expect(helm.hasEffect('heldByTractorBeam')).toBe(false);
+            expect(raider.helmState.hasEffect('tractorBeamEngaged')).toBe(false);
+
+            // It flies as fast as if it had never been held: 6 units at 1.5 a second, with Momentum's speed-up not yet counted.
+            expect(helm.activeManeuver!.endTime - helm.activeManeuver!.startTime).toBeCloseTo(4000);
+            runShip(4100);
+            expect(helm.activeManeuver).toBeNull();
+        });
+
+        it('breaks free of the beam whichever ship holds it, and plays as usual when there is none', () => {
+            const { helm, ship, addRaider, playOn } = createRelativeWorld();
+            const raider = addRaider(-6, 0);
+            const holder = addRaider(-5, 3);
+            holder.tacticalState.adjustPowerLevel(5);
+
+            expect(engageTractorBeam(holder, ship, 8, 60, 25)).toBe(true);
+            expect(playOn('breakAway', raider).played).toBe(true);
+            expect(helm.hasEffect('heldByTractorBeam')).toBe(false);
+            expect(holder.helmState.hasEffect('tractorBeamEngaged')).toBe(false);
+
+            // With nothing holding it, there's nothing to break free of.
+            helm.cancelActiveManeuver();
+            expect(playOn('breakAway', raider).played).toBe(true);
+        });
+
+        it('makes the target lose any Lock it had on the ship, and cumbersome weapons start their aim over', () => {
+            const { ship, other, addRaider, playOn, runShip } = createRelativeWorld();
+            const raider = addRaider(8, 0);
+            const bystander = addRaider(0, 8);
+            const tactical = raider.tacticalState;
+            expect(tactical.slots.length).toBeGreaterThan(0);
+
+            expect(tactical.addLock(ship, 3)).toBe(true);
+            tactical.slots[0].aimStartTimes.set(ship.id, 0);
+            tactical.slots[0].aimStartTimes.set(other.id, 0);
+
+            expect(playOn('breakAway', raider).played).toBe(true);
+            expect(tactical.lockLevel).toBe(0);
+            expect(tactical.lockTargetId).toBe('');
+            expect(tactical.slots[0].aimStartTimes.has(ship.id)).toBe(false);
+            // Aim on anything else is kept.
+            expect(tactical.slots[0].aimStartTimes.has(other.id)).toBe(true);
+            runShip(100);
+
+            // Nobody else is affected.
+            expect(bystander.tacticalState.lockLevel).toBe(0);
+        });
+
+        it('leaves a Lock on some other ship alone', () => {
+            const { other, addRaider, playOn } = createRelativeWorld();
+            const raider = addRaider(8, 0);
+            const tactical = raider.tacticalState;
+
+            expect(tactical.addLock(other, 2)).toBe(true);
+            expect(playOn('breakAway', raider).played).toBe(true);
+            expect(tactical.lockLevel).toBe(2);
+            expect(tactical.lockTargetId).toBe(other.id);
+        });
     });
 
     it('can only be played on hostile ships', () => {

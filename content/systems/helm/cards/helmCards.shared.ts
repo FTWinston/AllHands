@@ -153,42 +153,11 @@ export const cards = defineCards({
         parameters: { cost: 1, evasion: 0 },
     },
     slingshot: {
-        targetType: 'choice',
+        targetType: 'ship',
         rarity: 'uncommon',
         system: 'helm',
-        cards: ['slingshotLeft', 'slingshotRight'],
-        // The same as its options have: the evasion of a maneuver is read from the card that was played, which is this one
-        parameters: { cost: 3, evasion: 30, momentum: 1 },
-    },
-    slingshotLeft: {
-        targetType: 'location',
-        system: 'helm',
-        startFacing: CardMotionSegmentFacing.FinalVector,
-        startFacingOffset: -Math.PI / 2, // Start facing 90 degrees left of destination
-        endFacing: CardMotionSegmentFacing.FinalVector,
-        endFacingOffset: Math.PI / 2, // End facing 90 degrees right of destination
-        baseRotationSpeed: 1.25,
-        baseSpeed: 1.25,
-        // Half circle bulging right (positive = right of movement direction)
-        perpendicularPositionOffsets: [0.31, 0.42, 0.47, 0.5, 0.5, 0.47, 0.42, 0.31],
-        minDistance: 6,
         // momentum: the levels of Momentum gained by playing it
-        parameters: { cost: 3, evasion: 30, momentum: 1 },
-    },
-    slingshotRight: {
-        targetType: 'location',
-        system: 'helm',
-        startFacing: CardMotionSegmentFacing.FinalVector,
-        startFacingOffset: Math.PI / 2, // Start facing 90 degrees right of destination
-        endFacing: CardMotionSegmentFacing.FinalVector,
-        endFacingOffset: -Math.PI / 2, // End facing 90 degrees left of destination
-        baseRotationSpeed: 1.25,
-        baseSpeed: 1.25,
-        // Half circle bulging left (negative = left of movement direction)
-        perpendicularPositionOffsets: [-0.31, -0.42, -0.47, -0.5, -0.5, -0.47, -0.42, -0.31],
-        minDistance: 6,
-        // momentum: the levels of Momentum gained by playing it
-        parameters: { cost: 3, evasion: 30, momentum: 1 },
+        parameters: { cost: 3, evasion: 30, momentum: 2 },
     },
     lockOn: {
         targetType: 'no-target',
@@ -223,8 +192,8 @@ export const cards = defineCards({
         targetRelationship: 'hostile',
         rarity: 'uncommon',
         system: 'helm',
-        // duration: how long the ship keeps to the target ship's rear arc, in seconds
-        parameters: { cost: 2, evasion: 10, duration: 8 },
+        // duration: how long the ship keeps to the target ship's rear arc, in seconds; rearArc: how many degrees either side of straight behind the target that arc reaches
+        parameters: { cost: 2, evasion: 10, duration: 8, rearArc: 60 },
     },
     breakAway: {
         targetType: 'ship',

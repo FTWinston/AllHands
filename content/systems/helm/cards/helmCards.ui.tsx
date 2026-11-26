@@ -129,29 +129,7 @@ export const cards = defineUiCards(sharedCards, {
     slingshot: {
         name: 'Slingshot',
         description: <>
-            Curve quickly to the destination, turning through 180 degrees during the movement. Gain
-            {' '}
-            <Parameter name="momentum" />
-            {' '}
-            Momentum.
-        </>,
-        image: <ExampleIcon />,
-    },
-    slingshotLeft: {
-        name: 'Slingshot Left',
-        description: <>
-            Curve left quickly to the destination, turning through 180 degrees during the movement. Gain
-            {' '}
-            <Parameter name="momentum" />
-            {' '}
-            Momentum.
-        </>,
-        image: <ExampleIcon />,
-    },
-    slingshotRight: {
-        name: 'Slingshot Right',
-        description: <>
-            Curve right quickly to the destination, turning through 180 degrees during the movement. Gain
+            Fly at the target ship, swing round it through 180 degrees at close range, and head back out. Gain
             {' '}
             <Parameter name="momentum" />
             {' '}
@@ -210,7 +188,11 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="duration" />
             {' '}
-            seconds, keep close behind the target ship, in its rear arc.
+            seconds, keep close behind the target ship, in its rear arc. While you are within
+            {' '}
+            <Parameter name="rearArc" />
+            {' '}
+            degrees of straight behind it, its evasion doesn't count against your weapons.
         </>,
         image: <ExampleIcon />,
     },
@@ -225,7 +207,7 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="momentum" />
             {' '}
-            Momentum.
+            Momentum. Breaks any tractor beam holding the ship, whatever the power levels, and the target ship's weapons lose their aim on it: Lock is dropped, and weapons that hold aim start over.
         </>,
         image: <ExampleIcon />,
     },
