@@ -83,14 +83,44 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
-    evasivePattern: {
-        name: 'Evasive Pattern',
+    evasiveManeuvers: {
+        name: 'Evasive Maneuvers',
         description: <>
-            Jink in place for
+            Fly a fixed pattern of turns for
             {' '}
             <Parameter name="duration" />
             {' '}
             seconds. The ship is hard to hit, but its weapons are
+            {' '}
+            <Parameter name="accuracyLoss" />
+            % less accurate.
+        </>,
+        image: <ExampleIcon />,
+    },
+    patternAlpha: {
+        name: 'Pattern Alpha',
+        description: <>
+            Weave: swerve right, cut hard left, then swerve back. Ends about 4 units ahead, facing the way it started. Harder to hit, but the ship's weapons are
+            {' '}
+            <Parameter name="accuracyLoss" />
+            % less accurate.
+        </>,
+        image: <ExampleIcon />,
+    },
+    patternBeta: {
+        name: 'Pattern Beta',
+        description: <>
+            Break hard to starboard, jinking back ahead partway. Ends about 3 units to the right and 1.5 ahead, facing right. Harder to hit, but the ship's weapons are
+            {' '}
+            <Parameter name="accuracyLoss" />
+            % less accurate.
+        </>,
+        image: <ExampleIcon />,
+    },
+    patternGamma: {
+        name: 'Pattern Gamma',
+        description: <>
+            Hook round to port. Ends about 2 units to the left, level with where it started, facing back the way it came. Harder to hit, but the ship's weapons are
             {' '}
             <Parameter name="accuracyLoss" />
             % less accurate.

@@ -26,7 +26,7 @@ export const effects = defineUiEffects(sharedEffects, {
     jinking: {
         name: 'Jinking',
         description: <>
-            The ship is jinking from side to side, making its weapons
+            The ship is flying evasive maneuvers, making its weapons
             {' '}
             <EffectLevel />
             % less accurate.

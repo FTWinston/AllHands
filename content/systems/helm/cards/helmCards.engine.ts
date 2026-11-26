@@ -1,10 +1,11 @@
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
+import { calculatePatternPath, evasivePatternDuration, type EvasivePatternType } from 'common-data/features/cards/utils/evasivePatterns';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { clampAngle, determineAngle, distanceSq } from 'common-data/features/space/utils/vectors';
 import { choiceEvaluator } from 'engine/ai/evaluators';
 import { locationCardEvaluator } from 'engine/ai/evaluators/helm';
 import { applyMotionCard } from 'engine/cards/applyMotionCard';
-import { LocationTargetCardFunctionality } from 'engine/cards/EngineCardDefinition';
+import { LocationTargetCardFunctionality, NoTargetCardFunctionality } from 'engine/cards/EngineCardDefinition';
 import { defineEngineCards } from 'engine/content/EngineContent';
 import { CardCooldownState } from 'engine/state/CardCooldownState';
 import { CardState } from 'engine/state/CardState';
@@ -14,10 +15,6 @@ import { MotionKeyframe } from 'engine/state/MotionKeyframe';
 import { SensorGhost } from 'engine/state/SensorGhost';
 import { Ship } from 'engine/state/Ship';
 import { cards as sharedCards } from './helmCards.shared';
-
-/** How far to each side of where it started a jinking ship goes, and how many times it changes side. */
-const jinkDistance = 0.4;
-const jinkCount = 4;
 
 /** How far ahead a locked-on ship plans its turning each time, in milliseconds per keyframe, and how many keyframes ahead it plans. It plans again after each step. */
 const lockOnStepDuration = 250;
@@ -83,6 +80,26 @@ function startPosture(gameState: GameState, ship: Ship, card: CardState, paramet
     );
 
     ship.helmState.setActiveManeuver(new CardCooldownState(card, startTime, endTime, parameters['cost']));
+}
+
+/**
+ * What playing one of the evasive maneuver patterns does: the ship flies the pattern's path from where it is and which way it faces, so it's the same each time.
+ * The evasion comes from the card being flown, and the ship's own weapons are less accurate until the pattern ends, even if that's early.
+ */
+function playEvasivePattern(pattern: EvasivePatternType): NoTargetCardFunctionality['play'] {
+    return (gameState, ship, parameters, card) => {
+        const startTime = gameState.currentTime;
+        const keyframes = calculatePatternPath(pattern, ship.getPosition(startTime));
+
+        ship.setMotion(...keyframes.map(({ time, x, y, angle }) => new MotionKeyframe(startTime + time, x, y, angle)));
+        ship.helmState.setActiveManeuver(new CardCooldownState(card, startTime, startTime + evasivePatternDuration, parameters['cost']));
+
+        const helm = ship.helmState;
+        helm.removeEffect('jinking', 'expired');
+        helm.adjustEffectLevel('jinking', parameters['accuracyLoss']);
+        helm.whenActiveManeuverEnds(() => helm.removeEffect('jinking', 'expired'));
+        return true;
+    };
 }
 
 /** The ship hostile to the given one that is closest to where it is, at the given time, if there are any. A sensor ghost counts as one: it looks like a ship to those it's hostile to. */
@@ -291,20 +308,10 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     // The cards below that take no target have no AI evaluator, so the AI never plays them.
-    evasivePattern: {
-        play: (gameState, ship, parameters, card) => {
-            // Jink from one side to the other and back to the middle. The evasion comes from the card being flown.
-            const offsets = new Array<number>(jinkCount).fill(0).map((_, index) => (index % 2 === 0 ? jinkDistance : -jinkDistance));
-            startPosture(gameState, ship, card, parameters, offsets);
-
-            // The ship's own weapons are less accurate until the jinking stops, even if that's early.
-            const helm = ship.helmState;
-            helm.removeEffect('jinking', 'expired');
-            helm.adjustEffectLevel('jinking', parameters['accuracyLoss']);
-            helm.whenActiveManeuverEnds(() => helm.removeEffect('jinking', 'expired'));
-            return true;
-        },
-    },
+    evasiveManeuvers: {},
+    patternAlpha: { play: playEvasivePattern('patternAlpha') },
+    patternBeta: { play: playEvasivePattern('patternBeta') },
+    patternGamma: { play: playEvasivePattern('patternGamma') },
     holdSteady: {
         synergy: { wants: ['steadyPlatform'] },
         play: (gameState, ship, parameters, card) => {
