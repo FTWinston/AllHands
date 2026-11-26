@@ -38,7 +38,7 @@ function createGhostFight() {
     const raider = addShip('raiders', 0, 0, (setup) => {
         setup.tactical = { ...setup.tactical, numSlots: 2, cards: ['phaserCannon', 'tractorBeam'], initialHandSize: 2 };
         setup.science = { ...setup.science, cards: ['passiveScan'], initialHandSize: 0 };
-        setup.helm = { ...setup.helm, cards: ['matchCourse'], initialHandSize: 0 };
+        setup.helm = { ...setup.helm, cards: ['orbit'], initialHandSize: 0 };
     });
 
     const updateKnown = () => {
@@ -301,7 +301,7 @@ describe('Sensor Ghost', () => {
             const helm = raider.helmState;
 
             expect(helm.resolveShipTarget(ghost.id)).toBe(ghost);
-            expect(play(raider, 'helm', 'matchCourse', ghost.id).played).toBe(true);
+            expect(play(raider, 'helm', 'orbit', ghost.id).played).toBe(true);
             expect(helm.activeManeuver).not.toBeNull();
 
             ghost.expose();
@@ -318,7 +318,7 @@ describe('Sensor Ghost', () => {
 
             expect(owner.helmState.resolveShipTarget(ghost.id)).toBeNull();
             expect(friend.helmState.resolveShipTarget(ghost.id)).toBeNull();
-            expect(play(owner, 'helm', 'matchCourse', ghost.id).played).toBe(false);
+            expect(play(owner, 'helm', 'orbit', ghost.id).played).toBe(false);
         });
     });
 });

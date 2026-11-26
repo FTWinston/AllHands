@@ -16,7 +16,7 @@ export const effects = defineUiEffects(sharedEffects, {
     holdingSteady: {
         name: 'Holding Steady',
         description: <>
-            The ship is holding still, making its weapons
+            The ship is holding still, aimed at its target, making its weapons
             {' '}
             <EffectLevel />
             % more accurate.
@@ -36,11 +36,11 @@ export const effects = defineUiEffects(sharedEffects, {
     attackRun: {
         name: 'Attack Run',
         description: <>
-            The ship is on an attack run: every tactical card costs
+            The ship is on an attack run: tactical has
             {' '}
             <EffectLevel />
             {' '}
-            less to play.
+            more power.
         </>,
         image: ExampleIcon,
     },

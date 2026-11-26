@@ -23,7 +23,7 @@ function createEngineer() {
 
     /** Puts a card of the given type into the hand, with these extra traits. */
     const deal = (...traits: [Parameters<CardState['addTrait']>[0], ExtraTraitType][]) => {
-        const card = new CardState(ship.getCardId(), 'holdSteady');
+        const card = new CardState(ship.getCardId(), 'evasivePattern');
         for (const [trait, type] of traits) {
             card.addTrait(trait, type);
         }

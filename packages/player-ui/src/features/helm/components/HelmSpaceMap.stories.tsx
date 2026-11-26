@@ -57,7 +57,7 @@ const meta: Meta<StoryArgs> = {
             <DndContext>
                 <ActiveCardContext.Provider
                     value={{
-                        activeCard: { id: 1, targetType: 'ship', cardType: 'matchCourse' },
+                        activeCard: { id: 1, targetType: 'ship', cardType: 'orbit' },
                         droppedCard: null,
                         overTargetId,
                         dragDisplayMode: 'none',

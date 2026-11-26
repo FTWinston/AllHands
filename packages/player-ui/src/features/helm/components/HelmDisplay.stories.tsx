@@ -118,7 +118,7 @@ export const UI: Story = {
         cards: [
             {
                 id: 1,
-                type: 'holdSteady',
+                type: 'lockOn',
             },
             {
                 id: 2,
@@ -130,7 +130,7 @@ export const UI: Story = {
             },
             {
                 id: 4,
-                type: 'matchCourse',
+                type: 'orbit',
             },
         ],
         objects: {},

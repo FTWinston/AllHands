@@ -121,7 +121,7 @@ export const Helm_LongManeuverName: Story = {
             hand: null,
             activeManeuver: {
                 id: 42,
-                type: 'holdSteady',
+                type: 'lockOn',
             },
             maneuverProgress: { startTime: Date.now() - 1000, endTime: Date.now() + 9000 },
             evasionChance: 5,
