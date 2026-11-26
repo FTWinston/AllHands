@@ -20,6 +20,8 @@ export interface ShotEffect {
     targetPosition?: Vector2D;
     /** True if this shot won't hit. Shots that do hit are followed by an impact, once they land. */
     missed?: boolean;
+    /** True if the target was screened by an interposing ship, so this shot is going at that ship (the target) instead of the one it was fired at. */
+    intercepted?: boolean;
     /** The server game time at which the effect starts. */
     startTime: number;
 }
@@ -35,6 +37,8 @@ export interface ImpactEffect {
     damage: number;
     /** The system the hit landed on, whether aimed or picked at random. Not given for a hit that spread from another (area damage). */
     system?: ShipSystem;
+    /** True if the ship was hit in place of the one the shot was fired at, as it was interposing for it. */
+    intercepted?: boolean;
     /** The server game time at which the effect starts. */
     startTime: number;
 }

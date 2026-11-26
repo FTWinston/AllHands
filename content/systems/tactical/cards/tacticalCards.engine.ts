@@ -5,6 +5,7 @@ import { FiringState } from 'common-data/features/space/types/FiringState';
 import { projectileFlightTime } from 'common-data/features/space/types/WeaponEffect';
 import { getFiringSolution } from 'common-data/features/space/utils/getFiringSolution';
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
+import { getInterceptingShip } from 'content/systems/helm/effects/helmEffects.engine';
 import { engageTractorBeam, isHoldingInTractorBeam, releaseTractorBeam } from 'content/systems/tactical/effects/tacticalEffects.engine';
 import { effects as sharedEffects } from 'content/systems/tactical/effects/tacticalEffects.shared';
 import { weaponLoadEvaluator, weaponModifierEvaluator } from 'engine/ai/evaluators/tactical';
@@ -90,7 +91,7 @@ function revealToScience(ship: Ship, target: Ship, system: ShipSystem) {
 function fireShot(
     gameState: GameState,
     ship: Ship,
-    target: GameObject | null,
+    aimedAt: GameObject | null,
     weapon: string,
     accuracy: number,
     parameters: CardParameters,
@@ -98,6 +99,10 @@ function fireShot(
     targetSystem: ShipSystem | null,
     flightTime = 0
 ) {
+    // A ship interposing for the target takes the shot in its place, and it's resolved against that ship as any hit would be.
+    const intercepted = aimedAt && isShip(aimedAt) ? getInterceptingShip(ship, aimedAt, gameState.currentTime) : null;
+    const target = intercepted ?? aimedAt;
+
     const damageAmount = parameters.damage;
     const hits = !!target && !!damageAmount && rollToHit(gameState.random, getTargetEvasion(target), accuracy);
 
@@ -108,6 +113,7 @@ function fireShot(
         targetId: target?.id,
         targetPosition: getTargetPosition(target, gameState.currentTime),
         missed: hits ? undefined : true,
+        intercepted: intercepted ? true : undefined,
         startTime: gameState.currentTime,
     });
 
@@ -142,6 +148,7 @@ function fireShot(
                 targetId: target.id,
                 damage,
                 system: hit.targetSystem,
+                intercepted: intercepted ? true : undefined,
                 startTime: gameState.currentTime,
             });
         }
