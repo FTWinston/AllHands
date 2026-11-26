@@ -20,13 +20,13 @@ export const cards = defineUiCards(sharedCards, {
         description: <>
             <Trait trait="primary" />
             {' '}
-            Turn towards a target then move towards it at a steady pace.
+            Turn towards a point then move towards it at a steady pace.
         </>,
         image: <ExampleIcon />,
     },
     fullReverse: {
         name: 'Full Reverse',
-        description: 'Turn away from the target then reverse slowly towards it.',
+        description: 'Turn away from a point then reverse slowly towards it.',
         image: <ExampleIcon />,
     },
     zigZag: {
@@ -41,22 +41,22 @@ export const cards = defineUiCards(sharedCards, {
     },
     sweep: {
         name: 'Sweep',
-        description: 'Curve towards the destination, turning through 90 degrees during the movement.',
+        description: 'Curve towards a point, turning through 90 degrees during the movement.',
         image: <ExampleIcon />,
     },
     sweepLeft: {
         name: 'Sweep Left',
-        description: 'Curve left towards the destination, turning through 90 degrees during the movement.',
+        description: 'Curve left towards a point, turning through 90 degrees during the movement.',
         image: <ExampleIcon />,
     },
     sweepRight: {
         name: 'Sweep Right',
-        description: 'Curve right towards the destination, turning through 90 degrees during the movement.',
+        description: 'Curve right towards a point, turning through 90 degrees during the movement.',
         image: <ExampleIcon />,
     },
     faceTarget: {
         name: 'Face Target',
-        description: 'Rotate to face the selected location without moving.',
+        description: 'Rotate to face the selected point without moving.',
         image: <ExampleIcon />,
     },
     burn: {

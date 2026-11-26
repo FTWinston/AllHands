@@ -44,7 +44,7 @@ export const cards = defineCards({
         // Don't rotate before moving, keep current heading throughout
         baseRotationSpeed: 1,
         baseSpeed: 0.4,
-        maxDistance: 4,
+        maxDistance: 6,
         parameters: { cost: 1, evasion: 15 },
     },
     sweep: {
@@ -97,7 +97,7 @@ export const cards = defineCards({
         endFacing: CardMotionSegmentFacing.FinalVector,
         baseRotationSpeed: 1,
         baseSpeed: 1.5,
-        minDistance: 3,
+        minDistance: 6,
         // momentum: the levels of Momentum gained by playing it
         parameters: { cost: 2, evasion: 10, momentum: 2 },
     },
@@ -178,7 +178,7 @@ export const cards = defineCards({
         baseSpeed: 1.25,
         // Half circle bulging right (positive = right of movement direction)
         perpendicularPositionOffsets: [0.31, 0.42, 0.47, 0.5, 0.5, 0.47, 0.42, 0.31],
-        minDistance: 3,
+        minDistance: 6,
         // momentum: the levels of Momentum gained by playing it
         parameters: { cost: 3, evasion: 30, momentum: 1 },
     },
@@ -193,7 +193,7 @@ export const cards = defineCards({
         baseSpeed: 1.25,
         // Half circle bulging left (negative = left of movement direction)
         perpendicularPositionOffsets: [-0.31, -0.42, -0.47, -0.5, -0.5, -0.47, -0.42, -0.31],
-        minDistance: 3,
+        minDistance: 6,
         // momentum: the levels of Momentum gained by playing it
         parameters: { cost: 3, evasion: 30, momentum: 1 },
     },
