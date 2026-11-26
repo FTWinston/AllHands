@@ -7,7 +7,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { CardInstance } from 'common-data/features/cards/types/CardInstance';
 
 const helmCards: Snapshot<CardInstance>[] = [
-    { id: 101, type: 'slowReverse' },
+    { id: 101, type: 'backAway' },
     { id: 102, type: 'strafe' },
     { id: 103, type: 'sweep' },
     { id: 104, type: 'zigZag' },
@@ -53,7 +53,7 @@ export const Affordable: Story = {
         // A card's Buy button only shows once it's focused.
         await expect(canvas.queryByRole('button', { name: /Buy/ })).not.toBeInTheDocument();
 
-        await userEvent.click(canvas.getByText('Slow Reverse'));
+        await userEvent.click(canvas.getByText('Back Away'));
         await userEvent.click(canvas.getByRole('button', { name: /Buy/ }));
         await expect(args.buyCard).toHaveBeenCalledWith(101);
         await expect(canvas.getAllByRole('listitem')).toHaveLength(4);

@@ -24,8 +24,8 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
-    slowReverse: {
-        name: 'Slow Reverse',
+    backAway: {
+        name: 'Back Away',
         description: 'Turn away from a point then reverse slowly towards it.',
         image: <ExampleIcon />,
     },
@@ -75,8 +75,8 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
-    fullImpulse: {
-        name: 'Full Impulse',
+    punchIt: {
+        name: 'Punch It',
         description: <>
             The speed card: turn towards a point then race straight to it,
             {' '}
@@ -85,6 +85,47 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="evasionPerMomentum" />
             % harder to hit for each level of Momentum. Spends half of it.
+        </>,
+        image: <ExampleIcon />,
+    },
+    overdrive: {
+        name: 'Overdrive',
+        description: <>
+            Push the engines past their limit: turn towards a point then race to it, faster than any other maneuver. Puts
+            {' '}
+            <Parameter name="flux" />
+            {' '}
+            Flux on the helm system.
+        </>,
+        image: <ExampleIcon />,
+    },
+    hairpin: {
+        name: 'Hairpin',
+        description: <>
+            Whip round through a tight half circle, away from the nearest hostile ship, then fly back the way the ship was facing.
+            Needs Momentum, which it all spends: it flies back
+            {' '}
+            <Parameter name="distancePerMomentum" />
+            {' '}
+            units, and is
+            {' '}
+            <Parameter name="evasionPerMomentum" />
+            % harder to hit, for each level.
+        </>,
+        image: <ExampleIcon />,
+    },
+    juke: {
+        name: 'Juke',
+        description: <>
+            Spend
+            {' '}
+            <Parameter name="momentumCost" />
+            {' '}
+            Momentum to sidestep
+            {' '}
+            <Parameter name="distance" />
+            {' '}
+            units, away from the nearest hostile ship. Every ship aiming at this one loses its aim: Lock on it is dropped, and weapons that hold aim start over.
         </>,
         image: <ExampleIcon />,
     },
@@ -230,21 +271,6 @@ export const cards = defineUiCards(sharedCards, {
             <Parameter name="rearArc" />
             {' '}
             degrees of straight behind it, its evasion doesn't count against your weapons.
-        </>,
-        image: <ExampleIcon />,
-    },
-    breakAway: {
-        name: 'Break Away',
-        description: <>
-            Turn away from the target ship then burn
-            {' '}
-            <Parameter name="distance" />
-            {' '}
-            units directly away from it. Gain
-            {' '}
-            <Parameter name="momentum" />
-            {' '}
-            Momentum. Breaks any tractor beam holding the ship, whatever the power levels, and the target ship's weapons lose their aim on it: Lock is dropped, and weapons that hold aim start over.
         </>,
         image: <ExampleIcon />,
     },

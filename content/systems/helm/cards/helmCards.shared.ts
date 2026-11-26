@@ -19,7 +19,7 @@ export const cards = defineCards({
         baseSpeed: 0.75,
         parameters: { cost: 1, evasion: 0 },
     },
-    slowReverse: {
+    backAway: {
         targetType: 'location',
         system: 'helm',
         // Rotate to face away from target, then reverse towards it
@@ -40,7 +40,7 @@ export const cards = defineCards({
         baseRotationSpeed: 1.25,
         baseSpeed: 1.25,
         // Fixed legs and width, so a longer move has more legs rather than a wider path
-        path: { shape: 'zigZag', legLength: 1.2, width: 0.5 },
+        path: { shape: 'zigZag', legLength: 1.6, width: 1 },
         minDistance: 3,
         parameters: { cost: 2, evasion: 25 },
     },
@@ -109,7 +109,7 @@ export const cards = defineCards({
         // momentum: the levels of Momentum gained by playing it
         parameters: { cost: 2, evasion: 10, momentum: 2 },
     },
-    fullImpulse: {
+    punchIt: {
         targetType: 'location',
         rarity: 'uncommon',
         system: 'helm',
@@ -121,6 +121,33 @@ export const cards = defineCards({
         minDistance: 3,
         // speedPerMomentum: percentage of extra speed for each level of Momentum held; evasionPerMomentum: extra evasion for each level
         parameters: { cost: 2, evasion: 10, speedPerMomentum: 15, evasionPerMomentum: 8 },
+    },
+    overdrive: {
+        targetType: 'location',
+        rarity: 'rare',
+        system: 'helm',
+        // Rotate to face target first, then race straight to it, faster than anything else, with the engines pushed past their limit
+        startFacing: CardMotionSegmentFacing.FinalVector,
+        endFacing: CardMotionSegmentFacing.FinalVector,
+        baseRotationSpeed: 1.5,
+        baseSpeed: 3,
+        minDistance: 6,
+        // flux: the levels of Flux put on the helm system
+        parameters: { cost: 2, evasion: 15, flux: 2 },
+    },
+    // Hairpin's and Juke's paths are in common-data (`momentumManeuvers`), so that the helm can preview them
+    hairpin: {
+        targetType: 'no-target',
+        rarity: 'uncommon',
+        system: 'helm',
+        // distancePerMomentum: how far the ship flies back the way it came, once turned, for each level of Momentum it spends; evasionPerMomentum: extra evasion, while it does, for each level spent
+        parameters: { cost: 2, evasion: 10, distancePerMomentum: 1.5, evasionPerMomentum: 8 },
+    },
+    juke: {
+        targetType: 'no-target',
+        system: 'helm',
+        // momentumCost: the levels of Momentum it spends, without which it can't be played; distance: how far the ship steps sideways
+        parameters: { cost: 1, evasion: 40, momentumCost: 2, distance: 1.5 },
     },
     drift: {
         targetType: 'location',
@@ -209,13 +236,6 @@ export const cards = defineCards({
         system: 'helm',
         // duration: how long the ship keeps to the target ship's rear arc, in seconds; rearArc: how many degrees either side of straight behind the target that arc reaches
         parameters: { cost: 2, evasion: 10, duration: 8, rearArc: 60 },
-    },
-    breakAway: {
-        targetType: 'ship',
-        targetRelationship: 'hostile',
-        system: 'helm',
-        // distance: how far the ship flies directly away from the target ship; momentum: the levels of Momentum gained by playing it
-        parameters: { cost: 2, evasion: 20, distance: 6, momentum: 1 },
     },
     attackRun: {
         targetType: 'ship',

@@ -5,7 +5,6 @@ import { getCardRarity } from 'common-data/features/cards/utils/getCardRarity';
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { clampAngle, determineAngle } from 'common-data/features/space/utils/vectors';
-import { engageTractorBeam } from 'content/systems/tactical/effects/tacticalEffects.engine';
 import { getCardEvaluator } from 'engine/ai/evaluators';
 import { getCardDefinition } from 'engine/cards/getEngineCardDefinition';
 import { AiShip } from 'engine/state/AiShip';
@@ -107,12 +106,12 @@ describe('Burn', () => {
     });
 });
 
-describe('Full Impulse', () => {
+describe('Punch It', () => {
     it('is an ordinary straight move with no Momentum', () => {
         const { helm, play, maneuverDuration, momentum } = createShip();
-        expect(cardDefinitions.fullImpulse).toMatchObject({ targetType: 'location', system: 'helm', baseSpeed: 1, parameters: { cost: 2, evasion: 10, speedPerMomentum: 15, evasionPerMomentum: 8 } });
+        expect(cardDefinitions.punchIt).toMatchObject({ targetType: 'location', system: 'helm', baseSpeed: 1, parameters: { cost: 2, evasion: 10, speedPerMomentum: 15, evasionPerMomentum: 8 } });
 
-        expect(play('fullImpulse', '6,0').played).toBe(true);
+        expect(play('punchIt', '6,0').played).toBe(true);
         expect(maneuverDuration()).toBeCloseTo(6000);
         expect(helm.evasion).toBe(10);
         expect(momentum()).toBe(0);
@@ -127,7 +126,7 @@ describe('Full Impulse', () => {
         run(1000);
 
         // Momentum itself makes it 40% faster, and the card another 60%.
-        const { card, played } = play('fullImpulse', '12,0');
+        const { card, played } = play('punchIt', '12,0');
         expect(played).toBe(true);
         const distance = 12 - ship.getPosition(helm.activeManeuver!.startTime).x;
         expect(maneuverDuration()).toBeCloseTo(distance / (1 * 1.4 * 1.6) * 1000);
@@ -149,7 +148,7 @@ describe('Full Impulse', () => {
         helm.adjustEffectLevel('momentum', 1);
         expect(momentum()).toBe(3);
 
-        play('fullImpulse', '12,0');
+        play('punchIt', '12,0');
         expect(momentum()).toBe(1);
     });
 });
@@ -1587,156 +1586,108 @@ describe('Shadow', () => {
     });
 });
 
-describe('Break Away', () => {
-    it('turns away from the target, then burns 6 units directly away from it, gaining 1 Momentum', () => {
-        const { helm, other, place, addRaider, runShip, playOn, position, momentum } = createRelativeWorld();
-        expect(cardDefinitions.breakAway).toMatchObject({ targetType: 'ship', targetRelationship: 'hostile', system: 'helm', parameters: { cost: 2, evasion: 20, distance: 6, momentum: 1 } });
-        expect(cardDefinitions.breakAway).not.toHaveProperty('rarity');
-        expect(getCardDefinition('breakAway').synergy).toEqual({ provides: ['momentum'] });
-        place(other, 0, 40);
+describe('Overdrive', () => {
+    it('is a rare helm card that races to a point, faster than Burn, and puts 2 Flux on the helm system', () => {
+        const { helm, play, runShip, position, effectLevel, maneuverDuration } = createRelativeWorld();
+        expect(cardDefinitions.overdrive).toMatchObject({ targetType: 'location', rarity: 'rare', system: 'helm', minDistance: 6, parameters: { cost: 2, evasion: 15, flux: 2 } });
+        expect(getCardDefinition('overdrive').synergy).toEqual({ provides: ['flux'] });
 
-        // The raider is ahead and to the side, so away from it is back and to the side.
-        const raider = addRaider(8, 6);
-        const { card, played } = playOn('breakAway', raider);
-        expect(played).toBe(true);
-        expect(helm.activeManeuver!.card).toBe(card);
-        expect(helm.evasion).toBe(20 + 3);
-        expect(momentum()).toBe(1);
-
-        // Turning round takes the better part of 3 seconds, then 6 units at 1.5 a second takes 4.
-        const duration = helm.activeManeuver!.endTime - helm.activeManeuver!.startTime;
-        // A ship's angle goes the opposite way round to Math.atan2's.
-        const heading = -Math.atan2(-6, -8);
-        const turn = Math.abs(heading) / Math.PI * 4000;
-        expect(duration).toBeCloseTo(turn + 4000, 0);
-
-        runShip(turn - 100);
-        expect(position().x).toBeCloseTo(0, 5);
-        expect(helm.activeManeuver).not.toBeNull();
-
-        runShip(duration - turn + 200);
-        expect(helm.activeManeuver).toBeNull();
-        expect(position().x).toBeCloseTo(-4.8, 1);
-        expect(position().y).toBeCloseTo(-3.6, 1);
-        expect(position().angle).toBeCloseTo(heading, 2);
-        expect(helm.deck.filter(candidate => candidate === card)).toHaveLength(1);
-    });
-
-    it('needs no turn when the target is already behind, and makes the next maneuver faster', () => {
-        const { addRaider, runShip, playOn, helm, momentum } = createRelativeWorld();
-        const raider = addRaider(-10, 0);
-
-        playOn('breakAway', raider);
-        expect(helm.activeManeuver!.endTime - helm.activeManeuver!.startTime).toBeCloseTo(4000);
-        while (helm.activeManeuver) {
-            runShip(100);
-        }
-        expect(momentum()).toBe(1);
-    });
-
-    it('plans once, so keeps going if the target is lost, and can be called off', () => {
-        const { state, ship, helm, addRaider, runShip, playOn, position } = createRelativeWorld();
-        const raider = addRaider(-10, 0);
-
-        playOn('breakAway', raider);
-        runShip(500);
-        state.remove(raider);
-        runShip(1000);
-        expect(helm.activeManeuver).not.toBeNull();
-        expect(position().x).toBeGreaterThan(1);
+        expect(play('overdrive', '9,0').played).toBe(true);
+        expect(effectLevel('helm', 'flux')).toBe(2);
+        const overdriveTime = maneuverDuration();
 
         helm.cancelActiveManeuver();
-        runShip(100);
-        expect(helm.activeManeuver).toBeNull();
         runShip(1000);
-        const stoppedAt = position().x;
-        expect(stoppedAt).toBeLessThan(6);
-        runShip(2000);
-        expect(ship.getPosition(state.currentTime).x).toBeCloseTo(stoppedAt, 5);
+        const from = position();
+        expect(play('burn', `${from.x + 9},${from.y}`).played).toBe(true);
+        expect(overdriveTime).toBeLessThan(maneuverDuration() * 0.6);
     });
 
-    describe('against a tractor beam and aiming weapons', () => {
-        it('breaks free of a tractor beam it could not escape on power alone', () => {
-            const { helm, ship, addRaider, play, playOn, runShip } = createRelativeWorld();
-            const raider = addRaider(-6, 0);
-            raider.tacticalState.adjustPowerLevel(5);
-            expect(helm.powerLevel).toBeLessThanOrEqual(raider.tacticalState.powerLevel);
-
-            expect(engageTractorBeam(raider, ship, 8, 60, 25)).toBe(true);
-            expect(helm.hasEffect('heldByTractorBeam')).toBe(true);
-
-            // An ordinary maneuver doesn't get it out: the holder has as much power at its tactical as the helm has.
-            expect(play('slowAndSteady', '3,0').played).toBe(true);
-            expect(helm.hasEffect('heldByTractorBeam')).toBe(true);
-            const { played } = playOn('breakAway', raider);
-            expect(played).toBe(true);
-            expect(helm.hasEffect('heldByTractorBeam')).toBe(false);
-            expect(raider.helmState.hasEffect('tractorBeamEngaged')).toBe(false);
-
-            // It flies as fast as if it had never been held: 6 units at 1.5 a second, with Momentum's speed-up not yet counted.
-            expect(helm.activeManeuver!.endTime - helm.activeManeuver!.startTime).toBeCloseTo(4000);
-            runShip(4100);
-            expect(helm.activeManeuver).toBeNull();
-        });
-
-        it('breaks free of the beam whichever ship holds it, and plays as usual when there is none', () => {
-            const { helm, ship, addRaider, playOn } = createRelativeWorld();
-            const raider = addRaider(-6, 0);
-            const holder = addRaider(-5, 3);
-            holder.tacticalState.adjustPowerLevel(5);
-
-            expect(engageTractorBeam(holder, ship, 8, 60, 25)).toBe(true);
-            expect(playOn('breakAway', raider).played).toBe(true);
-            expect(helm.hasEffect('heldByTractorBeam')).toBe(false);
-            expect(holder.helmState.hasEffect('tractorBeamEngaged')).toBe(false);
-
-            // With nothing holding it, there's nothing to break free of.
-            helm.cancelActiveManeuver();
-            expect(playOn('breakAway', raider).played).toBe(true);
-        });
-
-        it('makes the target lose any Lock it had on the ship, and cumbersome weapons start their aim over', () => {
-            const { ship, other, addRaider, playOn, runShip } = createRelativeWorld();
-            const raider = addRaider(8, 0);
-            const bystander = addRaider(0, 8);
-            const tactical = raider.tacticalState;
-            expect(tactical.slots.length).toBeGreaterThan(0);
-
-            expect(tactical.addLock(ship, 3)).toBe(true);
-            tactical.slots[0].aimStartTimes.set(ship.id, 0);
-            tactical.slots[0].aimStartTimes.set(other.id, 0);
-
-            expect(playOn('breakAway', raider).played).toBe(true);
-            expect(tactical.lockLevel).toBe(0);
-            expect(tactical.lockTargetId).toBe('');
-            expect(tactical.slots[0].aimStartTimes.has(ship.id)).toBe(false);
-            // Aim on anything else is kept.
-            expect(tactical.slots[0].aimStartTimes.has(other.id)).toBe(true);
-            runShip(100);
-
-            // Nobody else is affected.
-            expect(bystander.tacticalState.lockLevel).toBe(0);
-        });
-
-        it('leaves a Lock on some other ship alone', () => {
-            const { other, addRaider, playOn } = createRelativeWorld();
-            const raider = addRaider(8, 0);
-            const tactical = raider.tacticalState;
-
-            expect(tactical.addLock(other, 2)).toBe(true);
-            expect(playOn('breakAway', raider).played).toBe(true);
-            expect(tactical.lockLevel).toBe(2);
-            expect(tactical.lockTargetId).toBe(other.id);
-        });
+    it('cannot be played on a point too close', () => {
+        const { play, effectLevel } = createRelativeWorld();
+        expect(play('overdrive', '4,0').played).toBe(false);
+        expect(effectLevel('helm', 'flux')).toBe(0);
     });
+});
 
-    it('can only be played on hostile ships', () => {
-        const { helm, other, ship, playOn, momentum } = createRelativeWorld();
+describe('Hairpin', () => {
+    it('is an uncommon helm card that wants Momentum, and cannot be played without it', () => {
+        const { helm, play } = createRelativeWorld();
+        expect(cardDefinitions.hairpin).toMatchObject({ targetType: 'no-target', rarity: 'uncommon', system: 'helm', parameters: { cost: 2, evasion: 10, distancePerMomentum: 1.5, evasionPerMomentum: 8 } });
+        expect(getCardDefinition('hairpin').synergy).toEqual({ wants: ['momentum'] });
 
-        expect(playOn('breakAway', other).played).toBe(false);
-        expect(playOn('breakAway', ship).played).toBe(false);
+        expect(play('hairpin').played).toBe(false);
         expect(helm.activeManeuver).toBeNull();
+    });
+
+    // Each side is its own test, as a test's ships all share one game state.
+    it.each([['right', -5, 1], ['left', 5, -1]] as const)('turns through half a circle to the %s, away from the nearest hostile, then flies back 1.5 units per level, spending all the Momentum', (_side, raiderY, sideY) => {
+        const { helm, play, addRaider, runShip, position, momentum } = createRelativeWorld();
+        addRaider(5, raiderY);
+        helm.adjustEffectLevel('momentum', 2);
+
+        const { card, played } = play('hairpin');
+        expect(played).toBe(true);
         expect(momentum()).toBe(0);
+        expect(card.getParameter('evasion')).toBe(10 + 2 * 8);
+
+        runShip(10_000);
+        expect(helm.activeManeuver).toBeNull();
+        expect(card.getParameter('evasion')).toBe(10);
+
+        // A turn of radius 1, so it ends 2 units to the side, then 3 units back the way it came, facing back.
+        const end = position();
+        expect(end.x).toBeCloseTo(-3, 3);
+        expect(end.y).toBeCloseTo(2 * sideY, 3);
+        expect(Math.abs(clampAngle(end.angle))).toBeCloseTo(Math.PI, 3);
+    });
+});
+
+describe('Juke', () => {
+    it('is a helm card that wants Momentum, and cannot be played with less than 2', () => {
+        const { helm, play, momentum } = createRelativeWorld();
+        expect(cardDefinitions.juke).toMatchObject({ targetType: 'no-target', system: 'helm', parameters: { cost: 1, evasion: 40, momentumCost: 2, distance: 1.5 } });
+        expect(cardDefinitions.juke).not.toHaveProperty('rarity');
+        expect(getCardDefinition('juke').synergy).toEqual({ wants: ['momentum'] });
+
+        helm.adjustEffectLevel('momentum', 1);
+        expect(play('juke').played).toBe(false);
+        expect(momentum()).toBe(1);
+        expect(helm.activeManeuver).toBeNull();
+    });
+
+    it('sidesteps 1.5 units away from the nearest hostile, spending 2 Momentum, and ends facing the way it started', () => {
+        const { helm, play, addRaider, runShip, position, momentum } = createRelativeWorld();
+        addRaider(5, -5);
+        helm.adjustEffectLevel('momentum', 3);
+
+        expect(play('juke').played).toBe(true);
+        expect(momentum()).toBe(1);
+        expect(helm.activeManeuver!.endTime - helm.activeManeuver!.startTime).toBe(600);
+
+        runShip(700);
+        expect(helm.activeManeuver).toBeNull();
+        const end = position();
+        expect(end.x).toBeCloseTo(0, 3);
+        expect(end.y).toBeCloseTo(1.5, 3);
+        expect(end.angle).toBeCloseTo(0, 3);
+    });
+
+    it('makes every ship aiming at it lose its aim, and leaves aim on other ships alone', () => {
+        const { helm, ship, other, play, addRaider } = createRelativeWorld();
+        const raider = addRaider(8, 0);
+        const tactical = raider.tacticalState;
+        expect(tactical.slots.length).toBeGreaterThan(0);
+        expect(tactical.addLock(ship, 3)).toBe(true);
+        tactical.slots[0].aimStartTimes.set(ship.id, 0);
+        tactical.slots[0].aimStartTimes.set(other.id, 0);
+        helm.adjustEffectLevel('momentum', 2);
+
+        expect(play('juke').played).toBe(true);
+        expect(tactical.lockLevel).toBe(0);
+        expect(tactical.lockTargetId).toBe('');
+        expect(tactical.slots[0].aimStartTimes.has(ship.id)).toBe(false);
+        expect(tactical.slots[0].aimStartTimes.has(other.id)).toBe(true);
     });
 });
 

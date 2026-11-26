@@ -41,7 +41,7 @@ export const effects = defineEffects({
     /**
      * On the helm of a ship held in another's tractor beam. Its level is the percentage of speed that manoeuvres started under it lose.
      * It lasts for as long as the Tractor Beam weapon holding the ship stays active, unless the ships get too far apart first,
-     * or the held ship starts a manoeuvre with more power at its helm than the holder has at its tactical, which breaks it.
+     * or the held ship starts a manoeuvre with more power at its helm, plus its Momentum, than the holder has at its tactical, which breaks it.
      */
     heldByTractorBeam: {
         category: SystemEffectCategory.Negative,

@@ -3,6 +3,7 @@ import { calculateDriftPath } from 'common-data/features/cards/utils/calculateDr
 import { calculateMotionPath } from 'common-data/features/cards/utils/calculateMotionPath';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { calculatePatternPath, isEvasivePattern } from 'common-data/features/cards/utils/evasivePatterns';
+import { calculateHairpinPath, calculateJukePath, getSideAwayFrom, hairpinSpeed } from 'common-data/features/cards/utils/momentumManeuvers';
 import { FieldInfo } from 'common-data/features/space/types/FieldInfo';
 import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
@@ -129,6 +130,17 @@ export const HelmSpaceMap = (props: Props) => {
         ? calculatePatternPath(activeCard.cardType, shipPosition)
         : null;
 
+    // Hairpin and Juke turn or step away from the nearest hostile ship, and how far a Hairpin flies back depends on the Momentum there is to spend.
+    const momentumManeuverPath = activeCard && (activeCard.cardType === 'hairpin' || activeCard.cardType === 'juke')
+        ? (() => {
+            const hostile = findNearestEligibleShip(props.objects, props.viewer, shipPosition, 'hostile', currentTime);
+            const side = getSideAwayFrom(shipPosition, hostile?.position);
+            return activeCard.cardType === 'hairpin'
+                ? calculateHairpinPath(shipPosition, side, (props.momentumLevel ?? 0) * cardDefinitions.hairpin.parameters.distancePerMomentum, hairpinSpeed)
+                : calculateJukePath(shipPosition, side, cardDefinitions.juke.parameters.distance);
+        })()
+        : null;
+
     // A ship card is played on whichever eligible ship is nearest the hexagon it's over. With none anywhere, it can't be dropped.
     const shipTargetRelationship = draggingShipCard && activeCard ? getShipTargetRelationship(activeCard.cardType) : null;
     const hasShipTarget = shipTargetRelationship !== null
@@ -158,6 +170,9 @@ export const HelmSpaceMap = (props: Props) => {
             if (patternPath) {
                 drawMotionPath(ctx, patternPath, pixelSize);
             }
+            if (momentumManeuverPath) {
+                drawMotionPath(ctx, momentumManeuverPath, pixelSize);
+            }
             if (shipTarget && pointerLocation) {
                 drawShipTarget(ctx, shipPosition, shipTarget.position, pointerLocation, pixelSize);
             }
@@ -169,7 +184,7 @@ export const HelmSpaceMap = (props: Props) => {
             drawOffscreenTargetArrows(ctx, bounds, props.objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize, contactLabels);
             drawWeaponEffects(ctx, props.weaponEffectsRef.current, props.objects, drawTime, pixelSize);
         },
-        [motionPath, patternPath, shipTarget, pointerLocation, shipPosition, props.weaponEffectsRef, props.objects, props.viewer, timeProvider, contactLabels, tacticalTargetId, scienceTargetId]
+        [motionPath, patternPath, momentumManeuverPath, shipTarget, pointerLocation, shipPosition, props.weaponEffectsRef, props.objects, props.viewer, timeProvider, contactLabels, tacticalTargetId, scienceTargetId]
     );
 
     return (

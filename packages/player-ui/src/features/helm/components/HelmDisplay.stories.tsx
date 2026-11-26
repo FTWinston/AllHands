@@ -146,7 +146,7 @@ export const WithMomentum: Story = {
         momentumFade: { startTime: Date.now() - 30_000, endTime: Date.now() + 30_000 },
         cards: [
             { id: 1, type: 'burn' },
-            { id: 2, type: 'fullImpulse' },
+            { id: 2, type: 'punchIt' },
             { id: 3, type: 'drift' },
             { id: 4, type: 'slowAndSteady' },
         ],

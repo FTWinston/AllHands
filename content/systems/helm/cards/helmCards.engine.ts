@@ -1,10 +1,10 @@
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { calculateDriftPath } from 'common-data/features/cards/utils/calculateDriftPath';
 import { calculatePatternPath, evasivePatternDuration, type EvasivePatternType } from 'common-data/features/cards/utils/evasivePatterns';
+import { calculateHairpinPath, calculateJukePath, getSideAwayFrom, hairpinSpeed, jukeDuration } from 'common-data/features/cards/utils/momentumManeuvers';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { clampAngle, determineAngle, distanceSq } from 'common-data/features/space/utils/vectors';
 import { screenShip, unscreenShip } from 'content/systems/helm/effects/helmEffects.engine';
-import { breakFreeOfTractorBeam } from 'content/systems/tactical/effects/tacticalEffects.engine';
 import { choiceEvaluator } from 'engine/ai/evaluators';
 import { locationCardEvaluator } from 'engine/ai/evaluators/helm';
 import { applyMotionCard } from 'engine/cards/applyMotionCard';
@@ -103,10 +103,6 @@ function planSlingshot(offset: Vector2D, range: number, heading: number): Flight
 
 /** How far behind its target a shadowing ship stays, in units. */
 const shadowDistance = 2.5;
-
-/** How fast a ship breaking away turns (as Burn does, where 1 is 180 degrees in 4 seconds) and flies, in units per second. */
-const breakAwayRotationSpeed = 1;
-const breakAwaySpeed = 1.5;
 
 /** How far ahead of now to look, in milliseconds, to tell which way a ship is going and how fast. */
 const driftSampleTime = 250;
@@ -299,8 +295,8 @@ export const cards = defineEngineCards(sharedCards, {
         aiEvaluator: locationCardEvaluator('slowAndSteady'),
         play: applyMotionCard,
     },
-    slowReverse: {
-        aiEvaluator: locationCardEvaluator('slowReverse'),
+    backAway: {
+        aiEvaluator: locationCardEvaluator('backAway'),
         play: applyMotionCard,
     },
     zigZag: {
@@ -339,9 +335,9 @@ export const cards = defineEngineCards(sharedCards, {
         aiEvaluator: locationCardEvaluator('burn'),
         play: playMomentumBuilder,
     },
-    fullImpulse: {
+    punchIt: {
         synergy: { wants: ['momentum'] },
-        aiEvaluator: locationCardEvaluator('fullImpulse'),
+        aiEvaluator: locationCardEvaluator('punchIt'),
         play: (gameState, ship, cardInstance, cardDefinition, location, parameters) => {
             // The Momentum held before this maneuver starts is what speeds it up: starting it can add a level, which only counts towards later ones.
             const momentum = getMomentum(ship);
@@ -397,7 +393,76 @@ export const cards = defineEngineCards(sharedCards, {
             return true;
         },
     },
+    overdrive: {
+        synergy: { provides: ['flux'] },
+        aiEvaluator: locationCardEvaluator('overdrive'),
+        play: (gameState, ship, cardInstance, cardDefinition, location, parameters) => {
+            if (!applyMotionCard(gameState, ship, cardInstance, cardDefinition, location, parameters)) {
+                return false;
+            }
+
+            ship.helmState.adjustEffectLevel('flux', parameters['flux']);
+            return true;
+        },
+    },
     // The cards below that take no target have no AI evaluator, so the AI never plays them.
+    hairpin: {
+        synergy: { wants: ['momentum'] },
+        play: (gameState, ship, parameters, card) => {
+            const momentum = getMomentum(ship);
+            if (momentum <= 0) {
+                return false;
+            }
+
+            // Turn away from the nearest hostile ship, so as not to swing into it.
+            const now = gameState.currentTime;
+            const start = ship.getPosition(now);
+            const side = getSideAwayFrom(start, findClosestHostile(gameState, ship, start, now)?.getPosition(now));
+            const speed = hairpinSpeed * ship.helmState.maneuverSpeedMultiplier;
+            const path = calculateHairpinPath(start, side, momentum * (parameters['distancePerMomentum'] ?? 0), speed);
+
+            ship.setMotion(...path.map(keyframe => new MotionKeyframe(now + keyframe.time, keyframe.x, keyframe.y, keyframe.angle)));
+            ship.helmState.setActiveManeuver(new CardCooldownState(card, now, now + path[path.length - 1].time, parameters['cost']));
+
+            // The card itself is harder to hit with for as long as it's being flown, as that's where a maneuver's evasion is read from.
+            const extraEvasion = momentum * (parameters['evasionPerMomentum'] ?? 0);
+            if (extraEvasion !== 0) {
+                card.modifyParameter('evasion', extraEvasion);
+                ship.helmState.whenActiveManeuverEnds(() => card.modifyParameter('evasion', -extraEvasion));
+            }
+
+            // All the Momentum is spent, including any level that starting this maneuver just added.
+            ship.helmState.removeEffect('momentum', 'early');
+            return true;
+        },
+    },
+    juke: {
+        synergy: { wants: ['momentum'] },
+        play: (gameState, ship, parameters, card) => {
+            const momentumCost = parameters['momentumCost'] ?? 0;
+            if (getMomentum(ship) < momentumCost) {
+                return false;
+            }
+
+            // Step away from the nearest hostile ship.
+            const now = gameState.currentTime;
+            const start = ship.getPosition(now);
+            const side = getSideAwayFrom(start, findClosestHostile(gameState, ship, start, now)?.getPosition(now));
+            const path = calculateJukePath(start, side, parameters['distance'] ?? 0);
+
+            ship.setMotion(...path.map(keyframe => new MotionKeyframe(now + keyframe.time, keyframe.x, keyframe.y, keyframe.angle)));
+            ship.helmState.setActiveManeuver(new CardCooldownState(card, now, now + jukeDuration, parameters['cost']));
+            ship.helmState.adjustEffectLevel('momentum', -momentumCost);
+
+            // Every ship aiming at this one loses its aim on it. (A sensor ghost has no weapons.)
+            for (const other of gameState.objects.values()) {
+                if (other !== ship && other instanceof Ship) {
+                    other.tacticalState.loseAimOn(ship.id);
+                }
+            }
+            return true;
+        },
+    },
     evasiveManeuvers: {},
     patternAlpha: { play: playEvasivePattern('patternAlpha') },
     patternBeta: { play: playEvasivePattern('patternBeta') },
@@ -532,46 +597,6 @@ export const cards = defineEngineCards(sharedCards, {
             helm.shadowRearArc = (parameters['rearArc'] ?? 0) * Math.PI / 180;
             helm.addEffect('shadowing');
             helm.whenActiveManeuverEnds(() => helm.removeEffect('shadowing', 'expired'));
-            return true;
-        },
-    },
-    breakAway: {
-        synergy: { provides: ['momentum'] },
-        play: (gameState, ship, target, parameters, card) => {
-            const startTime = gameState.currentTime;
-
-            // The ship gets free of any tractor beam holding it, however much power the holder has, before its speed is worked out as the beam slows it.
-            breakFreeOfTractorBeam(ship);
-
-            const position = ship.getPosition(startTime);
-            const targetPosition = target.getPosition(startTime);
-
-            // Directly away from the target, or straight ahead if the ship is right on top of it.
-            const awayX = position.x - targetPosition.x;
-            const awayY = position.y - targetPosition.y;
-            const heading = awayX === 0 && awayY === 0 ? position.angle : determineAngle(targetPosition, position);
-            const distance = parameters['distance'] ?? 0;
-
-            // Turn on the spot to face away, then burn in a straight line.
-            const keyframes = [new MotionKeyframe(startTime, position.x, position.y, position.angle)];
-            let time = startTime;
-            const turn = Math.abs(clampAngle(heading - position.angle));
-            if (turn > 0.001) {
-                time += turn / Math.PI / breakAwayRotationSpeed * 4000;
-                keyframes.push(new MotionKeyframe(time, position.x, position.y, heading));
-            }
-            time += distance / (breakAwaySpeed * ship.helmState.maneuverSpeedMultiplier) * 1000;
-            // A ship's angle goes the opposite way round to Math.atan2's, so it points along (cos, -sin).
-            keyframes.push(new MotionKeyframe(time, position.x + Math.cos(heading) * distance, position.y - Math.sin(heading) * distance, heading));
-
-            ship.setMotion(...keyframes);
-            ship.helmState.setActiveManeuver(new CardCooldownState(card, startTime, time, parameters['cost']));
-            ship.helmState.adjustEffectLevel('momentum', parameters['momentum']);
-
-            // The target's weapons lose their aim on this ship, and have to get it back. (A sensor ghost has no weapons.)
-            if (target instanceof Ship) {
-                target.tacticalState.loseAimOn(ship.id);
-            }
             return true;
         },
     },

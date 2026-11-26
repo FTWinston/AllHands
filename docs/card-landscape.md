@@ -103,7 +103,7 @@ Helm's job is deciding where the ship is and what it's showing the enemy. Slow &
 | Card | Effect |
 |---|---|
 | Slow & Steady | Turn towards a point, then fly straight to it. |
-| Slow Reverse | Turn away from a point, then reverse slowly to it. |
+| Back Away | Turn away from a point, then reverse slowly to it. |
 | Face Target | Turn to face a point without moving. |
 | Strafe | Move a short way without turning. |
 | Lock On | Pick a hostile ship: stop, and keep facing it for 8s. Weapons are more accurate meanwhile. |
@@ -111,16 +111,19 @@ Helm's job is deciding where the ship is and what it's showing the enemy. Slow &
 
 ### Slipstream
 
-Momentum is gained by starting a manoeuvre soon after the last one ended. A ship sitting still loses a level every 1.5s, and a hit knocks one off. Each level makes manoeuvres faster and the ship harder to hit. Helm sees its Momentum on the helm screen.
+Momentum is gained by starting a manoeuvre soon after the last one ended. A ship sitting still loses a level every 1.5s, and a hit knocks one off. Each level makes manoeuvres faster and the ship harder to hit, and counts towards helm's power when breaking free of a tractor beam. Helm sees its Momentum on the helm screen.
 
 | Card | Kind | Effect |
 |---|---|---|
 | Burn | Builder | A fast straight move. +2 Momentum. |
-| Zig-Zag | Route | Side to side towards a point, facing it. Longer moves have more legs, not wider ones. |
+| Zig-Zag | Route | Wide swings from side to side towards a point, facing it. Longer moves have more legs, not wider ones. |
 | Sweep | Route | Curve anticlockwise or clockwise to a point, turning early, with a short final leg. |
 | Feint | Route | Set off at an angle, then cut back sharply to the point. High evasion. |
-| Full Impulse | Payoff | A straight move whose speed and evasion grow with Momentum. Spends half of it. |
+| Punch It | Payoff | A straight move whose speed and evasion grow with Momentum. Spends half of it. |
 | Drift | Payoff | Cut the engines: slide on the way the ship is moving, further with more Momentum, while turning to face a point. Spends all of it. |
+| Hairpin | Payoff | Uncommon. Whip round a tight half circle, away from the nearest hostile, and fly back the way the ship was facing: further, and harder to hit, with more Momentum. Spends all of it. |
+| Juke | Payoff | Spend 2 Momentum on a sharp sidestep away from the nearest hostile. Every ship aiming at this one loses its aim. |
+| Overdrive | Route | Rare. The fastest straight move there is, but it puts 2 Flux on the helm system for engineer to deal with. |
 
 ### Evasive Maneuvers
 
@@ -138,9 +141,8 @@ These are ship-targeted cards: dragging one over a hexagon on the helm map picks
 | Shadow | For 8s, stay just behind the target, facing it. While you're in its rear arc, its evasion doesn't count against your weapons. |
 | Slingshot | Whip round the target at close range and back out. +2 Momentum. |
 | Attack Run | Fly fast at the target and stop short of it. Tactical has extra power meanwhile. |
-| Break Away | Turn directly away from the target and burn away. Always breaks a tractor beam, and the target's weapons lose their aim. +1 Momentum. |
 
-Brace moved to engineer, as Brace for Impact. Hard Brake, Hold Steady (merged into Lock On), Match Course and Evasive Pattern were cut.
+Brace moved to engineer, as Brace for Impact. Hard Brake, Hold Steady (merged into Lock On), Match Course, Evasive Pattern and Break Away were cut: Momentum now helps break a tractor beam instead, and Juke took Break Away's loss of aim.
 
 ## Tactical
 
@@ -179,7 +181,7 @@ Existing cards that fit: Photonic Cannon, High Yield, tactical's Overcharge, Ful
 
 | Card | Kind | Status | Effect |
 |---|---|---|---|
-| Tractor Beam | Weapon | built | *Energised* and *Rechargeable*: loads fully charged, and once fired holds the target while its charge runs down (about 8s from full). The target's manoeuvre is cut short and its manoeuvres heavily slowed, and yours a little. Tactical can keep it up by dropping cards on its meter. The held ship breaks free if it starts a manoeuvre while its helm has more power than the holder's tactical; every card in its helm's hand is marked *Caught* while it's held. Helm can't see whether it would break free, but science can. |
+| Tractor Beam | Weapon | built | *Energised* and *Rechargeable*: loads fully charged, and once fired holds the target while its charge runs down (about 8s from full). The target's manoeuvre is cut short and its manoeuvres heavily slowed, and yours a little. Tactical can keep it up by dropping cards on its meter. The held ship breaks free if it starts a manoeuvre while its helm's power plus its Momentum is more than the holder's tactical power; every card in its helm's hand is marked *Caught* while it's held. Helm can't see whether it would break free, but science can. |
 | Exploit | Modifier | built | More damage for each negative effect on the system an aimed shot hits. |
 | Plasma Warhead | Modifier | built | A torpedo gains *persistent*, and does less damage on impact. |
 | Proximity Fuse | Modifier | built | A torpedo gains *area*, and is more accurate. |

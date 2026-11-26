@@ -102,18 +102,14 @@ export function engageTractorBeam(source: Ship, target: Ship, range: number, tar
 
     target.helmState.cancelActiveManeuver();
 
-    // A held ship that starts a manoeuvre with more power at its helm than the holder has at its tactical breaks the beam.
+    // A held ship that starts a manoeuvre with more power at its helm, plus its Momentum, than the holder has at its tactical breaks the beam.
+    // The Momentum counted is what the ship has as the manoeuvre starts, including any it gains from following straight on from the last one.
     target.helmState.maneuverStarted.addListener(breakFreeListenerId, () => {
-        if (target.helmState.powerLevel > source.tacticalState.powerLevel) {
+        if (target.helmState.powerLevel + target.helmState.momentumLevel > source.tacticalState.powerLevel) {
             releaseTractorBeam(source, target);
         }
     });
     return true;
-}
-
-/** Have a ship break free of any tractor beam that holds it, whatever the power levels at its helm and the holder's tactical. Does nothing if it isn't held. */
-export function breakFreeOfTractorBeam(ship: Ship) {
-    getHelmTile(ship)?.removeEffect('heldByTractorBeam', 'early');
 }
 
 /** Whether a ship is still holding a target in its tractor beam. */

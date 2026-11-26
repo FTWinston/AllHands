@@ -573,6 +573,19 @@ describe('Tractor Beam', () => {
             }
         });
 
+        it('counts the Momentum of the held ship on top of its helm power', () => {
+            for (const [momentum, breaks] of [[1, false], [2, true]] as const) {
+                const { slot, helm, enemyHelm, startManeuver } = holdAndManeuver(3, 4);
+                helm.adjustEffectLevel('momentum', momentum);
+                expect(helm.momentumLevel).toBe(momentum);
+
+                startManeuver();
+
+                expect(slot.isActive).toBe(!breaks);
+                expect(enemyHelm.hasEffect('heldByTractorBeam')).toBe(!breaks);
+            }
+        });
+
         it('compares the powers as the manoeuvre starts, not afterwards', () => {
             const { tactical, enemy, slot, enemyHelm, startManeuver, waitAll } = holdAndManeuver(3, 4);
 

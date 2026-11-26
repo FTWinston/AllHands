@@ -25,7 +25,7 @@ export const effects = defineUiEffects(sharedEffects, {
     },
     heldByTractorBeam: {
         name: 'Held by Tractor Beam',
-        description: <>Another ship has this one in its tractor beam, heavily slowing every manoeuvre started. The beam breaks if the ships get too far apart, or if this ship starts a manoeuvre with more power at its helm than the holder has at its tactical.</>,
+        description: <>Another ship has this one in its tractor beam, heavily slowing every manoeuvre started. The beam breaks if the ships get too far apart, or if this ship starts a manoeuvre with more power at its helm, plus its Momentum, than the holder has at its tactical.</>,
         image: ExampleIcon,
     },
     tractorBeamEngaged: {

@@ -56,7 +56,7 @@ export const AtShopStation: Story = {
         deckView: createDeckView(true),
         shop: {
             stationKind: 'navigationBeacon',
-            cards: [{ id: 101, type: 'slowReverse' }, { id: 102, type: 'strafe' }, { id: 103, type: 'sweep' }],
+            cards: [{ id: 101, type: 'backAway' }, { id: 102, type: 'strafe' }, { id: 103, type: 'sweep' }],
             antimatter: 40,
             buyCard: fn(),
         },

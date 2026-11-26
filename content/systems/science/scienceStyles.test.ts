@@ -27,7 +27,7 @@ function createWorld() {
     state.add(scanner);
 
     const targetSetup = { ...shipSetup('raiders', 5, 0), goal: { type: 'search-and-destroy' as const }, skill: 1 };
-    targetSetup.helm = { ...targetSetup.helm, cards: ['slowAndSteady', 'zigZag', 'strafe', 'slowReverse'], initialHandSize: 2 };
+    targetSetup.helm = { ...targetSetup.helm, cards: ['slowAndSteady', 'zigZag', 'strafe', 'backAway'], initialHandSize: 2 };
     const target = new AiShip(state, targetSetup);
     state.add(target);
 
