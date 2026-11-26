@@ -72,7 +72,7 @@ export const Three: Story = {
     args: {
         cardId: 1,
         cardTypes: [
-            'faceTarget',
+            'pivot',
             'strafe',
             'slowAndSteady',
         ],

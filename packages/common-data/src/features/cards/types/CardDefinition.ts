@@ -115,11 +115,18 @@ export type CardMotionPath
         turnFraction: number;
     }
     | {
-        shape: 'feint';
-        /** How far off the line to the target the ship sets off, in radians. It picks the side needing less turn from its heading. */
-        angle: number;
-        /** The fraction of the distance to the target that it travels before cutting back. */
-        legFraction: number;
+        /** Flies straight on the way the ship is facing, without turning first, then turns hard onto the target and flies straight to it. */
+        shape: 'sharpTurn';
+        /** How far the ship flies straight on before it turns. */
+        lead: number;
+        /** How tight the turn is: the radius of the curve it flies. */
+        radius: number;
+    }
+    | {
+        /** Flies at the closest hostile ship, swings round its far side, and flies out to the target. */
+        shape: 'slingshot';
+        /** How close to the hostile ship it swings round. */
+        radius: number;
     }
     | {
         /** Moves straight, turning side-on towards the closest hostile ship half way along, then straightening up to face the way it's going. */
@@ -154,6 +161,13 @@ export type LocationTargetCardDefinition = CommonCardDefinition & {
     turnDirection?: TurnDirection;
     /** The route to fly, if it isn't a straight line to the target. Shapes that set the ship's facing themselves ignore startFacing and endFacing. */
     path?: CardMotionPath;
+    /**
+     * How much of the turn the ship makes before it moves (towards startFacing, or the way a path sets off) it can leave to do while moving, in radians.
+     * The rest it turns on the spot first. If not given, it does all of that turn on the spot.
+     */
+    turnWhileMoving?: number;
+    /** How far to either side of the way the ship is facing the target can be, in radians. Anywhere, if not given. */
+    maxBearing?: number;
     minDistance?: number;
     maxDistance?: number;
 

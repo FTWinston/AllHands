@@ -11,7 +11,7 @@ const helmCards: Snapshot<CardInstance>[] = [
     { id: 102, type: 'strafe' },
     { id: 103, type: 'sweep' },
     { id: 104, type: 'zigZag' },
-    { id: 105, type: 'faceTarget' },
+    { id: 105, type: 'pivot' },
 ];
 
 const meta: Meta<typeof Component> = {

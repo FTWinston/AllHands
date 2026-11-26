@@ -20,7 +20,7 @@ Each station starts with 8 cards, and a system's maximum health is its card coun
 
 | Station | Deck | Styles |
 |---|---|---|
-| Helm | Slow & Steady, Face Target, Strafe, Zig-zag × 2, Sweep, Burn, Lock On | Gun Platform (Lock On) and Slipstream (Burn) |
+| Helm | Slow & Steady, Pivot, Strafe, Zig-zag × 2, Sweep, Burn, Lock On | Gun Platform (Lock On) and Slipstream (Burn) |
 | Tactical | Phaser Strip × 2, Phaser Cannon, Photon Torpedo, Efficiency, High Yield, Power Cell, Acquire Lock | Gun Line (Power Cell) and Alpha Strike (Acquire Lock) |
 | Science | Passive Scan, Antiproton Scan, Polaron Scan, Tetryon Scan, Coherent Beam Scan, Phased Burst Scan, Cross-reference, Phased Chroniton Scan | Analyst (Cross-reference) and Catalyst (Phased Chroniton Scan) |
 | Engineer | Jury-rig, Purge, Focus Shields, Swap Systems, Priority Feed, Trickle Charge, Redline, Run Quiet | Reserve (Trickle Charge, Run Quiet) and Redline (Redline) |
@@ -90,7 +90,7 @@ A rare, expensive choice card, outside the three styles, for when things have go
 
 ## Helm
 
-Helm's job is deciding where the ship is and what it's showing the enemy. Slow & Steady (turn, then fly straight) is the baseline: every other location card moves while turning, or takes a route of its own. Only one card offers a left/right choice (Sweep); Evasive Maneuvers offers three set patterns.
+Helm's job is deciding where the ship is and what it's showing the enemy. Slow & Steady (turn, then fly straight) is the baseline: every other location card moves while turning, or takes a route of its own. Facing matters: cards turn to face the way they're going before they move, rather than setting off backwards, though most finish the last of the turn on the move. Strafe, Back Away and Drift move without facing the way they go, and Sharp Turn and Punch It are for changing course without stopping to turn first. Only one card offers a left/right choice (Sweep); Evasive Maneuvers offers three set patterns.
 
 | Style | Feel | Resource | Synergy tag | Risk |
 |---|---|---|---|---|
@@ -104,10 +104,10 @@ Helm's job is deciding where the ship is and what it's showing the enemy. Slow &
 |---|---|
 | Slow & Steady | Turn towards a point, then fly straight to it. |
 | Back Away | Turn away from a point, then reverse slowly to it. |
-| Face Target | Turn to face a point without moving. |
+| Pivot | Turn on the spot to face a point. |
 | Strafe | Move a short way without turning. |
 | Lock On | Pick a hostile ship: stop, and keep facing it for 8s. Weapons are more accurate meanwhile. |
-| Broadside | A brisk move that swings side-on halfway (towards the nearest hostile) and straightens up by the end, sweeping the guns across whatever is beside the path. |
+| Broadside | Turn to face the point, then a brisk move that swings side-on halfway (towards the nearest hostile) and straightens up by the end, sweeping the guns across whatever is beside the path. |
 
 ### Slipstream
 
@@ -116,18 +116,18 @@ Momentum is gained by starting a manoeuvre soon after the last one ended. A ship
 | Card | Kind | Effect |
 |---|---|---|
 | Burn | Builder | A fast straight move. +2 Momentum. |
-| Zig-Zag | Route | Wide swings from side to side towards a point, facing it. Longer moves have more legs, not wider ones. |
+| Zig-Zag | Route | Wide, fast swings from side to side towards a point, facing it. Longer moves have more legs, not wider ones. |
 | Sweep | Route | Curve anticlockwise or clockwise to a point, turning early, with a short final leg. |
-| Feint | Route | Set off at an angle, then cut back sharply to the point. High evasion. |
-| Punch It | Payoff | A straight move whose speed and evasion grow with Momentum. Spends half of it. |
+| Sharp Turn | Route | Carry straight on for 3 units without turning first, then turn hard onto the point. High evasion. |
+| Punch It | Payoff | Race to a point within 45 degrees of the way the ship faces, turning on the move. Fast, and faster with more evasion for each level of Momentum. Spends half of it. |
 | Drift | Payoff | Cut the engines: slide on the way the ship is moving, further with more Momentum, while turning to face a point. Spends all of it. |
-| Hairpin | Payoff | Uncommon. Whip round a tight half circle, away from the nearest hostile, and fly back the way the ship was facing: further, and harder to hit, with more Momentum. Spends all of it. |
-| Juke | Payoff | Spend 2 Momentum on a sharp sidestep away from the nearest hostile. Every ship aiming at this one loses its aim. |
+| Hairpin | Payoff | Uncommon. Whip round a half circle, away from the nearest hostile, and fly back the way the ship was facing: 2 units, and further, with more evasion, for each level of Momentum. Spends all of it. |
+| Juke | Payoff | Spend 2 Momentum on a sharp sidestep away from the nearest hostile. Every ship aiming at this one loses its aim. Greyed out without the Momentum, as Drift is with none. |
 | Overdrive | Route | Rare. The fastest straight move there is, but it puts 2 Flux on the helm system for engineer to deal with. |
 
 ### Evasive Maneuvers
 
-A choice of three set patterns, Alpha, Beta and Gamma, each about 5s long with curves and sharp turns, ending in a known place and facing. High evasion while flying them, but the ship's own weapons are less accurate. It sits outside the three styles.
+A choice of three set patterns, Alpha, Beta and Gamma, each 8s long with curves and sharp turns, covering 10 or more units, and ending in a known place and facing. High evasion while flying them, but the ship's own weapons are less accurate. It sits outside the three styles.
 
 ### Shadow
 
@@ -139,8 +139,8 @@ These are ship-targeted cards: dragging one over a hexagon on the helm map picks
 | Circle Strafe | Rare. For 8s, circle the target while facing it. |
 | Interpose | For 8s, hold the point between a friendly ship and the hostile ship nearest it. Shots at the friendly ship hit you instead while you're in the way. |
 | Shadow | For 8s, stay just behind the target, facing it. While you're in its rear arc, its evasion doesn't count against your weapons. |
-| Slingshot | Whip round the target at close range and back out. +2 Momentum. |
-| Attack Run | Fly fast at the target and stop short of it. Tactical has extra power meanwhile. |
+| Slingshot | A location card: fly at the nearest hostile, whip round its far side, and out to the point. +2 Momentum. |
+| Attack Run | Make a pass at the target, facing it: in alongside it, then round behind it. Tactical has extra power meanwhile. |
 
 Brace moved to engineer, as Brace for Impact. Hard Brake, Hold Steady (merged into Lock On), Match Course, Evasive Pattern and Break Away were cut: Momentum now helps break a tractor beam instead, and Juke took Break Away's loss of aim.
 

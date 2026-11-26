@@ -110,8 +110,9 @@ export const HelmSpaceMap = (props: Props) => {
                 const velocity = { x: (soon.x - shipPosition.x) / driftSampleTime * 1000, y: (soon.y - shipPosition.y) / driftSampleTime * 1000 };
                 return calculateDriftPath(shipPosition, velocity, (props.momentumLevel ?? 0) * cardDefinitions.drift.parameters.distancePerMomentum, targetLocation);
             }
-            // Broadside turns towards the closest hostile ship, so it needs to know where that is.
-            const needsHostile = (cardDef as LocationTargetCardDefinition).path?.shape === 'broadside';
+            // Broadside turns towards the closest hostile ship, and Slingshot swings round it, so they need to know where that is.
+            const shape = (cardDef as LocationTargetCardDefinition).path?.shape;
+            const needsHostile = shape === 'broadside' || shape === 'slingshot';
             const hostile = needsHostile
                 ? findNearestEligibleShip(props.objects, props.viewer, shipPosition, 'hostile', currentTime)
                 : null;

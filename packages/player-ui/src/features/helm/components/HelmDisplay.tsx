@@ -18,6 +18,7 @@ import { CardUI } from 'src/features/cardui/components/CardUI';
 import { useRootClassName } from 'src/hooks/useRootClassName';
 import { CrewHeader } from '../../header';
 import { findNearestEligibleShip, getShipTargetRelationship } from '../utils/findNearestEligibleShip';
+import { isHelmCardPlayable } from '../utils/isHelmCardPlayable';
 import { HelmSpaceMap } from './HelmSpaceMap';
 
 type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
@@ -69,12 +70,19 @@ export const HelmDisplay = (props: Props) => {
         }
     }, [playCard, objects, viewer, timeProvider]);
 
+    // Cards that need or spend Momentum are greyed out without enough of it.
+    const isCardPlayable = useCallback(
+        (card: Snapshot<CardInstance>) => isHelmCardPlayable(card, { momentumLevel: momentumLevel ?? 0 }),
+        [momentumLevel]
+    );
+
     return (
         <Screen>
             <CardUI
                 playCard={playCardOnTarget}
                 cardHand={cards}
                 availablePower={headerProps.power}
+                isCardPlayable={isCardPlayable}
             >
                 <CrewHeader
                     crew="helm"

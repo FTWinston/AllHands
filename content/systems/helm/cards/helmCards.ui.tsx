@@ -31,12 +31,12 @@ export const cards = defineUiCards(sharedCards, {
     },
     zigZag: {
         name: 'Zig-zag',
-        description: 'Weave from side to side while advancing towards a target, facing it the whole time. Longer moves zig and zag more.',
+        description: 'Weave widely from side to side while advancing towards a point, facing it the whole time. Longer moves zig and zag more.',
         image: <ExampleIcon />,
     },
-    feint: {
-        name: 'Feint',
-        description: 'Set off at an angle, then cut sharply back towards the destination.',
+    sharpTurn: {
+        name: 'Sharp Turn',
+        description: 'Carry straight on the way the ship is facing, without turning first, then turn hard towards a point and fly straight to it.',
         image: <ExampleIcon />,
     },
     strafe: {
@@ -59,9 +59,9 @@ export const cards = defineUiCards(sharedCards, {
         description: 'Curve right towards a point, turning early on and finishing with a short straight run.',
         image: <ExampleIcon />,
     },
-    faceTarget: {
-        name: 'Face Target',
-        description: 'Rotate to face the selected point without moving.',
+    pivot: {
+        name: 'Pivot',
+        description: 'Turn on the spot to face the selected point.',
         image: <ExampleIcon />,
     },
     burn: {
@@ -78,13 +78,14 @@ export const cards = defineUiCards(sharedCards, {
     punchIt: {
         name: 'Punch It',
         description: <>
-            The speed card: turn towards a point then race straight to it,
+            Race to a point ahead of the ship, turning as it goes. For each level of Momentum, it's
             {' '}
             <Parameter name="speedPerMomentum" />
-            % faster and
+            % faster and has
             {' '}
             <Parameter name="evasionPerMomentum" />
-            % harder to hit for each level of Momentum. Spends half of it.
+            {' '}
+            more evasion. Spends half of it.
         </>,
         image: <ExampleIcon />,
     },
@@ -102,15 +103,19 @@ export const cards = defineUiCards(sharedCards, {
     hairpin: {
         name: 'Hairpin',
         description: <>
-            Whip round through a tight half circle, away from the nearest hostile ship, then fly back the way the ship was facing.
-            Needs Momentum, which it all spends: it flies back
+            Whip round through a tight half circle, away from the nearest hostile ship, then fly
+            {' '}
+            <Parameter name="distance" />
+            {' '}
+            units back the way the ship was facing. Spends all its Momentum: for each level, it flies back
             {' '}
             <Parameter name="distancePerMomentum" />
             {' '}
-            units, and is
+            more units, and has
             {' '}
             <Parameter name="evasionPerMomentum" />
-            % harder to hit, for each level.
+            {' '}
+            more evasion.
         </>,
         image: <ExampleIcon />,
     },
@@ -137,10 +142,11 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="distancePerMomentum" />
             {' '}
-            units, and is
+            units, and has
             {' '}
             <Parameter name="evasionPerMomentum" />
-            % harder to hit, for each level.
+            {' '}
+            more evasion, for each level.
         </>,
         image: <ExampleIcon />,
     },
@@ -161,7 +167,7 @@ export const cards = defineUiCards(sharedCards, {
     patternAlpha: {
         name: 'Pattern Alpha',
         description: <>
-            Weave: swerve right, cut hard left, then swerve back. Ends about 4 units ahead, facing the way it started. Harder to hit, but the ship's weapons are
+            Weave: swerve right, cut hard left, and again, then a last swerve right. Ends about 12 units ahead, facing the way it started. Harder to hit, but the ship's weapons are
             {' '}
             <Parameter name="accuracyLoss" />
             % less accurate.
@@ -171,7 +177,7 @@ export const cards = defineUiCards(sharedCards, {
     patternBeta: {
         name: 'Pattern Beta',
         description: <>
-            Break hard to starboard, jinking back ahead partway. Ends about 3 units to the right and 1.5 ahead, facing right. Harder to hit, but the ship's weapons are
+            Break hard to starboard, jinking back ahead twice on the way. Ends about 10 units to the right and 4 ahead, facing right. Harder to hit, but the ship's weapons are
             {' '}
             <Parameter name="accuracyLoss" />
             % less accurate.
@@ -181,7 +187,7 @@ export const cards = defineUiCards(sharedCards, {
     patternGamma: {
         name: 'Pattern Gamma',
         description: <>
-            Hook round to port. Ends about 2 units to the left, level with where it started, facing back the way it came. Harder to hit, but the ship's weapons are
+            Jink right then left, then hook round to port. Ends about 5 units to the left and 3 ahead, facing back the way it came. Harder to hit, but the ship's weapons are
             {' '}
             <Parameter name="accuracyLoss" />
             % less accurate.
@@ -190,13 +196,13 @@ export const cards = defineUiCards(sharedCards, {
     },
     broadside: {
         name: 'Broadside',
-        description: 'Move briskly to the destination, turning side-on towards the closest hostile ship half way there, then straightening up again to face the way you are going.',
+        description: 'Turn towards the destination and move briskly to it, turning side-on towards the closest hostile ship half way there, then straightening up again.',
         image: <ExampleIcon />,
     },
     slingshot: {
         name: 'Slingshot',
         description: <>
-            Fly at the target ship, swing round it through 180 degrees at close range, and head back out. Gain
+            Fly at the closest hostile ship, swing round its far side, and out to a point. Gain
             {' '}
             <Parameter name="momentum" />
             {' '}
@@ -277,7 +283,7 @@ export const cards = defineUiCards(sharedCards, {
     attackRun: {
         name: 'Attack Run',
         description: <>
-            Turn towards the target ship then race straight at it, stopping close by, for
+            Make a pass at the target ship, facing it all the way: fly in alongside it, then round behind it, for
             {' '}
             <Parameter name="duration" />
             {' '}

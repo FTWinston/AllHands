@@ -18,7 +18,7 @@ const helmCards = {
     deck: [
         { id: 102, type: 'slowAndSteady' },
         { id: 103, type: 'strafe', extraTraits: { damaged: ExtraTraitType.Normal } },
-        { id: 104, type: 'faceTarget' },
+        { id: 104, type: 'pivot' },
         { id: 105, type: 'sweep', extraTraits: { expendable: ExtraTraitType.Normal } },
     ],
 } satisfies SystemCards;

@@ -529,7 +529,7 @@ describe('Tractor Beam', () => {
             expect(inHand.hasTrait('caught')).toBe(true);
 
             // A card that arrives in the hand while the ship is held is caught too.
-            const drawnWhileHeld = new CardState(enemy.getCardId(), 'faceTarget');
+            const drawnWhileHeld = new CardState(enemy.getCardId(), 'pivot');
             helm.addCardToHand(drawnWhileHeld);
             expect(drawnWhileHeld.hasTrait('caught')).toBe(true);
 

@@ -38,20 +38,21 @@ export const cards = defineCards({
         startFacing: CardMotionSegmentFacing.FinalVector,
         endFacing: CardMotionSegmentFacing.FinalVector,
         baseRotationSpeed: 1.25,
-        baseSpeed: 1.25,
+        // Fast along the weave, as the path is over three times as long as the distance it covers
+        baseSpeed: 2.5,
         // Fixed legs and width, so a longer move has more legs rather than a wider path
-        path: { shape: 'zigZag', legLength: 1.6, width: 1 },
-        minDistance: 3,
+        path: { shape: 'zigZag', legLength: 1.6, width: 2.5 },
+        minDistance: 4.5,
         parameters: { cost: 2, evasion: 25 },
     },
-    feint: {
+    sharpTurn: {
         targetType: 'location',
         system: 'helm',
-        // Rotate to set off at an angle to the target, then cut back to it, ending facing the way it's going
-        path: { shape: 'feint', angle: 55 * Math.PI / 180, legFraction: 1 / 3 },
+        // Carry straight on the way the ship faces, without turning on the spot first, then turn hard onto the target and fly straight to it
+        path: { shape: 'sharpTurn', lead: 3, radius: 0.75 },
         baseRotationSpeed: 1.25,
-        baseSpeed: 1.25,
-        minDistance: 4,
+        baseSpeed: 1.5,
+        minDistance: 3,
         parameters: { cost: 2, evasion: 30 },
     },
     strafe: {
@@ -88,10 +89,10 @@ export const cards = defineCards({
         baseSpeed: 1,
         parameters: { cost: 2, evasion: 15 },
     },
-    faceTarget: {
+    pivot: {
         targetType: 'location',
         system: 'helm',
-        // Rotate to face the target, no movement
+        // Turn on the spot to face the target, no movement
         startFacing: CardMotionSegmentFacing.FinalVector,
         baseRotationSpeed: 1,
         baseSpeed: 0,
@@ -113,14 +114,16 @@ export const cards = defineCards({
         targetType: 'location',
         rarity: 'uncommon',
         system: 'helm',
-        // Rotate to face target first, then move straight towards it
+        // Race straight to a target ahead of the ship, turning as it goes rather than on the spot first
         startFacing: CardMotionSegmentFacing.FinalVector,
         endFacing: CardMotionSegmentFacing.FinalVector,
-        baseRotationSpeed: 1,
-        baseSpeed: 1,
+        turnWhileMoving: Math.PI / 4,
+        maxBearing: Math.PI / 4,
+        baseRotationSpeed: 1.5,
+        baseSpeed: 2,
         minDistance: 3,
         // speedPerMomentum: percentage of extra speed for each level of Momentum held; evasionPerMomentum: extra evasion for each level
-        parameters: { cost: 2, evasion: 10, speedPerMomentum: 15, evasionPerMomentum: 8 },
+        parameters: { cost: 2, evasion: 10, speedPerMomentum: 25, evasionPerMomentum: 8 },
     },
     overdrive: {
         targetType: 'location',
@@ -130,7 +133,7 @@ export const cards = defineCards({
         startFacing: CardMotionSegmentFacing.FinalVector,
         endFacing: CardMotionSegmentFacing.FinalVector,
         baseRotationSpeed: 1.5,
-        baseSpeed: 3,
+        baseSpeed: 5,
         minDistance: 6,
         // flux: the levels of Flux put on the helm system
         parameters: { cost: 2, evasion: 15, flux: 2 },
@@ -140,8 +143,8 @@ export const cards = defineCards({
         targetType: 'no-target',
         rarity: 'uncommon',
         system: 'helm',
-        // distancePerMomentum: how far the ship flies back the way it came, once turned, for each level of Momentum it spends; evasionPerMomentum: extra evasion, while it does, for each level spent
-        parameters: { cost: 2, evasion: 10, distancePerMomentum: 1.5, evasionPerMomentum: 8 },
+        // distance: how far the ship flies back the way it came, once turned; distancePerMomentum: how much further, for each level of Momentum it spends; evasionPerMomentum: extra evasion, while it does, for each level spent
+        parameters: { cost: 2, evasion: 10, distance: 2, distancePerMomentum: 1.5, evasionPerMomentum: 8 },
     },
     juke: {
         targetType: 'no-target',
@@ -156,8 +159,8 @@ export const cards = defineCards({
         // The path isn't made from these: it slides the way the ship is already going (see `calculateDriftPath`), so neither speed nor rotation applies.
         baseRotationSpeed: 0,
         baseSpeed: 0,
-        // distancePerMomentum: how far the ship slides for each level of Momentum it spends; evasionPerMomentum: extra evasion, while it does, for each level spent
-        parameters: { cost: 2, evasion: 0, distancePerMomentum: 1.5, evasionPerMomentum: 8 },
+        // minMomentum: the levels of Momentum it needs, to be played; distancePerMomentum: how far the ship slides for each level of Momentum it spends; evasionPerMomentum: extra evasion, while it does, for each level spent
+        parameters: { cost: 2, evasion: 0, minMomentum: 1, distancePerMomentum: 1.5, evasionPerMomentum: 8 },
     },
     evasiveManeuvers: {
         targetType: 'choice',
@@ -187,16 +190,23 @@ export const cards = defineCards({
     broadside: {
         targetType: 'location',
         system: 'helm',
-        // Don't rotate before moving: turn side-on towards the closest hostile ship half way along, then straighten up to face the way it's going
+        // Turn to face the target (finishing the turn on the move), then turn side-on towards the closest hostile ship half way along, and straighten up again
         path: { shape: 'broadside' },
+        turnWhileMoving: 35 * Math.PI / 180,
         baseRotationSpeed: 1,
         baseSpeed: 1,
         parameters: { cost: 1, evasion: 0 },
     },
     slingshot: {
-        targetType: 'ship',
+        targetType: 'location',
         rarity: 'uncommon',
         system: 'helm',
+        // Fly at the closest hostile ship, swing round its far side, and out to the target. Can't be played with no hostile ship about.
+        path: { shape: 'slingshot', radius: 2 },
+        turnWhileMoving: 35 * Math.PI / 180,
+        baseRotationSpeed: 1.25,
+        baseSpeed: 1.75,
+        minDistance: 3,
         // momentum: the levels of Momentum gained by playing it
         parameters: { cost: 3, evasion: 30, momentum: 2 },
     },
@@ -242,8 +252,8 @@ export const cards = defineCards({
         targetRelationship: 'hostile',
         rarity: 'uncommon',
         system: 'helm',
-        // duration: how long the maneuver lasts, in seconds; power: how much extra power tactical has while it does
-        parameters: { cost: 3, evasion: 15, duration: 8, power: 1 },
+        // duration: how long the maneuver lasts, in seconds; power: how much extra power tactical has while it does; passDistance: how far beside the target ship it passes, and behind it it ends, in units
+        parameters: { cost: 3, evasion: 15, duration: 8, power: 1, passDistance: 2.5 },
     },
     warpAway: {
         targetType: 'no-target',

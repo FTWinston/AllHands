@@ -10,7 +10,7 @@ export function isEvasivePattern(cardType: string): cardType is EvasivePatternTy
 }
 
 /** How long every pattern takes to fly, in milliseconds. */
-export const evasivePatternDuration = 5_000;
+export const evasivePatternDuration = 8_000;
 
 /** How many keyframes each pattern is flown with, not counting the first. Enough that the ship's curves are smooth, however sharp the turn. */
 const keyframeCount = 40;
@@ -38,37 +38,43 @@ type PatternDefinition = {
 const degrees = Math.PI / 180;
 
 const patterns: Record<EvasivePatternType, PatternDefinition> = {
-    // A weave: swerve right, cut hard left, then swerve back to the right and straighten up.
+    // A weave: swerve right, cut hard left, swerve right again, cut left again, then a last swerve right and straighten up.
     patternAlpha: {
         headings: [
-            [0, 0], [0.04, 0],
-            [0.16, 60 * degrees], [0.28, 60 * degrees],
-            [0.36, -75 * degrees], [0.66, -75 * degrees],
-            [0.74, 60 * degrees], [0.84, 60 * degrees],
-            [0.97, 0], [1, 0],
+            [0, 0], [0.03, 0],
+            [0.10, 60 * degrees], [0.18, 60 * degrees],
+            [0.24, -75 * degrees], [0.40, -75 * degrees],
+            [0.46, 60 * degrees], [0.58, 60 * degrees],
+            [0.64, -60 * degrees], [0.74, -60 * degrees],
+            [0.80, 45 * degrees], [0.88, 45 * degrees],
+            [0.96, 0], [1, 0],
         ],
-        speed: 1.4,
-        end: { forward: 4, right: 0 },
+        speed: 2.6,
+        end: { forward: 12.5, right: 0.5 },
     },
-    // A hard break to starboard, jinking back ahead partway round, before finishing the turn to face right.
+    // A hard break to starboard, jinking back ahead twice on the way round, before finishing the turn to face right.
     patternBeta: {
         headings: [
-            [0, 0], [0.08, 0],
-            [0.2, 95 * degrees], [0.48, 95 * degrees],
-            [0.56, 15 * degrees], [0.7, 15 * degrees],
-            [0.8, 90 * degrees], [1, 90 * degrees],
+            [0, 0], [0.05, 0],
+            [0.14, 95 * degrees], [0.32, 95 * degrees],
+            [0.38, 15 * degrees], [0.48, 15 * degrees],
+            [0.55, 110 * degrees], [0.66, 110 * degrees],
+            [0.72, 40 * degrees], [0.80, 40 * degrees],
+            [0.88, 90 * degrees], [1, 90 * degrees],
         ],
-        speed: 0.9,
-        end: { forward: 1.5, right: 3 },
+        speed: 1.7,
+        end: { forward: 4, right: 10 },
     },
-    // A hook round to port: out ahead, then a long turn through half a circle, to come back alongside where it started.
+    // A hook round to port: a jink right and left on the way out, then a long turn through half a circle, to come back off to the side.
     patternGamma: {
         headings: [
-            [0, 0], [0.1, 0],
+            [0, 0], [0.06, 0],
+            [0.12, 40 * degrees], [0.22, 40 * degrees],
+            [0.28, -30 * degrees], [0.36, -30 * degrees],
             [0.9, -180 * degrees], [1, -180 * degrees],
         ],
-        speed: 1.2,
-        end: { forward: 0, right: -2 },
+        speed: 2.6,
+        end: { forward: 3, right: -5 },
     },
 };
 

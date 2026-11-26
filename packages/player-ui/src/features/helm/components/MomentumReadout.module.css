@@ -1,12 +1,14 @@
+/* As narrow as the buttons in the column it sits in: the label runs up the side, beside a column of pips. */
 .momentum {
     position: relative;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 0.1em;
-    padding: 0.5em 0.75em;
+    justify-content: center;
+    gap: 0.2em;
+    padding: 0.5em 0.25em;
     box-sizing: border-box;
-    min-width: 3em;
+    width: 3em;
     color: var(--color-mid);
     background-color: var(--color-darkest);
     border: solid var(--color-dark) 1px;
@@ -35,12 +37,16 @@
     font-size: 0.65em;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
 }
 
+/* Filled from the bottom up. */
 .pips {
     display: flex;
+    flex-direction: column-reverse;
     font-size: 0.9em;
-    letter-spacing: 0.1em;
+    line-height: 1.1;
 }
 
 .pip {

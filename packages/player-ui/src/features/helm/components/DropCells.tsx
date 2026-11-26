@@ -1,7 +1,8 @@
 import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
+import { Position } from 'common-data/features/space/types/Position';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
-import { distance, serializeVector } from 'common-data/features/space/utils/vectors';
+import { clampAngle, determineAngle, distance, serializeVector } from 'common-data/features/space/utils/vectors';
 import { classNames } from 'common-ui/utils/classNames';
 import { FC, memo, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
@@ -19,7 +20,8 @@ type Props = {
     /** Whether no cell can take the card. */
     disabled?: boolean;
     center: Vector2D;
-    shipPosition: Vector2D;
+    /** Where the ship is, and which way it faces, which some cards limit where they can be dropped by. */
+    shipPosition: Position;
     cellRadius: number;
     className?: string;
 };
@@ -82,6 +84,7 @@ const DropCellsInner: FC<Props> = (props) => {
     const cardDef = activeCard ? cardDefinitions[activeCard.cardType] : null;
     const minDistance = cardDef?.targetType === 'location' ? (cardDef as LocationTargetCardDefinition).minDistance : undefined;
     const maxDistance = cardDef?.targetType === 'location' ? (cardDef as LocationTargetCardDefinition).maxDistance : undefined;
+    const maxBearing = cardDef?.targetType === 'location' ? (cardDef as LocationTargetCardDefinition).maxBearing : undefined;
 
     const [containerInfo, setContainerInfo] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
 
@@ -170,7 +173,9 @@ const DropCellsInner: FC<Props> = (props) => {
         const cellDistance = distance(worldPos, shipPosition);
         const isTooClose = minDistance !== undefined && cellDistance < minDistance;
         const isTooFar = maxDistance !== undefined && cellDistance > maxDistance;
-        const isDisabled = props.disabled === true || isTooClose || isTooFar;
+        const isOffBearing = maxBearing !== undefined && cellDistance > 0.001
+            && Math.abs(clampAngle(determineAngle(shipPosition, worldPos) - shipPosition.angle)) > maxBearing + 1e-6;
+        const isDisabled = props.disabled === true || isTooClose || isTooFar || isOffBearing;
 
         // Convert to screen position relative to view center
         // The view center (in world coords) is at the screen center

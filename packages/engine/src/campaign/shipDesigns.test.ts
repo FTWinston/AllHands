@@ -128,7 +128,7 @@ describe('the quarantine gate\'s designs', () => {
         expect(pylon.tacticalState.powerLevel).toBe(3);
         expect(pylon.tacticalState.slots).toHaveLength(1);
         expect([...pylon.tacticalState.deck, ...pylon.tacticalState.hand].map(card => card.type)).toEqual(['photonTorpedo', 'photonTorpedo']);
-        expect([...pylon.helmState.deck, ...pylon.helmState.hand].every(card => card.type === 'faceTarget')).toBe(true);
+        expect([...pylon.helmState.deck, ...pylon.helmState.hand].every(card => card.type === 'pivot')).toBe(true);
         expect(createShipSetup('gatePylon', 'side', origin).fleeThreshold).toBe(0);
 
         // Damage that gets through takes cards at random, emitters as likely as bare hull.

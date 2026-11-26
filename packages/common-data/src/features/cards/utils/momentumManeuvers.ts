@@ -9,7 +9,7 @@ export type MomentumManeuverKeyframe = Position & { time: number };
 export type ManeuverSide = 'left' | 'right';
 
 /** How tight a Hairpin's turn is, in units. */
-export const hairpinRadius = 1;
+export const hairpinRadius = 2;
 
 /** How fast a Hairpin flies, in units per second, before the ship's own maneuver speed is applied. */
 export const hairpinSpeed = 2;

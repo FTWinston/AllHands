@@ -23,14 +23,14 @@ import { cards as sharedCards } from './helmCards.shared';
 const lockOnStepDuration = 250;
 const lockOnStepsAhead = 3;
 
-/** How fast a locked-on ship turns, in radians per millisecond: 180 degrees in 4 seconds, as fast as Face Target turns. */
+/** How fast a locked-on ship turns, in radians per millisecond: 180 degrees in 4 seconds, as fast as Pivot turns. */
 const lockOnTurnRate = Math.PI / 4000;
 
 /** How fast a ship can move to keep its station relative to another ship, in units per second: as fast as Burn flies. */
 const stationMaxSpeed = 1.5;
 
-/** How close an attack run gets to its target before stopping, in units. */
-const attackRunStopDistance = 3;
+/** How close to the point alongside its target an attack run has to get before it goes on round behind it, in units. */
+const attackRunPassTolerance = 0.75;
 
 /** How fast an orbiting ship goes round, in units per second, and the smallest circle it will fly. */
 const orbitSpeed = 1;
@@ -38,68 +38,6 @@ const orbitMinRadius = 1.5;
 
 /** How far from the ship it's protecting an interposing ship sits, at most, in units. */
 const interposeDistance = 3;
-
-/** How close a slingshotting ship swings round its target, how far along its way back out it ends, and how fast it flies, all in units (and units per second). */
-const slingshotRadius = 2;
-const slingshotExitDistance = 4;
-const slingshotSpeed = 1.25;
-
-/** A path flown at a steady speed, worked out as a distance along it: how long it is in all, and where it is, and which way it faces, at each distance. */
-type FlightPath = { length: number; at: (distance: number) => { position: Vector2D; facing: number } };
-
-/**
- * The path of a slingshot, relative to its target, for a ship that starts at the given offset from it (the given range away, facing the given way):
- * straight in to the near side of a circle round the target, a half circle round that, then out again along the line the ship came in on, back where it started from.
- * The circle is gone round whichever way needs the smaller turn from the ship's heading to start with, and when that's the same either way (dead ahead), to the left.
- */
-function planSlingshot(offset: Vector2D, range: number, heading: number): FlightPath {
-    const origin = { x: 0, y: 0 };
-    // Unit vectors towards the target, and sideways to that: the two ways round the target are the two directions along the second.
-    const toward = { x: -offset.x / range, y: -offset.y / range };
-    const side = { x: -toward.y, y: toward.x };
-    const entryPoint = (direction: number) => ({ x: side.x * direction * slingshotRadius, y: side.y * direction * slingshotRadius });
-    const turnTo = (direction: number) => Math.abs(clampAngle(determineAngle(offset, entryPoint(direction)) - heading));
-
-    const direction = turnTo(1) <= turnTo(-1) + 1e-6 ? 1 : -1;
-    const entry = entryPoint(direction);
-    const approach = Math.hypot(entry.x - offset.x, entry.y - offset.y);
-    const approachFacing = determineAngle(offset, entry);
-    const swing = Math.PI * slingshotRadius;
-    const exitFacing = determineAngle(origin, { x: -toward.x, y: -toward.y });
-
-    return {
-        length: approach + swing + slingshotExitDistance,
-        at: (distance) => {
-            if (distance <= approach) {
-                const along = distance / approach;
-                return { position: { x: offset.x + (entry.x - offset.x) * along, y: offset.y + (entry.y - offset.y) * along }, facing: approachFacing };
-            }
-
-            if (distance <= approach + swing) {
-                // Round the far side of the target, so from beside it on one side, past ahead of it, to beside it on the other.
-                const turned = (distance - approach) / slingshotRadius;
-                const sin = Math.sin(turned);
-                const cos = Math.cos(turned);
-                return {
-                    position: {
-                        x: slingshotRadius * (sin * toward.x + direction * cos * side.x),
-                        y: slingshotRadius * (sin * toward.y + direction * cos * side.y),
-                    },
-                    facing: determineAngle(origin, { x: cos * toward.x - direction * sin * side.x, y: cos * toward.y - direction * sin * side.y }),
-                };
-            }
-
-            const out = Math.min(distance - approach - swing, slingshotExitDistance);
-            return {
-                position: {
-                    x: -entry.x - toward.x * out,
-                    y: -entry.y - toward.y * out,
-                },
-                facing: exitFacing,
-            };
-        },
-    };
-}
 
 /** How far behind its target a shadowing ship stays, in units. */
 const shadowDistance = 2.5;
@@ -256,7 +194,7 @@ function startRelativeManeuver(
  * The plan for circling the target ship at the range the ship starts at, or null if that's too close to circle.
  * The ship's heading is along the circle, keeping the target square to one side, unless it's to face the target all the way round.
  */
-function planCircle(ship: Ship, target: GameObject, startTime: number, faceTarget: boolean): StationPlan | null {
+function planCircle(ship: Ship, target: GameObject, startTime: number, pivot: boolean): StationPlan | null {
     const position = ship.getPosition(startTime);
     const targetPosition = target.getPosition(startTime);
 
@@ -280,7 +218,7 @@ function planCircle(ship: Ship, target: GameObject, startTime: number, faceTarge
 
         return {
             position: { x: targetAt.x + Math.cos(bearing) * radius, y: targetAt.y + Math.sin(bearing) * radius },
-            facing: faceTarget ? determineAngle(from, targetAt) : -(bearing + direction * Math.PI / 2),
+            facing: pivot ? determineAngle(from, targetAt) : -(bearing + direction * Math.PI / 2),
         };
     };
 }
@@ -304,9 +242,9 @@ export const cards = defineEngineCards(sharedCards, {
         aiEvaluator: locationCardEvaluator('zigZag'),
         play: applyMotionCard,
     },
-    feint: {
+    sharpTurn: {
         synergy: { provides: ['momentum'] },
-        aiEvaluator: locationCardEvaluator('feint'),
+        aiEvaluator: locationCardEvaluator('sharpTurn'),
         play: applyMotionCard,
     },
     strafe: {
@@ -321,9 +259,9 @@ export const cards = defineEngineCards(sharedCards, {
         aiEvaluator: locationCardEvaluator('sweepRight'),
         play: applyMotionCard,
     },
-    faceTarget: {
+    pivot: {
         synergy: { provides: ['steadyPlatform'] },
-        aiEvaluator: locationCardEvaluator('faceTarget'),
+        aiEvaluator: locationCardEvaluator('pivot'),
         play: applyMotionCard,
     },
     sweep: {
@@ -410,16 +348,13 @@ export const cards = defineEngineCards(sharedCards, {
         synergy: { wants: ['momentum'] },
         play: (gameState, ship, parameters, card) => {
             const momentum = getMomentum(ship);
-            if (momentum <= 0) {
-                return false;
-            }
 
             // Turn away from the nearest hostile ship, so as not to swing into it.
             const now = gameState.currentTime;
             const start = ship.getPosition(now);
             const side = getSideAwayFrom(start, findClosestHostile(gameState, ship, start, now)?.getPosition(now));
             const speed = hairpinSpeed * ship.helmState.maneuverSpeedMultiplier;
-            const path = calculateHairpinPath(start, side, momentum * (parameters['distancePerMomentum'] ?? 0), speed);
+            const path = calculateHairpinPath(start, side, (parameters['distance'] ?? 0) + momentum * (parameters['distancePerMomentum'] ?? 0), speed);
 
             ship.setMotion(...path.map(keyframe => new MotionKeyframe(now + keyframe.time, keyframe.x, keyframe.y, keyframe.angle)));
             ship.helmState.setActiveManeuver(new CardCooldownState(card, now, now + path[path.length - 1].time, parameters['cost']));
@@ -479,28 +414,11 @@ export const cards = defineEngineCards(sharedCards, {
     // The AI never plays this, as it has no evaluator.
     slingshot: {
         synergy: { provides: ['momentum'] },
-        play: (gameState, ship, target, parameters, card) => {
-            const startTime = gameState.currentTime;
-            const position = ship.getPosition(startTime);
-            const targetPosition = target.getPosition(startTime);
-            const offset = { x: position.x - targetPosition.x, y: position.y - targetPosition.y };
-
-            // Too close to get a run up and swing round it.
-            const range = Math.hypot(offset.x, offset.y);
-            if (range <= slingshotRadius) {
-                return false;
-            }
-
-            // The path is worked out relative to the target, as a distance along it that's covered at a steady speed, so that it carries on round the target as it moves.
-            // The target's own motion is added in at each time it's asked for (see `startRelativeManeuver`, which plans again every step).
-            const speed = slingshotSpeed * ship.helmState.maneuverSpeedMultiplier / 1000;
-            const path = planSlingshot(offset, range, position.angle);
-            const duration = path.length / speed;
-            if (!startRelativeManeuver(gameState, ship, target, { ...parameters, duration: duration / 1000 }, card, () => (time) => {
-                const along = path.at(Math.max(0, (time - startTime) * speed));
-                const targetAt = target.getPosition(time);
-                return { position: { x: targetAt.x + along.position.x, y: targetAt.y + along.position.y }, facing: along.facing };
-            })) {
+        play: (gameState, ship, cardInstance, cardDefinition, location, parameters) => {
+            // It swings round the closest hostile ship, as of when it sets off, so it can't be played with none.
+            const time = gameState.currentTime;
+            const hostile = findClosestHostile(gameState, ship, ship.getPosition(time), time);
+            if (!hostile || !applyMotionCard(gameState, ship, cardInstance, cardDefinition, location, parameters, { hostilePosition: hostile.getPosition(time) })) {
                 return false;
             }
 
@@ -602,17 +520,35 @@ export const cards = defineEngineCards(sharedCards, {
     },
     attackRun: {
         play: (gameState, ship, target, parameters, card) => {
-            // Turn to face the target and fly straight at it, as fast as the station speed allows, stopping a short way off. A target that moves is followed.
+            // A pass at the target, facing it all the way: in alongside it, on whichever side of it the ship is on, then round behind it, where it stays.
+            // A ship that starts behind the target goes straight there. The stations are worked out from where the target is, and faces, as it moves.
+            const passDistance = parameters['passDistance'] ?? 0;
+            const startTime = gameState.currentTime;
+            const start = ship.getPosition(startTime);
+            const targetStart = target.getPosition(startTime);
+
+            // The target faces along (cos, -sin) of its angle, so its left is along (-sin, -cos).
+            const offset = { x: start.x - targetStart.x, y: start.y - targetStart.y };
+            const ahead = offset.x * Math.cos(targetStart.angle) - offset.y * Math.sin(targetStart.angle);
+            const leftness = -offset.x * Math.sin(targetStart.angle) - offset.y * Math.cos(targetStart.angle);
+            const side = leftness >= 0 ? 1 : -1;
+            let passed = ahead < 0;
+
             const played = startRelativeManeuver(gameState, ship, target, parameters, card, () => (time, from) => {
                 const targetAt = target.getPosition(time);
-                const gap = Math.hypot(targetAt.x - from.x, targetAt.y - from.y);
                 const facing = determineAngle(from, targetAt);
-                if (gap <= attackRunStopDistance) {
-                    return { facing };
-                }
+                const alongside = {
+                    x: targetAt.x + side * passDistance * -Math.sin(targetAt.angle),
+                    y: targetAt.y + side * passDistance * -Math.cos(targetAt.angle),
+                };
 
-                const along = (gap - attackRunStopDistance) / gap;
-                return { position: { x: from.x + (targetAt.x - from.x) * along, y: from.y + (targetAt.y - from.y) * along }, facing };
+                if (!passed && Math.hypot(alongside.x - from.x, alongside.y - from.y) > attackRunPassTolerance) {
+                    return { position: alongside, facing };
+                }
+                passed = true;
+
+                const behind = { x: targetAt.x - passDistance * Math.cos(targetAt.angle), y: targetAt.y + passDistance * Math.sin(targetAt.angle) };
+                return { position: behind, facing };
             });
             if (!played) {
                 return false;

@@ -7,7 +7,7 @@ import { CrewHeader as Component } from './CrewHeader';
 import type { Snapshot } from '@colyseus/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-const cardTypes: CardType[] = ['slowAndSteady', 'faceTarget', 'strafe', 'zigZag', 'zigZag', 'sweep', 'burn', 'lockOn'];
+const cardTypes: CardType[] = ['slowAndSteady', 'pivot', 'strafe', 'zigZag', 'zigZag', 'sweep', 'burn', 'lockOn'];
 const cards: Snapshot<CardInstance>[] = cardTypes.map((type, index) => ({ id: index + 1, type }));
 
 const meta: Meta<typeof Component> = {
