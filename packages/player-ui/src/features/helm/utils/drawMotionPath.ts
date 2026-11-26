@@ -71,11 +71,13 @@ function getInterpolatedPoint(
  * @param ctx - Canvas rendering context (already transformed to world coordinates)
  * @param keyframes - Array of keyframes defining the motion path
  * @param pixelSize - Size of one pixel in world units (for consistent line widths)
+ * @param arrowheadEvery - Draw an arrowhead at every this many keyframes (as well as the last one). Every keyframe by default.
  */
 export function drawMotionPath(
     ctx: CanvasRenderingContext2D,
     keyframes: readonly MotionPathKeyframe[],
-    pixelSize: number
+    pixelSize: number,
+    arrowheadEvery = 1
 ): void {
     if (keyframes.length < 2) {
         return;
@@ -107,7 +109,12 @@ export function drawMotionPath(
     // Draw arrowheads at each keyframe (except the first, which is the current position)
     ctx.fillStyle = ARROWHEAD_COLOR;
 
+    // A path of many keyframes (like an evasive pattern's) only gets an arrowhead every so often, and at its end.
     for (let i = 1; i < keyframes.length; i++) {
+        if (i % arrowheadEvery !== 0 && i !== keyframes.length - 1) {
+            continue;
+        }
+
         const keyframe = keyframes[i];
         drawArrowhead(ctx, keyframe.x, keyframe.y, keyframe.angle, arrowSize);
     }

@@ -1,5 +1,6 @@
 import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
+import { calculatePatternPath, isEvasivePattern } from 'common-data/features/cards/utils/evasivePatterns';
 import { FieldInfo } from 'common-data/features/space/types/FieldInfo';
 import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
 import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
@@ -46,6 +47,9 @@ type Props = {
     cancelManeuver: () => void;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
 };
+
+// An evasive pattern's path has a keyframe every 125ms, so this puts an arrowhead on it every second.
+const patternArrowheadEvery = 8;
 
 // Base cell radius in pixels for both SpaceMap and SpaceCells
 const BASE_CELL_RADIUS = 32;
@@ -101,6 +105,11 @@ export const HelmSpaceMap = (props: Props) => {
         })()
         : null;
 
+    // An evasive maneuver pattern being dragged shows the path it would fly, from where the ship is now. It's the same path the engine flies, so it's as it will go, wherever it's dropped.
+    const patternPath = activeCard && isEvasivePattern(activeCard.cardType)
+        ? calculatePatternPath(activeCard.cardType, shipPosition)
+        : null;
+
     // A ship card is played on whichever eligible ship is nearest the hexagon it's over. With none anywhere, it can't be dropped.
     const shipTargetRelationship = draggingShipCard && activeCard ? getShipTargetRelationship(activeCard.cardType) : null;
     const hasShipTarget = shipTargetRelationship !== null
@@ -127,6 +136,9 @@ export const HelmSpaceMap = (props: Props) => {
             if (motionPath) {
                 drawMotionPath(ctx, motionPath, pixelSize);
             }
+            if (patternPath) {
+                drawMotionPath(ctx, patternPath, pixelSize, patternArrowheadEvery);
+            }
             if (shipTarget && pointerLocation) {
                 drawShipTarget(ctx, shipPosition, shipTarget.position, pointerLocation, pixelSize);
             }
@@ -138,7 +150,7 @@ export const HelmSpaceMap = (props: Props) => {
             drawOffscreenTargetArrows(ctx, bounds, props.objects, { tacticalTargetId, scienceTargetId }, drawTime, pixelSize, contactLabels);
             drawWeaponEffects(ctx, props.weaponEffectsRef.current, props.objects, drawTime, pixelSize);
         },
-        [motionPath, shipTarget, pointerLocation, shipPosition, props.weaponEffectsRef, props.objects, props.viewer, timeProvider, contactLabels, tacticalTargetId, scienceTargetId]
+        [motionPath, patternPath, shipTarget, pointerLocation, shipPosition, props.weaponEffectsRef, props.objects, props.viewer, timeProvider, contactLabels, tacticalTargetId, scienceTargetId]
     );
 
     return (

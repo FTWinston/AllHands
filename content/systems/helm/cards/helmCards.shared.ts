@@ -1,6 +1,11 @@
 import { defineCards } from 'common-data/content/SharedContent';
 import { CardMotionSegmentFacing } from 'common-data/features/cards/types/CardDefinition';
-import { evasivePatternDuration, holdSteadyDuration } from 'content/systems/helm/effects/helmEffects.shared';
+import { evasivePatternDuration } from 'common-data/features/cards/utils/evasivePatterns';
+import { holdSteadyDuration } from 'content/systems/helm/effects/helmEffects.shared';
+
+/** How much harder to hit a ship flying one of the evasive maneuver patterns is, and how much less accurate its own weapons are, in percentage points. */
+const evasivePatternEvasion = 40;
+const evasivePatternAccuracyLoss = 25;
 
 export const cards = defineCards({
     slowAndSteady: {
@@ -114,11 +119,30 @@ export const cards = defineCards({
         // speedPerMomentum: percentage of extra speed for each level of Momentum held; evasionPerMomentum: extra evasion for each level
         parameters: { cost: 2, evasion: 10, speedPerMomentum: 15, evasionPerMomentum: 8 },
     },
-    evasivePattern: {
+    evasiveManeuvers: {
+        targetType: 'choice',
+        rarity: 'common',
+        system: 'helm',
+        cards: ['patternAlpha', 'patternBeta', 'patternGamma'],
+        // The same as its options have: the evasion of a maneuver is read from the card that was played, which is this one
+        parameters: { cost: 2, evasion: evasivePatternEvasion },
+    },
+    // Each pattern's path is in common-data (`calculatePatternPath`), so that the helm can preview it
+    patternAlpha: {
         targetType: 'no-target',
         system: 'helm',
-        // accuracyLoss: percentage points taken off the accuracy of the ship's own weapons; duration: how long the ship jinks for, in seconds
-        parameters: { cost: 2, evasion: 40, accuracyLoss: 25, duration: evasivePatternDuration / 1000 },
+        // accuracyLoss: percentage points taken off the accuracy of the ship's own weapons; duration: how long the pattern takes, in seconds
+        parameters: { cost: 2, evasion: evasivePatternEvasion, accuracyLoss: evasivePatternAccuracyLoss, duration: evasivePatternDuration / 1000 },
+    },
+    patternBeta: {
+        targetType: 'no-target',
+        system: 'helm',
+        parameters: { cost: 2, evasion: evasivePatternEvasion, accuracyLoss: evasivePatternAccuracyLoss, duration: evasivePatternDuration / 1000 },
+    },
+    patternGamma: {
+        targetType: 'no-target',
+        system: 'helm',
+        parameters: { cost: 2, evasion: evasivePatternEvasion, accuracyLoss: evasivePatternAccuracyLoss, duration: evasivePatternDuration / 1000 },
     },
     holdSteady: {
         targetType: 'no-target',

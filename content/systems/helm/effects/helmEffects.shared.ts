@@ -1,4 +1,5 @@
 import { defineEffects } from 'common-data/content/SharedContent';
+import { evasivePatternDuration } from 'common-data/features/cards/utils/evasivePatterns';
 import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEffectDefinition';
 
 /** The most Momentum a helm can hold. */
@@ -9,7 +10,6 @@ export const momentumSpeedPerLevel = 10;
 
 /** How long each posture is held for, in milliseconds. */
 export const holdSteadyDuration = 6_000;
-export const evasivePatternDuration = 5_000;
 
 export const effects = defineEffects({
     /**
@@ -29,7 +29,7 @@ export const effects = defineEffects({
         maxLevel: 100,
         duration: holdSteadyDuration,
     },
-    /** On the helm: the ship is jinking (see the Evasive Pattern card), so its own weapons hit less often. Its level is the accuracy it takes away, in percentage points. */
+    /** On the helm: the ship is jinking (see the Evasive Maneuvers card), so its own weapons hit less often. Its level is the accuracy it takes away, in percentage points. */
     jinking: {
         category: SystemEffectCategory.Negative,
         usesLevels: true,

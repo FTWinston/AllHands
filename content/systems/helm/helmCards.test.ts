@@ -1,4 +1,6 @@
 import { cardDefinitions, type CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { evasivePatternDuration, calculatePatternPath } from 'common-data/features/cards/utils/evasivePatterns';
+import { getCardRarity } from 'common-data/features/cards/utils/getCardRarity';
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { getCardEvaluator } from 'engine/ai/evaluators';
@@ -145,41 +147,117 @@ describe('Full Impulse', () => {
     });
 });
 
-describe('Evasive Pattern', () => {
-    it('jinks in place for 5 seconds, hard to hit but with less accurate weapons', () => {
-        const { state, ship, other, helm, play, run, effectLevel, accuracy } = createShip();
-        expect(cardDefinitions.evasivePattern).toMatchObject({ targetType: 'no-target', system: 'helm', parameters: { cost: 2, evasion: 40, accuracyLoss: 25, duration: 5 } });
+describe('Evasive Maneuvers', () => {
+    const patterns = ['patternAlpha', 'patternBeta', 'patternGamma'] as const;
 
-        const { card, played } = play('evasivePattern');
-        expect(played).toBe(true);
-        expect(helm.activeManeuver!.card).toBe(card);
-        expect(helm.hand.includes(card)).toBe(false);
-        expect(helm.deck.includes(card)).toBe(false);
-        expect(helm.evasion).toBe(40);
-        expect(effectLevel('helm', 'jinking')).toBe(25);
-        expect(accuracy(other, ship)).toBe(60);
-        expect(accuracy(ship, other)).toBe(75);
+    /** Where each pattern ends, relative to where the ship started and which way it faced: forward, to the right, and the angle it turns clockwise (to the right) by. */
+    const expectedEnds = {
+        patternAlpha: { forward: 4, right: 0, turn: 0 },
+        patternBeta: { forward: 1.5, right: 3, turn: Math.PI / 2 },
+        patternGamma: { forward: 0, right: -2, turn: -Math.PI },
+    } as const;
 
-        // It moves from side to side, without going forward or turning.
-        let furthest = 0;
-        for (let t = 0; t < 4900; t += 100) {
-            state.tick(100);
-            const position = ship.getPosition(state.currentTime);
-            expect(position.x).toBeCloseTo(0);
-            expect(position.angle).toBeCloseTo(0);
-            furthest = Math.max(furthest, Math.abs(position.y));
+    /** How far two angles are apart, going the shortest way round. */
+    const angleBetween = (a: number, b: number) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+
+    it('is a common choice of three patterns, each of which is as hard to hit as the card, and none of which is sold alone', () => {
+        expect(cardDefinitions.evasiveManeuvers).toMatchObject({ targetType: 'choice', system: 'helm', cards: [...patterns], parameters: { cost: 2, evasion: 40 } });
+        expect(getCardRarity('evasiveManeuvers')).toBe('common');
+        expect(getShopCardTypes('helm')).toContain('evasiveManeuvers');
+
+        for (const pattern of patterns) {
+            expect(cardDefinitions[pattern]).toMatchObject({ targetType: 'no-target', system: 'helm', parameters: { cost: 2, evasion: 40, accuracyLoss: 25, duration: 5 } });
+            expect(getShopCardTypes('helm')).not.toContain(pattern);
+            expect(getCardDefinition(pattern)).not.toHaveProperty('aiEvaluator');
         }
-        expect(furthest).toBeGreaterThan(0.3);
-        expect(helm.activeManeuver).not.toBeNull();
+        expect(getCardDefinition('evasiveManeuvers')).not.toHaveProperty('aiEvaluator');
+        expect(getCardDefinition('evasiveManeuvers')).not.toHaveProperty('synergy');
+    });
 
-        // And ends where it began, with the card back in the deck.
-        run(200);
+    for (const pattern of patterns) {
+        it(`${pattern} flies for 5 seconds, ending where and facing as described, hard to hit but with less accurate weapons`, () => {
+            const { state, ship, other, helm, play, run, effectLevel, accuracy } = createShip();
+            const expected = expectedEnds[pattern];
+
+            const { card, played } = play('evasiveManeuvers', undefined, pattern);
+            expect(played).toBe(true);
+            expect(helm.activeManeuver!.card).toBe(card);
+            expect(card.type).toBe('evasiveManeuvers');
+            expect(helm.hand.includes(card)).toBe(false);
+            expect(helm.deck.includes(card)).toBe(false);
+            expect(helm.activeManeuver!.endTime - helm.activeManeuver!.startTime).toBe(evasivePatternDuration);
+            expect(helm.evasion).toBe(40);
+            expect(effectLevel('helm', 'jinking')).toBe(25);
+            expect(accuracy(other, ship)).toBe(60);
+            expect(accuracy(ship, other)).toBe(75);
+
+            // It flies smoothly, without jumping or spinning from one moment to the next, the whole way.
+            let previous = ship.getPosition(state.currentTime);
+            for (let t = 0; t < 4900; t += 100) {
+                state.tick(100);
+                const position = ship.getPosition(state.currentTime);
+                expect(Math.hypot(position.x - previous.x, position.y - previous.y)).toBeLessThan(0.4);
+                expect(angleBetween(position.angle, previous.angle)).toBeLessThan(1);
+                previous = position;
+            }
+            expect(helm.activeManeuver).not.toBeNull();
+            expect(effectLevel('helm', 'jinking')).toBe(25);
+
+            // Then it ends, with the card back in the deck.
+            run(200);
+            expect(helm.activeManeuver).toBeNull();
+            const end = ship.getPosition(state.currentTime);
+            expect(end.x).toBeCloseTo(expected.forward, 1);
+            expect(end.y).toBeCloseTo(expected.right, 1);
+
+            // Positive angles turn left, as ships' angles do on the map.
+            expect(angleBetween(end.angle, -expected.turn)).toBeLessThan(0.05);
+            expect(helm.deck.filter(candidate => candidate === card)).toHaveLength(1);
+            expect(effectLevel('helm', 'jinking')).toBe(0);
+            expect(helm.evasion).toBe(0);
+            expect(accuracy(other, ship)).toBe(100);
+            expect(accuracy(ship, other)).toBe(100);
+        });
+    }
+
+    it('has patterns that are different from each other, and turn the way they should', () => {
+        const start = { x: 0, y: 0, angle: 0 };
+        const alpha = calculatePatternPath('patternAlpha', start);
+        const beta = calculatePatternPath('patternBeta', start);
+        const gamma = calculatePatternPath('patternGamma', start);
+
+        // Alpha swerves to both sides, without going back on itself.
+        expect(Math.max(...alpha.map(point => point.y))).toBeGreaterThan(0.8);
+        expect(Math.min(...alpha.map(point => point.y))).toBeLessThan(-0.8);
+        expect(Math.min(...alpha.map(point => point.x))).toBeGreaterThan(-0.01);
+
+        // Beta only goes to the right, and turns through every heading between ahead and right, which is the other way round to Gamma.
+        expect(Math.min(...beta.map(point => point.y))).toBeGreaterThan(-0.01);
+        expect(Math.min(...beta.map(point => point.angle))).toBeCloseTo(-Math.PI / 2 - 0.1, 0);
+        expect(Math.max(...beta.map(point => point.angle))).toBeLessThan(0.01);
+
+        // Gamma only goes to the left (y increases to the right of a ship facing along x), and turns left all of the way, to face back.
+        expect(Math.max(...gamma.map(point => point.y))).toBeLessThan(0.01);
+        expect(gamma[gamma.length - 1].angle).toBeCloseTo(Math.PI);
+        for (let index = 1; index < gamma.length; index++) {
+            expect(gamma[index].angle).toBeGreaterThanOrEqual(gamma[index - 1].angle - 1e-9);
+        }
+    });
+
+    it('flies relative to where the ship is and which way it faces', () => {
+        const { state, ship, helm, play, runUntilManeuverEnds } = createShip();
+
+        // Facing up the map, which is to the left of facing along the x axis.
+        ship.setMotion(new MotionKeyframe(state.currentTime, 5, 5, Math.PI / 2));
+        expect(play('evasiveManeuvers', undefined, 'patternBeta').played).toBe(true);
+        runUntilManeuverEnds();
+
+        // Right of up the map is along x, and ahead is up. Beta ends 1.5 ahead and 3 to the right, facing right.
+        const end = ship.getPosition(state.currentTime);
+        expect(end.x).toBeCloseTo(5 + 3, 1);
+        expect(end.y).toBeCloseTo(5 - 1.5, 1);
+        expect(angleBetween(end.angle, 0)).toBeLessThan(0.05);
         expect(helm.activeManeuver).toBeNull();
-        expect(ship.getPosition(state.currentTime).y).toBeCloseTo(0);
-        expect(helm.deck.filter(candidate => candidate === card)).toHaveLength(1);
-        expect(effectLevel('helm', 'jinking')).toBe(0);
-        expect(accuracy(other, ship)).toBe(100);
-        expect(accuracy(ship, other)).toBe(100);
     });
 
     it('keeps Momentum, as the ship never stops moving', () => {
@@ -187,7 +265,7 @@ describe('Evasive Pattern', () => {
 
         play('burn', '6,0');
         runUntilManeuverEnds();
-        expect(play('evasivePattern').played).toBe(true);
+        expect(play('evasiveManeuvers', undefined, 'patternAlpha').played).toBe(true);
         expect(momentum()).toBe(3);
 
         run(4500);
@@ -198,8 +276,9 @@ describe('Evasive Pattern', () => {
     it('stops throwing the weapons off as soon as it is called off', () => {
         const { state, ship, other, helm, play, run, effectLevel, accuracy } = createShip();
 
-        play('evasivePattern');
+        play('evasiveManeuvers', undefined, 'patternGamma');
         run(1000);
+        expect(accuracy(ship, other)).toBe(75);
         helm.cancelActiveManeuver();
         state.tick(100);
 
