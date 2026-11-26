@@ -7,14 +7,20 @@ export const maxMomentum = 5;
 /** How much faster each level of Momentum makes every maneuver, as a percentage of its speed. */
 export const momentumSpeedPerLevel = 10;
 
+/** How much harder to hit each level of Momentum makes the ship, in evasion percentage points. */
+export const momentumEvasionPerLevel = 3;
+
+/** How long a ship has to sit still before it loses a level of Momentum, and then for each further level, in milliseconds. */
+export const momentumDecayInterval = 1500;
+
 /** How long each posture is held for, in milliseconds. */
 export const holdSteadyDuration = 6_000;
 export const evasivePatternDuration = 5_000;
 
 export const effects = defineEffects({
     /**
-     * On the helm: built by flying one maneuver straight after another, and by cards that add to it. Each level speeds every maneuver up.
-     * A level is lost each time the ship is hit, and all of them when the ship sits still for too long (see `HelmState`).
+     * On the helm: built by flying one maneuver straight after another, and by cards that add to it. Each level speeds every maneuver up, and makes the ship harder to hit.
+     * A level is lost each time the ship is hit, and one more each time it has sat still for a while (see `HelmState`).
      */
     momentum: {
         category: SystemEffectCategory.Positive,

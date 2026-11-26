@@ -2,7 +2,7 @@ import { CardState } from 'src/state/CardState';
 import { PlayerShip } from 'src/state/PlayerShip';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, expect, it } from 'vitest';
-import { momentumWindow } from './HelmState';
+import { momentumDecayInterval, momentumWindow } from './HelmState';
 
 const rooms = setupGameRoom();
 
@@ -187,8 +187,9 @@ describe('Momentum', () => {
         expect(momentum()).toBe(5);
     });
 
-    it('is all lost once the ship has been still for longer than 2s, but not while it keeps flying', () => {
+    it('is lost a level at a time, every 1.5s that the ship sits still, but not while it keeps flying', () => {
         const { run, helm, flyAhead, runUntilManeuverEnds, momentum } = createShip();
+        expect(momentumDecayInterval).toBe(1500);
 
         flyAhead(6);
         helm.adjustEffectLevel('momentum', 3);
@@ -197,11 +198,93 @@ describe('Momentum', () => {
         expect(momentum()).toBe(3);
 
         runUntilManeuverEnds();
-        run(1900);
+        run(1400);
         expect(momentum()).toBe(3);
 
+        run(200);
+        expect(momentum()).toBe(2);
+        run(1300);
+        expect(momentum()).toBe(2);
+
         run(300);
+        expect(momentum()).toBe(1);
+        run(1500);
         expect(momentum()).toBe(0);
+    });
+
+    it('can still be built by chaining maneuvers within 2s, as a level is lost during that time', () => {
+        const { run, helm, flyAhead, runUntilManeuverEnds, momentum } = createShip();
+
+        flyAhead(3);
+        helm.adjustEffectLevel('momentum', 2);
+        runUntilManeuverEnds();
+        run(1700);
+        expect(momentum()).toBe(1);
+
+        // Starting another adds one back.
+        expect(flyAhead(3)).toBe(true);
+        expect(momentum()).toBe(2);
+    });
+
+    it('makes the ship 3 points harder to hit for each level, on top of its maneuver', () => {
+        const { helm, flyAhead, momentum } = createShip();
+
+        flyAhead(10);
+        expect(helm.evasion).toBe(helm.activeManeuver!.card.getParameter('evasion'));
+        const base = helm.evasion;
+
+        helm.adjustEffectLevel('momentum', 4);
+        expect(momentum()).toBe(4);
+        expect(helm.evasionModifier).toBe(12);
+        expect(helm.evasion).toBe(base + 12);
+
+        helm.adjustEffectLevel('momentum', -1);
+        expect(helm.evasion).toBe(base + 9);
+
+        helm.removeEffect('momentum', 'early');
+        expect(helm.evasionModifier).toBe(0);
+        expect(helm.evasion).toBe(base);
+    });
+
+    it('is shown to the helm as its level, and when the next one will be lost', () => {
+        const { state, run, helm, flyAhead, runUntilManeuverEnds } = createShip();
+
+        expect(helm.momentumLevel).toBe(0);
+        expect(helm.momentumFade).toBeNull();
+
+        flyAhead(6);
+        helm.adjustEffectLevel('momentum', 2);
+        expect(helm.momentumLevel).toBe(2);
+
+        // While it's moving, nothing is about to be lost.
+        run(1000);
+        expect(helm.momentumFade).toBeNull();
+
+        // Once it stops, the time left is counted from when it did.
+        runUntilManeuverEnds();
+        const stoppedAt = state.currentTime;
+        run(300);
+        expect(helm.momentumFade).not.toBeNull();
+        expect(helm.momentumFade!.endTime - helm.momentumFade!.startTime).toBe(1500);
+        expect(helm.momentumFade!.startTime).toBeLessThanOrEqual(stoppedAt);
+        expect(helm.momentumFade!.endTime).toBeGreaterThan(state.currentTime);
+
+        // A level goes, and the clock starts again for the next. Losing the last clears it.
+        run(1400);
+        expect(helm.momentumLevel).toBe(1);
+        expect(helm.momentumFade!.endTime).toBeGreaterThan(state.currentTime);
+        run(1600);
+        expect(helm.momentumLevel).toBe(0);
+        expect(helm.momentumFade).toBeNull();
+    });
+
+    it('is shown to the helm as a level lost to a hit', () => {
+        const { ship, helm, flyAhead } = createShip();
+
+        flyAhead(10);
+        helm.adjustEffectLevel('momentum', 2);
+        ship.damage({ amount: 1, traits: [], targetSystem: 'hull' });
+        expect(helm.momentumLevel).toBe(1);
     });
 
     it('loses one level each time the ship is hit', () => {

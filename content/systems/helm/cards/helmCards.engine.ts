@@ -1,4 +1,5 @@
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
+import { calculateDriftPath } from 'common-data/features/cards/utils/calculateDriftPath';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { clampAngle, determineAngle, distanceSq } from 'common-data/features/space/utils/vectors';
 import { choiceEvaluator } from 'engine/ai/evaluators';
@@ -42,6 +43,9 @@ const shadowDistance = 2.5;
 /** How fast a ship breaking away turns (as Burn does, where 1 is 180 degrees in 4 seconds) and flies, in units per second. */
 const breakAwayRotationSpeed = 1;
 const breakAwaySpeed = 1.5;
+
+/** How far ahead of now to look, in milliseconds, to tell which way a ship is going and how fast. */
+const driftSampleTime = 250;
 
 /** How many levels of Momentum the ship's helm holds. */
 function getMomentum(ship: Ship): number {
@@ -287,6 +291,40 @@ export const cards = defineEngineCards(sharedCards, {
 
             // Spend half of that Momentum, rounded up.
             ship.helmState.adjustEffectLevel('momentum', -Math.ceil(momentum / 2));
+            return true;
+        },
+    },
+    drift: {
+        synergy: { wants: ['momentum'] },
+        play: (gameState, ship, cardInstance, _cardDefinition, location, parameters) => {
+            const momentum = getMomentum(ship);
+            if (momentum <= 0) {
+                return false;
+            }
+
+            // Which way the ship is going, and how fast, from where its motion has it a moment from now.
+            const now = gameState.currentTime;
+            const start = ship.getPosition(now);
+            const soon = ship.getPosition(now + driftSampleTime);
+            const velocity = { x: (soon.x - start.x) / driftSampleTime * 1000, y: (soon.y - start.y) / driftSampleTime * 1000 };
+
+            const path = calculateDriftPath(start, velocity, momentum * (parameters['distancePerMomentum'] ?? 0), location);
+            if (!path) {
+                return false;
+            }
+
+            ship.setMotion(...path.map(keyframe => new MotionKeyframe(now + keyframe.time, keyframe.x, keyframe.y, keyframe.angle)));
+            ship.helmState.setActiveManeuver(new CardCooldownState(cardInstance, now, now + path[path.length - 1].time, parameters['cost']));
+
+            // The card itself is harder to hit with for as long as it's being flown, as that's where a maneuver's evasion is read from.
+            const extraEvasion = momentum * (parameters['evasionPerMomentum'] ?? 0);
+            if (extraEvasion !== 0) {
+                cardInstance.modifyParameter('evasion', extraEvasion);
+                ship.helmState.whenActiveManeuverEnds(() => cardInstance.modifyParameter('evasion', -extraEvasion));
+            }
+
+            // All the Momentum is spent, including any level that starting this maneuver just added.
+            ship.helmState.removeEffect('momentum', 'early');
             return true;
         },
     },

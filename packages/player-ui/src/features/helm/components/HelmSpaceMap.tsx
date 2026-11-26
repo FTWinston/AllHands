@@ -1,4 +1,5 @@
 import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { calculateDriftPath } from 'common-data/features/cards/utils/calculateDriftPath';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { FieldInfo } from 'common-data/features/space/types/FieldInfo';
 import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
@@ -7,7 +8,7 @@ import { Position } from 'common-data/features/space/types/Position';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { interpolatePosition } from 'common-data/features/space/utils/interpolate';
 import { parseVector } from 'common-data/features/space/utils/vectors';
-import { CardCooldown } from 'common-data/types/Cooldown';
+import { CardCooldown, Cooldown } from 'common-data/types/Cooldown';
 import { Button } from 'common-ui/components/Button';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { SpaceMap } from 'common-ui/features/spacemap/components/SpaceMap';
@@ -29,6 +30,7 @@ import { drawShipTarget } from '../utils/drawShipTarget';
 import { findNearestEligibleShip, getShipTargetRelationship } from '../utils/findNearestEligibleShip';
 import { DropCells } from './DropCells';
 import styles from './HelmSpaceMap.module.css';
+import { MomentumReadout } from './MomentumReadout';
 
 type Props = {
     center: ReadonlyKeyframes<Position>;
@@ -43,9 +45,16 @@ type Props = {
     /** The id of the ship science is scanning, marked with science's reticle. */
     scienceTargetId?: string;
     activeManeuver?: CardCooldown | null;
+    /** How many levels of Momentum the ship has, which Drift spends to slide further. */
+    momentumLevel?: number;
+    /** When the ship next loses a level of Momentum. */
+    momentumFade?: Cooldown | null;
     cancelManeuver: () => void;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
 };
+
+/** How far ahead of now to look, in milliseconds, to tell which way the ship is going and how fast. The same as the engine's. */
+const driftSampleTime = 250;
 
 // Base cell radius in pixels for both SpaceMap and SpaceCells
 const BASE_CELL_RADIUS = 32;
@@ -91,6 +100,13 @@ export const HelmSpaceMap = (props: Props) => {
             const cardDef = cardDefinitions[activeCard.cardType];
             if (cardDef.targetType !== 'location') {
                 return null;
+            }
+
+            // Drift slides on the way the ship is going, so its path depends on that and on the Momentum there is to spend, not just where it's dropped.
+            if (activeCard.cardType === 'drift') {
+                const soon = interpolatePosition(props.center, currentTime + driftSampleTime);
+                const velocity = { x: (soon.x - shipPosition.x) / driftSampleTime * 1000, y: (soon.y - shipPosition.y) / driftSampleTime * 1000 };
+                return calculateDriftPath(shipPosition, velocity, (props.momentumLevel ?? 0) * cardDefinitions.drift.parameters.distancePerMomentum, targetLocation);
             }
 
             return calculateMotionPath(
@@ -165,6 +181,12 @@ export const HelmSpaceMap = (props: Props) => {
                 drawExtraBackground={drawExtraBackground}
                 drawExtraForeground={drawExtraForeground}
                 shipStyle="silhouette"
+            />
+
+            <MomentumReadout
+                className={styles.momentum}
+                level={props.momentumLevel ?? 0}
+                fade={props.momentumFade}
             />
 
             <Button

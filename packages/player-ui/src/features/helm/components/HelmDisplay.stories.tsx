@@ -137,3 +137,26 @@ export const UI: Story = {
         power: 5,
     },
 };
+
+/** The ship has built Momentum, and has been still long enough that the ring around it is half drained. */
+export const WithMomentum: Story = {
+    args: {
+        ...UI.args,
+        momentumLevel: 3,
+        momentumFade: { startTime: Date.now() - 30_000, endTime: Date.now() + 30_000 },
+        cards: [
+            { id: 1, type: 'burn' },
+            { id: 2, type: 'fullImpulse' },
+            { id: 3, type: 'drift' },
+            { id: 4, type: 'slowAndSteady' },
+        ],
+    },
+};
+
+/** The ship has no Momentum, so there's nothing to drift with. */
+export const NoMomentum: Story = {
+    args: {
+        ...UI.args,
+        momentumLevel: 0,
+    },
+};

@@ -73,13 +73,28 @@ export const cards = defineUiCards(sharedCards, {
     fullImpulse: {
         name: 'Full Impulse',
         description: <>
-            Turn towards a point then fly straight to it,
+            The speed card: turn towards a point then race straight to it,
             {' '}
             <Parameter name="speedPerMomentum" />
             % faster and
             {' '}
             <Parameter name="evasionPerMomentum" />
             % harder to hit for each level of Momentum. Spends half of it.
+        </>,
+        image: <ExampleIcon />,
+    },
+    drift: {
+        name: 'Drift',
+        description: <>
+            Cut the engines and slide on the way the ship is going, turning to face the selected point.
+            Needs Momentum, which it all spends: it slides
+            {' '}
+            <Parameter name="distancePerMomentum" />
+            {' '}
+            units, and is
+            {' '}
+            <Parameter name="evasionPerMomentum" />
+            % harder to hit, for each level.
         </>,
         image: <ExampleIcon />,
     },
