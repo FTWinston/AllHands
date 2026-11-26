@@ -18,6 +18,11 @@ describe('getShotOutcome', () => {
         expect(getShotOutcome(impact(), 'me')).toEqual({ outcome: 'hit', targetId: 'foe', system: 'helm' });
     });
 
+    it('marks a shot taken by an interposing ship as intercepted', () => {
+        expect(getShotOutcome(shot({ missed: true, intercepted: true }), 'me')).toEqual({ outcome: 'miss', targetId: 'foe', intercepted: true });
+        expect(getShotOutcome(impact({ intercepted: true }), 'me')).toEqual({ outcome: 'hit', targetId: 'foe', system: 'helm', intercepted: true });
+    });
+
     it('reports an impact that did no damage as absorbed by shields', () => {
         expect(getShotOutcome(impact({ damage: 0 }), 'me')).toEqual({ outcome: 'absorbed', targetId: 'foe', system: undefined });
     });
@@ -32,6 +37,11 @@ describe('getShotOutcome', () => {
 describe('addShotResult', () => {
     const miss = { outcome: 'miss', targetId: 'foe' } as const;
     const hit = { outcome: 'hit', targetId: 'foe', system: 'helm' } as const;
+
+    it('does not merge an intercepted shot with one that was not', () => {
+        const results = addShotResult(addShotResult([], miss, 0, 1), { ...miss, intercepted: true }, 100, 2);
+        expect(results).toHaveLength(2);
+    });
 
     it('merges a repeat of the latest outcome into one result, renewing its time', () => {
         let results = addShotResult([], miss, 0, 1);
@@ -76,5 +86,10 @@ describe('describeShotResult', () => {
         expect(describeShotResult(result({ outcome: 'hit', system: 'hull', count: 3 }), 'foe', 'Raider')).toBe('Hit · Hull ×3');
         expect(describeShotResult(result({}), 'other', 'Raider')).toBe('Miss · Raider');
         expect(describeShotResult(result({}), 'other', undefined)).toBe('Miss');
+    });
+
+    it('says when an interposing ship took the shot', () => {
+        expect(describeShotResult(result({ outcome: 'hit', system: 'helm', intercepted: true }), 'foe', 'Raider')).toBe('Intercepted · Hit · Helm');
+        expect(describeShotResult(result({ intercepted: true, count: 2 }), 'other', 'Escort')).toBe('Intercepted · Miss ×2 · Escort');
     });
 });

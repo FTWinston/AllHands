@@ -15,6 +15,8 @@ export interface ShotOutcomeInfo {
     targetId: string;
     /** The system a hit landed on, if known. */
     system?: ShipSystem;
+    /** True if an interposing ship took the shot meant for another. */
+    intercepted?: boolean;
 }
 
 export interface ShotResult extends ShotOutcomeInfo {
@@ -37,7 +39,7 @@ export function getShotOutcome(effect: WeaponEffect, shipId: string): ShotOutcom
 
     if (effect.type === 'shot') {
         return effect.missed && effect.targetId
-            ? { outcome: 'miss', targetId: effect.targetId }
+            ? { outcome: 'miss', targetId: effect.targetId, intercepted: effect.intercepted }
             : null;
     }
 
@@ -46,6 +48,7 @@ export function getShotOutcome(effect: WeaponEffect, shipId: string): ShotOutcom
             outcome: effect.damage > 0 ? 'hit' : 'absorbed',
             targetId: effect.targetId,
             system: effect.damage > 0 ? effect.system : undefined,
+            intercepted: effect.intercepted,
         };
     }
 
@@ -66,7 +69,7 @@ export function addShotResult(results: readonly ShotResult[], outcome: ShotOutco
     const latest = live[live.length - 1];
     const expiresAt = now + shotResultLifetime;
 
-    if (latest && latest.outcome === outcome.outcome && latest.targetId === outcome.targetId && latest.system === outcome.system) {
+    if (latest && latest.outcome === outcome.outcome && latest.targetId === outcome.targetId && latest.system === outcome.system && latest.intercepted === outcome.intercepted) {
         return [...live.slice(0, -1), { ...latest, id, count: latest.count + 1, expiresAt }];
     }
 
@@ -83,7 +86,7 @@ const systemLabels: Record<ShipSystem, string> = {
 };
 
 /**
- * The words for a result, e.g. "Hit · Helm", "Absorbed by shields", "Miss ×3".
+ * The words for a result, e.g. "Hit · Helm", "Absorbed by shields", "Miss ×3", "Intercepted · Hit".
  * A shot at any target but the one being shown names its target too.
  */
 export function describeShotResult(result: ShotResult, currentTargetId: string | null, targetName: string | undefined): string {
@@ -95,6 +98,11 @@ export function describeShotResult(result: ShotResult, currentTargetId: string |
         text = 'Absorbed by shields';
     } else {
         text = 'Miss';
+    }
+
+    // A shot taken by an interposing ship was meant for another, so it says so.
+    if (result.intercepted) {
+        text = `Intercepted · ${text}`;
     }
 
     if (result.count > 1) {

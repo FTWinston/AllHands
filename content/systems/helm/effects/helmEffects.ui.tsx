@@ -44,4 +44,9 @@ export const effects = defineUiEffects(sharedEffects, {
         </>,
         image: ExampleIcon,
     },
+    screened: {
+        name: 'Screened',
+        description: <>Another ship is interposing for this one. Hostile shots at it are taken by that ship instead, if it's in the way.</>,
+        image: ExampleIcon,
+    },
 });

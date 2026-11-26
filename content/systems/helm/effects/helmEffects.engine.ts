@@ -1,7 +1,66 @@
+import { distanceSq } from 'common-data/features/space/utils/vectors';
 import { defineEngineEffects } from 'engine/content/EngineContent';
 import { SystemEffectFunctionality } from 'engine/effects/EngineSystemEffectDefinition';
-import { effects as sharedEffects, momentumSpeedPerLevel } from './helmEffects.shared';
+import { effects as sharedEffects, interposeBlockRadius, momentumSpeedPerLevel } from './helmEffects.shared';
+import type { Ship } from 'engine/state/Ship';
+import type { EngineerSystemTile } from 'engine/state/systems/engineer/EngineerSystemTile';
 import type { HelmState } from 'engine/state/systems/HelmState';
+
+/** The ship that's interposing for each screened ship, keyed by that ship's helm tile. It's engine-only: clients only need to know the ship is screened. */
+const interposers = new WeakMap<EngineerSystemTile, Ship>();
+
+function getHelmTile(ship: Ship) {
+    return ship.engineerState.systems.find(tile => tile.system === 'helm') ?? null;
+}
+
+/** Have an interposing ship screen another, until that's undone (see `unscreenShip`). Another ship that was screening it is replaced. Returns false if the screened ship has no helm. */
+export function screenShip(interposer: Ship, screened: Ship): boolean {
+    const helm = getHelmTile(screened);
+    if (!helm || interposer === screened) {
+        return false;
+    }
+
+    // Set first, as the effect's apply looks it up. Adding an effect that's already there leaves it as it was.
+    interposers.set(helm, interposer);
+    return helm.addEffect('screened');
+}
+
+/** Stop an interposing ship screening another. Does nothing if a different ship has taken over screening it since. */
+export function unscreenShip(interposer: Ship, screened: Ship) {
+    const helm = getHelmTile(screened);
+    if (helm && interposers.get(helm) === interposer) {
+        helm.removeEffect('screened', 'expired');
+    }
+}
+
+/**
+ * The ship that takes a shot from the shooter at the target in its place, if there is one: the ship interposing for the target, so long as it's still about,
+ * and between the shooter and the target. That's within the block radius of the line from one to the other, and not past either end.
+ */
+export function getInterceptingShip(shooter: Ship, target: Ship, time: number): Ship | null {
+    const helm = getHelmTile(target);
+    const interposer = helm && helm.hasEffect('screened') ? interposers.get(helm) : undefined;
+    if (!interposer || interposer === shooter || interposer === target || interposer.helmState.getGameState().objects.get(interposer.id) !== interposer) {
+        return null;
+    }
+
+    const from = shooter.getPosition(time);
+    const to = target.getPosition(time);
+    const at = interposer.getPosition(time);
+    const lineLengthSq = distanceSq(from, to);
+    if (lineLengthSq === 0) {
+        return null;
+    }
+
+    // How far along the line the interposer's nearest point is: 0 at the shooter, 1 at the target.
+    const along = ((at.x - from.x) * (to.x - from.x) + (at.y - from.y) * (to.y - from.y)) / lineLengthSq;
+    if (along < 0 || along > 1) {
+        return null;
+    }
+
+    const nearest = { x: from.x + (to.x - from.x) * along, y: from.y + (to.y - from.y) * along };
+    return distanceSq(at, nearest) <= interposeBlockRadius ** 2 ? interposer : null;
+}
 
 type HelmModifier = 'maneuverSpeedModifier' | 'evasionModifier' | 'weaponAccuracyModifier';
 
@@ -54,5 +113,9 @@ export const effects = defineEngineEffects(sharedEffects, {
         onLevelChanged: (system, newLevel, oldLevel) => {
             system.systemState.adjustCostOfEveryCard(oldLevel - newLevel);
         },
+    },
+    screened: {
+        apply: system => system.system === 'helm',
+        remove: system => interposers.delete(system),
     },
 });

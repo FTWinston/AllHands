@@ -45,4 +45,15 @@ export const effects = defineEffects({
         usesLevels: true,
         maxLevel: 3,
     },
+    /**
+     * On the helm of a ship that another is interposing for (see the Interpose card): hostile shots at it can be taken by that ship instead, if it's in the way.
+     * Which ship that is lives in the engine (see `getInterposer`). Helm adds it when the maneuver starts and removes it when that ends, however it ends.
+     */
+    screened: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: false,
+    },
 });
+
+/** How close to the line of fire an interposing ship has to be to take a shot meant for the ship it's protecting, in units. */
+export const interposeBlockRadius = 1.5;

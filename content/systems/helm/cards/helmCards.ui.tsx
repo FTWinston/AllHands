@@ -199,7 +199,7 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="duration" />
             {' '}
-            seconds, hold the point between the target ship and the hostile ship closest to it.
+            seconds, hold the point between the target ship and the hostile ship closest to it, blocking shots at the target ship that pass through.
         </>,
         image: <ExampleIcon />,
     },

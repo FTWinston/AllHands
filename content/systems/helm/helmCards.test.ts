@@ -8,7 +8,9 @@ import { CardState } from 'engine/state/CardState';
 import { MotionKeyframe } from 'engine/state/MotionKeyframe';
 import { PlayerShip } from 'engine/state/PlayerShip';
 import { setupGameRoom, shipSetup } from 'engine/testUtils';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import type { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
+import type { EngineWeaponSlotCardDefinition } from 'engine/cards/EngineCardDefinition';
 import type { GameObject } from 'engine/state/GameObject';
 
 const rooms = setupGameRoom();
@@ -840,6 +842,115 @@ describe('Interpose', () => {
         state.remove(other);
         runShip(200);
         expect(helm.activeManeuver).toBeNull();
+    });
+});
+
+describe('Interpose blocking shots', () => {
+    /** A raider at (4, 6) is shooting at a friendly ship at (4, 0), which the player's ship has just started interposing for, so it sits at (4, 3) in the line of fire. */
+    function createScreen() {
+        const world = createRelativeWorld();
+        const { state, ship, other, place, addRaider, playOn, runShip } = world;
+        place(other, 4, 0);
+        const raider = addRaider(4, 6);
+        playOn('interpose', other);
+        runShip(4000);
+
+        const effects: WeaponEffect[] = [];
+        vi.spyOn(state, 'broadcastWeaponEffect').mockImplementation((effect) => {
+            effects.push(effect);
+        });
+        // Only where the damage goes matters here, so neither ship takes any, and so neither is destroyed by a few shots.
+        const shipDamage = vi.spyOn(ship, 'damage').mockReturnValue(0);
+        const otherDamage = vi.spyOn(other, 'damage').mockReturnValue(0);
+        const fire = (shooter: AiShip, at: PlayerShip | AiShip) => {
+            const card = getCardDefinition('phaserCannon') as EngineWeaponSlotCardDefinition;
+            card.fire(state, shooter, at, { cost: 0, damage: 5 }, 100, [], null);
+        };
+
+        return { ...world, raider, effects, shipDamage, otherDamage, fire };
+    }
+
+    it('has the interposing ship take a shot at the ship it is protecting, when it is in the way', () => {
+        const { ship, other, raider, effects, shipDamage, otherDamage, fire } = createScreen();
+        expect(other.getSystem('helm').hasEffect('screened')).toBe(true);
+
+        fire(raider, other);
+
+        expect(otherDamage).not.toHaveBeenCalled();
+        expect(shipDamage).toHaveBeenCalledOnce();
+        expect(effects[0]).toMatchObject({ type: 'shot', targetId: ship.id, intercepted: true });
+        expect(effects.find(effect => effect.type === 'impact')).toMatchObject({ targetId: ship.id, intercepted: true });
+    });
+
+    it('leaves a shot at the interposing ship itself alone', () => {
+        const { ship, raider, shipDamage, fire, effects } = createScreen();
+
+        fire(raider, ship);
+        expect(shipDamage).toHaveBeenCalledOnce();
+        expect(effects[0]).toMatchObject({ targetId: ship.id, intercepted: undefined });
+    });
+
+    it('lets a shot through when the interposing ship is not on the line of fire', () => {
+        const { other, raider, place, shipDamage, otherDamage, fire } = createScreen();
+
+        // The raider moves round to the side, so the line to the friendly ship no longer passes the interposing ship.
+        place(raider, 12, 0);
+        fire(raider, other);
+        expect(shipDamage).not.toHaveBeenCalled();
+        expect(otherDamage).toHaveBeenCalledOnce();
+
+        // Nor does it block a shot from behind the friendly ship, where it's not between the two.
+        otherDamage.mockClear();
+        place(raider, 4, -6);
+        fire(raider, other);
+        expect(shipDamage).not.toHaveBeenCalled();
+        expect(otherDamage).toHaveBeenCalledOnce();
+
+        // Or one from a raider closer than the interposing ship is.
+        otherDamage.mockClear();
+        place(raider, 4, 1);
+        fire(raider, other);
+        expect(shipDamage).not.toHaveBeenCalled();
+        expect(otherDamage).toHaveBeenCalledOnce();
+    });
+
+    it('stops blocking once the maneuver ends, or is called off', () => {
+        const { other, helm, raider, runShip, shipDamage, otherDamage, fire } = createScreen();
+
+        helm.cancelActiveManeuver();
+        runShip(100);
+        expect(other.getSystem('helm').hasEffect('screened')).toBe(false);
+        fire(raider, other);
+        expect(shipDamage).not.toHaveBeenCalled();
+        expect(otherDamage).toHaveBeenCalledOnce();
+    });
+
+    it('stops blocking once the interposing ship is gone', () => {
+        const { state, ship, other, raider, shipDamage, otherDamage, fire } = createScreen();
+
+        state.remove(ship);
+        fire(raider, other);
+        expect(shipDamage).not.toHaveBeenCalled();
+        expect(otherDamage).toHaveBeenCalledOnce();
+    });
+
+    it('does nothing for a ship that is not the one being protected', () => {
+        const { state, ship, other, raider, place, shipDamage, fire } = createScreen();
+
+        // A third ship that the interposer is not screening, shot at from the same direction.
+        const { appearance: _a, faction: _f, ...thirdSetup } = shipSetup(undefined, 4, -3);
+        const third = new PlayerShip(state, thirdSetup);
+        state.add(third);
+        third.startEncounter();
+        place(third, 4, -3);
+        place(other, 4, 20);
+        place(raider, 4, 6);
+        const thirdDamage = vi.spyOn(third, 'damage').mockReturnValue(0);
+
+        fire(raider, third);
+        expect(shipDamage).not.toHaveBeenCalled();
+        expect(thirdDamage).toHaveBeenCalledOnce();
+        expect(ship.getSystem('helm').hasEffect('screened')).toBe(false);
     });
 });
 

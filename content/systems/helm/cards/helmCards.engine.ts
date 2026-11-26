@@ -1,6 +1,7 @@
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { clampAngle, determineAngle, distanceSq } from 'common-data/features/space/utils/vectors';
+import { screenShip, unscreenShip } from 'content/systems/helm/effects/helmEffects.engine';
 import { choiceEvaluator } from 'engine/ai/evaluators';
 import { locationCardEvaluator } from 'engine/ai/evaluators/helm';
 import { applyMotionCard } from 'engine/cards/applyMotionCard';
@@ -406,27 +407,35 @@ export const cards = defineEngineCards(sharedCards, {
         }),
     },
     interpose: {
-        play: (gameState, ship, target, parameters, card) => startRelativeManeuver(gameState, ship, target, parameters, card, () => (time, from) => {
-            // Whichever hostile ship is closest to the target at the time is the one to get in front of. With none about, the ship stays where it is.
-            const targetAt = target.getPosition(time);
-            const hostile = findClosestHostile(gameState, ship, targetAt, time);
-            if (!hostile) {
-                return {};
-            }
+        play: (gameState, ship, target, parameters, card) => {
+            const played = startRelativeManeuver(gameState, ship, target, parameters, card, () => (time, from) => {
+                // Whichever hostile ship is closest to the target at the time is the one to get in front of. With none about, the ship stays where it is.
+                const targetAt = target.getPosition(time);
+                const hostile = findClosestHostile(gameState, ship, targetAt, time);
+                if (!hostile) {
+                    return {};
+                }
 
-            const hostileAt = hostile.getPosition(time);
-            const gap = Math.hypot(hostileAt.x - targetAt.x, hostileAt.y - targetAt.y);
-            if (gap === 0) {
-                return {};
-            }
+                const hostileAt = hostile.getPosition(time);
+                const gap = Math.hypot(hostileAt.x - targetAt.x, hostileAt.y - targetAt.y);
+                if (gap === 0) {
+                    return {};
+                }
 
-            // Half way between them, or no further from the target than the interpose distance when they're far apart.
-            const along = Math.min(gap / 2, interposeDistance) / gap;
-            return {
-                position: { x: targetAt.x + (hostileAt.x - targetAt.x) * along, y: targetAt.y + (hostileAt.y - targetAt.y) * along },
-                facing: determineAngle(from, hostileAt),
-            };
-        }),
+                // Half way between them, or no further from the target than the interpose distance when they're far apart.
+                const along = Math.min(gap / 2, interposeDistance) / gap;
+                return {
+                    position: { x: targetAt.x + (hostileAt.x - targetAt.x) * along, y: targetAt.y + (hostileAt.y - targetAt.y) * along },
+                    facing: determineAngle(from, hostileAt),
+                };
+            });
+
+            // While it holds its place, shots at the target ship that pass through it are taken by it (see `getInterceptingShip`). That ends with the maneuver, however it ends.
+            if (played && target instanceof Ship && screenShip(ship, target)) {
+                ship.helmState.whenActiveManeuverEnds(() => unscreenShip(ship, target));
+            }
+            return played;
+        },
     },
     shadow: {
         play: (gameState, ship, target, parameters, card) => startRelativeManeuver(gameState, ship, target, parameters, card, () => (time, from) => {
