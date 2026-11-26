@@ -10,6 +10,7 @@ import { CardState } from '../CardState';
 import { GameState } from '../GameState';
 import { MotionKeyframe } from '../MotionKeyframe';
 import { CrewSystemState } from './CrewSystemState';
+import type { GameObject } from '../GameObject';
 import type { Ship } from '../Ship';
 
 /**
@@ -59,6 +60,34 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
 
     /** Percentage added to the speed of every maneuver this ship starts (see `applyMotionCard`). */
     maneuverSpeedModifier = 0;
+
+    /** The ship this one is shadowing (see the Shadow card), and how far either side of straight behind it counts as its rear arc, in radians. Empty if it isn't shadowing one. */
+    shadowTargetId = '';
+    shadowRearArc = 0;
+
+    /**
+     * Whether this ship is shadowing the given one, and is within its rear arc just now: behind it, within the arc of straight behind.
+     * The ship's own weapons ignore the evasion of a ship it's shadowing from there (see `TacticalState.determineAccuracy`).
+     */
+    isShadowingFromBehind(target: GameObject): boolean {
+        if (!this.shadowTargetId || target.id !== this.shadowTargetId) {
+            return false;
+        }
+
+        const { currentTime } = this.getGameState();
+        const own = this.getShip().getPosition(currentTime);
+        const at = target.getPosition(currentTime);
+        const dx = own.x - at.x;
+        const dy = own.y - at.y;
+        const range = Math.hypot(dx, dy);
+        if (range === 0) {
+            return false;
+        }
+
+        // A ship's angle goes the opposite way round to Math.atan2's, so it points along (cos, -sin), and straight behind it is the other way.
+        const dot = (dx * -Math.cos(at.angle) + dy * Math.sin(at.angle)) / range;
+        return Math.acos(Math.max(-1, Math.min(1, dot))) <= this.shadowRearArc;
+    }
 
     /** How much harder this ship is to hit just now, in percentage points: the evasion of the maneuver it's flying, plus anything else that's adding to it. */
     get evasion(): number {

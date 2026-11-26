@@ -177,6 +177,20 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
     }
 
     /**
+     * Have this ship's weapons lose their aim on a ship, so they have to get it back: any Lock held against it is dropped,
+     * and every cumbersome weapon that had held its aim on it starts over (`updateAim` starts the count again from the next update).
+     */
+    loseAimOn(targetId: string) {
+        if (this.lockTargetId === targetId) {
+            this.dropLock();
+        }
+
+        for (const slot of this.slots) {
+            slot.aimStartTimes.delete(targetId);
+        }
+    }
+
+    /**
      * Whether an active weapon can stay active: its target must still be known to this ship and within the weapon's range,
      * and the weapon's card mustn't say its hold is lost (see `holds`). It no longer needs to be in the firing arc.
      */
@@ -644,8 +658,10 @@ export class TacticalState extends CrewSystemState implements TacticalSystemInfo
 
         if (target instanceof Ship) {
             // Adjust accuracy based on the target's evasion, if applicable.
-            const targetHelm = target.helmState;
-            accuracy -= targetHelm.evasion;
+            // That doesn't count if this ship is shadowing it from within its rear arc.
+            if (!this.getShip().helmState.isShadowingFromBehind(target)) {
+                accuracy -= target.helmState.evasion;
+            }
 
             if (subTarget?.system) {
                 // Adjust accuracy based on the sub-targeted system, if applicable.

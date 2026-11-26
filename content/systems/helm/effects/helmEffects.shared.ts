@@ -36,6 +36,14 @@ export const effects = defineEffects({
         duration: evasivePatternDuration,
     },
     /**
+     * On the helm: the ship is shadowing another (see the Shadow card). While it's within that ship's rear arc, the ship's own weapons ignore its evasion.
+     * Shadow adds it when the maneuver starts and removes it when that ends, however it ends.
+     */
+    shadowing: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: false,
+    },
+    /**
      * On the tactical system: the ship is on an attack run (see the Attack Run card), so tactical has more power. Its level is how much more.
      * Helm adds it when the maneuver starts and removes it when that ends, however it ends.
      */
