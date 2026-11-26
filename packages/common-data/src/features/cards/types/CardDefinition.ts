@@ -88,6 +88,44 @@ export enum CardMotionSegmentFacing {
     FinalVector,
 }
 
+/** Which way a ship turns: left is anticlockwise (an increasing angle), right is clockwise. */
+export type TurnDirection = 'left' | 'right';
+
+/**
+ * The route a location card flies, when it isn't a straight line. All distances are in world units.
+ * See `calculateMotionPath` for how each is flown.
+ */
+export type CardMotionPath
+    = | {
+        shape: 'zigZag';
+        /** The distance along the line to the target covered by each leg, so longer moves get more legs, not wider ones. */
+        legLength: number;
+        /** How far the ship swings out to each side of the line. */
+        width: number;
+    }
+    | {
+        shape: 'sweep';
+        /** Left curves anticlockwise (the path bulges out to the right of the line to the target), right clockwise. */
+        turn: TurnDirection;
+        /** How far to the bulging side of the line to the target the ship is facing when it sets off, in radians. */
+        startOffset: number;
+        /** How far the ship turns during the sweep, in radians. */
+        turnAngle: number;
+        /** What fraction of the route the turn takes: the rest is a straight final leg. */
+        turnFraction: number;
+    }
+    | {
+        shape: 'feint';
+        /** How far off the line to the target the ship sets off, in radians. It picks the side needing less turn from its heading. */
+        angle: number;
+        /** The fraction of the distance to the target that it travels before cutting back. */
+        legFraction: number;
+    }
+    | {
+        /** Moves straight, turning side-on towards the closest hostile ship half way along, then straightening up to face the way it's going. */
+        shape: 'broadside';
+    };
+
 export type LocationTargetCardDefinition = CommonCardDefinition & {
     targetType: 'location';
     /**
@@ -110,10 +148,12 @@ export type LocationTargetCardDefinition = CommonCardDefinition & {
     baseSpeed: number;
     baseRotationSpeed: number;
     /**
-     * Explicit lateral offsets at intermediate points, scaled by total distance.
-     * Positive values offset to the right of the movement direction, negative to the left.
+     * Which way to turn, both when rotating to startFacing before moving and for any turning during the movement.
+     * The shortest way round if not given, which is ambiguous for a turn of about 180 degrees: give it where that matters.
      */
-    perpendicularPositionOffsets?: number[];
+    turnDirection?: TurnDirection;
+    /** The route to fly, if it isn't a straight line to the target. Shapes that set the ship's facing themselves ignore startFacing and endFacing. */
+    path?: CardMotionPath;
     minDistance?: number;
     maxDistance?: number;
 

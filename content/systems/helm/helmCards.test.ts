@@ -1,3 +1,4 @@
+import { calculateMotionPath } from 'common-data/features/cards/utils/calculateMotionPath';
 import { cardDefinitions, type CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { evasivePatternDuration, calculatePatternPath } from 'common-data/features/cards/utils/evasivePatterns';
 import { getCardRarity } from 'common-data/features/cards/utils/getCardRarity';
@@ -396,42 +397,215 @@ describe('Evasive Maneuvers', () => {
     });
 });
 
-describe('Broadside', () => {
-    it('moves slowly to the target, turning side-on to the way it is going as it does', () => {
-        const { state, ship, helm, play, maneuverDuration, runUntilManeuverEnds } = createShip();
-        expect(cardDefinitions.broadside).toMatchObject({ targetType: 'choice', system: 'helm', cards: ['broadsideLeft', 'broadsideRight'], parameters: { cost: 1 } });
-        expect(cardDefinitions.broadsideLeft).toMatchObject({ targetType: 'location', baseSpeed: 0.5, parameters: { cost: 1, evasion: 0 } });
+/** The keyframes of the ship's current motion, as positions with the time they're reached after the start, for judging the shape of a path. */
+function motionPath(ship: PlayerShip) {
+    const start = ship.motion[0].time;
+    return ship.motion.map(keyframe => ({ time: keyframe.time - start, x: keyframe.x, y: keyframe.y, angle: keyframe.angle }));
+}
 
-        const { card, played } = play('broadside', '4,0', 'broadsideRight');
-        expect(played).toBe(true);
-        expect(helm.activeManeuver!.card).toBe(card);
-        expect(maneuverDuration()).toBeCloseTo(8000);
-        expect(helm.evasion).toBe(0);
+/** How many times a path crosses the straight line from the ship at the origin to a target on the x axis. */
+function crossings(path: { y: number }[]) {
+    let count = 0;
+    let side = 0;
+    for (const { y } of path) {
+        if (Math.abs(y) > 0.2 && Math.sign(y) !== side) {
+            count += side === 0 ? 0 : 1;
+            side = Math.sign(y);
+        }
+    }
+    return count;
+}
 
-        // Half way there, it's half way round.
-        state.tick(4000);
-        const midway = ship.getPosition(state.currentTime);
-        expect(midway.x).toBeGreaterThan(1);
-        expect(midway.x).toBeLessThan(3);
-        expect(midway.angle).toBeGreaterThan(0.2);
-        expect(midway.angle).toBeLessThan(Math.PI / 2 - 0.2);
+describe('Zig-Zag', () => {
+    /** Plays Zig-Zag from the origin to a target on the x axis, and says what its path was like. */
+    function fly(distance: number) {
+        const { ship, helm, play } = createShip();
+        expect(play('zigZag', `${distance},0`).played).toBe(true);
+        const path = motionPath(ship);
+        return { path, helm, crossings: crossings(path), width: Math.max(...path.map(({ y }) => Math.abs(y))) };
+    }
 
-        runUntilManeuverEnds();
-        const end = ship.getPosition(state.currentTime);
-        expect(end.x).toBeCloseTo(4);
+    it('weaves to the target, facing it all the way', () => {
+        const { path, helm, width } = fly(6);
+        expect(cardDefinitions.zigZag).toMatchObject({ targetType: 'location', minDistance: 3, parameters: { cost: 2, evasion: 25 } });
+        expect(helm.evasion).toBe(25);
+
+        expect(width).toBeGreaterThan(0.3);
+        for (const keyframe of path) {
+            expect(keyframe.angle).toBeCloseTo(0);
+        }
+
+        // It starts and ends on the line.
+        const end = path[path.length - 1];
+        expect(end.x).toBeCloseTo(6);
         expect(end.y).toBeCloseTo(0);
-        expect(end.angle).toBeCloseTo(Math.PI / 2);
     });
 
-    it('turns the other way when flown to the left', () => {
-        const { state, ship, play, runUntilManeuverEnds } = createShip();
+    it('has more legs, but no wider a path, the further it goes', () => {
+        const near = fly(4);
+        const middling = fly(8);
+        const far = fly(16);
 
-        expect(play('broadside', '4,0', 'broadsideLeft').played).toBe(true);
-        runUntilManeuverEnds();
+        expect(near.crossings).toBeGreaterThanOrEqual(1);
+        expect(middling.crossings).toBeGreaterThan(near.crossings);
+        expect(far.crossings).toBeGreaterThan(middling.crossings);
+        expect(far.crossings).toBeGreaterThanOrEqual(middling.crossings * 1.5);
 
+        expect(middling.width).toBeCloseTo(near.width, 1);
+        expect(far.width).toBeCloseTo(near.width, 1);
+    });
+
+    it('gains legs one at a time as the distance grows', () => {
+        let previous = 0;
+        for (let distance = 3; distance <= 14; distance += 0.5) {
+            const { crossings: count } = fly(distance);
+            expect(count).toBeGreaterThanOrEqual(previous);
+            expect(count - previous).toBeLessThanOrEqual(1);
+            previous = count;
+        }
+    });
+
+    it('cannot be played too close', () => {
+        const { play } = createShip();
+        expect(play('zigZag', '2,0').played).toBe(false);
+    });
+});
+
+describe('Feint', () => {
+    /** Plays Feint from the origin, with the ship facing the given angle, to a target 9 units away on the x axis. */
+    function fly(angle: number) {
+        const { state, ship, helm, play } = createShip();
+        ship.setMotion(new MotionKeyframe(state.currentTime, 0, 0, angle));
+        expect(play('feint', '9,0').played).toBe(true);
+        return { path: motionPath(ship), helm };
+    }
+
+    /** The furthest from the line to the target that the path gets: where it turns back. */
+    const furthestOut = (path: { x: number; y: number }[]) => path.reduce((furthest, keyframe) => Math.abs(keyframe.y) > Math.abs(furthest.y) ? keyframe : furthest);
+
+    it('sets off at an angle for a third of the way, then cuts back to the target, facing the way it goes', () => {
+        const { path, helm } = fly(0);
+        expect(cardDefinitions.feint).toMatchObject({ targetType: 'location', system: 'helm', minDistance: 4, parameters: { cost: 2, evasion: 30 } });
+        expect(helm.evasion).toBe(30);
+
+        // The way out is a third of the way, at 55 degrees to the line.
+        const turn = furthestOut(path);
+        expect(Math.hypot(turn.x, turn.y)).toBeCloseTo(3, 0);
+        expect(Math.abs(turn.y) / Math.hypot(turn.x, turn.y)).toBeCloseTo(Math.sin(55 * Math.PI / 180), 1);
+
+        const end = path[path.length - 1];
+        expect(end.x).toBeCloseTo(9);
+        expect(end.y).toBeCloseTo(0);
+        expect(end.angle).toBeCloseTo(determineAngle(turn, end), 1);
+    });
+
+    it('sets off to the left when the target is dead ahead', () => {
+        // The left is up the screen, so negative y.
+        expect(furthestOut(fly(0).path).y).toBeLessThan(-2);
+    });
+
+    it('sets off to whichever side needs less turn from the current heading', () => {
+        // Facing a little left (a positive angle), the left is closer. Facing a little right, it's the right.
+        expect(furthestOut(fly(0.3).path).y).toBeLessThan(-2);
+        expect(furthestOut(fly(-0.3).path).y).toBeGreaterThan(2);
+    });
+
+    it('cannot be played too close', () => {
+        const { play } = createShip();
+        expect(play('feint', '3,0').played).toBe(false);
+    });
+});
+
+describe('Broadside', () => {
+    /** A ship as `createShip` makes, facing the given angle, and a raider hostile to it at the given location if there is one. */
+    function createBroadsideShip(angle = 0, raiderAt?: [number, number]) {
+        rooms.createState().initFactions([
+            { id: 'player' },
+            { id: 'raiders', relations: { player: RelationshipType.Hostile } },
+        ], 'player');
+        const world = createShip();
+        const { state, ship } = world;
+        ship.setMotion(new MotionKeyframe(state.currentTime, 0, 0, angle));
+
+        if (raiderAt) {
+            state.add(new AiShip(state, { ...shipSetup('raiders', raiderAt[0], raiderAt[1]), goal: { type: 'search-and-destroy' }, skill: 1 }));
+        }
+
+        const startTime = state.currentTime;
+        const angleAt = (fraction: number) => clampAngle(ship.getPosition(startTime + world.maneuverDuration() * fraction).angle);
+
+        /** Flies the player's ship alone, so that no raider's AI moves it, until its maneuver is over. */
+        const fly = () => {
+            while (world.helm.activeManeuver) {
+                state.currentTime += 100;
+                ship.tick(100, state.currentTime);
+            }
+        };
+
+        return { ...world, angleAt, fly };
+    }
+
+    it('moves briskly to the target, in a straight line', () => {
+        const { ship, helm, play, maneuverDuration } = createBroadsideShip(0, [3, -8]);
+        expect(cardDefinitions.broadside).toMatchObject({ targetType: 'location', system: 'helm', baseSpeed: 1, parameters: { cost: 1, evasion: 0 } });
+
+        const { card, played } = play('broadside', '6,0');
+        expect(played).toBe(true);
+        expect(helm.activeManeuver!.card).toBe(card);
+        expect(maneuverDuration()).toBeCloseTo(6000);
+        expect(helm.evasion).toBe(0);
+
+        for (const keyframe of motionPath(ship)) {
+            expect(keyframe.y).toBeCloseTo(0);
+        }
+    });
+
+    it('turns side-on towards the hostile ship on its left, half way along, and straightens up again by the end', () => {
+        const { state, ship, play, angleAt, fly } = createBroadsideShip(0, [3, -8]);
+
+        expect(play('broadside', '6,0').played).toBe(true);
+        expect(angleAt(0)).toBeCloseTo(0);
+        expect(angleAt(0.25)).toBeGreaterThan(0.3);
+        expect(angleAt(0.25)).toBeLessThan(Math.PI / 2 - 0.3);
+        expect(angleAt(0.5)).toBeCloseTo(Math.PI / 2);
+        expect(angleAt(0.75)).toBeGreaterThan(0.3);
+        expect(angleAt(0.75)).toBeLessThan(Math.PI / 2 - 0.3);
+
+        fly();
         const end = ship.getPosition(state.currentTime);
-        expect(end.x).toBeCloseTo(4);
-        expect(end.angle).toBeCloseTo(-Math.PI / 2);
+        expect(end.x).toBeCloseTo(6);
+        expect(end.y).toBeCloseTo(0);
+        expect(end.angle).toBeCloseTo(0);
+    });
+
+    it('turns the other way for a hostile ship on its right', () => {
+        const { play, angleAt } = createBroadsideShip(0, [3, 8]);
+
+        expect(play('broadside', '6,0').played).toBe(true);
+        expect(angleAt(0.5)).toBeCloseTo(-Math.PI / 2);
+    });
+
+    it('goes by which side of its direction of travel the hostile ship is on, not which side of the map', () => {
+        // Travelling back along the x axis, a raider that was to the left (up the screen) is now to the right, so it faces up the screen too.
+        const { play, angleAt } = createBroadsideShip(Math.PI, [-3, -8]);
+
+        expect(play('broadside', '-6,0').played).toBe(true);
+        expect(angleAt(0.5)).toBeCloseTo(Math.PI / 2);
+    });
+
+    it('with no hostile ship, turns whichever way is less far from its heading', () => {
+        const left = createBroadsideShip(0.3);
+        expect(left.play('broadside', '6,0').played).toBe(true);
+        expect(left.angleAt(0.5)).toBeCloseTo(Math.PI / 2);
+
+        const right = createBroadsideShip(-0.3);
+        expect(right.play('broadside', '6,0').played).toBe(true);
+        expect(right.angleAt(0.5)).toBeCloseTo(-Math.PI / 2);
+
+        // Dead ahead, it's the left.
+        const ahead = createBroadsideShip(0);
+        expect(ahead.play('broadside', '6,0').played).toBe(true);
+        expect(ahead.angleAt(0.5)).toBeCloseTo(Math.PI / 2);
     });
 });
 
@@ -578,6 +752,52 @@ describe('Sweep', () => {
             expect(played).toBe(true);
             expect(helm.activeManeuver!.card).toBe(card);
             expect(helm.evasion).toBe(15);
+        }
+    });
+
+    /** Plays the given option from the origin, facing along the x axis, to a target 6 units away, and says how the heading changes along the way. */
+    function fly(option: 'sweepLeft' | 'sweepRight') {
+        // The first keyframe is the start, and the second the turn to the heading it sets off at.
+        const path = calculateMotionPath({ x: 0, y: 0, angle: 0 }, cardDefinitions[option], { x: 6, y: 0 })!.slice(1);
+        const lengths = path.map((keyframe, index) => index === 0 ? 0 : Math.hypot(keyframe.x - path[index - 1].x, keyframe.y - path[index - 1].y));
+        const travelled = lengths.map((_, index) => lengths.slice(0, index + 1).reduce((sum, length) => sum + length, 0));
+        const total = travelled[travelled.length - 1];
+        const first = path[0].angle;
+        const last = path[path.length - 1].angle;
+
+        return { path, travelled, total, first, last };
+    }
+
+    it('curves out to one side, and turns the way its name says', () => {
+        const left = fly('sweepLeft');
+        const right = fly('sweepRight');
+
+        // A left sweep turns anticlockwise (an increasing angle), bulging out to the right of the line (positive y).
+        expect(left.last).toBeGreaterThan(left.first + 1);
+        expect(Math.max(...left.path.map(keyframe => keyframe.y))).toBeGreaterThan(1);
+        expect(Math.min(...left.path.map(keyframe => keyframe.y))).toBeGreaterThan(-0.05);
+
+        expect(right.last).toBeLessThan(right.first - 1);
+        expect(Math.min(...right.path.map(keyframe => keyframe.y))).toBeLessThan(-1);
+        expect(Math.max(...right.path.map(keyframe => keyframe.y))).toBeLessThan(0.05);
+    });
+
+    it('does most of its turning early, and ends with a short straight leg', () => {
+        for (const option of ['sweepLeft', 'sweepRight'] as const) {
+            const { path, travelled, total, first, last } = fly(option);
+
+            // By 40% of the way along, it has turned through most of what it will.
+            const index = travelled.findIndex(distance => distance >= total * 0.4);
+            expect(Math.abs(path[index].angle - first)).toBeGreaterThan(Math.abs(last - first) * 0.7);
+
+            // The final leg is where it has stopped turning.
+            const straightFrom = path.findIndex(keyframe => Math.abs(keyframe.angle - last) < 0.002);
+            expect(total - travelled[straightFrom]).toBeLessThan(total * 0.25);
+            expect(total - travelled[straightFrom]).toBeGreaterThan(0);
+
+            // It arrives on the target.
+            expect(path[path.length - 1].x).toBeCloseTo(6);
+            expect(path[path.length - 1].y).toBeCloseTo(0);
         }
     });
 });

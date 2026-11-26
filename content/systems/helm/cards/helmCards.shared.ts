@@ -34,14 +34,25 @@ export const cards = defineCards({
     zigZag: {
         targetType: 'location',
         system: 'helm',
-        // Rotate to face target first, then zig-zag towards it
+        // Rotate to face target first, then zig-zag towards it, facing it the whole way
         startFacing: CardMotionSegmentFacing.FinalVector,
         endFacing: CardMotionSegmentFacing.FinalVector,
         baseRotationSpeed: 1.25,
-        baseSpeed: 1,
-        perpendicularPositionOffsets: [-0.15, 0.25, -0.25, 0.15],
+        baseSpeed: 1.25,
+        // Fixed legs and width, so a longer move has more legs rather than a wider path
+        path: { shape: 'zigZag', legLength: 1.2, width: 0.5 },
         minDistance: 3,
         parameters: { cost: 2, evasion: 25 },
+    },
+    feint: {
+        targetType: 'location',
+        system: 'helm',
+        // Rotate to set off at an angle to the target, then cut back to it, ending facing the way it's going
+        path: { shape: 'feint', angle: 55 * Math.PI / 180, legFraction: 1 / 3 },
+        baseRotationSpeed: 1.25,
+        baseSpeed: 1.25,
+        minDistance: 4,
+        parameters: { cost: 2, evasion: 30 },
     },
     strafe: {
         targetType: 'location',
@@ -62,27 +73,19 @@ export const cards = defineCards({
     sweepLeft: {
         targetType: 'location',
         system: 'helm',
-        startFacing: CardMotionSegmentFacing.FinalVector,
-        startFacingOffset: -Math.PI / 4, // Start facing 45 degrees left of destination
-        endFacing: CardMotionSegmentFacing.FinalVector,
-        endFacingOffset: Math.PI / 4, // End facing 45 degrees right of destination
+        // Curves anticlockwise, bulging out to the right of the line to the target. Most of the turning is done early, leaving a short final leg.
+        path: { shape: 'sweep', turn: 'left', startOffset: 60 * Math.PI / 180, turnAngle: 100 * Math.PI / 180, turnFraction: 0.8 },
         baseRotationSpeed: 1,
         baseSpeed: 1,
-        // Sine curve bulging right (positive = right of movement direction)
-        perpendicularPositionOffsets: [0.14, 0.26, 0.35, 0.39, 0.39, 0.35, 0.26, 0.14],
         parameters: { cost: 2, evasion: 15 },
     },
     sweepRight: {
         targetType: 'location',
         system: 'helm',
-        startFacing: CardMotionSegmentFacing.FinalVector,
-        startFacingOffset: Math.PI / 4, // Start facing 45 degrees right of destination
-        endFacing: CardMotionSegmentFacing.FinalVector,
-        endFacingOffset: -Math.PI / 4, // End facing 45 degrees left of destination
+        // Curves clockwise, bulging out to the left of the line to the target. Most of the turning is done early, leaving a short final leg.
+        path: { shape: 'sweep', turn: 'right', startOffset: 60 * Math.PI / 180, turnAngle: 100 * Math.PI / 180, turnFraction: 0.8 },
         baseRotationSpeed: 1,
         baseSpeed: 1,
-        // Sine curve bulging left (negative = left of movement direction)
-        perpendicularPositionOffsets: [-0.14, -0.26, -0.35, -0.39, -0.39, -0.35, -0.26, -0.14],
         parameters: { cost: 2, evasion: 15 },
     },
     faceTarget: {
@@ -155,29 +158,12 @@ export const cards = defineCards({
         parameters: { cost: 2, evasion: evasivePatternEvasion, accuracyLoss: evasivePatternAccuracyLoss, duration: evasivePatternDuration / 1000 },
     },
     broadside: {
-        targetType: 'choice',
-        system: 'helm',
-        cards: ['broadsideLeft', 'broadsideRight'],
-        parameters: { cost: 1 },
-    },
-    broadsideLeft: {
         targetType: 'location',
         system: 'helm',
-        // Don't rotate before moving: turn during the move, to end facing 90 degrees left of the direction of travel
-        endFacing: CardMotionSegmentFacing.FinalVector,
-        endFacingOffset: -Math.PI / 2,
-        baseRotationSpeed: 0.75,
-        baseSpeed: 0.5,
-        parameters: { cost: 1, evasion: 0 },
-    },
-    broadsideRight: {
-        targetType: 'location',
-        system: 'helm',
-        // Don't rotate before moving: turn during the move, to end facing 90 degrees right of the direction of travel
-        endFacing: CardMotionSegmentFacing.FinalVector,
-        endFacingOffset: Math.PI / 2,
-        baseRotationSpeed: 0.75,
-        baseSpeed: 0.5,
+        // Don't rotate before moving: turn side-on towards the closest hostile ship half way along, then straighten up to face the way it's going
+        path: { shape: 'broadside' },
+        baseRotationSpeed: 1,
+        baseSpeed: 1,
         parameters: { cost: 1, evasion: 0 },
     },
     slingshot: {

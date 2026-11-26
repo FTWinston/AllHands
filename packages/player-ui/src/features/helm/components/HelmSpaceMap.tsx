@@ -1,5 +1,6 @@
 import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
 import { calculateDriftPath } from 'common-data/features/cards/utils/calculateDriftPath';
+import { calculateMotionPath } from 'common-data/features/cards/utils/calculateMotionPath';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { calculatePatternPath, isEvasivePattern } from 'common-data/features/cards/utils/evasivePatterns';
 import { FieldInfo } from 'common-data/features/space/types/FieldInfo';
@@ -25,7 +26,6 @@ import { RefObject, useCallback, useRef, useState } from 'react';
 import { useActiveCard, useOverTargetId } from 'src/features/cardui/components/DragCardProvider';
 import { useVisibilityAnimation } from 'src/hooks/useVisibilityAnimation';
 import { useFreezeVector } from '../hooks/useFreezeVector';
-import { calculateMotionPath } from '../utils/calculateMotionPath';
 import { drawMotionPath } from '../utils/drawMotionPath';
 import { drawShipTarget } from '../utils/drawShipTarget';
 import { findNearestEligibleShip, getShipTargetRelationship } from '../utils/findNearestEligibleShip';
@@ -53,9 +53,6 @@ type Props = {
     cancelManeuver: () => void;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
 };
-
-// An evasive pattern's path has a keyframe every 125ms, so this puts an arrowhead on it every second.
-const patternArrowheadEvery = 8;
 
 /** How far ahead of now to look, in milliseconds, to tell which way the ship is going and how fast. The same as the engine's. */
 const driftSampleTime = 250;
@@ -112,11 +109,17 @@ export const HelmSpaceMap = (props: Props) => {
                 const velocity = { x: (soon.x - shipPosition.x) / driftSampleTime * 1000, y: (soon.y - shipPosition.y) / driftSampleTime * 1000 };
                 return calculateDriftPath(shipPosition, velocity, (props.momentumLevel ?? 0) * cardDefinitions.drift.parameters.distancePerMomentum, targetLocation);
             }
+            // Broadside turns towards the closest hostile ship, so it needs to know where that is.
+            const needsHostile = (cardDef as LocationTargetCardDefinition).path?.shape === 'broadside';
+            const hostile = needsHostile
+                ? findNearestEligibleShip(props.objects, props.viewer, shipPosition, 'hostile', currentTime)
+                : null;
 
             return calculateMotionPath(
                 shipPosition,
                 cardDef as LocationTargetCardDefinition,
-                targetLocation
+                targetLocation,
+                { hostilePosition: hostile?.position }
             );
         })()
         : null;
@@ -153,7 +156,7 @@ export const HelmSpaceMap = (props: Props) => {
                 drawMotionPath(ctx, motionPath, pixelSize);
             }
             if (patternPath) {
-                drawMotionPath(ctx, patternPath, pixelSize, patternArrowheadEvery);
+                drawMotionPath(ctx, patternPath, pixelSize);
             }
             if (shipTarget && pointerLocation) {
                 drawShipTarget(ctx, shipPosition, shipTarget.position, pointerLocation, pixelSize);

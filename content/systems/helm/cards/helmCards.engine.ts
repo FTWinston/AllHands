@@ -308,6 +308,11 @@ export const cards = defineEngineCards(sharedCards, {
         aiEvaluator: locationCardEvaluator('zigZag'),
         play: applyMotionCard,
     },
+    feint: {
+        synergy: { provides: ['momentum'] },
+        aiEvaluator: locationCardEvaluator('feint'),
+        play: applyMotionCard,
+    },
     strafe: {
         aiEvaluator: locationCardEvaluator('strafe'),
         play: applyMotionCard,
@@ -397,16 +402,14 @@ export const cards = defineEngineCards(sharedCards, {
     patternAlpha: { play: playEvasivePattern('patternAlpha') },
     patternBeta: { play: playEvasivePattern('patternBeta') },
     patternGamma: { play: playEvasivePattern('patternGamma') },
-    broadsideLeft: {
-        aiEvaluator: locationCardEvaluator('broadsideLeft'),
-        play: applyMotionCard,
-    },
-    broadsideRight: {
-        aiEvaluator: locationCardEvaluator('broadsideRight'),
-        play: applyMotionCard,
-    },
     broadside: {
-        aiEvaluator: choiceEvaluator(['broadsideLeft', 'broadsideRight']),
+        aiEvaluator: locationCardEvaluator('broadside'),
+        play: (gameState, ship, cardInstance, cardDefinition, location, parameters) => {
+            // It turns towards the closest hostile ship, as of when it sets off.
+            const time = gameState.currentTime;
+            const hostile = findClosestHostile(gameState, ship, ship.getPosition(time), time);
+            return applyMotionCard(gameState, ship, cardInstance, cardDefinition, location, parameters, { hostilePosition: hostile?.getPosition(time) });
+        },
     },
     // The AI never plays this, as it has no evaluator.
     slingshot: {
