@@ -10,7 +10,7 @@ import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.
 import { HelmDisplay as Component } from './HelmDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-/** Ships for ship cards (such as Match Course) to be dragged towards: a hostile one, and a friendly one. */
+/** Ships for ship cards (such as Orbit) to be dragged towards: a hostile one, and a friendly one. */
 const otherShips: Record<string, GameObjectInfo> = {
     raider: {
         id: 'raider',

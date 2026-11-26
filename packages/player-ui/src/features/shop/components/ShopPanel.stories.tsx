@@ -53,7 +53,7 @@ export const Affordable: Story = {
         // A card's Buy button only shows once it's focused.
         await expect(canvas.queryByRole('button', { name: /Buy/ })).not.toBeInTheDocument();
 
-        await userEvent.click(canvas.getByText('Full Reverse'));
+        await userEvent.click(canvas.getByText('Slow Reverse'));
         await userEvent.click(canvas.getByRole('button', { name: /Buy/ }));
         await expect(args.buyCard).toHaveBeenCalledWith(101);
         await expect(canvas.getAllByRole('listitem')).toHaveLength(4);

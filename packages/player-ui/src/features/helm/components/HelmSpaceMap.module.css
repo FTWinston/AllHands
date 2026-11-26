@@ -27,8 +27,8 @@
     box-sizing: border-box;
 }
 
-/* In the column of buttons, above the zoom ones: there's no room for it in the header. */
-.momentum {
+/* In the column of buttons, above the zoom ones: there's no room for it in the header. Doubled to win over the readout's own relative positioning. */
+.momentum.momentum {
     position: absolute;
     right: 1em;
     bottom: 37em;

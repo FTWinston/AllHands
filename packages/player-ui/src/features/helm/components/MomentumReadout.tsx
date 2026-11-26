@@ -1,5 +1,6 @@
 import { systemEffectDefinitions } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import { Cooldown } from 'common-data/types/Cooldown';
+import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { RadialProgress } from 'common-ui/components/RadialProgress';
 import { classNames } from 'common-ui/utils/classNames';
 import styles from './MomentumReadout.module.css';
@@ -24,7 +25,7 @@ export const MomentumReadout = (props: Props) => {
 
     return (
         <div
-            className={classNames(styles.momentum, level > 0 ? styles.active : null, props.className)}
+            className={classNames(styles.momentum, colorPalettes.primary, level > 0 ? styles.active : null, props.className)}
             role="img"
             aria-label={`Momentum ${level} of ${maxMomentum}`}
         >

@@ -35,14 +35,14 @@ const objects: Record<string, GameObjectInfo> = {
 const viewer: RelationshipViewer = { shipId: 'playerShip', faction: 'player', relations: { raiders: RelationshipType.Hostile } };
 
 type StoryArgs = {
-    /** The hexagon that the dragged Match Course card is over, as its "x,y" world position. */
+    /** The hexagon that the dragged Orbit card is over, as its "x,y" world position. */
     overTargetId: string | null;
     /** The lingering zones that deflectors have left. */
     fields?: Record<string, FieldInfo>;
 };
 
 /**
- * The helm map while a Match Course card is being dragged over a hexagon, set directly rather than by dragging:
+ * The helm map while an Orbit card is being dragged over a hexagon, set directly rather than by dragging:
  * the eligible ship nearest that hexagon is ringed, with lines to it from the player's ship and from the hexagon.
  */
 const meta: Meta<StoryArgs> = {
