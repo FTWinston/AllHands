@@ -1,9 +1,10 @@
 import { ArraySchema } from '@colyseus/schema';
-import { CardMotionSegmentFacing, LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { calculateMotionPath } from 'common-data/features/cards/utils/calculateMotionPath';
 import { ShipSystem } from 'common-data/features/ships/types/ShipSystem';
 import { Position } from 'common-data/features/space/types/Position';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
-import { clampAngle, determineAngle, distance } from 'common-data/features/space/utils/vectors';
+import { clampAngle } from 'common-data/features/space/utils/vectors';
 import { WeaponSlotState } from 'src/state/systems/tactical/WeaponSlotState';
 import { ResolvedAiConfig } from '../types';
 import type { Ship } from 'src/state/Ship';
@@ -22,34 +23,21 @@ export function projectCurrentEndpoint(ship: Ship): Position {
 }
 
 /**
- * Approximate end state of playing a location card at the given location.
- * Ignores intermediate curve offsets; good enough for scoring. Null if distance limits forbid the play.
+ * The end state of playing a location card at the given location, as the ship would fly it. Null if distance limits forbid the play.
+ * Only the end of the route is scored, not the path to it.
  */
 export function estimateManeuverEndpoint(
     def: LocationTargetCardDefinition,
     from: Position,
     location: Vector2D
 ): Position | null {
-    const dist = distance(from, location);
-    if (def.minDistance !== undefined && dist < def.minDistance) {
-        return null;
-    }
-    if (def.maxDistance !== undefined && dist > def.maxDistance) {
+    const path = calculateMotionPath(from, def, location);
+    if (!path) {
         return null;
     }
 
-    let endAngle = from.angle;
-    if (def.endFacing === CardMotionSegmentFacing.FinalVector) {
-        endAngle = clampAngle(determineAngle(from, location) + (def.endFacingOffset ?? 0));
-    } else if (def.startFacing === CardMotionSegmentFacing.FinalVector && def.baseSpeed === 0) {
-        // Rotate-only card: it ends facing where startFacing pointed it.
-        endAngle = clampAngle(determineAngle(from, location) + (def.startFacingOffset ?? 0));
-    }
-
-    if (def.baseSpeed === 0) {
-        return { x: from.x, y: from.y, angle: endAngle };
-    }
-    return { x: location.x, y: location.y, angle: endAngle };
+    const end = path[path.length - 1];
+    return { x: end.x, y: end.y, angle: clampAngle(end.angle) };
 }
 
 /** Range band the loaded weapons want, or null when no slot has a weapon. */

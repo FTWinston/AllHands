@@ -31,7 +31,12 @@ export const cards = defineUiCards(sharedCards, {
     },
     zigZag: {
         name: 'Zig-zag',
-        description: 'Move from side to side while advancing towards a target, facing it the whole time.',
+        description: 'Weave from side to side while advancing towards a target, facing it the whole time. Longer moves zig and zag more.',
+        image: <ExampleIcon />,
+    },
+    feint: {
+        name: 'Feint',
+        description: 'Set off at an angle, then cut sharply back towards the destination.',
         image: <ExampleIcon />,
     },
     strafe: {
@@ -41,17 +46,17 @@ export const cards = defineUiCards(sharedCards, {
     },
     sweep: {
         name: 'Sweep',
-        description: 'Curve towards a point, turning through 90 degrees during the movement.',
+        description: 'Curve towards a point, turning early on and finishing with a short straight run.',
         image: <ExampleIcon />,
     },
     sweepLeft: {
         name: 'Sweep Left',
-        description: 'Curve left towards a point, turning through 90 degrees during the movement.',
+        description: 'Curve left towards a point, turning early on and finishing with a short straight run.',
         image: <ExampleIcon />,
     },
     sweepRight: {
         name: 'Sweep Right',
-        description: 'Curve right towards a point, turning through 90 degrees during the movement.',
+        description: 'Curve right towards a point, turning early on and finishing with a short straight run.',
         image: <ExampleIcon />,
     },
     faceTarget: {
@@ -113,17 +118,7 @@ export const cards = defineUiCards(sharedCards, {
     },
     broadside: {
         name: 'Broadside',
-        description: 'Move slowly to the destination, turning side-on to the direction of travel on the way.',
-        image: <ExampleIcon />,
-    },
-    broadsideLeft: {
-        name: 'Broadside Left',
-        description: 'Move slowly to the destination, turning 90 degrees left of the direction of travel on the way.',
-        image: <ExampleIcon />,
-    },
-    broadsideRight: {
-        name: 'Broadside Right',
-        description: 'Move slowly to the destination, turning 90 degrees right of the direction of travel on the way.',
+        description: 'Move briskly to the destination, turning side-on towards the closest hostile ship half way there, then straightening up again to face the way you are going.',
         image: <ExampleIcon />,
     },
     slingshot: {

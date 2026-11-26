@@ -1,4 +1,5 @@
 import { LocationTargetCardDefinition } from 'common-data/features/cards/types/CardDefinition';
+import { calculateMotionPath } from 'common-data/features/cards/utils/calculateMotionPath';
 import { cardDefinitions } from 'common-data/features/cards/utils/cardDefinitions';
 import { FieldInfo } from 'common-data/features/space/types/FieldInfo';
 import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
@@ -23,7 +24,6 @@ import { RefObject, useCallback, useRef, useState } from 'react';
 import { useActiveCard, useOverTargetId } from 'src/features/cardui/components/DragCardProvider';
 import { useVisibilityAnimation } from 'src/hooks/useVisibilityAnimation';
 import { useFreezeVector } from '../hooks/useFreezeVector';
-import { calculateMotionPath } from '../utils/calculateMotionPath';
 import { drawMotionPath } from '../utils/drawMotionPath';
 import { drawShipTarget } from '../utils/drawShipTarget';
 import { findNearestEligibleShip, getShipTargetRelationship } from '../utils/findNearestEligibleShip';
@@ -93,10 +93,17 @@ export const HelmSpaceMap = (props: Props) => {
                 return null;
             }
 
+            // Broadside turns towards the closest hostile ship, so it needs to know where that is.
+            const needsHostile = (cardDef as LocationTargetCardDefinition).path?.shape === 'broadside';
+            const hostile = needsHostile
+                ? findNearestEligibleShip(props.objects, props.viewer, shipPosition, 'hostile', currentTime)
+                : null;
+
             return calculateMotionPath(
                 shipPosition,
                 cardDef as LocationTargetCardDefinition,
-                targetLocation
+                targetLocation,
+                { hostilePosition: hostile?.position }
             );
         })()
         : null;

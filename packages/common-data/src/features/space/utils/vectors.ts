@@ -75,18 +75,30 @@ export function clampAngle(angle: number) {
     return angle;
 }
 
-export function getAnglesBetween(angle1: number, angle2: number, numMidAngles: number) {
-    // Normalize the angle difference to take the shortest path around the circle.
-    // We preserve direction: if angle2 < angle1, we rotate in the negative direction.
-    let diff = angle2 - angle1;
+/**
+ * The signed angle to turn through to get from angle1 to angle2. The shortest way round, in (-PI, PI], unless a direction is given:
+ * left (anticlockwise) is in [0, 2 PI), right (clockwise) in (-2 PI, 0]. A direction is what resolves a turn of about 180 degrees.
+ */
+export function getTurnBetween(angle1: number, angle2: number, direction?: 'left' | 'right') {
+    let diff = clampAngle(angle2 - angle1);
 
-    // Normalize diff to be within (-π, π] to take the shortest path
-    while (diff > Math.PI) {
+    // Don't let a hair's breadth of rounding send a ship the long way round.
+    if (Math.abs(diff) < 1e-9) {
+        return 0;
+    }
+
+    if (direction === 'left' && diff < 0) {
+        diff += Math.PI * 2;
+    } else if (direction === 'right' && diff > 0) {
         diff -= Math.PI * 2;
     }
-    while (diff <= -Math.PI) {
-        diff += Math.PI * 2;
-    }
+
+    return diff;
+}
+
+export function getAnglesBetween(angle1: number, angle2: number, numMidAngles: number, direction?: 'left' | 'right') {
+    // Take the shortest path around the circle, unless a direction was given.
+    const diff = getTurnBetween(angle1, angle2, direction);
 
     const angleStep = diff / (numMidAngles + 1);
 
