@@ -1,10 +1,13 @@
 import { distanceSq } from 'common-data/features/space/utils/vectors';
 import { defineEngineEffects } from 'engine/content/EngineContent';
 import { SystemEffectFunctionality } from 'engine/effects/EngineSystemEffectDefinition';
-import { effects as sharedEffects, interposeBlockRadius, momentumEvasionPerLevel, momentumSpeedPerLevel } from './helmEffects.shared';
+import { effects as sharedEffects, interposeBlockRadius, momentumEvasionPerLevel, momentumSpeedPerLevel, overdriveFlux, overdriveMomentum } from './helmEffects.shared';
 import type { Ship } from 'engine/state/Ship';
 import type { EngineerSystemTile } from 'engine/state/systems/engineer/EngineerSystemTile';
 import type { HelmState } from 'engine/state/systems/HelmState';
+
+/** The id of the listener on a helm's maneuvers that Overdrive adds. */
+const overdriveListenerId = 'overdrive';
 
 /** The ship that's interposing for each screened ship, keyed by that ship's helm tile. It's engine-only: clients only need to know the ship is screened. */
 const interposers = new WeakMap<EngineerSystemTile, Ship>();
@@ -139,5 +142,21 @@ export const effects = defineEngineEffects(sharedEffects, {
     screened: {
         apply: system => system.system === 'helm',
         remove: system => interposers.delete(system),
+    },
+    // While it lasts, each maneuver the ship starts adds Momentum (on top of any that following straight on adds), and Flux on the helm.
+    overdrive: {
+        apply: (system) => {
+            if (system.system !== 'helm') {
+                return false;
+            }
+
+            const helm = system.systemState.getShip().helmState;
+            helm.maneuverStarted.addListener(overdriveListenerId, () => {
+                helm.adjustEffectLevel('momentum', overdriveMomentum);
+                helm.adjustEffectLevel('flux', overdriveFlux);
+            });
+            return true;
+        },
+        remove: system => system.systemState.getShip().helmState.maneuverStarted.removeListener(overdriveListenerId),
     },
 });

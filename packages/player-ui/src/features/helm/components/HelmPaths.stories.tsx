@@ -95,7 +95,6 @@ export const PunchIt: Story = { args: { cardType: 'punchIt', overTargetId: '7.50
 export const Slingshot: Story = { args: { cardType: 'slingshot', overTargetId: '-3.000,-3.464' } };
 export const BackAway: Story = { args: { cardType: 'backAway', overTargetId: '-4.500,0.866' } };
 export const Drift: Story = { args: { cardType: 'drift', overTargetId: '3.000,-3.464', isMoving: true, momentumLevel: 4 } };
-export const Overdrive: Story = { args: { cardType: 'overdrive', overTargetId: '9.000,0.000' } };
 export const Hairpin: Story = { args: { cardType: 'hairpin', overTargetId: null, momentumLevel: 3 } };
 export const Juke: Story = { args: { cardType: 'juke', overTargetId: null, momentumLevel: 2 } };
 export const PatternAlpha: Story = { args: { cardType: 'patternAlpha', overTargetId: null } };

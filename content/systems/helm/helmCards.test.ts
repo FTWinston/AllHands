@@ -65,6 +65,22 @@ function createShip() {
     return { state, ship, other, helm, play, run, runUntilManeuverEnds, maneuverDuration, effectLevel, momentum, accuracy };
 }
 
+describe('Pivot', () => {
+    it('turns on the spot to face the point, twice as fast as Slow & Steady turns', () => {
+        const { state, ship, play, maneuverDuration } = createShip();
+        expect(cardDefinitions.pivot).toMatchObject({ targetType: 'location', system: 'helm', baseSpeed: 0, baseRotationSpeed: 2 });
+
+        // A quarter turn, to face down the screen, in a second.
+        expect(play('pivot', '0,6').played).toBe(true);
+        expect(maneuverDuration()).toBeCloseTo(1000);
+        state.tick(1100);
+        const end = ship.getPosition(state.currentTime);
+        expect(end.x).toBeCloseTo(0);
+        expect(end.y).toBeCloseTo(0);
+        expect(end.angle).toBeCloseTo(-Math.PI / 2);
+    });
+});
+
 describe('Burn', () => {
     it('flies straight to the target at speed, and adds 2 Momentum', () => {
         const { state, ship, helm, play, momentum, maneuverDuration, runUntilManeuverEnds } = createShip();
@@ -1078,6 +1094,64 @@ function createRelativeWorld() {
     return { ...world, addRaider, fly, place, runShip, playOn, position, offsetFrom, rangeTo };
 }
 
+describe('Stand Off', () => {
+    it('is a helm card for hostile ships that faces the target, and backs away to stay 8 units from it as it closes in', () => {
+        const { helm, addRaider, fly, runShip, playOn, position, rangeTo } = createRelativeWorld();
+        expect(cardDefinitions.standOff).toMatchObject({ targetType: 'ship', targetRelationship: 'hostile', system: 'helm', parameters: { cost: 2, evasion: 5, duration: 8, range: 8 } });
+        expect(cardDefinitions.standOff).not.toHaveProperty('rarity');
+        expect(getCardDefinition('standOff').synergy).toEqual({ provides: ['steadyPlatform'] });
+
+        // A raider 6 units off, closing at 1 unit a second.
+        const raider = addRaider(6, 0);
+        fly(raider, -1, 0, 1);
+
+        const { card, played } = playOn('standOff', raider);
+        expect(played).toBe(true);
+        expect(helm.activeManeuver!.card).toBe(card);
+        expect(helm.activeManeuver!.endTime - helm.activeManeuver!.startTime).toBe(8000);
+        expect(helm.evasion).toBe(5);
+
+        // It backs off to 8 units, then keeps there, facing the raider all the while.
+        runShip(3000);
+        expect(rangeTo(raider)).toBeCloseTo(8, 0);
+        runShip(4000);
+        expect(rangeTo(raider)).toBeCloseTo(8, 0);
+        expect(position().x).toBeLessThan(-3);
+        expect(position().angle).toBeCloseTo(0, 1);
+
+        runShip(1100);
+        expect(helm.activeManeuver).toBeNull();
+    });
+
+    it('keeps the range it starts at, if that is further, and never closes in', () => {
+        const { addRaider, fly, runShip, playOn, position, rangeTo } = createRelativeWorld();
+        const raider = addRaider(12, 0);
+
+        // Moving away, the raider is let go.
+        fly(raider, 1, 0, 1);
+        expect(playOn('standOff', raider).played).toBe(true);
+        runShip(3000);
+        expect(position().x).toBeCloseTo(0, 3);
+        expect(rangeTo(raider)).toBeGreaterThan(14);
+    });
+
+    it('keeps 12 units from a raider that started 12 units away and comes closer', () => {
+        const { addRaider, fly, runShip, playOn, rangeTo } = createRelativeWorld();
+        const raider = addRaider(12, 0);
+        fly(raider, -1, 0, 1);
+
+        expect(playOn('standOff', raider).played).toBe(true);
+        runShip(5000);
+        expect(rangeTo(raider)).toBeCloseTo(12, 0);
+    });
+
+    it('cannot be played on a friendly ship', () => {
+        const { helm, other, playOn } = createRelativeWorld();
+        expect(playOn('standOff', other).played).toBe(false);
+        expect(helm.activeManeuver).toBeNull();
+    });
+});
+
 describe('Orbit', () => {
     it('circles the target at the range it started at, side-on to it, for 10 seconds', () => {
         const { helm, addRaider, runShip, playOn, position, offsetFrom, rangeTo } = createRelativeWorld();
@@ -1602,26 +1676,46 @@ describe('Shadow', () => {
 });
 
 describe('Overdrive', () => {
-    it('is a rare helm card that races to a point, faster than Burn, and puts 2 Flux on the helm system', () => {
-        const { helm, play, runShip, position, effectLevel, maneuverDuration } = createRelativeWorld();
-        expect(cardDefinitions.overdrive).toMatchObject({ targetType: 'location', rarity: 'rare', system: 'helm', minDistance: 6, parameters: { cost: 2, evasion: 15, flux: 2 } });
-        expect(getCardDefinition('overdrive').synergy).toEqual({ provides: ['flux'] });
+    it('is a rare card with no target that flies nowhere, and lasts 15 seconds', () => {
+        const { helm, play, effectLevel, momentum, run } = createRelativeWorld();
+        expect(cardDefinitions.overdrive).toMatchObject({ targetType: 'no-target', rarity: 'rare', system: 'helm', parameters: { cost: 1, duration: 15, momentum: 1, flux: 1 } });
+        expect(getCardDefinition('overdrive').synergy).toEqual({ provides: ['momentum', 'flux'] });
 
-        expect(play('overdrive', '9,0').played).toBe(true);
-        expect(effectLevel('helm', 'flux')).toBe(2);
-        const overdriveTime = maneuverDuration();
+        expect(play('overdrive').played).toBe(true);
+        expect(helm.activeManeuver).toBeNull();
+        expect(helm.hasEffect('overdrive')).toBe(true);
+        expect(momentum()).toBe(0);
+        expect(effectLevel('helm', 'flux')).toBe(0);
 
-        helm.cancelActiveManeuver();
-        runShip(1000);
-        const from = position();
-        expect(play('burn', `${from.x + 9},${from.y}`).played).toBe(true);
-        expect(overdriveTime).toBeLessThan(maneuverDuration() * 0.6);
+        run(15_100);
+        expect(helm.hasEffect('overdrive')).toBe(false);
     });
 
-    it('cannot be played on a point too close', () => {
-        const { play, effectLevel } = createRelativeWorld();
-        expect(play('overdrive', '4,0').played).toBe(false);
+    it('has each maneuver started while it lasts add a level of Momentum, and a level of Flux on the helm', () => {
+        const { helm, play, effectLevel, momentum, runUntilManeuverEnds } = createRelativeWorld();
+        expect(play('overdrive').played).toBe(true);
+
+        expect(play('slowAndSteady', '3,0').played).toBe(true);
+        expect(momentum()).toBe(1);
+        expect(effectLevel('helm', 'flux')).toBe(1);
+
+        // Following straight on adds a level of its own, as well.
+        runUntilManeuverEnds();
+        expect(play('slowAndSteady', '6,0').played).toBe(true);
+        expect(momentum()).toBe(3);
+        expect(effectLevel('helm', 'flux')).toBe(2);
+        expect(helm.hasEffect('overdrive')).toBe(true);
+    });
+
+    it('stops adding anything once it ends', () => {
+        const { helm, play, effectLevel, momentum, run } = createRelativeWorld();
+        expect(play('overdrive').played).toBe(true);
+        run(15_100);
+
+        expect(play('slowAndSteady', '3,0').played).toBe(true);
+        expect(momentum()).toBe(0);
         expect(effectLevel('helm', 'flux')).toBe(0);
+        expect(helm.hasEffect('overdrive')).toBe(false);
     });
 });
 

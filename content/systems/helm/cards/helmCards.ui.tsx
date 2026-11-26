@@ -61,7 +61,7 @@ export const cards = defineUiCards(sharedCards, {
     },
     pivot: {
         name: 'Pivot',
-        description: 'Turn on the spot to face the selected point.',
+        description: 'Turn quickly on the spot to face the selected point.',
         image: <ExampleIcon />,
     },
     burn: {
@@ -92,7 +92,15 @@ export const cards = defineUiCards(sharedCards, {
     overdrive: {
         name: 'Overdrive',
         description: <>
-            Push the engines past their limit: turn towards a point then race to it, faster than any other maneuver. Puts
+            Push the engines past their limit for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds. Each maneuver started meanwhile gains
+            {' '}
+            <Parameter name="momentum" />
+            {' '}
+            more Momentum, and puts
             {' '}
             <Parameter name="flux" />
             {' '}
@@ -221,6 +229,21 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="accuracy" />
             % more accurate while it does.
+        </>,
+        image: <ExampleIcon />,
+    },
+    standOff: {
+        name: 'Stand Off',
+        description: <>
+            For
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, keep facing the target ship, backing away to keep at least
+            {' '}
+            <Parameter name="range" />
+            {' '}
+            units from it (or the range it started at, if further) as it closes in.
         </>,
         image: <ExampleIcon />,
     },

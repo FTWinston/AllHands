@@ -331,19 +331,15 @@ export const cards = defineEngineCards(sharedCards, {
             return true;
         },
     },
+    // The cards below that take no target have no AI evaluator, so the AI never plays them.
     overdrive: {
-        synergy: { provides: ['flux'] },
-        aiEvaluator: locationCardEvaluator('overdrive'),
-        play: (gameState, ship, cardInstance, cardDefinition, location, parameters) => {
-            if (!applyMotionCard(gameState, ship, cardInstance, cardDefinition, location, parameters)) {
-                return false;
-            }
-
-            ship.helmState.adjustEffectLevel('flux', parameters['flux']);
+        synergy: { provides: ['momentum', 'flux'] },
+        play: (_gameState, ship) => {
+            // Playing it again while it lasts starts its time over.
+            ship.helmState.addEffect('overdrive');
             return true;
         },
     },
-    // The cards below that take no target have no AI evaluator, so the AI never plays them.
     hairpin: {
         synergy: { wants: ['momentum'] },
         play: (gameState, ship, parameters, card) => {
@@ -443,6 +439,26 @@ export const cards = defineEngineCards(sharedCards, {
             helm.adjustEffectLevel('holdingSteady', parameters['accuracy']);
             helm.whenActiveManeuverEnds(() => helm.removeEffect('holdingSteady', 'expired'));
             return true;
+        },
+    },
+    standOff: {
+        synergy: { provides: ['steadyPlatform'] },
+        play: (gameState, ship, target, parameters, card) => {
+            // Keep the range the ship starts at, or the card's range if that's further, by backing straight away from the target when it comes closer. It never closes in.
+            const startTime = gameState.currentTime;
+            const range = Math.max(parameters['range'] ?? 0, Math.sqrt(distanceSq(ship.getPosition(startTime), target.getPosition(startTime))));
+
+            return startRelativeManeuver(gameState, ship, target, parameters, card, () => (time, from) => {
+                const targetAt = target.getPosition(time);
+                const facing = determineAngle(from, targetAt);
+                const gap = Math.hypot(from.x - targetAt.x, from.y - targetAt.y);
+                if (gap >= range || gap < 1e-6) {
+                    return { facing };
+                }
+
+                const scale = range / gap;
+                return { position: { x: targetAt.x + (from.x - targetAt.x) * scale, y: targetAt.y + (from.y - targetAt.y) * scale }, facing };
+            });
         },
     },
     orbit: {

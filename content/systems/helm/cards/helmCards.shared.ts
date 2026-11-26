@@ -1,7 +1,7 @@
 import { defineCards } from 'common-data/content/SharedContent';
 import { CardMotionSegmentFacing } from 'common-data/features/cards/types/CardDefinition';
 import { evasivePatternDuration } from 'common-data/features/cards/utils/evasivePatterns';
-import { lockOnDuration } from 'content/systems/helm/effects/helmEffects.shared';
+import { lockOnDuration, overdriveDuration, overdriveFlux, overdriveMomentum } from 'content/systems/helm/effects/helmEffects.shared';
 
 /** How much harder to hit a ship flying one of the evasive maneuver patterns is, and how much less accurate its own weapons are, in percentage points. */
 const evasivePatternEvasion = 40;
@@ -92,9 +92,9 @@ export const cards = defineCards({
     pivot: {
         targetType: 'location',
         system: 'helm',
-        // Turn on the spot to face the target, no movement
+        // Turn on the spot to face the target, no movement, twice as fast as anything else turns
         startFacing: CardMotionSegmentFacing.FinalVector,
-        baseRotationSpeed: 1,
+        baseRotationSpeed: 2,
         baseSpeed: 0,
         parameters: { cost: 1, evasion: 0 },
     },
@@ -126,17 +126,12 @@ export const cards = defineCards({
         parameters: { cost: 2, evasion: 10, speedPerMomentum: 25, evasionPerMomentum: 8 },
     },
     overdrive: {
-        targetType: 'location',
+        targetType: 'no-target',
         rarity: 'rare',
         system: 'helm',
-        // Rotate to face target first, then race straight to it, faster than anything else, with the engines pushed past their limit
-        startFacing: CardMotionSegmentFacing.FinalVector,
-        endFacing: CardMotionSegmentFacing.FinalVector,
-        baseRotationSpeed: 1.5,
-        baseSpeed: 5,
-        minDistance: 6,
-        // flux: the levels of Flux put on the helm system
-        parameters: { cost: 2, evasion: 15, flux: 2 },
+        // Not a maneuver: the engines are pushed past their limit for a while (see the overdrive effect).
+        // duration: how long it lasts, in seconds; momentum: the extra levels of Momentum, and flux: the levels of Flux on the helm system, from each maneuver started meanwhile
+        parameters: { cost: 1, duration: overdriveDuration / 1000, momentum: overdriveMomentum, flux: overdriveFlux },
     },
     // Hairpin's and Juke's paths are in common-data (`momentumManeuvers`), so that the helm can preview them
     hairpin: {
@@ -216,6 +211,13 @@ export const cards = defineCards({
         system: 'helm',
         // accuracy: percentage points added to the accuracy of the ship's own weapons; duration: how long the ship holds still, turning to face the target ship, in seconds
         parameters: { cost: 2, evasion: 0, accuracy: 20, duration: lockOnDuration / 1000 },
+    },
+    standOff: {
+        targetType: 'ship',
+        targetRelationship: 'hostile',
+        system: 'helm',
+        // duration: how long the ship keeps its distance, in seconds; range: how far from the target ship it keeps, at least, in units. It keeps the range it starts at, if that's further.
+        parameters: { cost: 2, evasion: 5, duration: 8, range: 8 },
     },
     orbit: {
         targetType: 'ship',

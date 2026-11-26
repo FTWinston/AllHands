@@ -104,14 +104,15 @@ Helm's job is deciding where the ship is and what it's showing the enemy. Slow &
 |---|---|
 | Slow & Steady | Turn towards a point, then fly straight to it. |
 | Back Away | Turn away from a point, then reverse slowly to it. |
-| Pivot | Turn on the spot to face a point. |
+| Pivot | Turn quickly on the spot to face a point: twice as fast as anything else turns. |
 | Strafe | Move a short way without turning. |
 | Lock On | Pick a hostile ship: stop, and keep facing it for 8s. Weapons are more accurate meanwhile. |
+| Stand Off | Pick a hostile ship: for 8s, keep facing it, backing away to keep at least 8 units off (or the range it started at, if further). It never closes in. |
 | Broadside | Turn to face the point, then a brisk move that swings side-on halfway (towards the nearest hostile) and straightens up by the end, sweeping the guns across whatever is beside the path. |
 
 ### Slipstream
 
-Momentum is gained by starting a manoeuvre soon after the last one ended. A ship sitting still loses a level every 1.5s, and a hit knocks one off. Each level makes manoeuvres faster and the ship harder to hit, and counts towards helm's power when breaking free of a tractor beam. Helm sees its Momentum on the helm screen.
+Momentum is gained by starting a manoeuvre soon after the last one ended. A ship sitting still loses a level every 1.5s, drawing a card for each, so a burst of manoeuvres that empties the hand is followed by cards to keep going with. A hit knocks a level off, without the draw. Each level makes manoeuvres faster and the ship harder to hit, and counts towards helm's power when breaking free of a tractor beam. Helm sees its Momentum on the helm screen.
 
 | Card | Kind | Effect |
 |---|---|---|
@@ -123,7 +124,7 @@ Momentum is gained by starting a manoeuvre soon after the last one ended. A ship
 | Drift | Payoff | Cut the engines: slide on the way the ship is moving, further with more Momentum, while turning to face a point. Spends all of it. |
 | Hairpin | Payoff | Uncommon. Whip round a half circle, away from the nearest hostile, and fly back the way the ship was facing: 2 units, and further, with more evasion, for each level of Momentum. Spends all of it. |
 | Juke | Payoff | Spend 2 Momentum on a sharp sidestep away from the nearest hostile. Every ship aiming at this one loses its aim. Greyed out without the Momentum, as Drift is with none. |
-| Overdrive | Route | Rare. The fastest straight move there is, but it puts 2 Flux on the helm system for engineer to deal with. |
+| Overdrive | Builder | Rare, and not a manoeuvre. For 15s, every manoeuvre started gains an extra level of Momentum, and puts 1 Flux on the helm system for engineer to deal with. |
 
 ### Evasive Maneuvers
 

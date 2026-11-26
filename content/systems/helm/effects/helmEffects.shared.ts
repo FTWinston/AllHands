@@ -17,10 +17,15 @@ export const momentumDecayInterval = 1500;
 /** How long each posture is held for, in milliseconds. */
 export const lockOnDuration = 8_000;
 
+/** How long Overdrive lasts, in milliseconds, and the extra levels of Momentum, and the levels of Flux on the helm system, that each maneuver started while it does brings. */
+export const overdriveDuration = 15_000;
+export const overdriveMomentum = 1;
+export const overdriveFlux = 1;
+
 export const effects = defineEffects({
     /**
      * On the helm: built by flying one maneuver straight after another, and by cards that add to it. Each level speeds every maneuver up, and makes the ship harder to hit.
-     * A level is lost each time the ship is hit, and one more each time it has sat still for a while (see `HelmState`).
+     * A level is lost each time the ship is hit, and one more each time it has sat still for a while, which draws a card (see `HelmState`).
      */
     momentum: {
         category: SystemEffectCategory.Positive,
@@ -65,6 +70,12 @@ export const effects = defineEffects({
     screened: {
         category: SystemEffectCategory.Positive,
         usesLevels: false,
+    },
+    /** On the helm: the engines are pushed past their limit (see the Overdrive card), so each maneuver started adds Momentum, and Flux on the helm. */
+    overdrive: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: false,
+        duration: overdriveDuration,
     },
 });
 

@@ -304,6 +304,29 @@ describe('Momentum', () => {
         expect(momentum()).toBe(0);
     });
 
+    it('draws a card for each level lost by sitting still, but not for one lost to a hit', () => {
+        const { ship, helm, run, flyAhead, runUntilManeuverEnds, momentum } = createShip();
+
+        flyAhead(3);
+        helm.adjustEffectLevel('momentum', 2);
+        runUntilManeuverEnds();
+
+        // Make sure there are cards to draw. The hand is checked just before and after the level goes, as the reactor has the helm draw cards now and then too.
+        helm.deck.push(new CardState(ship.getCardId(), 'strafe'), new CardState(ship.getCardId(), 'strafe'));
+        run(1400);
+        expect(momentum()).toBe(2);
+        const handBefore = helm.hand.length;
+
+        run(200);
+        expect(momentum()).toBe(1);
+        expect(helm.hand).toHaveLength(handBefore + 1);
+
+        // A hit takes the last level away, without drawing a card.
+        ship.damage({ amount: 1, traits: [], targetSystem: 'hull' });
+        expect(momentum()).toBe(0);
+        expect(helm.hand).toHaveLength(handBefore + 1);
+    });
+
     it('makes each maneuver 10% faster per level', () => {
         const { helm, flyAhead, runUntilManeuverEnds } = createShip();
 
