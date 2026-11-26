@@ -7,17 +7,21 @@ import { EngineLocationTargetCardDefinition } from 'src/cards/EngineCardDefiniti
 import { ListenableEvent } from 'src/classes/ListenableEvent';
 import { CardCooldownState } from '../CardCooldownState';
 import { CardState } from '../CardState';
+import { CooldownState } from '../CooldownState';
 import { GameState } from '../GameState';
 import { MotionKeyframe } from '../MotionKeyframe';
 import { CrewSystemState } from './CrewSystemState';
 import type { GameObject } from '../GameObject';
 import type { Ship } from '../Ship';
 
-/**
- * How long Momentum lasts without flying, in milliseconds: a maneuver started within this long of the last one finishing adds a level,
- * and a ship that has been still for longer than this loses every level.
- */
+/** How soon after the last maneuver finished the next one has to start, in milliseconds, to add a level of Momentum. */
 export const momentumWindow = 2000;
+
+/**
+ * How long a ship has to be still before it loses a level of Momentum, in milliseconds, and then how long it takes to lose each further level.
+ * The same as `momentumDecayInterval` in the helm's shared effects, which the helm's description of Momentum quotes.
+ */
+export const momentumDecayInterval = 1500;
 
 /** A maneuver shorter than this doesn't count as one to follow on from, so that tiny hops can't build Momentum. */
 export const momentumMinManeuverDuration = 1000;
@@ -33,6 +37,12 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
     }
 
     @type(CardCooldownState) activeManeuver: CardCooldownState | null = null;
+
+    /** The level of the `momentum` effect on this system, which sets it (see `momentumLevelChanged`). Held here too as the helm's own client can't see the system's effects. */
+    @type('uint8') momentumLevel = 0;
+
+    /** From when the ship last moved until it next loses a level of Momentum, for the helm's client to show. Null while the ship is moving, or has none to lose. */
+    @type(CooldownState) momentumFade: CooldownState | null = null;
 
     /** Triggered whenever a card becomes this ship's active maneuver, as it starts. */
     readonly maneuverStarted = new ListenableEvent();
@@ -150,7 +160,16 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
         return true;
     }
 
-    /** A ship that hasn't moved or turned for longer than the Momentum window loses all of its Momentum. */
+    /** Called by the `momentum` effect whenever its level changes, to keep this system's copy of it in step. */
+    momentumLevelChanged(level: number) {
+        this.momentumLevel = level;
+
+        if (level <= 0) {
+            this.momentumFade = null;
+        }
+    }
+
+    /** A ship that hasn't moved or turned for longer than the decay interval loses a level of Momentum, and another each time that passes again. */
     private loseMomentumIfStill(currentTime: number) {
         const position = this.getShip().getPosition(currentTime);
         const last = this.lastPosition;
@@ -158,8 +177,26 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
 
         if (!last || Math.abs(position.x - last.x) > 1e-6 || Math.abs(position.y - last.y) > 1e-6 || Math.abs(position.angle - last.angle) > 1e-6) {
             this.lastMovedTime = currentTime;
-        } else if (currentTime - this.lastMovedTime > momentumWindow) {
-            this.removeEffect('momentum', 'expired');
+            this.momentumFade = null;
+            return;
+        }
+
+        if (this.momentumLevel <= 0) {
+            return;
+        }
+
+        if (this.momentumFade === null) {
+            this.momentumFade = new CooldownState(this.lastMovedTime, this.lastMovedTime + momentumDecayInterval);
+        }
+
+        if (currentTime >= this.momentumFade.endTime) {
+            // Each level takes as long again to go as the last did, however late this noticed. Losing the last one clears the fade (see `momentumLevelChanged`).
+            const nextEnd = this.momentumFade.endTime + momentumDecayInterval;
+            this.adjustEffectLevel('momentum', -1);
+
+            if (this.momentumLevel > 0) {
+                this.momentumFade = new CooldownState(nextEnd - momentumDecayInterval, nextEnd);
+            }
         }
     }
 
@@ -182,6 +219,7 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
 
         // The ship is under way from now, even if it hasn't had time to get anywhere yet.
         this.lastMovedTime = currentTime;
+        this.momentumFade = null;
         this.lastManeuverEndTime = null;
 
         if (followsOn) {
@@ -245,6 +283,7 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
         this.finishManeuverEnded();
         this.lastManeuverEndTime = null;
         this.lastPosition = null;
+        this.momentumFade = null;
         super.cleanupAfterEncounter();
     }
 }

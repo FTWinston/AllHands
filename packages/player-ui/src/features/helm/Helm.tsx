@@ -105,6 +105,8 @@ export const Helm = (props: Props) => {
             cardGeneration={helmState.cardGeneration}
             cancelManeuver={cancelManeuver}
             activeManeuver={helmState.activeManeuver}
+            momentumLevel={helmState.momentumLevel}
+            momentumFade={helmState.momentumFade}
             weaponEffectsRef={weaponEffectsRef}
         />
     );

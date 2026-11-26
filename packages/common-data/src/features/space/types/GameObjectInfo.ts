@@ -77,6 +77,10 @@ export interface CrewSystemInfo extends SystemInfo {
 
 export interface HelmSystemInfo extends CrewSystemInfo {
     activeManeuver: CardCooldown | null;
+    /** How many levels of Momentum the helm holds: the level of the `momentum` effect on the helm system. */
+    momentumLevel: number;
+    /** When the ship next loses a level of Momentum, as it has been still for a while. Null while it's moving, or has none. */
+    momentumFade: Cooldown | null;
 }
 
 export interface WeaponSlotInfo {

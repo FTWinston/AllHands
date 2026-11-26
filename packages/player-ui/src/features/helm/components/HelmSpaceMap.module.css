@@ -27,6 +27,13 @@
     box-sizing: border-box;
 }
 
+/* In the column of buttons, above the zoom ones: there's no room for it in the header. */
+.momentum {
+    position: absolute;
+    right: 1em;
+    bottom: 37em;
+}
+
 .zoomIn {
     bottom: 33em;
 }

@@ -8,7 +8,7 @@ import { ReadonlyKeyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { parseVector } from 'common-data/features/space/utils/vectors';
-import { CardCooldown } from 'common-data/types/Cooldown';
+import { CardCooldown, Cooldown } from 'common-data/types/Cooldown';
 import { Screen } from 'common-ui/components/Screen';
 import crewStyles from 'common-ui/CrewColors.module.css';
 import { ContactLabels } from 'common-ui/features/spacemap/utils/drawContactLabels';
@@ -36,12 +36,16 @@ type Props = Omit<ComponentProps<typeof CrewHeader>, 'crew' | 'handSize'> & {
     /** The id of the ship science is scanning. */
     scienceTargetId?: string;
     activeManeuver?: CardCooldown | null;
+    /** How many levels of Momentum the ship has. */
+    momentumLevel?: number;
+    /** When the ship next loses a level of Momentum, as it has been still for a while. */
+    momentumFade?: Cooldown | null;
     cancelManeuver: () => void;
     weaponEffectsRef: RefObject<WeaponEffect[]>;
 };
 
 export const HelmDisplay = (props: Props) => {
-    const { cards, playCard, center, objects, fields, viewer, contactLabels, tacticalTargetId, scienceTargetId, activeManeuver, cancelManeuver, weaponEffectsRef, ...headerProps } = props;
+    const { cards, playCard, center, objects, fields, viewer, contactLabels, tacticalTargetId, scienceTargetId, activeManeuver, momentumLevel, momentumFade, cancelManeuver, weaponEffectsRef, ...headerProps } = props;
 
     useRootClassName(crewStyles.helm);
 
@@ -86,6 +90,8 @@ export const HelmDisplay = (props: Props) => {
                     tacticalTargetId={tacticalTargetId}
                     scienceTargetId={scienceTargetId}
                     activeManeuver={activeManeuver}
+                    momentumLevel={momentumLevel}
+                    momentumFade={momentumFade}
                     cancelManeuver={cancelManeuver}
                     weaponEffectsRef={weaponEffectsRef}
                 />

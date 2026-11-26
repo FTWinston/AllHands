@@ -119,6 +119,16 @@ export const cards = defineCards({
         // speedPerMomentum: percentage of extra speed for each level of Momentum held; evasionPerMomentum: extra evasion for each level
         parameters: { cost: 2, evasion: 10, speedPerMomentum: 15, evasionPerMomentum: 8 },
     },
+    drift: {
+        targetType: 'location',
+        rarity: 'uncommon',
+        system: 'helm',
+        // The path isn't made from these: it slides the way the ship is already going (see `calculateDriftPath`), so neither speed nor rotation applies.
+        baseRotationSpeed: 0,
+        baseSpeed: 0,
+        // distancePerMomentum: how far the ship slides for each level of Momentum it spends; evasionPerMomentum: extra evasion, while it does, for each level spent
+        parameters: { cost: 2, evasion: 0, distancePerMomentum: 1.5, evasionPerMomentum: 8 },
+    },
     evasiveManeuvers: {
         targetType: 'choice',
         rarity: 'common',

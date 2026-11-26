@@ -3,7 +3,7 @@ import { evasivePatternDuration, calculatePatternPath } from 'common-data/featur
 import { getCardRarity } from 'common-data/features/cards/utils/getCardRarity';
 import { getShopCardTypes } from 'common-data/features/cards/utils/getShopCardTypes';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
-import { clampAngle } from 'common-data/features/space/utils/vectors';
+import { clampAngle, determineAngle } from 'common-data/features/space/utils/vectors';
 import { engageTractorBeam } from 'content/systems/tactical/effects/tacticalEffects.engine';
 import { getCardEvaluator } from 'engine/ai/evaluators';
 import { getCardDefinition } from 'engine/cards/getEngineCardDefinition';
@@ -11,8 +11,10 @@ import { AiShip } from 'engine/state/AiShip';
 import { CardState } from 'engine/state/CardState';
 import { MotionKeyframe } from 'engine/state/MotionKeyframe';
 import { PlayerShip } from 'engine/state/PlayerShip';
+import { momentumDecayInterval as engineMomentumDecayInterval } from 'engine/state/systems/HelmState';
 import { setupGameRoom, shipSetup } from 'engine/testUtils';
 import { describe, expect, it, vi } from 'vitest';
+import { momentumDecayInterval } from './effects/helmEffects.shared';
 import type { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import type { EngineWeaponSlotCardDefinition } from 'engine/cards/EngineCardDefinition';
 import type { GameObject } from 'engine/state/GameObject';
@@ -73,7 +75,8 @@ describe('Burn', () => {
         expect(helm.activeManeuver!.card).toBe(card);
         expect(maneuverDuration()).toBeCloseTo(4000);
         expect(momentum()).toBe(2);
-        expect(helm.evasion).toBe(10);
+        // The card's own 10, and 3 for each of the 2 levels of Momentum it gave.
+        expect(helm.evasion).toBe(16);
 
         runUntilManeuverEnds();
         const position = ship.getPosition(state.currentTime);
@@ -127,14 +130,15 @@ describe('Full Impulse', () => {
         expect(played).toBe(true);
         const distance = 12 - ship.getPosition(helm.activeManeuver!.startTime).x;
         expect(maneuverDuration()).toBeCloseTo(distance / (1 * 1.4 * 1.6) * 1000);
-        expect(helm.evasion).toBe(10 + 4 * 8);
-        expect(accuracy(other, ship)).toBe(100 - 42);
+        // The card's 10 and 8 for each of the 4 levels it had, and 3 for each of the 2 it's left with.
+        expect(helm.evasion).toBe(10 + 4 * 8 + 2 * 3);
+        expect(accuracy(other, ship)).toBe(100 - 48);
         expect(momentum()).toBe(2);
 
-        // The card goes back to what it was once it has been flown.
+        // The card goes back to what it was once it has been flown, leaving only what Momentum adds.
         runUntilManeuverEnds();
         expect(card.getParameter('evasion')).toBe(10);
-        expect(helm.evasion).toBe(0);
+        expect(helm.evasion).toBe(2 * 3);
     });
 
     it('spends the larger half of an odd amount of Momentum', () => {
@@ -146,6 +150,108 @@ describe('Full Impulse', () => {
 
         play('fullImpulse', '12,0');
         expect(momentum()).toBe(1);
+    });
+});
+
+describe('Momentum', () => {
+    it('is described with the same decay time as the engine uses', () => {
+        expect(momentumDecayInterval).toBe(engineMomentumDecayInterval);
+    });
+});
+
+describe('Drift', () => {
+    it('is an uncommon helm card that wants Momentum', () => {
+        expect(cardDefinitions.drift).toMatchObject({
+            targetType: 'location',
+            system: 'helm',
+            rarity: 'uncommon',
+            parameters: { cost: 2, distancePerMomentum: 1.5, evasionPerMomentum: 8 },
+        });
+        expect(getCardDefinition('drift').synergy).toEqual({ wants: ['momentum'] });
+    });
+
+    it('cannot be played with no Momentum, or while the ship is not moving', () => {
+        const { helm, play, momentum } = createShip();
+
+        // Still, with Momentum.
+        helm.adjustEffectLevel('momentum', 3);
+        expect(play('drift', '5,3').played).toBe(false);
+        expect(momentum()).toBe(3);
+        expect(helm.activeManeuver).toBeNull();
+
+        // Moving, with none.
+        helm.removeEffect('momentum', 'early');
+        play('slowAndSteady', '8,0');
+        expect(momentum()).toBe(0);
+        expect(play('drift', '5,3').played).toBe(false);
+        expect(helm.activeManeuver!.card.type).toBe('slowAndSteady');
+    });
+
+    it('slides on the way the ship was going for 1.5 units per level, stopping there facing the point, and spends all the Momentum', () => {
+        const { state, ship, helm, play, run, runUntilManeuverEnds, momentum } = createShip();
+
+        // Flying along +x, with 4 levels (the second one starts it, so it gives none of its own).
+        play('burn', '20,0');
+        helm.adjustEffectLevel('momentum', 2);
+        expect(momentum()).toBe(4);
+        run(2000);
+        const before = ship.getPosition(state.currentTime);
+        expect(before.x).toBeGreaterThan(1);
+
+        // Facing the point at the ship's side, which it passes by while sliding.
+        const { card, played } = play('drift', `${before.x + 6},-4`);
+        expect(played).toBe(true);
+        expect(helm.activeManeuver!.card).toBe(card);
+        expect(momentum()).toBe(0);
+        expect(helm.maneuverSpeedMultiplier).toBe(1);
+
+        runUntilManeuverEnds();
+        const after = ship.getPosition(state.currentTime);
+        expect(after.x).toBeCloseTo(before.x + 4 * 1.5, 1);
+        expect(after.y).toBeCloseTo(0, 1);
+        // It faces the point from where it stopped: ahead and to the right.
+        expect(after.angle).toBeCloseTo(determineAngle(after, { x: before.x + 6, y: -4 }));
+        expect(card.getParameter('evasion')).toBe(0);
+    });
+
+    it('slows steadily to a stop, never going backwards', () => {
+        const { state, ship, helm, play, run } = createShip();
+
+        play('burn', '20,0');
+        helm.adjustEffectLevel('momentum', 1);
+        run(2000);
+        play('drift', '30,0');
+
+        let lastX = ship.getPosition(state.currentTime).x;
+        let lastStep = Infinity;
+        while (helm.activeManeuver) {
+            state.tick(100);
+            const x = ship.getPosition(state.currentTime).x;
+            expect(x).toBeGreaterThanOrEqual(lastX - 1e-9);
+            // Each step covers no more ground than the one before.
+            expect(x - lastX).toBeLessThanOrEqual(lastStep + 0.05);
+            lastStep = x - lastX;
+            lastX = x;
+        }
+    });
+
+    it('makes the ship harder to hit for each level of Momentum spent, for as long as it drifts', () => {
+        const { state, ship, other, helm, play, run, accuracy, runUntilManeuverEnds } = createShip();
+
+        play('burn', '20,0');
+        helm.adjustEffectLevel('momentum', 1);
+        run(2000);
+        const { card } = play('drift', '30,0');
+
+        // 3 levels spent, at 8 each, and no Momentum is left to add to it.
+        expect(card.getParameter('evasion')).toBe(3 * 8);
+        expect(helm.evasion).toBe(3 * 8);
+        expect(accuracy(other, ship)).toBe(100 - 24);
+
+        runUntilManeuverEnds();
+        expect(state.currentTime).toBeGreaterThan(0);
+        expect(card.getParameter('evasion')).toBe(0);
+        expect(helm.evasion).toBe(0);
     });
 });
 
@@ -413,8 +519,9 @@ describe('Slingshot', () => {
         const { card, played } = playOn('slingshot', addRaider(10, 0));
         expect(played).toBe(true);
         expect(helm.activeManeuver!.card).toBe(card);
-        expect(helm.evasion).toBe(30);
+        // Its own 30, and 3 for each level of Momentum.
         expect(momentum()).toBe(2);
+        expect(helm.evasion).toBe(30 + 2 * 3);
 
         // Getting there at 1.25 units a second, swinging round and heading out again takes well over 8 seconds.
         expect(helm.activeManeuver!.endTime - helm.activeManeuver!.startTime).toBeGreaterThan(8000);
@@ -665,7 +772,7 @@ describe('Lock On', () => {
         expect(helm.activeManeuver).toBeNull();
     });
 
-    it('loses Momentum, as the ship is still for longer than 2 seconds', () => {
+    it('loses Momentum a level at a time, as the ship is still', () => {
         const { play, playOn, addRaider, run, momentum, runUntilManeuverEnds } = createLockingShip();
         // Straight ahead of the ship, so that it has no turning to do.
         const raider = addRaider(20, 0);
@@ -673,9 +780,12 @@ describe('Lock On', () => {
         play('burn', '6,0');
         runUntilManeuverEnds();
         playOn(raider);
-        expect(momentum()).toBeGreaterThan(0);
+        expect(momentum()).toBe(3);
 
-        run(2200);
+        run(1600);
+        expect(momentum()).toBe(2);
+
+        run(3000);
         expect(momentum()).toBe(0);
     });
 });
@@ -1270,7 +1380,7 @@ describe('Break Away', () => {
         const { card, played } = playOn('breakAway', raider);
         expect(played).toBe(true);
         expect(helm.activeManeuver!.card).toBe(card);
-        expect(helm.evasion).toBe(20);
+        expect(helm.evasion).toBe(20 + 3);
         expect(momentum()).toBe(1);
 
         // Turning round takes the better part of 3 seconds, then 6 units at 1.5 a second takes 4.

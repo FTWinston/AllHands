@@ -1,0 +1,48 @@
+.momentum {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1em;
+    padding: 0.5em 0.75em;
+    box-sizing: border-box;
+    min-width: 3em;
+    color: var(--color-mid);
+    background-color: var(--color-darkest);
+    border: solid var(--color-dark) 1px;
+    corner-shape: bevel;
+    border-radius: 0 1em 0 1em;
+    pointer-events: none;
+}
+
+/* The ring is only there while there's Momentum to lose. */
+.active {
+    border-color: transparent;
+    color: var(--color-lightest);
+}
+
+.fade {
+    z-index: 0;
+    color: var(--color-mid);
+}
+
+.label, .pips {
+    position: relative;
+    z-index: 1;
+}
+
+.label {
+    font-size: 0.65em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.pips {
+    display: flex;
+    font-size: 0.9em;
+    letter-spacing: 0.1em;
+}
+
+.pip {
+    opacity: 0.5;
+}
