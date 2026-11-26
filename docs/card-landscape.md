@@ -20,7 +20,7 @@ Each station starts with 8 cards, and a system's maximum health is its card coun
 
 | Station | Deck | Styles |
 |---|---|---|
-| Helm | Slow & Steady, Face Target, Strafe, Zig-zag × 2, Sweep, Burn, Hold Steady | Gun Platform (Hold Steady) and Slipstream (Burn) |
+| Helm | Slow & Steady, Face Target, Strafe, Zig-zag × 2, Sweep, Burn, Lock On | Gun Platform (Lock On) and Slipstream (Burn) |
 | Tactical | Phaser Strip × 2, Phaser Cannon, Photon Torpedo, Efficiency, High Yield, Power Cell, Acquire Lock | Gun Line (Power Cell) and Alpha Strike (Acquire Lock) |
 | Science | Passive Scan, Antiproton Scan, Polaron Scan, Tetryon Scan, Coherent Beam Scan, Phased Burst Scan, Cross-reference, Phased Chroniton Scan | Analyst (Cross-reference) and Catalyst (Phased Chroniton Scan) |
 | Engineer | Jury-rig, Purge, Focus Shields, Swap Systems, Priority Feed, Trickle Charge, Redline, Run Quiet | Reserve (Trickle Charge, Run Quiet) and Redline (Redline) |
@@ -90,50 +90,57 @@ A rare, expensive choice card, outside the three styles, for when things have go
 
 ## Helm
 
-Helm's job is deciding where the ship is and what it's showing the enemy.
+Helm's job is deciding where the ship is and what it's showing the enemy. Slow & Steady (turn, then fly straight) is the baseline: every other location card moves while turning, or takes a route of its own. Only one card offers a left/right choice (Sweep); Evasive Maneuvers offers three set patterns.
 
 | Style | Feel | Resource | Synergy tag | Risk |
 |---|---|---|---|---|
-| **Gun Platform** (reliable) | Slow, deliberate, and the other stations do better for it | none: posture | possibly `steadyPlatform` | Low evasion |
-| **Slipstream** (risky) | Never stop moving; each manoeuvre feeds the next | **Momentum**, on helm | `momentum` | Lost when the ship stops or takes a hit |
+| **Gun Platform** (reliable) | Deliberate, and the other stations do better for it | none: posture | `steadyPlatform` | Low evasion |
+| **Slipstream** (risky) | Never stop moving; each manoeuvre feeds the next | **Momentum**, on helm | `momentum` | Bleeds away when the ship sits still, and with each hit |
 | **Shadow** (technical) | Fly relative to another ship, not to a point | none: relative position | none yet | Needs the other ship to behave |
 
-### Gun Platform (built)
+### Gun Platform
 
-| Card | Kind | Effect |
-|---|---|---|
-| Lock On | Manoeuvre | For 8s, keep turning to face the closest hostile ship, without moving. |
-| Hold Steady | Posture | Stay put for 6s with no evasion. Tactical's weapons are more accurate while it lasts. |
-| Broadside | Manoeuvre | Move slowly to a location while turning side-on to the direction of travel. |
-| Brace | Posture | Stay put for 4s: hits on the hull do half damage. |
+| Card | Effect |
+|---|---|
+| Slow & Steady | Turn towards a point, then fly straight to it. |
+| Slow Reverse | Turn away from a point, then reverse slowly to it. |
+| Face Target | Turn to face a point without moving. |
+| Strafe | Move a short way without turning. |
+| Lock On | Pick a hostile ship: stop, and keep facing it for 8s. Weapons are more accurate meanwhile. |
+| Broadside | A brisk move that swings side-on halfway (towards the nearest hostile) and straightens up by the end, sweeping the guns across whatever is beside the path. |
 
-Existing cards that fit: Slow & Steady, Face Target, Strafe, Full Reverse. (A slow, quiet "Creep" move was considered, but it's Slow & Steady again.)
+### Slipstream
 
-### Slipstream (built)
-
-Momentum is gained by starting a manoeuvre within 2s of the last one ending. It's all lost when the ship has been still for longer than that, and one level is lost whenever the ship is hit. Each level makes manoeuvres a little faster.
+Momentum is gained by starting a manoeuvre soon after the last one ended. A ship sitting still loses a level every 1.5s, and a hit knocks one off. Each level makes manoeuvres faster and the ship harder to hit. Helm sees its Momentum on the helm screen.
 
 | Card | Kind | Effect |
 |---|---|---|
 | Burn | Builder | A fast straight move. +2 Momentum. |
-| Slingshot | Builder | A fast curve through 180 degrees. +1 Momentum, and good evasion. |
-| Hard Brake | Payoff | Stop. Spend all Momentum: evasion per level for 5s. |
-| Flyby | Payoff | A straight pass whose speed and evasion both grow with Momentum. Spends half of it. |
-| Evasive Pattern | Posture | Jink in place for 5s: high evasion, but tactical's weapons are less accurate. |
+| Zig-Zag | Route | Side to side towards a point, facing it. Longer moves have more legs, not wider ones. |
+| Sweep | Route | Curve anticlockwise or clockwise to a point, turning early, with a short final leg. |
+| Feint | Route | Set off at an angle, then cut back sharply to the point. High evasion. |
+| Full Impulse | Payoff | A straight move whose speed and evasion grow with Momentum. Spends half of it. |
+| Drift | Payoff | Cut the engines: slide on the way the ship is moving, further with more Momentum, while turning to face a point. Spends all of it. |
 
-Existing cards that fit: Zig-zag, Sweep.
+### Evasive Maneuvers
 
-### Shadow (built)
+A choice of three set patterns, Alpha, Beta and Gamma, each about 5s long with curves and sharp turns, ending in a known place and facing. High evasion while flying them, but the ship's own weapons are less accurate. It sits outside the three styles.
+
+### Shadow
+
+These are ship-targeted cards: dragging one over a hexagon on the helm map picks the nearest eligible ship to it and highlights it before the card is dropped, and the server checks the choice again. They re-plan the ship's motion every moment while they last.
 
 | Card | Effect |
 |---|---|
-| Orbit | For 10s, circle the target at the current range, keeping one side to it. |
-| Match Course | For 8s, hold your position relative to the target, moving as it moves. |
-| Interpose | For 8s, hold the point between a friendly ship and the hostile ship nearest it. |
-| Shadow | For 8s, stay just behind the target, facing it. |
-| Break Away | Turn directly away from the target and burn away from it. Builds Momentum. |
+| Orbit | For 10s, circle the target at the current range, side-on to it. Gains Momentum as it goes. |
+| Circle Strafe | Rare. For 8s, circle the target while facing it. |
+| Interpose | For 8s, hold the point between a friendly ship and the hostile ship nearest it. Shots at the friendly ship hit you instead while you're in the way. |
+| Shadow | For 8s, stay just behind the target, facing it. While you're in its rear arc, its evasion doesn't count against your weapons. |
+| Slingshot | Whip round the target at close range and back out. +2 Momentum. |
+| Attack Run | Fly fast at the target and stop short of it. Tactical has extra power meanwhile. |
+| Break Away | Turn directly away from the target and burn away. Always breaks a tractor beam, and the target's weapons lose their aim. +1 Momentum. |
 
-These are ship-targeted cards: dragging one over a hexagon on the helm map picks the nearest eligible ship to it (hostile, friendly or any, as the card says) and highlights it before the card is dropped, and the server checks the choice again. All of these are built. Like Lock On, they re-plan the ship's motion every moment while they last.
+Brace moved to engineer, as Brace for Impact. Hard Brake, Hold Steady (merged into Lock On), Match Course and Evasive Pattern were cut.
 
 ## Tactical
 
@@ -166,7 +173,7 @@ Lock is held against one target ship. It's lost when another ship is locked, or 
 | Hold Fire | Builder | For 6s, weapons can't fire. When it ends, +2 Lock on the locked ship. |
 | Called Shot | Payoff | Spend 3 Lock: for the next shot at the locked ship (within 10s), every one of its systems can be aimed at, whether or not science has found it. |
 
-Existing cards that fit: Photonic Cannon, High Yield, tactical's Overcharge, Full Spread, High Intensity. Helm's Lock On and Hold Steady are what make this style work.
+Existing cards that fit: Photonic Cannon, High Yield, tactical's Overcharge, Full Spread, High Intensity. Helm's Lock On is what makes this style work.
 
 ### Saboteur
 
@@ -256,10 +263,10 @@ A few, not many: about a third of a deck should be better when someone else acts
 
 | One station's style | Another's | Why |
 |---|---|---|
-| Helm: Gun Platform | Tactical: Alpha Strike | Lock On keeps the target in arc while Lock builds, and Hold Steady makes the volley land. |
+| Helm: Gun Platform | Tactical: Alpha Strike | Lock On keeps the target in arc while Lock builds, and its accuracy makes the volley land. |
 | Helm: Slipstream | Tactical: Gun Line | Wide arcs and cheap shots suit a ship that never stops. |
 | Engineer: Reserve | Tactical: Alpha Strike | Discharge on tactical pays for the cards the volley needs. |
 | Engineer: Redline | Helm: Slipstream | Both are living on borrowed time, and Hot Start keeps manoeuvres coming. |
 | Science: Catalyst | Tactical: Saboteur | Exploit counts the particles science has left behind, and Phased Chroniton Scan keeps them there for longer. |
-| Science: Analyst | Helm: Gun Platform | Predictive Model covers the evasion that Hold Steady gives up. |
+| Science: Analyst | Helm: Gun Platform | Predictive Model covers the evasion that Lock On gives up. |
 | Science: Ghost | Engineer: Reserve | Passive Listen and Run Quiet are the same plan. |
