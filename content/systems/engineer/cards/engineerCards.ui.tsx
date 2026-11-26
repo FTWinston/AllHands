@@ -322,6 +322,20 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
+    braceForImpact: {
+        name: 'Brace for Impact',
+        description: <>
+            For
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, hits on the hull do
+            {' '}
+            <Parameter name="hullDamageReduction" />
+            % less damage.
+        </>,
+        image: <ExampleIcon />,
+    },
     railFeed: {
         name: 'Rail Feed',
         description: <>

@@ -3,7 +3,7 @@ import { SystemEffectCategory } from 'common-data/features/ships/types/SystemEff
 import { extendedShieldsDuration } from 'common-data/features/ships/utils/extendedShields';
 import { MAX_POWER_LEVEL } from 'common-data/features/ships/utils/powerLevel';
 import {
-    autoDestructConfirmationsNeeded, autoDestructConfirmWindow, autoDestructDuration, bankPowerDuration, burnoutDuration, busLinkDuration, chargeMaxLevel, dischargeDuration, emergencyPowerDuration, fluxLimit, railFeedDuration, redlineFluxInterval, runQuietChargeInterval,
+    autoDestructConfirmationsNeeded, autoDestructConfirmWindow, autoDestructDuration, bankPowerDuration, braceDuration, burnoutDuration, busLinkDuration, chargeMaxLevel, dischargeDuration, emergencyPowerDuration, fluxLimit, railFeedDuration, redlineFluxInterval, runQuietChargeInterval,
     transferPowerDuration, ventShieldsDownDuration,
 } from 'content/systems/engineer/cards/engineerCards.shared';
 
@@ -157,6 +157,12 @@ export const effects = defineEffects({
         category: SystemEffectCategory.Negative,
         usesLevels: false,
         duration: ventShieldsDownDuration,
+    },
+    /** On the hull: hits on it do less damage for a while (see the Brace for Impact card). */
+    braced: {
+        category: SystemEffectCategory.Positive,
+        usesLevels: false,
+        duration: braceDuration,
     },
     /** This system runs higher for a while (see the Rail Feed card). */
     railFeed: {

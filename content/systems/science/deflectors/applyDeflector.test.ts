@@ -28,7 +28,7 @@ function createWorld() {
     const createShip = (faction: string, x: number, y: number, hullCards?: UntargetedCardType[]) => {
         const setup = { ...shipSetup(faction, x, y), goal: { type: 'search-and-destroy' as const }, skill: 1 };
         setup.science = { ...setup.science, cards: ['passiveScan', 'passiveScan'], initialHandSize: 0 };
-        setup.helm = { ...setup.helm, cards: ['slowAndSteady', 'zigZag', 'strafe', 'fullReverse'], initialHandSize: 0 };
+        setup.helm = { ...setup.helm, cards: ['slowAndSteady', 'zigZag', 'strafe', 'slowReverse'], initialHandSize: 0 };
         if (hullCards) {
             setup.hull = { ...setup.hull, cards: hullCards };
         }

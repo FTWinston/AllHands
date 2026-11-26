@@ -1,6 +1,6 @@
 import { LeveledSystemEffectType, SystemEffectType } from 'common-data/features/ships/utils/systemEffectDefinitions';
 import {
-    autoDestructDamage, autoDestructRange, burnoutPowerPerLevel, bankPowerCharge, bankPowerLoss, dischargePowerPerLevel, emergencyPowerFlux, emergencyPowerGain, fluxLimit, railFeedPowerGain,
+    autoDestructDamage, autoDestructRange, braceHullDamageReduction, burnoutPowerPerLevel, bankPowerCharge, bankPowerLoss, dischargePowerPerLevel, emergencyPowerFlux, emergencyPowerGain, fluxLimit, railFeedPowerGain,
     redlinePowerGain, runQuietPowerLoss,
 } from 'content/systems/engineer/engineer.shared';
 import { defineEngineEffects } from 'engine/content/EngineContent';
@@ -386,6 +386,19 @@ export const effects = defineEngineEffects(sharedEffects, {
     cannibalised: {
         apply: () => true,
         remove: () => {},
+    },
+    braced: {
+        apply: (system) => {
+            if (system.system !== 'hull') {
+                return false;
+            }
+
+            system.systemState.applyDamage.addHandler('braced', false, damage => damage * (1 - braceHullDamageReduction / 100));
+            return true;
+        },
+        remove: (system) => {
+            system.systemState.applyDamage.removeHandler('braced');
+        },
     },
     emergencyPower: {
         apply: (system) => {

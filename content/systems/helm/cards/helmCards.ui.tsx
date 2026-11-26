@@ -24,8 +24,8 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
-    fullReverse: {
-        name: 'Full Reverse',
+    slowReverse: {
+        name: 'Slow Reverse',
         description: 'Turn away from a point then reverse slowly towards it.',
         image: <ExampleIcon />,
     },
@@ -70,30 +70,16 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
-    flyby: {
-        name: 'Flyby',
+    fullImpulse: {
+        name: 'Full Impulse',
         description: <>
-            Turn towards a target then fly straight to it,
+            Turn towards a point then fly straight to it,
             {' '}
             <Parameter name="speedPerMomentum" />
             % faster and
             {' '}
             <Parameter name="evasionPerMomentum" />
             % harder to hit for each level of Momentum. Spends half of it.
-        </>,
-        image: <ExampleIcon />,
-    },
-    hardBrake: {
-        name: 'Hard Brake',
-        description: <>
-            Stop where you are. Spend all Momentum: the ship is
-            {' '}
-            <Parameter name="evasionPerMomentum" />
-            % harder to hit per level, for
-            {' '}
-            <Parameter name="duration" />
-            {' '}
-            seconds.
         </>,
         image: <ExampleIcon />,
     },
@@ -170,20 +156,6 @@ export const cards = defineUiCards(sharedCards, {
             <Parameter name="momentum" />
             {' '}
             Momentum.
-        </>,
-        image: <ExampleIcon />,
-    },
-    brace: {
-        name: 'Brace',
-        description: <>
-            Stay put for
-            {' '}
-            <Parameter name="duration" />
-            {' '}
-            seconds. Hits on the hull do
-            {' '}
-            <Parameter name="hullDamageReduction" />
-            % less damage while it does.
         </>,
         image: <ExampleIcon />,
     },

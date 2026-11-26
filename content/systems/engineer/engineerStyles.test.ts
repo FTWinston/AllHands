@@ -11,7 +11,7 @@ import { PlayerShip } from 'engine/state/PlayerShip';
 import { setupGameRoom } from 'engine/testUtils';
 import { describe, expect, it } from 'vitest';
 import {
-    autoDestructConfirmationsNeeded, autoDestructConfirmWindow, autoDestructDamage, autoDestructDuration, autoDestructRange, bankPowerCharge, bankPowerDuration, bankPowerLoss,
+    autoDestructConfirmationsNeeded, autoDestructConfirmWindow, autoDestructDamage, autoDestructDuration, autoDestructRange, bankPowerCharge, bankPowerDuration, bankPowerLoss, braceDuration,
     burnoutDuration, burnoutPowerPerLevel, busLinkDuration, chargeMaxLevel, dischargeDuration,
     emergencyPowerDuration, emergencyPowerFlux, emergencyPowerGain, fluxLimit, railFeedDuration, redlineFluxInterval, redlinePowerGain, runQuietChargeInterval,
     ventShieldsDownDuration,
@@ -323,6 +323,28 @@ describe('Vent', () => {
         expect(play('vent')).toBe(false);
         expect(tile('hull').hasEffect('shieldsVented')).toBe(false);
         expect(ship.hullState.powerLevel).toBe(3);
+    });
+});
+
+describe('Brace for Impact', () => {
+    it('halves the damage of hits on the hull for 4 seconds, but not the other systems', () => {
+        const { ship, tile, play, wait } = createShip();
+        expect(cardDefinitions.braceForImpact).toMatchObject({ targetType: 'no-target', system: 'engineer', parameters: { cost: 1, hullDamageReduction: 50, duration: 4 } });
+        const hullHealth = ship.hullState.health;
+        const tacticalHealth = ship.tacticalState.health;
+
+        expect(play('braceForImpact')).toBe(true);
+        expect(tile('hull').hasEffect('braced')).toBe(true);
+
+        ship.hullState.applyDamage.invoke(4);
+        expect(ship.hullState.health).toBe(hullHealth - 2);
+        ship.tacticalState.applyDamage.invoke(1);
+        expect(ship.tacticalState.health).toBe(tacticalHealth - 1);
+
+        wait(braceDuration);
+        expect(tile('hull').hasEffect('braced')).toBe(false);
+        ship.hullState.applyDamage.invoke(2);
+        expect(ship.hullState.health).toBe(hullHealth - 4);
     });
 });
 

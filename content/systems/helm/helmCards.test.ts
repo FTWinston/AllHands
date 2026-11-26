@@ -57,26 +57,6 @@ function createShip() {
     return { state, ship, other, helm, play, run, runUntilManeuverEnds, maneuverDuration, effectLevel, momentum, accuracy };
 }
 
-describe('the new helm cards', () => {
-    it('are sold by shops, apart from the options of the choice cards', () => {
-        const shop = getShopCardTypes('helm');
-        expect(shop).toEqual(expect.arrayContaining(['burn', 'flyby', 'hardBrake', 'evasivePattern', 'holdSteady', 'broadside', 'slingshot', 'brace', 'lockOn', 'orbit', 'interpose', 'shadow', 'breakAway', 'attackRun']));
-
-        for (const option of ['broadsideLeft', 'broadsideRight', 'slingshotLeft', 'slingshotRight'] as const) {
-            expect(shop).not.toContain(option);
-        }
-    });
-
-    it('can be played by the AI when they move the ship, and are left alone by it otherwise', () => {
-        for (const type of ['burn', 'flyby', 'broadside', 'broadsideLeft', 'broadsideRight', 'slingshot', 'slingshotLeft', 'slingshotRight'] as const) {
-            expect(getCardEvaluator(type)).toBeDefined();
-        }
-        for (const type of ['hardBrake', 'evasivePattern', 'holdSteady', 'brace', 'lockOn', 'matchCourse', 'orbit', 'interpose', 'shadow', 'breakAway', 'attackRun'] as const) {
-            expect(getCardEvaluator(type)).toBeUndefined();
-        }
-    });
-});
-
 describe('Burn', () => {
     it('flies straight to the target at speed, and adds 2 Momentum', () => {
         const { state, ship, helm, play, momentum, maneuverDuration, runUntilManeuverEnds } = createShip();
@@ -117,12 +97,12 @@ describe('Burn', () => {
     });
 });
 
-describe('Flyby', () => {
+describe('Full Impulse', () => {
     it('is an ordinary straight move with no Momentum', () => {
         const { helm, play, maneuverDuration, momentum } = createShip();
-        expect(cardDefinitions.flyby).toMatchObject({ targetType: 'location', system: 'helm', baseSpeed: 1, parameters: { cost: 2, evasion: 10, speedPerMomentum: 15, evasionPerMomentum: 8 } });
+        expect(cardDefinitions.fullImpulse).toMatchObject({ targetType: 'location', system: 'helm', baseSpeed: 1, parameters: { cost: 2, evasion: 10, speedPerMomentum: 15, evasionPerMomentum: 8 } });
 
-        expect(play('flyby', '6,0').played).toBe(true);
+        expect(play('fullImpulse', '6,0').played).toBe(true);
         expect(maneuverDuration()).toBeCloseTo(6000);
         expect(helm.evasion).toBe(10);
         expect(momentum()).toBe(0);
@@ -137,7 +117,7 @@ describe('Flyby', () => {
         run(1000);
 
         // Momentum itself makes it 40% faster, and the card another 60%.
-        const { card, played } = play('flyby', '12,0');
+        const { card, played } = play('fullImpulse', '12,0');
         expect(played).toBe(true);
         const distance = 12 - ship.getPosition(helm.activeManeuver!.startTime).x;
         expect(maneuverDuration()).toBeCloseTo(distance / (1 * 1.4 * 1.6) * 1000);
@@ -158,49 +138,8 @@ describe('Flyby', () => {
         helm.adjustEffectLevel('momentum', 1);
         expect(momentum()).toBe(3);
 
-        play('flyby', '12,0');
+        play('fullImpulse', '12,0');
         expect(momentum()).toBe(1);
-    });
-});
-
-describe('Hard Brake', () => {
-    it('stops the ship, and spends all Momentum on evasion for 5 seconds', () => {
-        const { state, ship, other, helm, play, run, momentum, effectLevel, accuracy } = createShip();
-        expect(cardDefinitions.hardBrake).toMatchObject({ targetType: 'no-target', system: 'helm', parameters: { cost: 1, evasionPerMomentum: 10, duration: 5 } });
-
-        play('burn', '9,0');
-        helm.adjustEffectLevel('momentum', 1);
-        run(2000);
-
-        const { card, played } = play('hardBrake');
-        expect(played).toBe(true);
-        expect(helm.deck.includes(card)).toBe(true);
-        expect(momentum()).toBe(0);
-        expect(effectLevel('helm', 'hardBrakeEvasion')).toBe(30);
-
-        // The maneuver is called off, and the ship slows to a stop well short of where it was going.
-        run(1000);
-        expect(helm.activeManeuver).toBeNull();
-        const stopped = ship.getPosition(state.currentTime);
-        expect(stopped.x).toBeLessThan(5);
-        run(1000);
-        expect(ship.getPosition(state.currentTime).x).toBeCloseTo(stopped.x);
-
-        expect(helm.evasion).toBe(30);
-        expect(accuracy(other, ship)).toBe(70);
-
-        run(3100);
-        expect(effectLevel('helm', 'hardBrakeEvasion')).toBe(0);
-        expect(helm.evasion).toBe(0);
-        expect(accuracy(other, ship)).toBe(100);
-    });
-
-    it('gives no evasion without Momentum', () => {
-        const { helm, play, effectLevel } = createShip();
-
-        expect(play('hardBrake').played).toBe(true);
-        expect(effectLevel('helm', 'hardBrakeEvasion')).toBe(0);
-        expect(helm.evasion).toBe(0);
     });
 });
 
@@ -364,7 +303,7 @@ describe('Slingshot', () => {
     it('curves to the target, turning through 180 degrees, and adds 1 Momentum', () => {
         const { state, ship, helm, play, momentum, runUntilManeuverEnds } = createShip();
         expect(cardDefinitions.slingshot).toMatchObject({ targetType: 'choice', system: 'helm', cards: ['slingshotLeft', 'slingshotRight'], parameters: { cost: 3, evasion: 30, momentum: 1 } });
-        expect(cardDefinitions.slingshotLeft).toMatchObject({ targetType: 'location', baseSpeed: 1.25, minDistance: 3, parameters: { cost: 3, evasion: 30, momentum: 1 } });
+        expect(cardDefinitions.slingshotLeft).toMatchObject({ targetType: 'location', baseSpeed: 1.25, minDistance: 6, parameters: { cost: 3, evasion: 30, momentum: 1 } });
 
         expect(play('slingshot', '6,0', 'slingshotLeft').played).toBe(true);
         expect(momentum()).toBe(1);
@@ -398,48 +337,6 @@ describe('Slingshot', () => {
             furthest = Math.min(furthest, ship.getPosition(state.currentTime).y);
         }
         expect(furthest).toBeLessThan(-2.5);
-    });
-});
-
-describe('Brace', () => {
-    it('stays put for 4 seconds, halving the damage of hits on the hull', () => {
-        const { state, ship, helm, play, run, effectLevel } = createShip();
-        expect(cardDefinitions.brace).toMatchObject({ targetType: 'no-target', system: 'helm', parameters: { cost: 1, evasion: 0, hullDamageReduction: 50, duration: 4 } });
-        expect(ship.hullState.health).toBe(10);
-
-        const { card, played } = play('brace');
-        expect(played).toBe(true);
-        expect(helm.activeManeuver!.card).toBe(card);
-        expect(effectLevel('hull', 'braced')).toBe(50);
-
-        ship.hullState.applyDamage.invoke(4);
-        expect(ship.hullState.health).toBe(8);
-
-        // Other systems are hit as hard as ever.
-        const tacticalHealth = ship.tacticalState.health;
-        ship.tacticalState.applyDamage.invoke(1);
-        expect(ship.tacticalState.health).toBe(tacticalHealth - 1);
-
-        run(3900);
-        expect(helm.activeManeuver).not.toBeNull();
-        expect(ship.getPosition(state.currentTime)).toMatchObject({ x: 0, y: 0, angle: 0 });
-
-        run(200);
-        expect(helm.activeManeuver).toBeNull();
-        expect(effectLevel('hull', 'braced')).toBe(0);
-        ship.hullState.applyDamage.invoke(4);
-        expect(ship.hullState.health).toBe(4);
-    });
-
-    it('stops protecting the hull as soon as it is called off', () => {
-        const { state, helm, play, run, effectLevel } = createShip();
-
-        play('brace');
-        run(1000);
-        helm.cancelActiveManeuver();
-        state.tick(100);
-
-        expect(effectLevel('hull', 'braced')).toBe(0);
     });
 });
 
@@ -494,7 +391,7 @@ describe('Lock On', () => {
         expect(cardDefinitions.lockOn).toMatchObject({ targetType: 'no-target', system: 'helm', parameters: { cost: 2, evasion: 0, duration: 8 } });
 
         // The friendly ship ahead and the more distant raider behind are ignored.
-        addRaider(0, 10);
+        addRaider(0, -10);
         addRaider(-20, 0);
 
         const { card, played } = play('lockOn');
@@ -534,8 +431,8 @@ describe('Lock On', () => {
         runShip(1000);
         expect(angle()).toBeCloseTo(0, 2);
 
-        // The raider ahead slips round to the right.
-        moveTo(ahead, 0, 10);
+        // The raider ahead slips round to the side.
+        moveTo(ahead, 0, -10);
         runShip(2500);
         expect(angle()).toBeCloseTo(Math.PI / 2, 2);
 
@@ -547,7 +444,7 @@ describe('Lock On', () => {
 
     it('stops turning as soon as it is called off', () => {
         const { helm, play, addRaider, runShip, angle } = createLockingShip();
-        addRaider(0, 10);
+        addRaider(0, -10);
 
         play('lockOn');
         runShip(500);
@@ -799,9 +696,9 @@ describe('Orbit', () => {
         expect(gone).toBeGreaterThan(0.6);
         expect(gone).toBeLessThan(1.1);
 
-        // Its side is to the raider: its heading is square to the line between them.
+        // Its side is to the raider: its heading is square to the line between them. A ship's angle goes the opposite way round to Math.atan2's.
         const toRaider = Math.atan2(-offsetFrom(raider).y, -offsetFrom(raider).x);
-        expect(Math.abs(Math.cos(position().angle - toRaider))).toBeLessThan(0.15);
+        expect(Math.abs(Math.cos(position().angle + toRaider))).toBeLessThan(0.15);
 
         runShip(300);
         expect(helm.activeManeuver).toBeNull();
@@ -821,7 +718,7 @@ describe('Orbit', () => {
     });
 
     it('goes round whichever way needs the smaller turn from the ship\'s heading', () => {
-        for (const [angle, expected] of [[-Math.PI / 2, -1], [Math.PI / 2, 1]] as const) {
+        for (const [angle, expected] of [[-Math.PI / 2, 1], [Math.PI / 2, -1]] as const) {
             const { addRaider, place, ship, runShip, playOn, position } = createRelativeWorld();
             const raider = addRaider(10, 0);
             place(ship, 0, 0, angle);
@@ -889,7 +786,7 @@ describe('Interpose', () => {
         runShip(4000);
         expect(position().x).toBeCloseTo(4, 1);
         expect(position().y).toBeCloseTo(3, 1);
-        expect(position().angle).toBeCloseTo(Math.PI / 2, 1);
+        expect(position().angle).toBeCloseTo(-Math.PI / 2, 1);
 
         // A closer raider takes over, and the ship holds half way between that one and the friendly ship.
         addRaider(4, -3);
@@ -953,7 +850,7 @@ describe('Shadow', () => {
         place(other, 0, 40);
 
         // The raider is heading in the direction of +y.
-        const raider = addRaider(5, 0, Math.PI / 2);
+        const raider = addRaider(5, 0, -Math.PI / 2);
         const { card, played } = playOn('shadow', raider);
         expect(played).toBe(true);
         expect(helm.activeManeuver!.card).toBe(card);
@@ -963,7 +860,7 @@ describe('Shadow', () => {
         runShip(4000);
         expect(offsetFrom(raider).x).toBeCloseTo(0, 1);
         expect(offsetFrom(raider).y).toBeCloseTo(-2.5, 1);
-        expect(position().angle).toBeCloseTo(Math.PI / 2, 1);
+        expect(position().angle).toBeCloseTo(-Math.PI / 2, 1);
 
         // It keeps up as the raider flies off, and moves round as the raider turns.
         fly(raider, 0, 1, 1);
@@ -1032,7 +929,8 @@ describe('Break Away', () => {
 
         // Turning round takes the better part of 3 seconds, then 6 units at 1.5 a second takes 4.
         const duration = helm.activeManeuver!.endTime - helm.activeManeuver!.startTime;
-        const heading = Math.atan2(-6, -8);
+        // A ship's angle goes the opposite way round to Math.atan2's.
+        const heading = -Math.atan2(-6, -8);
         const turn = Math.abs(heading) / Math.PI * 4000;
         expect(duration).toBeCloseTo(turn + 4000, 0);
 

@@ -7,7 +7,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { CardInstance } from 'common-data/features/cards/types/CardInstance';
 
 const helmCards: Snapshot<CardInstance>[] = [
-    { id: 101, type: 'fullReverse' },
+    { id: 101, type: 'slowReverse' },
     { id: 102, type: 'strafe' },
     { id: 103, type: 'sweep' },
     { id: 104, type: 'zigZag' },

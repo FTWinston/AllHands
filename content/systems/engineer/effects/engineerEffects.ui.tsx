@@ -3,7 +3,7 @@ import { EffectLevel } from 'common-ui/components/EffectLevelContext';
 import { defineUiEffects } from 'common-ui/content/UiContent';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import {
-    autoDestructDamage, autoDestructRange, burnoutPowerPerLevel, bankPowerCharge, bankPowerLoss, emergencyPowerFlux, emergencyPowerGain, fluxLimit, railFeedPowerGain, redlineFluxInterval,
+    autoDestructDamage, autoDestructRange, braceHullDamageReduction, burnoutPowerPerLevel, bankPowerCharge, bankPowerLoss, emergencyPowerFlux, emergencyPowerGain, fluxLimit, railFeedPowerGain, redlineFluxInterval,
     redlinePowerGain, runQuietChargeInterval, runQuietPowerLoss,
 } from 'content/systems/engineer/engineer.shared';
 import { effects as sharedEffects } from './engineerEffects.shared';
@@ -200,6 +200,16 @@ export const effects = defineUiEffects(sharedEffects, {
     shieldsVented: {
         name: 'Shields Vented',
         description: <>Plasma flux is being vented through the hull, which is unpowered: the shields are down.</>,
+        image: ExampleIcon,
+    },
+    braced: {
+        name: 'Braced',
+        description: <>
+            The ship is braced for impact: hits on the hull do
+            {' '}
+            {braceHullDamageReduction}
+            % less damage.
+        </>,
         image: ExampleIcon,
     },
     railFeed: {

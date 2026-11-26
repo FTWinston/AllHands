@@ -29,6 +29,9 @@ export const redlinePowerGain = 2;
 export const redlineFluxInterval = 5_000;
 /** How long the shields are down for, after the Vent card is played. */
 export const ventShieldsDownDuration = 3_000;
+/** How long the hull stays braced for, once the Brace for Impact card is played, and how much less damage hits on it do meanwhile, as a percentage. */
+export const braceDuration = 4_000;
+export const braceHullDamageReduction = 50;
 /** How much power a system gains from Burnout for each Flux that was spent. */
 export const burnoutPowerPerLevel = 2;
 /** How long a system's Burnout lasts, before the system resets. */
@@ -210,6 +213,11 @@ export const cards = defineCards({
         targetType: 'no-target',
         system: 'engineer',
         parameters: { cost: 2, duration: ventShieldsDownDuration / 1000 },
+    },
+    braceForImpact: {
+        targetType: 'no-target',
+        system: 'engineer',
+        parameters: { cost: 1, hullDamageReduction: braceHullDamageReduction, duration: braceDuration / 1000 },
     },
     railFeed: {
         targetType: 'system',

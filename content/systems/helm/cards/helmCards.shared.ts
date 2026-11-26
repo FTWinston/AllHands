@@ -1,6 +1,6 @@
 import { defineCards } from 'common-data/content/SharedContent';
 import { CardMotionSegmentFacing } from 'common-data/features/cards/types/CardDefinition';
-import { braceDuration, evasivePatternDuration, hardBrakeDuration, holdSteadyDuration } from 'content/systems/helm/effects/helmEffects.shared';
+import { evasivePatternDuration, holdSteadyDuration } from 'content/systems/helm/effects/helmEffects.shared';
 
 export const cards = defineCards({
     slowAndSteady: {
@@ -14,7 +14,7 @@ export const cards = defineCards({
         baseSpeed: 0.75,
         parameters: { cost: 1, evasion: 0 },
     },
-    fullReverse: {
+    slowReverse: {
         targetType: 'location',
         system: 'helm',
         // Rotate to face away from target, then reverse towards it
@@ -101,7 +101,7 @@ export const cards = defineCards({
         // momentum: the levels of Momentum gained by playing it
         parameters: { cost: 2, evasion: 10, momentum: 2 },
     },
-    flyby: {
+    fullImpulse: {
         targetType: 'location',
         rarity: 'uncommon',
         system: 'helm',
@@ -113,13 +113,6 @@ export const cards = defineCards({
         minDistance: 3,
         // speedPerMomentum: percentage of extra speed for each level of Momentum held; evasionPerMomentum: extra evasion for each level
         parameters: { cost: 2, evasion: 10, speedPerMomentum: 15, evasionPerMomentum: 8 },
-    },
-    hardBrake: {
-        targetType: 'no-target',
-        rarity: 'uncommon',
-        system: 'helm',
-        // evasionPerMomentum: evasion gained for each level of Momentum spent; duration: how long that lasts, in seconds
-        parameters: { cost: 1, evasionPerMomentum: 10, duration: hardBrakeDuration / 1000 },
     },
     evasivePattern: {
         targetType: 'no-target',
@@ -196,12 +189,6 @@ export const cards = defineCards({
         minDistance: 6,
         // momentum: the levels of Momentum gained by playing it
         parameters: { cost: 3, evasion: 30, momentum: 1 },
-    },
-    brace: {
-        targetType: 'no-target',
-        system: 'helm',
-        // hullDamageReduction: percentage taken off the damage of hits on the hull; duration: how long the ship stays braced for, in seconds
-        parameters: { cost: 1, evasion: 0, hullDamageReduction: 50, duration: braceDuration / 1000 },
     },
     lockOn: {
         targetType: 'no-target',

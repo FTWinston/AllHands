@@ -13,16 +13,6 @@ export const effects = defineUiEffects(sharedEffects, {
         </>,
         image: ExampleIcon,
     },
-    hardBrakeEvasion: {
-        name: 'Hard Brake',
-        description: <>
-            The ship braked hard, and is
-            {' '}
-            <EffectLevel />
-            % harder to hit.
-        </>,
-        image: ExampleIcon,
-    },
     holdingSteady: {
         name: 'Holding Steady',
         description: <>
@@ -51,16 +41,6 @@ export const effects = defineUiEffects(sharedEffects, {
             <EffectLevel />
             {' '}
             less to play.
-        </>,
-        image: ExampleIcon,
-    },
-    braced: {
-        name: 'Braced',
-        description: <>
-            The ship is braced for impact: hits on the hull do
-            {' '}
-            <EffectLevel />
-            % less damage.
         </>,
         image: ExampleIcon,
     },

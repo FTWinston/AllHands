@@ -7,13 +7,9 @@ export const maxMomentum = 5;
 /** How much faster each level of Momentum makes every maneuver, as a percentage of its speed. */
 export const momentumSpeedPerLevel = 10;
 
-/** How long the evasion from a Hard Brake lasts, in milliseconds. */
-export const hardBrakeDuration = 5_000;
-
 /** How long each posture is held for, in milliseconds. */
 export const holdSteadyDuration = 6_000;
 export const evasivePatternDuration = 5_000;
-export const braceDuration = 4_000;
 
 export const effects = defineEffects({
     /**
@@ -26,12 +22,6 @@ export const effects = defineEffects({
         maxLevel: maxMomentum,
     },
     /** On the helm: the ship is harder to hit after a Hard Brake. Its level is the evasion it adds, in percentage points. */
-    hardBrakeEvasion: {
-        category: SystemEffectCategory.Positive,
-        usesLevels: true,
-        maxLevel: 100,
-        duration: hardBrakeDuration,
-    },
     /** On the helm: the ship is holding still (see the Hold Steady card), so its own weapons hit more often. Its level is the accuracy it adds, in percentage points. */
     holdingSteady: {
         category: SystemEffectCategory.Positive,
@@ -54,12 +44,5 @@ export const effects = defineEffects({
         category: SystemEffectCategory.Positive,
         usesLevels: true,
         maxLevel: 3,
-    },
-    /** On the hull: the ship is braced (see the Brace card), so hits on the hull do less damage. Its level is the percentage of that damage it takes off. */
-    braced: {
-        category: SystemEffectCategory.Positive,
-        usesLevels: true,
-        maxLevel: 100,
-        duration: braceDuration,
     },
 });

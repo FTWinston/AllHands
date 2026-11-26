@@ -471,6 +471,19 @@ export const cards = defineEngineCards(sharedCards, {
             return true;
         },
     },
+    braceForImpact: {
+        play: (_gameState, ship) => {
+            const hull = ship.engineerState.systems.find(tile => tile.system === 'hull');
+            if (!hull) {
+                return false;
+            }
+
+            // Bracing again starts the time over.
+            hull.removeEffect('braced', 'expired');
+            hull.addEffect('braced');
+            return true;
+        },
+    },
     railFeed: {
         synergy: { wants: ['layout'] },
         play: (_gameState, ship, system) => {

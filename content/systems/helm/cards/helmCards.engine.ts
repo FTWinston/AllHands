@@ -1,6 +1,6 @@
 import { CardParameters } from 'common-data/features/cards/types/CardParameters';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
-import { clampAngle, distanceSq } from 'common-data/features/space/utils/vectors';
+import { clampAngle, determineAngle, distanceSq } from 'common-data/features/space/utils/vectors';
 import { choiceEvaluator } from 'engine/ai/evaluators';
 import { locationCardEvaluator } from 'engine/ai/evaluators/helm';
 import { applyMotionCard } from 'engine/cards/applyMotionCard';
@@ -125,7 +125,7 @@ function steerTowardsClosestHostile(gameState: GameState, ship: Ship, endTime: n
 
         if (target) {
             const targetPosition = target.getPosition(stepTime);
-            const wantedAngle = Math.atan2(targetPosition.y - position.y, targetPosition.x - position.x);
+            const wantedAngle = determineAngle(position, targetPosition);
             const maxTurn = lockOnTurnRate * (stepTime - time);
             angle += Math.max(-maxTurn, Math.min(maxTurn, clampAngle(wantedAngle - angle)));
         }
@@ -231,8 +231,8 @@ export const cards = defineEngineCards(sharedCards, {
         aiEvaluator: locationCardEvaluator('slowAndSteady'),
         play: applyMotionCard,
     },
-    fullReverse: {
-        aiEvaluator: locationCardEvaluator('fullReverse'),
+    slowReverse: {
+        aiEvaluator: locationCardEvaluator('slowReverse'),
         play: applyMotionCard,
     },
     zigZag: {
@@ -266,9 +266,9 @@ export const cards = defineEngineCards(sharedCards, {
         aiEvaluator: locationCardEvaluator('burn'),
         play: playMomentumBuilder,
     },
-    flyby: {
+    fullImpulse: {
         synergy: { wants: ['momentum'] },
-        aiEvaluator: locationCardEvaluator('flyby'),
+        aiEvaluator: locationCardEvaluator('fullImpulse'),
         play: (gameState, ship, cardInstance, cardDefinition, location, parameters) => {
             // The Momentum held before this maneuver starts is what speeds it up: starting it can add a level, which only counts towards later ones.
             const momentum = getMomentum(ship);
@@ -291,26 +291,6 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     // The cards below that take no target have no AI evaluator, so the AI never plays them.
-    hardBrake: {
-        synergy: { wants: ['momentum'] },
-        play: (_gameState, ship, parameters) => {
-            const helm = ship.helmState;
-            const momentum = getMomentum(ship);
-
-            // Slow to a stop from whatever is being flown.
-            helm.cancelActiveManeuver();
-
-            // Spend every level of Momentum on evasion. Braking again replaces what the last brake gave, so that it lasts its full time.
-            helm.removeEffect('momentum', 'expired');
-            const evasion = momentum * (parameters['evasionPerMomentum'] ?? 0);
-            if (evasion > 0) {
-                helm.removeEffect('hardBrakeEvasion', 'expired');
-                helm.adjustEffectLevel('hardBrakeEvasion', evasion);
-            }
-
-            return true;
-        },
-    },
     evasivePattern: {
         play: (gameState, ship, parameters, card) => {
             // Jink from one side to the other and back to the middle. The evasion comes from the card being flown.
@@ -406,9 +386,10 @@ export const cards = defineEngineCards(sharedCards, {
             }
 
             // Go whichever way round needs the smaller turn from the ship's heading to start with.
+            // The bearing is measured as Math.atan2 does, the opposite way round to a ship's angle, so headings along the circle are negated to compare them with one.
             const startBearing = Math.atan2(position.y - targetPosition.y, position.x - targetPosition.x);
-            const turnOneWay = Math.abs(clampAngle(startBearing + Math.PI / 2 - position.angle));
-            const turnTheOther = Math.abs(clampAngle(startBearing - Math.PI / 2 - position.angle));
+            const turnOneWay = Math.abs(clampAngle(-(startBearing + Math.PI / 2) - position.angle));
+            const turnTheOther = Math.abs(clampAngle(-(startBearing - Math.PI / 2) - position.angle));
             const direction = turnOneWay <= turnTheOther ? 1 : -1;
             const angularSpeed = orbitSpeed / 1000 / radius;
 
@@ -419,7 +400,7 @@ export const cards = defineEngineCards(sharedCards, {
                 // The ship's heading is along the circle, which keeps the target square to one side.
                 return {
                     position: { x: targetAt.x + Math.cos(bearing) * radius, y: targetAt.y + Math.sin(bearing) * radius },
-                    facing: bearing + direction * Math.PI / 2,
+                    facing: -(bearing + direction * Math.PI / 2),
                 };
             };
         }),
@@ -443,17 +424,18 @@ export const cards = defineEngineCards(sharedCards, {
             const along = Math.min(gap / 2, interposeDistance) / gap;
             return {
                 position: { x: targetAt.x + (hostileAt.x - targetAt.x) * along, y: targetAt.y + (hostileAt.y - targetAt.y) * along },
-                facing: Math.atan2(hostileAt.y - from.y, hostileAt.x - from.x),
+                facing: determineAngle(from, hostileAt),
             };
         }),
     },
     shadow: {
         play: (gameState, ship, target, parameters, card) => startRelativeManeuver(gameState, ship, target, parameters, card, () => (time, from) => {
             // The station is directly behind the target, whichever way it's heading, and the ship faces the target from there.
+            // A ship's angle goes the opposite way round to Math.atan2's, so it points along (cos, -sin).
             const targetAt = target.getPosition(time);
             return {
-                position: { x: targetAt.x - Math.cos(targetAt.angle) * shadowDistance, y: targetAt.y - Math.sin(targetAt.angle) * shadowDistance },
-                facing: Math.atan2(targetAt.y - from.y, targetAt.x - from.x),
+                position: { x: targetAt.x - Math.cos(targetAt.angle) * shadowDistance, y: targetAt.y + Math.sin(targetAt.angle) * shadowDistance },
+                facing: determineAngle(from, targetAt),
             };
         }),
     },
@@ -467,7 +449,7 @@ export const cards = defineEngineCards(sharedCards, {
             // Directly away from the target, or straight ahead if the ship is right on top of it.
             const awayX = position.x - targetPosition.x;
             const awayY = position.y - targetPosition.y;
-            const heading = awayX === 0 && awayY === 0 ? position.angle : Math.atan2(awayY, awayX);
+            const heading = awayX === 0 && awayY === 0 ? position.angle : determineAngle(targetPosition, position);
             const distance = parameters['distance'] ?? 0;
 
             // Turn on the spot to face away, then burn in a straight line.
@@ -479,7 +461,8 @@ export const cards = defineEngineCards(sharedCards, {
                 keyframes.push(new MotionKeyframe(time, position.x, position.y, heading));
             }
             time += distance / (breakAwaySpeed * ship.helmState.maneuverSpeedMultiplier) * 1000;
-            keyframes.push(new MotionKeyframe(time, position.x + Math.cos(heading) * distance, position.y + Math.sin(heading) * distance, heading));
+            // A ship's angle goes the opposite way round to Math.atan2's, so it points along (cos, -sin).
+            keyframes.push(new MotionKeyframe(time, position.x + Math.cos(heading) * distance, position.y - Math.sin(heading) * distance, heading));
 
             ship.setMotion(...keyframes);
             ship.helmState.setActiveManeuver(new CardCooldownState(card, startTime, time, parameters['cost']));
@@ -498,19 +481,6 @@ export const cards = defineEngineCards(sharedCards, {
             const tactical = ship.tacticalState;
             tactical.adjustEffectLevel('attackRun', parameters['costReduction']);
             ship.helmState.whenActiveManeuverEnds(() => tactical.removeEffect('attackRun', 'expired'));
-            return true;
-        },
-    },
-    brace: {
-        synergy: { wants: ['steadyPlatform'] },
-        play: (gameState, ship, parameters, card) => {
-            startPosture(gameState, ship, card, parameters);
-
-            // Hits on the hull do less damage until the ship stops bracing, even if that's early.
-            const hull = ship.hullState;
-            hull.removeEffect('braced', 'expired');
-            hull.adjustEffectLevel('braced', parameters['hullDamageReduction']);
-            ship.helmState.whenActiveManeuverEnds(() => hull.removeEffect('braced', 'expired'));
             return true;
         },
     },

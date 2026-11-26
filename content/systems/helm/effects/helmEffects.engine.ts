@@ -36,7 +36,6 @@ function createHelmModifierEffect(modifier: HelmModifier, amountPerLevel: number
 export const effects = defineEngineEffects(sharedEffects, {
     // Each level speeds up every maneuver the ship starts. `HelmState` adds and takes away the levels that flying earns and loses.
     momentum: createHelmModifierEffect('maneuverSpeedModifier', momentumSpeedPerLevel),
-    hardBrakeEvasion: createHelmModifierEffect('evasionModifier', 1),
     holdingSteady: createHelmModifierEffect('weaponAccuracyModifier', 1),
     jinking: createHelmModifierEffect('weaponAccuracyModifier', -1),
     // Each level takes 1 off the cost of every card the tactical system has, until the effect goes.
@@ -54,24 +53,6 @@ export const effects = defineEngineEffects(sharedEffects, {
         },
         onLevelChanged: (system, newLevel, oldLevel) => {
             system.systemState.adjustCostOfEveryCard(oldLevel - newLevel);
-        },
-    },
-    braced: {
-        apply: (system, level) => {
-            if (system.system !== 'hull') {
-                return false;
-            }
-
-            // Reduce the damage the hull takes by level percent.
-            system.systemState.applyDamage.addHandler('braced', false, damage => damage * (1 - level / 100));
-            return true;
-        },
-        remove: (system) => {
-            system.systemState.applyDamage.removeHandler('braced');
-        },
-        onLevelChanged: (system, newLevel) => {
-            // addHandler replaces the old handler, so we can just call it again with the new level.
-            system.systemState.applyDamage.addHandler('braced', false, damage => damage * (1 - newLevel / 100));
         },
     },
 });
