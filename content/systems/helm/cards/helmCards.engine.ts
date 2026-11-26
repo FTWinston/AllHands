@@ -24,8 +24,11 @@ const lockOnStepsAhead = 3;
 /** How fast a locked-on ship turns, in radians per millisecond: 180 degrees in 4 seconds, as fast as Face Target turns. */
 const lockOnTurnRate = Math.PI / 4000;
 
-/** How fast a ship matching course can move to keep its station, in units per second: as fast as Burn flies. */
-const matchCourseMaxSpeed = 1.5;
+/** How fast a ship can move to keep its station relative to another ship, in units per second: as fast as Burn flies. */
+const stationMaxSpeed = 1.5;
+
+/** How close an attack run gets to its target before stopping, in units. */
+const attackRunStopDistance = 3;
 
 /** How fast an orbiting ship goes round, in units per second, and the smallest circle it will fly. */
 const orbitSpeed = 1;
@@ -55,33 +58,6 @@ const playMomentumBuilder: LocationTargetCardFunctionality['play'] = (gameState,
     ship.helmState.adjustEffectLevel('momentum', parameters['momentum']);
     return true;
 };
-
-/**
- * Have the ship fly a posture: a maneuver that lasts for the card's `duration` (in seconds) and ends where it began.
- * It stays put throughout, unless it's given offsets to pass through on the way: distances to the right of its heading (negative for left), evenly spaced in time.
- */
-function startPosture(gameState: GameState, ship: Ship, card: CardState, parameters: CardParameters, sidewaysOffsets: number[] = []) {
-    const startTime = gameState.currentTime;
-    const endTime = startTime + (parameters['duration'] ?? 0) * 1000;
-    const position = ship.getPosition(startTime);
-    const stepDuration = (endTime - startTime) / (sidewaysOffsets.length + 1);
-
-    // The unit vector pointing to the right of the ship's heading.
-    const right = { x: -Math.sin(position.angle), y: Math.cos(position.angle) };
-
-    ship.setMotion(
-        new MotionKeyframe(startTime, position.x, position.y, position.angle),
-        ...sidewaysOffsets.map((offset, index) => new MotionKeyframe(
-            startTime + stepDuration * (index + 1),
-            position.x + right.x * offset,
-            position.y + right.y * offset,
-            position.angle
-        )),
-        new MotionKeyframe(endTime, position.x, position.y, position.angle)
-    );
-
-    ship.helmState.setActiveManeuver(new CardCooldownState(card, startTime, endTime, parameters['cost']));
-}
 
 /**
  * What playing one of the evasive maneuver patterns does: the ship flies the pattern's path from where it is and which way it faces, so it's the same each time.
@@ -124,37 +100,6 @@ function findClosestHostile(gameState: GameState, ship: Ship, position: Vector2D
     return closest;
 }
 
-/**
- * Have the ship turn on the spot towards the closest hostile ship, for the next few steps (no further than the given end time), at the locked-on turn rate.
- * Each keyframe faces as close to where that ship will be at its time as the turn rate allows. With no hostile ship, it holds its heading.
- */
-function steerTowardsClosestHostile(gameState: GameState, ship: Ship, endTime: number) {
-    const startTime = gameState.currentTime;
-    const position = ship.getPosition(startTime);
-    const target = findClosestHostile(gameState, ship, position, startTime);
-
-    // Start from a "now" keyframe, so the turn carries on from wherever the ship currently is.
-    const keyframes = [new MotionKeyframe(startTime, position.x, position.y, position.angle)];
-    let angle = position.angle;
-    let time = startTime;
-
-    for (let step = 1; step <= lockOnStepsAhead && time < endTime; step++) {
-        const stepTime = Math.min(startTime + step * lockOnStepDuration, endTime);
-
-        if (target) {
-            const targetPosition = target.getPosition(stepTime);
-            const wantedAngle = determineAngle(position, targetPosition);
-            const maxTurn = lockOnTurnRate * (stepTime - time);
-            angle += Math.max(-maxTurn, Math.min(maxTurn, clampAngle(wantedAngle - angle)));
-        }
-
-        time = stepTime;
-        keyframes.push(new MotionKeyframe(time, position.x, position.y, angle));
-    }
-
-    ship.setMotion(...keyframes);
-}
-
 /** Where a ship flying relative to another ship wants to be at some time, and which way it wants to face there. Either is left out to keep to where, or the way, it is now. */
 type Station = { position?: Vector2D; facing?: number };
 
@@ -162,14 +107,14 @@ type Station = { position?: Vector2D; facing?: number };
 type StationPlan = (time: number, from: Vector2D) => Station;
 
 /**
- * Have the ship head for its station for the next few steps, no further than the given end time, moving no faster than Match Course allows,
+ * Have the ship head for its station for the next few steps, no further than the given end time, moving no faster than the station speed allows,
  * while turning to face the way the station says at the locked-on turn rate.
  * Planning uses the same short keyframes as Lock On, and each step heads for where the station will be at that step's time.
  */
 function steerToStation(gameState: GameState, ship: Ship, endTime: number, plan: StationPlan) {
     const startTime = gameState.currentTime;
     const position = ship.getPosition(startTime);
-    const maxSpeed = matchCourseMaxSpeed * ship.helmState.maneuverSpeedMultiplier / 1000;
+    const maxSpeed = stationMaxSpeed * ship.helmState.maneuverSpeedMultiplier / 1000;
 
     // Start from a "now" keyframe, so the move carries on from wherever the ship currently is.
     const keyframes = [new MotionKeyframe(startTime, position.x, position.y, position.angle)];
@@ -213,7 +158,9 @@ function startRelativeManeuver(
     target: GameObject,
     parameters: CardParameters,
     card: CardState,
-    makePlan: (startTime: number) => StationPlan | null
+    makePlan: (startTime: number) => StationPlan | null,
+    /** Called on every update while the maneuver carries on, for cards that do something else as it goes. */
+    onStep?: (currentTime: number) => void
 ): boolean {
     const startTime = gameState.currentTime;
     const endTime = startTime + (parameters['duration'] ?? 0) * 1000;
@@ -231,12 +178,48 @@ function startRelativeManeuver(
     ship.helmState.whileActiveManeuverFlies((currentTime) => {
         if (ship.helmState.resolveShipTarget(target.id) !== target) {
             ship.helmState.cancelActiveManeuver();
-        } else if (currentTime - lastSteerTime >= lockOnStepDuration) {
-            lastSteerTime = currentTime;
-            steerToStation(gameState, ship, endTime, plan);
+        } else {
+            if (currentTime - lastSteerTime >= lockOnStepDuration) {
+                lastSteerTime = currentTime;
+                steerToStation(gameState, ship, endTime, plan);
+            }
+            onStep?.(currentTime);
         }
     });
     return true;
+}
+
+/**
+ * The plan for circling the target ship at the range the ship starts at, or null if that's too close to circle.
+ * The ship's heading is along the circle, keeping the target square to one side, unless it's to face the target all the way round.
+ */
+function planCircle(ship: Ship, target: GameObject, startTime: number, faceTarget: boolean): StationPlan | null {
+    const position = ship.getPosition(startTime);
+    const targetPosition = target.getPosition(startTime);
+
+    // Circle at the range the ship starts at, which can't be so close that it would have to turn faster than it can.
+    const radius = Math.hypot(position.x - targetPosition.x, position.y - targetPosition.y);
+    if (radius < orbitMinRadius) {
+        return null;
+    }
+
+    // Go whichever way round needs the smaller turn from the ship's heading to start with.
+    // The bearing is measured as Math.atan2 does, the opposite way round to a ship's angle, so headings along the circle are negated to compare them with one.
+    const startBearing = Math.atan2(position.y - targetPosition.y, position.x - targetPosition.x);
+    const turnOneWay = Math.abs(clampAngle(-(startBearing + Math.PI / 2) - position.angle));
+    const turnTheOther = Math.abs(clampAngle(-(startBearing - Math.PI / 2) - position.angle));
+    const direction = turnOneWay <= turnTheOther ? 1 : -1;
+    const angularSpeed = orbitSpeed / 1000 / radius;
+
+    return (time, from) => {
+        const targetAt = target.getPosition(time);
+        const bearing = startBearing + direction * angularSpeed * (time - startTime);
+
+        return {
+            position: { x: targetAt.x + Math.cos(bearing) * radius, y: targetAt.y + Math.sin(bearing) * radius },
+            facing: faceTarget ? determineAngle(from, targetAt) : -(bearing + direction * Math.PI / 2),
+        };
+    };
 }
 
 export const cards = defineEngineCards(sharedCards, {
@@ -313,19 +296,6 @@ export const cards = defineEngineCards(sharedCards, {
     patternAlpha: { play: playEvasivePattern('patternAlpha') },
     patternBeta: { play: playEvasivePattern('patternBeta') },
     patternGamma: { play: playEvasivePattern('patternGamma') },
-    holdSteady: {
-        synergy: { wants: ['steadyPlatform'] },
-        play: (gameState, ship, parameters, card) => {
-            startPosture(gameState, ship, card, parameters);
-
-            // The ship's own weapons are more accurate until it stops holding still, even if that's early.
-            const helm = ship.helmState;
-            helm.removeEffect('holdingSteady', 'expired');
-            helm.adjustEffectLevel('holdingSteady', parameters['accuracy']);
-            helm.whenActiveManeuverEnds(() => helm.removeEffect('holdingSteady', 'expired'));
-            return true;
-        },
-    },
     broadsideLeft: {
         aiEvaluator: locationCardEvaluator('broadsideLeft'),
         play: applyMotionCard,
@@ -351,67 +321,40 @@ export const cards = defineEngineCards(sharedCards, {
     },
     lockOn: {
         synergy: { provides: ['steadyPlatform'] },
-        play: (gameState, ship, parameters, card) => {
-            const startTime = gameState.currentTime;
-            const endTime = startTime + (parameters['duration'] ?? 0) * 1000;
+        play: (gameState, ship, target, parameters, card) => {
+            // Stop, then keep turning to face the target, wherever it goes. The ship stays where it stopped, as no station position is given.
+            const played = startRelativeManeuver(gameState, ship, target, parameters, card, () => (time, from) => ({
+                facing: determineAngle(from, target.getPosition(time)),
+            }));
+            if (!played) {
+                return false;
+            }
 
-            steerTowardsClosestHostile(gameState, ship, endTime);
-            ship.helmState.setActiveManeuver(new CardCooldownState(card, startTime, endTime, parameters['cost']));
-
-            // Keep planning the turn a short way ahead, picking whichever hostile ship is closest each time, until the maneuver ends.
-            let lastSteerTime = startTime;
-            ship.helmState.whileActiveManeuverFlies((currentTime) => {
-                if (currentTime - lastSteerTime >= lockOnStepDuration) {
-                    lastSteerTime = currentTime;
-                    steerTowardsClosestHostile(gameState, ship, endTime);
-                }
-            });
+            // The ship's own weapons are more accurate until the lock ends, even if that's early.
+            const helm = ship.helmState;
+            helm.removeEffect('holdingSteady', 'expired');
+            helm.adjustEffectLevel('holdingSteady', parameters['accuracy']);
+            helm.whenActiveManeuverEnds(() => helm.removeEffect('holdingSteady', 'expired'));
             return true;
         },
     },
-    matchCourse: {
-        play: (gameState, ship, target, parameters, card) => startRelativeManeuver(gameState, ship, target, parameters, card, (startTime) => {
-            // The station to keep is wherever the ship is now, relative to the target.
-            const position = ship.getPosition(startTime);
-            const targetPosition = target.getPosition(startTime);
-            const offset = { x: position.x - targetPosition.x, y: position.y - targetPosition.y };
-
-            return (time) => {
-                const targetAt = target.getPosition(time);
-                return { position: { x: targetAt.x + offset.x, y: targetAt.y + offset.y }, facing: targetAt.angle };
-            };
-        }),
-    },
     orbit: {
-        play: (gameState, ship, target, parameters, card) => startRelativeManeuver(gameState, ship, target, parameters, card, (startTime) => {
-            const position = ship.getPosition(startTime);
-            const targetPosition = target.getPosition(startTime);
+        synergy: { provides: ['momentum'] },
+        play: (gameState, ship, target, parameters, card) => {
+            // Circling builds Momentum: a level for every interval spent at it.
+            const interval = (parameters['momentumInterval'] ?? 0) * 1000;
+            let lastMomentumTime = gameState.currentTime;
 
-            // Circle at the range the ship starts at, which can't be so close that it would have to turn faster than it can.
-            const radius = Math.hypot(position.x - targetPosition.x, position.y - targetPosition.y);
-            if (radius < orbitMinRadius) {
-                return null;
-            }
-
-            // Go whichever way round needs the smaller turn from the ship's heading to start with.
-            // The bearing is measured as Math.atan2 does, the opposite way round to a ship's angle, so headings along the circle are negated to compare them with one.
-            const startBearing = Math.atan2(position.y - targetPosition.y, position.x - targetPosition.x);
-            const turnOneWay = Math.abs(clampAngle(-(startBearing + Math.PI / 2) - position.angle));
-            const turnTheOther = Math.abs(clampAngle(-(startBearing - Math.PI / 2) - position.angle));
-            const direction = turnOneWay <= turnTheOther ? 1 : -1;
-            const angularSpeed = orbitSpeed / 1000 / radius;
-
-            return (time) => {
-                const targetAt = target.getPosition(time);
-                const bearing = startBearing + direction * angularSpeed * (time - startTime);
-
-                // The ship's heading is along the circle, which keeps the target square to one side.
-                return {
-                    position: { x: targetAt.x + Math.cos(bearing) * radius, y: targetAt.y + Math.sin(bearing) * radius },
-                    facing: -(bearing + direction * Math.PI / 2),
-                };
-            };
-        }),
+            return startRelativeManeuver(gameState, ship, target, parameters, card, startTime => planCircle(ship, target, startTime, false), (currentTime) => {
+                while (interval > 0 && currentTime - lastMomentumTime >= interval) {
+                    lastMomentumTime += interval;
+                    ship.helmState.adjustEffectLevel('momentum', parameters['momentum']);
+                }
+            });
+        },
+    },
+    circleStrafe: {
+        play: (gameState, ship, target, parameters, card) => startRelativeManeuver(gameState, ship, target, parameters, card, startTime => planCircle(ship, target, startTime, true)),
     },
     interpose: {
         play: (gameState, ship, target, parameters, card) => {
@@ -487,15 +430,27 @@ export const cards = defineEngineCards(sharedCards, {
         },
     },
     attackRun: {
-        play: (gameState, ship, cardInstance, cardDefinition, location, parameters) => {
-            if (!applyMotionCard(gameState, ship, cardInstance, cardDefinition, location, parameters)) {
+        play: (gameState, ship, target, parameters, card) => {
+            // Turn to face the target and fly straight at it, as fast as the station speed allows, stopping a short way off. A target that moves is followed.
+            const played = startRelativeManeuver(gameState, ship, target, parameters, card, () => (time, from) => {
+                const targetAt = target.getPosition(time);
+                const gap = Math.hypot(targetAt.x - from.x, targetAt.y - from.y);
+                const facing = determineAngle(from, targetAt);
+                if (gap <= attackRunStopDistance) {
+                    return { facing };
+                }
+
+                const along = (gap - attackRunStopDistance) / gap;
+                return { position: { x: from.x + (targetAt.x - from.x) * along, y: from.y + (targetAt.y - from.y) * along }, facing };
+            });
+            if (!played) {
                 return false;
             }
 
-            // Tactical's cards cost less for as long as this maneuver is flown, even if it's called off early.
-            // Starting this maneuver has already ended any earlier attack run, and the discount with it.
+            // Tactical has more power for as long as this maneuver is flown, even if it's called off early.
+            // Starting this maneuver has already ended any earlier attack run, and the power with it.
             const tactical = ship.tacticalState;
-            tactical.adjustEffectLevel('attackRun', parameters['costReduction']);
+            tactical.adjustEffectLevel('attackRun', parameters['power']);
             ship.helmState.whenActiveManeuverEnds(() => tactical.removeEffect('attackRun', 'expired'));
             return true;
         },

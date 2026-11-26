@@ -15,7 +15,7 @@ export const playerShipSetup: PlayerShipSetupInfo = {
         initialHandSize: 0,
     },
     helm: {
-        cards: ['slowAndSteady', 'faceTarget', 'strafe', 'zigZag', 'zigZag', 'sweep', 'burn', 'holdSteady'],
+        cards: ['slowAndSteady', 'faceTarget', 'strafe', 'zigZag', 'zigZag', 'sweep', 'burn', 'lockOn'],
         maxPowerLevel: 5,
         initialHandSize: 1,
     },

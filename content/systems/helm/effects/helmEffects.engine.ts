@@ -97,21 +97,21 @@ export const effects = defineEngineEffects(sharedEffects, {
     momentum: createHelmModifierEffect('maneuverSpeedModifier', momentumSpeedPerLevel),
     holdingSteady: createHelmModifierEffect('weaponAccuracyModifier', 1),
     jinking: createHelmModifierEffect('weaponAccuracyModifier', -1),
-    // Each level takes 1 off the cost of every card the tactical system has, until the effect goes.
+    // Each level is a level of power added to the tactical system, until the effect goes.
     attackRun: {
         apply: (system, level) => {
             if (system.system !== 'tactical') {
                 return false;
             }
 
-            system.systemState.adjustCostOfEveryCard(-level);
+            system.adjustSystemPowerLevel(level);
             return true;
         },
         remove: (system, _removal, level) => {
-            system.systemState.adjustCostOfEveryCard(level);
+            system.adjustSystemPowerLevel(-level);
         },
         onLevelChanged: (system, newLevel, oldLevel) => {
-            system.systemState.adjustCostOfEveryCard(oldLevel - newLevel);
+            system.adjustSystemPowerLevel(newLevel - oldLevel);
         },
     },
     screened: {

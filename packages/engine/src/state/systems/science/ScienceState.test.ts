@@ -30,7 +30,7 @@ function createWorld() {
     // Shield capacity comes only from hull cards: 5 emitters give 75.
     targetSetup.hull = { ...targetSetup.hull, cards: Array(5).fill('hullShieldEmitter') };
     // The target's helm holds its first two cards, with two more to draw. Its engineer holds one.
-    targetSetup.helm = { ...targetSetup.helm, cards: ['holdSteady', 'slowAndSteady', 'zigZag', 'strafe'], initialHandSize: 2 };
+    targetSetup.helm = { ...targetSetup.helm, cards: ['patternAlpha', 'slowAndSteady', 'zigZag', 'strafe'], initialHandSize: 2 };
     targetSetup.engineer = { ...targetSetup.engineer, cards: ['juryRig', 'juryRig'], initialHandSize: 1 };
     const target = new AiShip(state, { ...targetSetup, goal: { type: 'search-and-destroy' }, skill: 1 });
     state.add(target);
@@ -244,7 +244,7 @@ describe('ScienceState reading a hand', () => {
         const played = readHand(scanner, target, 'helm');
 
         expect(played).not.toBeNull();
-        expect(cardTypes(scanner.scienceState.scannedHelm!.hand)).toEqual(['holdSteady', 'slowAndSteady']);
+        expect(cardTypes(scanner.scienceState.scannedHelm!.hand)).toEqual(['patternAlpha', 'slowAndSteady']);
         expect(scanner.scienceState.hand).not.toContain(card);
         expect(scanner.scienceState.deck).toContain(card);
     });
@@ -280,10 +280,10 @@ describe('ScienceState reading a hand', () => {
         const shown = scanner.scienceState.scannedHelm!;
 
         target.helmState.drawFromTop();
-        expect(cardTypes(shown.hand)).toEqual(['holdSteady', 'slowAndSteady', 'zigZag']);
+        expect(cardTypes(shown.hand)).toEqual(['patternAlpha', 'slowAndSteady', 'zigZag']);
 
         target.helmState.adjustPowerLevel(5);
-        const played = target.helmState.playCard(target.helmState.hand[0].id, 'holdSteady', 'no-target', '');
+        const played = target.helmState.playCard(target.helmState.hand[0].id, 'patternAlpha', 'no-target', '');
         expect(played).not.toBeNull();
         expect(cardTypes(shown.hand)).toEqual(['slowAndSteady', 'zigZag']);
 
@@ -441,7 +441,7 @@ describe('ScienceState reading a hand', () => {
         const shown = { helm: scanner.scienceState.scannedHelm, tactical: scanner.scienceState.scannedTactical, science: scanner.scienceState.scannedScience, engineer: scanner.scienceState.scannedEngineer }[system]!;
 
         source.adjustPowerLevel(1);
-        source.addCardToHand(new CardState(996, 'holdSteady'));
+        source.addCardToHand(new CardState(996, 'patternAlpha'));
 
         expect(shown.targetId).toBe(target.id);
         expect(shown.power).toBe(source.powerLevel);

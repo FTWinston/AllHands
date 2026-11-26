@@ -42,22 +42,22 @@ function createShips() {
     const helm = ship.helmState;
     helm.adjustPowerLevel(5);
 
-    /** Puts a Match Course card into the helm's hand and plays it on the ship with the given id. Says whether it was played. */
-    const playMatchCourse = (targetId: string) => {
-        const card = new CardState(ship.getCardId(), 'matchCourse');
+    /** Puts an Orbit card into the helm's hand and plays it on the ship with the given id. Says whether it was played. */
+    const playOrbit = (targetId: string) => {
+        const card = new CardState(ship.getCardId(), 'orbit');
         helm.addCardToHand(card);
-        const played = helm.playCard(card.id, 'matchCourse', 'ship', targetId) !== null;
+        const played = helm.playCard(card.id, 'orbit', 'ship', targetId) !== null;
         return { card, played };
     };
 
-    return { state, ship, ally, raider, trader, distantRaider, helm, playMatchCourse };
+    return { state, ship, ally, raider, trader, distantRaider, helm, playOrbit };
 }
 
 describe('ship-targeted cards', () => {
     it('play on any other ship the playing ship knows of, when the card takes any', () => {
         for (const target of ['ally', 'raider', 'trader'] as const) {
             const world = createShips();
-            const { card, played } = world.playMatchCourse(world[target].id);
+            const { card, played } = world.playOrbit(world[target].id);
             expect(played).toBe(true);
             expect(world.helm.activeManeuver?.card).toBe(card);
             expect(world.helm.hand.includes(card)).toBe(false);
@@ -65,11 +65,11 @@ describe('ship-targeted cards', () => {
     });
 
     it('are refused on the playing ship itself, on ships it doesn\'t know of, and on anything that isn\'t a ship', () => {
-        const { ship, distantRaider, helm, playMatchCourse } = createShips();
+        const { ship, distantRaider, helm, playOrbit } = createShips();
         expect(ship.knownObjects.has(distantRaider.id)).toBe(false);
 
         for (const targetId of [ship.id, distantRaider.id, 'nonexistent', '']) {
-            const { card, played } = playMatchCourse(targetId);
+            const { card, played } = playOrbit(targetId);
             expect(played).toBe(false);
             expect(helm.activeManeuver).toBeNull();
             expect(helm.hand.includes(card)).toBe(true);
@@ -78,10 +78,10 @@ describe('ship-targeted cards', () => {
 
     it('are refused when played as another target type', () => {
         const { raider, helm } = createShips();
-        const card = new CardState(1000, 'matchCourse');
+        const card = new CardState(1000, 'orbit');
         helm.addCardToHand(card);
-        expect(helm.playCard(card.id, 'matchCourse', 'enemy', raider.id)).toBeNull();
-        expect(helm.playCard(card.id, 'matchCourse', 'location', '0,5')).toBeNull();
+        expect(helm.playCard(card.id, 'orbit', 'enemy', raider.id)).toBeNull();
+        expect(helm.playCard(card.id, 'orbit', 'location', '0,5')).toBeNull();
         expect(helm.hand.includes(card)).toBe(true);
     });
 

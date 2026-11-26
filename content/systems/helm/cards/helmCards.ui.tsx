@@ -127,20 +127,6 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
-    holdSteady: {
-        name: 'Hold Steady',
-        description: <>
-            Stay put for
-            {' '}
-            <Parameter name="duration" />
-            {' '}
-            seconds. The ship's weapons are
-            {' '}
-            <Parameter name="accuracy" />
-            % more accurate while it does.
-        </>,
-        image: <ExampleIcon />,
-    },
     broadside: {
         name: 'Broadside',
         description: 'Move slowly to the destination, turning side-on to the direction of travel on the way.',
@@ -192,22 +178,14 @@ export const cards = defineUiCards(sharedCards, {
     lockOn: {
         name: 'Lock On',
         description: <>
-            For
+            Stop the ship, then keep turning to face the target ship for
             {' '}
             <Parameter name="duration" />
             {' '}
-            seconds, keep turning to face the closest hostile ship, without moving.
-        </>,
-        image: <ExampleIcon />,
-    },
-    matchCourse: {
-        name: 'Match Course',
-        description: <>
-            For
+            seconds. The ship's weapons are
             {' '}
-            <Parameter name="duration" />
-            {' '}
-            seconds, stay alongside the target ship, moving as it moves and turning to its heading.
+            <Parameter name="accuracy" />
+            % more accurate while it does.
         </>,
         image: <ExampleIcon />,
     },
@@ -218,7 +196,26 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="duration" />
             {' '}
-            seconds, circle the target ship at the current range, keeping one side to it.
+            seconds, circle the target ship at the current range, keeping one side to it. Gain
+            {' '}
+            <Parameter name="momentum" />
+            {' '}
+            Momentum for every
+            {' '}
+            <Parameter name="momentumInterval" />
+            {' '}
+            seconds spent circling.
+        </>,
+        image: <ExampleIcon />,
+    },
+    circleStrafe: {
+        name: 'Circle Strafe',
+        description: <>
+            For
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, circle the target ship at the current range, always facing it.
         </>,
         image: <ExampleIcon />,
     },
@@ -262,11 +259,15 @@ export const cards = defineUiCards(sharedCards, {
     attackRun: {
         name: 'Attack Run',
         description: <>
-            Turn towards a target then race straight to it. While it lasts, tactical's cards cost
+            Turn towards the target ship then race straight at it, stopping close by, for
             {' '}
-            <Parameter name="costReduction" />
+            <Parameter name="duration" />
             {' '}
-            less to play.
+            seconds. Tactical has
+            {' '}
+            <Parameter name="power" />
+            {' '}
+            more power while it lasts.
         </>,
         image: <ExampleIcon />,
     },

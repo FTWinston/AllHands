@@ -9,7 +9,7 @@ export const maxMomentum = 5;
 export const momentumSpeedPerLevel = 10;
 
 /** How long each posture is held for, in milliseconds. */
-export const holdSteadyDuration = 6_000;
+export const lockOnDuration = 8_000;
 
 export const effects = defineEffects({
     /**
@@ -21,13 +21,12 @@ export const effects = defineEffects({
         usesLevels: true,
         maxLevel: maxMomentum,
     },
-    /** On the helm: the ship is harder to hit after a Hard Brake. Its level is the evasion it adds, in percentage points. */
-    /** On the helm: the ship is holding still (see the Hold Steady card), so its own weapons hit more often. Its level is the accuracy it adds, in percentage points. */
+    /** On the helm: the ship is holding still, aimed at a target (see the Lock On card), so its own weapons hit more often. Its level is the accuracy it adds, in percentage points. */
     holdingSteady: {
         category: SystemEffectCategory.Positive,
         usesLevels: true,
         maxLevel: 100,
-        duration: holdSteadyDuration,
+        duration: lockOnDuration,
     },
     /** On the helm: the ship is jinking (see the Evasive Maneuvers card), so its own weapons hit less often. Its level is the accuracy it takes away, in percentage points. */
     jinking: {
@@ -37,7 +36,7 @@ export const effects = defineEffects({
         duration: evasivePatternDuration,
     },
     /**
-     * On the tactical system: the ship is on an attack run (see the Attack Run card), so every tactical card costs less to play. Its level is how much less.
+     * On the tactical system: the ship is on an attack run (see the Attack Run card), so tactical has more power. Its level is how much more.
      * Helm adds it when the maneuver starts and removes it when that ends, however it ends.
      */
     attackRun: {

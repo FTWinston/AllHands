@@ -1,7 +1,7 @@
 import { defineCards } from 'common-data/content/SharedContent';
 import { CardMotionSegmentFacing } from 'common-data/features/cards/types/CardDefinition';
 import { evasivePatternDuration } from 'common-data/features/cards/utils/evasivePatterns';
-import { holdSteadyDuration } from 'content/systems/helm/effects/helmEffects.shared';
+import { lockOnDuration } from 'content/systems/helm/effects/helmEffects.shared';
 
 /** How much harder to hit a ship flying one of the evasive maneuver patterns is, and how much less accurate its own weapons are, in percentage points. */
 const evasivePatternEvasion = 40;
@@ -144,12 +144,6 @@ export const cards = defineCards({
         system: 'helm',
         parameters: { cost: 2, evasion: evasivePatternEvasion, accuracyLoss: evasivePatternAccuracyLoss, duration: evasivePatternDuration / 1000 },
     },
-    holdSteady: {
-        targetType: 'no-target',
-        system: 'helm',
-        // accuracy: percentage points added to the accuracy of the ship's own weapons; duration: how long the ship holds still for, in seconds
-        parameters: { cost: 1, evasion: 0, accuracy: 20, duration: holdSteadyDuration / 1000 },
-    },
     broadside: {
         targetType: 'choice',
         system: 'helm',
@@ -215,24 +209,25 @@ export const cards = defineCards({
         parameters: { cost: 3, evasion: 30, momentum: 1 },
     },
     lockOn: {
-        targetType: 'no-target',
-        rarity: 'uncommon',
-        system: 'helm',
-        // duration: how long the ship keeps turning to face the closest hostile ship, in seconds
-        parameters: { cost: 2, evasion: 0, duration: 8 },
-    },
-    matchCourse: {
         targetType: 'ship',
-        rarity: 'uncommon',
+        targetRelationship: 'hostile',
         system: 'helm',
-        // duration: how long the ship keeps station alongside the target ship, in seconds
-        parameters: { cost: 2, evasion: 0, duration: 8 },
+        // accuracy: percentage points added to the accuracy of the ship's own weapons; duration: how long the ship holds still, turning to face the target ship, in seconds
+        parameters: { cost: 2, evasion: 0, accuracy: 20, duration: lockOnDuration / 1000 },
     },
     orbit: {
         targetType: 'ship',
         system: 'helm',
-        // duration: how long the ship keeps circling the target ship, in seconds
-        parameters: { cost: 2, evasion: 15, duration: 10 },
+        // duration: how long the ship keeps circling the target ship, in seconds; momentum: the levels of Momentum gained after every momentumInterval seconds of it
+        parameters: { cost: 2, evasion: 15, duration: 10, momentum: 1, momentumInterval: 3 },
+    },
+    circleStrafe: {
+        targetType: 'ship',
+        targetRelationship: 'hostile',
+        rarity: 'rare',
+        system: 'helm',
+        // duration: how long the ship keeps circling the target ship, facing it all the while, in seconds
+        parameters: { cost: 5, evasion: 15, duration: 8 },
     },
     interpose: {
         targetType: 'ship',
@@ -258,17 +253,12 @@ export const cards = defineCards({
         parameters: { cost: 2, evasion: 20, distance: 6, momentum: 1 },
     },
     attackRun: {
-        targetType: 'location',
+        targetType: 'ship',
+        targetRelationship: 'hostile',
         rarity: 'uncommon',
         system: 'helm',
-        // Rotate to face target first, then move straight towards it, fast
-        startFacing: CardMotionSegmentFacing.FinalVector,
-        endFacing: CardMotionSegmentFacing.FinalVector,
-        baseRotationSpeed: 1,
-        baseSpeed: 1.5,
-        minDistance: 4,
-        // costReduction: how much less tactical's cards cost to play while the maneuver lasts
-        parameters: { cost: 3, evasion: 15, costReduction: 1 },
+        // duration: how long the maneuver lasts, in seconds; power: how much extra power tactical has while it does
+        parameters: { cost: 3, evasion: 15, duration: 8, power: 1 },
     },
     warpAway: {
         targetType: 'no-target',
