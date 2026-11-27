@@ -21,7 +21,7 @@ export const momentumWindow = 2000;
  * How long a ship has to be still before it loses a level of Momentum, in milliseconds, and then how long it takes to lose each further level.
  * The same as `momentumDecayInterval` in the helm's shared effects, which the helm's description of Momentum quotes.
  */
-export const momentumDecayInterval = 1500;
+export const momentumDecayInterval = 3000;
 
 /** A maneuver shorter than this doesn't count as one to follow on from, so that tiny hops can't build Momentum. */
 export const momentumMinManeuverDuration = 1000;
@@ -169,10 +169,7 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
         }
     }
 
-    /**
-     * A ship that hasn't moved or turned for longer than the decay interval loses a level of Momentum, and another each time that passes again.
-     * Each level lost that way draws a card, so a helm that has run out of cards in a burst of maneuvers gets moving again. A level lost to a hit draws nothing.
-     */
+    /** A ship that hasn't moved or turned for longer than the decay interval loses a level of Momentum, and another each time that passes again. */
     private loseMomentumIfStill(currentTime: number) {
         const position = this.getShip().getPosition(currentTime);
         const last = this.lastPosition;
@@ -196,7 +193,6 @@ export class HelmState extends CrewSystemState implements HelmSystemInfo {
             // Each level takes as long again to go as the last did, however late this noticed. Losing the last one clears the fade (see `momentumLevelChanged`).
             const nextEnd = this.momentumFade.endTime + momentumDecayInterval;
             this.adjustEffectLevel('momentum', -1);
-            this.drawFromTop(1);
 
             if (this.momentumLevel > 0) {
                 this.momentumFade = new CooldownState(nextEnd - momentumDecayInterval, nextEnd);

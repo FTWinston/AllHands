@@ -249,6 +249,14 @@ export const cards = defineCards({
         // duration: how long the ship keeps to the target ship's rear arc, in seconds; rearArc: how many degrees either side of straight behind the target that arc reaches
         parameters: { cost: 2, evasion: 10, duration: 8, rearArc: 60 },
     },
+    pirouette: {
+        targetType: 'ship',
+        targetRelationship: 'hostile',
+        rarity: 'rare',
+        system: 'helm',
+        // momentumCost: the levels of Momentum it spends, without which it can't be played; radius: how close round the target ship it goes, in units
+        parameters: { cost: 2, evasion: 30, momentumCost: 3, radius: 2 },
+    },
     attackRun: {
         targetType: 'ship',
         targetRelationship: 'hostile',

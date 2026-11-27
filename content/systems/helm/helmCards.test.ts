@@ -198,6 +198,50 @@ describe('Momentum', () => {
     });
 });
 
+describe('Spending Momentum', () => {
+    /** A ship flying along x with the given Momentum, and a raider well off to one side, with a full deck and an empty hand, so that any card drawn shows. */
+    function createSpendingShip(level: number) {
+        const world = createRelativeWorld();
+        const { helm, play, runShip } = world;
+        world.addRaider(0, -20);
+
+        play('burn', '20,0');
+        helm.adjustEffectLevel('momentum', level - 2);
+        runShip(1000);
+        helm.hand.splice(0, helm.hand.length);
+        for (let index = 0; index < 5; index++) {
+            helm.deck.push(new CardState(world.ship.getCardId(), 'strafe'));
+        }
+        return world;
+    }
+
+    it.each([
+        ['punchIt', '14,0'],
+        ['drift', '6,3'],
+        ['hairpin', undefined],
+        ['juke', undefined],
+    ] as const)('draws a card when %s spends it', (type, location) => {
+        const { helm, play, momentum } = createSpendingShip(4);
+
+        const { card, played } = play(type, location);
+        expect(played).toBe(true);
+        expect(momentum()).toBeLessThan(4);
+        // The card played is flown, not held: the one card in the hand is the one drawn.
+        expect(helm.hand).toHaveLength(1);
+        expect(helm.hand[0]).not.toBe(card);
+    });
+
+    it('draws nothing when there was no Momentum to spend', () => {
+        const { helm, play, momentum } = createRelativeWorld();
+        helm.hand.splice(0, helm.hand.length);
+        helm.deck.push(new CardState(helm.getShip().getCardId(), 'strafe'));
+        expect(momentum()).toBe(0);
+
+        expect(play('hairpin').played).toBe(true);
+        expect(helm.hand).toHaveLength(0);
+    });
+});
+
 describe('Drift', () => {
     it('is an uncommon helm card that wants Momentum', () => {
         expect(cardDefinitions.drift).toMatchObject({
@@ -1032,10 +1076,10 @@ describe('Lock On', () => {
         playOn(raider);
         expect(momentum()).toBe(3);
 
-        run(1600);
+        run(3100);
         expect(momentum()).toBe(2);
 
-        run(3000);
+        run(6000);
         expect(momentum()).toBe(0);
     });
 });
@@ -1801,6 +1845,84 @@ describe('Juke', () => {
         expect(tactical.lockTargetId).toBe('');
         expect(tactical.slots[0].aimStartTimes.has(ship.id)).toBe(false);
         expect(tactical.slots[0].aimStartTimes.has(other.id)).toBe(true);
+    });
+});
+
+describe('Pirouette', () => {
+    it('is a rare helm card for hostile ships that needs, and spends, 3 Momentum, drawing a card', () => {
+        const { ship, helm, addRaider, playOn, momentum } = createRelativeWorld();
+        expect(cardDefinitions.pirouette).toMatchObject({ targetType: 'ship', targetRelationship: 'hostile', rarity: 'rare', system: 'helm', parameters: { cost: 2, evasion: 30, momentumCost: 3, radius: 2 } });
+        expect(getCardDefinition('pirouette').synergy).toEqual({ wants: ['momentum'] });
+        const raider = addRaider(8, 0);
+
+        helm.adjustEffectLevel('momentum', 2);
+        expect(playOn('pirouette', raider).played).toBe(false);
+        expect(helm.activeManeuver).toBeNull();
+        expect(momentum()).toBe(2);
+
+        helm.adjustEffectLevel('momentum', 2);
+        helm.deck.push(new CardState(ship.getCardId(), 'strafe'));
+        const handBefore = helm.hand.length;
+        const { card, played } = playOn('pirouette', raider);
+        expect(played).toBe(true);
+        expect(helm.activeManeuver!.card).toBe(card);
+        expect(momentum()).toBe(1);
+        expect(helm.hand).toHaveLength(handBefore + 1);
+        // Its own 30, and 3 for the level of Momentum left.
+        expect(helm.evasion).toBe(30 + 3);
+    });
+
+    it('darts in to 2 units, swings half way round behind the target facing it, and stops on its far side', () => {
+        const { helm, addRaider, playOn, runShip, position, rangeTo } = createRelativeWorld();
+        // The raider faces up the screen, so behind it is down the screen.
+        const raider = addRaider(8, 0, Math.PI / 2);
+        helm.adjustEffectLevel('momentum', 3);
+
+        expect(playOn('pirouette', raider).played).toBe(true);
+        let lowest = 0;
+        let highest = 0;
+        let closest = Infinity;
+        while (helm.activeManeuver) {
+            runShip(100);
+            const at = position();
+            lowest = Math.min(lowest, at.y);
+            highest = Math.max(highest, at.y);
+            closest = Math.min(closest, rangeTo(raider));
+            if (at.x > 6.5) {
+                // Once it's in close, it keeps facing the raider.
+                expect(Math.abs(clampAngle(at.angle - determineAngle(at, { x: 8, y: 0 })))).toBeLessThan(0.35);
+            }
+        }
+
+        expect(highest).toBeGreaterThan(1.7);
+        expect(lowest).toBeGreaterThan(-0.3);
+        expect(closest).toBeGreaterThan(1.6);
+        const end = position();
+        expect(end.x).toBeCloseTo(10, 0);
+        expect(end.y).toBeCloseTo(0, 0);
+        expect(Math.abs(clampAngle(end.angle - Math.PI))).toBeLessThan(0.3);
+    });
+
+    it('goes round the other way for a target facing the other way', () => {
+        const { helm, addRaider, playOn, runShip, position } = createRelativeWorld();
+        const raider = addRaider(8, 0, -Math.PI / 2);
+        helm.adjustEffectLevel('momentum', 3);
+
+        expect(playOn('pirouette', raider).played).toBe(true);
+        let lowest = 0;
+        while (helm.activeManeuver) {
+            runShip(100);
+            lowest = Math.min(lowest, position().y);
+        }
+        expect(lowest).toBeLessThan(-1.7);
+    });
+
+    it('cannot be played on a friendly ship', () => {
+        const { helm, other, playOn, momentum } = createRelativeWorld();
+        helm.adjustEffectLevel('momentum', 3);
+
+        expect(playOn('pirouette', other).played).toBe(false);
+        expect(momentum()).toBe(3);
     });
 });
 

@@ -187,43 +187,44 @@ describe('Momentum', () => {
         expect(momentum()).toBe(5);
     });
 
-    it('is lost a level at a time, every 1.5s that the ship sits still, but not while it keeps flying', () => {
+    it('is lost a level at a time, every 3s that the ship sits still, but not while it keeps flying, however long the flight', () => {
         const { run, helm, flyAhead, runUntilManeuverEnds, momentum } = createShip();
-        expect(momentumDecayInterval).toBe(1500);
+        expect(momentumDecayInterval).toBe(3000);
 
         flyAhead(6);
         helm.adjustEffectLevel('momentum', 3);
-        run(5000);
+        run(7500);
         expect(helm.activeManeuver).not.toBeNull();
         expect(momentum()).toBe(3);
 
         runUntilManeuverEnds();
-        run(1400);
+        run(2900);
         expect(momentum()).toBe(3);
 
         run(200);
         expect(momentum()).toBe(2);
-        run(1300);
+        run(2800);
         expect(momentum()).toBe(2);
 
         run(300);
         expect(momentum()).toBe(1);
-        run(1500);
+        run(3000);
         expect(momentum()).toBe(0);
     });
 
-    it('can still be built by chaining maneuvers within 2s, as a level is lost during that time', () => {
+    it('loses nothing in the 2s that the next maneuver has to start within, to follow on', () => {
         const { run, helm, flyAhead, runUntilManeuverEnds, momentum } = createShip();
+        expect(momentumDecayInterval).toBeGreaterThan(momentumWindow);
 
         flyAhead(3);
         helm.adjustEffectLevel('momentum', 2);
         runUntilManeuverEnds();
-        run(1700);
-        expect(momentum()).toBe(1);
-
-        // Starting another adds one back.
-        expect(flyAhead(3)).toBe(true);
+        run(1900);
         expect(momentum()).toBe(2);
+
+        // Starting another adds a level.
+        expect(flyAhead(3)).toBe(true);
+        expect(momentum()).toBe(3);
     });
 
     it('makes the ship 3 points harder to hit for each level, on top of its maneuver', () => {
@@ -265,15 +266,15 @@ describe('Momentum', () => {
         const stoppedAt = state.currentTime;
         run(300);
         expect(helm.momentumFade).not.toBeNull();
-        expect(helm.momentumFade!.endTime - helm.momentumFade!.startTime).toBe(1500);
+        expect(helm.momentumFade!.endTime - helm.momentumFade!.startTime).toBe(3000);
         expect(helm.momentumFade!.startTime).toBeLessThanOrEqual(stoppedAt);
         expect(helm.momentumFade!.endTime).toBeGreaterThan(state.currentTime);
 
         // A level goes, and the clock starts again for the next. Losing the last clears it.
-        run(1400);
+        run(2900);
         expect(helm.momentumLevel).toBe(1);
         expect(helm.momentumFade!.endTime).toBeGreaterThan(state.currentTime);
-        run(1600);
+        run(3100);
         expect(helm.momentumLevel).toBe(0);
         expect(helm.momentumFade).toBeNull();
     });
@@ -304,27 +305,26 @@ describe('Momentum', () => {
         expect(momentum()).toBe(0);
     });
 
-    it('draws a card for each level lost by sitting still, but not for one lost to a hit', () => {
+    it('draws no card for a level lost by sitting still, or to a hit', () => {
         const { ship, helm, run, flyAhead, runUntilManeuverEnds, momentum } = createShip();
 
         flyAhead(3);
         helm.adjustEffectLevel('momentum', 2);
         runUntilManeuverEnds();
 
-        // Make sure there are cards to draw. The hand is checked just before and after the level goes, as the reactor has the helm draw cards now and then too.
+        // Make sure there are cards that could be drawn. The hand is checked just before and after the level goes, as the reactor has the helm draw cards now and then too.
         helm.deck.push(new CardState(ship.getCardId(), 'strafe'), new CardState(ship.getCardId(), 'strafe'));
-        run(1400);
+        run(2900);
         expect(momentum()).toBe(2);
         const handBefore = helm.hand.length;
 
         run(200);
         expect(momentum()).toBe(1);
-        expect(helm.hand).toHaveLength(handBefore + 1);
+        expect(helm.hand).toHaveLength(handBefore);
 
-        // A hit takes the last level away, without drawing a card.
         ship.damage({ amount: 1, traits: [], targetSystem: 'hull' });
         expect(momentum()).toBe(0);
-        expect(helm.hand).toHaveLength(handBefore + 1);
+        expect(helm.hand).toHaveLength(handBefore);
     });
 
     it('makes each maneuver 10% faster per level', () => {

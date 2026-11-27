@@ -112,7 +112,7 @@ Helm's job is deciding where the ship is and what it's showing the enemy. Slow &
 
 ### Slipstream
 
-Momentum is gained by starting a manoeuvre soon after the last one ended. A ship sitting still loses a level every 1.5s, drawing a card for each, so a burst of manoeuvres that empties the hand is followed by cards to keep going with. A hit knocks a level off, without the draw. Each level makes manoeuvres faster and the ship harder to hit, and counts towards helm's power when breaking free of a tractor beam. Helm sees its Momentum on the helm screen.
+Momentum is gained by starting a manoeuvre soon after the last one ended. Starting one while another is still being flown replaces it, and gains nothing: the aim is to follow straight on, within 2s of the last one finishing. A ship sitting still loses a level every 3s (so the 2s to follow on in costs nothing), and a hit knocks one off. Every card that spends Momentum draws a card, so a burst of manoeuvres that builds it up and cashes it in leaves something to keep going with. Each level makes manoeuvres faster and the ship harder to hit, and counts towards helm's power when breaking free of a tractor beam. Helm sees its Momentum on the helm screen.
 
 | Card | Kind | Effect |
 |---|---|---|
@@ -142,6 +142,7 @@ These are ship-targeted cards: dragging one over a hexagon on the helm map picks
 | Shadow | For 8s, stay just behind the target, facing it. While you're in its rear arc, its evasion doesn't count against your weapons. |
 | Slingshot | A location card: fly at the nearest hostile, whip round its far side, and out to the point. +2 Momentum. |
 | Attack Run | Make a pass at the target, facing it: in alongside it, then round behind it. Tactical has extra power meanwhile. |
+| Pirouette | Rare. Spend 3 Momentum to dart in to 2 units from the target, swing half way round it (passing behind it), facing it all the way, and stop on its far side. Bridges Shadow and Slipstream. |
 
 Brace moved to engineer, as Brace for Impact. Hard Brake, Hold Steady (merged into Lock On), Match Course, Evasive Pattern and Break Away were cut: Momentum now helps break a tractor beam instead, and Juke took Break Away's loss of aim.
 

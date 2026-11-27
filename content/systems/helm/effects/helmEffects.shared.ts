@@ -12,7 +12,7 @@ export const momentumSpeedPerLevel = 10;
 export const momentumEvasionPerLevel = 3;
 
 /** How long a ship has to sit still before it loses a level of Momentum, and then for each further level, in milliseconds. */
-export const momentumDecayInterval = 1500;
+export const momentumDecayInterval = 3000;
 
 /** How long each posture is held for, in milliseconds. */
 export const lockOnDuration = 8_000;
@@ -25,7 +25,7 @@ export const overdriveFlux = 1;
 export const effects = defineEffects({
     /**
      * On the helm: built by flying one maneuver straight after another, and by cards that add to it. Each level speeds every maneuver up, and makes the ship harder to hit.
-     * A level is lost each time the ship is hit, and one more each time it has sat still for a while, which draws a card (see `HelmState`).
+     * A level is lost each time the ship is hit, and one more each time it has sat still for a while (see `HelmState`). Cards that spend it draw a card.
      */
     momentum: {
         category: SystemEffectCategory.Positive,

@@ -7,7 +7,7 @@ export const effects = defineUiEffects(sharedEffects, {
     momentum: {
         name: 'Momentum',
         description: <>
-            {`Each level makes every maneuver ${momentumSpeedPerLevel}% faster, and the ship ${momentumEvasionPerLevel}% harder to hit. Starting a maneuver just after finishing one adds a level. A hit on the ship takes one away, and sitting still loses one every ${momentumDecayInterval / 1000}s, drawing a card. Currently at level `}
+            {`Each level makes every maneuver ${momentumSpeedPerLevel}% faster, and the ship ${momentumEvasionPerLevel}% harder to hit. Starting a maneuver just after finishing one adds a level. A hit on the ship takes one away, and sitting still loses one every ${momentumDecayInterval / 1000}s. Cards that spend it draw a card. Currently at level `}
             <EffectLevel />
             .
         </>,

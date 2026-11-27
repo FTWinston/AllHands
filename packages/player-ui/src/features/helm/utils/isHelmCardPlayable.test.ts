@@ -12,6 +12,11 @@ describe('isHelmCardPlayable', () => {
         expect(isHelmCardPlayable({ type: 'juke' }, { momentumLevel: 2 })).toBe(true);
     });
 
+    it('allows Pirouette only with the 3 Momentum it spends', () => {
+        expect(isHelmCardPlayable({ type: 'pirouette' }, { momentumLevel: 2 })).toBe(false);
+        expect(isHelmCardPlayable({ type: 'pirouette' }, { momentumLevel: 3 })).toBe(true);
+    });
+
     it('allows cards that only want Momentum without it, as well as those that never use it', () => {
         expect(isHelmCardPlayable({ type: 'hairpin' }, { momentumLevel: 0 })).toBe(true);
         expect(isHelmCardPlayable({ type: 'punchIt' }, { momentumLevel: 0 })).toBe(true);

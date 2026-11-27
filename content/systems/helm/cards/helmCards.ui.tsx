@@ -85,7 +85,7 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="evasionPerMomentum" />
             {' '}
-            more evasion. Spends half of it.
+            more evasion. Spends half of it, and draws a card if it spends any.
         </>,
         image: <ExampleIcon />,
     },
@@ -123,7 +123,7 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="evasionPerMomentum" />
             {' '}
-            more evasion.
+            more evasion. Draws a card if it spends any.
         </>,
         image: <ExampleIcon />,
     },
@@ -138,7 +138,7 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="distance" />
             {' '}
-            units, away from the nearest hostile ship. Every ship aiming at this one loses its aim: Lock on it is dropped, and weapons that hold aim start over.
+            units, away from the nearest hostile ship, and draw a card. Every ship aiming at this one loses its aim: Lock on it is dropped, and weapons that hold aim start over.
         </>,
         image: <ExampleIcon />,
     },
@@ -154,7 +154,7 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="evasionPerMomentum" />
             {' '}
-            more evasion, for each level.
+            more evasion, for each level. Draws a card.
         </>,
         image: <ExampleIcon />,
     },
@@ -300,6 +300,21 @@ export const cards = defineUiCards(sharedCards, {
             <Parameter name="rearArc" />
             {' '}
             degrees of straight behind it, its evasion doesn't count against your weapons.
+        </>,
+        image: <ExampleIcon />,
+    },
+    pirouette: {
+        name: 'Pirouette',
+        description: <>
+            Spend
+            {' '}
+            <Parameter name="momentumCost" />
+            {' '}
+            Momentum to dart in to
+            {' '}
+            <Parameter name="radius" />
+            {' '}
+            units from the target ship, swing half way round it (behind it, not across its front), facing it all the way, and stop on its far side. Draws a card.
         </>,
         image: <ExampleIcon />,
     },

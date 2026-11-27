@@ -29,6 +29,15 @@ const lockOnTurnRate = Math.PI / 4000;
 /** How fast a ship can move to keep its station relative to another ship, in units per second: as fast as Burn flies. */
 const stationMaxSpeed = 1.5;
 
+/**
+ * How fast a pirouetting ship flies, in units per second, and turns, in radians per millisecond (fast enough to keep facing its target as it goes round it),
+ * how close to the circle round its target it has to get before it starts round, in units, and how long it holds still on the far side, in milliseconds.
+ */
+const pirouetteSpeed = 2.5;
+const pirouetteTurnRate = Math.PI / 1000;
+const pirouetteTolerance = 0.3;
+const pirouetteHoldTime = 500;
+
 /** How close to the point alongside its target an attack run has to get before it goes on round behind it, in units. */
 const attackRunPassTolerance = 0.75;
 
@@ -48,6 +57,20 @@ const driftSampleTime = 250;
 /** How many levels of Momentum the ship's helm holds. */
 function getMomentum(ship: Ship): number {
     return ship.helmState.getEffects().find(effect => effect.type === 'momentum')?.level ?? 0;
+}
+
+/**
+ * Spend up to the given levels of the ship's Momentum, drawing a card for the helm if any were spent. Every card that spends Momentum does so this way,
+ * so that a burst of maneuvers that built it up and then cashed it in leaves the helm with a card to carry on with.
+ */
+function spendMomentum(ship: Ship, levels: number) {
+    const spent = Math.min(levels, getMomentum(ship));
+    if (spent <= 0) {
+        return;
+    }
+
+    ship.helmState.adjustEffectLevel('momentum', -spent);
+    ship.helmState.drawFromTop(1);
 }
 
 /** A maneuver that also adds as many levels of Momentum as its `momentum` parameter says. */
@@ -107,15 +130,20 @@ type Station = { position?: Vector2D; facing?: number };
 /** Works out the station for the given time, for a ship that is at the given place at that point in its planned move. */
 type StationPlan = (time: number, from: Vector2D) => Station;
 
+/** How fast a ship keeping station can move, in units per second (before its maneuver speed is applied), and turn, in radians per millisecond. */
+type StationLimits = { speed: number; turnRate: number };
+
+const defaultStationLimits: StationLimits = { speed: stationMaxSpeed, turnRate: lockOnTurnRate };
+
 /**
- * Have the ship head for its station for the next few steps, no further than the given end time, moving no faster than the station speed allows,
- * while turning to face the way the station says at the locked-on turn rate.
+ * Have the ship head for its station for the next few steps, no further than the given end time, moving no faster than the limits allow (the station speed,
+ * unless a card says otherwise), while turning to face the way the station says, no faster than they allow either (the locked-on turn rate, unless a card says otherwise).
  * Planning uses the same short keyframes as Lock On, and each step heads for where the station will be at that step's time.
  */
-function steerToStation(gameState: GameState, ship: Ship, endTime: number, plan: StationPlan) {
+function steerToStation(gameState: GameState, ship: Ship, endTime: number, plan: StationPlan, limits: StationLimits = defaultStationLimits) {
     const startTime = gameState.currentTime;
     const position = ship.getPosition(startTime);
-    const maxSpeed = stationMaxSpeed * ship.helmState.maneuverSpeedMultiplier / 1000;
+    const maxSpeed = limits.speed * ship.helmState.maneuverSpeedMultiplier / 1000;
 
     // Start from a "now" keyframe, so the move carries on from wherever the ship currently is.
     const keyframes = [new MotionKeyframe(startTime, position.x, position.y, position.angle)];
@@ -138,7 +166,7 @@ function steerToStation(gameState: GameState, ship: Ship, endTime: number, plan:
         }
 
         if (station.facing !== undefined) {
-            const maxTurn = lockOnTurnRate * stepDuration;
+            const maxTurn = limits.turnRate * stepDuration;
             angle += Math.max(-maxTurn, Math.min(maxTurn, clampAngle(station.facing - angle)));
         }
 
@@ -161,7 +189,9 @@ function startRelativeManeuver(
     card: CardState,
     makePlan: (startTime: number) => StationPlan | null,
     /** Called on every update while the maneuver carries on, for cards that do something else as it goes. */
-    onStep?: (currentTime: number) => void
+    onStep?: (currentTime: number) => void,
+    /** How fast the ship can move and turn, if not as any ship keeping station does. */
+    limits: StationLimits = defaultStationLimits
 ): boolean {
     const startTime = gameState.currentTime;
     const endTime = startTime + (parameters['duration'] ?? 0) * 1000;
@@ -171,7 +201,7 @@ function startRelativeManeuver(
         return false;
     }
 
-    steerToStation(gameState, ship, endTime, plan);
+    steerToStation(gameState, ship, endTime, plan, limits);
     ship.helmState.setActiveManeuver(new CardCooldownState(card, startTime, endTime, parameters['cost']));
 
     // Keep planning the move a short way ahead until the maneuver ends.
@@ -182,7 +212,7 @@ function startRelativeManeuver(
         } else {
             if (currentTime - lastSteerTime >= lockOnStepDuration) {
                 lastSteerTime = currentTime;
-                steerToStation(gameState, ship, endTime, plan);
+                steerToStation(gameState, ship, endTime, plan, limits);
             }
             onStep?.(currentTime);
         }
@@ -293,7 +323,7 @@ export const cards = defineEngineCards(sharedCards, {
             }
 
             // Spend half of that Momentum, rounded up.
-            ship.helmState.adjustEffectLevel('momentum', -Math.ceil(momentum / 2));
+            spendMomentum(ship, Math.ceil(momentum / 2));
             return true;
         },
     },
@@ -327,7 +357,7 @@ export const cards = defineEngineCards(sharedCards, {
             }
 
             // All the Momentum is spent, including any level that starting this maneuver just added.
-            ship.helmState.removeEffect('momentum', 'early');
+            spendMomentum(ship, getMomentum(ship));
             return true;
         },
     },
@@ -363,7 +393,7 @@ export const cards = defineEngineCards(sharedCards, {
             }
 
             // All the Momentum is spent, including any level that starting this maneuver just added.
-            ship.helmState.removeEffect('momentum', 'early');
+            spendMomentum(ship, getMomentum(ship));
             return true;
         },
     },
@@ -383,7 +413,7 @@ export const cards = defineEngineCards(sharedCards, {
 
             ship.setMotion(...path.map(keyframe => new MotionKeyframe(now + keyframe.time, keyframe.x, keyframe.y, keyframe.angle)));
             ship.helmState.setActiveManeuver(new CardCooldownState(card, now, now + jukeDuration, parameters['cost']));
-            ship.helmState.adjustEffectLevel('momentum', -momentumCost);
+            spendMomentum(ship, momentumCost);
 
             // Every ship aiming at this one loses its aim on it. (A sensor ghost has no weapons.)
             for (const other of gameState.objects.values()) {
@@ -531,6 +561,58 @@ export const cards = defineEngineCards(sharedCards, {
             helm.shadowRearArc = (parameters['rearArc'] ?? 0) * Math.PI / 180;
             helm.addEffect('shadowing');
             helm.whenActiveManeuverEnds(() => helm.removeEffect('shadowing', 'expired'));
+            return true;
+        },
+    },
+    pirouette: {
+        synergy: { wants: ['momentum'] },
+        play: (gameState, ship, target, parameters, card) => {
+            const momentumCost = parameters['momentumCost'] ?? 0;
+            if (getMomentum(ship) < momentumCost) {
+                return false;
+            }
+
+            // Straight in to the circle round the target, then half way round it, facing it all the way, then still on its far side until the maneuver ends.
+            // It goes round whichever way passes behind the target, rather than across its front. The circle is worked out from where the target is as it moves.
+            const radius = parameters['radius'] ?? 0;
+            const startTime = gameState.currentTime;
+            const start = ship.getPosition(startTime);
+            const targetStart = target.getPosition(startTime);
+            const speed = pirouetteSpeed * ship.helmState.maneuverSpeedMultiplier;
+            const gap = Math.hypot(start.x - targetStart.x, start.y - targetStart.y);
+            const duration = (Math.abs(gap - radius) + Math.PI * radius) / speed + pirouetteHoldTime / 1000;
+
+            // Angles round the target here are in the map's terms (as Math.atan2 gives them), not ships' angles.
+            let circle: { startTime: number; startAngle: number; direction: number } | null = null;
+            const onCircle = (targetAt: Vector2D, angle: number) => ({ x: targetAt.x + Math.cos(angle) * radius, y: targetAt.y + Math.sin(angle) * radius });
+
+            // It faces the target from where it's heading for at each step, rather than from where it starts that step, or going round it'd always be a step behind.
+            const station = (targetAt: Vector2D, position: Vector2D) => ({ position, facing: determineAngle(position, targetAt) });
+
+            const played = startRelativeManeuver(gameState, ship, target, { ...parameters, duration }, card, () => (time, from) => {
+                const targetAt = target.getPosition(time);
+
+                if (!circle) {
+                    const offset = { x: from.x - targetAt.x, y: from.y - targetAt.y };
+                    const range = Math.hypot(offset.x, offset.y);
+                    const angle = range > 1e-6 ? Math.atan2(offset.y, offset.x) : 0;
+                    if (Math.abs(range - radius) > pirouetteTolerance) {
+                        return { position: onCircle(targetAt, angle), facing: determineAngle(from, targetAt) };
+                    }
+
+                    // The target faces along (cos, -sin) of its angle. The way round whose half way point is further behind it is the way to go.
+                    const ahead = (direction: number) => Math.cos(angle + direction * Math.PI / 2) * Math.cos(targetAt.angle) - Math.sin(angle + direction * Math.PI / 2) * Math.sin(targetAt.angle);
+                    circle = { startTime: time, startAngle: angle, direction: ahead(1) <= ahead(-1) ? 1 : -1 };
+                }
+
+                const swept = Math.max(0, Math.min(Math.PI, (time - circle.startTime) / 1000 * speed / radius));
+                return station(targetAt, onCircle(targetAt, circle.startAngle + circle.direction * swept));
+            }, undefined, { speed: pirouetteSpeed * 1.2, turnRate: pirouetteTurnRate });
+            if (!played) {
+                return false;
+            }
+
+            spendMomentum(ship, momentumCost);
             return true;
         },
     },
