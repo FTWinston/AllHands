@@ -1,5 +1,6 @@
 import { StateView } from '@colyseus/schema';
 import { Room, Client } from 'colyseus';
+import { cardRangeEncounterId, type CardRangeCommand } from 'common-data/features/cards/types/CardRangeInfo';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { isKnowableCardType } from 'common-data/features/cards/utils/getKnowableCardTypes';
@@ -18,6 +19,8 @@ import { Campaign } from '../campaign/Campaign';
 import { playerFactionId } from '../campaign/factions';
 import { playerShipSetup } from '../campaign/playerShipSetup';
 import { DEV_TOOLS_ENABLED } from '../devTools';
+import { createFileStore, getDefaultProgressFile } from '../encounters/cardRange/cardRangeProgress';
+import { CardRangeSession } from '../encounters/cardRange/CardRangeSession';
 import { getDevEncounterList, hasEncounter } from '../encounters/EncounterRegistry';
 import { CardState } from '../state/CardState';
 import { CrewState } from '../state/CrewState';
@@ -45,6 +48,10 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
     private allowMultipleCrews = false;
     /** Milliseconds left until the game starts, or null when not counting down. */
     private startCountdownRemaining: number | null = null;
+    /** Dev tools: the encounter to start in once every role is claimed, without the countdown (see `ServerConfig.devStart`). Cleared once used. */
+    private devStart: string | null = null;
+    /** Dev tools: going through every card on the card range. */
+    private cardRange: CardRangeSession | null = null;
 
     getCrewId() {
         if (!this.allowMultipleCrews) {
@@ -73,6 +80,7 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
         this.registerCommandHandlers();
 
         if (DEV_TOOLS_ENABLED) {
+            this.devStart = config.devStart || null;
             this.registerDevCommandHandlers();
         }
     }
@@ -610,6 +618,10 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
     private registerDevCommandHandlers() {
         console.log('Dev commands are enabled');
 
+        const progressFile = getDefaultProgressFile();
+        this.cardRange = new CardRangeSession(this.state, createFileStore(progressFile));
+        console.log(`[dev] Card range progress is kept in ${progressFile}`);
+
         this.onMessage('adjustHealth', (client, message: { system: ShipSystem; relative: boolean; amount: number }) => {
             const ship = this.getShipForShipClient(client);
             if (!ship) {
@@ -693,13 +705,57 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
             const elite = message.elite === true;
 
-            if (this.state.gameStatus === 'ended' || !this.state.campaign?.devLoadEncounter(message.encounterId, elite)) {
+            if (this.state.gameStatus === 'ended' || !this.loadDevEncounter(message.encounterId, elite)) {
                 console.error(`[dev] Could not load encounter ${message.encounterId}`);
                 return;
             }
 
             console.log(`[dev] ${client.sessionId} devLoadEncounter ${message.encounterId}${elite ? ' (elite)' : ''}`);
         });
+
+        this.onMessage('devCardRange', (client, message: CardRangeCommand) => {
+            if (client.userData?.type !== 'ship') {
+                console.error('Dev commands can only be sent by ship clients');
+                return;
+            }
+
+            if (this.state.gameStatus === 'ended' || typeof message?.action !== 'string' || !this.cardRange?.handle(message)) {
+                console.error(`[dev] Card range could not ${String(message?.action)}`);
+            }
+
+            this.sendCardRangeInfo();
+        });
+
+        this.onMessage('devCardRangeInfo', (client) => {
+            if (client.userData?.type === 'ship') {
+                this.sendCardRangeInfo([client]);
+            }
+        });
+    }
+
+    /** Loads an encounter from the dev tools: the card range is loaded by its session, for the card last tried there. */
+    private loadDevEncounter(encounterId: EncounterId, elite = false): boolean {
+        const loaded = encounterId === cardRangeEncounterId
+            ? this.cardRange?.start() === true
+            : this.state.campaign?.devLoadEncounter(encounterId, elite) === true;
+
+        // Whether the card range is running has changed, which its info shows.
+        this.sendCardRangeInfo();
+        return loaded;
+    }
+
+    /** Sends the card range's info to ship clients (all of them, unless told which), which are the only ones that show it. */
+    private sendCardRangeInfo(clients: Iterable<Client<{ userData: ClientData }>> = this.clients) {
+        if (!this.cardRange) {
+            return;
+        }
+
+        const info = this.cardRange.getInfo();
+        for (const client of clients) {
+            if (client.userData?.type === 'ship') {
+                client.send('cardRange', info);
+            }
+        }
     }
 
     /**
@@ -982,11 +1038,42 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
 
         if (!this.allRolesClaimed()) {
             this.cancelStartCountdown();
+        } else if (this.devStart !== null) {
+            this.startForDev(this.devStart);
         } else if (this.startCountdownRemaining === null) {
             console.log('All roles are claimed, starting countdown');
             this.startCountdownRemaining = startCountdownDuration;
             this.state.startCountdown = Math.ceil(startCountdownDuration / 1000);
         }
+    }
+
+    /**
+     * Dev tools: starts the game straight away, without the countdown, and loads the given encounter in place of the first sector's intro.
+     * It's an encounter id, optionally followed by a colon and either a card type for the card range (which otherwise picks up at the card last tried) or `elite`.
+     */
+    private startForDev(devStart: string) {
+        this.devStart = null;
+        this.cancelStartCountdown();
+        this.populateScenario();
+        this.startOrResume();
+
+        const separator = devStart.indexOf(':');
+        const encounterId = separator === -1 ? devStart : devStart.substring(0, separator);
+        const argument = separator === -1 ? undefined : devStart.substring(separator + 1);
+
+        const loaded = !hasEncounter(encounterId)
+            ? false
+            : encounterId === cardRangeEncounterId && argument
+                ? this.cardRange?.start(argument) === true
+                : this.loadDevEncounter(encounterId, argument === 'elite');
+
+        if (loaded) {
+            console.log(`[dev] Started in ${devStart}`);
+        } else {
+            console.error(`[dev] Could not start in ${devStart}`);
+        }
+
+        this.sendCardRangeInfo();
     }
 
     cancelStartCountdown() {

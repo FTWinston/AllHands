@@ -1,3 +1,4 @@
+import { cardRangeEncounterId } from 'common-data/features/cards/types/CardRangeInfo';
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { antimatterRewards } from 'common-data/features/ships/utils/antimatter';
 import { defaultSurviveDurationMs } from 'content/general/general.engine';
@@ -38,7 +39,7 @@ function totalMaxHealth(ship: Ship) {
 describe('encounter registry', () => {
     it('registers the expected encounters', () => {
         expect(getEncounterIds().sort()).toEqual([
-            'ambush', 'armsDealer', 'assault', 'bossA', 'bossB', 'bossC', 'deadWeight', 'escort', 'feverShip', 'lastShuttleOut', 'navigationBeacon', 'outfittingStation', 'quarantineGate', 'quietRunning', 'repairStation', 'researchOutpost', 'salvageYard', 'skirmish', 'slowBoat', 'standingOrders', 'survive', 'tollCollectors',
+            'ambush', 'armsDealer', 'assault', 'bossA', 'bossB', 'bossC', 'cardRange', 'deadWeight', 'escort', 'feverShip', 'lastShuttleOut', 'navigationBeacon', 'outfittingStation', 'quarantineGate', 'quietRunning', 'repairStation', 'researchOutpost', 'salvageYard', 'skirmish', 'slowBoat', 'standingOrders', 'survive', 'tollCollectors',
         ]);
         expect(getDevEncounterList().map(info => info.id)).toEqual(getEncounterIds());
     });
@@ -54,7 +55,8 @@ describe('encounter registry', () => {
 });
 
 describe('devLoadEncounter', () => {
-    it.each(getEncounterIds())('starts %s standalone', (encounterId) => {
+    // The card range has nothing on it until its session sets it up for a card (see CardRangeSession.test.ts).
+    it.each(getEncounterIds().filter(id => id !== cardRangeEncounterId))('starts %s standalone', (encounterId) => {
         const { state, campaign, ships } = createCampaign();
 
         expect(campaign.devLoadEncounter(encounterId)).toBe(true);

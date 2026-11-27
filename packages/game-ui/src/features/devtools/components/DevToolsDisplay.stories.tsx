@@ -16,6 +16,18 @@ const meta: Meta<typeof Component> = {
         autoWin: false,
         setAutoWin: fn(),
         loadEncounter: fn(),
+        goToCard: fn(),
+        cardRange: {
+            cards: [
+                { type: 'slowAndSteady', system: 'helm', preset: 'targets', status: 'pass' },
+                { type: 'phaserCannon', system: 'tactical', preset: 'targets', status: 'fail', note: 'Fires twice' },
+                { type: 'phaserStrip', system: 'tactical', preset: 'targets' },
+                { type: 'flare', system: 'tactical', preset: 'incoming', status: 'skip' },
+            ],
+            currentIndex: 2,
+            active: true,
+            progressFile: 'C:/all-hands/docs/card-range.json',
+        },
         encounters: [
             { id: 'skirmish', name: 'Skirmish', kind: 'combat', environment: 'deepSpace', objective: { type: 'clear' }, hasElite: true },
             { id: 'survive', name: 'Hold the Line', kind: 'combat', environment: 'asteroidField', objective: { type: 'survive', durationMs: 90000 }, hasElite: true },

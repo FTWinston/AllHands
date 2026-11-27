@@ -1,3 +1,4 @@
+import { cardRangeDefinition } from './cardRange/CardRangeEncounter';
 import { stationDefinitions } from './StationEncounter';
 import type { Encounter } from './Encounter';
 import type { EncounterDefinition } from './EncounterDefinition';
@@ -8,7 +9,7 @@ import type { GameState } from 'src/state/GameState';
 export { getNodeName, type EncounterDefinition, type EncounterRequest } from './EncounterDefinition';
 export { stationEncounterIds } from './StationEncounter';
 
-/** Every encounter there is: the stations, which are part of every campaign, and those registered by `registerEngineContent`. */
+/** Every encounter there is: the stations, which are part of every campaign, the dev tools' card range, and those registered by `registerEngineContent`. */
 const definitions: EncounterDefinition[] = [];
 const registry = new Map<EncounterId, EncounterDefinition>();
 
@@ -23,7 +24,7 @@ export function registerEncounters(newDefinitions: readonly EncounterDefinition[
     }
 }
 
-registerEncounters(stationDefinitions);
+registerEncounters([...stationDefinitions, cardRangeDefinition]);
 
 export function getEncounterDefinition(id: EncounterId): EncounterDefinition {
     const definition = registry.get(id);

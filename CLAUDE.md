@@ -20,6 +20,7 @@ Cards, status effects, ship designs, encounters and sectors live in `content/`, 
 - Unit tests: `npm run test:unit -- --run`; story tests: `npx vitest run --project storybook` (slow). Tests run with dev tools off unless `DEV_TOOLS=true` is set in the environment.
 - Balance simulations (`*.balance.test.ts`, encounters played out with the real AI to check their tuning): `npm run test:balance -- --run`. Not part of the unit tests, as they're slow and fail whenever tuning changes.
 - Lint: `npx eslint <files>` (`npm run lint` runs with --fix over everything)
+- Card testing (dev tools build): `DEV_START=cardRange npm run dev` hosts a game by itself, and once the player windows have claimed their roles, starts straight away on the Card Range (`packages/engine/src/encounters/cardRange/`), at the card last tried. `cardRange:<cardType>` starts on a given card; any other encounter id (optionally `:elite`) works too. The viewscreen's Card Range bar steps through every card and records pass/fail/notes in `docs/card-range.json` (`CARD_RANGE_FILE` overrides).
 - End-to-end: `npm run dev` serves the game at http://localhost:23552/ (dev mode). Pressing **Start Single-Player Game** in the main menu also opens 4 mobile-sized Playwright windows (`launch-players.ts`), one per crew role, which auto-join and start the game. Those windows aren't controllable via Claude in Chrome; open the URL there yourself to drive the main screen.
 
 ## Conventions

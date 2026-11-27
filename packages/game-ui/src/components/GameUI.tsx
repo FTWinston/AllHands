@@ -2,7 +2,7 @@ import { ServerAddress } from 'common-data/types/ServerAddress';
 import { Screen } from 'common-ui/components/Screen';
 import { TimeProviderContext } from 'common-ui/contexts/TimeProviderContext';
 import { useDevTimeHotkeys } from 'common-ui/hooks/useDevTimeHotkeys';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { useRoomConnection } from 'src/hooks/useRoomConnection';
 import { GameLobby } from '../features/lobby/GameLobby';
@@ -36,6 +36,22 @@ export const GameUI = () => {
     const devTools = !!import.meta.env.DEV_TOOLS;
 
     useDevTimeHotkeys(room, devTools, serverState);
+
+    // With DEV_START set, host a single-crew game straight away, rather than waiting at the main menu. Only the once, so leaving the game stays at the menu.
+    const autoHosted = useRef(false);
+    useEffect(() => {
+        if (!devTools || autoHosted.current) {
+            return;
+        }
+
+        autoHosted.current = true;
+        window.electronAPI?.getClientConfig().then((config) => {
+            if (config.autoHost) {
+                setAllowMultipleCrews(false);
+                setServerType('local');
+            }
+        });
+    }, [devTools, setServerType]);
 
     // With dev tools, pausing leaves the game on screen, so orders can be given while paused. The menu is then opened separately.
     const [menuOpen, setMenuOpen] = useState(false);
