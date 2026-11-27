@@ -36,8 +36,8 @@ function createWorld(random: IRandom, skill = 1) {
     const state = rooms.createState(random);
     state.initFactions([{ id: 'raiders' }], 'raiders');
     const setup = { ...shipSetup('raiders'), goal: { type: 'search-and-destroy' as const }, skill };
-    // exampleNoTarget costs 2; science initial power 3.
-    setup.science = { ...setup.science, cards: ['exampleNoTarget', 'exampleNoTarget'], initialHandSize: 2 };
+    // Jam costs 2; science initial power 3.
+    setup.science = { ...setup.science, cards: ['jam', 'jam'], initialHandSize: 2 };
     const ship = new AiShip(state, setup);
     state.add(ship);
     const officer = new TestOfficer(ship, state, resolveAiConfig(setup as never));
@@ -45,12 +45,12 @@ function createWorld(random: IRandom, skill = 1) {
     return { state, ship, officer, bb };
 }
 
-/** Register an evaluator for exampleNoTarget that emits one candidate per card with the given score/cost. */
+/** Register an evaluator for Jam that emits one candidate per card with the given score/cost. */
 function stubEvaluator(score: number, cost = 2) {
-    registerCardEvaluator('exampleNoTarget', (card): CandidatePlay[] => [{
+    registerCardEvaluator('jam', (card): CandidatePlay[] => [{
         score,
         cost,
-        action: { kind: 'playCard', cardId: card.id, cardType: 'exampleNoTarget', targetType: 'no-target', targetId: '' },
+        action: { kind: 'playCard', cardId: card.id, cardType: 'jam', targetType: 'no-target', targetId: '' },
     }]);
 }
 
@@ -115,11 +115,11 @@ describe('Officer.think', () => {
 
     it('applies the switching cost to interrupting candidates', () => {
         const { officer, bb } = createWorld(fixedRandom());
-        registerCardEvaluator('exampleNoTarget', (card): CandidatePlay[] => [{
+        registerCardEvaluator('jam', (card): CandidatePlay[] => [{
             score: PLAY_THRESHOLD + 10, // 30 - SWITCHING_COST(15) = 15 < threshold → held
             cost: 0,
             interrupts: true,
-            action: { kind: 'playCard', cardId: card.id, cardType: 'exampleNoTarget', targetType: 'no-target', targetId: '' },
+            action: { kind: 'playCard', cardId: card.id, cardType: 'jam', targetType: 'no-target', targetId: '' },
         }]);
         officer.think(bb, 0);
         expect(officer.executed).toHaveLength(0);

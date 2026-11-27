@@ -1,6 +1,7 @@
 import { ShipSystem } from 'src/features/ships/types/ShipSystem';
 import { CardType } from '../utils/cardDefinitions';
 import { CardParameters } from './CardParameters';
+import { CardRarity } from './CardRarity';
 import { CardTargetType } from './CardTargetType';
 import { CardTrait } from './CardTrait';
 
@@ -9,6 +10,8 @@ interface CommonCardDefinition {
     system: ShipSystem;
     parameters: CardParameters;
     traits?: CardTrait[];
+    /** How seldom shops offer this card, and how much it costs there. Common when not given. */
+    rarity?: CardRarity;
 }
 
 export type NoTargetCardDefinition = CommonCardDefinition & {
@@ -34,6 +37,8 @@ export type WeaponSlotTargetCardDefinition = CommonCardDefinition & {
 export type WeaponTargetCardDefinition = CommonCardDefinition & {
     targetType: 'weapon';
     requiredWeaponTrait?: CardTrait;
+    /** Whether the card acts on a weapon once, rather than staying on it as its modifier. Such a card can be played on a weapon that already has a modifier, and doesn't stop it taking one. */
+    instant?: boolean;
 };
 
 export type EnemyTargetCardDefinition = CommonCardDefinition & {
@@ -63,6 +68,15 @@ export type SystemTargetCardDefinition = CommonCardDefinition & {
     targetType: 'system';
 };
 
+/** Which other ships a ship-targeted card can be played on, by how the playing ship's faction regards theirs. */
+export type ShipTargetRelationship = 'hostile' | 'friendly' | 'any';
+
+export type ShipTargetCardDefinition = CommonCardDefinition & {
+    targetType: 'ship';
+    /** Which other ships this card can be played on. Any other ship when not given. */
+    targetRelationship?: ShipTargetRelationship;
+};
+
 export enum CardMotionSegmentFacing {
     /** Keep the current angle, don't change facing */
     Current,
@@ -73,6 +87,51 @@ export enum CardMotionSegmentFacing {
     /** Face towards the final destination */
     FinalVector,
 }
+
+/** Which way a ship turns: left is anticlockwise (an increasing angle), right is clockwise. */
+export type TurnDirection = 'left' | 'right';
+
+/**
+ * The route a location card flies, when it isn't a straight line. All distances are in world units.
+ * See `calculateMotionPath` for how each is flown.
+ */
+export type CardMotionPath
+    = | {
+        shape: 'zigZag';
+        /** The distance along the line to the target covered by each leg, so longer moves get more legs, not wider ones. */
+        legLength: number;
+        /** How far the ship swings out to each side of the line. */
+        width: number;
+    }
+    | {
+        shape: 'sweep';
+        /** Left curves anticlockwise (the path bulges out to the right of the line to the target), right clockwise. */
+        turn: TurnDirection;
+        /** How far to the bulging side of the line to the target the ship is facing when it sets off, in radians. */
+        startOffset: number;
+        /** How far the ship turns during the sweep, in radians. */
+        turnAngle: number;
+        /** What fraction of the route the turn takes: the rest is a straight final leg. */
+        turnFraction: number;
+    }
+    | {
+        /** Flies straight on the way the ship is facing, without turning first, then turns hard onto the target and flies straight to it. */
+        shape: 'sharpTurn';
+        /** How far the ship flies straight on before it turns. */
+        lead: number;
+        /** How tight the turn is: the radius of the curve it flies. */
+        radius: number;
+    }
+    | {
+        /** Flies at the closest hostile ship, swings round its far side, and flies out to the target. */
+        shape: 'slingshot';
+        /** How close to the hostile ship it swings round. */
+        radius: number;
+    }
+    | {
+        /** Moves straight, turning side-on towards the closest hostile ship half way along, then straightening up to face the way it's going. */
+        shape: 'broadside';
+    };
 
 export type LocationTargetCardDefinition = CommonCardDefinition & {
     targetType: 'location';
@@ -96,10 +155,19 @@ export type LocationTargetCardDefinition = CommonCardDefinition & {
     baseSpeed: number;
     baseRotationSpeed: number;
     /**
-     * Explicit lateral offsets at intermediate points, scaled by total distance.
-     * Positive values offset to the right of the movement direction, negative to the left.
+     * Which way to turn, both when rotating to startFacing before moving and for any turning during the movement.
+     * The shortest way round if not given, which is ambiguous for a turn of about 180 degrees: give it where that matters.
      */
-    perpendicularPositionOffsets?: number[];
+    turnDirection?: TurnDirection;
+    /** The route to fly, if it isn't a straight line to the target. Shapes that set the ship's facing themselves ignore startFacing and endFacing. */
+    path?: CardMotionPath;
+    /**
+     * How much of the turn the ship makes before it moves (towards startFacing, or the way a path sets off) it can leave to do while moving, in radians.
+     * The rest it turns on the spot first. If not given, it does all of that turn on the spot.
+     */
+    turnWhileMoving?: number;
+    /** How far to either side of the way the ship is facing the target can be, in radians. Anywhere, if not given. */
+    maxBearing?: number;
     minDistance?: number;
     maxDistance?: number;
 
@@ -116,4 +184,5 @@ export type CardDefinition<TCardKey extends string = CardType> = NoTargetCardDef
     | EnemyTargetCardDefinition
     | ScanTargetCardDefinition
     | SystemTargetCardDefinition
-    | LocationTargetCardDefinition;
+    | LocationTargetCardDefinition
+    | ShipTargetCardDefinition;

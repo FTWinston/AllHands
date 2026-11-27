@@ -19,7 +19,7 @@ export const designs = defineDesigns({
             'reactorPowerHull', 'reactorPowerHull', 'reactorPowerHull', 'reactorPowerTactical',
             'reactorPowerHelm', 'reactorPowerScience', 'reactorPowerEngineer', 'reactorPowerHelm', 'reactorPowerScience', 'reactorPowerEngineer'
         ), 0),
-        helm: system(['faceTarget', 'faceTarget', 'faceTarget']),
+        helm: system(['pivot', 'pivot', 'pivot']),
         tactical: { ...system(['photonTorpedo', 'photonTorpedo'], 0), numSlots: 1 },
         fleeThreshold: 0,
     },

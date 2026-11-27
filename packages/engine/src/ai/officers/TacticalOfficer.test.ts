@@ -201,6 +201,97 @@ describe('TacticalOfficer', () => {
         });
     });
 
+    describe('a Tractor Beam', () => {
+        /** The ship's slots, with the first holding a Tractor Beam, and the second the given weapon if any (loaded and fully charged), the target at the given distance. */
+        function createTow(second: string | null, targetDistance = 5) {
+            const world = createWorld(['tractorBeam', ...(second ? [second] : [])], targetDistance, 2);
+            const tactical = world.ship.tacticalState;
+            (tactical as { powerLevel: number }).powerLevel = 5;
+            const load = (type: string, index: number) => {
+                tactical.playCard(tactical.hand.find(candidate => candidate.type === type)!.id, type as never, 'weapon-slot', tactical.slots[index].id);
+                tactical.slots[index].addCharge(tactical.slots[index].getParameter('totalCharge'), 0);
+            };
+            load('tractorBeam', 0);
+            if (second) {
+                load(second, 1);
+            }
+            return { ...world, tactical, beam: tactical.slots[0], other: tactical.slots[1] };
+        }
+
+        it('is loaded into an empty slot', () => {
+            const { ship, officer, bb } = createWorld(['tractorBeam'], 5, 2);
+            officer.think(bb, 0);
+            expect(ship.tacticalState.slots[0].card?.type).toBe('tractorBeam');
+        });
+
+        it('is held when no other weapon can fire at the target', () => {
+            const { officer, bb, tactical, beam, other } = createTow(null);
+            const play = vi.spyOn(tactical, 'playCard');
+
+            officer.think(bb, 1000);
+            expect(beam.isActive).toBe(false);
+            expect(play).not.toHaveBeenCalled();
+
+            // Nor with one that's out of range, or still charging.
+            const loaded = createTow('phaserCannon', 15);
+            loaded.officer.think(loaded.bb, 1000);
+            expect(loaded.beam.isActive).toBe(false);
+            expect(other.card).toBeNull();
+        });
+
+        it('is fired first, then the weapon it sets up', () => {
+            const { enemy, officer, bb, beam, other } = createTow('phaserCannon');
+
+            officer.think(bb, 1000);
+            expect(beam.isActive).toBe(true);
+            expect(beam.activeTargetId).toBe(enemy.id);
+            expect(other.charge).toBe(other.getParameter('totalCharge'));
+
+            officer.think(bb, 2000);
+            expect(other.charge).toBe(other.getParameter('totalCharge') - other.getParameter('chargePerUse'));
+        });
+
+        it('is never fired again while active, or charged', () => {
+            const { officer, bb, tactical, beam } = createTow('phaserCannon');
+            officer.think(bb, 1000);
+            officer.think(bb, 2000);
+            expect(beam.isActive).toBe(true);
+
+            const fire = vi.spyOn(tactical, 'playWeapon');
+            const charge = vi.spyOn(tactical, 'chargeWeaponSlot');
+            beam.charge = 5;
+            for (let time = 3000; time < 12000; time += 1000) {
+                officer.think(bb, time);
+            }
+
+            expect(fire.mock.calls.filter(([slot]) => slot === beam)).toEqual([]);
+            expect(charge.mock.calls.filter(([, slotId]) => slotId === beam.id)).toEqual([]);
+        });
+
+        it('is never charged while loaded, once it has decayed', () => {
+            const { officer, bb, tactical, beam } = createTow(null);
+            beam.charge = 5;
+            const charge = vi.spyOn(tactical, 'chargeWeaponSlot');
+
+            officer.think(bb, 1000);
+
+            expect(charge).not.toHaveBeenCalled();
+        });
+
+        it('doesn\'t fire at a friend', () => {
+            const { state, ship, enemy, officer, bb, beam } = createTow('phaserCannon');
+            const friend = new AiShip(state, { ...shipSetup('raiders', 5, 1), goal: { type: 'search-and-destroy' }, skill: 1 });
+            state.add(friend);
+            ship.updateKnownObjects(0);
+            bb.targetId = friend.id;
+
+            officer.think(bb, 1000);
+
+            expect(beam.isActive).toBe(false);
+            expect(enemy.helmState.maneuverSpeedModifier).toBe(0);
+        });
+    });
+
     it('loads a weapon that reaches the target before one that doesn\'t', () => {
         const { ship, officer, bb } = createWorld(['phaserCannon', 'photonTorpedo'], 15);
 

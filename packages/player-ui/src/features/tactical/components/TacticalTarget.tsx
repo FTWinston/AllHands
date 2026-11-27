@@ -3,22 +3,28 @@ import { GameObjectInfo, ScannedHullInfo, SubTargetInfo } from 'common-data/feat
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import colorPalettes from 'common-ui/ColorPalette.module.css';
 import { classNames } from 'common-ui/utils/classNames';
+import { ContactLabel } from 'src/components/ContactLabel';
 import { TargetReadout } from 'src/components/TargetReadout';
 import { CardDropTarget } from 'src/features/cardui/components/CardDropTarget';
 import { ScannedShieldReadout } from 'src/features/shields/components/ScannedShieldReadout';
 import { ShieldedObjectIcon } from 'src/features/shields/components/ShieldedObjectIcon';
 import { getShieldPercentage } from 'src/features/shields/utils/getShieldPercentage';
+import { getLockPips, maxLockLevel } from '../utils/lockPips';
 import { SubTargetList } from './SubTargetList';
 import styles from './TacticalTarget.module.css';
 
 type Props = GameObjectInfo & {
     relationship: RelationshipType;
+    /** What the crew calls this contact, such as "Alpha": shown beside the name, which other contacts may share. */
+    contactLabel?: string;
     targetNumber: number;
     totalTargets: number;
     subTargets?: IArray<SubTargetInfo> | null;
     targetAspect?: number;
     /** This target's hull, if science is scanning it. */
     scannedHull?: ScannedHullInfo | null;
+    /** How much Lock is held against this target. Zero for every target but the locked one. */
+    lockLevel?: number;
 };
 
 export const TacticalTarget = (props: Props) => {
@@ -40,7 +46,10 @@ export const TacticalTarget = (props: Props) => {
 
             <div className={styles.name}>
                 <span className={styles.label}>Target</span>
-                <h2 className={styles.nameText}>{props.name}</h2>
+                <h2 className={styles.nameText}>
+                    <ContactLabel label={props.contactLabel} />
+                    {props.name}
+                </h2>
             </div>
 
             <div className={styles.count}>
@@ -56,6 +65,12 @@ export const TacticalTarget = (props: Props) => {
                     className={styles.image}
                 />
             </div>
+
+            {props.lockLevel !== undefined && props.lockLevel > 0 && (
+                <TargetReadout label="Lock" side="start" className={styles.lockReadout}>
+                    <span role="img" aria-label={`${props.lockLevel} of ${maxLockLevel}`}>{getLockPips(props.lockLevel)}</span>
+                </TargetReadout>
+            )}
 
             {props.scannedHull && (
                 <>

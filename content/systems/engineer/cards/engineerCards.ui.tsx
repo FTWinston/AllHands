@@ -5,11 +5,6 @@ import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
 import { cards as sharedCards } from './engineerCards.shared';
 
 export const cards = defineUiCards(sharedCards, {
-    smokeScreen: {
-        name: 'Smoke Screen',
-        description: 'Deploy a smoke screen to obscure vision and provide cover.',
-        image: <ExampleIcon />,
-    },
     auxPower: {
         name: 'Aux Power',
         description: <>
@@ -105,7 +100,15 @@ export const cards = defineUiCards(sharedCards, {
             {' '}
             <Parameter name="powerChange" />
             {' '}
-            power lower. Play it again to bring it back.
+            power lower, and gains
+            {' '}
+            <Parameter name="charge" />
+            {' '}
+            Charge every
+            {' '}
+            <Parameter name="interval" />
+            {' '}
+            seconds. Play it again to bring it back.
         </>,
         image: <ExampleIcon />,
     },
@@ -217,32 +220,321 @@ export const cards = defineUiCards(sharedCards, {
         </>,
         image: <ExampleIcon />,
     },
-    overcharge: {
-        name: 'Overcharge',
-        description: <>
-            Target system gains
-            <Parameter name="powerGain" />
-            {' '}
-            power for
-            <Parameter name="duration" />
-            {' '}
-            seconds, but takes damage every second for the duration.
-        </>,
-        image: <ExampleIcon />,
-    },
     shunt: {
         name: 'Shunt',
         description: 'Swap all status effects between a system and its horizontal neighbor, preserving cooldowns.',
         image: <ExampleIcon />,
     },
-    drawPriority: {
-        name: 'Draw Priority',
+    reactorPriority: {
+        name: 'Reactor Priority',
         description: <>
             Adds an
             {' '}
             <Trait trait="expendable" external />
             {' '}
             copy of this system's card before each regular card in the reactor deck.
+        </>,
+        image: <ExampleIcon />,
+    },
+    trickleCharge: {
+        name: 'Trickle Charge',
+        description: <>
+            A system gains
+            {' '}
+            <Parameter name="charge" />
+            {' '}
+            Charge, which stays until it's spent.
+        </>,
+        image: <ExampleIcon />,
+    },
+    bankPower: {
+        name: 'Bank Power',
+        description: <>
+            A system runs
+            {' '}
+            <Parameter name="powerChange" />
+            {' '}
+            power lower for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds. When that ends, it gains
+            {' '}
+            <Parameter name="charge" />
+            {' '}
+            Charge.
+        </>,
+        image: <ExampleIcon />,
+    },
+    discharge: {
+        name: 'Discharge',
+        description: <>
+            Spend all of a system's Charge: it gains
+            {' '}
+            <Parameter name="powerGain" />
+            {' '}
+            power per Charge for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds.
+        </>,
+        image: <ExampleIcon />,
+    },
+    surgeDraw: {
+        name: 'Surge Draw',
+        description: <>
+            Spend all of a system's Charge: it draws
+            {' '}
+            <Parameter name="cardsPerLevel" />
+            {' '}
+            card per Charge.
+        </>,
+        image: <ExampleIcon />,
+    },
+    redline: {
+        name: 'Redline',
+        description: <>
+            A system runs
+            {' '}
+            <Parameter name="powerGain" />
+            {' '}
+            power higher, and gains
+            {' '}
+            <Parameter name="flux" />
+            {' '}
+            Flux every
+            {' '}
+            <Parameter name="interval" />
+            {' '}
+            seconds. Play it again to stop.
+        </>,
+        image: <ExampleIcon />,
+    },
+    vent: {
+        name: 'Vent',
+        description: <>
+            Remove all Flux from every system. The hull is unpowered, so the shields are down, for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds.
+        </>,
+        image: <ExampleIcon />,
+    },
+    braceForImpact: {
+        name: 'Brace for Impact',
+        description: <>
+            For
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, hits on the hull do
+            {' '}
+            <Parameter name="hullDamageReduction" />
+            % less damage.
+        </>,
+        image: <ExampleIcon />,
+    },
+    railFeed: {
+        name: 'Rail Feed',
+        description: <>
+            Every system in a column gains
+            {' '}
+            <Parameter name="powerGain" />
+            {' '}
+            power for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds.
+        </>,
+        image: <ExampleIcon />,
+    },
+    coolantFlush: {
+        name: 'Coolant Flush',
+        description: 'Move all of a system\'s Flux to the hull.',
+        image: <ExampleIcon />,
+    },
+    burnout: {
+        name: 'Burnout',
+        description: <>
+            Spend all of a system's Flux: it gains
+            {' '}
+            <Parameter name="powerGain" />
+            {' '}
+            power per Flux for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, then resets.
+        </>,
+        image: <ExampleIcon />,
+    },
+    busLink: {
+        name: 'Bus Link',
+        description: <>
+            A system and its horizontal neighbour both run at the higher of their two power levels, for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds.
+        </>,
+        image: <ExampleIcon />,
+    },
+    daisyChain: {
+        name: 'Daisy Chain',
+        description: 'Copy a system\'s positive effects to the system below it. Charge and Aux Power aren\'t copied.',
+        image: <ExampleIcon />,
+    },
+    groundOut: {
+        name: 'Ground Out',
+        description: 'Move a system\'s negative effects to the hull.',
+        image: <ExampleIcon />,
+    },
+    juryRig: {
+        name: 'Jury-rig',
+        description: <>
+            Stabilise
+            {' '}
+            <Parameter name="cards" />
+            {' '}
+            damaged card in a system.
+        </>,
+        image: <ExampleIcon />,
+    },
+    fabricate: {
+        name: 'Fabricate',
+        description: <>
+            Put an
+            {' '}
+            <Trait trait="expendable" external />
+            {' '}
+            copy of the top card of a crew system's deck into its hand.
+        </>,
+        image: <ExampleIcon />,
+    },
+    priorityFeed: {
+        name: 'Priority Feed',
+        description: <>
+            A system draws
+            {' '}
+            <Parameter name="cards" />
+            {' '}
+            card now.
+        </>,
+        image: <ExampleIcon />,
+    },
+    buffer: {
+        name: 'Buffer',
+        description: <>
+            The next hit that would damage one of a system's cards spends
+            {' '}
+            <Parameter name="charge" />
+            {' '}
+            of its Charge instead.
+        </>,
+        image: <ExampleIcon />,
+    },
+    hotStart: {
+        name: 'Hot Start',
+        description: <>
+            A system draws
+            {' '}
+            <Parameter name="cards" />
+            {' '}
+            cards now, and gains
+            {' '}
+            <Parameter name="flux" />
+            {' '}
+            Flux.
+        </>,
+        image: <ExampleIcon />,
+    },
+    extremeMeasures: {
+        name: 'Extreme Measures',
+        description: 'Choose a desperate measure: auto-destruct, cannibalise a system, or emergency power.',
+        image: <ExampleIcon />,
+    },
+    autoDestruct: {
+        name: 'Auto-destruct',
+        description: <>
+            In
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds, the ship explodes, doing
+            {' '}
+            <Parameter name="damage" />
+            {' '}
+            damage to every ship within
+            {' '}
+            <Parameter name="range" />
+            {' '}
+            units, once
+            {' '}
+            <Parameter name="confirmations" />
+            {' '}
+            of the rest of the crew confirm it within
+            {' '}
+            <Parameter name="window" />
+            {' '}
+            seconds. Gives each of them a Confirm Auto-destruct card, and adds an Abort Auto-destruct card to your hand when it starts.
+        </>,
+        image: <ExampleIcon />,
+    },
+    confirmAutoDestruct: {
+        name: 'Confirm Auto-destruct',
+        description: <>
+            <Trait trait="expendable" />
+            {' '}
+            <Trait trait="priority" />
+            {' '}
+            Confirm the engineer's auto-destruct request.
+        </>,
+        image: <ExampleIcon />,
+    },
+    abortAutoDestruct: {
+        name: 'Abort Auto-destruct',
+        description: <>
+            <Trait trait="expendable" />
+            {' '}
+            <Trait trait="priority" />
+            {' '}
+            Stop the auto-destruct countdown.
+        </>,
+        image: <ExampleIcon />,
+    },
+    cannibalise: {
+        name: 'Cannibalise',
+        description: 'Damage every card of a system (other than the hull). Adds a Graft card to your hand.',
+        image: <ExampleIcon />,
+    },
+    graft: {
+        name: 'Graft',
+        description: <>
+            <Trait trait="expendable" />
+            {' '}
+            Fully repair as many of a system's damaged cards as Cannibalise damaged.
+        </>,
+        image: <ExampleIcon />,
+    },
+    emergencyPower: {
+        name: 'Emergency Power',
+        description: <>
+            Every system gains
+            {' '}
+            <Parameter name="powerGain" />
+            {' '}
+            power for
+            {' '}
+            <Parameter name="duration" />
+            {' '}
+            seconds. When that ends, each gains
+            {' '}
+            <Parameter name="flux" />
+            {' '}
+            Flux.
         </>,
         image: <ExampleIcon />,
     },

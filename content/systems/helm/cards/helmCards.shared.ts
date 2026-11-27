@@ -1,5 +1,11 @@
 import { defineCards } from 'common-data/content/SharedContent';
 import { CardMotionSegmentFacing } from 'common-data/features/cards/types/CardDefinition';
+import { evasivePatternDuration } from 'common-data/features/cards/utils/evasivePatterns';
+import { lockOnDuration, overdriveDuration, overdriveFlux, overdriveMomentum } from 'content/systems/helm/effects/helmEffects.shared';
+
+/** How much harder to hit a ship flying one of the evasive maneuver patterns is, and how much less accurate its own weapons are, in percentage points. */
+const evasivePatternEvasion = 40;
+const evasivePatternAccuracyLoss = 25;
 
 export const cards = defineCards({
     slowAndSteady: {
@@ -13,7 +19,7 @@ export const cards = defineCards({
         baseSpeed: 0.75,
         parameters: { cost: 1, evasion: 0 },
     },
-    fullReverse: {
+    backAway: {
         targetType: 'location',
         system: 'helm',
         // Rotate to face away from target, then reverse towards it
@@ -28,14 +34,26 @@ export const cards = defineCards({
     zigZag: {
         targetType: 'location',
         system: 'helm',
-        // Rotate to face target first, then zig-zag towards it
+        // Rotate to face target first, then zig-zag towards it, facing it the whole way
         startFacing: CardMotionSegmentFacing.FinalVector,
         endFacing: CardMotionSegmentFacing.FinalVector,
         baseRotationSpeed: 1.25,
-        baseSpeed: 1,
-        perpendicularPositionOffsets: [-0.15, 0.25, -0.25, 0.15],
-        minDistance: 3,
+        // Fast along the weave, as the path is over three times as long as the distance it covers
+        baseSpeed: 2.5,
+        // Fixed legs and width, so a longer move has more legs rather than a wider path
+        path: { shape: 'zigZag', legLength: 1.6, width: 2.5 },
+        minDistance: 4.5,
         parameters: { cost: 2, evasion: 25 },
+    },
+    sharpTurn: {
+        targetType: 'location',
+        system: 'helm',
+        // Carry straight on the way the ship faces, without turning on the spot first, then turn hard onto the target and fly straight to it
+        path: { shape: 'sharpTurn', lead: 3, radius: 0.75 },
+        baseRotationSpeed: 1.25,
+        baseSpeed: 1.5,
+        minDistance: 3,
+        parameters: { cost: 2, evasion: 30 },
     },
     strafe: {
         targetType: 'location',
@@ -43,49 +61,209 @@ export const cards = defineCards({
         // Don't rotate before moving, keep current heading throughout
         baseRotationSpeed: 1,
         baseSpeed: 0.4,
-        maxDistance: 4,
+        maxDistance: 6,
         parameters: { cost: 1, evasion: 15 },
     },
     sweep: {
         targetType: 'choice',
         system: 'helm',
         cards: ['sweepLeft', 'sweepRight'],
-        parameters: { cost: 2 },
+        // The same as its options have: the evasion of a maneuver is read from the card that was played, which is this one
+        parameters: { cost: 2, evasion: 15 },
     },
     sweepLeft: {
         targetType: 'location',
         system: 'helm',
-        startFacing: CardMotionSegmentFacing.FinalVector,
-        startFacingOffset: -Math.PI / 4, // Start facing 45 degrees left of destination
-        endFacing: CardMotionSegmentFacing.FinalVector,
-        endFacingOffset: Math.PI / 4, // End facing 45 degrees right of destination
+        // Curves anticlockwise, bulging out to the right of the line to the target. Most of the turning is done early, leaving a short final leg.
+        path: { shape: 'sweep', turn: 'left', startOffset: 60 * Math.PI / 180, turnAngle: 100 * Math.PI / 180, turnFraction: 0.8 },
         baseRotationSpeed: 1,
         baseSpeed: 1,
-        // Sine curve bulging right (positive = right of movement direction)
-        perpendicularPositionOffsets: [0.14, 0.26, 0.35, 0.39, 0.39, 0.35, 0.26, 0.14],
         parameters: { cost: 2, evasion: 15 },
     },
     sweepRight: {
         targetType: 'location',
         system: 'helm',
-        startFacing: CardMotionSegmentFacing.FinalVector,
-        startFacingOffset: Math.PI / 4, // Start facing 45 degrees right of destination
-        endFacing: CardMotionSegmentFacing.FinalVector,
-        endFacingOffset: -Math.PI / 4, // End facing 45 degrees left of destination
+        // Curves clockwise, bulging out to the left of the line to the target. Most of the turning is done early, leaving a short final leg.
+        path: { shape: 'sweep', turn: 'right', startOffset: 60 * Math.PI / 180, turnAngle: 100 * Math.PI / 180, turnFraction: 0.8 },
         baseRotationSpeed: 1,
         baseSpeed: 1,
-        // Sine curve bulging left (negative = left of movement direction)
-        perpendicularPositionOffsets: [-0.14, -0.26, -0.35, -0.39, -0.39, -0.35, -0.26, -0.14],
         parameters: { cost: 2, evasion: 15 },
     },
-    faceTarget: {
+    pivot: {
         targetType: 'location',
         system: 'helm',
-        // Rotate to face the target, no movement
+        // Turn on the spot to face the target, no movement, twice as fast as anything else turns
         startFacing: CardMotionSegmentFacing.FinalVector,
-        baseRotationSpeed: 1,
+        baseRotationSpeed: 2,
         baseSpeed: 0,
         parameters: { cost: 1, evasion: 0 },
+    },
+    burn: {
+        targetType: 'location',
+        system: 'helm',
+        // Rotate to face target first, then move straight towards it, fast
+        startFacing: CardMotionSegmentFacing.FinalVector,
+        endFacing: CardMotionSegmentFacing.FinalVector,
+        baseRotationSpeed: 1,
+        baseSpeed: 1.5,
+        minDistance: 6,
+        // momentum: the levels of Momentum gained by playing it
+        parameters: { cost: 2, evasion: 10, momentum: 2 },
+    },
+    punchIt: {
+        targetType: 'location',
+        rarity: 'uncommon',
+        system: 'helm',
+        // Race straight to a target ahead of the ship, turning as it goes rather than on the spot first
+        startFacing: CardMotionSegmentFacing.FinalVector,
+        endFacing: CardMotionSegmentFacing.FinalVector,
+        turnWhileMoving: Math.PI / 4,
+        maxBearing: Math.PI / 4,
+        baseRotationSpeed: 1.5,
+        baseSpeed: 2,
+        minDistance: 3,
+        // speedPerMomentum: percentage of extra speed for each level of Momentum held; evasionPerMomentum: extra evasion for each level
+        parameters: { cost: 2, evasion: 10, speedPerMomentum: 25, evasionPerMomentum: 8 },
+    },
+    overdrive: {
+        targetType: 'no-target',
+        rarity: 'rare',
+        system: 'helm',
+        // Not a maneuver: the engines are pushed past their limit for a while (see the overdrive effect).
+        // duration: how long it lasts, in seconds; momentum: the extra levels of Momentum, and flux: the levels of Flux on the helm system, from each maneuver started meanwhile
+        parameters: { cost: 1, duration: overdriveDuration / 1000, momentum: overdriveMomentum, flux: overdriveFlux },
+    },
+    // Hairpin's and Juke's paths are in common-data (`momentumManeuvers`), so that the helm can preview them
+    hairpin: {
+        targetType: 'no-target',
+        rarity: 'uncommon',
+        system: 'helm',
+        // distance: how far the ship flies back the way it came, once turned; distancePerMomentum: how much further, for each level of Momentum it spends; evasionPerMomentum: extra evasion, while it does, for each level spent
+        parameters: { cost: 2, evasion: 10, distance: 2, distancePerMomentum: 1.5, evasionPerMomentum: 8 },
+    },
+    juke: {
+        targetType: 'no-target',
+        system: 'helm',
+        // momentumCost: the levels of Momentum it spends, without which it can't be played; distance: how far the ship steps sideways
+        parameters: { cost: 1, evasion: 40, momentumCost: 2, distance: 1.5 },
+    },
+    drift: {
+        targetType: 'location',
+        rarity: 'uncommon',
+        system: 'helm',
+        // The path isn't made from these: it slides the way the ship is already going (see `calculateDriftPath`), so neither speed nor rotation applies.
+        baseRotationSpeed: 0,
+        baseSpeed: 0,
+        // minMomentum: the levels of Momentum it needs, to be played; distancePerMomentum: how far the ship slides for each level of Momentum it spends; evasionPerMomentum: extra evasion, while it does, for each level spent
+        parameters: { cost: 2, evasion: 0, minMomentum: 1, distancePerMomentum: 1.5, evasionPerMomentum: 8 },
+    },
+    evasiveManeuvers: {
+        targetType: 'choice',
+        rarity: 'common',
+        system: 'helm',
+        cards: ['patternAlpha', 'patternBeta', 'patternGamma'],
+        // The same as its options have: the evasion of a maneuver is read from the card that was played, which is this one
+        parameters: { cost: 2, evasion: evasivePatternEvasion },
+    },
+    // Each pattern's path is in common-data (`calculatePatternPath`), so that the helm can preview it
+    patternAlpha: {
+        targetType: 'no-target',
+        system: 'helm',
+        // accuracyLoss: percentage points taken off the accuracy of the ship's own weapons; duration: how long the pattern takes, in seconds
+        parameters: { cost: 2, evasion: evasivePatternEvasion, accuracyLoss: evasivePatternAccuracyLoss, duration: evasivePatternDuration / 1000 },
+    },
+    patternBeta: {
+        targetType: 'no-target',
+        system: 'helm',
+        parameters: { cost: 2, evasion: evasivePatternEvasion, accuracyLoss: evasivePatternAccuracyLoss, duration: evasivePatternDuration / 1000 },
+    },
+    patternGamma: {
+        targetType: 'no-target',
+        system: 'helm',
+        parameters: { cost: 2, evasion: evasivePatternEvasion, accuracyLoss: evasivePatternAccuracyLoss, duration: evasivePatternDuration / 1000 },
+    },
+    broadside: {
+        targetType: 'location',
+        system: 'helm',
+        // Turn to face the target (finishing the turn on the move), then turn side-on towards the closest hostile ship half way along, and straighten up again
+        path: { shape: 'broadside' },
+        turnWhileMoving: 35 * Math.PI / 180,
+        baseRotationSpeed: 1,
+        baseSpeed: 1,
+        parameters: { cost: 1, evasion: 0 },
+    },
+    slingshot: {
+        targetType: 'location',
+        rarity: 'uncommon',
+        system: 'helm',
+        // Fly at the closest hostile ship, swing round its far side, and out to the target. Can't be played with no hostile ship about.
+        path: { shape: 'slingshot', radius: 2 },
+        turnWhileMoving: 35 * Math.PI / 180,
+        baseRotationSpeed: 1.25,
+        baseSpeed: 1.75,
+        minDistance: 3,
+        // momentum: the levels of Momentum gained by playing it
+        parameters: { cost: 3, evasion: 30, momentum: 2 },
+    },
+    lockOn: {
+        targetType: 'ship',
+        targetRelationship: 'hostile',
+        system: 'helm',
+        // accuracy: percentage points added to the accuracy of the ship's own weapons; duration: how long the ship holds still, turning to face the target ship, in seconds
+        parameters: { cost: 2, evasion: 0, accuracy: 20, duration: lockOnDuration / 1000 },
+    },
+    standOff: {
+        targetType: 'ship',
+        targetRelationship: 'hostile',
+        system: 'helm',
+        // duration: how long the ship keeps its distance, in seconds; range: how far from the target ship it keeps, at least, in units. It keeps the range it starts at, if that's further.
+        parameters: { cost: 2, evasion: 5, duration: 8, range: 8 },
+    },
+    orbit: {
+        targetType: 'ship',
+        system: 'helm',
+        // duration: how long the ship keeps circling the target ship, in seconds; momentum: the levels of Momentum gained after every momentumInterval seconds of it
+        parameters: { cost: 2, evasion: 15, duration: 10, momentum: 1, momentumInterval: 3 },
+    },
+    circleStrafe: {
+        targetType: 'ship',
+        targetRelationship: 'hostile',
+        rarity: 'rare',
+        system: 'helm',
+        // duration: how long the ship keeps circling the target ship, facing it all the while, in seconds
+        parameters: { cost: 5, evasion: 15, duration: 8 },
+    },
+    interpose: {
+        targetType: 'ship',
+        targetRelationship: 'friendly',
+        rarity: 'uncommon',
+        system: 'helm',
+        // duration: how long the ship holds its place between the target ship and the hostile ship closest to it, in seconds
+        parameters: { cost: 2, evasion: 0, duration: 8 },
+    },
+    shadow: {
+        targetType: 'ship',
+        targetRelationship: 'hostile',
+        rarity: 'uncommon',
+        system: 'helm',
+        // duration: how long the ship keeps to the target ship's rear arc, in seconds; rearArc: how many degrees either side of straight behind the target that arc reaches
+        parameters: { cost: 2, evasion: 10, duration: 8, rearArc: 60 },
+    },
+    pirouette: {
+        targetType: 'ship',
+        targetRelationship: 'hostile',
+        rarity: 'rare',
+        system: 'helm',
+        // momentumCost: the levels of Momentum it spends, without which it can't be played; radius: how close round the target ship it goes, in units
+        parameters: { cost: 2, evasion: 30, momentumCost: 3, radius: 2 },
+    },
+    attackRun: {
+        targetType: 'ship',
+        targetRelationship: 'hostile',
+        rarity: 'uncommon',
+        system: 'helm',
+        // duration: how long the maneuver lasts, in seconds; power: how much extra power tactical has while it does; passDistance: how far beside the target ship it passes, and behind it it ends, in units
+        parameters: { cost: 3, evasion: 15, duration: 8, power: 1, passDistance: 2.5 },
     },
     warpAway: {
         targetType: 'no-target',

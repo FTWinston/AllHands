@@ -191,6 +191,37 @@ describe('SystemState between encounters', () => {
     });
 });
 
+describe('The engineer\'s tile for a system', () => {
+    function tileCounts(ship: PlayerShip) {
+        const tile = ship.engineerState.systems.find(tile => tile.system === 'tactical')!;
+        const { health, maxHealth, stabilised, damaged, critical } = tile;
+        return { health, maxHealth, stabilised, damaged, critical };
+    }
+
+    it('counts the system\'s stabilised, damaged and critically damaged cards as they change', () => {
+        const { ship, system } = createDeck();
+        expect(tileCounts(ship)).toEqual({ health: 5, maxHealth: 5, stabilised: 0, damaged: 0, critical: 0 });
+
+        system.adjustHealth(-2);
+        expect(tileCounts(ship)).toEqual({ health: 3, maxHealth: 5, stabilised: 0, damaged: 2, critical: 0 });
+
+        // Damaged cards are stabilised between encounters.
+        ship.cleanupAfterEncounter();
+        expect(tileCounts(ship)).toEqual({ health: 5, maxHealth: 5, stabilised: 2, damaged: 0, critical: 0 });
+
+        // Once every card is damaged, the stabilised ones are critically damaged, and the others can be repaired.
+        system.adjustHealth(-5);
+        expect(tileCounts(ship)).toEqual({ health: 0, maxHealth: 5, stabilised: 0, damaged: 3, critical: 2 });
+
+        // Repairing a damaged card stabilises it.
+        system.adjustHealth(1);
+        expect(tileCounts(ship)).toEqual({ health: 1, maxHealth: 5, stabilised: 1, damaged: 2, critical: 2 });
+
+        system.fullyRepair();
+        expect(tileCounts(ship)).toEqual({ health: 5, maxHealth: 5, stabilised: 0, damaged: 0, critical: 0 });
+    });
+});
+
 describe('SystemState damage', () => {
     function damageOrder(random: IRandom) {
         const { system } = createDeck(random);

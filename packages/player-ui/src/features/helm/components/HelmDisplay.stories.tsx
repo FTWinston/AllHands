@@ -1,6 +1,7 @@
-import { GameObjectInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { GameObjectInfo, RelationshipViewer } from 'common-data/features/space/types/GameObjectInfo';
 import { Keyframes } from 'common-data/features/space/types/Keyframes';
 import { Position } from 'common-data/features/space/types/Position';
+import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { useLoopingKeyframes } from 'common-ui/hooks/useLoopingKeyframes';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { useMemo, useState } from 'react';
@@ -8,6 +9,26 @@ import { fn } from 'storybook/test';
 import { useFakePowerAndCards } from '../../engineer/components/EngineerDisplay.stories';
 import { HelmDisplay as Component } from './HelmDisplay';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+
+/** Ships for ship cards (such as Orbit) to be dragged towards: a hostile one, and a friendly one. */
+const otherShips: Record<string, GameObjectInfo> = {
+    raider: {
+        id: 'raider',
+        name: 'Raider',
+        appearance: 'kite-scout',
+        faction: 'raiders',
+        motion: [{ time: 0, x: 4, y: -3, angle: Math.PI }],
+    },
+    ally: {
+        id: 'ally',
+        name: 'Ally',
+        appearance: 'chevron',
+        faction: 'player',
+        motion: [{ time: 0, x: -3, y: 4, angle: 0 }],
+    },
+};
+
+const viewer: RelationshipViewer = { shipId: 'playerShip', faction: 'player', relations: { raiders: RelationshipType.Hostile } };
 
 const meta: Meta<typeof Component> = {
     title: 'player-ui/Helm/UI',
@@ -49,6 +70,7 @@ const meta: Meta<typeof Component> = {
                 faction: 'player',
                 motion: center,
             },
+            ...otherShips,
         }), [center]);
 
         const weaponEffectsRef = useWeaponEffects(null);
@@ -61,7 +83,7 @@ const meta: Meta<typeof Component> = {
                 cards={cards}
                 center={center}
                 objects={objects}
-                viewer={{ shipId: 'playerShip', faction: 'player', relations: null }}
+                viewer={viewer}
                 activeManeuver={activeManeuver}
                 cancelManeuver={() => setActiveManeuver(null)}
                 playCard={(cardId, targetType, targetId) => {
@@ -96,7 +118,7 @@ export const UI: Story = {
         cards: [
             {
                 id: 1,
-                type: 'exampleNoTarget',
+                type: 'lockOn',
             },
             {
                 id: 2,
@@ -106,8 +128,35 @@ export const UI: Story = {
                 id: 3,
                 type: 'zigZag',
             },
+            {
+                id: 4,
+                type: 'orbit',
+            },
         ],
         objects: {},
         power: 5,
+    },
+};
+
+/** The ship has built Momentum, and has been still long enough that the ring around it is half drained. */
+export const WithMomentum: Story = {
+    args: {
+        ...UI.args,
+        momentumLevel: 3,
+        momentumFade: { startTime: Date.now() - 30_000, endTime: Date.now() + 30_000 },
+        cards: [
+            { id: 1, type: 'burn' },
+            { id: 2, type: 'punchIt' },
+            { id: 3, type: 'drift' },
+            { id: 4, type: 'slowAndSteady' },
+        ],
+    },
+};
+
+/** The ship has no Momentum, so there's nothing to drift with. */
+export const NoMomentum: Story = {
+    args: {
+        ...UI.args,
+        momentumLevel: 0,
     },
 };

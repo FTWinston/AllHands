@@ -163,7 +163,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
         for (const [objectId, object] of this.gameState.objects.entries()) {
             const objectPosition = object.getPosition(currentTime);
-            const inRange = distanceSq(ownPosition, objectPosition) <= this.detectionRangeSq;
+            const inRange = distanceSq(ownPosition, objectPosition) <= this.detectionRangeSq || this.isRevealed(objectId, currentTime);
 
             if (inRange && !this._knownObjects.has(objectId)) {
                 this.addKnownObject(objectId, object);
@@ -174,6 +174,25 @@ export abstract class Ship extends MobileObject implements ShipInfo {
     }
 
     private readonly _knownObjects = new Set<string>();
+
+    /** Objects that this ship knows of until the given game time, whatever their range (see `revealObject`). */
+    private readonly revealedUntil = new Map<string, number>();
+
+    /** Make this ship know of an object, wherever it is, for the given time, rather than only while it's within detection range. */
+    revealObject(objectId: string, durationMs: number) {
+        const currentTime = this.gameState.currentTime;
+        this.revealedUntil.set(objectId, currentTime + durationMs);
+        this.updateKnownObjects(currentTime);
+    }
+
+    private isRevealed(objectId: string, currentTime: number): boolean {
+        const endTime = this.revealedUntil.get(objectId);
+        if (endTime !== undefined && endTime <= currentTime) {
+            this.revealedUntil.delete(objectId);
+            return false;
+        }
+        return endTime !== undefined;
+    }
 
     get knownObjects(): ReadonlySet<string> {
         return this._knownObjects;
@@ -195,6 +214,12 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         this._knownObjects.delete(objectId);
         this.tacticalState.subTargetsByTarget.delete(objectId);
         this.scienceState.forgetShip(objectId);
+        this.contactForgotten(objectId);
+    }
+
+    /** Called as an object that this ship knew of has left the game, once everything else about it has been forgotten. */
+    protected contactForgotten(_objectId: string) {
+        // Only player ships label the contacts they know of.
     }
 
     override damage(damage: Damage): number {
@@ -202,7 +227,8 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         // so that every hit uses up the same random numbers, and aiming doesn't change what comes out of the game's random after it.
         const randomSystem = this.random.pick(shipSystems);
         if (!damage.targetSystem) {
-            damage.targetSystem = randomSystem;
+            // A hit that spares the hull can't land on it, so picks again from the other systems.
+            damage.targetSystem = damage.sparesHull && randomSystem === 'hull' ? this.random.pick(shipSystems.filter(system => system !== 'hull')) : randomSystem;
         }
 
         // A friendly ship that has extended its shields over this one takes the hit on them first. Whatever they let through then meets this ship's own.
@@ -219,6 +245,9 @@ export abstract class Ship extends MobileObject implements ShipInfo {
 
         if (damage.targetSystem === 'hull') {
             // If targeting the hull, or it's what was randomly picked, all damage goes there.
+            targetSystemDamage = remainingAmount;
+        } else if (damage.sparesHull) {
+            // The hull takes none of it: the system takes what would have been shared with it.
             targetSystemDamage = remainingAmount;
         } else {
             // TODO: Torpedo weapons should do more damage to the hull than energy weapons,
@@ -239,7 +268,7 @@ export abstract class Ship extends MobileObject implements ShipInfo {
             .applyDamage.invoke(targetSystemDamage);
 
         for (const trait of damage.traits) {
-            applyWeaponTrait(trait, this, targetSystem);
+            applyWeaponTrait(trait, targetSystem, damage);
         }
 
         return remainingAmount;
@@ -294,6 +323,17 @@ export abstract class Ship extends MobileObject implements ShipInfo {
         }
 
         return nearest;
+    }
+
+    /** Every other ship within the given distance, whatever its relationship to this one. */
+    shipsWithin(range: number): Ship[] {
+        const currentTime = this.gameState.currentTime;
+        const ownPosition = this.getPosition(currentTime);
+        const rangeSq = range ** 2;
+
+        return [...this.gameState.objects.values()].filter((other): other is Ship => other !== this
+            && other instanceof Ship
+            && distanceSq(ownPosition, other.getPosition(currentTime)) <= rangeSq);
     }
 
     /** Called whenever this ship is hit, just before the damage is applied. */

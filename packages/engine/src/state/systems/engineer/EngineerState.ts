@@ -30,7 +30,11 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
 
     @type([EngineerSystemTile]) systems = new ArraySchema<EngineerSystemTile>();
 
-    @type('uint8') maxRepairCapacity = 50;
+    /** Sized against systems' max health (8 for a crew station, 12 for the hull, 18 for the reactor), so a full meter is a lot of repair, but not all of it. */
+    @type('uint8') maxRepairCapacity = 12;
+
+    /** How much capacity a card played onto the "repair" target adds: a third of a full meter, or half a crew station's health. */
+    static readonly repairCapacityPerCard = 4;
 
     /**
      * How much to repair when repairing a system. Consumed when repairing, and recharged by playing cards onto the "repair" (fake) system target.
@@ -71,9 +75,12 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
      */
     private removeExpiredEffects(currentTime: number) {
         for (const tile of this.systems) {
-            for (let i = tile.effects.length - 1; i >= 0; i--) {
-                const effect = tile.effects[i];
-                if (effect.progress && currentTime >= effect.progress.endTime) {
+            // Removing one effect can add or remove others on the same tile (e.g. Emergency Power leaves Flux, which can damage a card), so find them all first.
+            const expired = tile.effects.filter(effect => effect.progress && currentTime >= effect.progress.endTime);
+
+            for (let i = expired.length - 1; i >= 0; i--) {
+                const effect = expired[i];
+                if (tile.effects.includes(effect)) {
                     tile.removeEffect(effect.type, 'expired');
                 }
             }
@@ -126,7 +133,7 @@ export class EngineerState extends CrewSystemState implements EngineerSystemInfo
                 return null;
             }
 
-            this.repairCapacity = Math.min(this.repairCapacity + 10, this.maxRepairCapacity);
+            this.repairCapacity = Math.min(this.repairCapacity + EngineerState.repairCapacityPerCard, this.maxRepairCapacity);
 
             this.handlePlayedCard(found.card, found.cardIndex, false);
 

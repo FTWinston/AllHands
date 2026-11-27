@@ -1,13 +1,14 @@
 import { ClientArray } from '@colyseus/core';
 import { Schema, type, view, ArraySchema } from '@colyseus/schema';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
-import { CrewRole, ownHelmClientRole, ownScienceClientRole as scienceClientRole, ownTacticalClientRole, ownEngineerClientRole, ownShipClientRole, otherShipClientRole, otherHelmClientRole, otherTacticalClientRole, otherScienceClientRole } from 'common-data/features/ships/types/CrewRole';
+import { CrewRole, ownHelmClientRole, ownScienceClientRole as scienceClientRole, ownTacticalClientRole, ownEngineerClientRole, ownShipClientRole, otherShipClientRole, otherHelmClientRole, otherTacticalClientRole, otherScienceClientRole, knowsGhostClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { WeaponEffect } from 'common-data/features/space/types/WeaponEffect';
 import { GameObject } from './GameObject';
 import { GameState } from './GameState';
 import { PlayerShip } from './PlayerShip';
 import { PromptState } from './PromptState';
+import { SensorGhost } from './SensorGhost';
 import { Ship } from './Ship';
 
 export class CrewState extends Schema {
@@ -167,29 +168,36 @@ export class CrewState extends Schema {
     /**
      * Add a game object to the viewscreen, helm and tactical clients' views.
      * (Only add to tactical & science if it's a ship, since that's currently the only thing that can be targeted.)
+     *
+     * A sensor ghost is the exception to that: ships it fools are sent it as they are a ship, in every view, with nothing to tell it apart.
+     * Everyone else is sent it as a ghost, to the viewscreen and helm only, so it can be drawn, and isn't offered as a target.
      */
     addObjectToViews(object: GameObject): void {
         if (!this.clients || object === this.ship) {
             return;
         }
 
+        const fooled = !(object instanceof SensorGhost) || (this.ship !== null && object.isTakenForShipBy(this.ship));
+        const ghostTag = fooled ? 0 : knowsGhostClientRole;
+        const targetable = fooled && (object instanceof Ship || object instanceof SensorGhost);
+
         const shipClient = this.clients.getById(this.shipClientId);
         if (shipClient?.view && !shipClient.view.has(object)) {
-            shipClient.view.add(object, otherShipClientRole);
+            shipClient.view.add(object, otherShipClientRole | ghostTag);
         }
 
         const helmClient = this.clients.getById(this.helmClientId);
         if (helmClient?.view && !helmClient.view.has(object)) {
-            helmClient.view.add(object, otherHelmClientRole);
+            helmClient.view.add(object, otherHelmClientRole | ghostTag);
         }
 
         const tacticalClient = this.clients.getById(this.tacticalClientId);
-        if (tacticalClient?.view && !tacticalClient.view.has(object) && object instanceof Ship) {
+        if (tacticalClient?.view && !tacticalClient.view.has(object) && targetable) {
             tacticalClient.view.add(object, otherTacticalClientRole);
         }
 
         const scienceClient = this.clients.getById(this.scienceClientId);
-        if (scienceClient?.view && !scienceClient.view.has(object) && object instanceof Ship) {
+        if (scienceClient?.view && !scienceClient.view.has(object) && targetable) {
             scienceClient.view.add(object, otherScienceClientRole);
         }
     }

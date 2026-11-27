@@ -16,6 +16,7 @@ const meta: Meta<typeof Component> = {
         modifierSlot: null,
         substanceSlot: null,
         deliverySlot: null,
+        insight: 0,
         viewer: { shipId: null, faction: 'player', relations: { raiders: RelationshipType.Hostile } },
     },
     render: (args) => {
@@ -24,7 +25,7 @@ const meta: Meta<typeof Component> = {
             cards: args.cards || [],
             createCard: (id: number) => ({
                 id,
-                type: 'exampleNoTarget',
+                type: 'jam',
             }),
         });
 
@@ -58,7 +59,7 @@ export const UI: Story = {
             },
             {
                 id: 3,
-                type: 'exampleNoTarget',
+                type: 'jam',
             },
         ],
         systemOrderByTarget: {
@@ -133,5 +134,43 @@ export const UI: Story = {
         ],
         power: 5,
         closeRevealedSystem: fn(),
+    },
+};
+
+/** Holding 2 Insight: Predictive Model and Catalyse can be played, but Eureka (which costs 3) can't. */
+export const Insight: Story = {
+    args: {
+        ...UI.args,
+        insight: 2,
+        cards: [
+            {
+                id: 1,
+                type: 'eureka',
+            },
+            {
+                id: 2,
+                type: 'predictiveModel',
+            },
+            {
+                id: 3,
+                type: 'catalyse',
+            },
+            {
+                id: 5,
+                type: 'deepScan',
+            },
+        ],
+    },
+};
+
+/** Scanning nothing: the cards that need a scanned ship or system can't be played. */
+export const NothingScanned: Story = {
+    args: {
+        ...UI.args,
+        insight: 5,
+        scannedShipId: null,
+        scannedHull: null,
+        scannedHelm: null,
+        cards: Insight.args?.cards,
     },
 };

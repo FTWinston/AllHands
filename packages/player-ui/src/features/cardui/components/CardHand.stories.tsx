@@ -62,6 +62,12 @@ const meta: Meta<typeof CardHand> = {
                         >
                             Weapon drop
                         </CardDropTarget>
+                        <CardDropTarget
+                            id="ship-drop"
+                            targetType="ship"
+                        >
+                            Ship drop
+                        </CardDropTarget>
                     </div>
 
                     <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', gap: '1em' }}>
@@ -129,7 +135,7 @@ export const Three: Story = {
             },
             {
                 id: 3,
-                type: 'exampleEnemyTarget',
+                type: 'acquireLock',
             },
         ],
     },
@@ -167,7 +173,7 @@ export const Five: Story = {
             },
             {
                 id: 2,
-                type: 'exampleNoTarget',
+                type: 'jam',
             },
             {
                 id: 3,
@@ -194,7 +200,7 @@ export const Nine: Story = {
             },
             {
                 id: 2,
-                type: 'exampleNoTarget',
+                type: 'jam',
             },
             {
                 id: 3,
@@ -210,11 +216,11 @@ export const Nine: Story = {
             },
             {
                 id: 6,
-                type: 'exampleEnemyTarget',
+                type: 'acquireLock',
             },
             {
                 id: 7,
-                type: 'exampleNoTarget',
+                type: 'jam',
             },
             {
                 id: 8,

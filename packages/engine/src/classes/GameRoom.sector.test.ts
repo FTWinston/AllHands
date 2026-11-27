@@ -1,13 +1,14 @@
 import { ExtraTraitType } from 'common-data/features/cards/types/ExtraTraitType';
 import { getHailDuration } from 'common-data/features/sectors/types/HailInfo';
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
-import { cardSellPrice } from 'common-data/features/ships/utils/antimatter';
+import { cardSellPrice, minDeckSize } from 'common-data/features/ships/utils/antimatter';
 import { RelationshipType } from 'common-data/features/space/types/RelationshipType';
 import { offerAnswers, offerAtMs } from 'content/sectors/sector1/slowBoat/slowBoat.engine';
 import { playerFactionId } from 'src/campaign/factions';
 import { getCardDefinition } from 'src/cards/getEngineCardDefinition';
 import { DEV_TOOLS_ENABLED } from 'src/devTools';
 import { CrewState } from 'src/state/CrewState';
+import { SensorGhost } from 'src/state/SensorGhost';
 import { setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it, vi } from 'vitest';
@@ -221,10 +222,17 @@ describe('GameRoom campaign messages', () => {
         expect(ship.tacticalState.deck.length).toBe(tacticalCount - 1);
         expect(ship.antimatter).toBe(cardSellPrice);
 
-        // Helm's deck is already at the minimum size.
+        // Helm can sell down to the minimum deck size, and no further.
+        const helmSales = helmOrder.length - minDeckSize;
+        for (let sale = 0; sale < helmSales; sale++) {
+            await send(room, clients.helm, 'sellDeckCard', { cardId: ship.helmState.deck[0].id });
+        }
+        expect(ship.helmState.deck.length).toBe(minDeckSize);
+        expect(ship.antimatter).toBe(cardSellPrice * (1 + helmSales));
+
         await send(room, clients.helm, 'sellDeckCard', { cardId: ship.helmState.deck[0].id });
-        expect(ship.helmState.deck.length).toBe(helmOrder.length);
-        expect(ship.antimatter).toBe(cardSellPrice);
+        expect(ship.helmState.deck.length).toBe(minDeckSize);
+        expect(ship.antimatter).toBe(cardSellPrice * (1 + helmSales));
     });
 
     it('sends an order preview only to the crew member who asked for it', async () => {
@@ -574,18 +582,18 @@ describe('GameRoom game start', () => {
     });
 
     it('counts the card types the ship client already knows as seen, ignoring anything that cannot be known', async () => {
-        const { ship } = await startGame({ knownCardTypes: ['purge', 'warpAway', 'notACard', 7, 'zigZag'] });
+        const { ship } = await startGame({ knownCardTypes: ['shunt', 'warpAway', 'notACard', 7, 'lowYield'] });
 
-        expect(ship.seenCardTypes).toContain('purge');
-        expect(ship.seenCardTypes).toContain('zigZag');
+        expect(ship.seenCardTypes).toContain('shunt');
+        expect(ship.seenCardTypes).toContain('lowYield');
         expect(ship.seenCardTypes).not.toContain('warpAway');
         expect(ship.seenCardTypes).not.toContain('notACard');
     });
 
     it('ignores known card types sent as anything other than a list', async () => {
-        const { ship } = await startGame({ knownCardTypes: 'purge' });
+        const { ship } = await startGame({ knownCardTypes: 'shunt' });
 
-        expect(ship.seenCardTypes).not.toContain('purge');
+        expect(ship.seenCardTypes).not.toContain('shunt');
     });
 });
 
@@ -664,5 +672,62 @@ describe('GameRoom player ship destruction', () => {
 
         expect(room.state.gameStatus).toBe('active');
         expect(addToView).not.toHaveBeenCalledWith(lostShip, expect.anything());
+    });
+});
+
+describe('GameRoom sensor ghosts', () => {
+    async function startEncounter() {
+        const game = await startGame();
+        await send(game.room, game.clients.tactical, 'dismissMessage');
+        await send(game.room, game.clients.helm, 'playNonEncounterCard', { cardId: game.ship.helmState.nonEncounterCards[0].id });
+        expect(game.state.phase).toBe('encounter');
+        game.ship.tick(0, game.state.currentTime);
+        return game;
+    }
+
+    /** What a client has been sent of an object, or undefined if it has been sent nothing. */
+    function sent(client: TestClient, id: string) {
+        return (client.state as GameRoom['state']).objects.get(id) as (SensorGhost & Record<string, unknown>) | undefined;
+    }
+
+    it('is sent to every client of a crew it fools exactly as the ship it copies is, with nothing to say it is a ghost', async () => {
+        const { state, ship, shipClient, clients } = await startEncounter();
+        const [enemy] = getHostileShips(state);
+        const ghost = new SensorGhost(state, enemy, 15_000);
+        state.add(ghost);
+
+        // Known to the ship wherever it is, so that it's sent to its crew.
+        ship.revealObject(ghost.id, 60_000);
+        ship.revealObject(enemy.id, 60_000);
+
+        for (const client of [shipClient, clients.helm, clients.tactical, clients.science]) {
+            await vi.waitFor(() => expect(sent(client, ghost.id)).toBeDefined());
+
+            const ghostData = sent(client, ghost.id)!;
+            const enemyData = sent(client, enemy.id)!;
+            expect(ghostData.isSensorGhost).toBeUndefined();
+            expect(ghostData.faction).toBe(enemyData.faction);
+            expect(ghostData.name).toBe(enemyData.name);
+            expect(ghostData.appearance).toBe(enemyData.appearance);
+        }
+    });
+
+    it('is sent to the helm and viewscreen of its own side as a ghost, and not to its tactical and science, which can only target ships', async () => {
+        const { state, ship, shipClient, clients } = await startEncounter();
+        const ghost = new SensorGhost(state, ship, 15_000);
+        state.add(ghost);
+        ship.updateKnownObjects(state.currentTime);
+
+        for (const client of [shipClient, clients.helm]) {
+            await vi.waitFor(() => expect(sent(client, ghost.id)).toBeDefined());
+            expect(sent(client, ghost.id)!.isSensorGhost).toBe(true);
+            expect(sent(client, ghost.id)!.name).toBe(ship.name);
+        }
+
+        // Let anything that was going to reach them do so.
+        await new Promise(resolve => setTimeout(resolve, 100));
+        expect(sent(clients.tactical, ghost.id)).toBeUndefined();
+        expect(sent(clients.science, ghost.id)).toBeUndefined();
+        expect(sent(clients.engineer, ghost.id)).toBeUndefined();
     });
 });

@@ -50,7 +50,7 @@ describe('getSynergyCardTypes', () => {
     });
 
     it('only offers cards that a shop could sell', () => {
-        expect(getSynergyCardTypes('exampleNoTarget')).toEqual([]);
+        expect(getSynergyCardTypes('auxPower')).toEqual([]);
         expect(getSynergyCardTypes('warpAway')).toEqual([]);
     });
 });

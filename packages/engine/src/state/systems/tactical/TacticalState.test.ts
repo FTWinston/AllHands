@@ -4,6 +4,7 @@ import { RelationshipType } from 'common-data/features/space/types/RelationshipT
 import { getFiringState } from 'common-data/features/space/utils/getFiringState';
 import { AiShip } from 'src/state/AiShip';
 import { CardState } from 'src/state/CardState';
+import { MotionKeyframe } from 'src/state/MotionKeyframe';
 import { shipSetup, setupGameRoom } from 'src/testUtils';
 import { describe, it, expect, vi } from 'vitest';
 
@@ -52,10 +53,10 @@ describe('TacticalState weapon slot charging', () => {
     });
 
     it('refuses to spend a card that does not target a weapon or weapon slot', () => {
-        const { tactical } = createTactical(['phaserCannon', 'exampleEnemyTarget']);
+        const { tactical } = createTactical(['phaserCannon', 'acquireLock']);
         const slot = loadWeapon(tactical);
 
-        expect(tactical.chargeWeaponSlot(handCard(tactical, 'exampleEnemyTarget').id, slot.id)).toBe(false);
+        expect(tactical.chargeWeaponSlot(handCard(tactical, 'acquireLock').id, slot.id)).toBe(false);
         expect(slot.charge).toBe(0);
     });
 
@@ -112,8 +113,8 @@ describe('TacticalState weapon slot charging', () => {
         expect(slot.charge).toBe(3);
     });
 
-    it('lets a rechargeable weapon be topped up with one card, which removes the trait', () => {
-        const { tactical } = createTactical(['phaserCannon', 'lowYield', 'weaponOvercharge']);
+    it('lets a rechargeable weapon go on being charged after it has been full, any number of times, keeping the trait', () => {
+        const { tactical } = createTactical(['phaserCannon', 'lowYield', 'highYield', 'weaponOvercharge']);
         const slot = loadWeapon(tactical);
         slot.card!.addTrait('rechargeable', ExtraTraitType.Normal);
         const totalCharge = slot.getParameter('totalCharge');
@@ -122,10 +123,15 @@ describe('TacticalState weapon slot charging', () => {
 
         expect(tactical.chargeWeaponSlot(handCard(tactical, 'lowYield').id, slot.id)).toBe(true);
         expect(slot.charge).toBe(totalCharge - 4);
-        expect(slot.card!.hasTrait('rechargeable')).toBe(false);
+        expect(slot.card!.hasTrait('rechargeable')).toBe(true);
 
-        expect(tactical.chargeWeaponSlot(handCard(tactical, 'weaponOvercharge').id, slot.id)).toBe(false);
-        expect(slot.charge).toBe(totalCharge - 4);
+        expect(tactical.chargeWeaponSlot(handCard(tactical, 'highYield').id, slot.id)).toBe(true);
+        expect(slot.charge).toBe(totalCharge - 1);
+
+        // Full again, so there's no room for more until it loses some.
+        expect(tactical.chargeWeaponSlot(handCard(tactical, 'weaponOvercharge').id, slot.id)).toBe(true);
+        expect(slot.charge).toBe(totalCharge);
+        expect(slot.canBeCharged()).toBe(false);
     });
 
     it('lets the rechargeable card add the trait to the weapon', () => {
@@ -390,5 +396,138 @@ describe('TacticalState firing', () => {
         tactical.adjustHealth(1);
         expect(tactical.playWeapon(slot, 'phaserCannon', enemy.id)).not.toBeNull();
         expect(damage).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('TacticalState energised weapons', () => {
+    it('loads an energised weapon fully charged, decaying as any fully charged weapon does', () => {
+        const { tactical } = createTactical(['phaserCannon']);
+        handCard(tactical, 'phaserCannon').addTrait('energised', ExtraTraitType.Normal);
+
+        const slot = loadWeapon(tactical);
+
+        expect(slot.charge).toBe(slot.getParameter('totalCharge'));
+        expect(slot.hasBeenFullyCharged).toBe(true);
+        expect(slot.decay).not.toBeNull();
+        expect(slot.canBeCharged()).toBe(false);
+    });
+
+    it('won\'t take a modifier, but still takes an instant card', () => {
+        const { tactical } = createTactical(['phaserCannon', 'precisionFocus', 'powerCell']);
+        handCard(tactical, 'phaserCannon').addTrait('energised', ExtraTraitType.Normal);
+        const slot = loadWeapon(tactical);
+        expect(slot.canBeModified()).toBe(false);
+
+        expect(tactical.playCard(handCard(tactical, 'precisionFocus').id, 'precisionFocus', 'weapon', slot.id)).toBeNull();
+        expect(slot.modified).toBe(false);
+
+        // Power Cell is instant, so it's only refused here for having no room to charge.
+        expect(tactical.playCard(handCard(tactical, 'powerCell').id, 'powerCell', 'weapon', slot.id)).toBeNull();
+        slot.charge -= 2;
+        slot.card!.addTrait('rechargeable', ExtraTraitType.Normal);
+        expect(tactical.playCard(handCard(tactical, 'powerCell').id, 'powerCell', 'weapon', slot.id)).not.toBeNull();
+        expect(slot.modified).toBe(false);
+    });
+});
+
+describe('TacticalState weapons that drain once fired', () => {
+    /** A charged phaser cannon given a drain, and an enemy dead ahead and in range to fire it at. */
+    function createDrainingWeapon(drainPerSecond = 2) {
+        const fight = createTactical(['phaserCannon', 'phaserStrip', 'lowYield', 'highYield']);
+        const { state, ship, tactical } = fight;
+        const enemy = new AiShip(state, { ...shipSetup('player', 5, 0), goal: { type: 'search-and-destroy' }, skill: 1 });
+        state.add(enemy);
+        ship.updateKnownObjects(0);
+
+        const slot = loadWeapon(tactical);
+        slot.adjustParameter('drainPerSecond', drainPerSecond);
+        slot.addCharge(slot.getParameter('totalCharge'), 0);
+        vi.spyOn(enemy, 'damage').mockReturnValue(0);
+
+        const wait = (duration: number) => {
+            state.currentTime += duration;
+            tactical.update(state.currentTime);
+        };
+
+        return { ...fight, enemy, slot, wait };
+    }
+
+    it('stays active on its target once fired, spending no use\'s charge, and can\'t be fired again while active', () => {
+        const { tactical, enemy, slot } = createDrainingWeapon();
+        const totalCharge = slot.getParameter('totalCharge');
+
+        expect(tactical.playWeapon(slot, 'phaserCannon', enemy.id)).not.toBeNull();
+
+        expect(slot.isActive).toBe(true);
+        expect(slot.activeTargetId).toBe(enemy.id);
+        expect(slot.charge).toBe(totalCharge);
+        expect(tactical.playWeapon(slot, 'phaserCannon', enemy.id)).toBeNull();
+    });
+
+    it('drains its drainPerSecond in charge each second, and is used up at 0', () => {
+        const { tactical, enemy, slot, wait } = createDrainingWeapon(2);
+        const weapon = slot.card!;
+        const totalCharge = slot.getParameter('totalCharge');
+        tactical.playWeapon(slot, 'phaserCannon', enemy.id);
+
+        wait(1000);
+        expect(slot.charge).toBe(totalCharge - 2);
+
+        wait((totalCharge - 2) / 2 * 1000 - 1);
+        expect(slot.card).toBe(weapon);
+
+        wait(1);
+        expect(slot.card).toBeNull();
+        expect(slot.isActive).toBe(false);
+        expect(tactical.deck.at(-1)).toBe(weapon);
+    });
+
+    it('can be charged again and again while active, if it\'s rechargeable, and not otherwise', () => {
+        const { tactical, enemy, slot, wait } = createDrainingWeapon(2);
+        tactical.playWeapon(slot, 'phaserCannon', enemy.id);
+        wait(2000);
+        expect(slot.canBeCharged()).toBe(false);
+
+        slot.card!.addTrait('rechargeable', ExtraTraitType.Normal);
+        expect(tactical.chargeWeaponSlot(handCard(tactical, 'lowYield').id, slot.id)).toBe(true);
+        expect(tactical.chargeWeaponSlot(handCard(tactical, 'highYield').id, slot.id)).toBe(true);
+        expect(slot.isActive).toBe(true);
+        expect(slot.charge).toBe(slot.getParameter('totalCharge'));
+    });
+
+    it('ends once its target is out of range or gone, or when ejected, discarding the weapon', () => {
+        const { tactical, enemy, slot, wait } = createDrainingWeapon();
+        tactical.playWeapon(slot, 'phaserCannon', enemy.id);
+        enemy.destroy();
+        wait(1);
+        expect(slot.card).toBeNull();
+
+        const other = createDrainingWeapon();
+        other.tactical.playWeapon(other.slot, 'phaserCannon', other.enemy.id);
+        other.enemy.setMotion(new MotionKeyframe(other.state.currentTime, other.slot.getParameter('maxRange') + 1, 0, 0));
+        other.wait(1);
+        expect(other.slot.card).toBeNull();
+
+        const ejected = createDrainingWeapon();
+        ejected.tactical.playWeapon(ejected.slot, 'phaserCannon', ejected.enemy.id);
+        expect(ejected.tactical.ejectWeapon(ejected.slot.id)).toBe(true);
+        expect(ejected.slot.isActive).toBe(false);
+    });
+
+    it('stays active outside its firing arc, as long as its target is in range', () => {
+        const { state, tactical, enemy, slot, wait } = createDrainingWeapon();
+        tactical.playWeapon(slot, 'phaserCannon', enemy.id);
+        enemy.setMotion(new MotionKeyframe(state.currentTime, -5, 0, 0));
+        wait(1);
+        expect(slot.isActive).toBe(true);
+    });
+
+    it('isn\'t part of a volley', () => {
+        const { tactical, enemy, slot } = createDrainingWeapon();
+        tactical.addLock(enemy, 1);
+
+        expect(tactical.fireVolley(5)).toBe(0);
+        expect(slot.isActive).toBe(false);
+        expect(slot.card).not.toBeNull();
     });
 });

@@ -1,0 +1,88 @@
+/*
+    The bar, and a swatch of one of its sections: an outlined black track, which its sections fill.
+    Taps go through it, to the button it's on (or beneath, as on a system's tile).
+*/
+.bar,
+.swatch {
+    display: flex;
+    height: 0.9em;
+    box-sizing: border-box;
+    border: 0.08em solid var(--primary-mid);
+    border-radius: 0.1em;
+    overflow: hidden;
+    background-color: black;
+    pointer-events: none;
+}
+
+/* Sized by its number of cards (its --count). */
+.section {
+    flex: var(--count, 1) 1 0;
+    min-width: 0;
+}
+
+.healthy {
+    background-color: var(--primary-light);
+}
+
+/* Health, but with a problem: only 2/3 filled, with the empty track above, as damage would leave it critically damaged. */
+.stabilised {
+    background: linear-gradient(to bottom, transparent 0 34%, var(--primary-light) 34%);
+}
+
+/* Missing, but it can be put back: the empty track, outlined in bright red, like the count of it beneath. */
+.damaged {
+    background: none;
+    box-shadow: inset 0 0 0 0.1em var(--danger-light);
+}
+
+/*
+    Gone for good: scorched, with dull red stripes on black.
+    Dark, so the bright red of damage that can be repaired stands out beside it, and textured, so it differs from that by more than colour.
+*/
+.critical {
+    background: repeating-linear-gradient(-45deg, var(--danger-dark) 0 0.12em, black 0.12em 0.3em);
+}
+
+/* The bar, with the number of cards that can be repaired beneath it. */
+.withRepairable {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15em;
+    pointer-events: none;
+}
+
+/* The same widths as the sections, so the number is centred beneath its own. */
+.beneath {
+    display: flex;
+    /* Matches the bar's border, so it lines up with the sections inside it. */
+    padding-inline: 0.08em;
+}
+
+.beneathSection {
+    flex: var(--count, 1) 1 0;
+    min-width: 0;
+}
+
+/*
+    Never narrower than its icon and number, though: beneath a very narrow section (one card of 18, say), it takes the room it needs,
+    and the gaps either side make way for it, so it stays roughly beneath its section.
+*/
+.repairable {
+    min-width: max-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1em;
+    font-weight: bold;
+    font-size: 1.15em;
+    line-height: 1;
+    /* Bright red, like its section's border. */
+    color: var(--danger-light);
+}
+
+/* As on the repair meter, so it's clear that's what repairs these. */
+.repairIcon {
+    flex-shrink: 0;
+    width: 0.9em;
+    height: 0.9em;
+}

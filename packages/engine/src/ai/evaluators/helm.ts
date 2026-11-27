@@ -126,7 +126,7 @@ export function positionValue(pos: Position, evasion: number, ctx: EvaluationCon
 }
 
 export function currentEvasion(ctx: EvaluationContext): number {
-    return ctx.ship.helmState.activeManeuver?.card?.getParameter('evasion') ?? 0;
+    return ctx.ship.helmState.evasion;
 }
 
 /**

@@ -1,6 +1,6 @@
+import { MotionPathKeyframe } from 'common-data/features/cards/utils/calculateMotionPath';
 import { Vector2D } from 'common-data/features/space/types/Vector2D';
 import { distance } from 'common-data/features/space/utils/vectors';
-import { MotionPathKeyframe } from './calculateMotionPath';
 
 const PATH_COLOR = 'oklch(80% 0.22 200 / 0.75)';
 const ARROWHEAD_COLOR = 'oklch(80% 0.22 200)';
@@ -83,6 +83,7 @@ export function drawMotionPath(
 
     const lineWidth = pixelSize * 5;
     const arrowSize = 0.7; // Size of arrowhead in world units
+    const arrowSpacing = 1.5; // Minimum distance between arrowheads in world units
 
     // Draw the path line with smooth curves
     ctx.strokeStyle = PATH_COLOR;
@@ -107,9 +108,20 @@ export function drawMotionPath(
     // Draw arrowheads at each keyframe (except the first, which is the current position)
     ctx.fillStyle = ARROWHEAD_COLOR;
 
+    // Paths are sampled densely to be smooth, so only mark the facing every so often, and at the end.
+    let lastMarked: Vector2D = keyframes[0];
     for (let i = 1; i < keyframes.length; i++) {
         const keyframe = keyframes[i];
-        drawArrowhead(ctx, keyframe.x, keyframe.y, keyframe.angle, arrowSize);
+        const isEnd = i === keyframes.length - 1;
+        const movedSinceMark = distance(lastMarked, keyframe);
+
+        // A ship turning on the spot has no distance between keyframes, but still wants marking now and then.
+        const isTurnMark = movedSinceMark < 0.001 && Math.abs(keyframe.angle - keyframes[i - 1].angle) > 0.5;
+
+        if (movedSinceMark >= arrowSpacing || isTurnMark || isEnd) {
+            drawArrowhead(ctx, keyframe.x, keyframe.y, keyframe.angle, arrowSize);
+            lastMarked = keyframe;
+        }
     }
 }
 

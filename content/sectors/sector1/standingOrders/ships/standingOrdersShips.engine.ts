@@ -15,7 +15,7 @@ export const designs = defineDesigns({
             'hullShieldEmitter', 'hullBare', 'hullShieldEmitter', 'hullBare', 'hullShieldEmitter', 'hullBare', ...Array<'hullBare'>(54).fill('hullBare'),
         ], 0),
         reactor: system(reactorCards(2, 'reactorPowerHull', 'reactorPowerHull', 'reactorPowerHull', 'reactorPowerTactical'), 0),
-        helm: system(['faceTarget', 'faceTarget', 'faceTarget']),
+        helm: system(['pivot', 'pivot', 'pivot']),
         tactical: { ...system(['phaserCannon', 'photonTorpedo', 'phaserCannon', 'photonTorpedo']), numSlots: 2 },
         fleeThreshold: 0,
     },

@@ -1,4 +1,5 @@
 import { defineCards } from 'common-data/content/SharedContent';
+import { calledShotDuration, holdFireDuration, holdFireLockGain } from 'content/systems/tactical/effects/tacticalEffects.shared';
 
 /** How long a flare burns, once the Flare card is played. */
 export const flareDuration = 8000;
@@ -37,6 +38,7 @@ export const cards = defineCards({
     },
     photonicCannon: {
         targetType: 'weapon-slot',
+        rarity: 'rare',
         system: 'tactical',
         traits: ['energyWeapon'],
         parameters: {
@@ -63,6 +65,7 @@ export const cards = defineCards({
     },
     quantumTorpedo: {
         targetType: 'weapon-slot',
+        rarity: 'uncommon',
         system: 'tactical',
         traits: ['torpedoWeapon'],
         parameters: {
@@ -72,6 +75,21 @@ export const cards = defineCards({
             maxRange: 15,
             firingArc: 0.5,
             damage: 60,
+        },
+    },
+    siegeLance: {
+        targetType: 'weapon-slot',
+        rarity: 'rare',
+        system: 'tactical',
+        // Cumbersome: its target has to be held in its arc for 2s before it can fire.
+        traits: ['energyWeapon', 'cumbersome'],
+        parameters: {
+            cost: 5,
+            chargePerUse: 8,
+            totalCharge: 10,
+            maxRange: 18,
+            firingArc: 0.4,
+            damage: 70,
         },
     },
     lowYield: {
@@ -100,6 +118,7 @@ export const cards = defineCards({
     },
     fullSpread: {
         targetType: 'weapon',
+        rarity: 'uncommon',
         system: 'tactical',
         requiredWeaponTrait: 'torpedoWeapon',
         parameters: { cost: 4, damageReduction: 4, chargeMultiplier: 250, accuracyReduction: 15, extraShots: 2 },
@@ -130,6 +149,7 @@ export const cards = defineCards({
     },
     weaponOvercharge: {
         targetType: 'weapon',
+        rarity: 'uncommon',
         system: 'tactical',
         requiredWeaponTrait: 'energyWeapon',
         parameters: { cost: 4, damageIncrease: 4, chargeIncrease: 2, totalChargeIncrease: 4, selfDamage: 2 },
@@ -162,9 +182,102 @@ export const cards = defineCards({
         system: 'tactical',
         parameters: { cost: 2 },
     },
-    exampleEnemyTarget: {
+    acquireLock: {
         targetType: 'enemy',
         system: 'tactical',
-        parameters: { cost: 3 },
+        parameters: { cost: 1, lockGain: 1, accuracyPerLevel: 10, fadeSeconds: 8 },
+    },
+    alphaStrike: {
+        targetType: 'no-target',
+        rarity: 'rare',
+        system: 'tactical',
+        parameters: { cost: 3, damagePerLock: 5 },
+    },
+    holdFire: {
+        targetType: 'no-target',
+        system: 'tactical',
+        parameters: { cost: 1, duration: holdFireDuration / 1000, lockGain: holdFireLockGain },
+    },
+    calledShot: {
+        targetType: 'no-target',
+        rarity: 'uncommon',
+        system: 'tactical',
+        parameters: { cost: 2, lockCost: 3, duration: calledShotDuration / 1000 },
+    },
+    powerCell: {
+        targetType: 'weapon',
+        system: 'tactical',
+        instant: true,
+        parameters: { cost: 1, charge: 1, chargeValue: 5 },
+    },
+    hotSwap: {
+        targetType: 'weapon',
+        system: 'tactical',
+        instant: true,
+        parameters: { cost: 1 },
+    },
+    tractorBeam: {
+        targetType: 'weapon-slot',
+        rarity: 'uncommon',
+        system: 'tactical',
+        traits: ['energised', 'rechargeable'],
+        parameters: {
+            cost: 3,
+            // Loaded fully charged, and once fired, held for as long as it has charge, losing a point a second: about 8s from full, longer for every card fed onto its meter.
+            chargePerUse: 1,
+            totalCharge: 8,
+            drainPerSecond: 1,
+            maxRange: 8,
+            firingArc: 1.5,
+            // It holds rather than harms.
+            damage: 0,
+            targetSlowdown: 60,
+            ownSlowdown: 25,
+            lockGain: 1,
+        },
+    },
+    steadyFire: {
+        targetType: 'weapon',
+        rarity: 'uncommon',
+        system: 'tactical',
+        parameters: { cost: 2, accuracyPerShot: 5, maxStackedAccuracy: 20 },
+    },
+    disablingShot: {
+        targetType: 'weapon',
+        rarity: 'uncommon',
+        system: 'tactical',
+        parameters: { cost: 2 },
+    },
+    tracerRound: {
+        targetType: 'weapon',
+        system: 'tactical',
+        parameters: { cost: 1 },
+    },
+    exploit: {
+        targetType: 'weapon',
+        rarity: 'uncommon',
+        system: 'tactical',
+        parameters: { cost: 2, damagePerNegativeEffect: 6 },
+    },
+    plasmaWarhead: {
+        targetType: 'weapon',
+        system: 'tactical',
+        requiredWeaponTrait: 'torpedoWeapon',
+        traits: ['persistent'],
+        parameters: { cost: 2, damageReduction: 10 },
+    },
+    proximityFuse: {
+        targetType: 'weapon',
+        system: 'tactical',
+        requiredWeaponTrait: 'torpedoWeapon',
+        traits: ['area'],
+        parameters: { cost: 3, accuracyIncrease: 15 },
+    },
+    phaseShift: {
+        targetType: 'weapon',
+        system: 'tactical',
+        requiredWeaponTrait: 'energyWeapon',
+        traits: ['penetrating'],
+        parameters: { cost: 2, chargeIncrease: 2 },
     },
 });

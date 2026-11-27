@@ -23,6 +23,12 @@ export const reinforcedDrainPercent = 75;
 /** The percentage by which a hit is reduced, while the shields are tuned against one of its weapon traits. */
 export const tunedReductionPercent = 40;
 
+/** The percentage of their usual share that the shields absorb of a hit from a weapon with the penetrating trait. The rest gets past them. */
+export const penetratingAbsorptionPercent = 50;
+
+/** The percentage of their usual drain that the shields are drained by, absorbing a hit from a weapon with the dampening trait. */
+export const dampeningDrainPercent = 150;
+
 /** Shields that a hit leaves below this percentage of their capacity collapse, losing what's left. */
 export const shieldCollapsePercent = 10;
 

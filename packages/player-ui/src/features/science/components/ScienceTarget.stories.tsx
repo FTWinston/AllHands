@@ -34,6 +34,38 @@ export const NoRevealedSystem: Story = {
     },
 };
 
+/** Only one system has been identified so far: the others are still unknown, held as 0 in the scan order. */
+export const PartlyIdentified: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        systemOrder: [0, 3, 0, 0],
+    },
+};
+
+/** The label the crew calls this contact by, beside its name, which another contact may share. */
+export const WithContactLabel: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        contactLabel: 'Alpha',
+    },
+};
+
+/** The label is on the scan readout too, once a system is revealed. */
+export const Helm_WithContactLabel: Story = {
+    args: {
+        ...NoRevealedSystem.args,
+        contactLabel: 'Bravo',
+        scannedHelm: {
+            targetId: 'Enemy-01',
+            power: 3,
+            hand: null,
+            activeManeuver: null,
+            maneuverProgress: null,
+            evasionChance: 25,
+        },
+    },
+};
+
 export const ScannedHull: Story = {
     args: {
         ...NoRevealedSystem.args,
@@ -89,7 +121,7 @@ export const Helm_LongManeuverName: Story = {
             hand: null,
             activeManeuver: {
                 id: 42,
-                type: 'exampleNoTarget',
+                type: 'lockOn',
             },
             maneuverProgress: { startTime: Date.now() - 1000, endTime: Date.now() + 9000 },
             evasionChance: 5,
@@ -154,7 +186,7 @@ export const Tactical_TwoWeapons: Story = {
             power: 3,
             hand: null,
             weaponSlots: [
-                { id: 'slot-1', card: { id: 3, type: 'phaserStrip' }, charge: 2, modifierCard: 'overcharge' },
+                { id: 'slot-1', card: { id: 3, type: 'phaserStrip' }, charge: 2, modifierCard: 'weaponOvercharge' },
                 { id: 'slot-2', card: { id: 4, type: 'photonTorpedo' }, charge: 1, modifierCard: null },
             ],
         },
@@ -229,7 +261,7 @@ export const Science_Vulnerability: Story = {
             scanSystem: null,
             deflectorCard: null,
         },
-        identifiedVulnerability: 'exampleEnemyTarget',
+        identifiedVulnerability: 'acquireLock',
     },
 };
 
@@ -271,7 +303,7 @@ export const Tactical_HandAndVulnerability: Story = {
                 { id: 65, type: 'lowYield' },
             ],
         },
-        identifiedVulnerability: 'exampleEnemyTarget',
+        identifiedVulnerability: 'acquireLock',
     },
 };
 

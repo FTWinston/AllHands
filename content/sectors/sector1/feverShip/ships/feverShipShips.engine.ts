@@ -12,7 +12,7 @@ export const designs = defineDesigns({
         appearance: 'armed-freighter',
         hull: system([...Array<'hullBare'>(12).fill('hullBare'), 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldEmitter', 'hullShieldEmitter'], 0),
         reactor: system(reactorCards(2, 'reactorPowerReactor'), 0),
-        helm: system(['slowAndSteady', 'slowAndSteady', 'slowAndSteady', 'strafe', 'faceTarget']),
+        helm: system(['slowAndSteady', 'slowAndSteady', 'slowAndSteady', 'strafe', 'pivot']),
         science: system(['passiveScan', 'passiveScan', 'passiveScan', 'passiveScan', 'passiveScan']),
         tactical: { ...system(['phaserStrip', 'phaserStrip', 'phaserStrip', 'phaserStrip', 'phaserStrip']), numSlots: 1 },
         engineer: system(['distributePower', 'distributePower', 'distributePower', 'drawPower', 'drawPower']),

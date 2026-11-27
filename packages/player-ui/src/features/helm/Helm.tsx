@@ -1,6 +1,7 @@
 import { Snapshot, useRoomState } from '@colyseus/react';
 import { CardTargetType } from 'common-data/features/cards/types/CardTargetType';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
+import { FieldInfo } from 'common-data/features/space/types/FieldInfo';
 import { FactionRelationshipMap, GameObjectInfo, RelationshipViewer, PlayerShipInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { useWeaponEffects } from 'common-ui/hooks/useWeaponEffects';
 import { useCallback } from 'react';
@@ -23,6 +24,7 @@ type Props = {
 export const Helm = (props: Props) => {
     const objects = useRoomState(props.room, state => state.objects) as Record<string, Snapshot<GameObjectInfo>>;
     const factions = useRoomState(props.room, state => state.factions) as Record<string, { relations: FactionRelationshipMap }>;
+    const fields = useRoomState(props.room, state => state.fields) as Record<string, FieldInfo> | undefined;
     const localShip = objects?.[props.shipId] as unknown as Snapshot<PlayerShipInfo>;
     const weaponEffectsRef = useWeaponEffects(props.room);
 
@@ -91,7 +93,11 @@ export const Helm = (props: Props) => {
             onPause={pause}
             center={localShip.motion}
             objects={objects}
+            fields={fields}
             viewer={viewer}
+            contactLabels={localShip.contactLabels as Partial<Record<string, string>> | undefined}
+            tacticalTargetId={localShip.tacticalTargetId}
+            scienceTargetId={localShip.scienceTargetId}
             power={helmState.powerLevel}
             deckSize={helmState.deck.length}
             deckView={deckView}
@@ -99,6 +105,8 @@ export const Helm = (props: Props) => {
             cardGeneration={helmState.cardGeneration}
             cancelManeuver={cancelManeuver}
             activeManeuver={helmState.activeManeuver}
+            momentumLevel={helmState.momentumLevel}
+            momentumFade={helmState.momentumFade}
             weaponEffectsRef={weaponEffectsRef}
         />
     );

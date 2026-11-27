@@ -61,4 +61,10 @@
     right: 0;
     bottom: 0;
     left: 0;
+    /* Above a FullScreenDialog or Dialog, when opened from one. */
+    z-index: 30;
+}
+
+.positioner {
+    z-index: 30;
 }

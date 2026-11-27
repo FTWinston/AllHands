@@ -282,3 +282,93 @@ const WarpAwayStory = (args: ComponentProps<typeof Component>) => {
 export const WarpAway: Story = {
     render: args => <WarpAwayStory {...args} />,
 };
+
+const ghostObjects = {
+    player: { id: 'player', name: 'Player', appearance: 'chevron', faction: 'player', motion: [{ time: combatTime, x: 0, y: 0, angle: 0 }] },
+    raider: { id: 'raider', name: 'Raider', appearance: 'trident-raider', faction: 'raiders', motion: [{ time: combatTime, x: 8, y: 0, angle: Math.PI }] },
+    ghost: { id: 'ghost', name: 'Player', appearance: 'chevron', faction: 'player', motion: [{ time: combatTime, x: 2, y: -3, angle: 0 }] },
+} as unknown as Record<string, GameObjectInfo>;
+
+/** A false contact left by the player's ship, as the player's own viewscreen shows it: see-through, with a dashed outline, and labelled. */
+export const SensorGhostSeenByItsOwnSide: Story = {
+    render: (args) => {
+        const weaponEffectsRef = useWeaponEffects(null);
+        const objects = useMemo(() => ({ ...ghostObjects, ghost: { ...ghostObjects.ghost, isSensorGhost: true } }), []);
+
+        return (
+            <Component
+                {...args}
+                center={[{ time: combatTime, x: 3, y: -1 }]}
+                objects={objects}
+                viewer={{ shipId: 'player', faction: 'player', relations: { raiders: RelationshipType.Hostile } }}
+                weaponEffectsRef={weaponEffectsRef}
+            />
+        );
+    },
+};
+
+/** The same ghost, on the raider's viewscreen: just another ship of the player's faction, like the one it copies. */
+export const SensorGhostSeenByAnEnemy: Story = {
+    render: (args) => {
+        const weaponEffectsRef = useWeaponEffects(null);
+
+        return (
+            <Component
+                {...args}
+                center={[{ time: combatTime, x: 3, y: -1 }]}
+                objects={ghostObjects}
+                viewer={{ shipId: 'raider', faction: 'raiders', relations: { player: RelationshipType.Hostile } }}
+                weaponEffectsRef={weaponEffectsRef}
+            />
+        );
+    },
+};
+
+/** Two raiders that share a name, and an ally, as the crew labels them. */
+const contactObjects = {
+    player: { id: 'player', name: 'Player', appearance: 'chevron', faction: 'player', motion: [{ time: 0, x: 0, y: 0, angle: 0 }] },
+    raider: { id: 'raider', name: 'Raider', appearance: 'kite-scout', faction: 'raiders', motion: [{ time: 0, x: 6, y: -3, angle: Math.PI }] },
+    twin: { id: 'twin', name: 'Raider', appearance: 'kite-scout', faction: 'raiders', motion: [{ time: 0, x: 5, y: 4, angle: Math.PI }] },
+    ally: { id: 'ally', name: 'Ally', appearance: 'chevron', faction: 'player', motion: [{ time: 0, x: -6, y: 3, angle: 0 }] },
+    // Well off the viewscreen, so a crew targeting them gets an arrow at its edge rather than a reticle.
+    farRaider: { id: 'farRaider', name: 'Raider', appearance: 'kite-scout', faction: 'raiders', motion: [{ time: 0, x: 60, y: -20, angle: Math.PI }] },
+    farTwin: { id: 'farTwin', name: 'Raider', appearance: 'kite-scout', faction: 'raiders', motion: [{ time: 0, x: -40, y: 45, angle: 0 }] },
+} as unknown as Record<string, GameObjectInfo>;
+
+const contactLabels = { raider: 'Alpha', twin: 'Bravo', ally: 'Charlie', farRaider: 'Delta', farTwin: 'Echo' };
+
+function contactStory(tacticalTargetId: string | undefined, scienceTargetId: string | undefined): Story {
+    return {
+        render: (args) => {
+            const weaponEffectsRef = useWeaponEffects(null);
+
+            return (
+                <Component
+                    {...args}
+                    center={[{ time: 0, x: 0, y: 0 }]}
+                    objects={contactObjects}
+                    viewer={{ shipId: 'player', faction: 'player', relations: { raiders: RelationshipType.Hostile } }}
+                    contactLabels={contactLabels}
+                    tacticalTargetId={tacticalTargetId}
+                    scienceTargetId={scienceTargetId}
+                    weaponEffectsRef={weaponEffectsRef}
+                />
+            );
+        },
+    };
+}
+
+/** Every contact has its label, whether or not combat labels are on, though two of them share a name. */
+export const ContactLabels: Story = contactStory(undefined, undefined);
+
+/** Tactical (yellow brackets) is aiming at one raider, and science (blue ring) is scanning the other. */
+export const TargetedByTacticalAndScience: Story = contactStory('raider', 'twin');
+
+/** Both crews are on the same contact, so it has both reticles, one inside the other. */
+export const SameContactTargeted: Story = contactStory('twin', 'twin');
+
+/** Tactical and science are each after a contact that's off the viewscreen, so each gets an arrow at the edge pointing towards it, with its label. */
+export const OffscreenTargets: Story = contactStory('farRaider', 'farTwin');
+
+/** Both crews are after the same contact off the viewscreen, so their arrows sit one inside the other. */
+export const SameOffscreenTarget: Story = contactStory('farRaider', 'farRaider');

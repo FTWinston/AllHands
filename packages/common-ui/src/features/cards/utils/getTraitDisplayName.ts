@@ -25,10 +25,14 @@ export function getTraitDisplayName(trait: DisplayableTrait): string {
             return 'Primary';
         case 'rechargeable':
             return 'Rechargeable';
+        case 'energised':
+            return 'Energised';
         case 'priority':
             return 'Priority';
         case 'unplayable':
             return 'Unplayable';
+        case 'caught':
+            return 'Caught';
 
         // Weapon traits
         case 'energyWeapon':

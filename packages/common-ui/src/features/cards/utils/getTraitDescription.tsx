@@ -1,3 +1,5 @@
+import { areaDamagePercent, areaRadius, drainingPowerLoss, persistentDamagePerTick } from 'common-data/features/cards/utils/weaponTraitStats';
+import { dampeningDrainPercent, penetratingAbsorptionPercent } from 'common-data/features/ships/utils/shieldStats';
 import { DisplayableTrait } from './getTraitDisplayName';
 
 export const getTraitDescription = (trait: DisplayableTrait): string => {
@@ -15,11 +17,15 @@ export const getTraitDescription = (trait: DisplayableTrait): string => {
         case 'unstable':
             return 'Card shuffles back into the deck when played, instead of going on the end.';
         case 'rechargeable':
-            return 'Weapon can be topped up with one more card after being fully charged. Doing so removes this trait.';
+            return 'Weapon can go on being charged after being fully charged, any number of times, even while it\'s active.';
+        case 'energised':
+            return 'Weapon is fully charged as soon as it\'s loaded, so it can\'t be modified.';
         case 'priority':
             return 'Cannot be discarded otherwise used, except by playing it.';
         case 'unplayable':
             return 'This card cannot be played.';
+        case 'caught':
+            return 'Your ship is in a tractor beam. Manoeuvre with high power to break free.';
 
         // Weapon traits
         case 'energyWeapon':
@@ -27,21 +33,21 @@ export const getTraitDescription = (trait: DisplayableTrait): string => {
         case 'torpedoWeapon':
             return 'A weapon that fires a projectile';
         case 'area':
-            return 'Damage nearby targets';
+            return `Other ships within ${areaRadius} of the target, apart from the one firing, take ${areaDamagePercent}% of the damage.`;
         case 'cumbersome':
             return 'Needs to hold aim for 2 seconds';
         case 'draining':
-            return 'Adds a power draining effect on target system';
+            return `The system hit loses ${drainingPowerLoss} power for a while.`;
         case 'dampening':
-            return 'Extra reduction to shield power';
+            return `Drains the target's shields by ${dampeningDrainPercent - 100}% more than usual.`;
         case 'persistent':
-            return 'Adds a damage over time effect to target system';
+            return `The system hit takes ${persistentDamagePerTick} damage every few seconds for a while.`;
         case 'disabling':
-            return 'Adds an effect that prevents the target system from playing cards';
+            return 'The crew system hit can\'t play cards for a while.';
         case 'penetrating':
-            return 'Partly bypasses shields';
+            return `The target's shields absorb only ${penetratingAbsorptionPercent}% of their usual share of the damage.`;
         case 'disrupting':
-            return 'Adds a disrupted card to target system hand. Card deals damage when played.';
+            return 'Puts a Disrupted card in the hand of the crew system hit. It can only be got rid of by playing it, which damages that system.';
         case 'destabilizing':
             return 'Adds an unstable effect to cards in the target system\'s hand.';
 

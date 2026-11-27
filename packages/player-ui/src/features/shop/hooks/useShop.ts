@@ -1,6 +1,5 @@
 import { useRoomState, type Snapshot } from '@colyseus/react';
 import { getShopRole } from 'common-data/features/sectors/utils/isStationKind';
-import { shopCardPrice } from 'common-data/features/ships/utils/antimatter';
 import { useCallback } from 'react';
 import type { ShopModel } from '../types/ShopModel';
 import type { Room } from '@colyseus/sdk';
@@ -25,7 +24,6 @@ export function useShop(room: Room<unknown, GameState>, crew: CrewRoleName, syst
     return {
         stationKind: encounterKind,
         cards: system.shopCards,
-        price: shopCardPrice,
         antimatter,
         buyCard,
     };

@@ -11,7 +11,6 @@ describe('knowable card types', () => {
         expect(isKnowableCardType('auxPower')).toBe(false); // Expendable
         expect(isKnowableCardType('warpAway')).toBe(false); // Campaign card
         expect(isKnowableCardType('sweepLeft')).toBe(false); // Choice option
-        expect(isKnowableCardType('exampleNoTarget')).toBe(false); // Placeholder
         expect(isKnowableCardType('reactorPowerHelm')).toBe(false); // Not a crew card
         expect(isKnowableCardType('notACard')).toBe(false);
     });

@@ -7,12 +7,12 @@ import { OrderPanel as Component } from './OrderPanel';
 import type { Snapshot } from '@colyseus/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-const tacticalCards: CardType[] = ['phaserStrip', 'exampleEnemyTarget', 'phaserCannon', 'photonTorpedo', 'lowYield', 'highYield'];
+const tacticalCards: CardType[] = ['phaserStrip', 'exploit', 'phaserCannon', 'photonTorpedo', 'lowYield', 'highYield'];
 
 const deckCards: Snapshot<CardInstance>[] = tacticalCards.map((type, index) => ({ id: index + 1, type }));
 
-/** Everything but the placeholder card has matches. */
-const orderableCardIds = deckCards.filter(card => card.type !== 'exampleEnemyTarget').map(card => card.id);
+/** Everything but Exploit has matches. */
+const orderableCardIds = deckCards.filter(card => card.type !== 'exploit').map(card => card.id);
 
 /** What the server would preview for any card: some owned, some new, and one the crew hasn't come across. */
 const preview: OrderPreviewCard[] = [
@@ -88,8 +88,8 @@ export const PlaceOrder: Story = {
         await expect(page.getByText('No matches')).toBeInTheDocument();
 
         // A card without matches can still be focused to read it, but its button can't be pressed.
-        await userEvent.click(page.getByText('Example Enemy Target'));
-        await expect(page.getByText('Example Enemy Target').closest('[tabindex]')).toHaveFocus();
+        await userEvent.click(page.getByText('Exploit'));
+        await expect(page.getByText('Exploit').closest('[tabindex]')).toHaveFocus();
         await expect(page.queryByRole('button', { name: 'Choose' })).not.toBeInTheDocument();
         await expect(page.getByRole('button', { name: 'Cannot choose' })).toBeDisabled();
 

@@ -53,6 +53,11 @@ export abstract class Officer {
 
         const candidates: CandidatePlay[] = [...this.standingCandidates(ctx)];
         for (const card of system.hand) {
+            // A card can be made unplayable for a while, such as by a disabling weapon.
+            if (card.hasTrait('unplayable')) {
+                continue;
+            }
+
             const evaluator = getCardEvaluator(card.type);
             if (!evaluator) {
                 warnMissingEvaluator(card.type);

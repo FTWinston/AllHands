@@ -7,7 +7,7 @@ import { CrewHeader as Component } from './CrewHeader';
 import type { Snapshot } from '@colyseus/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-const cardTypes: CardType[] = ['slowAndSteady', 'zigZag', 'strafe', 'faceTarget', 'exampleNoTarget', 'sweep', 'sweep', 'slowAndSteady', 'zigZag', 'slowAndSteady'];
+const cardTypes: CardType[] = ['slowAndSteady', 'pivot', 'strafe', 'zigZag', 'zigZag', 'sweep', 'burn', 'lockOn'];
 const cards: Snapshot<CardInstance>[] = cardTypes.map((type, index) => ({ id: index + 1, type }));
 
 const meta: Meta<typeof Component> = {
@@ -74,7 +74,7 @@ export const AtStation: Story = {
         await userEvent.click(button);
 
         await expect(await page.findByRole('heading', { name: 'My deck' })).toBeInTheDocument();
-        await expect(page.getByText('#10')).toBeInTheDocument();
+        await expect(page.getByText('#8')).toBeInTheDocument();
 
         // It stays open, rather than treating the click that opened it as an outside press.
         await new Promise(resolve => setTimeout(resolve, 300));

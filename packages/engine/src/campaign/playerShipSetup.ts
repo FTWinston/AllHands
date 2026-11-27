@@ -15,23 +15,23 @@ export const playerShipSetup: PlayerShipSetupInfo = {
         initialHandSize: 0,
     },
     helm: {
-        cards: ['slowAndSteady', 'zigZag', 'strafe', 'faceTarget', 'exampleNoTarget', 'sweep', 'sweep', 'slowAndSteady', 'zigZag', 'slowAndSteady'],
+        cards: ['slowAndSteady', 'pivot', 'strafe', 'zigZag', 'zigZag', 'sweep', 'burn', 'lockOn'],
         maxPowerLevel: 5,
         initialHandSize: 1,
     },
     science: {
-        cards: ['passiveScan', 'phasedBurstScan', 'polaronScan', 'invertedPulseScan', 'tetryonScan', 'coherentChronitonScan'],
+        cards: ['passiveScan', 'antiprotonScan', 'polaronScan', 'tetryonScan', 'coherentBeamScan', 'phasedBurstScan', 'crossReference', 'phasedChronitonScan'],
         maxPowerLevel: 5,
         initialHandSize: 1,
     },
     tactical: {
         numSlots: 2,
-        cards: ['phaserStrip', 'exampleEnemyTarget', 'exampleNoTarget', 'phaserCannon', 'phaserStrip', 'photonTorpedo', 'lowYield', 'highYield', 'fullSpread', 'weaponOvercharge', 'subCritical', 'rapidFire'],
+        cards: ['phaserStrip', 'phaserStrip', 'phaserCannon', 'photonTorpedo', 'efficiency', 'highYield', 'powerCell', 'acquireLock'],
         maxPowerLevel: 5,
         initialHandSize: 1,
     },
     engineer: {
-        cards: ['swapSystems', 'exampleNoTarget'],
+        cards: ['juryRig', 'purge', 'focusShields', 'swapSystems', 'priorityFeed', 'trickleCharge', 'redline', 'runQuiet'],
         maxPowerLevel: 5,
         initialHandSize: 1,
     },

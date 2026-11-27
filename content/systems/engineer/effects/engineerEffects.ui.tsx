@@ -2,7 +2,10 @@ import { extendedShieldsRange } from 'common-data/features/ships/utils/extendedS
 import { EffectLevel } from 'common-ui/components/EffectLevelContext';
 import { defineUiEffects } from 'common-ui/content/UiContent';
 import { default as ExampleIcon } from 'common-ui/icons/exampleIcon.svg?react';
-import { runQuietPowerLoss } from 'content/systems/engineer/engineer.shared';
+import {
+    autoDestructDamage, autoDestructRange, braceHullDamageReduction, burnoutPowerPerLevel, bankPowerCharge, bankPowerLoss, emergencyPowerFlux, emergencyPowerGain, fluxLimit, railFeedPowerGain, redlineFluxInterval,
+    redlinePowerGain, runQuietChargeInterval, runQuietPowerLoss,
+} from 'content/systems/engineer/engineer.shared';
 import { effects as sharedEffects } from './engineerEffects.shared';
 
 export const effects = defineUiEffects(sharedEffects, {
@@ -28,7 +31,7 @@ export const effects = defineUiEffects(sharedEffects, {
     },
     runningQuiet: {
         name: 'Running Quiet',
-        description: <>{`This system is running ${runQuietPowerLoss} power lower, until Run Quiet is played on it again.`}</>,
+        description: <>{`This system is running ${runQuietPowerLoss} power lower, and gains 1 Charge every ${runQuietChargeInterval / 1000} seconds, until Run Quiet is played on it again.`}</>,
         image: ExampleIcon,
     },
     shieldReduced: {
@@ -44,11 +47,6 @@ export const effects = defineUiEffects(sharedEffects, {
     relocating: {
         name: 'Relocating',
         description: <>This system is marked for relocation. Play the Relocate Here card to move it to a new position.</>,
-        image: ExampleIcon,
-    },
-    overcharge: {
-        name: 'Overcharge',
-        description: <>This system is overcharged, gaining 3 power but taking damage every second.</>,
         image: ExampleIcon,
     },
     distributePowerLoss: {
@@ -154,6 +152,125 @@ export const effects = defineUiEffects(sharedEffects, {
             <EffectLevel />
             .
         </>,
+        image: ExampleIcon,
+    },
+    charge: {
+        name: 'Charge',
+        description: <>
+            This system holds
+            {' '}
+            <EffectLevel />
+            {' '}
+            Charge, until a card spends it.
+        </>,
+        image: ExampleIcon,
+    },
+    flux: {
+        name: 'Flux',
+        description: <>
+            This system has
+            {' '}
+            <EffectLevel />
+            {' '}
+            plasma flux.
+            {` At ${fluxLimit}, one of its cards is damaged and its flux is removed.`}
+        </>,
+        image: ExampleIcon,
+    },
+    bankingPower: {
+        name: 'Banking Power',
+        description: <>{`This system is running ${bankPowerLoss} power lower. When this ends, it gains ${bankPowerCharge} Charge.`}</>,
+        image: ExampleIcon,
+    },
+    discharging: {
+        name: 'Discharging',
+        description: <>
+            This system is spending its Charge, increasing its power by
+            {' '}
+            <EffectLevel />
+            .
+        </>,
+        image: ExampleIcon,
+    },
+    redlining: {
+        name: 'Redlining',
+        description: <>{`This system is running ${redlinePowerGain} power higher, and gains 1 Flux every ${redlineFluxInterval / 1000} seconds, until Redline is played on it again.`}</>,
+        image: ExampleIcon,
+    },
+    shieldsVented: {
+        name: 'Shields Vented',
+        description: <>Plasma flux is being vented through the hull, which is unpowered: the shields are down.</>,
+        image: ExampleIcon,
+    },
+    braced: {
+        name: 'Braced',
+        description: <>
+            The ship is braced for impact: hits on the hull do
+            {' '}
+            {braceHullDamageReduction}
+            % less damage.
+        </>,
+        image: ExampleIcon,
+    },
+    railFeed: {
+        name: 'Rail Feed',
+        description: <>{`This system's column is being fed, increasing its power by ${railFeedPowerGain}.`}</>,
+        image: ExampleIcon,
+    },
+    burningOut: {
+        name: 'Burning Out',
+        description: <>
+            {`This system is running ${burnoutPowerPerLevel} power higher for each of the `}
+            <EffectLevel />
+            {' Flux that was spent on it. When this ends, it resets.'}
+        </>,
+        image: ExampleIcon,
+    },
+    busLinked: {
+        name: 'Bus Linked',
+        description: <>
+            This system is linked to its neighbour's power bus, increasing its power by
+            {' '}
+            <EffectLevel />
+            .
+        </>,
+        image: ExampleIcon,
+    },
+    buffered: {
+        name: 'Buffered',
+        description: <>The next hit that would damage one of this system's cards spends 1 of its Charge instead.</>,
+        image: ExampleIcon,
+    },
+    autoDestructRequested: {
+        name: 'Auto-destruct Requested',
+        description: <>
+            An auto-destruct is waiting for
+            {' '}
+            <EffectLevel />
+            {' '}
+            more of the crew to confirm it. If they don't in time, it lapses.
+        </>,
+        image: ExampleIcon,
+    },
+    autoDestructing: {
+        name: 'Auto-destruct',
+        description: <>{`When this runs out, the ship explodes, doing ${autoDestructDamage} damage to every ship within ${autoDestructRange} units. Play Abort Auto-destruct to stop it.`}</>,
+        image: ExampleIcon,
+    },
+    cannibalised: {
+        name: 'Cannibalised',
+        description: <>
+            This system's cards were damaged for parts. Graft can fully repair up to
+            {' '}
+            <EffectLevel />
+            {' '}
+            damaged cards on another system.
+        </>,
+        image: ExampleIcon,
+    },
+    emergencyPower: {
+        name: 'Emergency Power',
+        description: <>{`This system is running ${emergencyPowerGain} power higher. When this ends, it gains ${emergencyPowerFlux} Flux.`}</>,
         image: ExampleIcon,
     },
 });

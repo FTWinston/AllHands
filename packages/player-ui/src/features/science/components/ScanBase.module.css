@@ -246,3 +246,8 @@
     text-transform: uppercase;
     color: var(--label);
 }
+
+/* The scanned ship's label, which is bigger than the line of small capitals around it, so it stands out. */
+.targetLabel {
+    font-size: 1.3em;
+}

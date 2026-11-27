@@ -17,6 +17,8 @@ export type ActiveCardInfo = {
     isPriority?: boolean;
     /** Whether there isn't enough power to play this card. */
     isUnaffordable?: boolean;
+    /** Whether this card can't be played now, for reasons other than its cost (see CardUI's `isCardPlayable`). */
+    isBlocked?: boolean;
     /** For cards that are not card definitions, what they show. */
     definition?: UICardDefinition;
 };
@@ -37,7 +39,9 @@ function getDragDisplayMode(activeCard: ActiveCardInfo | null): DragDisplayMode 
         case 'no-target':
         case 'choice':
             return 'card';
+        // The helm map shows where a location card will go, or which ship a ship card will be played on.
         case 'location':
+        case 'ship':
             return 'none';
         default:
             return 'arrow';
@@ -129,6 +133,7 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop, noD
                 isDamaged: data.isDamaged,
                 isPriority: data.isPriority,
                 isUnaffordable: data.isUnaffordable,
+                isBlocked: data.isBlocked,
                 definition: data.definition,
             });
             vibrate(vibrations.cardPickedUp);
@@ -198,7 +203,7 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop, noD
                     if (allowed) {
                         if (targetType === 'any') {
                             sounds.cardDiscarded();
-                        } else if (activeCard.isDamaged || activeCard.isUnaffordable) {
+                        } else if (activeCard.isDamaged || activeCard.isUnaffordable || activeCard.isBlocked) {
                             // The server will refuse this, so say so straight away.
                             sounds.refused();
                         } else {
@@ -218,7 +223,7 @@ export const DragCardProvider = ({ children, onCardDropped, onAlternateDrop, noD
                             });
 
                             // A card the server will refuse is left to return to the hand.
-                            const isRefused = targetType !== 'any' && (activeCard.isDamaged || activeCard.isUnaffordable);
+                            const isRefused = targetType !== 'any' && (activeCard.isDamaged || activeCard.isUnaffordable || activeCard.isBlocked);
                             setDroppedCard(isRefused ? null : { id: activeCard.id, cardType: activeCard.cardType });
                         }
                     } else if (targetType === activeCard.targetType) {

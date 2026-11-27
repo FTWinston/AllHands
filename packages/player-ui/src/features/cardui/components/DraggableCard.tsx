@@ -22,6 +22,8 @@ type Props = {
     targetType?: CardTargetType;
     slotted?: boolean;
     highlighted?: boolean;
+    /** False if the card can't be played now, for reasons other than its cost (see CardUI's `isCardPlayable`). It's greyed out, but can still be discarded. */
+    playable?: boolean;
     modifiers?: CardParametersBase;
     extraTraits?: Partial<Record<CardTrait, ExtraTraitType>>;
     type: CardType;
@@ -41,11 +43,12 @@ export const DraggableCard: FC<Props> = (props) => {
     const isDamaged = props.extraTraits?.['damaged'] !== undefined || props.extraTraits?.['critical'] !== undefined;
     const isUnplayable = props.extraTraits?.['unplayable'] !== undefined;
     const isPriority = definition.traits?.includes('priority') || props.extraTraits?.['priority'] !== undefined;
+    const isBlocked = props.playable === false;
 
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: props.elementId ?? props.id.toString(),
         disabled: isUnplayable,
-        data: { id: props.id, targetType, cardType: props.type, isDamaged, isPriority, isUnaffordable: !props.slotted && props.availablePower < resolvedCost, definition: props.definition },
+        data: { id: props.id, targetType, cardType: props.type, isDamaged, isPriority, isUnaffordable: !props.slotted && props.availablePower < resolvedCost, isBlocked, definition: props.definition },
     });
 
     const dragDisplayMode = useDragDisplayMode();
@@ -84,7 +87,7 @@ export const DraggableCard: FC<Props> = (props) => {
             <CardDisplay
                 {...definition}
                 slotted={props.slotted}
-                disabled={isUnplayable}
+                disabled={isUnplayable || isBlocked}
                 highlighted={props.highlighted}
                 sufficientPower={props.slotted ? undefined : props.availablePower >= resolvedCost}
                 modifiers={props.modifiers}

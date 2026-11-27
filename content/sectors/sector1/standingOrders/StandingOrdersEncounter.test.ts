@@ -256,13 +256,15 @@ describe('StandingOrdersEncounter', () => {
         // Keying the platform to something else that needs it keeps it there, but something that doesn't takes it away.
         encounter.keyTo({ modifier: 'Coherent', substance: 'Antiproton', delivery: 'Beam' });
         expect(kitInHand()).toHaveLength(1);
-        expect(science.hand.filter(card => card.type === 'antiprotonScan')).toHaveLength(1);
 
+        // The starting deck has no inverted or pulse cards, so this needs two others.
+        const otherKitInHand = () => science.hand.filter(card => card.type === 'invertedAntiprotonScan' || card.type === 'invertedPulseScan');
         encounter.keyTo({ modifier: 'Inverted', substance: 'Tetryon', delivery: 'Pulse' });
         expect(kitInHand()).toHaveLength(0);
-        expect(science.hand.filter(card => card.type === 'antiprotonScan')).toHaveLength(0);
+        expect(otherKitInHand()).toHaveLength(2);
 
         encounter.keyTo({ modifier: 'Coherent', substance: 'Tetryon', delivery: 'Beam' });
+        expect(otherKitInHand()).toHaveLength(0);
         campaign.devLoadEncounter('skirmish');
         expect(kitInHand()).toHaveLength(0);
         expect(science.deck.some(card => card.type === 'coherentTetryonScan')).toBe(false);

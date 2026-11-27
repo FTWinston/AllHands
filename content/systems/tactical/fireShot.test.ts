@@ -23,8 +23,8 @@ function createFight(random?: IRandom) {
     const target = new AiShip(state, {
         ...setup,
         hull: { ...setup.hull, cards: Array(10).fill('hullBare') },
-        helm: { ...setup.helm, cards: Array(10).fill('exampleNoTarget') },
-        tactical: { ...setup.tactical, cards: Array(10).fill('exampleNoTarget') },
+        helm: { ...setup.helm, cards: Array(10).fill('patternAlpha') },
+        tactical: { ...setup.tactical, cards: Array(10).fill('holdFire') },
     });
     state.add(ship);
     state.add(target);
@@ -78,6 +78,20 @@ describe('firing weapons', () => {
         expect(damage).toHaveBeenCalledOnce();
         expect(effects[0].type).toBe('shot');
         expect(effects.map(effect => effect.type)).toContain('impact');
+    });
+
+    it('tells clients which system an aimed or unaimed hit landed on', () => {
+        const { state, effects, fire } = createFight();
+
+        fire('phaserCannon', 100, 'tactical');
+        vi.spyOn(state.random, 'pick').mockReturnValueOnce('helm');
+        fire('phaserCannon', 100);
+
+        const impacts = effects.filter(effect => effect.type === 'impact');
+        expect(impacts).toEqual([
+            expect.objectContaining({ system: 'tactical' }),
+            expect.objectContaining({ system: 'helm' }),
+        ]);
     });
 
     it('does no damage when a projectile arrives at a target that has gone', () => {

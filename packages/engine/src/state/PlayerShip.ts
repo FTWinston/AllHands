@@ -1,9 +1,10 @@
-import { ArraySchema, entity, type, view } from '@colyseus/schema';
+import { ArraySchema, MapSchema, entity, type, view } from '@colyseus/schema';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { isKnowableCardType } from 'common-data/features/cards/utils/getKnowableCardTypes';
 import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownShipClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { PlayerShipInfo, PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
+import { getContactLabel } from 'src/utils/contactLabels';
 import { CommsState } from './CommsState';
 import { CrewState } from './CrewState';
 import { GameObject } from './GameObject';
@@ -33,6 +34,9 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
 
     public override tick(deltaTime: number, currentTime: number) {
         super.tick(deltaTime, currentTime);
+
+        this.tacticalTargetId = this.tacticalState.selectedTargetId;
+        this.scienceTargetId = this.scienceState.scannedShipId ?? '';
 
         // Mirroring every system's cards for the engineer is done once per tick, rather than everywhere cards change.
         // AI ships have no engineer to see them, so don't bother.
@@ -90,8 +94,57 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
         return true;
     }
 
+    /**
+     * A short, distinct name for each other object this ship has known of, by id, that its crew can shout across the bridge (see `getContactLabel`).
+     * An object keeps its label for as long as it's in the game, even if it goes out of range and comes back, and another ship's crew may label it differently.
+     */
+    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole)
+    @type({ map: 'string' }) readonly contactLabels = new MapSchema<string>();
+
+    /** The id of the object that tactical is aiming at, or empty if none. Copied from the tactical system, so that helm's client can show it too. */
+    @view(ownShipClientRole | ownHelmClientRole)
+    @type('string') tacticalTargetId = '';
+
+    /** The id of the ship that science is scanning, or empty if none. Copied from the science system, so that helm's client can show it too. */
+    @view(ownShipClientRole | ownHelmClientRole)
+    @type('string') scienceTargetId = '';
+
+    /** Give a contact the first label that no other contact has, if it has none. Returns false for this ship itself, which has no label. */
+    private labelContact(objectId: string): boolean {
+        if (objectId === this.id) {
+            return false;
+        }
+
+        if (!this.contactLabels.has(objectId)) {
+            const inUse = new Set(this.contactLabels.values());
+            let index = 0;
+            while (inUse.has(getContactLabel(index))) {
+                index++;
+            }
+            this.contactLabels.set(objectId, getContactLabel(index));
+        }
+
+        return true;
+    }
+
+    override updateKnownObjects(currentTime: number) {
+        super.updateKnownObjects(currentTime);
+
+        // A contact that left the game while out of range was never known to leave, so its label is still held. Free it for the next contact.
+        for (const objectId of [...this.contactLabels.keys()]) {
+            if (!this.gameState.objects.has(objectId)) {
+                this.contactLabels.delete(objectId);
+            }
+        }
+    }
+
+    protected override contactForgotten(objectId: string) {
+        this.contactLabels.delete(objectId);
+    }
+
     protected addKnownObject(objectId: string, object: GameObject) {
         super.addKnownObject(objectId, object);
+        this.labelContact(objectId);
 
         this.crew?.addObjectToViews(object);
     }
