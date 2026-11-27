@@ -73,6 +73,33 @@ function worldToHex(worldX: number, worldY: number): { col: number; row: number 
     return { col: iCol, row: iRow };
 }
 
+type DropCellProps = {
+    id: string;
+    targetType: 'location' | 'ship';
+    left: number;
+    top: number;
+    disabled: boolean;
+};
+
+/**
+ * One cell, which only re-renders when where it is or whether it can be dropped on changes. The cells as a whole are worked out again whenever the ship moves,
+ * which while it's flying is every frame, but re-rendering hundreds of drop targets that often is slow enough to drag the whole page down.
+ */
+const DropCell = memo((props: DropCellProps) => (
+    <CardDropTarget
+        id={props.id}
+        targetType={props.targetType}
+        className={styles.cell}
+        style={{
+            left: props.left,
+            top: props.top,
+        }}
+        couldDropClassName={styles.couldDrop}
+        droppingClassName={styles.dropping}
+        disabled={props.disabled}
+    />
+));
+
 const DropCellsInner: FC<Props> = (props) => {
     const ref = useRef<HTMLDivElement>(null);
 
@@ -187,17 +214,12 @@ const DropCellsInner: FC<Props> = (props) => {
         const top = containerInfo.height / 2 + screenY - cellHeightPx / 2;
 
         return (
-            <CardDropTarget
+            <DropCell
                 key={cellId}
                 id={cellId}
                 targetType={props.targetType}
-                className={styles.cell}
-                style={{
-                    left,
-                    top,
-                }}
-                couldDropClassName={styles.couldDrop}
-                droppingClassName={styles.dropping}
+                left={left}
+                top={top}
                 disabled={isDisabled}
             />
         );
@@ -225,11 +247,12 @@ function samePosition(a: Vector2D, b: Vector2D) {
 
 /**
  * The helm map re-renders on every animation frame, and hands these cells new position objects each time even when the ship hasn't moved.
- * Hundreds of drop targets re-rendering every frame is slow, so they only do so when something they show has actually changed.
+ * They're only worked out again when something they show has actually changed: which way the ship faces counts, as some cards can only be dropped ahead of it.
  */
 export const DropCells = memo(DropCellsInner, (previous, next) => previous.targetType === next.targetType
     && previous.disabled === next.disabled
     && previous.cellRadius === next.cellRadius
     && previous.className === next.className
     && samePosition(previous.center, next.center)
-    && samePosition(previous.shipPosition, next.shipPosition));
+    && samePosition(previous.shipPosition, next.shipPosition)
+    && previous.shipPosition.angle === next.shipPosition.angle);
