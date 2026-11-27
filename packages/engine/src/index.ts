@@ -2,6 +2,7 @@ import path from 'path';
 import { WebSocketTransport } from '@colyseus/ws-transport';
 import { Server } from 'colyseus';
 import { roomIdentifier } from 'common-data/utils/constants';
+import compression from 'compression';
 import { engineContent } from 'content/content.engine';
 import { app as electronApp } from 'electron';
 import express from 'express';
@@ -27,6 +28,7 @@ export async function startServer(config: ServerConfig) {
         }),
         express: (app) => {
             app.use(express.json());
+            app.use(compression());
             app.use(express.static(playerUiAppPath));
         },
     });
