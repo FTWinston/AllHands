@@ -5,7 +5,7 @@ import { getCardDefinition } from 'engine/cards/getEngineCardDefinition';
 import { AiShip } from 'engine/state/AiShip';
 import { CardState } from 'engine/state/CardState';
 import { MotionKeyframe } from 'engine/state/MotionKeyframe';
-import { setupGameRoom, shipSetup, startCampaign } from 'engine/testUtils';
+import { leaveSectorStart, settleRewards, setupGameRoom, shipSetup, startCampaign } from 'engine/testUtils';
 import { getHostileShips } from 'engine/utils/shipQueries';
 import { describe, expect, it, vi } from 'vitest';
 import { applyDeflector } from './applyDeflector.engine';
@@ -388,12 +388,13 @@ describe('deflector fields', () => {
         const state = rooms.createState();
         const { campaign, ships } = startCampaign(state, 1);
         state.devAutoWin = true;
-        campaign.dismissMessage();
+        leaveSectorStart(state);
         campaign.selectRoute(ships[0], state.map!.availableNodeIds[0]);
 
         applyDeflector(state, ships[0], null, { modifier: 'Inverted', substance: 'Polaron', delivery: 'Field' });
         expect(state.fields.size).toBe(1);
 
+        settleRewards(state);
         expect(campaign.warpAway(ships[0])).toBe(true);
         expect(state.fields.size).toBe(0);
     });

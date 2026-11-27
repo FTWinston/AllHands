@@ -495,6 +495,116 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
                 console.warn(`Rejected taking delivered card ${message.cardId} for ${clientRole} of ship ${ship.id}`);
             }
         });
+
+        this.onMessage('takeSalvage', (client, message: { cardId: number }) => {
+            if (this.state.gameStatus !== 'active' || !Number.isInteger(message?.cardId)) {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (!this.state.campaign?.takeSalvage(ship, this.getCrewRoleName(ship, clientRole), message.cardId)) {
+                console.warn(`Rejected taking salvaged card ${message.cardId} for ${clientRole} of ship ${ship.id}`);
+            }
+        });
+
+        this.onMessage('scrapSalvage', (client) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (!this.state.campaign?.scrapSalvage(ship, this.getCrewRoleName(ship, clientRole))) {
+                console.warn(`Rejected scrapping salvage for ${clientRole} of ship ${ship.id}`);
+            }
+        });
+
+        this.onMessage('hideSalvage', (client, message: { hidden: boolean }) => {
+            if (this.state.gameStatus !== 'active' || typeof message?.hidden !== 'boolean') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            ship.hideSalvage(this.getCrewRoleName(ship, clientRole), message.hidden);
+        });
+
+        this.onMessage('takeOutfitCard', (client, message: { cardId: number }) => {
+            if (this.state.gameStatus !== 'active' || !Number.isInteger(message?.cardId)) {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (!this.state.campaign?.takeOutfitCard(ship, this.getSystemState(ship, clientRole), message.cardId)) {
+                console.warn(`Rejected taking outfitting card ${message.cardId} for ${clientRole} of ship ${ship.id}`);
+            }
+        });
+
+        this.onMessage('voteBundle', (client, message: { bundleIndex: number }) => {
+            if (this.state.gameStatus !== 'active' || !Number.isInteger(message?.bundleIndex)) {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (!this.state.campaign?.voteBundle(ship, this.getCrewRoleName(ship, clientRole), message.bundleIndex)) {
+                console.warn(`Rejected voting for bundle ${message.bundleIndex} for ${clientRole} of ship ${ship.id}`);
+            }
+        });
+
+        this.onMessage('replaceDeckCard', (client, message: { cardId: number }) => {
+            if (this.state.gameStatus !== 'active' || !Number.isInteger(message?.cardId)) {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (!this.state.campaign?.replaceDeckCard(ship, this.getSystemState(ship, clientRole), message.cardId)) {
+                console.warn(`Rejected replacing deck card ${message.cardId} for ${clientRole} of ship ${ship.id}`);
+            }
+        });
+
+        this.onMessage('discardIncomingCard', (client) => {
+            if (this.state.gameStatus !== 'active') {
+                return;
+            }
+
+            const [ship, clientRole] = this.getShipForClient(client);
+            if (!ship) {
+                console.error('No ship found for client');
+                return;
+            }
+
+            if (!this.state.campaign?.discardIncomingCard(ship, this.getSystemState(ship, clientRole))) {
+                console.warn(`Rejected discarding an incoming card for ${clientRole} of ship ${ship.id}`);
+            }
+        });
     }
 
     private registerDevCommandHandlers() {
@@ -657,6 +767,11 @@ export class GameRoom extends Room<{ state: GameState; metadata: ClientData }> {
     /**
      * Get the system state for a given system on a ship.
      */
+    /** The name of the crew member a client plays, whose system is named after them. */
+    private getCrewRoleName(ship: PlayerShip, role: CrewRole): CrewRoleName {
+        return this.getSystemState(ship, role).system as CrewRoleName;
+    }
+
     private getSystemState(ship: PlayerShip, system: typeof ownHelmClientRole): HelmState;
     private getSystemState(ship: PlayerShip, system: typeof ownEngineerClientRole): EngineerState;
     private getSystemState(ship: PlayerShip, system: typeof ownTacticalClientRole): TacticalState;

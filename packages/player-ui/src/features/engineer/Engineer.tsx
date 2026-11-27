@@ -7,6 +7,8 @@ import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { useOrders } from '../orders/hooks/useOrders';
+import { useRewards } from '../rewards/hooks/useRewards';
+import { useSalvage } from '../rewards/hooks/useSalvage';
 import { useShop } from '../shop/hooks/useShop';
 import { EngineerDisplay } from './components/EngineerDisplay';
 import type { Room } from '@colyseus/sdk';
@@ -28,6 +30,8 @@ export const Engineer = (props: Props) => {
     const deckView = useDeckView(props.room, localShip?.engineerState);
     const shop = useShop(props.room, 'engineer', localShip?.engineerState, localShip?.antimatter ?? 0);
     const orders = useOrders(props.room, 'engineer', localShip?.engineerState, localShip);
+    const rewards = useRewards(props.room, 'engineer', localShip?.engineerState, localShip);
+    const salvage = useSalvage(props.room, 'engineer', localShip);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -58,6 +62,8 @@ export const Engineer = (props: Props) => {
                 crew="engineer"
                 shop={shop}
                 orders={orders}
+                rewards={rewards}
+                salvage={salvage}
                 onPause={pause}
                 deckSize={engineerState.deck.length}
                 deckView={deckView}

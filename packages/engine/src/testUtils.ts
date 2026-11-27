@@ -1,6 +1,7 @@
 import { boot, type ColyseusTestServer } from '@colyseus/testing';
 import { defineRoom } from 'colyseus';
 import { Random } from 'common-data/classes/Random';
+import { crewRoleNames } from 'common-data/features/ships/types/CrewRole';
 import { ShipSetupInfo, NonCrewSystemSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { roomIdentifier } from 'common-data/utils/constants';
 import { Campaign } from 'src/campaign/Campaign';
@@ -9,6 +10,7 @@ import { playerShipSetup } from 'src/campaign/playerShipSetup';
 import { sectorThemes, type SectorTheme } from 'src/campaign/sectorThemes';
 import { GameRoom } from 'src/classes/GameRoom';
 import { PlayerShip } from 'src/state/PlayerShip';
+import { getPlayerShips } from 'src/utils/shipQueries';
 import { beforeAll, afterAll, beforeEach } from 'vitest';
 import type { IRandom } from 'common-data/types/IRandom';
 import type { ServerConfig } from 'common-data/types/ServerConfig';
@@ -112,6 +114,44 @@ export function startCampaign(state: GameState, shipCount = 1, themes: readonly 
     campaign.start();
 
     return { campaign, ships };
+}
+
+/**
+ * Settles whatever the crews of the given ships (by default, every player ship) have to choose before leaving the encounter:
+ * the first salvaged card is taken, each crew member takes the first of their outfitting cards, and the crew votes for the first outfitting bundle.
+ */
+export function settleRewards(state: GameState, ships: readonly PlayerShip[] = getPlayerShips(state)) {
+    const campaign = state.campaign!;
+
+    for (const ship of ships) {
+        if (ship.salvageChooser) {
+            campaign.takeSalvage(ship, ship.salvageChooser, ship.salvage[0].card.id);
+        }
+
+        if (ship.outfitBundles.length > 0) {
+            for (const role of crewRoleNames) {
+                campaign.voteBundle(ship, role, 0);
+            }
+        }
+
+        for (const role of crewRoleNames) {
+            const system = ship.getCrewSystem(role);
+            if (system.outfitCards.length > 0) {
+                campaign.takeOutfitCard(ship, system, system.outfitCards[0].id);
+            }
+        }
+    }
+}
+
+/** Dismisses the sector intro, then settles the outfitting choices and warps every player ship away from the start station, onto the sector map. */
+export function leaveSectorStart(state: GameState) {
+    const campaign = state.campaign!;
+    campaign.dismissMessage();
+    settleRewards(state);
+
+    for (const ship of getPlayerShips(state)) {
+        campaign.warpAway(ship);
+    }
 }
 
 const minimalSystemSetup: NonCrewSystemSetupInfo = {

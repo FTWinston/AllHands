@@ -8,6 +8,8 @@ import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { useOrders } from '../orders/hooks/useOrders';
+import { useRewards } from '../rewards/hooks/useRewards';
+import { useSalvage } from '../rewards/hooks/useSalvage';
 import { useShop } from '../shop/hooks/useShop';
 import { LongRangeSensorList } from './components/LongRangeSensorList';
 import { ScienceDisplay } from './components/ScienceDisplay';
@@ -32,6 +34,8 @@ export const Science = (props: Props) => {
     const deckView = useDeckView(props.room, localShip?.scienceState);
     const shop = useShop(props.room, 'science', localShip?.scienceState, localShip?.antimatter ?? 0);
     const orders = useOrders(props.room, 'science', localShip?.scienceState, localShip);
+    const rewards = useRewards(props.room, 'science', localShip?.scienceState, localShip);
+    const salvage = useSalvage(props.room, 'science', localShip);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -75,6 +79,8 @@ export const Science = (props: Props) => {
                 crew="science"
                 shop={shop}
                 orders={orders}
+                rewards={rewards}
+                salvage={salvage}
                 onPause={pause}
                 deckSize={scienceState.deck.length}
                 deckView={deckView}

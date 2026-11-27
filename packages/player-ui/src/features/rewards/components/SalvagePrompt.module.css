@@ -1,0 +1,106 @@
+/* Covers everything else, like a comms prompt, so nothing behind it can be played until this is answered. */
+.backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: color-mix(in srgb, var(--space) 70%, transparent);
+}
+
+.prompt {
+    width: min(40em, 94vw);
+    max-height: 92dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75em;
+    padding: 1em;
+    text-align: center;
+    background-color: color-mix(in oklch, var(--good-darkest) 60%, var(--panel));
+    border: solid var(--good-mid) 0.2em;
+    border-radius: 0 1.5em 0 1.5em;
+    corner-shape: bevel;
+    box-shadow: 0 0 2em 0.5em color-mix(in srgb, var(--good-light) 30%, transparent);
+}
+
+.title {
+    margin: 0;
+    font-family: var(--readout-font-family);
+    font-size: 1.125em;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--good-light);
+}
+
+.text {
+    margin: 0;
+    line-height: 1.4;
+    color: var(--text-muted);
+}
+
+.blocked {
+    display: block;
+    margin-top: 0.25em;
+    color: var(--text);
+}
+
+/* Above each card, in its crew member's colour, no wider than it. */
+.recipient {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: var(--readout-font-family);
+    font-size: 1.5em;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--primary-light);
+}
+
+.deckSize {
+    font-size: 0.8em;
+    color: var(--text-muted);
+}
+
+.full {
+    color: var(--danger-light);
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75em;
+}
+
+.scrap,
+.peek {
+    font-size: 1.1em;
+}
+
+/* Held down, so mustn't scroll the page, select its text or open a menu. */
+.peek {
+    touch-action: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* While the hold button is held, only it stays, so the screen behind can be seen. */
+.peeking {
+    background-color: transparent;
+}
+
+.peeking .prompt {
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.peeking .prompt > :not(.actions),
+.peeking .scrap {
+    visibility: hidden;
+}

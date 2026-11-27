@@ -11,6 +11,7 @@ import type { GameState } from 'src/state/GameState';
 /**
  * No hostiles and no objective: fully repairs every player ship on arrival, and is complete straight away.
  * Every crew member's pending work order is delivered here.
+ * The campaign offers the crew new cards at an outfitting station (see `Campaign.offerOutfitting`).
  * A shop station also stocks a shop for the crew member of its role (see `getShopRole`) on every player ship, and lets the others place work orders.
  */
 export class StationEncounter extends Encounter {
@@ -54,6 +55,7 @@ export class StationEncounter extends Encounter {
 /** The encounter for each kind of station. */
 export const stationEncounterIds: Readonly<Record<StationKind, EncounterId>> = {
     repair: 'repairStation',
+    outfitting: 'outfittingStation',
     navigationBeacon: 'navigationBeacon',
     armsDealer: 'armsDealer',
     salvageYard: 'salvageYard',
@@ -62,6 +64,7 @@ export const stationEncounterIds: Readonly<Record<StationKind, EncounterId>> = {
 
 const stationNames: Readonly<Record<StationKind, string>> = {
     repair: 'Repair Station',
+    outfitting: 'Outfitting Station',
     navigationBeacon: 'Navigation Beacon',
     armsDealer: 'Arms Dealer',
     salvageYard: 'Salvage Yard',

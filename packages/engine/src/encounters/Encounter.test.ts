@@ -4,7 +4,7 @@ import { defaultSurviveDurationMs } from 'content/general/general.engine';
 import { playerFactionId } from 'src/campaign/factions';
 import { HailState } from 'src/state/HailState';
 import { ObjectiveState } from 'src/state/ObjectiveState';
-import { seededRandom, setupGameRoom, startCampaign } from 'src/testUtils';
+import { leaveSectorStart, seededRandom, settleRewards, setupGameRoom, startCampaign } from 'src/testUtils';
 import { getHostileShips } from 'src/utils/shipQueries';
 import { describe, expect, it, vi } from 'vitest';
 import { createEncounter, getDefaultNode, getDevEncounterList, getEncounterDefinition, getEncounterIds, getNodeName, stationEncounterIds } from './EncounterRegistry';
@@ -38,7 +38,7 @@ function totalMaxHealth(ship: Ship) {
 describe('encounter registry', () => {
     it('registers the expected encounters', () => {
         expect(getEncounterIds().sort()).toEqual([
-            'ambush', 'armsDealer', 'assault', 'bossA', 'bossB', 'bossC', 'deadWeight', 'escort', 'feverShip', 'lastShuttleOut', 'navigationBeacon', 'quarantineGate', 'quietRunning', 'repairStation', 'researchOutpost', 'salvageYard', 'skirmish', 'slowBoat', 'standingOrders', 'survive', 'tollCollectors',
+            'ambush', 'armsDealer', 'assault', 'bossA', 'bossB', 'bossC', 'deadWeight', 'escort', 'feverShip', 'lastShuttleOut', 'navigationBeacon', 'outfittingStation', 'quarantineGate', 'quietRunning', 'repairStation', 'researchOutpost', 'salvageYard', 'skirmish', 'slowBoat', 'standingOrders', 'survive', 'tollCollectors',
         ]);
         expect(getDevEncounterList().map(info => info.id)).toEqual(getEncounterIds());
     });
@@ -66,7 +66,8 @@ describe('devLoadEncounter', () => {
         if (Object.values(stationEncounterIds).includes(encounterId)) {
             expect(hostiles).toHaveLength(0);
             expect(state.encounter!.outcome).toBe('success');
-            expect(hasWarpCard(ships[0])).toBe(true);
+            // The crew has to choose their new cards before leaving an outfitting station.
+            expect(hasWarpCard(ships[0])).toBe(encounterId !== 'outfittingStation');
         } else {
             // Last Shuttle Out's only ships at the start are the station's, and the grid that comes later never fires on the crew.
             // Quiet Running's pickets are neutral until they see the crew.
@@ -112,7 +113,7 @@ describe('devLoadEncounter', () => {
 
     it('clears the route cards and destinations when loaded from the map', () => {
         const { state, campaign, ships } = createCampaign();
-        campaign.dismissMessage();
+        leaveSectorStart(state);
         expect(ships[0].helmState.nonEncounterCards.length).toBeGreaterThan(0);
         expect(ships[0].scienceState.destinations.length).toBeGreaterThan(0);
 
@@ -132,6 +133,7 @@ describe('devLoadEncounter', () => {
         }
 
         expect(state.encounter!.outcome).toBe('success');
+        settleRewards(state);
         expect(campaign.warpAway(ships[0])).toBe(true);
         expect(state.phase).toBe('map');
     });
@@ -172,6 +174,7 @@ describe('objectives', () => {
         state.currentTime += 1;
         campaign.tick(0);
         expect(state.encounter!.outcome).toBe('success');
+        settleRewards(state);
         expect(hasWarpCard(ships[0])).toBe(true);
         expect(getHostileShips(state).length).toBeGreaterThan(0);
 
@@ -269,6 +272,7 @@ describe('what the viewscreen is told', () => {
         expect(state.objective).toMatchObject({ type: 'clear' });
         expect(state.encounterOutcome).toBe('success');
 
+        settleRewards(state);
         campaign.warpAway(ships[0]);
         expect(state.objective).toBeNull();
         expect(state.encounterOutcome).toBeNull();
@@ -310,6 +314,7 @@ describe('what the viewscreen is told', () => {
         }
         expect(state.hail).not.toBeNull();
 
+        settleRewards(state);
         campaign.warpAway(ships[0]);
         expect(state.hail).toBeNull();
     });
@@ -348,6 +353,7 @@ describe('warping away', () => {
         }
 
         const effects = vi.spyOn(state, 'broadcastWeaponEffect');
+        settleRewards(state);
         expect(campaign.warpAway(ships[0])).toBe(true);
 
         expect(effects).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
@@ -391,6 +397,7 @@ describe('encounter factions', () => {
         for (const hostile of getHostileShips(state)) {
             hostile.destroy();
         }
+        settleRewards(state);
         campaign.warpAway(ships[0]);
 
         expect(playerRelations.size).toBe(0);

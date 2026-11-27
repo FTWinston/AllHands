@@ -14,6 +14,7 @@ const environmentLabels: Record<EnvironmentType, string> = {
 const nodeKindLabels: Record<SectorNodeKind, string> = {
     combat: 'Request',
     repair: 'Repair station',
+    outfitting: 'Outfitting station',
     navigationBeacon: 'Navigation beacon',
     armsDealer: 'Arms dealer',
     salvageYard: 'Salvage yard',

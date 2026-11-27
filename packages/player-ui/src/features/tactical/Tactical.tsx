@@ -8,6 +8,8 @@ import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { useOrders } from '../orders/hooks/useOrders';
+import { useRewards } from '../rewards/hooks/useRewards';
+import { useSalvage } from '../rewards/hooks/useSalvage';
 import { useShop } from '../shop/hooks/useShop';
 import { CommsPrompt } from './components/CommsPrompt';
 import { SectorMessagePrompt } from './components/SectorMessagePrompt';
@@ -35,6 +37,8 @@ export const Tactical = (props: Props) => {
     const deckView = useDeckView(props.room, localShip?.tacticalState);
     const shop = useShop(props.room, 'tactical', localShip?.tacticalState, localShip?.antimatter ?? 0);
     const orders = useOrders(props.room, 'tactical', localShip?.tacticalState, localShip);
+    const rewards = useRewards(props.room, 'tactical', localShip?.tacticalState, localShip);
+    const salvage = useSalvage(props.room, 'tactical', localShip);
     const message = (useRoomState(props.room, state => state.message) ?? null) as unknown as SectorMessageInfo | null;
     const shotResults = useShotResults(props.room, props.shipId);
     const prompt = (localShip?.comms?.prompt ?? null) as unknown as PromptInfo | null;
@@ -78,6 +82,8 @@ export const Tactical = (props: Props) => {
                 crew="tactical"
                 shop={shop}
                 orders={orders}
+                rewards={rewards}
+                salvage={salvage}
                 onPause={pause}
                 deckSize={tacticalState.deck.length}
                 deckView={deckView}

@@ -38,7 +38,8 @@ const ShopIcon: FC<{ role: CrewRoleName }> = ({ role }) => {
 };
 
 /**
- * The shapes of a station's icon, in a `routeIconSize` square. A repair station has no crew member, so it's a small, light plus.
+ * The shapes of a station's icon, in a `routeIconSize` square. A repair station has no crew member, so it's a small, light plus,
+ * and an outfitting station (for every crew member) is four small boxes.
  * Its stroke is inherited from whatever contains it, so the sector map can draw the same icon as the helm's route cards.
  * A shop's are always in its crew member's colour.
  */
@@ -46,6 +47,9 @@ export const StationIconShapes: FC<{ kind: StationKind }> = ({ kind }) => {
     switch (kind) {
         case 'repair':
             return <path d="M32 21v22M21 32h22" strokeLinecap="butt" />;
+        case 'outfitting':
+            // Four small boxes, like the bundles it offers: a card for each crew member.
+            return <path d="M21 21h9v9h-9zM34 21h9v9h-9zM21 34h9v9h-9zM34 34h9v9h-9z" fill="none" />;
         case 'navigationBeacon':
         case 'armsDealer':
         case 'salvageYard':

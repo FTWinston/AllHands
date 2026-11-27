@@ -11,7 +11,7 @@ export const shopStationRoles: Readonly<Record<ShopStationKind, CrewRoleName>> =
 
 export const shopStationKinds = Object.keys(shopStationRoles) as ShopStationKind[];
 
-export const stationKinds: readonly StationKind[] = ['repair', ...shopStationKinds];
+export const stationKinds: readonly StationKind[] = ['repair', 'outfitting', ...shopStationKinds];
 
 /**
  * Whether the given kind of node is a station, where every crew member can view, re-order and sell from their deck.

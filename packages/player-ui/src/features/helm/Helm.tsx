@@ -9,6 +9,8 @@ import { useDeckView } from '../deck/hooks/useDeckView';
 import { NonEncounterDisplay } from '../nonEncounter/components/NonEncounterDisplay';
 import { isOutsideEncounter } from '../nonEncounter/isOutsideEncounter';
 import { useOrders } from '../orders/hooks/useOrders';
+import { useRewards } from '../rewards/hooks/useRewards';
+import { useSalvage } from '../rewards/hooks/useSalvage';
 import { useShop } from '../shop/hooks/useShop';
 import { HelmDisplay } from './components/HelmDisplay';
 import type { Room } from '@colyseus/sdk';
@@ -33,6 +35,8 @@ export const Helm = (props: Props) => {
     const deckView = useDeckView(props.room, localShip?.helmState);
     const shop = useShop(props.room, 'helm', localShip?.helmState, localShip?.antimatter ?? 0);
     const orders = useOrders(props.room, 'helm', localShip?.helmState, localShip);
+    const rewards = useRewards(props.room, 'helm', localShip?.helmState, localShip);
+    const salvage = useSalvage(props.room, 'helm', localShip);
 
     const pause = useCallback(() => {
         props.room.send('pause');
@@ -72,6 +76,8 @@ export const Helm = (props: Props) => {
                 playHandCard={playCard}
                 shop={shop}
                 orders={orders}
+                rewards={rewards}
+                salvage={salvage}
                 onPause={pause}
                 deckSize={helmState.deck.length}
                 deckView={deckView}

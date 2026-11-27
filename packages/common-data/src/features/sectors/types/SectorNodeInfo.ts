@@ -5,8 +5,11 @@ import type { IArray } from '@colyseus/react';
 /** A station that sells cards for one crew member's deck, as well as repairing like any other station. */
 export type ShopStationKind = 'navigationBeacon' | 'armsDealer' | 'salvageYard' | 'researchOutpost';
 
-/** Every station fully repairs the ship, and lets each crew member view, re-order and sell from their deck. Shop stations also sell cards. */
-export type StationKind = 'repair' | ShopStationKind;
+/**
+ * Every station fully repairs the ship, and lets each crew member view, re-order and sell from their deck. Shop stations also sell cards.
+ * An outfitting station starts each sector, giving every crew member a card (see `docs/card-rewards.md`).
+ */
+export type StationKind = 'repair' | 'outfitting' | ShopStationKind;
 
 export type SectorNodeKind = 'combat' | StationKind | 'boss';
 

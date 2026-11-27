@@ -1,10 +1,12 @@
 import { ArraySchema, MapSchema, entity, type, view } from '@colyseus/schema';
 import { CardType } from 'common-data/features/cards/utils/cardDefinitions';
 import { isKnowableCardType } from 'common-data/features/cards/utils/getKnowableCardTypes';
-import { ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownShipClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
+import { crewRoleNames, type CrewRoleName, ownEngineerClientRole, ownHelmClientRole, ownScienceClientRole, ownShipClientRole, ownTacticalClientRole } from 'common-data/features/ships/types/CrewRole';
 import { ShipHit } from 'common-data/features/ships/types/ShipHit';
 import { PlayerShipInfo, PlayerShipSetupInfo } from 'common-data/features/space/types/GameObjectInfo';
 import { getContactLabel } from 'src/utils/contactLabels';
+import { OutfitBundleState, SalvageCardState } from './CardRewardState';
+import { CardState } from './CardState';
 import { CommsState } from './CommsState';
 import { CrewState } from './CrewState';
 import { GameObject } from './GameObject';
@@ -57,6 +59,128 @@ export class PlayerShip extends Ship implements PlayerShipInfo {
     /** How many work orders this ship's crew has placed this game. Each one raises the price of the next (see `getOrderPrice`). */
     @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
     @type('number') ordersPlaced = 0;
+
+    /** Cards salvaged after a successful fight, one for each crew member but `salvageChooser`, until one is taken or they're scrapped. */
+    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
+    @type([SalvageCardState]) readonly salvage = new ArraySchema<SalvageCardState>();
+
+    /** The crew member who chooses which salvaged card the ship takes, while there's salvage: whoever received the previous salvage. Otherwise empty. */
+    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
+    @type('string') salvageChooser: CrewRoleName | '' = '';
+
+    /** Whether the chooser is holding the salvage out of the way, so the viewscreen can show the sector map behind it. */
+    @view(ownShipClientRole)
+    @type('boolean') salvageHidden = false;
+
+    /** The crew member who received the last salvaged card, who chooses the next salvage. Null until the first salvage is taken. */
+    lastSalvageRecipient: CrewRoleName | null = null;
+
+    /** Bundles offered at an outfitting station after the first sector, until the crew agree on one. */
+    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
+    @type([OutfitBundleState]) readonly outfitBundles = new ArraySchema<OutfitBundleState>();
+
+    /** The index into `outfitBundles` that each crew member has voted for, keyed by role. */
+    @view(ownShipClientRole | ownHelmClientRole | ownScienceClientRole | ownTacticalClientRole | ownEngineerClientRole)
+    @type({ map: 'number' }) readonly bundleVotes = new MapSchema<number>();
+
+    /**
+     * The crew members still choosing their card at the first sector's outfitting station, in role order.
+     * Their cards are only synced to their own consoles, so this lets the viewscreen show who the crew is waiting on. No phone needs it.
+     */
+    @view(ownShipClientRole)
+    @type(['string']) readonly outfitPickers = new ArraySchema<CrewRoleName>();
+
+    /** Whether the crew still has a salvage or outfitting choice to make. The ship can't leave until they've made it. */
+    get hasUnsettledRewards(): boolean {
+        return this.salvage.length > 0
+            || this.outfitBundles.length > 0
+            || this.outfitPickers.length > 0;
+    }
+
+    /** Offers the given crew member a choice of cards, at the first sector's outfitting station. */
+    offerOutfitPicks(role: CrewRoleName, cards: readonly CardState[]) {
+        this.getCrewSystem(role).offerOutfitCards(cards);
+        this.removeOutfitPicker(role);
+
+        if (cards.length > 0) {
+            this.outfitPickers.push(role);
+            this.outfitPickers.sort((a, b) => crewRoleNames.indexOf(a) - crewRoleNames.indexOf(b));
+        }
+    }
+
+    /**
+     * Removes one of the cards offered to the given crew member at the first sector's outfitting station, returning it, and discards the rest.
+     * Returns null if it isn't offered. Doesn't give it to the crew member.
+     */
+    takeOutfitPick(role: CrewRoleName, cardId: number): CardState | null {
+        const card = this.getCrewSystem(role).takeOutfitCard(cardId);
+
+        if (card) {
+            this.removeOutfitPicker(role);
+        }
+
+        return card;
+    }
+
+    /** Withdraws every crew member's outfitting cards. */
+    clearOutfitPicks() {
+        for (const role of crewRoleNames) {
+            this.getCrewSystem(role).outfitCards.clear();
+        }
+        this.outfitPickers.clear();
+    }
+
+    private removeOutfitPicker(role: CrewRoleName) {
+        const index = this.outfitPickers.indexOf(role);
+        if (index !== -1) {
+            this.outfitPickers.splice(index, 1);
+        }
+    }
+
+    /** Offers the given salvage, for the given crew member to choose from. */
+    offerSalvage(chooser: CrewRoleName, cards: readonly SalvageCardState[]) {
+        this.salvage.clear();
+        this.salvage.push(...cards);
+        this.salvageChooser = cards.length > 0 ? chooser : '';
+        this.markCardTypesSeen(cards.map(offer => offer.card.type));
+    }
+
+    /** Withdraws any salvage on offer. */
+    clearSalvage() {
+        this.salvage.clear();
+        this.salvageChooser = '';
+        this.salvageHidden = false;
+    }
+
+    /** The salvage chooser hides the salvage from the viewscreen, or shows it again. Does nothing for anyone else, or when there's no salvage. */
+    hideSalvage(role: CrewRoleName, hidden: boolean): boolean {
+        if (this.salvage.length === 0 || this.salvageChooser !== role) {
+            return false;
+        }
+
+        this.salvageHidden = hidden;
+        return true;
+    }
+
+    /** Offers the given outfitting bundles, with no votes yet. */
+    offerOutfitBundles(bundles: readonly OutfitBundleState[]) {
+        this.clearOutfitBundles();
+        this.outfitBundles.push(...bundles);
+        this.markCardTypesSeen(bundles.flatMap(bundle => bundle.cards.map(offer => offer.card.type)));
+    }
+
+    /** Withdraws any outfitting bundles on offer, and their votes. */
+    clearOutfitBundles() {
+        this.outfitBundles.clear();
+        this.bundleVotes.clear();
+    }
+
+    override cleanupAfterEncounter() {
+        this.clearSalvage();
+        this.clearOutfitBundles();
+        this.outfitPickers.clear();
+        super.cleanupAfterEncounter();
+    }
 
     /**
      * The non-expendable card types this ship's crew has seen, in the order they were first seen.

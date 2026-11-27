@@ -1,4 +1,4 @@
-import { useRoomState } from '@colyseus/react';
+import { useRoomState, type Snapshot } from '@colyseus/react';
 import { isStationKind } from 'common-data/features/sectors/utils/isStationKind';
 import { FieldInfo } from 'common-data/features/space/types/FieldInfo';
 import { FactionRelationshipMap, GameObjectInfo, PlayerShipInfo, RelationshipViewer, ShipInfo } from 'common-data/features/space/types/GameObjectInfo';
@@ -13,18 +13,22 @@ import { addKnownCardTypes } from '../cardCompendium/utils/knownCardStorage';
 import { CommsDisplay } from './components/CommsDisplay';
 import { LowHullWarning } from './components/LowHullWarning';
 import { ObjectiveDisplay } from './components/ObjectiveDisplay';
+import { OutfittingDisplay } from './components/OutfittingDisplay';
+import { SalvageDisplay } from './components/SalvageDisplay';
 import { StationDisplay } from './components/StationDisplay';
 import { ViewscreenDisplay } from './components/ViewscreenDisplay';
 import { ViewscreenPhaseDisplay } from './components/ViewscreenPhaseDisplay';
 import { useShowOutcome } from './hooks/useShowOutcome';
 import { useViewscreenEffects } from './hooks/useViewscreenEffects';
 import type { Room } from '@colyseus/sdk';
+import type { OutfitBundleInfo, SalvageCardInfo } from 'common-data/features/cards/types/CardRewardInfo';
 import type { GameOutcome, GamePhase } from 'common-data/features/sectors/types/GamePhase';
 import type { HailInfo } from 'common-data/features/sectors/types/HailInfo';
 import type { EncounterOutcome, ObjectiveInfo } from 'common-data/features/sectors/types/ObjectiveInfo';
 import type { SectorMapInfo } from 'common-data/features/sectors/types/SectorMapInfo';
 import type { SectorMessageInfo } from 'common-data/features/sectors/types/SectorMessageInfo';
 import type { SectorNodeKind } from 'common-data/features/sectors/types/SectorNodeInfo';
+import type { CrewRoleName } from 'common-data/features/ships/types/CrewRole';
 import type { GameState } from 'engine/state/GameState';
 
 type Props = PropsWithChildren<{
@@ -87,6 +91,13 @@ const ViewscreenScene: FC<Props> = (props) => {
     // Whatever the crew sees this game becomes known on this device, for the card compendium.
     const seenCardTypes = (localShip as PlayerShipInfo | undefined)?.seenCardTypes;
     const prompt = (localShip as PlayerShipInfo | undefined)?.comms?.prompt ?? null;
+    const salvage = ((localShip as PlayerShipInfo | undefined)?.salvage ?? []) as Snapshot<SalvageCardInfo[]>;
+    const salvageChooser = ((localShip as PlayerShipInfo | undefined)?.salvageChooser ?? '') as CrewRoleName | '';
+    const salvageHidden = (localShip as PlayerShipInfo | undefined)?.salvageHidden ?? false;
+    const outfitBundles = ((localShip as PlayerShipInfo | undefined)?.outfitBundles ?? []) as Snapshot<OutfitBundleInfo[]>;
+    // Snapshots of map schemas are plain objects.
+    const bundleVotes = ((localShip as PlayerShipInfo | undefined)?.bundleVotes ?? {}) as Readonly<Partial<Record<CrewRoleName, number>>>;
+    const outfitPickers = ((localShip as PlayerShipInfo | undefined)?.outfitPickers ?? []) as readonly CrewRoleName[];
     useEffect(() => {
         if (seenCardTypes) {
             addKnownCardTypes(seenCardTypes);
@@ -105,6 +116,10 @@ const ViewscreenScene: FC<Props> = (props) => {
                 showMenu={props.showMenu}
             >
                 {props.children}
+                {/* Over the sector map, unless the chooser is holding it out of the way. */}
+                {phase === 'map' && !isEnded && !showOutcome && salvageChooser && salvage.length > 0 && !salvageHidden && (
+                    <SalvageDisplay cards={salvage} chooser={salvageChooser} />
+                )}
             </ViewscreenPhaseDisplay>
         );
     }
@@ -117,6 +132,7 @@ const ViewscreenScene: FC<Props> = (props) => {
                     name={encounterName ?? ''}
                     antimatter={antimatter}
                     showMenu={props.showMenu}
+                    body={encounterKind === 'outfitting' ? <OutfittingDisplay bundles={outfitBundles} votes={bundleVotes} pickers={outfitPickers} /> : undefined}
                 >
                     {props.children}
                 </StationDisplay>
